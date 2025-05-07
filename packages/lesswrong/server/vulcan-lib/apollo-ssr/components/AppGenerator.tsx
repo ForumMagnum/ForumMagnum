@@ -12,19 +12,22 @@ import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appC
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import { SSRMetadata, EnvironmentOverrideContext } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
+import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata }: {
+const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, enableSuspense }: {
   req: Request,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   ssrMetadata: SSRMetadata,
+  enableSuspense: boolean,
 }) => {
   const App = (
+    <EnableSuspenseContext.Provider value={enableSuspense}>
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
@@ -47,6 +50,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
         </StaticRouter>
       </ForeignApolloClientProvider>
     </ApolloProvider>
+    </EnableSuspenseContext.Provider>
   );
   return App;
 };

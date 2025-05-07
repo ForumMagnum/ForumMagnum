@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo, Suspense} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib/components';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
@@ -340,7 +340,8 @@ const Layout = ({currentUser, children, classes}: {
       LlmChatWrapper,
       TabNavigationMenuFooter,
       ReviewVotingCanvas,
-      LWBackgroundImage
+      LWBackgroundImage,
+      Loading,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -431,7 +432,7 @@ const Layout = ({currentUser, children, classes}: {
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
-                {standaloneNavigation &&
+                {standaloneNavigation && <Suspense fallback={<span/>}>
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
@@ -446,7 +447,7 @@ const Layout = ({currentUser, children, classes}: {
                       />
                     </DeferRender>
                   </StickyWrapper>
-                }
+                </Suspense>}
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
@@ -459,8 +460,10 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
-                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    <Suspense fallback={<Loading/>}>
+                      {children}
+                      {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    </Suspense>
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>

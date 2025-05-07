@@ -5,7 +5,7 @@
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+import ReactDOM, { renderToPipeableStream } from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
@@ -40,6 +40,7 @@ import { ensureClientId } from '@/server/clientIdMiddleware';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
 import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
+import { Writable } from 'node:stream';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -90,6 +91,7 @@ interface BaseRenderRequestParams {
   startTime: Date,
   res: Response,
   userAgent?: string,
+  isStreaming: boolean
 }
 
 type RenderRequestParams = BaseRenderRequestParams & (CacheMissParams | CacheSkipParams);
@@ -255,7 +257,7 @@ function logRequestToConsole(
   }
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null, maybePrefetchResources: () => Promise<boolean | undefined>) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null, maybePrefetchResources: () => Promise<boolean | undefined>, isStreaming: boolean) => {
   const startTime = new Date();
   
   const { ip, userAgent, url } = getRequestMetadata(req);
@@ -284,10 +286,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       // In the case where the page is cached, we need to return the result of the promise from `cachedPageRender`
       // In the case where the page is not cached, we need to return the result of the promise from `queueRenderRequest`
       // But we don't want to call `maybePrefetchResources` twice, so we pipe through the promise we get from calling `maybePrefetchResources` in `cachedPageRender`
-      (req, prefetchedResources) => queueRenderRequest({ req, res, userAgent, startTime, user: null, cacheAttempt, prefetchedResources })
+      (req, prefetchedResources) => queueRenderRequest({ req, res, userAgent, startTime, user: null, cacheAttempt, prefetchedResources, isStreaming })
     );
   } else {
-    rendered = await queueRenderRequest({ req, res, userAgent, startTime, user, cacheAttempt, maybePrefetchResources });
+    rendered = await queueRenderRequest({ req, res, userAgent, startTime, user, cacheAttempt, maybePrefetchResources, isStreaming });
   }
 
   closeRenderRequestPerfMetric(rendered);
@@ -439,7 +441,30 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
 
-const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
+class ResponseForwarderStream extends Writable {
+  private res: Response
+  private _data: string[] = [];
+
+  constructor(res: Response) {
+    super();
+    this.res = res;
+  }
+
+  _write(chunk: any, _encoding: string, callback: (error?: Error|null) => void) {
+    this.res.write(chunk);
+    this._data.push(chunk);
+    /*const decoder = new TextDecoder("utf-8");
+    console.log(decoder.decode(chunk));
+    console.log('==================');*/
+    callback();
+  }
+
+  public getString(): string {
+    return this._data.join('');
+  }
+}
+
+const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
   const startCpuTime = getCpuTimeMs();
   const startSqlBytesDownloaded = getSqlBytesDownloaded();
 
@@ -498,19 +523,37 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroupsUsed}
     ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
+    enableSuspense={isStreaming}
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
 
-  const WrappedApp = wrapWithMuiTheme(App, themeOptions);
+  const WrappedApp = <div id="react-app">
+    {wrapWithMuiTheme(App, themeOptions)}
+  </div>
   
   let htmlContent = '';
   try {
-    htmlContent = await renderToStringWithData(WrappedApp);
+    if (isStreaming) {
+      const stream = new ResponseForwarderStream(res);
+      await new Promise<void>((resolve) => {
+        const reactPipe = renderToPipeableStream(WrappedApp, {
+          onAllReady: () => {
+            resolve();
+          },
+        });
+        reactPipe.pipe(stream);
+      });
+      htmlContent = "";
+      //htmlContent = stream.getString();
+    } else {
+      htmlContent = await renderToStringWithData(WrappedApp);
+    }
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
+
   const afterPrerenderTime = new Date();
 
   const ssrBody = buildSSRBody(htmlContent, userAgent);

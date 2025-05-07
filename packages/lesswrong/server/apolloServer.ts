@@ -35,7 +35,7 @@ import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
-import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
+import { renderJssSheetImports, renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
@@ -391,6 +391,7 @@ export function startWebserver() {
     
     const user = getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
+    const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
     const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
@@ -402,6 +403,8 @@ export function startWebserver() {
     // it into a global variable. If the response is cacheable (same html may be used
     // by multiple tabs), this is generated in `clientStartup.ts` instead.
     const tabId = responseIsCacheable(response) ? null : randomId();
+    
+    const jssSheetImports = renderJssSheetImports(themeOptions);
     
     const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
 
@@ -427,14 +430,23 @@ export function startWebserver() {
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.
         + clientScript
+        + themeOptionsHeader
     );
+    
+    const isStreaming = !!parsedRoute.currentRoute?.enableSuspenseStreaming;
 
     // Note: this may write to the response
-    const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
+    let prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
+    
+    if (isStreaming) {
+      await prefetchResourcesPromise();
+      prefetchResourcesPromise = () => true
+      response.write(jssSheetImports + "</head>");
+    }
 
     const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, prefetchResourcesPromise))
-      : renderWithCache(request, response, user, tabId, prefetchResourcesPromise);
+      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, prefetchResourcesPromise, isStreaming))
+      : renderWithCache(request, response, user, tabId, prefetchResourcesPromise, isStreaming);
 
     const renderResult = await renderResultPromise;
 
@@ -460,9 +472,6 @@ export function startWebserver() {
       allAbTestGroups,
     } = renderResult;
     
-    // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
-    const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
-    
     // Finally send generated HTML with initial data to the client
     if (redirectUrl) {
       // eslint-disable-next-line no-console
@@ -476,16 +485,21 @@ export function startWebserver() {
         timezone
       }
 
+      if (!isStreaming) {
+        response.write(
+          (prefetchingResources ? '' : prefetchPrefix)
+            + headers.join('\n')
+            + themeOptionsHeader
+            + jssSheets
+          + '</head>\n'
+          + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
+            + ssrBody + '\n'
+          + '</body>\n'
+        );
+      }
+
       response.write(
-        (prefetchingResources ? '' : prefetchPrefix)
-          + headers.join('\n')
-          + themeOptionsHeader
-          + jssSheets
-        + '</head>\n'
-        + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-          + ssrBody + '\n'
-        + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+        embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
         + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'

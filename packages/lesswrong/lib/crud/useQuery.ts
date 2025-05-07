@@ -1,4 +1,22 @@
+import { createContext, useContext } from "react";
 // eslint-disable-next-line no-restricted-imports
-import { useQuery as apolloUseQuery } from '@apollo/client';
+import { useQuery as useQueryApollo, useSuspenseQuery } from "@apollo/client";
+import type { SuspenseQueryHookFetchPolicy, FetchPolicy } from "@apollo/client";
 
-export const useQuery = apolloUseQuery;
+export const EnableSuspenseContext = createContext(false);
+
+type UseQueryOptions = {
+  fetchPolicy: SuspenseQueryHookFetchPolicy,
+  ssr: boolean,
+};
+
+export function useQuery(query: any, options: UseQueryOptions) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  if (bundleIsServer && useContext(EnableSuspenseContext)) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSuspenseQuery(query, options);
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useQueryApollo(query, options);
+  }
+}
