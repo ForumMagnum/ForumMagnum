@@ -6,37 +6,6 @@ import { CSS } from '@dnd-kit/utilities';
 import without from 'lodash/without';
 
 /**
- * We still expose a `SortableRowHandle` component so that existing code
- * relying on <SortableRowHandle/> continues to work.
- *
- * Internally this component just renders its children while applying the
- * drag-handle listeners/attributes that dnd-kit gives us.
- */
-export const SortableRowHandle: React.FC<{ children?: ReactNode }> = ({
-  children,
-}) => {
-  /**
-   * Consumers are expected to render this component **inside** a SortableItem
-   * (see makeSortableListComponent). When this component is rendered outside
-   * that context the hook will silently do nothing.
-   */
-  const { attributes, listeners, setActivatorNodeRef } = useSortable({
-    id: '__drag_handle__', // dummy id, never used for sorting
-  });
-
-  return (
-    <span
-      ref={setActivatorNodeRef}
-      {...attributes}
-      {...listeners}
-      style={{ cursor: 'grab', display: 'inline-flex', alignItems: 'center' }}
-    >
-      {children ?? '⠿'}
-    </span>
-  );
-};
-
-/**
  * Create a sortable list component that wraps some arbitrary render
  * function. `RenderItem` receives the item's `contents` (usually an id) and a
  * function that allows the item to remove itself from the list.
