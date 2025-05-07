@@ -11,7 +11,7 @@ const config: CodegenConfig = {
       preset: "client",
       config: {
         scalars: {
-          Date: "String|Date",
+          Date: "string|Date",
         },
         avoidOptionals: false,
         namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),

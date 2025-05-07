@@ -1,6 +1,7 @@
 import React from 'react';
 import { CommentWithRepliesProps } from "./CommentWithReplies";
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { PostsBase } from '@/lib/generated/gql-codegen/graphql';
 
 type CommentOnPostWithRepliesProps = CommentWithRepliesProps & {
   post: PostsBase;

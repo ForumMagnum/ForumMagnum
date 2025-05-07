@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { CommentsList, CommentsListWithParentMetadata } from '@/lib/generated/gql-codegen/graphql';
 
 const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,

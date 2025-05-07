@@ -5,7 +5,7 @@ import { gql } from '@/lib/generated/gql-codegen/gql'
 import { Components, registerComponent } from "@/lib/vulcan-lib/components"
 import { NetworkStatus, useQuery } from '@apollo/client'
 import React, { useState } from 'react'
-import { PostsListWithVotesFragment, UsersCurrentFragment } from '@/lib/generated/gql-codegen/graphql'
+import { PostsListWithVotes, UsersCurrent } from '@/lib/generated/gql-codegen/graphql'
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -27,7 +27,7 @@ export interface FilterPostsForReview {
 }
 
 const useUserReadHistory = ({currentUser, limit, filter, sort}: {
-  currentUser: UsersCurrentFragment | null,
+  currentUser: UsersCurrent | null,
   limit: number,
   filter?: FilterPostsForReview,
   sort?: {
@@ -82,7 +82,7 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
 
   const {SectionTitle, Loading, PostsItem, LoadMore, Typography} = Components
   
-  const readHistory = (data?.UserReadHistory?.posts ?? []) as (PostsListWithVotesFragment & {lastVisitedAt: string})[]
+  const readHistory = (data?.UserReadHistory?.posts ?? []) as (PostsListWithVotes & {lastVisitedAt: string})[]
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />

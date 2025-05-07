@@ -895,7 +895,8 @@ const schema = {
       type: "TEXT",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       // On the EA Forum name changing is rate limited in rateLimitCallbacks
       canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],
@@ -3824,7 +3825,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: ["sunshineRegiment", "admins", "guests"],
+      canRead: ["guests", "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
@@ -3838,7 +3839,7 @@ const schema = {
   reviewedByUser: {
     graphql: {
       outputType: "User",
-      canRead: ["sunshineRegiment", "admins", "guests"],
+      canRead: ["guests", "sunshineRegiment", "admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reviewedByUserId" }),
     },
   },

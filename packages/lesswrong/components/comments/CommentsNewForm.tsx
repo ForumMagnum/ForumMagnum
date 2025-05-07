@@ -1,5 +1,5 @@
-import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -20,6 +20,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { PostsMinimumInfo, UsersCurrent, CommentsList, TagBasicInfo } from '@/lib/generated/gql-codegen/graphql';
 
 export type FormDisplayMode = "default" | "minimalist"
 
