@@ -22,7 +22,7 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       ON CONFLICT ("userId", "documentId", "collectionName") DO UPDATE 
       SET 
         active = NOT "Bookmarks".active,
-        lastUpdated = NOW()
+        "lastUpdated" = NOW()
       WHERE "Bookmarks"."userId" = $(userId) 
         AND "Bookmarks"."documentId" = $(documentId) 
         AND "Bookmarks"."collectionName" = $(collectionName)
