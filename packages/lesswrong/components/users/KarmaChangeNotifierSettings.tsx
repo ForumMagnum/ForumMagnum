@@ -5,7 +5,7 @@ import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { withTimezone } from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
@@ -86,13 +86,12 @@ const getBatchingTimeLocalTZ = (settings: KarmaChangeSettingsType, timezone: any
 
 const KarmaChangeNotifierSettings = ({
   field,
-  timezone,
 }: {
   field: TypedFieldApi<KarmaChangeSettingsType>;
-  timezone?: AnyBecauseTodo;
 }) => {
   const { Typography, MenuItem } = Components;
   const classes = useStyles(styles);
+  const { timezone } = useTimezone();
   const settings = field.state.value;
 
   const modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
@@ -225,7 +224,7 @@ const KarmaChangeNotifierSettings = ({
 };
 
 const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings, {
-  hocs: [withTimezone, withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

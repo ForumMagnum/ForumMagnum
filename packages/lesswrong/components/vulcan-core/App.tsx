@@ -3,7 +3,7 @@ import moment from 'moment';
 import { localeSetting, siteImageSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
-import { useLocation, withRouter } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
 import {
   LocationContext,
@@ -25,11 +25,10 @@ interface ExternalProps {
   serverRequestStatus?: ServerRequestStatusContextType,
 }
 
-const App = ({serverRequestStatus, history}: ExternalProps & {
-  history: History
-}) => {
+const App = ({serverRequestStatus}: ExternalProps) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
+  const history = useHistory();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
   const navigationContext = useRef<{ history: History<unknown> } | null>();
@@ -117,9 +116,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
   );
 }
 
-const AppComponent = registerComponent<ExternalProps>('App', App, {
-  hocs: [withRouter],
-});
+const AppComponent = registerComponent<ExternalProps>('App', App);
 
 declare global {
   interface ComponentTypes {
