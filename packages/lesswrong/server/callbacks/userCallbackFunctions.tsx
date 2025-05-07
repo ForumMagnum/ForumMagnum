@@ -41,6 +41,7 @@ import { updatePost } from "../collections/posts/mutations";
 import { updateComment } from "../collections/comments/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
+import { PostsHTML } from "@/lib/collections/posts/fragments";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -53,7 +54,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
   const welcomePost = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: postId},
     currentUser: null,
   });

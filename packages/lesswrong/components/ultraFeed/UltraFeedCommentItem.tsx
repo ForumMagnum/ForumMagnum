@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
+import { UltraFeedComment } from "@/lib/generated/gql-codegen/graphql";
 
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
@@ -186,7 +187,7 @@ const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId
+        postId: comment.postId ?? undefined
       });
     }
   }, [observe, comment._id, comment.postId]);
@@ -195,7 +196,7 @@ const UltraFeedCommentItem = ({
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
-      postId: comment.postId,
+      postId: comment.postId ?? undefined,
       level,
       maxLevelReached: maxReached,
       wordCount,

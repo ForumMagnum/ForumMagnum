@@ -10,6 +10,7 @@ import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
 import { FetchedFragment } from '../fetchFragment';
 import { updateComment } from '../collections/comments/mutations';
+import { PostsOriginalContents } from '@/lib/generated/gql-codegen/graphql';
 
 export const modGPTPrompt = `
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.
@@ -93,7 +94,7 @@ export const sanitizeHtmlOptions = {
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-export async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>, context: ResolverContext): Promise<void> {
+export async function checkModGPT(comment: DbComment, post: FetchedFragment<PostsOriginalContents, 'Posts'>, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -102,8 +103,11 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
     }
     return
   }
+
+  const commentOriginalContents = comment.contents?.originalContents
+  const postOriginalContents = post.contents?.originalContents
   
-  if (!comment.contents?.originalContents?.data || !post.contents?.originalContents?.data) {
+  if (!commentOriginalContents?.data || !postOriginalContents?.data) {
     if (!isAnyTest) {
       //eslint-disable-next-line no-console
       console.log("Skipping ModGPT (no contents on this comment!)")
@@ -111,8 +115,8 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
     return
   }
 
-  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, context, {sanitize: false})
-  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, context, {sanitize: false})
+  const commentHtml = await dataToHTML(commentOriginalContents.data, commentOriginalContents.type, context, {sanitize: false})
+  const postHtml = await dataToHTML(postOriginalContents.data, postOriginalContents.type ?? "no type found", context, {sanitize: false})
   const commentText = sanitizeHtml(commentHtml ?? "", sanitizeHtmlOptions)
   const postText = sanitizeHtml(postHtml ?? "", sanitizeHtmlOptions)
   const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})

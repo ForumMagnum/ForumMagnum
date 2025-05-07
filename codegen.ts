@@ -15,6 +15,7 @@ const config: CodegenConfig = {
         },
         avoidOptionals: false,
         namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
+        enumsAsTypes: true,
       },
       presetConfig: {
         gqlTagName: 'gql',
@@ -34,6 +35,7 @@ const config: CodegenConfig = {
         fragmentMasking: false,
         inputMaybeValue: 'T | null | undefined',
         namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
+        enumsAsTypes: true,
       }
     }
   }

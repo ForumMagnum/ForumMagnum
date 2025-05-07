@@ -11,6 +11,7 @@ import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { CommentsList, PostsBase, PostsDetails, PostsModerationGuidelines, TagBasicInfo, UsersCurrent, UsersEdit, UsersMapEntry, UsersMinimumInfo, UsersProfile } from '@/lib/generated/gql-codegen/graphql';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -18,7 +19,7 @@ export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
-export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
+export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
@@ -32,7 +33,7 @@ export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => 
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: {username: string | null } | null): string|null {
+export const getUserName = function(user: {username?: string | null } | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -202,7 +203,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: DbUser|null): boolean => {
   if (!post) return false;
   return !!(
     post.bannedUserIds?.includes(user._id) &&
@@ -210,7 +211,7 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
@@ -220,7 +221,7 @@ export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsD
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
@@ -230,7 +231,7 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: PostsAuthors_user|DbUser|null, isReply: boolean): boolean => {
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
@@ -270,7 +271,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   return true
 }
 
-export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): JSX.Element => {
+export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: DbUser|null): JSX.Element => {
   if (!user) {
     return <>Can't recognize user</>
   }

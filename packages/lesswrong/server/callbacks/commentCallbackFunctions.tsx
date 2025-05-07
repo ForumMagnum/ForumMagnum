@@ -42,6 +42,7 @@ import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 import { updateComment } from "../collections/comments/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
+import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -546,7 +547,7 @@ export async function assignPostVersion(comment: CreateCommentDataInput) {
   
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsRevision",
+    fragmentDoc: PostsRevision,
     currentUser: null,
     selector: {
       _id: comment.postId,
@@ -871,7 +872,7 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   // only have ModGPT check comments on posts tagged with "Community"
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
+    fragmentDoc: PostsOriginalContents,
     currentUser: null,
     skipFiltering: true,
     selector: {_id: document.postId},
@@ -1077,7 +1078,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   // only have ModGPT check comments on posts tagged with "Community"
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
+    fragmentDoc: PostsOriginalContents,
     currentUser: null,
     skipFiltering: true,
     selector: {_id: newDocument.postId},

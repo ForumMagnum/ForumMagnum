@@ -15,7 +15,8 @@ import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
 import { forumSelect } from "@/lib/forumTypeUtils";
-
+import { PostsPage } from "@/lib/collections/posts/fragments";
+import { PostsPage as PostsPageType } from "@/lib/generated/gql-codegen/graphql";
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = (isEAForum || isLWorAF) && !isE2E;
 
 const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
@@ -186,7 +187,7 @@ const getEmbeddingsForPost = async (
 ): Promise<EmbeddingsWithHash> => {
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: {_id: postId},
     currentUser: null,
     skipFiltering: true,
@@ -201,7 +202,7 @@ const getEmbeddingsForPost = async (
 }
 
 const getEmbeddingsForPosts = async (
-  posts: PostsPage[],
+  posts: PostsPageType[],
 ): Promise<Record<string, EmbeddingsWithHash>> => {
   const textMappings = Object.fromEntries(posts.map((post) => [post._id, htmlToTextDefault(post.contents?.html ?? "")] as const));
   const hashMappings = mapValues(textMappings, (postText: string) => md5(postText));
@@ -228,7 +229,7 @@ const batchUpdatePostEmbeddings = async (postIds: string[]) => {
   const repo = new PostEmbeddingsRepo();
   const posts = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: {_id: {$in: postIds}},
     currentUser: null,
     skipFiltering: true,

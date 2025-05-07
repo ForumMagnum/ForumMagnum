@@ -51,6 +51,7 @@ import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
+import { PostsHTML } from "@/lib/collections/posts/fragments";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -230,7 +231,7 @@ const utils = {
     const tags = await getAutoAppliedTags(context);
     const postHTML = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsHTML",
+      fragmentDoc: PostsHTML,
       selector: {_id: post._id},
       currentUser: context.currentUser,
       context,

@@ -1,6 +1,7 @@
 import gql from "graphql-tag";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { cheerioParse } from "../utils/htmlUtil";
+import { PostsPage } from "@/lib/collections/posts/fragments";
 
 const extractLatestDialogueMessages = async (dialogueHtml: string, numMessages: number): Promise<String[]> => {
   if (numMessages <= 0) return Promise.resolve([])
@@ -19,7 +20,7 @@ export const dialogueMessageGqlQueries = {
   async latestDialogueMessages (_: void, { dialogueId, numMessages }: { dialogueId: string, numMessages: number }, context: ResolverContext): Promise<String[]> {
     const dialogue = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsPage",
+      fragmentDoc: PostsPage,
       selector: {_id: dialogueId},
       currentUser: context.currentUser,
       context,

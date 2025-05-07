@@ -2436,11 +2436,11 @@ interface CommentModeratorActionOutput {
 interface CreateCommentDataInput {
   legacyData?: any;
   contents?: any;
-  parentCommentId: string;
-  topLevelCommentId: string;
-  postId: string;
-  tagId: string;
-  forumEventId: string;
+  parentCommentId?: string | null;
+  topLevelCommentId?: string | null;
+  postId?: string | null;
+  tagId?: string | null;
+  forumEventId?: string | null;
   forumEventMetadata?: any;
   tagCommentType?: TagCommentType | null;
   subforumStickyPriority?: number | null;
@@ -2461,7 +2461,7 @@ interface CreateCommentDataInput {
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
-  deletedReason: string;
+  deletedReason?: string | null;
   deletedDate?: Date | null;
   deletedByUserId?: string | null;
   spam?: boolean | null;

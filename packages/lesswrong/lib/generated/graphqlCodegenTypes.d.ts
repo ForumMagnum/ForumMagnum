@@ -294,14 +294,14 @@ export type Comment = {
   deletedByUserId?: Maybe<Scalars['String']['output']>;
   deletedDate?: Maybe<Scalars['Date']['output']>;
   deletedPublic: Scalars['Boolean']['output'];
-  deletedReason: Scalars['String']['output'];
+  deletedReason?: Maybe<Scalars['String']['output']>;
   descendentCount: Scalars['Float']['output'];
   directChildrenCount: Scalars['Float']['output'];
   emojiReactors?: Maybe<Scalars['JSON']['output']>;
   extendedScore?: Maybe<Scalars['JSON']['output']>;
   forumEvent?: Maybe<ForumEvent>;
-  forumEventId: Scalars['String']['output'];
-  forumEventMetadata: Scalars['JSON']['output'];
+  forumEventId?: Maybe<Scalars['String']['output']>;
+  forumEventMetadata?: Maybe<Scalars['JSON']['output']>;
   hideAuthor: Scalars['Boolean']['output'];
   hideKarma?: Maybe<Scalars['Boolean']['output']>;
   hideModeratorHat?: Maybe<Scalars['Boolean']['output']>;
@@ -329,10 +329,10 @@ export type Comment = {
   parentAnswer?: Maybe<Comment>;
   parentAnswerId?: Maybe<Scalars['String']['output']>;
   parentComment?: Maybe<Comment>;
-  parentCommentId: Scalars['String']['output'];
-  pingbacks: Scalars['JSON']['output'];
+  parentCommentId?: Maybe<Scalars['String']['output']>;
+  pingbacks?: Maybe<Scalars['JSON']['output']>;
   post?: Maybe<Post>;
-  postId: Scalars['String']['output'];
+  postId?: Maybe<Scalars['String']['output']>;
   postVersion?: Maybe<Scalars['String']['output']>;
   postedAt: Scalars['Date']['output'];
   promoted?: Maybe<Scalars['Boolean']['output']>;
@@ -362,10 +362,10 @@ export type Comment = {
   suggestForAlignmentUsers: Array<User>;
   tag?: Maybe<Tag>;
   tagCommentType: TagCommentType;
-  tagId: Scalars['String']['output'];
+  tagId?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   topLevelComment?: Maybe<Comment>;
-  topLevelCommentId: Scalars['String']['output'];
+  topLevelCommentId?: Maybe<Scalars['String']['output']>;
   user?: Maybe<User>;
   userAgent?: Maybe<Scalars['String']['output']>;
   userIP?: Maybe<Scalars['String']['output']>;
@@ -561,9 +561,9 @@ export type CreateCommentDataInput = {
   deletedByUserId?: InputMaybe<Scalars['String']['input']>;
   deletedDate?: InputMaybe<Scalars['Date']['input']>;
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
-  deletedReason: Scalars['String']['input'];
-  forumEventId: Scalars['String']['input'];
-  forumEventMetadata: Scalars['JSON']['input'];
+  deletedReason?: InputMaybe<Scalars['String']['input']>;
+  forumEventId?: InputMaybe<Scalars['String']['input']>;
+  forumEventMetadata?: InputMaybe<Scalars['JSON']['input']>;
   hideKarma?: InputMaybe<Scalars['Boolean']['input']>;
   hideModeratorHat?: InputMaybe<Scalars['Boolean']['input']>;
   isPinnedOnProfile?: InputMaybe<Scalars['Boolean']['input']>;
@@ -579,8 +579,8 @@ export type CreateCommentDataInput = {
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
   parentAnswerId?: InputMaybe<Scalars['String']['input']>;
-  parentCommentId: Scalars['String']['input'];
-  postId: Scalars['String']['input'];
+  parentCommentId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
   rejected?: InputMaybe<Scalars['Boolean']['input']>;
   rejectedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -594,9 +594,9 @@ export type CreateCommentDataInput = {
   spam?: InputMaybe<Scalars['Boolean']['input']>;
   subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   tagCommentType?: InputMaybe<TagCommentType>;
-  tagId: Scalars['String']['input'];
+  tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
-  topLevelCommentId: Scalars['String']['input'];
+  topLevelCommentId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -7755,10 +7755,9 @@ export type TagTableOfContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
-export enum TagCommentType {
-  Discussion = 'DISCUSSION',
-  Subforum = 'SUBFORUM'
-}
+export type TagCommentType =
+  | 'DISCUSSION'
+  | 'SUBFORUM';
 
 export type TagContributor = {
   __typename?: 'TagContributor';

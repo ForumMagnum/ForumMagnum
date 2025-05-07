@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { TagHistoryFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = defineStyles('AllPostsPageTagDocDeletionItem', (theme: ThemeType) => ({
   root: {

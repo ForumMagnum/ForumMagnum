@@ -15,6 +15,7 @@ import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
 import { addStaticRoute } from "./vulcan-lib/staticRoutes";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
@@ -52,7 +53,7 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
 
   const postsCursor = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsRSSFeed",
+    fragmentDoc: PostsRSSFeed,
     currentUser: null,
     selector: parameters.selector,
     options: parameters.options,
