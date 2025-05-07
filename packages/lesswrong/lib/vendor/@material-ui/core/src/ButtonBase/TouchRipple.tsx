@@ -276,14 +276,14 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
 
     return (
       <span ref={this.wrapperRef} className={classNames(classes.root, className)}>
-        <TransitionGroup
+        {this.state.ripples.length > 0 && <TransitionGroup
           component={null}
           enter
           exit
           {...other}
         >
           {this.state.ripples}
-        </TransitionGroup>
+        </TransitionGroup>}
       </span>
     );
   }
