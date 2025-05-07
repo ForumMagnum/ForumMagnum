@@ -2,12 +2,8 @@ import React, { useEffect, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
-import type { UseEmailTokenResult, EmailTokenResultComponentName } from '@/server/emails/emailTokens';
-import { EmailTokenResult } from './EmailTokenResult';
-
-const emailTokenResultComponents = {
-  EmailTokenResult,
-} satisfies Record<EmailTokenResultComponentName, React.ComponentType<any>>;
+import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
+import { emailTokenResultComponents } from './emailTokens';
 
 const EmailTokenPage = () => {
   const { Loading, SingleColumnSection } = Components
@@ -23,7 +19,7 @@ const EmailTokenPage = () => {
   }, [])
   
   const ResultComponent = useTokenResult?.componentName && emailTokenResultComponents[useTokenResult.componentName];
-  
+
   return <SingleColumnSection>
     {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
   </SingleColumnSection>

@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
+import { emailTokenResultComponents } from './emailTokens';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +37,7 @@ const PasswordResetPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
-  const [useTokenResult, setUseTokenResult] = useState<any>(null)
+  const [useTokenResult, setUseTokenResult] = useState<UseEmailTokenResult | null>(null)
   const { params: { token } } = useLocation()
   const [ password, setPassword ] = useState("")
   const submitFunction = async () => {
@@ -44,7 +46,8 @@ const PasswordResetPage = ({classes}: {
   }
   const { SingleColumnSection } = Components;
   
-  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
+  const ResultComponent = useTokenResult?.componentName && emailTokenResultComponents[useTokenResult.componentName];
+  
   return <SingleColumnSection className={classes.root}>
     {!useTokenResult && <> 
       <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
