@@ -12,6 +12,7 @@ const restrictedImportsPaths = [
   { name: "@/lib/vendor/@material-ui/core/src/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
   { name: "@/lib/vendor/@material-ui/core/src/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
   { name: "@/lib/vendor/@material-ui/core/src/NoSsr", importNames: ["Popper"], message: "Don't use @/lib/vendor/@material-ui/core/src/NoSsr/NoSsr; use react-no-ssr instead" },
+  { name: "@apollo/client", importNames: ["useQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
   { name: "@/lib/vendor/@material-ui/core/src/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },

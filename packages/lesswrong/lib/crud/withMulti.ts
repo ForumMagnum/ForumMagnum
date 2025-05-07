@@ -1,4 +1,5 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, NetworkStatus, gql, useApolloClient } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';

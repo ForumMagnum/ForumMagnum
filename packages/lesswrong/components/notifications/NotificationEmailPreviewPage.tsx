@@ -3,7 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 
 const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
