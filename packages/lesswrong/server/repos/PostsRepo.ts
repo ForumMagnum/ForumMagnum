@@ -1106,7 +1106,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     context: ResolverContext,
     filterSettings: FilterSettings,
     seenPenalty: number,
-    maxAgeDays = 30,
+    maxAgeDays: number,
     excludedPostIds: string[] = [],
     limit = 100
   ): Promise<FeedFullPost[]> {
@@ -1245,7 +1245,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
    */
   async getPostsFromSubscribedUsersForUltraFeed(
     context: ResolverContext,
-    maxAgeDays = 30,
+    maxAgeDays: number,
     limit = 100
   ): Promise<{ postId: string }[]> {
     const db = this.getRawDb();

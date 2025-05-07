@@ -20,6 +20,22 @@ import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
 
+interface UltraFeedDateCutoffs {
+  latestPostsMaxAgeDays: number;
+  subscribedPostsMaxAgeDays: number;
+  initialCommentCandidateLookbackDays: number;
+  commentServedEventRecencyHours: number;
+  threadEngagementLookbackDays: number;
+}
+
+const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
+  latestPostsMaxAgeDays: 45,
+  subscribedPostsMaxAgeDays: 45,
+  initialCommentCandidateLookbackDays: 14,
+  commentServedEventRecencyHours: 48,
+  threadEngagementLookbackDays: 45,
+};
+
 export const ultraFeedGraphQLTypeDefs = gql`
   type FeedPost {
     _id: String!
@@ -496,12 +512,33 @@ export const ultraFeedGraphQLQueries = {
 
       const [recombeeAndLatestPostItems, subscribedPostItemsResult, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
         (recombeePostFetchLimit + hackerNewsPostFetchLimit > 0) 
-          ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, parsedSettings) 
+          ? getUltraFeedPostThreads( 
+              context, 
+              recombeePostFetchLimit, 
+              hackerNewsPostFetchLimit, 
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
+            ) 
           : Promise.resolve([]),
         (subscribedPostFetchLimit > 0)
-          ? getSubscribedPostsForUltraFeed(context, subscribedPostFetchLimit, parsedSettings)
+          ? getSubscribedPostsForUltraFeed(
+              context, 
+              subscribedPostFetchLimit, 
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.subscribedPostsMaxAgeDays
+            )
           : Promise.resolve([]),
-        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings, servedCommentThreadHashes) : Promise.resolve([]),
+        commentFetchLimit > 0 
+          ? getUltraFeedCommentThreads(
+              context, 
+              commentFetchLimit, 
+              parsedSettings, 
+              servedCommentThreadHashes,
+              ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
+              ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
+              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+            ) 
+          : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
         bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([])
       ]) as [FeedFullPost[], FeedPostStub[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];

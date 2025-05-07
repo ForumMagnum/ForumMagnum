@@ -66,15 +66,14 @@ export async function getRecommendedPostsForUltraFeed(
 export async function getSubscribedPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  settings: UltraFeedResolverSettings
+  settings: UltraFeedResolverSettings,
+  maxAgeDays: number
 ): Promise<FeedPostStub[]> {
   const { currentUser, repos } = context;
 
   if (!currentUser?._id) {
     return [];
   }
-
-  const maxAgeDays = 30; 
 
   const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
     context,
@@ -97,7 +96,8 @@ export async function getSubscribedPostsForUltraFeed(
 export async function getLatestPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  settings: UltraFeedResolverSettings
+  settings: UltraFeedResolverSettings,
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
@@ -115,7 +115,7 @@ export async function getLatestPostsForUltraFeed(
     context,
     filterSettings,
     seenPenalty,
-    60,
+    maxAgeDays,
     hiddenPostIds,
     limit
   );
@@ -129,7 +129,8 @@ export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
   latestPostsLimit: number,
-  settings: UltraFeedResolverSettings
+  settings: UltraFeedResolverSettings,
+  latestPostsMaxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const recombeeScenario = 'recombee-lesswrong-custom';
 
@@ -138,8 +139,9 @@ export async function getUltraFeedPostThreads(
       ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
     (latestPostsLimit > 0)
-      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings)
+      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays)
       : Promise.resolve([]),
+    // getSubscribedPostsForUltraFeed will be called from ultraFeedResolver.ts, passing subscribedPostsMaxAgeDays from there
   ]);
 
   const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;

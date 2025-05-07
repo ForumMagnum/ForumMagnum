@@ -10,7 +10,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
-import { FeedCommentFromDb } from "../../components/ultraFeed/ultraFeedTypes";
+import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -473,7 +473,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   async getCommentsForFeed(
     userId: string,
     maxTotalComments = 1000,
-    lookbackWindow = '90 days'
+    initialCandidateLookbackDays: number,
+    commentServedEventRecencyHours: number
   ): Promise<FeedCommentFromDb[]> {
     const db = this.getRawDb();
     const initialCandidateLimit = 500;
@@ -500,7 +501,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
               AND c."userId" != $(userId)
-              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '14 days'))
+              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam)))
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
@@ -548,7 +549,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           FROM "UltraFeedEvents" ue
           WHERE ue."collectionName" = 'Comments'
             AND "userId" = $(userId)
-            AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '48 hours')
+            AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
             AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
           
           UNION ALL
@@ -586,7 +587,13 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       LEFT JOIN "CommentEvents" ce ON c._id = ce."documentId"
       ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt"
       LIMIT $(maxTotalComments) -- Apply final limit
-    `, { userId, initialCandidateLimit, maxTotalComments });
+    `, { 
+      userId, 
+      initialCandidateLimit, 
+      maxTotalComments,
+      initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
+      commentServedEventRecencyHoursParam: commentServedEventRecencyHours
+    });
 
     return feedCommentsData.map((comment): FeedCommentFromDb => ({
       commentId: comment.commentId,
@@ -597,11 +604,119 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       baseScore: comment.baseScore,
       shortform: comment.shortform ?? null,
       postedAt: comment.postedAt,
-      sources: ['recentComments'], // Assign fixed source
+      sources: ['recentComments'],
       lastServed: null, 
       lastViewed: comment.lastViewed ?? null,
       lastInteracted: comment.lastInteracted ?? null,
     }));
+  }
+
+  /**
+   * Fetches consolidated engagement statistics for recently active comment threads.
+   */
+  async getThreadEngagementStatsForRecentlyActiveThreads(
+    userId: string,
+    threadEngagementLookbackDays: number
+  ): Promise<ThreadEngagementStats[]> {
+    const db = this.getRawDb();
+    const threadCandidateLimit = 200; // Hardcoded
+    const lookbackInterval = `${threadEngagementLookbackDays} days`;
+
+    const engagementStats = await db.manyOrNone<ThreadEngagementStats>(`
+      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
+      WITH "RecentActiveThreads" AS (
+        SELECT "threadTopLevelId"
+        FROM (
+          SELECT COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId", MAX(c."postedAt") as "lastCommentActivity"
+          FROM "Comments" c
+          WHERE c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+            AND c.deleted IS NOT TRUE AND c.retracted IS NOT TRUE AND c."authorIsUnreviewed" IS NOT TRUE
+          GROUP BY COALESCE(c."topLevelCommentId", c._id)
+          ORDER BY "lastCommentActivity" DESC
+          LIMIT $(threadCandidateLimit)
+        ) recent_threads
+      ),
+      "UserVotesInThreads" AS (
+        SELECT
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+          SUM(CASE WHEN v."voteType" = 'bigUpvote' THEN 5 ELSE 1 END) AS "votingActivityScore"
+        FROM "Votes" v
+        JOIN "Comments" c ON v."documentId" = c._id
+        WHERE v."userId" = $(userId)
+          AND v."collectionName" = 'Comments'
+          AND v.power > 0
+          AND v."cancelled" IS NOT TRUE
+          AND v."isUnvote" IS NOT TRUE
+          AND v."votedAt" > (NOW() - INTERVAL $(lookbackInterval))
+          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
+        GROUP BY 1
+      ),
+      "UserCommentsInThreads" AS (
+        SELECT
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+          COUNT(*) AS "participationCount"
+        FROM "Comments" c
+        WHERE c."userId" = $(userId)
+          AND c.deleted IS NOT TRUE
+          AND c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
+        GROUP BY 1
+      ),
+      "UserViewEventsInThreads" AS (
+        SELECT
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+          SUM(CASE
+              WHEN ufe."eventType" = 'viewed' THEN 1
+              WHEN ufe."eventType" = 'expanded' THEN 3
+              ELSE 0
+          END) AS "viewScore"
+        FROM "UltraFeedEvents" ufe
+        JOIN "Comments" c ON ufe."documentId" = c._id
+        WHERE ufe."userId" = $(userId)
+          AND ufe."eventType" != 'served'
+          AND ufe."collectionName" = 'Comments'
+          AND ufe."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
+          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
+        GROUP BY 1
+      ),
+      "ThreadsOnReadPosts" AS (
+        SELECT DISTINCT COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId"
+        FROM "Comments" c
+        JOIN (
+          SELECT "postId"
+          FROM "ReadStatuses" rs
+          WHERE rs."userId" = $(userId)
+            AND rs."isRead" IS TRUE
+            AND rs."lastUpdated" > (NOW() - INTERVAL $(lookbackInterval))
+          UNION DISTINCT
+          SELECT DISTINCT "documentId" AS "postId"
+          FROM "UltraFeedEvents" ufe
+          WHERE ufe."userId" = $(userId)
+            AND ufe."collectionName" = 'Posts'
+            AND ufe."eventType" != 'served'
+            AND ufe."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
+        ) "readPosts" USING ("postId")
+        WHERE c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
+      )
+      SELECT
+        rat."threadTopLevelId",
+        COALESCE(uvt."votingActivityScore", 0) AS "votingActivityScore",
+        COALESCE(uct."participationCount", 0) AS "participationCount",
+        COALESCE(uve."viewScore", 0) AS "viewScore",
+        CASE WHEN torp."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost"
+      FROM "RecentActiveThreads" rat
+      LEFT JOIN "UserVotesInThreads" uvt ON rat."threadTopLevelId" = uvt."threadTopLevelId"
+      LEFT JOIN "UserCommentsInThreads" uct ON rat."threadTopLevelId" = uct."threadTopLevelId"
+      LEFT JOIN "UserViewEventsInThreads" uve ON rat."threadTopLevelId" = uve."threadTopLevelId"
+      LEFT JOIN "ThreadsOnReadPosts" torp ON rat."threadTopLevelId" = torp."threadTopLevelId"
+    `, {
+      userId,
+      lookbackInterval,
+      threadCandidateLimit,
+    });
+
+    return engagementStats;
   }
 }
 

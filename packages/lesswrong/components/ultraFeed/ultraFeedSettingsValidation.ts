@@ -36,8 +36,8 @@ export const ultraFeedSettingsSchema = z.object({
     .max(3.0, { message: "Value must be between 0.5 and 3.0" })
     .default(DEFAULT_SETTINGS.quickTakeBoost),
   commentSubscribedAuthorMultiplier: z.number()
-    .min(1, { message: "Value must be between 1 and 5" })
-    .max(10.0, { message: "Value must be between 1 and 10" })
+    .min(1, { message: "Value must be between 1 and 10" })
+    .max(10, { message: "Value must be between 1 and 10" })
     .default(DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier),
   threadScoreAggregation: z.enum(['sum', 'max', 'logSum', 'avg'])
     .default(DEFAULT_SETTINGS.threadScoreAggregation),
@@ -53,7 +53,10 @@ export const ultraFeedSettingsSchema = z.object({
   commentTruncationBreakpoints: ascendingNumbersOrNull
     .default(DEFAULT_SETTINGS.commentTruncationBreakpoints),
   postTitlesAreModals: z.boolean().default(DEFAULT_SETTINGS.postTitlesAreModals),
-
+  threadVotePowerWeight: z.number().min(0).max(1).default(DEFAULT_SETTINGS.threadVotePowerWeight),
+  threadParticipationWeight: z.number().min(0).max(1).default(DEFAULT_SETTINGS.threadParticipationWeight),
+  threadViewScoreWeight: z.number().min(0).max(1).default(DEFAULT_SETTINGS.threadViewScoreWeight),
+  threadOnReadPostWeight: z.number().min(0).max(1).default(DEFAULT_SETTINGS.threadOnReadPostWeight),
 }).partial();
 
 export type ValidatedUltraFeedSettings = z.infer<typeof ultraFeedSettingsSchema>;

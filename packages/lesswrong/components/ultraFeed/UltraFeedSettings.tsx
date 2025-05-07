@@ -137,7 +137,7 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
 
-  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings } = Components; 
+  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, ThreadEngagementSettings, MiscSettings } = Components; 
 
   const { flash } = useMessages();
 
@@ -156,6 +156,10 @@ const UltraFeedSettings = ({
     incognitoMode: settings.incognitoMode,
     quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
     commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier ?? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier,
+    threadVotePowerWeight: settings.threadVotePowerWeight ?? DEFAULT_SETTINGS.threadVotePowerWeight,
+    threadParticipationWeight: settings.threadParticipationWeight ?? DEFAULT_SETTINGS.threadParticipationWeight,
+    threadViewScoreWeight: settings.threadViewScoreWeight ?? DEFAULT_SETTINGS.threadViewScoreWeight,
+    threadOnReadPostWeight: settings.threadOnReadPostWeight ?? DEFAULT_SETTINGS.threadOnReadPostWeight,
 
     lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
     postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
@@ -208,6 +212,10 @@ const UltraFeedSettings = ({
       incognitoMode: settings.incognitoMode,
       quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
       commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier ?? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier,
+      threadVotePowerWeight: settings.threadVotePowerWeight ?? DEFAULT_SETTINGS.threadVotePowerWeight,
+      threadParticipationWeight: settings.threadParticipationWeight ?? DEFAULT_SETTINGS.threadParticipationWeight,
+      threadViewScoreWeight: settings.threadViewScoreWeight ?? DEFAULT_SETTINGS.threadViewScoreWeight,
+      threadOnReadPostWeight: settings.threadOnReadPostWeight ?? DEFAULT_SETTINGS.threadOnReadPostWeight,
       // Advanced
       lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
       postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
@@ -225,7 +233,11 @@ const UltraFeedSettings = ({
       settings.quickTakeBoost,
       settings.ultraFeedSeenPenalty,
       settings.postTitlesAreModals,
-      settings.commentSubscribedAuthorMultiplier
+      settings.commentSubscribedAuthorMultiplier,
+      settings.threadVotePowerWeight,
+      settings.threadParticipationWeight,
+      settings.threadViewScoreWeight,
+      settings.threadOnReadPostWeight,
      ]);
 
   const updateForm = useCallback(<K extends keyof SettingsFormState>(
@@ -331,6 +343,25 @@ const UltraFeedSettings = ({
     });
   }, [updateForm]);
 
+  const handleThreadVotePowerWeightChange = useCallback((value: number | string) => {
+    const strValue = String(value).trim();
+    updateForm('threadVotePowerWeight', strValue === '' ? '' : parseFloat(strValue));
+  }, [updateForm]);
+
+  const handleThreadParticipationWeightChange = useCallback((value: number | string) => {
+    const strValue = String(value).trim();
+    updateForm('threadParticipationWeight', strValue === '' ? '' : parseFloat(strValue));
+  }, [updateForm]);
+
+  const handleThreadViewScoreWeightChange = useCallback((value: number | string) => {
+    const strValue = String(value).trim();
+    updateForm('threadViewScoreWeight', strValue === '' ? '' : parseFloat(strValue));
+  }, [updateForm]);
+
+  const handleThreadOnReadPostWeightChange = useCallback((value: number | string) => {
+    const strValue = String(value).trim();
+    updateForm('threadOnReadPostWeight', strValue === '' ? '' : parseFloat(strValue));
+  }, [updateForm]);
 
   const handleSave = useCallback(() => {
     const settingsToUpdate: Record<string, any> = {};
@@ -355,6 +386,19 @@ const UltraFeedSettings = ({
 
     settingsToUpdate.incognitoMode = formValues.incognitoMode;
     settingsToUpdate.postTitlesAreModals = formValues.postTitlesAreModals;
+
+    settingsToUpdate.threadVotePowerWeight = formValues.threadVotePowerWeight === '' || isNaN(Number(formValues.threadVotePowerWeight))
+        ? DEFAULT_SETTINGS.threadVotePowerWeight
+        : Number(formValues.threadVotePowerWeight);
+    settingsToUpdate.threadParticipationWeight = formValues.threadParticipationWeight === '' || isNaN(Number(formValues.threadParticipationWeight))
+        ? DEFAULT_SETTINGS.threadParticipationWeight
+        : Number(formValues.threadParticipationWeight);
+    settingsToUpdate.threadViewScoreWeight = formValues.threadViewScoreWeight === '' || isNaN(Number(formValues.threadViewScoreWeight))
+        ? DEFAULT_SETTINGS.threadViewScoreWeight
+        : Number(formValues.threadViewScoreWeight);
+    settingsToUpdate.threadOnReadPostWeight = formValues.threadOnReadPostWeight === '' || isNaN(Number(formValues.threadOnReadPostWeight))
+        ? DEFAULT_SETTINGS.threadOnReadPostWeight
+        : Number(formValues.threadOnReadPostWeight);
 
     if (viewMode === 'simple') {
       settingsToUpdate.lineClampNumberOfLines = levelToCommentLinesMap[formValues.commentLevel0];
@@ -453,6 +497,28 @@ const UltraFeedSettings = ({
           value: formValues.commentSubscribedAuthorMultiplier,
           error: getScalarError('commentSubscribedAuthorMultiplier'),
           onChange: handleSubscribedAuthorMultiplierChange,
+        }}
+      />
+      <ThreadEngagementSettings 
+        threadVotePowerWeight={{
+          value: formValues.threadVotePowerWeight,
+          error: getScalarError('threadVotePowerWeight'),
+          onChange: handleThreadVotePowerWeightChange,
+        }}
+        threadParticipationWeight={{
+          value: formValues.threadParticipationWeight,
+          error: getScalarError('threadParticipationWeight'),
+          onChange: handleThreadParticipationWeightChange,
+        }}
+        threadViewScoreWeight={{
+          value: formValues.threadViewScoreWeight,
+          error: getScalarError('threadViewScoreWeight'),
+          onChange: handleThreadViewScoreWeightChange,
+        }}
+        threadOnReadPostWeight={{
+          value: formValues.threadOnReadPostWeight,
+          error: getScalarError('threadOnReadPostWeight'),
+          onChange: handleThreadOnReadPostWeightChange,
         }}
       />
       <AdvancedTruncationSettings

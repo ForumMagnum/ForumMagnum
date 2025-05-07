@@ -14,6 +14,11 @@ export interface UltraFeedResolverSettings {
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
   threadScoreFirstN: number;
   incognitoMode: boolean;
+  // Thread Engagement Boost Settings
+  threadVotePowerWeight: number;
+  threadParticipationWeight: number;
+  threadViewScoreWeight: number;
+  threadOnReadPostWeight: number;
 }
 
 export interface UltraFeedDisplaySettings {
@@ -47,6 +52,11 @@ export const getResolverSettings = (settings: UltraFeedSettingsType): UltraFeedR
   threadScoreAggregation: settings.threadScoreAggregation,
   threadScoreFirstN: settings.threadScoreFirstN,
   incognitoMode: settings.incognitoMode,
+  // Thread Engagement Boost Settings
+  threadVotePowerWeight: settings.threadVotePowerWeight,
+  threadParticipationWeight: settings.threadParticipationWeight,
+  threadViewScoreWeight: settings.threadViewScoreWeight,
+  threadOnReadPostWeight: settings.threadOnReadPostWeight,
 });
 
 export const getDisplaySettings = (settings: UltraFeedSettingsType): UltraFeedDisplaySettings => ({
@@ -121,6 +131,11 @@ export const DEFAULT_SETTINGS: UltraFeedDefaultSettingsType = {
   threadScoreAggregation: 'logSum', 
   threadScoreFirstN: 5, 
   incognitoMode: false, 
+  // Thread Engagement Boost Settings Defaults
+  threadVotePowerWeight: 0.1,
+  threadParticipationWeight: 0.2,
+  threadViewScoreWeight: 0.05,
+  threadOnReadPostWeight: 0.15,
 };
 
 export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full', 'Unset'] as const;
@@ -222,6 +237,10 @@ export interface SettingsFormState {
   // Misc settings
   ultraFeedSeenPenalty: number | '';
   postTitlesAreModals: boolean;
+  threadVotePowerWeight: number | '';
+  threadParticipationWeight: number | '';
+  threadViewScoreWeight: number | '';
+  threadOnReadPostWeight: number | '';
 }
 
 export interface SettingsFormErrors {

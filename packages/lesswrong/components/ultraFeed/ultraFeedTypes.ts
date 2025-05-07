@@ -148,3 +148,10 @@ export interface LinearCommentThreadStatistics {
 export interface UltraFeedAnalyticsContext {
   sessionId: string;
 }
+export interface ThreadEngagementStats {
+  threadTopLevelId: string;
+  votingActivityScore: number;
+  participationCount: number;
+  viewScore: number;
+  isOnReadPost: boolean;
+}

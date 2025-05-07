@@ -625,6 +625,66 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
 };
 const MultipliersSettingsComponent = registerComponent('MultipliersSettings', MultipliersSettings);
 
+// New Component for Thread Engagement Boost Settings
+interface ThreadEngagementSettingsProps {
+  threadVotePowerWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
+  threadParticipationWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
+  threadViewScoreWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
+  threadOnReadPostWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
+}
+
+const ThreadEngagementSettings: React.FC<ThreadEngagementSettingsProps> = ({
+  threadVotePowerWeight,
+  threadParticipationWeight,
+  threadViewScoreWeight,
+  threadOnReadPostWeight,
+}) => {
+  const classes = useStyles(styles);
+
+  const fields = [
+    { prop: threadVotePowerWeight, label: "Vote Power Weight", description: "Multiplier for user's vote power in a thread.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadVotePowerWeight },
+    { prop: threadParticipationWeight, label: "Participation Weight", description: "Bonus if user commented in a thread.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadParticipationWeight },
+    { prop: threadViewScoreWeight, label: "View Score Weight", description: "Multiplier for user's view/expand score in a thread.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadViewScoreWeight },
+    { prop: threadOnReadPostWeight, label: "On Read Post Weight", description: "Bonus if thread is on a post the user recently read.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadOnReadPostWeight },
+  ];
+
+  return (
+    <div className={classes.settingGroup}>
+      <h3 className={classes.groupTitle}>Thread Engagement Boosts</h3>
+      <p className={classes.groupDescription}>
+        Boost threads based on your past interactions. Multipliers are summed (e.g., 1.0 + vote_boost + participation_boost).
+      </p>
+      {fields.map(f => (
+        <div key={f.label} className={classes.sourceWeightItem}>
+          <div className={classes.sourceWeightContainer}>
+            <label className={classes.sourceWeightLabel}>{f.label}</label>
+            <Slider
+              className={classes.sourceWeightSlider}
+              value={typeof f.prop.value === 'number' ? f.prop.value : f.defaultVal}
+              onChange={(_, val) => f.prop.onChange(val as number)}
+              min={f.min}
+              max={f.max}
+              step={f.step}
+            />
+            <input
+              type="number"
+              className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!f.prop.error })}
+              value={f.prop.value}
+              onChange={(e) => f.prop.onChange(e.target.value)}
+              min={f.min}
+              max={f.max}
+              step={f.step}
+            />
+          </div>
+          <p className={classes.sourceWeightDescription}>{f.description} Default: {f.defaultVal}</p>
+          {f.prop.error && <p className={classes.errorMessage}>{f.prop.error}</p>}
+        </div>
+      ))}
+    </div>
+  );
+};
+const ThreadEngagementSettingsComponent = registerComponent('ThreadEngagementSettings', ThreadEngagementSettings);
+
 interface MiscSettingsProps {
   formValues: Pick<SettingsFormState, 'postTitlesAreModals' | 'incognitoMode'>;
   onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
@@ -681,6 +741,7 @@ declare global {
     TruncationGridSettings: typeof TruncationGridSettingsComponent
     AdvancedTruncationSettings: typeof AdvancedTruncationSettingsComponent
     MultipliersSettings: typeof MultipliersSettingsComponent
+    ThreadEngagementSettings: typeof ThreadEngagementSettingsComponent
     MiscSettings: typeof MiscSettingsComponent
   }
 }
