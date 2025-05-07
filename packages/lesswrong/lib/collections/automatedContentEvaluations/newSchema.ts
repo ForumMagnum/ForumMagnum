@@ -41,13 +41,15 @@ const schema = {
 
   aiChoice: {
     database: {
-      type: "VARCHAR(255)",
+      type: "TEXT",
       nullable: false,
-      typescriptType: '"accept" | "review"',
     },
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
+      validation: {
+        allowedValues: ["accept", "review"],
+      },
     },
   },
 

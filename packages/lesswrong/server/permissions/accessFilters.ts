@@ -12,7 +12,7 @@ import _ from "underscore";
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
-  return currentUser.isAdmin
+  return userIsAdmin(currentUser)
 };
 
 const banCheckAccess: CheckAccessFunction<'Bans'> = async (currentUser, document, context): Promise<boolean> => {
@@ -28,7 +28,7 @@ const chapterCheckAccess: CheckAccessFunction<'Chapters'> = async (currentUser, 
 };
 
 const clientIdCheckAccess: CheckAccessFunction<'ClientIds'> = async (currentUser, document, context): Promise<boolean> => {
-  return currentUser?.isAdmin ?? false;
+  return userIsAdmin(currentUser)
 }
 
 const conversationCheckAccess: CheckAccessFunction<'Conversations'> = async (currentUser, document, context): Promise<boolean> => {

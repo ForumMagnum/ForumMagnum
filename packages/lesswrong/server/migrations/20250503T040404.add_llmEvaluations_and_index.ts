@@ -1,15 +1,15 @@
 import AutomatedContentEvaluations from "../collections/automatedContentEvaluations/collection";
-import { addField, dropField, updateIndexes } from "./meta/utils";
+import { createTable, dropTable, updateIndexes } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, AutomatedContentEvaluations, "aiChoice");
-  await addField(db, AutomatedContentEvaluations, "aiReasoning");
-  await addField(db, AutomatedContentEvaluations, "aiCoT");
+  // There is not much data in this table, and it's not too important.
+  await dropTable(db, AutomatedContentEvaluations);
+  await createTable(db, AutomatedContentEvaluations);
   await updateIndexes(AutomatedContentEvaluations);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, AutomatedContentEvaluations, "aiChoice");
-  await dropField(db, AutomatedContentEvaluations, "aiReasoning");
-  await dropField(db, AutomatedContentEvaluations, "aiCoT");
+  await dropTable(db, AutomatedContentEvaluations);
+  await createTable(db, AutomatedContentEvaluations);
+  await updateIndexes(AutomatedContentEvaluations);
 }
