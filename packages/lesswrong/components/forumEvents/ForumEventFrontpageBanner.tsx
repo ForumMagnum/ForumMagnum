@@ -405,6 +405,11 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   );
 }
 
+const customComponents: Partial<Record<Exclude<DbForumEvent['customComponent'], null>, FC>> = {
+  // This component was presumably deleted, it not being 2024 anymore.
+  // GivingSeason2024Banner,
+};
+
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -415,7 +420,7 @@ export const ForumEventFrontpageBanner = ({classes}: {
 
   const {customComponent, eventFormat} = currentForumEvent;
   if (customComponent) {
-    const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
+    const CustomComponent = customComponents[customComponent];
     if (CustomComponent) {
       return (
         <AnalyticsContext

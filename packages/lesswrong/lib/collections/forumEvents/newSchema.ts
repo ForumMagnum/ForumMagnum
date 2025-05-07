@@ -367,6 +367,7 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        allowedValues: ['GivingSeason2024Banner'],
       },
     },
   },
