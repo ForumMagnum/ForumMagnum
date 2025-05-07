@@ -73,7 +73,7 @@ type MenuTabDivider = {
 
 type MenuTabCustomComponent = {
   id: string
-  customComponentName: string
+  customComponentName: 'EventsList' | 'SubscribeWidget'
 }
 
 type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;

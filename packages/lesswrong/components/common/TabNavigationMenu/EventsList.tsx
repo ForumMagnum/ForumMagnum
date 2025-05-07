@@ -4,9 +4,9 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
 
-const EventsList = ({currentUser, onClick}: {
+export const EventsList = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
-  onClick: () => void
+  onClick: (e?: React.BaseSyntheticEvent) => void
 }) => {
   const { TabNavigationEventsList } = Components
   

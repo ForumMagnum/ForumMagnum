@@ -3,20 +3,21 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {
     "&:hover": {
       opacity: isFriendlyUI ? 1 : undefined,
       color: isFriendlyUI ? theme.palette.grey[800] : undefined,
     },
   },
-});
+}));
 
-interface SubscribeWidgetProps extends WithStylesProps {}
-
-const SubscribeWidget = ({ classes }: SubscribeWidgetProps) => {
+export const SubscribeWidget = () => {
   const { TabNavigationSubItem, SubscribeDialog } = Components;
+
+  const classes = useStyles(styles);
 
   const { captureEvent } = useTracking();
 
@@ -43,7 +44,7 @@ const SubscribeWidget = ({ classes }: SubscribeWidgetProps) => {
   )
 }
 
-const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, { styles });
+const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget);
 
 declare global {
   interface ComponentTypes {

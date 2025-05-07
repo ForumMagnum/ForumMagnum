@@ -1,13 +1,14 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Components } from "../../lib/vulcan-lib/components";
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
 import {
   EMPTY_TEXT_PLACEHOLDER,
   emptyTextCellStyles,
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryCareerStageCell', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -26,12 +27,12 @@ const styles = (theme: ThemeType) => ({
   empty: {
     ...emptyTextCellStyles(theme),
   },
-});
+}));
 
-const PeopleDirectoryCareerStageCell = ({user, classes}: {
+export const PeopleDirectoryCareerStageCell = ({user}: {
   user: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const stage = user.careerStage?.[0]
     ? CAREER_STAGES.find(({value}) => value === user.careerStage?.[0])
     : null;
@@ -55,16 +56,4 @@ const PeopleDirectoryCareerStageCell = ({user, classes}: {
       </div>
     </LWTooltip>
   );
-}
-
-const PeopleDirectoryCareerStageCellComponent = registerComponent(
-  "PeopleDirectoryCareerStageCell",
-  PeopleDirectoryCareerStageCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryCareerStageCell: typeof PeopleDirectoryCareerStageCellComponent
-  }
 }

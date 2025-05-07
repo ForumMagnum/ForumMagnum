@@ -1,9 +1,9 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { useClickableCell } from "../common/useClickableCell";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
-import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
+import { cellComponentsByName, PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 
 export const COLUMN_HORIZONTAL_PADDING = 10;
 
@@ -45,8 +45,8 @@ const Column: FC<{
     skeletonComponentName = "PeopleDirectorySkeletonTextCell",
     skeletonProps = {},
   } = column;
-  const Skeleton: AnyBecauseHard = Components[skeletonComponentName];
-  const Component: AnyBecauseHard = Components[componentName];
+  const Skeleton: AnyBecauseHard = cellComponentsByName[skeletonComponentName];
+  const Component: AnyBecauseHard = cellComponentsByName[componentName];
   return (
     <div className={classes.cell}>
       {result
