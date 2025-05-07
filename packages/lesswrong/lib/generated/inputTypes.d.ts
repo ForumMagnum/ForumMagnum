@@ -871,19 +871,6 @@ interface UltraFeedEntryType {
   feedSpotlight: FeedSpotlightItem | null;
 }
 
-interface BookmarksFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<BookmarksFeedEntryType> | null;
-}
-
-interface BookmarksFeedEntryType {
-  type: string;
-  feedPost: FeedPost | null;
-  feedCommentThread: FeedCommentThread | null;
-  sortKey: Date;
-}
-
 interface ElicitQuestionPredictionCreator {
   _id: string;
   displayName: string;
@@ -6536,8 +6523,6 @@ interface GraphQLTypeMap {
   FeedSpotlightItem: FeedSpotlightItem;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntryType: UltraFeedEntryType;
-  BookmarksFeedQueryResults: BookmarksFeedQueryResults;
-  BookmarksFeedEntryType: BookmarksFeedEntryType;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;

@@ -1341,23 +1341,6 @@ extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
 }
 
-type BookmarksFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [BookmarksFeedEntryType!]
-}
-
-type BookmarksFeedEntryType {
-  type: String!
-  feedPost: FeedPost
-  feedCommentThread: FeedCommentThread
-  sortKey: Date!
-}
-
-extend type Query {
-  BookmarksFeed(limit: Int, cutoff: Date, offset: Int): BookmarksFeedQueryResults!
-}
-
 type ElicitQuestionPredictionCreator {
   _id: String!
   displayName: String!
