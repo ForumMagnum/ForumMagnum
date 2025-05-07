@@ -3,6 +3,7 @@ import { getSchema } from "@/lib/schema/allSchemas";
 import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
 import type { GraphQLScalarType } from "graphql";
+import { UsersCurrent } from "@/lib/generated/gql-codegen/graphql";
 
 export type CustomResolver<N extends CollectionNameString = CollectionNameString> = {
   type: string | GraphQLScalarType,

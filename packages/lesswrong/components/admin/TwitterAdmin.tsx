@@ -8,6 +8,8 @@ import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
+import { UsersSocialMediaInfo } from '@/lib/generated/gql-codegen/graphql';
+import { PostsTwitterAdmin } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   root: {

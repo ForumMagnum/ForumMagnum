@@ -280,6 +280,7 @@ export const loginDataGraphQLMutations = {
           address: email, verified: false
         }],
         username: username,
+        displayName: username,
         emailSubscribedToCurated: subscribeToCurated,
         signUpReCaptchaRating: recaptchaScore,
         abTestKey,

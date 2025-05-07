@@ -11,7 +11,7 @@ import { VotingProps } from './votingProps';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { Components } from '@/lib/vulcan-lib/components';
-import { UsersCurrentFragment } from '@/lib/generated/gql-codegen/graphql';
+import { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
@@ -31,7 +31,7 @@ const getVoteMutationQuery = (typeName: string) => {
   return gql`${gqlText}`
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
+export const useVote = <T extends VoteableTypeClient>(document: Omit<T, "baseScore" | "extendedScore">, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
@@ -65,7 +65,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     document: T,
     voteType: string,
     extendedVote?: any,
-    currentUser: UsersCurrentFragment,
+    currentUser: UsersCurrent,
   }) => {
     // Cast a vote. Because the vote buttons are easy to mash repeatedly (and
     // the strong-voting mechanic encourages this), there could be multiple

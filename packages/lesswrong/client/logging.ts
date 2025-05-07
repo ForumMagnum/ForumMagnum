@@ -6,6 +6,7 @@ import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
+import { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -40,7 +41,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
   Sentry.configureScope((scope) => {
-    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username} : null);
+    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username ?? undefined} : null);
   });
 }
 

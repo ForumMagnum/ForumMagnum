@@ -17,6 +17,8 @@ import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
+import { CommentsList, CommentsListWithParentMetadata } from '@/lib/generated/gql-codegen/graphql';
+import { TagCommentType } from '@/lib/collections/comments/types';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -208,7 +210,7 @@ export const CommentsItem = ({
     moderatedCommentId, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
-  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
+  const showCommentTitle = !!(commentAllowTitle({tagCommentType: comment.tagCommentType as TagCommentType, parentCommentId: comment.parentCommentId}) && comment.title && !comment.deleted && !showEditState)
 
   const openReplyForm = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -382,7 +384,7 @@ export const CommentsItem = ({
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
-          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
+          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason ?? null}/></p>}
           {renderBodyOrEditor(voteProps)}
           {!comment.deleted && !collapsed && <CommentBottom
             comment={comment}

@@ -19,6 +19,7 @@ import { getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/edit
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
+import { PostsDetails } from "@/lib/generated/gql-codegen/graphql";
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -130,7 +131,7 @@ const schema = {
       denormalized: true,
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "JSON!",
       canRead: "guests",
       validation: {
         optional: true,
@@ -143,7 +144,7 @@ const schema = {
       foreignKey: "Comments",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -168,7 +169,7 @@ const schema = {
       foreignKey: "Comments",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -236,7 +237,7 @@ const schema = {
       foreignKey: "Posts",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -260,7 +261,7 @@ const schema = {
       foreignKey: "Tags",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -284,7 +285,7 @@ const schema = {
       foreignKey: "ForumEvents",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -312,7 +313,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "JSON!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -333,8 +334,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "TagCommentType!",
+      inputType: "TagCommentType",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -961,7 +962,7 @@ const schema = {
       type: "TEXT",
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],

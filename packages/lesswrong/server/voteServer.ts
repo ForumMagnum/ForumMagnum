@@ -28,6 +28,7 @@ import { isElasticEnabled } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
 import { createModeratorAction } from './collections/moderatorActions/mutations';
+import { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {

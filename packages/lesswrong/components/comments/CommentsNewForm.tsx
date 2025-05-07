@@ -1,5 +1,5 @@
-import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -21,6 +21,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { PostsMinimumInfo, UsersCurrent, CommentsList, TagBasicInfo } from '@/lib/generated/gql-codegen/graphql';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {

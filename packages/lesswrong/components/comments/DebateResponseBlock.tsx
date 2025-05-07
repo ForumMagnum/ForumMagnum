@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 
-import { CommentsListFragment, PostsWithNavigationFragment, PostsWithNavigationAndRevisionFragment } from '@/lib/generated/gql-codegen/graphql';
+import { CommentsList, PostsWithNavigation, PostsWithNavigationAndRevision } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   divider: {
@@ -24,13 +24,13 @@ const styles = (theme: ThemeType) => ({
 });
 
 export interface DebateResponseWithReplies {
-  comment: CommentsListFragment;
-  replies: CommentsListFragment[];
+  comment: CommentsList;
+  replies: CommentsList[];
 }
 
 export const DebateResponseBlock = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
   responses: DebateResponseWithReplies[],
-  post: PostsWithNavigationFragment | PostsWithNavigationAndRevisionFragment,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
   classes: ClassesType<typeof styles>,

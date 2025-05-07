@@ -82,6 +82,7 @@ import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { PostSideComments, UsersMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {

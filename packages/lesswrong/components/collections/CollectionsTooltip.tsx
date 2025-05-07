@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const CollectionsTooltip = ({collection, children, classes}: {
-  collection: CollectionsBestOfFragment,
+  collection: CollectionsBestOf,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {

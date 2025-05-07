@@ -5,6 +5,11 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlCommentQueryTypeDefs = gql`
+  enum TagCommentType {
+    SUBFORUM
+    DISCUSSION
+  }
+
   type Comment ${
     getAllGraphQLFields(schema)
   }

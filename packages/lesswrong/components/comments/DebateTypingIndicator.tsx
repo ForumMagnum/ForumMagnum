@@ -8,6 +8,7 @@ import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
 import { print as gqlPrint } from 'graphql';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { TypingIndicatorInfo } from '@/lib/collections/typingIndicators/fragments';
+import { PostsWithNavigation, PostsWithNavigationAndRevision, TypingIndicatorInfo as TypingIndicatorInfoType } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,7 @@ export const DebateTypingIndicator = ({classes, post}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
 
-  const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfo[]>([]);
+  const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfoType[]>([]);
   const currentUser = useCurrentUser();
 
   const [upsertTypingIndicator] = useMutation(gql(`
@@ -59,7 +60,7 @@ export const DebateTypingIndicator = ({classes, post}: {
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
     const twentySecondsAgo = Date.now() - INDICATOR_DISPLAY_PERIOD;
-    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated).getTime()) > twentySecondsAgo;
+    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated ?? 0).getTime()) > twentySecondsAgo;
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
   })

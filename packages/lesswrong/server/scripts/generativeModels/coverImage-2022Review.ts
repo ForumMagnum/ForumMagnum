@@ -10,6 +10,7 @@ import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
+import { PostsPage } from '@/lib/generated/gql-codegen/graphql.ts';
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 

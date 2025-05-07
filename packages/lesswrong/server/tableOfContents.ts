@@ -10,6 +10,7 @@ import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
+import { PostsHtml } from '@/lib/generated/gql-codegen/graphql';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
   const { Comments } = context;
@@ -101,7 +102,7 @@ async function getHtmlWithContributorAnnotations({
 }
 
 export const getToCforPost = async ({document, version, context}: {
-  document: DbPost|FetchedFragment<"PostsHTML">,
+  document: DbPost|PostsHtml&DbPost,
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
