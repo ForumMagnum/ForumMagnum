@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useInitiateConversation } from "@/components/hooks/useInitiateConversation";
 import { getTopAuthor, getUserProfileLink } from "./wrappedHelpers";

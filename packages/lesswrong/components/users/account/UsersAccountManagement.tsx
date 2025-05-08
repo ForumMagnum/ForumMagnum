@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';

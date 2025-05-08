@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';

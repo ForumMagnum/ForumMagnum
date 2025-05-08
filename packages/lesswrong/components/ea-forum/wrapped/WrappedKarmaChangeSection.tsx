@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
 import {

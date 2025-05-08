@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Components } from "@/lib/vulcan-lib/components.tsx";
+import { Components } from "@/lib/vulcan-lib/components";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";

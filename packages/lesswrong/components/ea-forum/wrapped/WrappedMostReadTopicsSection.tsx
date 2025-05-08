@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";

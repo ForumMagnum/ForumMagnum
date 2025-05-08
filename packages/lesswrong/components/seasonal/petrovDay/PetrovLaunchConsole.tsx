@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';

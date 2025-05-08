@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';

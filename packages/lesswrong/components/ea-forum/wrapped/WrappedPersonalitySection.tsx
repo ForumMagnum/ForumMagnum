@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { captureException } from "@sentry/core";
 import { useTheme } from "@/components/themes/useTheme";
 import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";

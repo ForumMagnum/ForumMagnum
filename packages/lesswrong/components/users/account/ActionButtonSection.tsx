@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   blurb: {

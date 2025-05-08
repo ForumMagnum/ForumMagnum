@@ -1,5 +1,5 @@
 import { useTracking } from '@/lib/analyticsEvents';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';

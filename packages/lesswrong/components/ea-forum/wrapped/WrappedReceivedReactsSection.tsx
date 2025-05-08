@@ -1,5 +1,5 @@
 import React, { ComponentType, useMemo } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { isClient } from "@/lib/executionEnvironment";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";

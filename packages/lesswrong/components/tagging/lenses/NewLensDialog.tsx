@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogContentText } from "@/components/widgets/DialogContentText";

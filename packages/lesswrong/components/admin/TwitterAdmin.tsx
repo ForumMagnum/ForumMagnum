@@ -6,7 +6,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
 
 const styles = (theme: ThemeType) => ({

@@ -10,7 +10,7 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import { Helmet } from "@/lib/utils/componentsWithChildren";
