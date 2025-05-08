@@ -274,10 +274,10 @@ function elementIsNearVisible(element: HTMLElement|null, distance: number) {
   return (top-distance) <= windowHeight;
 }
 
-export const MixedTypeInfinite = registerComponent('MixedTypeFeed', MixedTypeFeedInner);
+export const MixedTypeFeed = registerComponent('MixedTypeFeed', MixedTypeFeedInner);
 
 declare global {
   interface ComponentTypes {
-    MixedTypeFeed: typeof MixedTypeInfinite,
+    MixedTypeFeed: typeof MixedTypeFeed,
   }
 }
