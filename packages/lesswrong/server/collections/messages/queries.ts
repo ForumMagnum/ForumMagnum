@@ -17,14 +17,20 @@ export const graphqlMessageQueryTypeDefs = gql`
     result: Message
   }
   
-  input MessageViewInput {
-    conversationId: String
-   }
+  input MessageDefaultViewInput
   
-  input MessageSelector @oneOf {
-    default: MessageViewInput
-    messagesConversation: MessageViewInput
-    conversationPreview: MessageViewInput
+  input MessagesMessagesConversationInput {
+    conversationId: String
+  }
+  
+  input MessagesConversationPreviewInput {
+    conversationId: String
+  }
+  
+  input MessageSelector  {
+    default: MessageDefaultViewInput
+    messagesConversation: MessagesMessagesConversationInput
+    conversationPreview: MessagesConversationPreviewInput
   }
   
   input MultiMessageInput {

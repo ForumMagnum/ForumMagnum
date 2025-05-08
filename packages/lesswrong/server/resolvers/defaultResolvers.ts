@@ -269,10 +269,9 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     if (!doc) {
       throwError({
-          id: 'app.missing_document',
-          data: { documentId, selector, collectionName: collection.collectionName },
-        });
-      }
+        id: 'app.missing_document',
+        data: { documentId, selector, collectionName: collection.collectionName },
+      });
     }
 
     // if collection has a checkAccess function defined, use it to perform a check on the current document

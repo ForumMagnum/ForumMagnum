@@ -1247,11 +1247,21 @@ type AdvisorRequest {
 input SingleAdvisorRequestInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleAdvisorRequestOutput {
   result: AdvisorRequest
+}
+
+input AdvisorRequestDefaultViewInput
+
+input AdvisorRequestsRequestsByUserInput {
+  userId: String
+}
+
+input AdvisorRequestSelector {
+  default: AdvisorRequestDefaultViewInput
+  requestsByUser: AdvisorRequestsRequestsByUserInput
 }
 
 input MultiAdvisorRequestInput {
@@ -1266,8 +1276,8 @@ type MultiAdvisorRequestOutput {
 }
 
 extend type Query {
-  advisorRequest(input: SingleAdvisorRequestInput): SingleAdvisorRequestOutput
-  advisorRequests(input: MultiAdvisorRequestInput): MultiAdvisorRequestOutput
+  advisorRequest(input: SingleAdvisorRequestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleAdvisorRequestOutput
+  advisorRequests(input: MultiAdvisorRequestInput @deprecated(reason: "Use the selector field instead"), selector: AdvisorRequestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiAdvisorRequestOutput
 }
 
 type ArbitalCaches {
@@ -1294,11 +1304,16 @@ type ArbitalTagContentRel {
 input SingleArbitalTagContentRelInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleArbitalTagContentRelOutput {
   result: ArbitalTagContentRel
+}
+
+input ArbitalTagContentRelViewInput
+
+input ArbitalTagContentRelSelector {
+  default: ArbitalTagContentRelViewInput
 }
 
 input MultiArbitalTagContentRelInput {
@@ -1313,8 +1328,8 @@ type MultiArbitalTagContentRelOutput {
 }
 
 extend type Query {
-  arbitalTagContentRel(input: SingleArbitalTagContentRelInput): SingleArbitalTagContentRelOutput
-  arbitalTagContentRels(input: MultiArbitalTagContentRelInput): MultiArbitalTagContentRelOutput
+  arbitalTagContentRel(input: SingleArbitalTagContentRelInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleArbitalTagContentRelOutput
+  arbitalTagContentRels(input: MultiArbitalTagContentRelInput @deprecated(reason: "Use the selector field instead"), selector: ArbitalTagContentRelSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiArbitalTagContentRelOutput
 }
 
 type Ban {
@@ -1334,11 +1349,16 @@ type Ban {
 input SingleBanInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleBanOutput {
   result: Ban
+}
+
+input BanViewInput
+
+input BanSelector {
+  default: BanViewInput
 }
 
 input MultiBanInput {
@@ -1353,8 +1373,8 @@ type MultiBanOutput {
 }
 
 extend type Query {
-  ban(input: SingleBanInput): SingleBanOutput
-  bans(input: MultiBanInput): MultiBanOutput
+  ban(input: SingleBanInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleBanOutput
+  bans(input: MultiBanInput @deprecated(reason: "Use the selector field instead"), selector: BanSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiBanOutput
 }
 
 type Book {
@@ -1382,11 +1402,16 @@ type Book {
 input SingleBookInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleBookOutput {
   result: Book
+}
+
+input BookViewInput
+
+input BookSelector {
+  default: BookViewInput
 }
 
 input MultiBookInput {
@@ -1401,8 +1426,8 @@ type MultiBookOutput {
 }
 
 extend type Query {
-  book(input: SingleBookInput): SingleBookOutput
-  books(input: MultiBookInput): MultiBookOutput
+  book(input: SingleBookInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleBookOutput
+  books(input: MultiBookInput @deprecated(reason: "Use the selector field instead"), selector: BookSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiBookOutput
 }
 
 type Chapter {
@@ -1424,11 +1449,22 @@ type Chapter {
 input SingleChapterInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleChapterOutput {
   result: Chapter
+}
+
+input ChapterDefaultViewInput
+
+input ChaptersSequenceChaptersInput {
+  sequenceId: String
+  limit: String
+}
+
+input ChapterSelector {
+  default: ChapterDefaultViewInput
+  SequenceChapters: ChaptersSequenceChaptersInput
 }
 
 input MultiChapterInput {
@@ -1443,8 +1479,8 @@ type MultiChapterOutput {
 }
 
 extend type Query {
-  chapter(input: SingleChapterInput): SingleChapterOutput
-  chapters(input: MultiChapterInput): MultiChapterOutput
+  chapter(input: SingleChapterInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleChapterOutput
+  chapters(input: MultiChapterInput @deprecated(reason: "Use the selector field instead"), selector: ChapterSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiChapterOutput
 }
 
 type CkEditorUserSession {
@@ -1461,11 +1497,16 @@ type CkEditorUserSession {
 input SingleCkEditorUserSessionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleCkEditorUserSessionOutput {
   result: CkEditorUserSession
+}
+
+input CkEditorUserSessionViewInput
+
+input CkEditorUserSessionSelector {
+  default: CkEditorUserSessionViewInput
 }
 
 input MultiCkEditorUserSessionInput {
@@ -1480,8 +1521,8 @@ type MultiCkEditorUserSessionOutput {
 }
 
 extend type Query {
-  ckEditorUserSession(input: SingleCkEditorUserSessionInput): SingleCkEditorUserSessionOutput
-  ckEditorUserSessions(input: MultiCkEditorUserSessionInput): MultiCkEditorUserSessionOutput
+  ckEditorUserSession(input: SingleCkEditorUserSessionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCkEditorUserSessionOutput
+  ckEditorUserSessions(input: MultiCkEditorUserSessionInput @deprecated(reason: "Use the selector field instead"), selector: CkEditorUserSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCkEditorUserSessionOutput
 }
 
 type ClientId {
@@ -1502,11 +1543,21 @@ type ClientId {
 input SingleClientIdInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleClientIdOutput {
   result: ClientId
+}
+
+input ClientIdDefaultViewInput
+
+input ClientIdsGetClientIdInput {
+  clientId: String
+}
+
+input ClientIdSelector {
+  default: ClientIdDefaultViewInput
+  getClientId: ClientIdsGetClientIdInput
 }
 
 input MultiClientIdInput {
@@ -1521,8 +1572,8 @@ type MultiClientIdOutput {
 }
 
 extend type Query {
-  clientId(input: SingleClientIdInput): SingleClientIdOutput
-  clientIds(input: MultiClientIdInput): MultiClientIdOutput
+  clientId(input: SingleClientIdInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleClientIdOutput
+  clientIds(input: MultiClientIdInput @deprecated(reason: "Use the selector field instead"), selector: ClientIdSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiClientIdOutput
 }
 
 type Collection {
@@ -1548,11 +1599,18 @@ type Collection {
 input SingleCollectionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleCollectionOutput {
   result: Collection
+}
+
+input CollectionDefaultViewInput {
+  collectionIds: String
+}
+
+input CollectionSelector {
+  default: CollectionDefaultViewInput
 }
 
 input MultiCollectionInput {
@@ -1567,8 +1625,8 @@ type MultiCollectionOutput {
 }
 
 extend type Query {
-  collection(input: SingleCollectionInput): SingleCollectionOutput
-  collections(input: MultiCollectionInput): MultiCollectionOutput
+  collection(input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCollectionOutput
+  collections(input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"), selector: CollectionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCollectionOutput
 }
 
 type CommentModeratorAction {
@@ -1586,11 +1644,21 @@ type CommentModeratorAction {
 input SingleCommentModeratorActionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleCommentModeratorActionOutput {
   result: CommentModeratorAction
+}
+
+input CommentModeratorActionDefaultViewInput
+
+input CommentModeratorActionsActiveCommentModeratorActionsInput {
+  limit: String
+}
+
+input CommentModeratorActionSelector {
+  default: CommentModeratorActionDefaultViewInput
+  activeCommentModeratorActions: CommentModeratorActionsActiveCommentModeratorActionsInput
 }
 
 input MultiCommentModeratorActionInput {
@@ -1605,13 +1673,8 @@ type MultiCommentModeratorActionOutput {
 }
 
 extend type Query {
-  commentModeratorAction(input: SingleCommentModeratorActionInput): SingleCommentModeratorActionOutput
-  commentModeratorActions(input: MultiCommentModeratorActionInput): MultiCommentModeratorActionOutput
-}
-
-enum TagCommentType {
-  SUBFORUM
-  DISCUSSION
+  commentModeratorAction(input: SingleCommentModeratorActionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCommentModeratorActionOutput
+  commentModeratorActions(input: MultiCommentModeratorActionInput @deprecated(reason: "Use the selector field instead"), selector: CommentModeratorActionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCommentModeratorActionOutput
 }
 
 type Comment {
@@ -1722,11 +1785,398 @@ type Comment {
 input SingleCommentInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleCommentOutput {
   result: Comment
+}
+
+input CommentDefaultViewInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsCommentRepliesInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  parentCommentId: String
+}
+
+input CommentsPostCommentsDeletedInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsAllCommentsDeletedInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsCheckedByModGPTInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsPostCommentsTopInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsPostCommentsRecentRepliesInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsPostCommentsMagicInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsAfPostCommentsTopInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsPostCommentsOldInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsPostCommentsNewInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsPostCommentsBestInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsPostLWCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsProfileRecentCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  limit: String
+}
+
+input CommentsProfileCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  sortBy: String
+  limit: String
+}
+
+input CommentsAllRecentCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  sortBy: String
+  limit: String
+}
+
+input CommentsRecentCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  sortBy: String
+  limit: String
+}
+
+input CommentsAfSubmissionsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  limit: String
+}
+
+input CommentsRejectedInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  limit: String
+}
+
+input CommentsRecentDiscussionThreadInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+  limit: String
+}
+
+input CommentsAfRecentDiscussionThreadInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+  limit: String
+}
+
+input CommentsPostsItemCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+  after: String
+  limit: String
+}
+
+input CommentsSunshineNewCommentsListInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  limit: String
+}
+
+input CommentsQuestionAnswersInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+  sortBy: String
+}
+
+input CommentsLegacyIdCommentInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  legacyId: String
+}
+
+input CommentsSunshineNewUsersCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsDefaultModeratorResponsesInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  tagId: String
+}
+
+input CommentsRepliesToAnswerInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  parentAnswerId: String
+}
+
+input CommentsAnswersAndRepliesInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+  sortBy: String
+}
+
+input CommentsTopShortformInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  before: String
+  after: String
+  shortformFrontpage: String
+}
+
+input CommentsShortformInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsShortformFrontpageInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  maxAgeDays: String
+  showCommunity: String
+  relevantTagId: String
+}
+
+input CommentsRepliesToCommentThreadInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  topLevelCommentId: String
+}
+
+input CommentsShortformLatestChildrenInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  topLevelCommentId: String
+}
+
+input CommentsNominations2018Input {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsNominations2019Input {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsReviews2018Input {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsReviews2019Input {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsReviewsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsTagDiscussionCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  tagId: String
+}
+
+input CommentsTagSubforumCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsLatestSubforumDiscussionInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  profileTagIds: String
+}
+
+input CommentsModeratorCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentsDebateResponsesInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsRecentDebateResponsesInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+  limit: String
+}
+
+input CommentsForumEventCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  forumEventId: String
+}
+
+input CommentsAlignmentSuggestedCommentsInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+  postId: String
+}
+
+input CommentsRssInput {
+  userId: String
+  commentIds: String
+  minimumKarma: String
+}
+
+input CommentSelector {
+  default: CommentDefaultViewInput
+  commentReplies: CommentsCommentRepliesInput
+  postCommentsDeleted: CommentsPostCommentsDeletedInput
+  allCommentsDeleted: CommentsAllCommentsDeletedInput
+  checkedByModGPT: CommentsCheckedByModGPTInput
+  postCommentsTop: CommentsPostCommentsTopInput
+  postCommentsRecentReplies: CommentsPostCommentsRecentRepliesInput
+  postCommentsMagic: CommentsPostCommentsMagicInput
+  afPostCommentsTop: CommentsAfPostCommentsTopInput
+  postCommentsOld: CommentsPostCommentsOldInput
+  postCommentsNew: CommentsPostCommentsNewInput
+  postCommentsBest: CommentsPostCommentsBestInput
+  postLWComments: CommentsPostLWCommentsInput
+  profileRecentComments: CommentsProfileRecentCommentsInput
+  profileComments: CommentsProfileCommentsInput
+  allRecentComments: CommentsAllRecentCommentsInput
+  recentComments: CommentsRecentCommentsInput
+  afSubmissions: CommentsAfSubmissionsInput
+  rejected: CommentsRejectedInput
+  recentDiscussionThread: CommentsRecentDiscussionThreadInput
+  afRecentDiscussionThread: CommentsAfRecentDiscussionThreadInput
+  postsItemComments: CommentsPostsItemCommentsInput
+  sunshineNewCommentsList: CommentsSunshineNewCommentsListInput
+  questionAnswers: CommentsQuestionAnswersInput
+  legacyIdComment: CommentsLegacyIdCommentInput
+  sunshineNewUsersComments: CommentsSunshineNewUsersCommentsInput
+  defaultModeratorResponses: CommentsDefaultModeratorResponsesInput
+  repliesToAnswer: CommentsRepliesToAnswerInput
+  answersAndReplies: CommentsAnswersAndRepliesInput
+  topShortform: CommentsTopShortformInput
+  shortform: CommentsShortformInput
+  shortformFrontpage: CommentsShortformFrontpageInput
+  repliesToCommentThread: CommentsRepliesToCommentThreadInput
+  shortformLatestChildren: CommentsShortformLatestChildrenInput
+  nominations2018: CommentsNominations2018Input
+  nominations2019: CommentsNominations2019Input
+  reviews2018: CommentsReviews2018Input
+  reviews2019: CommentsReviews2019Input
+  reviews: CommentsReviewsInput
+  tagDiscussionComments: CommentsTagDiscussionCommentsInput
+  tagSubforumComments: CommentsTagSubforumCommentsInput
+  latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput
+  moderatorComments: CommentsModeratorCommentsInput
+  debateResponses: CommentsDebateResponsesInput
+  recentDebateResponses: CommentsRecentDebateResponsesInput
+  forumEventComments: CommentsForumEventCommentsInput
+  alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
+  rss: CommentsRssInput
 }
 
 input MultiCommentInput {
@@ -1741,8 +2191,8 @@ type MultiCommentOutput {
 }
 
 extend type Query {
-  comment(input: SingleCommentInput): SingleCommentOutput
-  comments(input: MultiCommentInput): MultiCommentOutput
+  comment(input: SingleCommentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCommentOutput
+  comments(input: MultiCommentInput @deprecated(reason: "Use the selector field instead"), selector: CommentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCommentOutput
 }
 
 type Conversation {
@@ -1766,11 +2216,41 @@ type Conversation {
 input SingleConversationInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleConversationOutput {
   result: Conversation
+}
+
+input ConversationDefaultViewInput
+
+input ConversationsModeratorConversationsInput {
+  userId: String
+  showArchive: String
+}
+
+input ConversationsUserConversationsInput {
+  showArchive: String
+  userId: String
+}
+
+input ConversationsUserConversationsAllInput {
+  showArchive: String
+  userId: String
+}
+
+input ConversationsUserGroupUntitledConversationsInput {
+  moderator: String
+  participantIds: String
+  userId: String
+}
+
+input ConversationSelector {
+  default: ConversationDefaultViewInput
+  moderatorConversations: ConversationsModeratorConversationsInput
+  userConversations: ConversationsUserConversationsInput
+  userConversationsAll: ConversationsUserConversationsAllInput
+  userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
 }
 
 input MultiConversationInput {
@@ -1785,8 +2265,8 @@ type MultiConversationOutput {
 }
 
 extend type Query {
-  conversation(input: SingleConversationInput): SingleConversationOutput
-  conversations(input: MultiConversationInput): MultiConversationOutput
+  conversation(input: SingleConversationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleConversationOutput
+  conversations(input: MultiConversationInput @deprecated(reason: "Use the selector field instead"), selector: ConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiConversationOutput
 }
 
 type CronHistory {
@@ -1826,11 +2306,19 @@ type CurationNotice {
 input SingleCurationNoticeInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleCurationNoticeOutput {
   result: CurationNotice
+}
+
+input CurationNoticeDefaultViewInput
+
+input CurationNoticesCurationNoticesPageInput
+
+input CurationNoticeSelector {
+  default: CurationNoticeDefaultViewInput
+  curationNoticesPage: CurationNoticesCurationNoticesPageInput
 }
 
 input MultiCurationNoticeInput {
@@ -1845,8 +2333,8 @@ type MultiCurationNoticeOutput {
 }
 
 extend type Query {
-  curationNotice(input: SingleCurationNoticeInput): SingleCurationNoticeOutput
-  curationNotices(input: MultiCurationNoticeInput): MultiCurationNoticeOutput
+  curationNotice(input: SingleCurationNoticeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCurationNoticeOutput
+  curationNotices(input: MultiCurationNoticeInput @deprecated(reason: "Use the selector field instead"), selector: CurationNoticeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCurationNoticeOutput
 }
 
 type DatabaseMetadata {
@@ -1880,11 +2368,27 @@ type DialogueCheck {
 input SingleDialogueCheckInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleDialogueCheckOutput {
   result: DialogueCheck
+}
+
+input DialogueCheckDefaultViewInput
+
+input DialogueChecksUserDialogueChecksInput {
+  userId: String
+}
+
+input DialogueChecksUserTargetDialogueChecksInput {
+  userId: String
+  targetUserIds: String
+}
+
+input DialogueCheckSelector {
+  default: DialogueCheckDefaultViewInput
+  userDialogueChecks: DialogueChecksUserDialogueChecksInput
+  userTargetDialogueChecks: DialogueChecksUserTargetDialogueChecksInput
 }
 
 input MultiDialogueCheckInput {
@@ -1899,8 +2403,8 @@ type MultiDialogueCheckOutput {
 }
 
 extend type Query {
-  dialogueCheck(input: SingleDialogueCheckInput): SingleDialogueCheckOutput
-  dialogueChecks(input: MultiDialogueCheckInput): MultiDialogueCheckOutput
+  dialogueCheck(input: SingleDialogueCheckInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDialogueCheckOutput
+  dialogueChecks(input: MultiDialogueCheckInput @deprecated(reason: "Use the selector field instead"), selector: DialogueCheckSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDialogueCheckOutput
 }
 
 type DialogueMatchPreference {
@@ -1923,11 +2427,21 @@ type DialogueMatchPreference {
 input SingleDialogueMatchPreferenceInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleDialogueMatchPreferenceOutput {
   result: DialogueMatchPreference
+}
+
+input DialogueMatchPreferenceDefaultViewInput
+
+input DialogueMatchPreferencesDialogueMatchPreferencesInput {
+  dialogueCheckId: String
+}
+
+input DialogueMatchPreferenceSelector {
+  default: DialogueMatchPreferenceDefaultViewInput
+  dialogueMatchPreferences: DialogueMatchPreferencesDialogueMatchPreferencesInput
 }
 
 input MultiDialogueMatchPreferenceInput {
@@ -1942,8 +2456,8 @@ type MultiDialogueMatchPreferenceOutput {
 }
 
 extend type Query {
-  dialogueMatchPreference(input: SingleDialogueMatchPreferenceInput): SingleDialogueMatchPreferenceOutput
-  dialogueMatchPreferences(input: MultiDialogueMatchPreferenceInput): MultiDialogueMatchPreferenceOutput
+  dialogueMatchPreference(input: SingleDialogueMatchPreferenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDialogueMatchPreferenceOutput
+  dialogueMatchPreferences(input: MultiDialogueMatchPreferenceInput @deprecated(reason: "Use the selector field instead"), selector: DialogueMatchPreferenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDialogueMatchPreferenceOutput
 }
 
 type DigestPost {
@@ -1962,11 +2476,16 @@ type DigestPost {
 input SingleDigestPostInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleDigestPostOutput {
   result: DigestPost
+}
+
+input DigestPostViewInput
+
+input DigestPostSelector {
+  default: DigestPostViewInput
 }
 
 input MultiDigestPostInput {
@@ -1981,8 +2500,8 @@ type MultiDigestPostOutput {
 }
 
 extend type Query {
-  digestPost(input: SingleDigestPostInput): SingleDigestPostOutput
-  digestPosts(input: MultiDigestPostInput): MultiDigestPostOutput
+  digestPost(input: SingleDigestPostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestPostOutput
+  digestPosts(input: MultiDigestPostInput @deprecated(reason: "Use the selector field instead"), selector: DigestPostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestPostOutput
 }
 
 type Digest {
@@ -2001,11 +2520,24 @@ type Digest {
 input SingleDigestInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleDigestOutput {
   result: Digest
+}
+
+input DigestDefaultViewInput
+
+input DigestsFindByNumInput {
+  num: String
+}
+
+input DigestsAllInput
+
+input DigestSelector {
+  default: DigestDefaultViewInput
+  findByNum: DigestsFindByNumInput
+  all: DigestsAllInput
 }
 
 input MultiDigestInput {
@@ -2020,8 +2552,8 @@ type MultiDigestOutput {
 }
 
 extend type Query {
-  digest(input: SingleDigestInput): SingleDigestOutput
-  digests(input: MultiDigestInput): MultiDigestOutput
+  digest(input: SingleDigestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestOutput
+  digests(input: MultiDigestInput @deprecated(reason: "Use the selector field instead"), selector: DigestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestOutput
 }
 
 type ElectionCandidate {
@@ -2059,11 +2591,19 @@ type ElectionCandidate {
 input SingleElectionCandidateInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleElectionCandidateOutput {
   result: ElectionCandidate
+}
+
+input ElectionCandidateDefaultViewInput {
+  electionName: String
+  sortBy: String
+}
+
+input ElectionCandidateSelector {
+  default: ElectionCandidateDefaultViewInput
 }
 
 input MultiElectionCandidateInput {
@@ -2078,8 +2618,8 @@ type MultiElectionCandidateOutput {
 }
 
 extend type Query {
-  electionCandidate(input: SingleElectionCandidateInput): SingleElectionCandidateOutput
-  electionCandidates(input: MultiElectionCandidateInput): MultiElectionCandidateOutput
+  electionCandidate(input: SingleElectionCandidateInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElectionCandidateOutput
+  electionCandidates(input: MultiElectionCandidateInput @deprecated(reason: "Use the selector field instead"), selector: ElectionCandidateSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElectionCandidateOutput
 }
 
 type ElectionVote {
@@ -2101,11 +2641,25 @@ type ElectionVote {
 input SingleElectionVoteInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleElectionVoteOutput {
   result: ElectionVote
+}
+
+input ElectionVoteDefaultViewInput {
+  electionName: String
+  userId: String
+}
+
+input ElectionVotesAllSubmittedVotesInput {
+  electionName: String
+  userId: String
+}
+
+input ElectionVoteSelector {
+  default: ElectionVoteDefaultViewInput
+  allSubmittedVotes: ElectionVotesAllSubmittedVotesInput
 }
 
 input MultiElectionVoteInput {
@@ -2120,8 +2674,8 @@ type MultiElectionVoteOutput {
 }
 
 extend type Query {
-  electionVote(input: SingleElectionVoteInput): SingleElectionVoteOutput
-  electionVotes(input: MultiElectionVoteInput): MultiElectionVoteOutput
+  electionVote(input: SingleElectionVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElectionVoteOutput
+  electionVotes(input: MultiElectionVoteInput @deprecated(reason: "Use the selector field instead"), selector: ElectionVoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElectionVoteOutput
 }
 
 type ElicitQuestionPrediction {
@@ -2143,11 +2697,16 @@ type ElicitQuestionPrediction {
 input SingleElicitQuestionPredictionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleElicitQuestionPredictionOutput {
   result: ElicitQuestionPrediction
+}
+
+input ElicitQuestionPredictionViewInput
+
+input ElicitQuestionPredictionSelector {
+  default: ElicitQuestionPredictionViewInput
 }
 
 input MultiElicitQuestionPredictionInput {
@@ -2162,8 +2721,8 @@ type MultiElicitQuestionPredictionOutput {
 }
 
 extend type Query {
-  elicitQuestionPrediction(input: SingleElicitQuestionPredictionInput): SingleElicitQuestionPredictionOutput
-  elicitQuestionPredictions(input: MultiElicitQuestionPredictionInput): MultiElicitQuestionPredictionOutput
+  elicitQuestionPrediction(input: SingleElicitQuestionPredictionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElicitQuestionPredictionOutput
+  elicitQuestionPredictions(input: MultiElicitQuestionPredictionInput @deprecated(reason: "Use the selector field instead"), selector: ElicitQuestionPredictionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElicitQuestionPredictionOutput
 }
 
 type ElicitQuestion {
@@ -2180,11 +2739,16 @@ type ElicitQuestion {
 input SingleElicitQuestionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleElicitQuestionOutput {
   result: ElicitQuestion
+}
+
+input ElicitQuestionViewInput
+
+input ElicitQuestionSelector {
+  default: ElicitQuestionViewInput
 }
 
 input MultiElicitQuestionInput {
@@ -2199,8 +2763,8 @@ type MultiElicitQuestionOutput {
 }
 
 extend type Query {
-  elicitQuestion(input: SingleElicitQuestionInput): SingleElicitQuestionOutput
-  elicitQuestions(input: MultiElicitQuestionInput): MultiElicitQuestionOutput
+  elicitQuestion(input: SingleElicitQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElicitQuestionOutput
+  elicitQuestions(input: MultiElicitQuestionInput @deprecated(reason: "Use the selector field instead"), selector: ElicitQuestionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElicitQuestionOutput
 }
 
 type EmailTokens {
@@ -2225,11 +2789,19 @@ type FeaturedResource {
 input SingleFeaturedResourceInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleFeaturedResourceOutput {
   result: FeaturedResource
+}
+
+input FeaturedResourceDefaultViewInput
+
+input FeaturedResourcesActiveResourcesInput
+
+input FeaturedResourceSelector {
+  default: FeaturedResourceDefaultViewInput
+  activeResources: FeaturedResourcesActiveResourcesInput
 }
 
 input MultiFeaturedResourceInput {
@@ -2244,8 +2816,8 @@ type MultiFeaturedResourceOutput {
 }
 
 extend type Query {
-  featuredResource(input: SingleFeaturedResourceInput): SingleFeaturedResourceOutput
-  featuredResources(input: MultiFeaturedResourceInput): MultiFeaturedResourceOutput
+  featuredResource(input: SingleFeaturedResourceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleFeaturedResourceOutput
+  featuredResources(input: MultiFeaturedResourceInput @deprecated(reason: "Use the selector field instead"), selector: FeaturedResourceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiFeaturedResourceOutput
 }
 
 type FieldChange {
@@ -2260,6 +2832,37 @@ type FieldChange {
   fieldName: String
   oldValue: JSON
   newValue: JSON
+}
+
+input SingleFieldChangeInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleFieldChangeOutput {
+  result: FieldChange
+}
+
+input FieldChangeDefaultViewInput
+
+input FieldChangeSelector {
+  default: FieldChangeDefaultViewInput
+}
+
+input MultiFieldChangeInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+}
+
+type MultiFieldChangeOutput {
+  results: [FieldChange]
+  totalCount: Int
+}
+
+extend type Query {
+  fieldChange(input: SingleFieldChangeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleFieldChangeOutput
+  fieldChanges(input: MultiFieldChangeInput @deprecated(reason: "Use the selector field instead"), selector: FieldChangeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiFieldChangeOutput
 }
 
 type ForumEvent {
@@ -2301,11 +2904,34 @@ type ForumEvent {
 input SingleForumEventInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleForumEventOutput {
   result: ForumEvent
+}
+
+input ForumEventDefaultViewInput
+
+input ForumEventsUpcomingForumEventsInput {
+  limit: String
+}
+
+input ForumEventsPastForumEventsInput {
+  limit: String
+}
+
+input ForumEventsCurrentForumEventInput
+
+input ForumEventsCurrentAndRecentForumEventsInput {
+  limit: String
+}
+
+input ForumEventSelector {
+  default: ForumEventDefaultViewInput
+  upcomingForumEvents: ForumEventsUpcomingForumEventsInput
+  pastForumEvents: ForumEventsPastForumEventsInput
+  currentForumEvent: ForumEventsCurrentForumEventInput
+  currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput
 }
 
 input MultiForumEventInput {
@@ -2320,8 +2946,8 @@ type MultiForumEventOutput {
 }
 
 extend type Query {
-  forumEvent(input: SingleForumEventInput): SingleForumEventOutput
-  forumEvents(input: MultiForumEventInput): MultiForumEventOutput
+  forumEvent(input: SingleForumEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleForumEventOutput
+  forumEvents(input: MultiForumEventInput @deprecated(reason: "Use the selector field instead"), selector: ForumEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiForumEventOutput
 }
 
 type GardenCode {
@@ -2346,30 +2972,60 @@ type GardenCode {
   afOnly: Boolean!
 }
 
-input SingleGardenCodeInput {
+input SingleGardencodeInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
-type SingleGardenCodeOutput {
+type SingleGardencodeOutput {
   result: GardenCode
 }
 
-input MultiGardenCodeInput {
+input GardenCodeDefaultViewInput {
+  types: String
+  userId: String
+  code: String
+}
+
+input GardenCodesUsersPrivateGardenCodesInput {
+  types: String
+  userId: String
+  code: String
+}
+
+input GardenCodesPublicGardenCodesInput {
+  types: String
+  userId: String
+  code: String
+}
+
+input GardenCodesGardenCodeByCodeInput {
+  types: String
+  userId: String
+  code: String
+}
+
+input GardencodeSelector {
+  default: GardenCodeDefaultViewInput
+  usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput
+  publicGardenCodes: GardenCodesPublicGardenCodesInput
+  gardenCodeByCode: GardenCodesGardenCodeByCodeInput
+}
+
+input MultiGardencodeInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiGardenCodeOutput {
+type MultiGardencodeOutput {
   results: [GardenCode]
   totalCount: Int
 }
 
 extend type Query {
-  gardenCode(input: SingleGardenCodeInput): SingleGardenCodeOutput
-  gardenCodes(input: MultiGardenCodeInput): MultiGardenCodeOutput
+  gardencode(input: SingleGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardencodeOutput
+  gardencodes(input: MultiGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: GardencodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardencodeOutput
 }
 
 type GoogleServiceAccountSession {
@@ -2387,11 +3043,16 @@ type GoogleServiceAccountSession {
 input SingleGoogleServiceAccountSessionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleGoogleServiceAccountSessionOutput {
   result: GoogleServiceAccountSession
+}
+
+input GoogleServiceAccountSessionDefaultViewInput
+
+input GoogleServiceAccountSessionSelector {
+  default: GoogleServiceAccountSessionDefaultViewInput
 }
 
 input MultiGoogleServiceAccountSessionInput {
@@ -2406,8 +3067,8 @@ type MultiGoogleServiceAccountSessionOutput {
 }
 
 extend type Query {
-  googleServiceAccountSession(input: SingleGoogleServiceAccountSessionInput): SingleGoogleServiceAccountSessionOutput
-  googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput): MultiGoogleServiceAccountSessionOutput
+  googleServiceAccountSession(input: SingleGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGoogleServiceAccountSessionOutput
+  googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: GoogleServiceAccountSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGoogleServiceAccountSessionOutput
 }
 
 type Images {
@@ -2436,11 +3097,29 @@ type JargonTerm {
 input SingleJargonTermInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleJargonTermOutput {
   result: JargonTerm
+}
+
+input JargonTermDefaultViewInput
+
+input JargonTermsPostEditorJargonTermsInput {
+  postId: String
+}
+
+input JargonTermsGlossaryEditAllInput
+
+input JargonTermsPostsApprovedJargonInput {
+  postIds: String
+}
+
+input JargonTermSelector {
+  default: JargonTermDefaultViewInput
+  postEditorJargonTerms: JargonTermsPostEditorJargonTermsInput
+  glossaryEditAll: JargonTermsGlossaryEditAllInput
+  postsApprovedJargon: JargonTermsPostsApprovedJargonInput
 }
 
 input MultiJargonTermInput {
@@ -2455,8 +3134,8 @@ type MultiJargonTermOutput {
 }
 
 extend type Query {
-  jargonTerm(input: SingleJargonTermInput): SingleJargonTermOutput
-  jargonTerms(input: MultiJargonTermInput): MultiJargonTermOutput
+  jargonTerm(input: SingleJargonTermInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleJargonTermOutput
+  jargonTerms(input: MultiJargonTermInput @deprecated(reason: "Use the selector field instead"), selector: JargonTermSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiJargonTermOutput
 }
 
 type LWEvent {
@@ -2476,14 +3155,39 @@ type LWEvent {
 input SingleLWEventInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleLWEventOutput {
   result: LWEvent
 }
 
-input MultiLWEventInput {
+input LWEventDefaultViewInput
+
+input LWEventsAdminViewInput {
+  name: String
+}
+
+input LWEventsPostVisitsInput {
+  postId: String
+  userId: String
+  limit: String
+}
+
+input LWEventsEmailHistoryInput {
+  userId: String
+}
+
+input LWEventsGatherTownUsersInput
+
+input LweventSelector {
+  default: LWEventDefaultViewInput
+  adminView: LWEventsAdminViewInput
+  postVisits: LWEventsPostVisitsInput
+  emailHistory: LWEventsEmailHistoryInput
+  gatherTownUsers: LWEventsGatherTownUsersInput
+}
+
+input MultiLweventInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
@@ -2495,8 +3199,8 @@ type MultiLWEventOutput {
 }
 
 extend type Query {
-  lWEvent(input: SingleLWEventInput): SingleLWEventOutput
-  lWEvents(input: MultiLWEventInput): MultiLWEventOutput
+  lwevent(input: SingleLWEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLWEventOutput
+  lwevents(input: MultiLWEventInput @deprecated(reason: "Use the selector field instead"), selector: LWEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLWEventOutput
 }
 
 type LegacyData {
@@ -2525,11 +3229,26 @@ type LlmConversation {
 input SingleLlmConversationInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleLlmConversationOutput {
   result: LlmConversation
+}
+
+input LlmConversationDefaultViewInput
+
+input LlmConversationsLlmConversationsWithUserInput {
+  userId: String
+}
+
+input LlmConversationsLlmConversationsAllInput {
+  showDeleted: String
+}
+
+input LlmConversationSelector {
+  default: LlmConversationDefaultViewInput
+  llmConversationsWithUser: LlmConversationsLlmConversationsWithUserInput
+  llmConversationsAll: LlmConversationsLlmConversationsAllInput
 }
 
 input MultiLlmConversationInput {
@@ -2544,8 +3263,8 @@ type MultiLlmConversationOutput {
 }
 
 extend type Query {
-  llmConversation(input: SingleLlmConversationInput): SingleLlmConversationOutput
-  llmConversations(input: MultiLlmConversationInput): MultiLlmConversationOutput
+  llmConversation(input: SingleLlmConversationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLlmConversationOutput
+  llmConversations(input: MultiLlmConversationInput @deprecated(reason: "Use the selector field instead"), selector: LlmConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLlmConversationOutput
 }
 
 type LlmMessage {
@@ -2591,11 +3310,73 @@ type Localgroup {
 input SingleLocalgroupInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleLocalgroupOutput {
   result: Localgroup
+}
+
+input LocalgroupDefaultViewInput {
+  filters: String
+  includeInactive: String
+}
+
+input LocalgroupsUserOrganizesGroupsInput {
+  filters: String
+  includeInactive: String
+  userId: String
+}
+
+input LocalgroupsUserActiveGroupsInput {
+  filters: String
+  includeInactive: String
+  userId: String
+}
+
+input LocalgroupsUserInactiveGroupsInput {
+  filters: String
+  includeInactive: String
+  userId: String
+}
+
+input LocalgroupsAllInput {
+  filters: String
+  includeInactive: String
+}
+
+input LocalgroupsNearbyInput {
+  filters: String
+  includeInactive: String
+  lng: String
+  lat: String
+}
+
+input LocalgroupsSingleInput {
+  filters: String
+  includeInactive: String
+  groupId: String
+}
+
+input LocalgroupsLocalInput {
+  filters: String
+  includeInactive: String
+}
+
+input LocalgroupsOnlineInput {
+  filters: String
+  includeInactive: String
+}
+
+input LocalgroupSelector {
+  default: LocalgroupDefaultViewInput
+  userOrganizesGroups: LocalgroupsUserOrganizesGroupsInput
+  userActiveGroups: LocalgroupsUserActiveGroupsInput
+  userInactiveGroups: LocalgroupsUserInactiveGroupsInput
+  all: LocalgroupsAllInput
+  nearby: LocalgroupsNearbyInput
+  single: LocalgroupsSingleInput
+  local: LocalgroupsLocalInput
+  online: LocalgroupsOnlineInput
 }
 
 input MultiLocalgroupInput {
@@ -2610,8 +3391,8 @@ type MultiLocalgroupOutput {
 }
 
 extend type Query {
-  localgroup(input: SingleLocalgroupInput): SingleLocalgroupOutput
-  localgroups(input: MultiLocalgroupInput): MultiLocalgroupOutput
+  localgroup(input: SingleLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLocalgroupOutput
+  localgroups(input: MultiLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: LocalgroupSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLocalgroupOutput
 }
 
 type ManifoldProbabilitiesCache {
@@ -2644,11 +3425,26 @@ type Message {
 input SingleMessageInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleMessageOutput {
   result: Message
+}
+
+input MessageDefaultViewInput
+
+input MessagesMessagesConversationInput {
+  conversationId: String
+}
+
+input MessagesConversationPreviewInput {
+  conversationId: String
+}
+
+input MessageSelector {
+  default: MessageDefaultViewInput
+  messagesConversation: MessagesMessagesConversationInput
+  conversationPreview: MessagesConversationPreviewInput
 }
 
 input MultiMessageInput {
@@ -2663,8 +3459,8 @@ type MultiMessageOutput {
 }
 
 extend type Query {
-  message(input: SingleMessageInput): SingleMessageOutput
-  messages(input: MultiMessageInput): MultiMessageOutput
+  message(input: SingleMessageInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleMessageOutput
+  messages(input: MultiMessageInput @deprecated(reason: "Use the selector field instead"), selector: MessageSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiMessageOutput
 }
 
 type Migration {
@@ -2690,11 +3486,24 @@ type ModerationTemplate {
 input SingleModerationTemplateInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleModerationTemplateOutput {
   result: ModerationTemplate
+}
+
+input ModerationTemplateDefaultViewInput
+
+input ModerationTemplatesModerationTemplatesPageInput
+
+input ModerationTemplatesModerationTemplatesListInput {
+  collectionName: String
+}
+
+input ModerationTemplateSelector {
+  default: ModerationTemplateDefaultViewInput
+  moderationTemplatesPage: ModerationTemplatesModerationTemplatesPageInput
+  moderationTemplatesList: ModerationTemplatesModerationTemplatesListInput
 }
 
 input MultiModerationTemplateInput {
@@ -2709,8 +3518,8 @@ type MultiModerationTemplateOutput {
 }
 
 extend type Query {
-  moderationTemplate(input: SingleModerationTemplateInput): SingleModerationTemplateOutput
-  moderationTemplates(input: MultiModerationTemplateInput): MultiModerationTemplateOutput
+  moderationTemplate(input: SingleModerationTemplateInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleModerationTemplateOutput
+  moderationTemplates(input: MultiModerationTemplateInput @deprecated(reason: "Use the selector field instead"), selector: ModerationTemplateSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiModerationTemplateOutput
 }
 
 type ModeratorAction {
@@ -2728,11 +3537,24 @@ type ModeratorAction {
 input SingleModeratorActionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleModeratorActionOutput {
   result: ModeratorAction
+}
+
+input ModeratorActionDefaultViewInput
+
+input ModeratorActionsUserModeratorActionsInput {
+  userIds: [String!]
+}
+
+input ModeratorActionsRestrictionModerationActionsInput
+
+input ModeratorActionSelector {
+  default: ModeratorActionDefaultViewInput
+  userModeratorActions: ModeratorActionsUserModeratorActionsInput
+  restrictionModerationActions: ModeratorActionsRestrictionModerationActionsInput
 }
 
 input MultiModeratorActionInput {
@@ -2747,8 +3569,8 @@ type MultiModeratorActionOutput {
 }
 
 extend type Query {
-  moderatorAction(input: SingleModeratorActionInput): SingleModeratorActionOutput
-  moderatorActions(input: MultiModeratorActionInput): MultiModeratorActionOutput
+  moderatorAction(input: SingleModeratorActionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleModeratorActionOutput
+  moderatorActions(input: MultiModeratorActionInput @deprecated(reason: "Use the selector field instead"), selector: ModeratorActionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiModeratorActionOutput
 }
 
 type MultiDocument {
@@ -2795,11 +3617,36 @@ type MultiDocument {
 input SingleMultiDocumentInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleMultiDocumentOutput {
   result: MultiDocument
+}
+
+input MultiDocumentDefaultViewInput {
+  excludedDocumentIds: String
+}
+
+input MultiDocumentsLensBySlugInput {
+  excludedDocumentIds: String
+  slug: String
+}
+
+input MultiDocumentsSummariesByParentIdInput {
+  excludedDocumentIds: String
+  parentDocumentId: String
+}
+
+input MultiDocumentsPingbackLensPagesInput {
+  excludedDocumentIds: String
+  documentId: String
+}
+
+input MultiDocumentSelector {
+  default: MultiDocumentDefaultViewInput
+  lensBySlug: MultiDocumentsLensBySlugInput
+  summariesByParentId: MultiDocumentsSummariesByParentIdInput
+  pingbackLensPages: MultiDocumentsPingbackLensPagesInput
 }
 
 input MultiMultiDocumentInput {
@@ -2814,8 +3661,8 @@ type MultiMultiDocumentOutput {
 }
 
 extend type Query {
-  multiDocument(input: SingleMultiDocumentInput): SingleMultiDocumentOutput
-  multiDocuments(input: MultiMultiDocumentInput): MultiMultiDocumentOutput
+  multiDocument(input: SingleMultiDocumentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleMultiDocumentOutput
+  multiDocuments(input: MultiMultiDocumentInput @deprecated(reason: "Use the selector field instead"), selector: MultiDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiMultiDocumentOutput
 }
 
 type Notification {
@@ -2840,11 +3687,35 @@ type Notification {
 input SingleNotificationInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleNotificationOutput {
   result: Notification
+}
+
+input NotificationDefaultViewInput
+
+input NotificationsUserNotificationsInput {
+  userId: String
+  type: String
+  viewed: String
+}
+
+input NotificationsUnreadUserNotificationsInput {
+  userId: String
+  type: String
+  lastViewedDate: String
+}
+
+input NotificationsAdminAlertNotificationsInput {
+  type: String
+}
+
+input NotificationSelector {
+  default: NotificationDefaultViewInput
+  userNotifications: NotificationsUserNotificationsInput
+  unreadUserNotifications: NotificationsUnreadUserNotificationsInput
+  adminAlertNotifications: NotificationsAdminAlertNotificationsInput
 }
 
 input MultiNotificationInput {
@@ -2859,8 +3730,8 @@ type MultiNotificationOutput {
 }
 
 extend type Query {
-  notification(input: SingleNotificationInput): SingleNotificationOutput
-  notifications(input: MultiNotificationInput): MultiNotificationOutput
+  notification(input: SingleNotificationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleNotificationOutput
+  notifications(input: MultiNotificationInput @deprecated(reason: "Use the selector field instead"), selector: NotificationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiNotificationOutput
 }
 
 type PageCacheEntry {
@@ -2883,11 +3754,35 @@ type PetrovDayAction {
 input SinglePetrovDayActionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePetrovDayActionOutput {
   result: PetrovDayAction
+}
+
+input PetrovDayActionDefaultViewInput
+
+input PetrovDayActionsGetActionInput {
+  userId: String
+  actionType: String
+}
+
+input PetrovDayActionsLaunchDashboardInput {
+  side: String
+}
+
+input PetrovDayActionsAdminConsoleInput
+
+input PetrovDayActionsWarningConsoleInput {
+  side: String
+}
+
+input PetrovDayActionSelector {
+  default: PetrovDayActionDefaultViewInput
+  getAction: PetrovDayActionsGetActionInput
+  launchDashboard: PetrovDayActionsLaunchDashboardInput
+  adminConsole: PetrovDayActionsAdminConsoleInput
+  warningConsole: PetrovDayActionsWarningConsoleInput
 }
 
 input MultiPetrovDayActionInput {
@@ -2902,8 +3797,8 @@ type MultiPetrovDayActionOutput {
 }
 
 extend type Query {
-  petrovDayAction(input: SinglePetrovDayActionInput): SinglePetrovDayActionOutput
-  petrovDayActions(input: MultiPetrovDayActionInput): MultiPetrovDayActionOutput
+  petrovDayAction(input: SinglePetrovDayActionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePetrovDayActionOutput
+  petrovDayActions(input: MultiPetrovDayActionInput @deprecated(reason: "Use the selector field instead"), selector: PetrovDayActionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPetrovDayActionOutput
 }
 
 type PetrovDayLaunch {
@@ -2931,11 +3826,19 @@ type PodcastEpisode {
 input SinglePodcastEpisodeInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePodcastEpisodeOutput {
   result: PodcastEpisode
+}
+
+input PodcastEpisodeDefaultViewInput
+
+input PodcastEpisodesEpisodeByExternalIdInput
+
+input PodcastEpisodeSelector {
+  default: PodcastEpisodeDefaultViewInput
+  episodeByExternalId: PodcastEpisodesEpisodeByExternalIdInput
 }
 
 input MultiPodcastEpisodeInput {
@@ -2950,8 +3853,8 @@ type MultiPodcastEpisodeOutput {
 }
 
 extend type Query {
-  podcastEpisode(input: SinglePodcastEpisodeInput): SinglePodcastEpisodeOutput
-  podcastEpisodes(input: MultiPodcastEpisodeInput): MultiPodcastEpisodeOutput
+  podcastEpisode(input: SinglePodcastEpisodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePodcastEpisodeOutput
+  podcastEpisodes(input: MultiPodcastEpisodeInput @deprecated(reason: "Use the selector field instead"), selector: PodcastEpisodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPodcastEpisodeOutput
 }
 
 type Podcast {
@@ -2967,11 +3870,16 @@ type Podcast {
 input SinglePodcastInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePodcastOutput {
   result: Podcast
+}
+
+input PodcastViewInput
+
+input PodcastSelector {
+  default: PodcastViewInput
 }
 
 input MultiPodcastInput {
@@ -2986,8 +3894,8 @@ type MultiPodcastOutput {
 }
 
 extend type Query {
-  podcast(input: SinglePodcastInput): SinglePodcastOutput
-  podcasts(input: MultiPodcastInput): MultiPodcastOutput
+  podcast(input: SinglePodcastInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePodcastOutput
+  podcasts(input: MultiPodcastInput @deprecated(reason: "Use the selector field instead"), selector: PodcastSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPodcastOutput
 }
 
 type PostEmbedding {
@@ -3006,11 +3914,16 @@ type PostEmbedding {
 input SinglePostEmbeddingInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePostEmbeddingOutput {
   result: PostEmbedding
+}
+
+input PostEmbeddingViewInput
+
+input PostEmbeddingSelector {
+  default: PostEmbeddingViewInput
 }
 
 input MultiPostEmbeddingInput {
@@ -3025,8 +3938,8 @@ type MultiPostEmbeddingOutput {
 }
 
 extend type Query {
-  postEmbedding(input: SinglePostEmbeddingInput): SinglePostEmbeddingOutput
-  postEmbeddings(input: MultiPostEmbeddingInput): MultiPostEmbeddingOutput
+  postEmbedding(input: SinglePostEmbeddingInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostEmbeddingOutput
+  postEmbeddings(input: MultiPostEmbeddingInput @deprecated(reason: "Use the selector field instead"), selector: PostEmbeddingSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostEmbeddingOutput
 }
 
 type PostRecommendation {
@@ -3062,11 +3975,21 @@ type PostRelation {
 input SinglePostRelationInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePostRelationOutput {
   result: PostRelation
+}
+
+input PostRelationDefaultViewInput
+
+input PostRelationsAllPostRelationsInput {
+  postId: String
+}
+
+input PostRelationSelector {
+  default: PostRelationDefaultViewInput
+  allPostRelations: PostRelationsAllPostRelationsInput
 }
 
 input MultiPostRelationInput {
@@ -3081,8 +4004,8 @@ type MultiPostRelationOutput {
 }
 
 extend type Query {
-  postRelation(input: SinglePostRelationInput): SinglePostRelationOutput
-  postRelations(input: MultiPostRelationInput): MultiPostRelationOutput
+  postRelation(input: SinglePostRelationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostRelationOutput
+  postRelations(input: MultiPostRelationInput @deprecated(reason: "Use the selector field instead"), selector: PostRelationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostRelationOutput
 }
 
 type PostViewTime {
@@ -3095,11 +4018,16 @@ type PostViewTime {
 input SinglePostViewTimeInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePostViewTimeOutput {
   result: PostViewTime
+}
+
+input PostViewTimeViewInput
+
+input PostViewTimeSelector {
+  default: PostViewTimeViewInput
 }
 
 input MultiPostViewTimeInput {
@@ -3114,8 +4042,8 @@ type MultiPostViewTimeOutput {
 }
 
 extend type Query {
-  postViewTime(input: SinglePostViewTimeInput): SinglePostViewTimeOutput
-  postViewTimes(input: MultiPostViewTimeInput): MultiPostViewTimeOutput
+  postViewTime(input: SinglePostViewTimeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostViewTimeOutput
+  postViewTimes(input: MultiPostViewTimeInput @deprecated(reason: "Use the selector field instead"), selector: PostViewTimeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostViewTimeOutput
 }
 
 type PostViews {
@@ -3125,30 +4053,35 @@ type PostViews {
   legacyData: JSON
 }
 
-input SinglePostViewsInput {
+input SinglePostViewInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
-type SinglePostViewsOutput {
+type SinglePostViewOutput {
   result: PostViews
 }
 
-input MultiPostViewsInput {
+input PostViewViewInput
+
+input PostViewSelector {
+  default: PostViewViewInput
+}
+
+input MultiPostViewInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiPostViewsOutput {
+type MultiPostViewOutput {
   results: [PostViews]
   totalCount: Int
 }
 
 extend type Query {
-  postViews(input: SinglePostViewsInput): SinglePostViewsOutput
-  postViewses(input: MultiPostViewsInput): MultiPostViewsOutput
+  postView(input: SinglePostViewInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostViewOutput
+  postViews(input: MultiPostViewInput @deprecated(reason: "Use the selector field instead"), selector: PostViewSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostViewOutput
 }
 
 type Post {
@@ -3396,11 +4329,1212 @@ type Post {
 input SinglePostInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SinglePostOutput {
   result: Post
+}
+
+input PostDefaultViewInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsUserPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsMagicInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsTopInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsNewInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsRecentCommentsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsOldInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsTimeframeInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  limit: String
+}
+
+input PostsDailyInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsTagRelevanceInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsFrontpageInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsFrontpageRssInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsCuratedInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsCuratedRssInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsCommunityInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsCommunityRssInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsMetaRssInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsRssInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsTopQuestionsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsRecentQuestionActivityInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsScheduledInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsRejectedInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsDraftsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  includeDraftEvents: String
+  includeArchived: String
+  includeShared: String
+  sortDraftsBy: String
+}
+
+input PostsAll_draftsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsUnlistedInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsUserAFSubmissionsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsSlugPostInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  slug: String
+}
+
+input PostsLegacyIdPostInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  legacyId: String
+}
+
+input PostsRecentDiscussionThreadsListInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  limit: String
+}
+
+input PostsAfRecentDiscussionThreadsListInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  limit: String
+}
+
+input PostsReviewRecentDiscussionThreadsList2018Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  limit: String
+}
+
+input PostsReviewRecentDiscussionThreadsList2019Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  limit: String
+}
+
+input PostsGlobalEventsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  onlineEvent: String
+  eventType: String
+}
+
+input PostsNearbyEventsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  onlineEvent: String
+  eventType: String
+  lng: String
+  lat: String
+  distance: String
+  filters: String
+}
+
+input PostsEventsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  globalEvent: String
+  onlineEvent: String
+  groupId: String
+}
+
+input PostsEventsInTimeRangeInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  groupId: String
+}
+
+input PostsUpcomingEventsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  groupId: String
+}
+
+input PostsPastEventsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  groupId: String
+}
+
+input PostsTbdEventsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  groupId: String
+}
+
+input PostsNonEventGroupPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  groupId: String
+}
+
+input PostsPostsWithBannedUsersInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsCommunityResourcePostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsSunshineNewPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsSunshineNewUsersPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsSunshineCuratedSuggestionsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  audioOnly: String
+}
+
+input PostsHasEverDialoguedInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsPingbackPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  postId: String
+}
+
+input PostsNominations2018Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  sortByMost: String
+}
+
+input PostsNominations2019Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  sortByMost: String
+}
+
+input PostsReviews2018Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  sortBy: String
+}
+
+input PostsReviews2019Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  sortBy: String
+}
+
+input PostsVoting2019Input {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  sortBy: String
+}
+
+input PostsStickiedInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsNominatablePostsByVoteInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  requiredUnnominated: String
+  requiredFrontpage: String
+}
+
+input PostsReviewVotingInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  reviewPhase: String
+}
+
+input PostsFrontpageReviewWidgetInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  reviewYear: String
+  reviewPhase: String
+}
+
+input PostsReviewQuickPageInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsReviewFinalVotingInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsMyBookmarkedPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+  limit: String
+}
+
+input PostsAlignmentSuggestedPostsInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostsCurrentOpenThreadInput {
+  postIds: String
+  notPostIds: String
+  hideCommunity: String
+  karmaThreshold: String
+  excludeEvents: String
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: String
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
+input PostSelector {
+  default: PostDefaultViewInput
+  userPosts: PostsUserPostsInput
+  magic: PostsMagicInput
+  top: PostsTopInput
+  new: PostsNewInput
+  recentComments: PostsRecentCommentsInput
+  old: PostsOldInput
+  timeframe: PostsTimeframeInput
+  daily: PostsDailyInput
+  tagRelevance: PostsTagRelevanceInput
+  frontpage: PostsFrontpageInput
+  frontpageRss: PostsFrontpageRssInput
+  curated: PostsCuratedInput
+  curatedRss: PostsCuratedRssInput
+  community: PostsCommunityInput
+  communityRss: PostsCommunityRssInput
+  metaRss: PostsMetaRssInput
+  rss: PostsRssInput
+  topQuestions: PostsTopQuestionsInput
+  recentQuestionActivity: PostsRecentQuestionActivityInput
+  scheduled: PostsScheduledInput
+  rejected: PostsRejectedInput
+  drafts: PostsDraftsInput
+  all_drafts: PostsAll_draftsInput
+  unlisted: PostsUnlistedInput
+  userAFSubmissions: PostsUserAFSubmissionsInput
+  slugPost: PostsSlugPostInput
+  legacyIdPost: PostsLegacyIdPostInput
+  recentDiscussionThreadsList: PostsRecentDiscussionThreadsListInput
+  afRecentDiscussionThreadsList: PostsAfRecentDiscussionThreadsListInput
+  reviewRecentDiscussionThreadsList2018: PostsReviewRecentDiscussionThreadsList2018Input
+  reviewRecentDiscussionThreadsList2019: PostsReviewRecentDiscussionThreadsList2019Input
+  globalEvents: PostsGlobalEventsInput
+  nearbyEvents: PostsNearbyEventsInput
+  events: PostsEventsInput
+  eventsInTimeRange: PostsEventsInTimeRangeInput
+  upcomingEvents: PostsUpcomingEventsInput
+  pastEvents: PostsPastEventsInput
+  tbdEvents: PostsTbdEventsInput
+  nonEventGroupPosts: PostsNonEventGroupPostsInput
+  postsWithBannedUsers: PostsPostsWithBannedUsersInput
+  communityResourcePosts: PostsCommunityResourcePostsInput
+  sunshineNewPosts: PostsSunshineNewPostsInput
+  sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput
+  sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput
+  hasEverDialogued: PostsHasEverDialoguedInput
+  pingbackPosts: PostsPingbackPostsInput
+  nominations2018: PostsNominations2018Input
+  nominations2019: PostsNominations2019Input
+  reviews2018: PostsReviews2018Input
+  reviews2019: PostsReviews2019Input
+  voting2019: PostsVoting2019Input
+  stickied: PostsStickiedInput
+  nominatablePostsByVote: PostsNominatablePostsByVoteInput
+  reviewVoting: PostsReviewVotingInput
+  frontpageReviewWidget: PostsFrontpageReviewWidgetInput
+  reviewQuickPage: PostsReviewQuickPageInput
+  reviewFinalVoting: PostsReviewFinalVotingInput
+  myBookmarkedPosts: PostsMyBookmarkedPostsInput
+  alignmentSuggestedPosts: PostsAlignmentSuggestedPostsInput
+  currentOpenThread: PostsCurrentOpenThreadInput
 }
 
 input MultiPostInput {
@@ -3415,8 +5549,8 @@ type MultiPostOutput {
 }
 
 extend type Query {
-  post(input: SinglePostInput): SinglePostOutput
-  posts(input: MultiPostInput): MultiPostOutput
+  post(input: SinglePostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostOutput
+  posts(input: MultiPostInput @deprecated(reason: "Use the selector field instead"), selector: PostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostOutput
 }
 
 type RSSFeed {
@@ -3436,30 +5570,40 @@ type RSSFeed {
   importAsDraft: Boolean!
 }
 
-input SingleRSSFeedInput {
+input SingleRssfeedInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
-type SingleRSSFeedOutput {
+type SingleRssfeedOutput {
   result: RSSFeed
 }
 
-input MultiRSSFeedInput {
+input RSSFeedDefaultViewInput
+
+input RSSFeedsUsersFeedInput {
+  userId: String
+}
+
+input RssfeedSelector {
+  default: RSSFeedDefaultViewInput
+  usersFeed: RSSFeedsUsersFeedInput
+}
+
+input MultiRssfeedInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiRSSFeedOutput {
+type MultiRssfeedOutput {
   results: [RSSFeed]
   totalCount: Int
 }
 
 extend type Query {
-  rSSFeed(input: SingleRSSFeedInput): SingleRSSFeedOutput
-  rSSFeeds(input: MultiRSSFeedInput): MultiRSSFeedOutput
+  rssfeed(input: SingleRssfeedInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleRssfeedOutput
+  rssfeeds(input: MultiRssfeedInput @deprecated(reason: "Use the selector field instead"), selector: RssfeedSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRssfeedOutput
 }
 
 type ReadStatus {
@@ -3507,11 +5651,36 @@ type Report {
 input SingleReportInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleReportOutput {
   result: Report
+}
+
+input ReportDefaultViewInput
+
+input ReportsAllReportsInput
+
+input ReportsUnclaimedReportsInput
+
+input ReportsClaimedReportsInput
+
+input ReportsAdminClaimedReportsInput {
+  userId: String
+}
+
+input ReportsSunshineSidebarReportsInput
+
+input ReportsClosedReportsInput
+
+input ReportSelector {
+  default: ReportDefaultViewInput
+  allReports: ReportsAllReportsInput
+  unclaimedReports: ReportsUnclaimedReportsInput
+  claimedReports: ReportsClaimedReportsInput
+  adminClaimedReports: ReportsAdminClaimedReportsInput
+  sunshineSidebarReports: ReportsSunshineSidebarReportsInput
+  closedReports: ReportsClosedReportsInput
 }
 
 input MultiReportInput {
@@ -3526,8 +5695,8 @@ type MultiReportOutput {
 }
 
 extend type Query {
-  report(input: SingleReportInput): SingleReportOutput
-  reports(input: MultiReportInput): MultiReportOutput
+  report(input: SingleReportInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleReportOutput
+  reports(input: MultiReportInput @deprecated(reason: "Use the selector field instead"), selector: ReportSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReportOutput
 }
 
 type ReviewVote {
@@ -3550,11 +5719,31 @@ type ReviewVote {
 input SingleReviewVoteInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleReviewVoteOutput {
   result: ReviewVote
+}
+
+input ReviewVoteDefaultViewInput
+
+input ReviewVotesReviewVotesFromUserInput {
+  userId: String
+  year: String
+}
+
+input ReviewVotesReviewVotesForPostInput
+
+input ReviewVotesReviewVotesForPostAndUserInput
+
+input ReviewVotesReviewVotesAdminDashboardInput
+
+input ReviewVoteSelector {
+  default: ReviewVoteDefaultViewInput
+  reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput
+  reviewVotesForPost: ReviewVotesReviewVotesForPostInput
+  reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput
+  reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput
 }
 
 input MultiReviewVoteInput {
@@ -3569,8 +5758,8 @@ type MultiReviewVoteOutput {
 }
 
 extend type Query {
-  reviewVote(input: SingleReviewVoteInput): SingleReviewVoteOutput
-  reviewVotes(input: MultiReviewVoteInput): MultiReviewVoteOutput
+  reviewVote(input: SingleReviewVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleReviewVoteOutput
+  reviewVotes(input: MultiReviewVoteInput @deprecated(reason: "Use the selector field instead"), selector: ReviewVoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReviewVoteOutput
 }
 
 type ReviewWinnerArt {
@@ -3587,11 +5776,24 @@ type ReviewWinnerArt {
 input SingleReviewWinnerArtInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleReviewWinnerArtOutput {
   result: ReviewWinnerArt
+}
+
+input ReviewWinnerArtDefaultViewInput
+
+input ReviewWinnerArtsPostArtInput {
+  postId: String
+}
+
+input ReviewWinnerArtsAllForYearInput
+
+input ReviewWinnerArtSelector {
+  default: ReviewWinnerArtDefaultViewInput
+  postArt: ReviewWinnerArtsPostArtInput
+  allForYear: ReviewWinnerArtsAllForYearInput
 }
 
 input MultiReviewWinnerArtInput {
@@ -3606,8 +5808,8 @@ type MultiReviewWinnerArtOutput {
 }
 
 extend type Query {
-  reviewWinnerArt(input: SingleReviewWinnerArtInput): SingleReviewWinnerArtOutput
-  reviewWinnerArts(input: MultiReviewWinnerArtInput): MultiReviewWinnerArtOutput
+  reviewWinnerArt(input: SingleReviewWinnerArtInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleReviewWinnerArtOutput
+  reviewWinnerArts(input: MultiReviewWinnerArtInput @deprecated(reason: "Use the selector field instead"), selector: ReviewWinnerArtSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReviewWinnerArtOutput
 }
 
 type ReviewWinner {
@@ -3629,11 +5831,26 @@ type ReviewWinner {
 input SingleReviewWinnerInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleReviewWinnerOutput {
   result: ReviewWinner
+}
+
+input ReviewWinnerDefaultViewInput
+
+input ReviewWinnersReviewWinnerSingleInput {
+  category: String
+  reviewYear: String
+  reviewRanking: String
+}
+
+input ReviewWinnersBestOfLessWrongAnnouncementInput
+
+input ReviewWinnerSelector {
+  default: ReviewWinnerDefaultViewInput
+  reviewWinnerSingle: ReviewWinnersReviewWinnerSingleInput
+  bestOfLessWrongAnnouncement: ReviewWinnersBestOfLessWrongAnnouncementInput
 }
 
 input MultiReviewWinnerInput {
@@ -3648,8 +5865,8 @@ type MultiReviewWinnerOutput {
 }
 
 extend type Query {
-  reviewWinner(input: SingleReviewWinnerInput): SingleReviewWinnerOutput
-  reviewWinners(input: MultiReviewWinnerInput): MultiReviewWinnerOutput
+  reviewWinner(input: SingleReviewWinnerInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleReviewWinnerOutput
+  reviewWinners(input: MultiReviewWinnerInput @deprecated(reason: "Use the selector field instead"), selector: ReviewWinnerSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReviewWinnerOutput
 }
 
 type Revision {
@@ -3699,11 +5916,36 @@ type Revision {
 input SingleRevisionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleRevisionOutput {
   result: Revision
+}
+
+input RevisionDefaultViewInput
+
+input RevisionsRevisionsByUserInput {
+  userId: String
+}
+
+input RevisionsRevisionsOnDocumentInput {
+  documentId: String
+  fieldName: String
+  before: String
+  after: String
+}
+
+input RevisionsRevisionByVersionNumberInput {
+  documentId: String
+  version: String
+  fieldName: String
+}
+
+input RevisionSelector {
+  default: RevisionDefaultViewInput
+  revisionsByUser: RevisionsRevisionsByUserInput
+  revisionsOnDocument: RevisionsRevisionsOnDocumentInput
+  revisionByVersionNumber: RevisionsRevisionByVersionNumberInput
 }
 
 input MultiRevisionInput {
@@ -3718,8 +5960,8 @@ type MultiRevisionOutput {
 }
 
 extend type Query {
-  revision(input: SingleRevisionInput): SingleRevisionOutput
-  revisions(input: MultiRevisionInput): MultiRevisionOutput
+  revision(input: SingleRevisionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleRevisionOutput
+  revisions(input: MultiRevisionInput @deprecated(reason: "Use the selector field instead"), selector: RevisionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRevisionOutput
 }
 
 type Sequence {
@@ -3753,11 +5995,48 @@ type Sequence {
 input SingleSequenceInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSequenceOutput {
   result: Sequence
+}
+
+input SequenceDefaultViewInput {
+  sequenceIds: String
+}
+
+input SequencesUserProfileInput {
+  sequenceIds: String
+  userId: String
+}
+
+input SequencesUserProfilePrivateInput {
+  sequenceIds: String
+  userId: String
+}
+
+input SequencesUserProfileAllInput {
+  sequenceIds: String
+  userId: String
+}
+
+input SequencesCuratedSequencesInput {
+  sequenceIds: String
+  userId: String
+}
+
+input SequencesCommunitySequencesInput {
+  sequenceIds: String
+  userId: String
+}
+
+input SequenceSelector {
+  default: SequenceDefaultViewInput
+  userProfile: SequencesUserProfileInput
+  userProfilePrivate: SequencesUserProfilePrivateInput
+  userProfileAll: SequencesUserProfileAllInput
+  curatedSequences: SequencesCuratedSequencesInput
+  communitySequences: SequencesCommunitySequencesInput
 }
 
 input MultiSequenceInput {
@@ -3772,8 +6051,8 @@ type MultiSequenceOutput {
 }
 
 extend type Query {
-  sequence(input: SingleSequenceInput): SingleSequenceOutput
-  sequences(input: MultiSequenceInput): MultiSequenceOutput
+  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSequenceOutput
+  sequences(input: MultiSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SequenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSequenceOutput
 }
 
 type Session {
@@ -3821,11 +6100,16 @@ type SplashArtCoordinate {
 input SingleSplashArtCoordinateInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSplashArtCoordinateOutput {
   result: SplashArtCoordinate
+}
+
+input SplashArtCoordinateViewInput
+
+input SplashArtCoordinateSelector {
+  default: SplashArtCoordinateViewInput
 }
 
 input MultiSplashArtCoordinateInput {
@@ -3840,8 +6124,8 @@ type MultiSplashArtCoordinateOutput {
 }
 
 extend type Query {
-  splashArtCoordinate(input: SingleSplashArtCoordinateInput): SingleSplashArtCoordinateOutput
-  splashArtCoordinates(input: MultiSplashArtCoordinateInput): MultiSplashArtCoordinateOutput
+  splashArtCoordinate(input: SingleSplashArtCoordinateInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSplashArtCoordinateOutput
+  splashArtCoordinates(input: MultiSplashArtCoordinateInput @deprecated(reason: "Use the selector field instead"), selector: SplashArtCoordinateSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSplashArtCoordinateOutput
 }
 
 type Spotlight {
@@ -3880,11 +6164,41 @@ type Spotlight {
 input SingleSpotlightInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSpotlightOutput {
   result: Spotlight
+}
+
+input SpotlightDefaultViewInput
+
+input SpotlightsMostRecentlyPromotedSpotlightsInput {
+  limit: String
+}
+
+input SpotlightsSpotlightsPageInput {
+  limit: String
+}
+
+input SpotlightsSpotlightsPageDraftInput {
+  limit: String
+}
+
+input SpotlightsSpotlightsByDocumentIdsInput {
+  documentIds: String
+}
+
+input SpotlightsSpotlightsByIdInput {
+  spotlightIds: String
+}
+
+input SpotlightSelector {
+  default: SpotlightDefaultViewInput
+  mostRecentlyPromotedSpotlights: SpotlightsMostRecentlyPromotedSpotlightsInput
+  spotlightsPage: SpotlightsSpotlightsPageInput
+  spotlightsPageDraft: SpotlightsSpotlightsPageDraftInput
+  spotlightsByDocumentIds: SpotlightsSpotlightsByDocumentIdsInput
+  spotlightsById: SpotlightsSpotlightsByIdInput
 }
 
 input MultiSpotlightInput {
@@ -3899,8 +6213,8 @@ type MultiSpotlightOutput {
 }
 
 extend type Query {
-  spotlight(input: SingleSpotlightInput): SingleSpotlightOutput
-  spotlights(input: MultiSpotlightInput): MultiSpotlightOutput
+  spotlight(input: SingleSpotlightInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSpotlightOutput
+  spotlights(input: MultiSpotlightInput @deprecated(reason: "Use the selector field instead"), selector: SpotlightSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSpotlightOutput
 }
 
 type Subscription {
@@ -3920,11 +6234,29 @@ type Subscription {
 input SingleSubscriptionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSubscriptionOutput {
   result: Subscription
+}
+
+input SubscriptionDefaultViewInput
+
+input SubscriptionsSubscriptionStateInput
+
+input SubscriptionsSubscriptionsOfTypeInput {
+  userId: String
+  collectionName: String
+  subscriptionType: String
+}
+
+input SubscriptionsMembersOfGroupInput
+
+input SubscriptionSelector {
+  default: SubscriptionDefaultViewInput
+  subscriptionState: SubscriptionsSubscriptionStateInput
+  subscriptionsOfType: SubscriptionsSubscriptionsOfTypeInput
+  membersOfGroup: SubscriptionsMembersOfGroupInput
 }
 
 input MultiSubscriptionInput {
@@ -3939,8 +6271,8 @@ type MultiSubscriptionOutput {
 }
 
 extend type Query {
-  subscription(input: SingleSubscriptionInput): SingleSubscriptionOutput
-  subscriptions(input: MultiSubscriptionInput): MultiSubscriptionOutput
+  subscription(input: SingleSubscriptionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSubscriptionOutput
+  subscriptions(input: MultiSubscriptionInput @deprecated(reason: "Use the selector field instead"), selector: SubscriptionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSubscriptionOutput
 }
 
 type SurveyQuestion {
@@ -3958,11 +6290,16 @@ type SurveyQuestion {
 input SingleSurveyQuestionInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSurveyQuestionOutput {
   result: SurveyQuestion
+}
+
+input SurveyQuestionViewInput
+
+input SurveyQuestionSelector {
+  default: SurveyQuestionViewInput
 }
 
 input MultiSurveyQuestionInput {
@@ -3977,8 +6314,8 @@ type MultiSurveyQuestionOutput {
 }
 
 extend type Query {
-  surveyQuestion(input: SingleSurveyQuestionInput): SingleSurveyQuestionOutput
-  surveyQuestions(input: MultiSurveyQuestionInput): MultiSurveyQuestionOutput
+  surveyQuestion(input: SingleSurveyQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyQuestionOutput
+  surveyQuestions(input: MultiSurveyQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SurveyQuestionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyQuestionOutput
 }
 
 type SurveyResponse {
@@ -4000,11 +6337,16 @@ type SurveyResponse {
 input SingleSurveyResponseInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSurveyResponseOutput {
   result: SurveyResponse
+}
+
+input SurveyResponseViewInput
+
+input SurveyResponseSelector {
+  default: SurveyResponseViewInput
 }
 
 input MultiSurveyResponseInput {
@@ -4019,8 +6361,8 @@ type MultiSurveyResponseOutput {
 }
 
 extend type Query {
-  surveyResponse(input: SingleSurveyResponseInput): SingleSurveyResponseOutput
-  surveyResponses(input: MultiSurveyResponseInput): MultiSurveyResponseOutput
+  surveyResponse(input: SingleSurveyResponseInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyResponseOutput
+  surveyResponses(input: MultiSurveyResponseInput @deprecated(reason: "Use the selector field instead"), selector: SurveyResponseSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyResponseOutput
 }
 
 type SurveySchedule {
@@ -4046,11 +6388,19 @@ type SurveySchedule {
 input SingleSurveyScheduleInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSurveyScheduleOutput {
   result: SurveySchedule
+}
+
+input SurveyScheduleDefaultViewInput
+
+input SurveySchedulesSurveySchedulesByCreatedAtInput
+
+input SurveyScheduleSelector {
+  default: SurveyScheduleDefaultViewInput
+  surveySchedulesByCreatedAt: SurveySchedulesSurveySchedulesByCreatedAtInput
 }
 
 input MultiSurveyScheduleInput {
@@ -4065,8 +6415,8 @@ type MultiSurveyScheduleOutput {
 }
 
 extend type Query {
-  surveySchedule(input: SingleSurveyScheduleInput): SingleSurveyScheduleOutput
-  surveySchedules(input: MultiSurveyScheduleInput): MultiSurveyScheduleOutput
+  surveySchedule(input: SingleSurveyScheduleInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyScheduleOutput
+  surveySchedules(input: MultiSurveyScheduleInput @deprecated(reason: "Use the selector field instead"), selector: SurveyScheduleSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyScheduleOutput
 }
 
 type Survey {
@@ -4081,11 +6431,19 @@ type Survey {
 input SingleSurveyInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleSurveyOutput {
   result: Survey
+}
+
+input SurveyDefaultViewInput
+
+input SurveysSurveysByCreatedAtInput
+
+input SurveySelector {
+  default: SurveyDefaultViewInput
+  surveysByCreatedAt: SurveysSurveysByCreatedAtInput
 }
 
 input MultiSurveyInput {
@@ -4100,8 +6458,8 @@ type MultiSurveyOutput {
 }
 
 extend type Query {
-  survey(input: SingleSurveyInput): SingleSurveyOutput
-  surveys(input: MultiSurveyInput): MultiSurveyOutput
+  survey(input: SingleSurveyInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyOutput
+  surveys(input: MultiSurveyInput @deprecated(reason: "Use the selector field instead"), selector: SurveySelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyOutput
 }
 
 type TagFlag {
@@ -4120,11 +6478,19 @@ type TagFlag {
 input SingleTagFlagInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleTagFlagOutput {
   result: TagFlag
+}
+
+input TagFlagDefaultViewInput
+
+input TagFlagsAllTagFlagsInput
+
+input TagFlagSelector {
+  default: TagFlagDefaultViewInput
+  allTagFlags: TagFlagsAllTagFlagsInput
 }
 
 input MultiTagFlagInput {
@@ -4139,8 +6505,8 @@ type MultiTagFlagOutput {
 }
 
 extend type Query {
-  tagFlag(input: SingleTagFlagInput): SingleTagFlagOutput
-  tagFlags(input: MultiTagFlagInput): MultiTagFlagOutput
+  tagFlag(input: SingleTagFlagInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTagFlagOutput
+  tagFlags(input: MultiTagFlagInput @deprecated(reason: "Use the selector field instead"), selector: TagFlagSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagFlagOutput
 }
 
 type TagRel {
@@ -4172,11 +6538,26 @@ type TagRel {
 input SingleTagRelInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleTagRelOutput {
   result: TagRel
+}
+
+input TagRelDefaultViewInput
+
+input TagRelsPostsWithTagInput {
+  tagId: String
+}
+
+input TagRelsTagsOnPostInput {
+  postId: String
+}
+
+input TagRelSelector {
+  default: TagRelDefaultViewInput
+  postsWithTag: TagRelsPostsWithTagInput
+  tagsOnPost: TagRelsTagsOnPostInput
 }
 
 input MultiTagRelInput {
@@ -4191,8 +6572,8 @@ type MultiTagRelOutput {
 }
 
 extend type Query {
-  tagRel(input: SingleTagRelInput): SingleTagRelOutput
-  tagRels(input: MultiTagRelInput): MultiTagRelOutput
+  tagRel(input: SingleTagRelInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTagRelOutput
+  tagRels(input: MultiTagRelInput @deprecated(reason: "Use the selector field instead"), selector: TagRelSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagRelOutput
 }
 
 type Tag {
@@ -4288,24 +6669,124 @@ type Tag {
 input SingleTagInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleTagOutput {
   result: Tag
 }
 
-input ViewInput {
-  slugs: [String!]
+input TagDefaultViewInput {
+  excludedTagIds: String
 }
 
-input TagSelector @oneOf {
-  default: ViewInput
-  tagsBySlugs: ViewInput
-  tagByTagIds: ViewInput
-  allTagsAlphabetical: ViewInput
-  userTags: ViewInput
-  currentUserSubforums: ViewInput
+input TagsTagsByTagIdsInput {
+  excludedTagIds: String
+  tagIds: String
+}
+
+input TagsAllTagsAlphabeticalInput {
+  excludedTagIds: String
+}
+
+input TagsUserTagsInput {
+  excludedTagIds: String
+  userId: String
+}
+
+input TagsCurrentUserSubforumsInput {
+  excludedTagIds: String
+}
+
+input TagsAllPagesByNewestInput {
+  excludedTagIds: String
+}
+
+input TagsAllTagsHierarchicalInput {
+  excludedTagIds: String
+  wikiGrade: String
+}
+
+input TagsTagBySlugInput {
+  excludedTagIds: String
+  slug: String
+}
+
+input TagsTagsBySlugsInput {
+  excludedTagIds: String
+  slugs: String
+}
+
+input TagsCoreTagsInput {
+  excludedTagIds: String
+}
+
+input TagsPostTypeTagsInput {
+  excludedTagIds: String
+}
+
+input TagsCoreAndSubforumTagsInput {
+  excludedTagIds: String
+}
+
+input TagsNewTagsInput {
+  excludedTagIds: String
+}
+
+input TagsUnreviewedTagsInput {
+  excludedTagIds: String
+}
+
+input TagsSuggestedFilterTagsInput {
+  excludedTagIds: String
+}
+
+input TagsAllLWWikiTagsInput {
+  excludedTagIds: String
+}
+
+input TagsUnprocessedLWWikiTagsInput {
+  excludedTagIds: String
+}
+
+input TagsTagsByTagFlagInput {
+  excludedTagIds: String
+  tagFlagId: String
+}
+
+input TagsAllPublicTagsInput {
+  excludedTagIds: String
+}
+
+input TagsAllArbitalTagsInput {
+  excludedTagIds: String
+}
+
+input TagsPingbackWikiPagesInput {
+  excludedTagIds: String
+}
+
+input TagSelector {
+  default: TagDefaultViewInput
+  tagsByTagIds: TagsTagsByTagIdsInput
+  allTagsAlphabetical: TagsAllTagsAlphabeticalInput
+  userTags: TagsUserTagsInput
+  currentUserSubforums: TagsCurrentUserSubforumsInput
+  allPagesByNewest: TagsAllPagesByNewestInput
+  allTagsHierarchical: TagsAllTagsHierarchicalInput
+  tagBySlug: TagsTagBySlugInput
+  tagsBySlugs: TagsTagsBySlugsInput
+  coreTags: TagsCoreTagsInput
+  postTypeTags: TagsPostTypeTagsInput
+  coreAndSubforumTags: TagsCoreAndSubforumTagsInput
+  newTags: TagsNewTagsInput
+  unreviewedTags: TagsUnreviewedTagsInput
+  suggestedFilterTags: TagsSuggestedFilterTagsInput
+  allLWWikiTags: TagsAllLWWikiTagsInput
+  unprocessedLWWikiTags: TagsUnprocessedLWWikiTagsInput
+  tagsByTagFlag: TagsTagsByTagFlagInput
+  allPublicTags: TagsAllPublicTagsInput
+  allArbitalTags: TagsAllArbitalTagsInput
+  pingbackWikiPages: TagsPingbackWikiPagesInput
 }
 
 input MultiTagInput {
@@ -4320,8 +6801,8 @@ type MultiTagOutput {
 }
 
 extend type Query {
-  tag(input: SingleTagInput): SingleTagOutput
-  tags(input: MultiTagInput, selector: TagSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagOutput
+  tag(input: SingleTagInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTagOutput
+  tags(input: MultiTagInput @deprecated(reason: "Use the selector field instead"), selector: TagSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagOutput
 }
 
 type Tweet {
@@ -4344,11 +6825,16 @@ type TypingIndicator {
 input SingleTypingIndicatorInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleTypingIndicatorOutput {
   result: TypingIndicator
+}
+
+input TypingIndicatorViewInput
+
+input TypingIndicatorSelector {
+  default: TypingIndicatorViewInput
 }
 
 input MultiTypingIndicatorInput {
@@ -4363,8 +6849,8 @@ type MultiTypingIndicatorOutput {
 }
 
 extend type Query {
-  typingIndicator(input: SingleTypingIndicatorInput): SingleTypingIndicatorOutput
-  typingIndicators(input: MultiTypingIndicatorInput): MultiTypingIndicatorOutput
+  typingIndicator(input: SingleTypingIndicatorInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTypingIndicatorOutput
+  typingIndicators(input: MultiTypingIndicatorInput @deprecated(reason: "Use the selector field instead"), selector: TypingIndicatorSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTypingIndicatorOutput
 }
 
 type UltraFeedEvent {
@@ -4376,6 +6862,37 @@ type UltraFeedEvent {
   userId: String
   event: JSON
   feedItemId: String
+}
+
+input SingleUltraFeedEventInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleUltraFeedEventOutput {
+  result: UltraFeedEvent
+}
+
+input UltraFeedEventDefaultViewInput
+
+input UltraFeedEventSelector {
+  default: UltraFeedEventDefaultViewInput
+}
+
+input MultiUltraFeedEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+}
+
+type MultiUltraFeedEventOutput {
+  results: [UltraFeedEvent]
+  totalCount: Int
+}
+
+extend type Query {
+  ultraFeedEvent(input: SingleUltraFeedEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUltraFeedEventOutput
+  ultraFeedEvents(input: MultiUltraFeedEventInput @deprecated(reason: "Use the selector field instead"), selector: UltraFeedEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUltraFeedEventOutput
 }
 
 type UserActivity {
@@ -4401,30 +6918,40 @@ type UserEAGDetail {
   lastUpdated: Date
 }
 
-input SingleUserEAGDetailInput {
+input SingleUserEagDetailInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
-type SingleUserEAGDetailOutput {
+type SingleUserEagDetailOutput {
   result: UserEAGDetail
 }
 
-input MultiUserEAGDetailInput {
+input UserEAGDetailDefaultViewInput
+
+input UserEAGDetailsDataByUserInput {
+  userId: String
+}
+
+input UserEagDetailSelector {
+  default: UserEAGDetailDefaultViewInput
+  dataByUser: UserEAGDetailsDataByUserInput
+}
+
+input MultiUserEagDetailInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiUserEAGDetailOutput {
+type MultiUserEagDetailOutput {
   results: [UserEAGDetail]
   totalCount: Int
 }
 
 extend type Query {
-  userEAGDetail(input: SingleUserEAGDetailInput): SingleUserEAGDetailOutput
-  userEAGDetails(input: MultiUserEAGDetailInput): MultiUserEAGDetailOutput
+  userEagDetail(input: SingleUserEagDetailInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserEagDetailOutput
+  userEagDetails(input: MultiUserEagDetailInput @deprecated(reason: "Use the selector field instead"), selector: UserEagDetailSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserEagDetailOutput
 }
 
 type UserJobAd {
@@ -4443,11 +6970,21 @@ type UserJobAd {
 input SingleUserJobAdInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleUserJobAdOutput {
   result: UserJobAd
+}
+
+input UserJobAdDefaultViewInput
+
+input UserJobAdsAdsByUserInput {
+  userId: String
+}
+
+input UserJobAdSelector {
+  default: UserJobAdDefaultViewInput
+  adsByUser: UserJobAdsAdsByUserInput
 }
 
 input MultiUserJobAdInput {
@@ -4462,8 +6999,8 @@ type MultiUserJobAdOutput {
 }
 
 extend type Query {
-  userJobAd(input: SingleUserJobAdInput): SingleUserJobAdOutput
-  userJobAds(input: MultiUserJobAdInput): MultiUserJobAdOutput
+  userJobAd(input: SingleUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserJobAdOutput
+  userJobAds(input: MultiUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: UserJobAdSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserJobAdOutput
 }
 
 type UserMostValuablePost {
@@ -4481,11 +7018,24 @@ type UserMostValuablePost {
 input SingleUserMostValuablePostInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleUserMostValuablePostOutput {
   result: UserMostValuablePost
+}
+
+input UserMostValuablePostDefaultViewInput
+
+input UserMostValuablePostsCurrentUserMostValuablePostsInput
+
+input UserMostValuablePostsCurrentUserPostInput {
+  postId: String
+}
+
+input UserMostValuablePostSelector {
+  default: UserMostValuablePostDefaultViewInput
+  currentUserMostValuablePosts: UserMostValuablePostsCurrentUserMostValuablePostsInput
+  currentUserPost: UserMostValuablePostsCurrentUserPostInput
 }
 
 input MultiUserMostValuablePostInput {
@@ -4500,8 +7050,8 @@ type MultiUserMostValuablePostOutput {
 }
 
 extend type Query {
-  userMostValuablePost(input: SingleUserMostValuablePostInput): SingleUserMostValuablePostOutput
-  userMostValuablePosts(input: MultiUserMostValuablePostInput): MultiUserMostValuablePostOutput
+  userMostValuablePost(input: SingleUserMostValuablePostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserMostValuablePostOutput
+  userMostValuablePosts(input: MultiUserMostValuablePostInput @deprecated(reason: "Use the selector field instead"), selector: UserMostValuablePostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserMostValuablePostOutput
 }
 
 type UserRateLimit {
@@ -4521,11 +7071,25 @@ type UserRateLimit {
 input SingleUserRateLimitInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleUserRateLimitOutput {
   result: UserRateLimit
+}
+
+input UserRateLimitDefaultViewInput
+
+input UserRateLimitsUserRateLimitsInput {
+  active: String
+  userIds: [String!]
+}
+
+input UserRateLimitsActiveUserRateLimitsInput
+
+input UserRateLimitSelector {
+  default: UserRateLimitDefaultViewInput
+  userRateLimits: UserRateLimitsUserRateLimitsInput
+  activeUserRateLimits: UserRateLimitsActiveUserRateLimitsInput
 }
 
 input MultiUserRateLimitInput {
@@ -4540,8 +7104,8 @@ type MultiUserRateLimitOutput {
 }
 
 extend type Query {
-  userRateLimit(input: SingleUserRateLimitInput): SingleUserRateLimitOutput
-  userRateLimits(input: MultiUserRateLimitInput): MultiUserRateLimitOutput
+  userRateLimit(input: SingleUserRateLimitInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserRateLimitOutput
+  userRateLimits(input: MultiUserRateLimitInput @deprecated(reason: "Use the selector field instead"), selector: UserRateLimitSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserRateLimitOutput
 }
 
 type UserTagRel {
@@ -4561,11 +7125,22 @@ type UserTagRel {
 input SingleUserTagRelInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleUserTagRelOutput {
   result: UserTagRel
+}
+
+input UserTagRelDefaultViewInput
+
+input UserTagRelsSingleInput {
+  userId: String
+  tagId: String
+}
+
+input UserTagRelSelector {
+  default: UserTagRelDefaultViewInput
+  single: UserTagRelsSingleInput
 }
 
 input MultiUserTagRelInput {
@@ -4580,8 +7155,8 @@ type MultiUserTagRelOutput {
 }
 
 extend type Query {
-  userTagRel(input: SingleUserTagRelInput): SingleUserTagRelOutput
-  userTagRels(input: MultiUserTagRelInput): MultiUserTagRelOutput
+  userTagRel(input: SingleUserTagRelInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserTagRelOutput
+  userTagRels(input: MultiUserTagRelInput @deprecated(reason: "Use the selector field instead"), selector: UserTagRelSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserTagRelOutput
 }
 
 type User {
@@ -4851,11 +7426,69 @@ type User {
 input SingleUserInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleUserOutput {
   result: User
+}
+
+input UserDefaultViewInput
+
+input UsersUsersByUserIdsInput {
+  userIds: String
+}
+
+input UsersUsersProfileInput {
+  userId: String
+  slug: String
+}
+
+input UsersLWSunshinesListInput
+
+input UsersLWTrustLevel1ListInput
+
+input UsersLWUsersAdminInput
+
+input UsersUsersWithBannedUsersInput
+
+input UsersSunshineNewUsersInput
+
+input UsersRecentlyActiveInput
+
+input UsersAllUsersInput
+
+input UsersUsersMapLocationsInput
+
+input UsersTagCommunityMembersInput {
+  hasBio: String
+  profileTagId: String
+}
+
+input UsersReviewAdminUsersInput
+
+input UsersUsersWithPaymentInfoInput
+
+input UsersUsersWithOptedInToDialogueFacilitationInput
+
+input UsersAlignmentSuggestedUsersInput
+
+input UserSelector {
+  default: UserDefaultViewInput
+  usersByUserIds: UsersUsersByUserIdsInput
+  usersProfile: UsersUsersProfileInput
+  LWSunshinesList: UsersLWSunshinesListInput
+  LWTrustLevel1List: UsersLWTrustLevel1ListInput
+  LWUsersAdmin: UsersLWUsersAdminInput
+  usersWithBannedUsers: UsersUsersWithBannedUsersInput
+  sunshineNewUsers: UsersSunshineNewUsersInput
+  recentlyActive: UsersRecentlyActiveInput
+  allUsers: UsersAllUsersInput
+  usersMapLocations: UsersUsersMapLocationsInput
+  tagCommunityMembers: UsersTagCommunityMembersInput
+  reviewAdminUsers: UsersReviewAdminUsersInput
+  usersWithPaymentInfo: UsersUsersWithPaymentInfoInput
+  usersWithOptedInToDialogueFacilitation: UsersUsersWithOptedInToDialogueFacilitationInput
+  alignmentSuggestedUsers: UsersAlignmentSuggestedUsersInput
 }
 
 input MultiUserInput {
@@ -4870,8 +7503,8 @@ type MultiUserOutput {
 }
 
 extend type Query {
-  user(input: SingleUserInput): SingleUserOutput
-  users(input: MultiUserInput): MultiUserOutput
+  user(input: SingleUserInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserOutput
+  users(input: MultiUserInput @deprecated(reason: "Use the selector field instead"), selector: UserSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserOutput
 }
 
 type Vote {
@@ -4901,11 +7534,25 @@ type Vote {
 input SingleVoteInput {
   selector: SelectorInput
   resolverArgs: JSON
-  allowNull: Boolean
 }
 
 type SingleVoteOutput {
   result: Vote
+}
+
+input VoteDefaultViewInput
+
+input VotesTagVotesInput
+
+input VotesUserPostVotesInput
+
+input VotesUserVotesInput
+
+input VoteSelector {
+  default: VoteDefaultViewInput
+  tagVotes: VotesTagVotesInput
+  userPostVotes: VotesUserPostVotesInput
+  userVotes: VotesUserVotesInput
 }
 
 input MultiVoteInput {
@@ -4920,8 +7567,8 @@ type MultiVoteOutput {
 }
 
 extend type Query {
-  vote(input: SingleVoteInput): SingleVoteOutput
-  votes(input: MultiVoteInput): MultiVoteOutput
+  vote(input: SingleVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleVoteOutput
+  votes(input: MultiVoteInput @deprecated(reason: "Use the selector field instead"), selector: VoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiVoteOutput
 }
 
 input CreateAdvisorRequestDataInput {

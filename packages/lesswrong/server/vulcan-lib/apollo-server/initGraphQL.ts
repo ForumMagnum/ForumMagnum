@@ -106,11 +106,11 @@ import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@
 import { graphqlFeaturedResourceQueryTypeDefs, featuredResourceGqlQueryHandlers, featuredResourceGqlFieldResolvers } from "@/server/collections/featuredResources/queries";
 import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
 import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventGqlFieldResolvers } from "@/server/collections/forumEvents/queries";
-import { graphqlGardenCodeQueryTypeDefs, gardenCodeGqlQueryHandlers, gardenCodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
+import { graphqlGardencodeQueryTypeDefs, gardencodeGqlQueryHandlers, gardencodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
-import { graphqlLWEventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
+import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
 import { graphqlLegacyDataQueryTypeDefs, legacyDataGqlFieldResolvers } from "@/server/collections/legacyData/queries";
 import { graphqlLlmConversationQueryTypeDefs, llmConversationGqlQueryHandlers, llmConversationGqlFieldResolvers } from "@/server/collections/llmConversations/queries";
 import { graphqlLlmMessageQueryTypeDefs, llmMessageGqlFieldResolvers } from "@/server/collections/llmMessages/queries";
@@ -131,9 +131,9 @@ import { graphqlPostEmbeddingQueryTypeDefs, postEmbeddingGqlQueryHandlers, postE
 import { graphqlPostRecommendationQueryTypeDefs, postRecommendationGqlFieldResolvers } from "@/server/collections/postRecommendations/queries";
 import { graphqlPostRelationQueryTypeDefs, postRelationGqlQueryHandlers, postRelationGqlFieldResolvers } from "@/server/collections/postRelations/queries";
 import { graphqlPostViewTimeQueryTypeDefs, postViewTimeGqlQueryHandlers, postViewTimeGqlFieldResolvers } from "@/server/collections/postViewTimes/queries";
-import { graphqlPostViewsQueryTypeDefs, postViewsGqlQueryHandlers, postViewsGqlFieldResolvers } from "@/server/collections/postViews/queries";
+import { graphqlPostViewQueryTypeDefs, postViewGqlQueryHandlers, postViewGqlFieldResolvers } from "@/server/collections/postViews/queries";
 import { graphqlPostQueryTypeDefs, postGqlQueryHandlers, postGqlFieldResolvers } from "@/server/collections/posts/queries";
-import { graphqlRSSFeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldResolvers } from "@/server/collections/rssfeeds/queries";
+import { graphqlRssfeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldResolvers } from "@/server/collections/rssfeeds/queries";
 import { graphqlReadStatusQueryTypeDefs, readStatusGqlFieldResolvers } from "@/server/collections/readStatus/queries";
 import { graphqlRecommendationsCacheQueryTypeDefs, recommendationsCacheGqlFieldResolvers } from "@/server/collections/recommendationsCaches/queries";
 import { graphqlReportQueryTypeDefs, reportGqlQueryHandlers, reportGqlFieldResolvers } from "@/server/collections/reports/queries";
@@ -158,7 +158,7 @@ import { graphqlTweetQueryTypeDefs, tweetGqlFieldResolvers } from "@/server/coll
 import { graphqlTypingIndicatorQueryTypeDefs, typingIndicatorGqlQueryHandlers, typingIndicatorGqlFieldResolvers } from "@/server/collections/typingIndicators/queries";
 import { graphqlUltraFeedEventQueryTypeDefs, ultraFeedEventGqlFieldResolvers } from "@/server/collections/ultraFeedEvents/queries";
 import { graphqlUserActivityQueryTypeDefs, userActivityGqlFieldResolvers } from "@/server/collections/useractivities/queries";
-import { graphqlUserEAGDetailQueryTypeDefs, userEAGDetailGqlQueryHandlers, userEAGDetailGqlFieldResolvers } from "@/server/collections/userEAGDetails/queries";
+import { graphqlUserEagDetailQueryTypeDefs, userEagDetailGqlQueryHandlers, userEagDetailGqlFieldResolvers } from "@/server/collections/userEAGDetails/queries";
 import { graphqlUserJobAdQueryTypeDefs, userJobAdGqlQueryHandlers, userJobAdGqlFieldResolvers } from "@/server/collections/userJobAds/queries";
 import { graphqlUserMostValuablePostQueryTypeDefs, userMostValuablePostGqlQueryHandlers, userMostValuablePostGqlFieldResolvers } from "@/server/collections/userMostValuablePosts/queries";
 import { graphqlUserRateLimitQueryTypeDefs, userRateLimitGqlQueryHandlers, userRateLimitGqlFieldResolvers } from "@/server/collections/userRateLimits/queries";
@@ -341,11 +341,11 @@ export const typeDefs = gql`
   ${graphqlFeaturedResourceQueryTypeDefs}
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlForumEventQueryTypeDefs}
-  ${graphqlGardenCodeQueryTypeDefs}
+  ${graphqlGardencodeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
-  ${graphqlLWEventQueryTypeDefs}
+  ${graphqlLweventQueryTypeDefs}
   ${graphqlLegacyDataQueryTypeDefs}
   ${graphqlLlmConversationQueryTypeDefs}
   ${graphqlLlmMessageQueryTypeDefs}
@@ -366,9 +366,9 @@ export const typeDefs = gql`
   ${graphqlPostRecommendationQueryTypeDefs}
   ${graphqlPostRelationQueryTypeDefs}
   ${graphqlPostViewTimeQueryTypeDefs}
-  ${graphqlPostViewsQueryTypeDefs}
+  ${graphqlPostViewQueryTypeDefs}
   ${graphqlPostQueryTypeDefs}
-  ${graphqlRSSFeedQueryTypeDefs}
+  ${graphqlRssfeedQueryTypeDefs}
   ${graphqlReadStatusQueryTypeDefs}
   ${graphqlRecommendationsCacheQueryTypeDefs}
   ${graphqlReportQueryTypeDefs}
@@ -393,7 +393,7 @@ export const typeDefs = gql`
   ${graphqlTypingIndicatorQueryTypeDefs}
   ${graphqlUltraFeedEventQueryTypeDefs}
   ${graphqlUserActivityQueryTypeDefs}
-  ${graphqlUserEAGDetailQueryTypeDefs}
+  ${graphqlUserEagDetailQueryTypeDefs}
   ${graphqlUserJobAdQueryTypeDefs}
   ${graphqlUserMostValuablePostQueryTypeDefs}
   ${graphqlUserRateLimitQueryTypeDefs}
@@ -524,7 +524,7 @@ export const resolvers = {
     ...elicitQuestionGqlQueryHandlers,
     ...featuredResourceGqlQueryHandlers,
     ...forumEventGqlQueryHandlers,
-    ...gardenCodeGqlQueryHandlers,
+    ...gardencodeGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
@@ -541,7 +541,7 @@ export const resolvers = {
     ...postEmbeddingGqlQueryHandlers,
     ...postRelationGqlQueryHandlers,
     ...postViewTimeGqlQueryHandlers,
-    ...postViewsGqlQueryHandlers,
+    ...postViewGqlQueryHandlers,
     ...postGqlQueryHandlers,
     ...rssfeedGqlQueryHandlers,
     ...reportGqlQueryHandlers,
@@ -561,7 +561,7 @@ export const resolvers = {
     ...tagRelGqlQueryHandlers,
     ...tagGqlQueryHandlers,
     ...typingIndicatorGqlQueryHandlers,
-    ...userEAGDetailGqlQueryHandlers,
+    ...userEagDetailGqlQueryHandlers,
     ...userJobAdGqlQueryHandlers,
     ...userMostValuablePostGqlQueryHandlers,
     ...userRateLimitGqlQueryHandlers,
@@ -756,7 +756,7 @@ export const resolvers = {
   ...featuredResourceGqlFieldResolvers,
   ...fieldChangeGqlFieldResolvers,
   ...forumEventGqlFieldResolvers,
-  ...gardenCodeGqlFieldResolvers,
+  ...gardencodeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,
@@ -781,7 +781,7 @@ export const resolvers = {
   ...postRecommendationGqlFieldResolvers,
   ...postRelationGqlFieldResolvers,
   ...postViewTimeGqlFieldResolvers,
-  ...postViewsGqlFieldResolvers,
+  ...postViewGqlFieldResolvers,
   ...postGqlFieldResolvers,
   ...rssfeedGqlFieldResolvers,
   ...readStatusGqlFieldResolvers,
@@ -808,7 +808,7 @@ export const resolvers = {
   ...typingIndicatorGqlFieldResolvers,
   ...ultraFeedEventGqlFieldResolvers,
   ...userActivityGqlFieldResolvers,
-  ...userEAGDetailGqlFieldResolvers,
+  ...userEagDetailGqlFieldResolvers,
   ...userJobAdGqlFieldResolvers,
   ...userMostValuablePostGqlFieldResolvers,
   ...userRateLimitGqlFieldResolvers,

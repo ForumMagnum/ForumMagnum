@@ -19,7 +19,7 @@ export const graphqlBanQueryTypeDefs = gql`
   
   input BanViewInput
   
-  input BanSelector @oneOf {
+  input BanSelector  {
     default: BanViewInput
   }
   

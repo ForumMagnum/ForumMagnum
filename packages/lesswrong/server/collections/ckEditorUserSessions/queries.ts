@@ -19,7 +19,7 @@ export const graphqlCkEditorUserSessionQueryTypeDefs = gql`
   
   input CkEditorUserSessionViewInput
   
-  input CkEditorUserSessionSelector @oneOf {
+  input CkEditorUserSessionSelector  {
     default: CkEditorUserSessionViewInput
   }
   

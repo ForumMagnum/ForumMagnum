@@ -17,10 +17,12 @@ export const graphqlUltraFeedEventQueryTypeDefs = gql`
     result: UltraFeedEvent
   }
   
-  input UltraFeedEventViewInput
+  input UltraFeedEventDefaultViewInput
   
-  input UltraFeedEventSelector @oneOf {
-    default: UltraFeedEventViewInput
+  
+  
+  input UltraFeedEventSelector  {
+    default: UltraFeedEventDefaultViewInput
   }
   
   input MultiUltraFeedEventInput {

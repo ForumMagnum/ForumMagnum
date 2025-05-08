@@ -17,18 +17,30 @@ export const graphqlReportQueryTypeDefs = gql`
     result: Report
   }
   
-  input ReportViewInput {
-    userId: String
-   }
+  input ReportDefaultViewInput
   
-  input ReportSelector @oneOf {
-    default: ReportViewInput
-    allReports: ReportViewInput
-    unclaimedReports: ReportViewInput
-    claimedReports: ReportViewInput
-    adminClaimedReports: ReportViewInput
-    sunshineSidebarReports: ReportViewInput
-    closedReports: ReportViewInput
+  input ReportsAllReportsInput
+  
+  input ReportsUnclaimedReportsInput
+  
+  input ReportsClaimedReportsInput
+  
+  input ReportsAdminClaimedReportsInput {
+    userId: String
+  }
+  
+  input ReportsSunshineSidebarReportsInput
+  
+  input ReportsClosedReportsInput
+  
+  input ReportSelector  {
+    default: ReportDefaultViewInput
+    allReports: ReportsAllReportsInput
+    unclaimedReports: ReportsUnclaimedReportsInput
+    claimedReports: ReportsClaimedReportsInput
+    adminClaimedReports: ReportsAdminClaimedReportsInput
+    sunshineSidebarReports: ReportsSunshineSidebarReportsInput
+    closedReports: ReportsClosedReportsInput
   }
   
   input MultiReportInput {

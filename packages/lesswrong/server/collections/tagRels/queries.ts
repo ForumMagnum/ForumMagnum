@@ -17,15 +17,20 @@ export const graphqlTagRelQueryTypeDefs = gql`
     result: TagRel
   }
   
-  input TagRelViewInput {
-    tagId: String
-    postId: String
-   }
+  input TagRelDefaultViewInput
   
-  input TagRelSelector @oneOf {
-    default: TagRelViewInput
-    postsWithTag: TagRelViewInput
-    tagsOnPost: TagRelViewInput
+  input TagRelsPostsWithTagInput {
+    tagId: String
+  }
+  
+  input TagRelsTagsOnPostInput {
+    postId: String
+  }
+  
+  input TagRelSelector  {
+    default: TagRelDefaultViewInput
+    postsWithTag: TagRelsPostsWithTagInput
+    tagsOnPost: TagRelsTagsOnPostInput
   }
   
   input MultiTagRelInput {

@@ -17,34 +17,63 @@ export const graphqlUserQueryTypeDefs = gql`
     result: User
   }
   
-  input UserViewInput {
-    sort: String
-    userId: String
-    userIds: String
-    slug: String
-    lng: String
-    lat: String
-    profileTagId: String
-    hasBio: String
-   }
+  input UserDefaultViewInput
   
-  input UserSelector @oneOf {
-    default: UserViewInput
-    usersByUserIds: UserViewInput
-    usersProfile: UserViewInput
-    LWSunshinesList: UserViewInput
-    LWTrustLevel1List: UserViewInput
-    LWUsersAdmin: UserViewInput
-    usersWithBannedUsers: UserViewInput
-    sunshineNewUsers: UserViewInput
-    recentlyActive: UserViewInput
-    allUsers: UserViewInput
-    usersMapLocations: UserViewInput
-    tagCommunityMembers: UserViewInput
-    reviewAdminUsers: UserViewInput
-    usersWithPaymentInfo: UserViewInput
-    usersWithOptedInToDialogueFacilitation: UserViewInput
-    alignmentSuggestedUsers: UserViewInput
+  input UsersUsersByUserIdsInput {
+    userIds: String
+  }
+  
+  input UsersUsersProfileInput {
+    userId: String
+    slug: String
+  }
+  
+  input UsersLWSunshinesListInput
+  
+  input UsersLWTrustLevel1ListInput
+  
+  input UsersLWUsersAdminInput
+  
+  input UsersUsersWithBannedUsersInput
+  
+  input UsersSunshineNewUsersInput
+  
+  input UsersRecentlyActiveInput
+  
+  input UsersAllUsersInput
+  
+  input UsersUsersMapLocationsInput
+  
+  input UsersTagCommunityMembersInput {
+    hasBio: String
+    profileTagId: String
+  }
+  
+  input UsersReviewAdminUsersInput
+  
+  input UsersUsersWithPaymentInfoInput
+  
+  input UsersUsersWithOptedInToDialogueFacilitationInput
+  
+  input UsersAlignmentSuggestedUsersInput
+  
+  input UserSelector  {
+    default: UserDefaultViewInput
+    usersByUserIds: UsersUsersByUserIdsInput
+    usersProfile: UsersUsersProfileInput
+    LWSunshinesList: UsersLWSunshinesListInput
+    LWTrustLevel1List: UsersLWTrustLevel1ListInput
+    LWUsersAdmin: UsersLWUsersAdminInput
+    usersWithBannedUsers: UsersUsersWithBannedUsersInput
+    sunshineNewUsers: UsersSunshineNewUsersInput
+    recentlyActive: UsersRecentlyActiveInput
+    allUsers: UsersAllUsersInput
+    usersMapLocations: UsersUsersMapLocationsInput
+    tagCommunityMembers: UsersTagCommunityMembersInput
+    reviewAdminUsers: UsersReviewAdminUsersInput
+    usersWithPaymentInfo: UsersUsersWithPaymentInfoInput
+    usersWithOptedInToDialogueFacilitation: UsersUsersWithOptedInToDialogueFacilitationInput
+    alignmentSuggestedUsers: UsersAlignmentSuggestedUsersInput
   }
   
   input MultiUserInput {

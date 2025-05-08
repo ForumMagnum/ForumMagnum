@@ -17,12 +17,10 @@ export const graphqlGoogleServiceAccountSessionQueryTypeDefs = gql`
     result: GoogleServiceAccountSession
   }
   
-  input GoogleServiceAccountSessionDefaultViewInput
-  
-  
+  input GoogleServiceAccountSessionViewInput
   
   input GoogleServiceAccountSessionSelector  {
-    default: GoogleServiceAccountSessionDefaultViewInput
+    default: GoogleServiceAccountSessionViewInput
   }
   
   input MultiGoogleServiceAccountSessionInput {

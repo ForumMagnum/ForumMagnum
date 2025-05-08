@@ -19,7 +19,7 @@ export const graphqlPodcastQueryTypeDefs = gql`
   
   input PodcastViewInput
   
-  input PodcastSelector @oneOf {
+  input PodcastSelector  {
     default: PodcastViewInput
   }
   

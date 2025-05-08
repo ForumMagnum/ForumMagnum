@@ -17,18 +17,29 @@ export const graphqlNotificationQueryTypeDefs = gql`
     result: Notification
   }
   
-  input NotificationViewInput {
-    type: String
-    userId: String
-    viewed: String
-    lastViewedDate: String
-   }
+  input NotificationDefaultViewInput
   
-  input NotificationSelector @oneOf {
-    default: NotificationViewInput
-    userNotifications: NotificationViewInput
-    unreadUserNotifications: NotificationViewInput
-    adminAlertNotifications: NotificationViewInput
+  input NotificationsUserNotificationsInput {
+    userId: String
+    type: String
+    viewed: String
+  }
+  
+  input NotificationsUnreadUserNotificationsInput {
+    userId: String
+    type: String
+    lastViewedDate: String
+  }
+  
+  input NotificationsAdminAlertNotificationsInput {
+    type: String
+  }
+  
+  input NotificationSelector  {
+    default: NotificationDefaultViewInput
+    userNotifications: NotificationsUserNotificationsInput
+    unreadUserNotifications: NotificationsUnreadUserNotificationsInput
+    adminAlertNotifications: NotificationsAdminAlertNotificationsInput
   }
   
   input MultiNotificationInput {

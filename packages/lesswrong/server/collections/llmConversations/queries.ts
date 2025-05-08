@@ -17,14 +17,20 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
     result: LlmConversation
   }
   
-  input LlmConversationViewInput {
-    userId: String
-   }
+  input LlmConversationDefaultViewInput
   
-  input LlmConversationSelector @oneOf {
-    default: LlmConversationViewInput
-    llmConversationsWithUser: LlmConversationViewInput
-    llmConversationsAll: LlmConversationViewInput
+  input LlmConversationsLlmConversationsWithUserInput {
+    userId: String
+  }
+  
+  input LlmConversationsLlmConversationsAllInput {
+    showDeleted: String
+  }
+  
+  input LlmConversationSelector  {
+    default: LlmConversationDefaultViewInput
+    llmConversationsWithUser: LlmConversationsLlmConversationsWithUserInput
+    llmConversationsAll: LlmConversationsLlmConversationsAllInput
   }
   
   input MultiLlmConversationInput {

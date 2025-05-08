@@ -17,18 +17,42 @@ export const graphqlSequenceQueryTypeDefs = gql`
     result: Sequence
   }
   
-  input SequenceViewInput {
-    userId: String
+  input SequenceDefaultViewInput {
     sequenceIds: String
-   }
+  }
   
-  input SequenceSelector @oneOf {
-    default: SequenceViewInput
-    userProfile: SequenceViewInput
-    userProfilePrivate: SequenceViewInput
-    userProfileAll: SequenceViewInput
-    curatedSequences: SequenceViewInput
-    communitySequences: SequenceViewInput
+  input SequencesUserProfileInput {
+    sequenceIds: String
+    userId: String
+  }
+  
+  input SequencesUserProfilePrivateInput {
+    sequenceIds: String
+    userId: String
+  }
+  
+  input SequencesUserProfileAllInput {
+    sequenceIds: String
+    userId: String
+  }
+  
+  input SequencesCuratedSequencesInput {
+    sequenceIds: String
+    userId: String
+  }
+  
+  input SequencesCommunitySequencesInput {
+    sequenceIds: String
+    userId: String
+  }
+  
+  input SequenceSelector  {
+    default: SequenceDefaultViewInput
+    userProfile: SequencesUserProfileInput
+    userProfilePrivate: SequencesUserProfilePrivateInput
+    userProfileAll: SequencesUserProfileAllInput
+    curatedSequences: SequencesCuratedSequencesInput
+    communitySequences: SequencesCommunitySequencesInput
   }
   
   input MultiSequenceInput {

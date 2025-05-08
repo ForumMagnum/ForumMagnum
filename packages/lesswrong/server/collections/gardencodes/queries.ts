@@ -6,7 +6,7 @@ import gql from "graphql-tag";
 import { GardenCodesViews } from "@/lib/collections/gardencodes/views";
 
 export const graphqlGardencodeQueryTypeDefs = gql`
-  type Gardencode ${ getAllGraphQLFields(schema) }
+  type GardenCode ${ getAllGraphQLFields(schema) }
   
   input SingleGardencodeInput {
     selector: SelectorInput
@@ -14,20 +14,38 @@ export const graphqlGardencodeQueryTypeDefs = gql`
   }
   
   type SingleGardencodeOutput {
-    result: Gardencode
+    result: GardenCode
   }
   
-  input GardencodeViewInput {
+  input GardenCodeDefaultViewInput {
     types: String
     userId: String
     code: String
-   }
+  }
   
-  input GardencodeSelector @oneOf {
-    default: GardencodeViewInput
-    usersPrivateGardenCodes: GardencodeViewInput
-    publicGardenCodes: GardencodeViewInput
-    gardenCodeByCode: GardencodeViewInput
+  input GardenCodesUsersPrivateGardenCodesInput {
+    types: String
+    userId: String
+    code: String
+  }
+  
+  input GardenCodesPublicGardenCodesInput {
+    types: String
+    userId: String
+    code: String
+  }
+  
+  input GardenCodesGardenCodeByCodeInput {
+    types: String
+    userId: String
+    code: String
+  }
+  
+  input GardencodeSelector  {
+    default: GardenCodeDefaultViewInput
+    usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput
+    publicGardenCodes: GardenCodesPublicGardenCodesInput
+    gardenCodeByCode: GardenCodesGardenCodeByCodeInput
   }
   
   input MultiGardencodeInput {
@@ -37,7 +55,7 @@ export const graphqlGardencodeQueryTypeDefs = gql`
   }
   
   type MultiGardencodeOutput {
-    results: [Gardencode]
+    results: [GardenCode]
     totalCount: Int
   }
   

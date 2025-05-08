@@ -255,7 +255,7 @@ type Single${typeName
 
 ${viewInputDef}
 
-input ${typeName.charAt(0).toUpperCase() + typeName.slice(1)}Selector @oneOf {
+input ${typeName.charAt(0).toUpperCase() + typeName.slice(1)}Selector  {
 ${selectorLines}
 }
 
@@ -443,7 +443,7 @@ type Single${typeName.charAt(0).toUpperCase() + typeName.slice(1)}Output {
 
 ${viewInputDef}
 
-input ${typeName.charAt(0).toUpperCase() + typeName.slice(1)}Selector @oneOf {
+input ${typeName.charAt(0).toUpperCase() + typeName.slice(1)}Selector  {
 ${selectorLines}
 }
 

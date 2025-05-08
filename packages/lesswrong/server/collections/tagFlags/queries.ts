@@ -17,13 +17,13 @@ export const graphqlTagFlagQueryTypeDefs = gql`
     result: TagFlag
   }
   
-  input TagFlagViewInput {
-    userId: String
-   }
+  input TagFlagDefaultViewInput
   
-  input TagFlagSelector @oneOf {
-    default: TagFlagViewInput
-    allTagFlags: TagFlagViewInput
+  input TagFlagsAllTagFlagsInput
+  
+  input TagFlagSelector  {
+    default: TagFlagDefaultViewInput
+    allTagFlags: TagFlagsAllTagFlagsInput
   }
   
   input MultiTagFlagInput {

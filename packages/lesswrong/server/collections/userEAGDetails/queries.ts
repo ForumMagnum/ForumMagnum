@@ -6,7 +6,7 @@ import gql from "graphql-tag";
 import { UserEAGDetailsViews } from "@/lib/collections/userEAGDetails/views";
 
 export const graphqlUserEagDetailQueryTypeDefs = gql`
-  type UserEagDetail ${ getAllGraphQLFields(schema) }
+  type UserEAGDetail ${ getAllGraphQLFields(schema) }
   
   input SingleUserEagDetailInput {
     selector: SelectorInput
@@ -14,16 +14,18 @@ export const graphqlUserEagDetailQueryTypeDefs = gql`
   }
   
   type SingleUserEagDetailOutput {
-    result: UserEagDetail
+    result: UserEAGDetail
   }
   
-  input UserEagDetailViewInput {
-    userId: String
-   }
+  input UserEAGDetailDefaultViewInput
   
-  input UserEagDetailSelector @oneOf {
-    default: UserEagDetailViewInput
-    dataByUser: UserEagDetailViewInput
+  input UserEAGDetailsDataByUserInput {
+    userId: String
+  }
+  
+  input UserEagDetailSelector  {
+    default: UserEAGDetailDefaultViewInput
+    dataByUser: UserEAGDetailsDataByUserInput
   }
   
   input MultiUserEagDetailInput {
@@ -33,7 +35,7 @@ export const graphqlUserEagDetailQueryTypeDefs = gql`
   }
   
   type MultiUserEagDetailOutput {
-    results: [UserEagDetail]
+    results: [UserEAGDetail]
     totalCount: Int
   }
   

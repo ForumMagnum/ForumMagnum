@@ -17,13 +17,15 @@ export const graphqlElectionCandidateQueryTypeDefs = gql`
     result: ElectionCandidate
   }
   
-  input ElectionCandidateViewInput {
+  input ElectionCandidateDefaultViewInput {
     electionName: String
     sortBy: String
-   }
+  }
   
-  input ElectionCandidateSelector @oneOf {
-    default: ElectionCandidateViewInput
+  
+  
+  input ElectionCandidateSelector  {
+    default: ElectionCandidateDefaultViewInput
   }
   
   input MultiElectionCandidateInput {

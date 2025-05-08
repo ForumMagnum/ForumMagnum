@@ -13,30 +13,26 @@ export const graphqlReviewWinnerQueryTypeDefs = gql`
     resolverArgs: JSON
   }
   
-  type SingleReviewWinnerOutput {
-    result: ReviewWinner
-  }
-  
-  input ReviewWinnerDefaultViewInput
-  
-  input ReviewWinnersReviewWinnerSingleInput {
-    category: String
-    reviewYear: String
-    reviewRanking: String
-  }
-  
-  input ReviewWinnersBestOfLessWrongAnnouncementInput
-  
-  input ReviewWinnerSelector  {
-    default: ReviewWinnerDefaultViewInput
-    reviewWinnerSingle: ReviewWinnersReviewWinnerSingleInput
-    bestOfLessWrongAnnouncement: ReviewWinnersBestOfLessWrongAnnouncementInput
-  }
-  
   input MultiReviewWinnerInput {
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+  }
+  
+  type SingleReviewWinnerOutput {
+    result: ReviewWinner
+  }
+  
+  input ReviewWinnerViewInput {
+    reviewYear: String
+    reviewRanking: String
+    category: String
+  }
+  
+  input ReviewWinnerSelector  {
+    default: ReviewWinnerViewInput
+    reviewWinnerSingle: ReviewWinnerViewInput
+    bestOfLessWrongAnnouncement: ReviewWinnerViewInput
   }
   
   type MultiReviewWinnerOutput {

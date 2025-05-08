@@ -17,18 +17,30 @@ export const graphqlMultiDocumentQueryTypeDefs = gql`
     result: MultiDocument
   }
   
-  input MultiDocumentViewInput {
-    slug: String
-    documentId: String
-    parentDocumentId: String
+  input MultiDocumentDefaultViewInput {
     excludedDocumentIds: String
-   }
+  }
   
-  input MultiDocumentSelector @oneOf {
-    default: MultiDocumentViewInput
-    lensBySlug: MultiDocumentViewInput
-    summariesByParentId: MultiDocumentViewInput
-    pingbackLensPages: MultiDocumentViewInput
+  input MultiDocumentsLensBySlugInput {
+    excludedDocumentIds: String
+    slug: String
+  }
+  
+  input MultiDocumentsSummariesByParentIdInput {
+    excludedDocumentIds: String
+    parentDocumentId: String
+  }
+  
+  input MultiDocumentsPingbackLensPagesInput {
+    excludedDocumentIds: String
+    documentId: String
+  }
+  
+  input MultiDocumentSelector  {
+    default: MultiDocumentDefaultViewInput
+    lensBySlug: MultiDocumentsLensBySlugInput
+    summariesByParentId: MultiDocumentsSummariesByParentIdInput
+    pingbackLensPages: MultiDocumentsPingbackLensPagesInput
   }
   
   input MultiMultiDocumentInput {

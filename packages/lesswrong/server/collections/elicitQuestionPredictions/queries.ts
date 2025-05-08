@@ -19,7 +19,7 @@ export const graphqlElicitQuestionPredictionQueryTypeDefs = gql`
   
   input ElicitQuestionPredictionViewInput
   
-  input ElicitQuestionPredictionSelector @oneOf {
+  input ElicitQuestionPredictionSelector  {
     default: ElicitQuestionPredictionViewInput
   }
   

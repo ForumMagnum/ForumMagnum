@@ -17,10 +17,12 @@ export const graphqlFieldChangeQueryTypeDefs = gql`
     result: FieldChange
   }
   
-  input FieldChangeViewInput
+  input FieldChangeDefaultViewInput
   
-  input FieldChangeSelector @oneOf {
-    default: FieldChangeViewInput
+  
+  
+  input FieldChangeSelector  {
+    default: FieldChangeDefaultViewInput
   }
   
   input MultiFieldChangeInput {

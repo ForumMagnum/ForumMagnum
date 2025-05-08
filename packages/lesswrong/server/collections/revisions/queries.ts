@@ -17,20 +17,30 @@ export const graphqlRevisionQueryTypeDefs = gql`
     result: Revision
   }
   
-  input RevisionViewInput {
+  input RevisionDefaultViewInput
+  
+  input RevisionsRevisionsByUserInput {
+    userId: String
+  }
+  
+  input RevisionsRevisionsOnDocumentInput {
     documentId: String
     fieldName: String
     before: String
     after: String
-    userId: String
-    version: String
-   }
+  }
   
-  input RevisionSelector @oneOf {
-    default: RevisionViewInput
-    revisionsByUser: RevisionViewInput
-    revisionsOnDocument: RevisionViewInput
-    revisionByVersionNumber: RevisionViewInput
+  input RevisionsRevisionByVersionNumberInput {
+    documentId: String
+    version: String
+    fieldName: String
+  }
+  
+  input RevisionSelector  {
+    default: RevisionDefaultViewInput
+    revisionsByUser: RevisionsRevisionsByUserInput
+    revisionsOnDocument: RevisionsRevisionsOnDocumentInput
+    revisionByVersionNumber: RevisionsRevisionByVersionNumberInput
   }
   
   input MultiRevisionInput {

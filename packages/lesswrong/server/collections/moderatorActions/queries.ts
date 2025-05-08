@@ -17,17 +17,18 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     result: ModeratorAction
   }
   
-  input ModeratorActionViewInput {
-    limit: String
-    offset: String
-    orderBy: String
-    userIds: [String!]
-   }
+  input ModeratorActionDefaultViewInput
   
-  input ModeratorActionSelector @oneOf {
-    default: ModeratorActionViewInput
-    userModeratorActions: ModeratorActionViewInput
-    restrictionModerationActions: ModeratorActionViewInput
+  input ModeratorActionsUserModeratorActionsInput {
+    userIds: [String!]
+  }
+  
+  input ModeratorActionsRestrictionModerationActionsInput
+  
+  input ModeratorActionSelector  {
+    default: ModeratorActionDefaultViewInput
+    userModeratorActions: ModeratorActionsUserModeratorActionsInput
+    restrictionModerationActions: ModeratorActionsRestrictionModerationActionsInput
   }
   
   input MultiModeratorActionInput {

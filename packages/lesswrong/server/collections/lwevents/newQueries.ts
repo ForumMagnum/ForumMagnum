@@ -6,41 +6,30 @@ import gql from "graphql-tag";
 import { LWEventsViews } from "@/lib/collections/lwevents/views";
 
 export const graphqlLweventQueryTypeDefs = gql`
-  type LWEvent ${ getAllGraphQLFields(schema) }
+  type Lwevent ${ getAllGraphQLFields(schema) }
   
-  input SingleLWEventInput {
+  input SingleLweventInput {
     selector: SelectorInput
     resolverArgs: JSON
   }
   
-  type SingleLWEventOutput {
-    result: LWEvent
+  type SingleLweventOutput {
+    result: Lwevent
   }
   
-  input LWEventDefaultViewInput
-  
-  input LWEventsAdminViewInput {
+  input LweventViewInput {
     name: String
-  }
-  
-  input LWEventsPostVisitsInput {
     postId: String
     userId: String
-    limit: String
+    postIds: String
   }
-  
-  input LWEventsEmailHistoryInput {
-    userId: String
-  }
-  
-  input LWEventsGatherTownUsersInput
   
   input LweventSelector  {
-    default: LWEventDefaultViewInput
-    adminView: LWEventsAdminViewInput
-    postVisits: LWEventsPostVisitsInput
-    emailHistory: LWEventsEmailHistoryInput
-    gatherTownUsers: LWEventsGatherTownUsersInput
+    default: LweventViewInput
+    adminView: LweventViewInput
+    postVisits: LweventViewInput
+    emailHistory: LweventViewInput
+    gatherTownUsers: LweventViewInput
   }
   
   input MultiLweventInput {
@@ -49,24 +38,24 @@ export const graphqlLweventQueryTypeDefs = gql`
     enableTotal: Boolean
   }
   
-  type MultiLWEventOutput {
-    results: [LWEvent]
+  type MultiLweventOutput {
+    results: [Lwevent]
     totalCount: Int
   }
   
   extend type Query {
     lwevent(
-      input: SingleLWEventInput @deprecated(reason: "Use the selector field instead"),
+      input: SingleLweventInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
-    ): SingleLWEventOutput
+    ): SingleLweventOutput
     lwevents(
-      input: MultiLWEventInput @deprecated(reason: "Use the selector field instead"),
-      selector: LWEventSelector,
+      input: MultiLweventInput @deprecated(reason: "Use the selector field instead"),
+      selector: LweventSelector,
       limit: Int,
       offset: Int,
       enableTotal: Boolean
-    ): MultiLWEventOutput
+    ): MultiLweventOutput
   }
 `;
 export const lweventGqlQueryHandlers = getDefaultResolvers('LWEvents', LWEventsViews);
-export const lweventGqlFieldResolvers = getFieldGqlResolvers('LWEvents', schema);
+export const lweventGqlFieldResolvers = getFieldGqlResolvers('Lwevents', schema);

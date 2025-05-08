@@ -17,19 +17,23 @@ export const graphqlSubscriptionQueryTypeDefs = gql`
     result: Subscription
   }
   
-  input SubscriptionViewInput {
+  input SubscriptionDefaultViewInput
+  
+  input SubscriptionsSubscriptionStateInput
+  
+  input SubscriptionsSubscriptionsOfTypeInput {
     userId: String
     collectionName: String
     subscriptionType: String
-    documentId: String
-    type: String
-   }
+  }
   
-  input SubscriptionSelector @oneOf {
-    default: SubscriptionViewInput
-    subscriptionState: SubscriptionViewInput
-    subscriptionsOfType: SubscriptionViewInput
-    membersOfGroup: SubscriptionViewInput
+  input SubscriptionsMembersOfGroupInput
+  
+  input SubscriptionSelector  {
+    default: SubscriptionDefaultViewInput
+    subscriptionState: SubscriptionsSubscriptionStateInput
+    subscriptionsOfType: SubscriptionsSubscriptionsOfTypeInput
+    membersOfGroup: SubscriptionsMembersOfGroupInput
   }
   
   input MultiSubscriptionInput {

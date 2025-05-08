@@ -6,7 +6,7 @@ import gql from "graphql-tag";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 export const graphqlPostViewQueryTypeDefs = gql`
-  type PostView ${ getAllGraphQLFields(schema) }
+  type PostViews ${ getAllGraphQLFields(schema) }
   
   input SinglePostViewInput {
     selector: SelectorInput
@@ -14,12 +14,12 @@ export const graphqlPostViewQueryTypeDefs = gql`
   }
   
   type SinglePostViewOutput {
-    result: PostView
+    result: PostViews
   }
   
   input PostViewViewInput
   
-  input PostViewSelector @oneOf {
+  input PostViewSelector  {
     default: PostViewViewInput
   }
   
@@ -30,7 +30,7 @@ export const graphqlPostViewQueryTypeDefs = gql`
   }
   
   type MultiPostViewOutput {
-    results: [PostView]
+    results: [PostViews]
     totalCount: Int
   }
   

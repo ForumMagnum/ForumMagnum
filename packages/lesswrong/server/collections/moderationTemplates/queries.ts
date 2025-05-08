@@ -17,17 +17,18 @@ export const graphqlModerationTemplateQueryTypeDefs = gql`
     result: ModerationTemplate
   }
   
-  input ModerationTemplateViewInput {
-    limit: String
-    offset: String
-    orderBy: String
-    collectionName: String
-   }
+  input ModerationTemplateDefaultViewInput
   
-  input ModerationTemplateSelector @oneOf {
-    default: ModerationTemplateViewInput
-    moderationTemplatesPage: ModerationTemplateViewInput
-    moderationTemplatesList: ModerationTemplateViewInput
+  input ModerationTemplatesModerationTemplatesPageInput
+  
+  input ModerationTemplatesModerationTemplatesListInput {
+    collectionName: String
+  }
+  
+  input ModerationTemplateSelector  {
+    default: ModerationTemplateDefaultViewInput
+    moderationTemplatesPage: ModerationTemplatesModerationTemplatesPageInput
+    moderationTemplatesList: ModerationTemplatesModerationTemplatesListInput
   }
   
   input MultiModerationTemplateInput {

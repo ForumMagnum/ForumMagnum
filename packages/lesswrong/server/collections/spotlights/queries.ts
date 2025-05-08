@@ -17,18 +17,35 @@ export const graphqlSpotlightQueryTypeDefs = gql`
     result: Spotlight
   }
   
-  input SpotlightViewInput {
-    documentIds: String
-    spotlightIds: String
-   }
+  input SpotlightDefaultViewInput
   
-  input SpotlightSelector @oneOf {
-    default: SpotlightViewInput
-    mostRecentlyPromotedSpotlights: SpotlightViewInput
-    spotlightsPage: SpotlightViewInput
-    spotlightsPageDraft: SpotlightViewInput
-    spotlightsByDocumentIds: SpotlightViewInput
-    spotlightsById: SpotlightViewInput
+  input SpotlightsMostRecentlyPromotedSpotlightsInput {
+    limit: String
+  }
+  
+  input SpotlightsSpotlightsPageInput {
+    limit: String
+  }
+  
+  input SpotlightsSpotlightsPageDraftInput {
+    limit: String
+  }
+  
+  input SpotlightsSpotlightsByDocumentIdsInput {
+    documentIds: String
+  }
+  
+  input SpotlightsSpotlightsByIdInput {
+    spotlightIds: String
+  }
+  
+  input SpotlightSelector  {
+    default: SpotlightDefaultViewInput
+    mostRecentlyPromotedSpotlights: SpotlightsMostRecentlyPromotedSpotlightsInput
+    spotlightsPage: SpotlightsSpotlightsPageInput
+    spotlightsPageDraft: SpotlightsSpotlightsPageDraftInput
+    spotlightsByDocumentIds: SpotlightsSpotlightsByDocumentIdsInput
+    spotlightsById: SpotlightsSpotlightsByIdInput
   }
   
   input MultiSpotlightInput {

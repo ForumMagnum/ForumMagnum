@@ -17,13 +17,15 @@ export const graphqlUserJobAdQueryTypeDefs = gql`
     result: UserJobAd
   }
   
-  input UserJobAdViewInput {
-    userId: String
-   }
+  input UserJobAdDefaultViewInput
   
-  input UserJobAdSelector @oneOf {
-    default: UserJobAdViewInput
-    adsByUser: UserJobAdViewInput
+  input UserJobAdsAdsByUserInput {
+    userId: String
+  }
+  
+  input UserJobAdSelector  {
+    default: UserJobAdDefaultViewInput
+    adsByUser: UserJobAdsAdsByUserInput
   }
   
   input MultiUserJobAdInput {

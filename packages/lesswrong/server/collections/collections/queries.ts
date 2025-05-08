@@ -17,12 +17,14 @@ export const graphqlCollectionQueryTypeDefs = gql`
     result: Collection
   }
   
-  input CollectionViewInput {
+  input CollectionDefaultViewInput {
     collectionIds: String
-   }
+  }
   
-  input CollectionSelector @oneOf {
-    default: CollectionViewInput
+  
+  
+  input CollectionSelector  {
+    default: CollectionDefaultViewInput
   }
   
   input MultiCollectionInput {

@@ -17,11 +17,15 @@ export const graphqlCommentModeratorActionQueryTypeDefs = gql`
     result: CommentModeratorAction
   }
   
-  input CommentModeratorActionViewInput
+  input CommentModeratorActionDefaultViewInput
   
-  input CommentModeratorActionSelector @oneOf {
-    default: CommentModeratorActionViewInput
-    activeCommentModeratorActions: CommentModeratorActionViewInput
+  input CommentModeratorActionsActiveCommentModeratorActionsInput {
+    limit: String
+  }
+  
+  input CommentModeratorActionSelector  {
+    default: CommentModeratorActionDefaultViewInput
+    activeCommentModeratorActions: CommentModeratorActionsActiveCommentModeratorActionsInput
   }
   
   input MultiCommentModeratorActionInput {

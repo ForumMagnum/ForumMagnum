@@ -19,7 +19,7 @@ export const graphqlSplashArtCoordinateQueryTypeDefs = gql`
   
   input SplashArtCoordinateViewInput
   
-  input SplashArtCoordinateSelector @oneOf {
+  input SplashArtCoordinateSelector  {
     default: SplashArtCoordinateViewInput
   }
   

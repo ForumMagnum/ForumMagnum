@@ -19,7 +19,7 @@ export const graphqlBookQueryTypeDefs = gql`
   
   input BookViewInput
   
-  input BookSelector @oneOf {
+  input BookSelector  {
     default: BookViewInput
   }
   

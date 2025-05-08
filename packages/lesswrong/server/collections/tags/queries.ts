@@ -17,40 +17,118 @@ export const graphqlTagQueryTypeDefs = gql`
     result: Tag
   }
   
-  input TagViewInput {
-    userId: String
-    wikiGrade: String
-    slug: String
-    slugs: String
-    tagFlagId: String
-    parentTagId: String
-    tagId: String
-    tagIds: String
+  input TagDefaultViewInput {
     excludedTagIds: String
-   }
+  }
   
-  input TagSelector @oneOf {
-    default: TagViewInput
-    tagsByTagIds: TagViewInput
-    allTagsAlphabetical: TagViewInput
-    userTags: TagViewInput
-    currentUserSubforums: TagViewInput
-    allPagesByNewest: TagViewInput
-    allTagsHierarchical: TagViewInput
-    tagBySlug: TagViewInput
-    tagsBySlugs: TagViewInput
-    coreTags: TagViewInput
-    postTypeTags: TagViewInput
-    coreAndSubforumTags: TagViewInput
-    newTags: TagViewInput
-    unreviewedTags: TagViewInput
-    suggestedFilterTags: TagViewInput
-    allLWWikiTags: TagViewInput
-    unprocessedLWWikiTags: TagViewInput
-    tagsByTagFlag: TagViewInput
-    allPublicTags: TagViewInput
-    allArbitalTags: TagViewInput
-    pingbackWikiPages: TagViewInput
+  input TagsTagsByTagIdsInput {
+    excludedTagIds: String
+    tagIds: String
+  }
+  
+  input TagsAllTagsAlphabeticalInput {
+    excludedTagIds: String
+  }
+  
+  input TagsUserTagsInput {
+    excludedTagIds: String
+    userId: String
+  }
+  
+  input TagsCurrentUserSubforumsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsAllPagesByNewestInput {
+    excludedTagIds: String
+  }
+  
+  input TagsAllTagsHierarchicalInput {
+    excludedTagIds: String
+    wikiGrade: String
+  }
+  
+  input TagsTagBySlugInput {
+    excludedTagIds: String
+    slug: String
+  }
+  
+  input TagsTagsBySlugsInput {
+    excludedTagIds: String
+    slugs: String
+  }
+  
+  input TagsCoreTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsPostTypeTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsCoreAndSubforumTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsNewTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsUnreviewedTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsSuggestedFilterTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsAllLWWikiTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsUnprocessedLWWikiTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsTagsByTagFlagInput {
+    excludedTagIds: String
+    tagFlagId: String
+  }
+  
+  input TagsAllPublicTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsAllArbitalTagsInput {
+    excludedTagIds: String
+  }
+  
+  input TagsPingbackWikiPagesInput {
+    excludedTagIds: String
+  }
+  
+  input TagSelector  {
+    default: TagDefaultViewInput
+    tagsByTagIds: TagsTagsByTagIdsInput
+    allTagsAlphabetical: TagsAllTagsAlphabeticalInput
+    userTags: TagsUserTagsInput
+    currentUserSubforums: TagsCurrentUserSubforumsInput
+    allPagesByNewest: TagsAllPagesByNewestInput
+    allTagsHierarchical: TagsAllTagsHierarchicalInput
+    tagBySlug: TagsTagBySlugInput
+    tagsBySlugs: TagsTagsBySlugsInput
+    coreTags: TagsCoreTagsInput
+    postTypeTags: TagsPostTypeTagsInput
+    coreAndSubforumTags: TagsCoreAndSubforumTagsInput
+    newTags: TagsNewTagsInput
+    unreviewedTags: TagsUnreviewedTagsInput
+    suggestedFilterTags: TagsSuggestedFilterTagsInput
+    allLWWikiTags: TagsAllLWWikiTagsInput
+    unprocessedLWWikiTags: TagsUnprocessedLWWikiTagsInput
+    tagsByTagFlag: TagsTagsByTagFlagInput
+    allPublicTags: TagsAllPublicTagsInput
+    allArbitalTags: TagsAllArbitalTagsInput
+    pingbackWikiPages: TagsPingbackWikiPagesInput
   }
   
   input MultiTagInput {

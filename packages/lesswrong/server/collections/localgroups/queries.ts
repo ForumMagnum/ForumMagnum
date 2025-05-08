@@ -17,25 +17,67 @@ export const graphqlLocalgroupQueryTypeDefs = gql`
     result: Localgroup
   }
   
-  input LocalgroupViewInput {
+  input LocalgroupDefaultViewInput {
     filters: String
-    groupId: String
+    includeInactive: String
+  }
+  
+  input LocalgroupsUserOrganizesGroupsInput {
+    filters: String
+    includeInactive: String
     userId: String
+  }
+  
+  input LocalgroupsUserActiveGroupsInput {
+    filters: String
+    includeInactive: String
+    userId: String
+  }
+  
+  input LocalgroupsUserInactiveGroupsInput {
+    filters: String
+    includeInactive: String
+    userId: String
+  }
+  
+  input LocalgroupsAllInput {
+    filters: String
+    includeInactive: String
+  }
+  
+  input LocalgroupsNearbyInput {
+    filters: String
+    includeInactive: String
     lng: String
     lat: String
-    includeInactive: String
-   }
+  }
   
-  input LocalgroupSelector @oneOf {
-    default: LocalgroupViewInput
-    userOrganizesGroups: LocalgroupViewInput
-    userActiveGroups: LocalgroupViewInput
-    userInactiveGroups: LocalgroupViewInput
-    all: LocalgroupViewInput
-    nearby: LocalgroupViewInput
-    single: LocalgroupViewInput
-    local: LocalgroupViewInput
-    online: LocalgroupViewInput
+  input LocalgroupsSingleInput {
+    filters: String
+    includeInactive: String
+    groupId: String
+  }
+  
+  input LocalgroupsLocalInput {
+    filters: String
+    includeInactive: String
+  }
+  
+  input LocalgroupsOnlineInput {
+    filters: String
+    includeInactive: String
+  }
+  
+  input LocalgroupSelector  {
+    default: LocalgroupDefaultViewInput
+    userOrganizesGroups: LocalgroupsUserOrganizesGroupsInput
+    userActiveGroups: LocalgroupsUserActiveGroupsInput
+    userInactiveGroups: LocalgroupsUserInactiveGroupsInput
+    all: LocalgroupsAllInput
+    nearby: LocalgroupsNearbyInput
+    single: LocalgroupsSingleInput
+    local: LocalgroupsLocalInput
+    online: LocalgroupsOnlineInput
   }
   
   input MultiLocalgroupInput {

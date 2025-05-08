@@ -17,19 +17,35 @@ export const graphqlConversationQueryTypeDefs = gql`
     result: Conversation
   }
   
-  input ConversationViewInput {
-    userId: String
-    participantIds: String
-    showArchive: String
-    moderator: String
-   }
+  input ConversationDefaultViewInput
   
-  input ConversationSelector @oneOf {
-    default: ConversationViewInput
-    moderatorConversations: ConversationViewInput
-    userConversations: ConversationViewInput
-    userConversationsAll: ConversationViewInput
-    userGroupUntitledConversations: ConversationViewInput
+  input ConversationsModeratorConversationsInput {
+    userId: String
+    showArchive: String
+  }
+  
+  input ConversationsUserConversationsInput {
+    showArchive: String
+    userId: String
+  }
+  
+  input ConversationsUserConversationsAllInput {
+    showArchive: String
+    userId: String
+  }
+  
+  input ConversationsUserGroupUntitledConversationsInput {
+    moderator: String
+    participantIds: String
+    userId: String
+  }
+  
+  input ConversationSelector  {
+    default: ConversationDefaultViewInput
+    moderatorConversations: ConversationsModeratorConversationsInput
+    userConversations: ConversationsUserConversationsInput
+    userConversationsAll: ConversationsUserConversationsAllInput
+    userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
   }
   
   input MultiConversationInput {

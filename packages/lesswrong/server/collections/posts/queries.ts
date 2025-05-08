@@ -17,120 +17,1206 @@ export const graphqlPostQueryTypeDefs = gql`
     result: Post
   }
   
-  input PostViewInput {
-    includeRelatedQuestions: String
-    karmaThreshold: String
-    meta: String
-    userId: String
-    filter: String
-    filters: String
-    filterSettings: String
-    sortBy: String
-    sortByMost: String
-    sortedBy: String
-    af: String
-    excludeEvents: String
-    onlineEvent: String
-    globalEvent: String
-    eventType: String
-    groupId: String
-    lat: String
-    lng: String
-    slug: String
-    sortDraftsBy: String
-    forum: String
-    question: String
-    tagId: String
-    subforumTagId: String
-    legacyId: String
-    postId: String
-    authorIsUnreviewed: String
-    before: String
-    after: String
-    curatedAfter: String
-    timeField: String
+  input PostDefaultViewInput {
     postIds: String
     notPostIds: String
-    reviewYear: String
-    reviewPhase: String
-    includeArchived: String
-    includeDraftEvents: String
-    includeShared: String
     hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsUserPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsMagicInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsTopInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsNewInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsRecentCommentsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsOldInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsTimeframeInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    limit: String
+  }
+  
+  input PostsDailyInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsTagRelevanceInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsFrontpageInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsFrontpageRssInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsCuratedInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsCuratedRssInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsCommunityInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsCommunityRssInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsMetaRssInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsRssInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsTopQuestionsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsRecentQuestionActivityInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsScheduledInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsRejectedInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsDraftsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    includeDraftEvents: String
+    includeArchived: String
+    includeShared: String
+    sortDraftsBy: String
+  }
+  
+  input PostsAll_draftsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsUnlistedInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsUserAFSubmissionsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsSlugPostInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    slug: String
+  }
+  
+  input PostsLegacyIdPostInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    legacyId: String
+  }
+  
+  input PostsRecentDiscussionThreadsListInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    limit: String
+  }
+  
+  input PostsAfRecentDiscussionThreadsListInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    limit: String
+  }
+  
+  input PostsReviewRecentDiscussionThreadsList2018Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    limit: String
+  }
+  
+  input PostsReviewRecentDiscussionThreadsList2019Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    limit: String
+  }
+  
+  input PostsGlobalEventsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    onlineEvent: String
+    eventType: String
+  }
+  
+  input PostsNearbyEventsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    onlineEvent: String
+    eventType: String
+    lng: String
+    lat: String
     distance: String
+    filters: String
+  }
+  
+  input PostsEventsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    globalEvent: String
+    onlineEvent: String
+    groupId: String
+  }
+  
+  input PostsEventsInTimeRangeInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    groupId: String
+  }
+  
+  input PostsUpcomingEventsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    groupId: String
+  }
+  
+  input PostsPastEventsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    groupId: String
+  }
+  
+  input PostsTbdEventsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    groupId: String
+  }
+  
+  input PostsNonEventGroupPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    groupId: String
+  }
+  
+  input PostsPostsWithBannedUsersInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsCommunityResourcePostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsSunshineNewPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsSunshineNewUsersPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsSunshineCuratedSuggestionsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
     audioOnly: String
-    algoStartingAgeHours: String
-    algoDecayFactorSlowest: String
-    algoDecayFactorFastest: String
-    algoActivityFactor: String
-    algoActivityHalfLifeHours: String
-    algoActivityWeight: String
+  }
+  
+  input PostsHasEverDialoguedInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsPingbackPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    postId: String
+  }
+  
+  input PostsNominations2018Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    sortByMost: String
+  }
+  
+  input PostsNominations2019Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    sortByMost: String
+  }
+  
+  input PostsReviews2018Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    sortBy: String
+  }
+  
+  input PostsReviews2019Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    sortBy: String
+  }
+  
+  input PostsVoting2019Input {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    sortBy: String
+  }
+  
+  input PostsStickiedInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsNominatablePostsByVoteInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
     requiredUnnominated: String
     requiredFrontpage: String
-   }
+  }
   
-  input PostSelector @oneOf {
-    default: PostViewInput
-    userPosts: PostViewInput
-    magic: PostViewInput
-    top: PostViewInput
-    new: PostViewInput
-    recentComments: PostViewInput
-    old: PostViewInput
-    timeframe: PostViewInput
-    daily: PostViewInput
-    tagRelevance: PostViewInput
-    frontpage: PostViewInput
-    frontpageRss: PostViewInput
-    curated: PostViewInput
-    curatedRss: PostViewInput
-    community: PostViewInput
-    communityRss: PostViewInput
-    metaRss: PostViewInput
-    rss: PostViewInput
-    topQuestions: PostViewInput
-    recentQuestionActivity: PostViewInput
-    scheduled: PostViewInput
-    rejected: PostViewInput
-    drafts: PostViewInput
-    all_drafts: PostViewInput
-    unlisted: PostViewInput
-    userAFSubmissions: PostViewInput
-    slugPost: PostViewInput
-    legacyIdPost: PostViewInput
-    recentDiscussionThreadsList: PostViewInput
-    afRecentDiscussionThreadsList: PostViewInput
-    reviewRecentDiscussionThreadsList2018: PostViewInput
-    reviewRecentDiscussionThreadsList2019: PostViewInput
-    globalEvents: PostViewInput
-    nearbyEvents: PostViewInput
-    events: PostViewInput
-    eventsInTimeRange: PostViewInput
-    upcomingEvents: PostViewInput
-    pastEvents: PostViewInput
-    tbdEvents: PostViewInput
-    nonEventGroupPosts: PostViewInput
-    postsWithBannedUsers: PostViewInput
-    communityResourcePosts: PostViewInput
-    sunshineNewPosts: PostViewInput
-    sunshineNewUsersPosts: PostViewInput
-    sunshineCuratedSuggestions: PostViewInput
-    hasEverDialogued: PostViewInput
-    pingbackPosts: PostViewInput
-    nominations2018: PostViewInput
-    nominations2019: PostViewInput
-    reviews2018: PostViewInput
-    reviews2019: PostViewInput
-    voting2019: PostViewInput
-    stickied: PostViewInput
-    nominatablePostsByVote: PostViewInput
-    reviewVoting: PostViewInput
-    frontpageReviewWidget: PostViewInput
-    reviewQuickPage: PostViewInput
-    reviewFinalVoting: PostViewInput
-    myBookmarkedPosts: PostViewInput
-    alignmentSuggestedPosts: PostViewInput
-    currentOpenThread: PostViewInput
+  input PostsReviewVotingInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    reviewPhase: String
+  }
+  
+  input PostsFrontpageReviewWidgetInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    reviewYear: String
+    reviewPhase: String
+  }
+  
+  input PostsReviewQuickPageInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsReviewFinalVotingInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsMyBookmarkedPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+    limit: String
+  }
+  
+  input PostsAlignmentSuggestedPostsInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostsCurrentOpenThreadInput {
+    postIds: String
+    notPostIds: String
+    hideCommunity: String
+    karmaThreshold: String
+    excludeEvents: String
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: String
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
+  input PostSelector  {
+    default: PostDefaultViewInput
+    userPosts: PostsUserPostsInput
+    magic: PostsMagicInput
+    top: PostsTopInput
+    new: PostsNewInput
+    recentComments: PostsRecentCommentsInput
+    old: PostsOldInput
+    timeframe: PostsTimeframeInput
+    daily: PostsDailyInput
+    tagRelevance: PostsTagRelevanceInput
+    frontpage: PostsFrontpageInput
+    frontpageRss: PostsFrontpageRssInput
+    curated: PostsCuratedInput
+    curatedRss: PostsCuratedRssInput
+    community: PostsCommunityInput
+    communityRss: PostsCommunityRssInput
+    metaRss: PostsMetaRssInput
+    rss: PostsRssInput
+    topQuestions: PostsTopQuestionsInput
+    recentQuestionActivity: PostsRecentQuestionActivityInput
+    scheduled: PostsScheduledInput
+    rejected: PostsRejectedInput
+    drafts: PostsDraftsInput
+    all_drafts: PostsAll_draftsInput
+    unlisted: PostsUnlistedInput
+    userAFSubmissions: PostsUserAFSubmissionsInput
+    slugPost: PostsSlugPostInput
+    legacyIdPost: PostsLegacyIdPostInput
+    recentDiscussionThreadsList: PostsRecentDiscussionThreadsListInput
+    afRecentDiscussionThreadsList: PostsAfRecentDiscussionThreadsListInput
+    reviewRecentDiscussionThreadsList2018: PostsReviewRecentDiscussionThreadsList2018Input
+    reviewRecentDiscussionThreadsList2019: PostsReviewRecentDiscussionThreadsList2019Input
+    globalEvents: PostsGlobalEventsInput
+    nearbyEvents: PostsNearbyEventsInput
+    events: PostsEventsInput
+    eventsInTimeRange: PostsEventsInTimeRangeInput
+    upcomingEvents: PostsUpcomingEventsInput
+    pastEvents: PostsPastEventsInput
+    tbdEvents: PostsTbdEventsInput
+    nonEventGroupPosts: PostsNonEventGroupPostsInput
+    postsWithBannedUsers: PostsPostsWithBannedUsersInput
+    communityResourcePosts: PostsCommunityResourcePostsInput
+    sunshineNewPosts: PostsSunshineNewPostsInput
+    sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput
+    sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput
+    hasEverDialogued: PostsHasEverDialoguedInput
+    pingbackPosts: PostsPingbackPostsInput
+    nominations2018: PostsNominations2018Input
+    nominations2019: PostsNominations2019Input
+    reviews2018: PostsReviews2018Input
+    reviews2019: PostsReviews2019Input
+    voting2019: PostsVoting2019Input
+    stickied: PostsStickiedInput
+    nominatablePostsByVote: PostsNominatablePostsByVoteInput
+    reviewVoting: PostsReviewVotingInput
+    frontpageReviewWidget: PostsFrontpageReviewWidgetInput
+    reviewQuickPage: PostsReviewQuickPageInput
+    reviewFinalVoting: PostsReviewFinalVotingInput
+    myBookmarkedPosts: PostsMyBookmarkedPostsInput
+    alignmentSuggestedPosts: PostsAlignmentSuggestedPostsInput
+    currentOpenThread: PostsCurrentOpenThreadInput
   }
   
   input MultiPostInput {

@@ -19,7 +19,7 @@ export const graphqlElicitQuestionQueryTypeDefs = gql`
   
   input ElicitQuestionViewInput
   
-  input ElicitQuestionSelector @oneOf {
+  input ElicitQuestionSelector  {
     default: ElicitQuestionViewInput
   }
   

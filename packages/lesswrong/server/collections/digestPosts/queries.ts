@@ -19,7 +19,7 @@ export const graphqlDigestPostQueryTypeDefs = gql`
   
   input DigestPostViewInput
   
-  input DigestPostSelector @oneOf {
+  input DigestPostSelector  {
     default: DigestPostViewInput
   }
   

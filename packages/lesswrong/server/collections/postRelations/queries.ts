@@ -17,13 +17,15 @@ export const graphqlPostRelationQueryTypeDefs = gql`
     result: PostRelation
   }
   
-  input PostRelationViewInput {
-    postId: String
-   }
+  input PostRelationDefaultViewInput
   
-  input PostRelationSelector @oneOf {
-    default: PostRelationViewInput
-    allPostRelations: PostRelationViewInput
+  input PostRelationsAllPostRelationsInput {
+    postId: String
+  }
+  
+  input PostRelationSelector  {
+    default: PostRelationDefaultViewInput
+    allPostRelations: PostRelationsAllPostRelationsInput
   }
   
   input MultiPostRelationInput {

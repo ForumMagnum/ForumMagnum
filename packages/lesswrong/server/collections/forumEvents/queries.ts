@@ -17,14 +17,28 @@ export const graphqlForumEventQueryTypeDefs = gql`
     result: ForumEvent
   }
   
-  input ForumEventViewInput
+  input ForumEventDefaultViewInput
   
-  input ForumEventSelector @oneOf {
-    default: ForumEventViewInput
-    upcomingForumEvents: ForumEventViewInput
-    pastForumEvents: ForumEventViewInput
-    currentForumEvent: ForumEventViewInput
-    currentAndRecentForumEvents: ForumEventViewInput
+  input ForumEventsUpcomingForumEventsInput {
+    limit: String
+  }
+  
+  input ForumEventsPastForumEventsInput {
+    limit: String
+  }
+  
+  input ForumEventsCurrentForumEventInput
+  
+  input ForumEventsCurrentAndRecentForumEventsInput {
+    limit: String
+  }
+  
+  input ForumEventSelector  {
+    default: ForumEventDefaultViewInput
+    upcomingForumEvents: ForumEventsUpcomingForumEventsInput
+    pastForumEvents: ForumEventsPastForumEventsInput
+    currentForumEvent: ForumEventsCurrentForumEventInput
+    currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput
   }
   
   input MultiForumEventInput {

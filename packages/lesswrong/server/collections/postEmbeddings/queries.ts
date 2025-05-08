@@ -19,7 +19,7 @@ export const graphqlPostEmbeddingQueryTypeDefs = gql`
   
   input PostEmbeddingViewInput
   
-  input PostEmbeddingSelector @oneOf {
+  input PostEmbeddingSelector  {
     default: PostEmbeddingViewInput
   }
   

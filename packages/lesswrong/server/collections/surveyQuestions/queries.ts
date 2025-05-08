@@ -19,7 +19,7 @@ export const graphqlSurveyQuestionQueryTypeDefs = gql`
   
   input SurveyQuestionViewInput
   
-  input SurveyQuestionSelector @oneOf {
+  input SurveyQuestionSelector  {
     default: SurveyQuestionViewInput
   }
   

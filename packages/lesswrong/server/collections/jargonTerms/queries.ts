@@ -17,15 +17,23 @@ export const graphqlJargonTermQueryTypeDefs = gql`
     result: JargonTerm
   }
   
-  input JargonTermViewInput {
-    postId: String
-   }
+  input JargonTermDefaultViewInput
   
-  input JargonTermSelector @oneOf {
-    default: JargonTermViewInput
-    postEditorJargonTerms: JargonTermViewInput
-    glossaryEditAll: JargonTermViewInput
-    postsApprovedJargon: JargonTermViewInput
+  input JargonTermsPostEditorJargonTermsInput {
+    postId: String
+  }
+  
+  input JargonTermsGlossaryEditAllInput
+  
+  input JargonTermsPostsApprovedJargonInput {
+    postIds: String
+  }
+  
+  input JargonTermSelector  {
+    default: JargonTermDefaultViewInput
+    postEditorJargonTerms: JargonTermsPostEditorJargonTermsInput
+    glossaryEditAll: JargonTermsGlossaryEditAllInput
+    postsApprovedJargon: JargonTermsPostsApprovedJargonInput
   }
   
   input MultiJargonTermInput {

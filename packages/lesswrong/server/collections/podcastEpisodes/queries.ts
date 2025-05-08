@@ -17,14 +17,13 @@ export const graphqlPodcastEpisodeQueryTypeDefs = gql`
     result: PodcastEpisode
   }
   
-  input PodcastEpisodeViewInput {
-    _id: String
-    externalEpisodeId: String
-   }
+  input PodcastEpisodeDefaultViewInput
   
-  input PodcastEpisodeSelector @oneOf {
-    default: PodcastEpisodeViewInput
-    episodeByExternalId: PodcastEpisodeViewInput
+  input PodcastEpisodesEpisodeByExternalIdInput
+  
+  input PodcastEpisodeSelector  {
+    default: PodcastEpisodeDefaultViewInput
+    episodeByExternalId: PodcastEpisodesEpisodeByExternalIdInput
   }
   
   input MultiPodcastEpisodeInput {

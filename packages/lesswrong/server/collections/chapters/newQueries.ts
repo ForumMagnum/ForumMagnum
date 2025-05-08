@@ -17,16 +17,13 @@ export const graphqlChapterQueryTypeDefs = gql`
     result: Chapter
   }
   
-  input ChapterDefaultViewInput
-  
-  input ChaptersSequenceChaptersInput {
+  input ChapterViewInput {
     sequenceId: String
-    limit: String
-  }
+   }
   
   input ChapterSelector  {
-    default: ChapterDefaultViewInput
-    SequenceChapters: ChaptersSequenceChaptersInput
+    default: ChapterViewInput
+    SequenceChapters: ChapterViewInput
   }
   
   input MultiChapterInput {

@@ -19,7 +19,7 @@ export const graphqlTypingIndicatorQueryTypeDefs = gql`
   
   input TypingIndicatorViewInput
   
-  input TypingIndicatorSelector @oneOf {
+  input TypingIndicatorSelector  {
     default: TypingIndicatorViewInput
   }
   

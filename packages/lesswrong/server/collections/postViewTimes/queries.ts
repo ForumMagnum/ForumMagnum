@@ -19,7 +19,7 @@ export const graphqlPostViewTimeQueryTypeDefs = gql`
   
   input PostViewTimeViewInput
   
-  input PostViewTimeSelector @oneOf {
+  input PostViewTimeSelector  {
     default: PostViewTimeViewInput
   }
   

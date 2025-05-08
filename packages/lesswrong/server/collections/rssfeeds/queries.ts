@@ -6,7 +6,7 @@ import gql from "graphql-tag";
 import { RSSFeedsViews } from "@/lib/collections/rssfeeds/views";
 
 export const graphqlRssfeedQueryTypeDefs = gql`
-  type Rssfeed ${ getAllGraphQLFields(schema) }
+  type RSSFeed ${ getAllGraphQLFields(schema) }
   
   input SingleRssfeedInput {
     selector: SelectorInput
@@ -14,16 +14,18 @@ export const graphqlRssfeedQueryTypeDefs = gql`
   }
   
   type SingleRssfeedOutput {
-    result: Rssfeed
+    result: RSSFeed
   }
   
-  input RssfeedViewInput {
-    userId: String
-   }
+  input RSSFeedDefaultViewInput
   
-  input RssfeedSelector @oneOf {
-    default: RssfeedViewInput
-    usersFeed: RssfeedViewInput
+  input RSSFeedsUsersFeedInput {
+    userId: String
+  }
+  
+  input RssfeedSelector  {
+    default: RSSFeedDefaultViewInput
+    usersFeed: RSSFeedsUsersFeedInput
   }
   
   input MultiRssfeedInput {
@@ -33,7 +35,7 @@ export const graphqlRssfeedQueryTypeDefs = gql`
   }
   
   type MultiRssfeedOutput {
-    results: [Rssfeed]
+    results: [RSSFeed]
     totalCount: Int
   }
   
