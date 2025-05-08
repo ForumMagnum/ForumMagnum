@@ -1,5 +1,6 @@
 import pick from "lodash/pick";
 import type { AnyFormApi } from "@tanstack/react-form";
+import mapValues from "lodash/mapValues";
 
 type EditableFieldsOf<T> = {
   [k in keyof T & string]: IfAny<T[k], never, T[k] extends { originalContents: any } | null | undefined ? k : never>;
@@ -15,11 +16,31 @@ export function sanitizeEditableFieldValues<T extends Record<string, AnyBecauseH
   })) as T;
 }
 
+/**
+ * Filter edits to only fields that have been edited, and also remove all
+ * keys named __typename recursively from JSON (because it may have been
+ * sneakily added to objects by apollo-client without exactly being part of the
+ * schema)
+ */
 export function getUpdatedFieldValues<T extends AnyFormApi>(formApi: T, editableFields?: Array<EditableFieldsOf<T["state"]["values"]>>): Partial<T["state"]["values"]> {
   const updatedFieldNames: Array<keyof T["state"]["values"]> = Object.entries(formApi.state.fieldMeta).filter(([key, meta]) => meta.isDirty).map(([key]) => key);
   const updatedFields = pick(formApi.state.values, updatedFieldNames);
   if (!editableFields?.length) {
-    return updatedFields;
+    return recursivelyRemoveTypenameFrom(updatedFields);
   }
-  return sanitizeEditableFieldValues(updatedFields, editableFields);
+  return recursivelyRemoveTypenameFrom(sanitizeEditableFieldValues(updatedFields, editableFields));
+}
+
+function recursivelyRemoveTypenameFrom(json: any): any {
+  if (!json) {
+    return json;
+  } else if (Array.isArray(json)) {
+    return json.map(el => recursivelyRemoveTypenameFrom(el));
+  } else if (typeof json === 'object') {
+    const clone = mapValues(json, v=>recursivelyRemoveTypenameFrom(v));
+    delete clone.__typename;
+    return clone;
+  } else {
+    return json;
+  }
 }
