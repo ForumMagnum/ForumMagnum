@@ -3,22 +3,28 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { CollectionsViews } from "@/lib/collections/collections/views";
 
 export const graphqlCollectionQueryTypeDefs = gql`
-  type Collection ${
-    getAllGraphQLFields(schema)
-  }
-
+  type Collection ${ getAllGraphQLFields(schema) }
+  
   input SingleCollectionInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleCollectionOutput {
     result: Collection
   }
-
+  
+  input CollectionViewInput {
+    collectionIds: String
+   }
+  
+  input CollectionSelector @oneOf {
+    default: CollectionViewInput
+  }
+  
   input MultiCollectionInput {
     terms: JSON
     resolverArgs: JSON
@@ -29,12 +35,20 @@ export const graphqlCollectionQueryTypeDefs = gql`
     results: [Collection]
     totalCount: Int
   }
-
+  
   extend type Query {
-    collection(input: SingleCollectionInput): SingleCollectionOutput
-    collections(input: MultiCollectionInput): MultiCollectionOutput
+    collection(
+      input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleCollectionOutput
+    collections(
+      input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"),
+      selector: CollectionSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiCollectionOutput
   }
 `;
-
-export const collectionGqlQueryHandlers = getDefaultResolvers('Collections');
+export const collectionGqlQueryHandlers = getDefaultResolvers('Collections', CollectionsViews);
 export const collectionGqlFieldResolvers = getFieldGqlResolvers('Collections', schema);

@@ -3,22 +3,30 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { LlmConversationsViews } from "@/lib/collections/llmConversations/views";
 
 export const graphqlLlmConversationQueryTypeDefs = gql`
-  type LlmConversation ${
-    getAllGraphQLFields(schema)
-  }
-
+  type LlmConversation ${ getAllGraphQLFields(schema) }
+  
   input SingleLlmConversationInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleLlmConversationOutput {
     result: LlmConversation
   }
-
+  
+  input LlmConversationViewInput {
+    userId: String
+   }
+  
+  input LlmConversationSelector @oneOf {
+    default: LlmConversationViewInput
+    llmConversationsWithUser: LlmConversationViewInput
+    llmConversationsAll: LlmConversationViewInput
+  }
+  
   input MultiLlmConversationInput {
     terms: JSON
     resolverArgs: JSON
@@ -29,12 +37,20 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
     results: [LlmConversation]
     totalCount: Int
   }
-
+  
   extend type Query {
-    llmConversation(input: SingleLlmConversationInput): SingleLlmConversationOutput
-    llmConversations(input: MultiLlmConversationInput): MultiLlmConversationOutput
+    llmConversation(
+      input: SingleLlmConversationInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleLlmConversationOutput
+    llmConversations(
+      input: MultiLlmConversationInput @deprecated(reason: "Use the selector field instead"),
+      selector: LlmConversationSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiLlmConversationOutput
   }
 `;
-
-export const llmConversationGqlQueryHandlers = getDefaultResolvers('LlmConversations');
+export const llmConversationGqlQueryHandlers = getDefaultResolvers('LlmConversations', LlmConversationsViews);
 export const llmConversationGqlFieldResolvers = getFieldGqlResolvers('LlmConversations', schema);

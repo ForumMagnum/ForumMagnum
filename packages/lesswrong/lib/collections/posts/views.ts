@@ -556,8 +556,8 @@ function metaRss(terms: PostsViewTerms) {
 }
 
 function rss(terms: PostsViewTerms) {
-  // this previously defaulted to 'community-rss' for rss, but it was getting overridden by `new` in server/rss.ts
-  // and we don't want `community-rss` because that excludes frontpaged posts.
+  // this previously defaulted to 'communityRss' for rss, but it was getting overridden by `new` in server/rss.ts
+  // and we don't want `communityRss` because that excludes frontpaged posts.
   return newest(terms);
 }
 
@@ -1356,12 +1356,12 @@ export const PostsViews = new CollectionViewSet('Posts', {
   daily,
   tagRelevance,
   frontpage,
-  'frontpage-rss': frontpageRss,
+  frontpageRss,
   curated,
-  'curated-rss': curatedRss,
+  curatedRss,
   community,
-  'community-rss': communityRss,
-  'meta-rss': metaRss,
+  communityRss,
+  metaRss,
   // TODO: `rss` seemed to be getting set to `new` in server/rss.ts.  Figure out what was going on there.
   rss,
   topQuestions,
@@ -1376,8 +1376,8 @@ export const PostsViews = new CollectionViewSet('Posts', {
   legacyIdPost,
   recentDiscussionThreadsList,
   afRecentDiscussionThreadsList,
-  '2018reviewRecentDiscussionThreadsList': reviewRecentDiscussionThreadsList2018,
-  '2019reviewRecentDiscussionThreadsList': reviewRecentDiscussionThreadsList2019,
+  reviewRecentDiscussionThreadsList2018,
+  reviewRecentDiscussionThreadsList2019,
   globalEvents,
   nearbyEvents,
   events,

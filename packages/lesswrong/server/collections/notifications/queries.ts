@@ -3,22 +3,34 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { NotificationsViews } from "@/lib/collections/notifications/views";
 
 export const graphqlNotificationQueryTypeDefs = gql`
-  type Notification ${
-    getAllGraphQLFields(schema)
-  }
-
+  type Notification ${ getAllGraphQLFields(schema) }
+  
   input SingleNotificationInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleNotificationOutput {
     result: Notification
   }
-
+  
+  input NotificationViewInput {
+    type: String
+    userId: String
+    viewed: String
+    lastViewedDate: String
+   }
+  
+  input NotificationSelector @oneOf {
+    default: NotificationViewInput
+    userNotifications: NotificationViewInput
+    unreadUserNotifications: NotificationViewInput
+    adminAlertNotifications: NotificationViewInput
+  }
+  
   input MultiNotificationInput {
     terms: JSON
     resolverArgs: JSON
@@ -29,12 +41,20 @@ export const graphqlNotificationQueryTypeDefs = gql`
     results: [Notification]
     totalCount: Int
   }
-
+  
   extend type Query {
-    notification(input: SingleNotificationInput): SingleNotificationOutput
-    notifications(input: MultiNotificationInput): MultiNotificationOutput
+    notification(
+      input: SingleNotificationInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleNotificationOutput
+    notifications(
+      input: MultiNotificationInput @deprecated(reason: "Use the selector field instead"),
+      selector: NotificationSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiNotificationOutput
   }
 `;
-
-export const notificationGqlQueryHandlers = getDefaultResolvers('Notifications');
+export const notificationGqlQueryHandlers = getDefaultResolvers('Notifications', NotificationsViews);
 export const notificationGqlFieldResolvers = getFieldGqlResolvers('Notifications', schema);

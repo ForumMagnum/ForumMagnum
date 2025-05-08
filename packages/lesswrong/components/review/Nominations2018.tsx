@@ -34,7 +34,7 @@ const Nominations2018 = ({classes}: {
         <RecentDiscussionThreadsList
           title="2018 Review Discussion"
           shortformButton={false}
-          terms={{view: '2018reviewRecentDiscussionThreadsList', limit:20}}
+          terms={{view: 'reviewRecentDiscussionThreadsList2018', limit:20}}
           commentsLimit={4}
           maxAgeHours={100} 
           af={false}

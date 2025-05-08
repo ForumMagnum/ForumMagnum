@@ -70,9 +70,9 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
                       : (karmaThreshold === 200) ? post.scoreExceeded200Date
                       : null;
     thresholdDate = thresholdDate || post.postedAt;
-    let viewDate = (terms.view === "frontpage-rss") ? post.frontpageDate
-                 : (terms.view === "curated-rss")   ? post.curatedDate
-                 : (terms.view === "meta-rss")      ? post.metaDate
+    let viewDate = (terms.view === "frontpageRss") ? post.frontpageDate
+                 : (terms.view === "curatedRss")   ? post.curatedDate
+                 : (terms.view === "metaRss")      ? post.metaDate
                  : null;
     viewDate = viewDate || post.postedAt;
 

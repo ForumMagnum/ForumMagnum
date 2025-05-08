@@ -3,22 +3,34 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { ReportsViews } from "@/lib/collections/reports/views";
 
 export const graphqlReportQueryTypeDefs = gql`
-  type Report ${
-    getAllGraphQLFields(schema)
-  }
-
+  type Report ${ getAllGraphQLFields(schema) }
+  
   input SingleReportInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleReportOutput {
     result: Report
   }
-
+  
+  input ReportViewInput {
+    userId: String
+   }
+  
+  input ReportSelector @oneOf {
+    default: ReportViewInput
+    allReports: ReportViewInput
+    unclaimedReports: ReportViewInput
+    claimedReports: ReportViewInput
+    adminClaimedReports: ReportViewInput
+    sunshineSidebarReports: ReportViewInput
+    closedReports: ReportViewInput
+  }
+  
   input MultiReportInput {
     terms: JSON
     resolverArgs: JSON
@@ -29,12 +41,20 @@ export const graphqlReportQueryTypeDefs = gql`
     results: [Report]
     totalCount: Int
   }
-
+  
   extend type Query {
-    report(input: SingleReportInput): SingleReportOutput
-    reports(input: MultiReportInput): MultiReportOutput
+    report(
+      input: SingleReportInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleReportOutput
+    reports(
+      input: MultiReportInput @deprecated(reason: "Use the selector field instead"),
+      selector: ReportSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiReportOutput
   }
 `;
-
-export const reportGqlQueryHandlers = getDefaultResolvers('Reports');
+export const reportGqlQueryHandlers = getDefaultResolvers('Reports', ReportsViews);
 export const reportGqlFieldResolvers = getFieldGqlResolvers('Reports', schema);

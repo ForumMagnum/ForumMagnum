@@ -3,22 +3,30 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { MessagesViews } from "@/lib/collections/messages/views";
 
 export const graphqlMessageQueryTypeDefs = gql`
-  type Message ${
-    getAllGraphQLFields(schema)
-  }
-
+  type Message ${ getAllGraphQLFields(schema) }
+  
   input SingleMessageInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleMessageOutput {
     result: Message
   }
-
+  
+  input MessageViewInput {
+    conversationId: String
+   }
+  
+  input MessageSelector @oneOf {
+    default: MessageViewInput
+    messagesConversation: MessageViewInput
+    conversationPreview: MessageViewInput
+  }
+  
   input MultiMessageInput {
     terms: JSON
     resolverArgs: JSON
@@ -29,12 +37,20 @@ export const graphqlMessageQueryTypeDefs = gql`
     results: [Message]
     totalCount: Int
   }
-
+  
   extend type Query {
-    message(input: SingleMessageInput): SingleMessageOutput
-    messages(input: MultiMessageInput): MultiMessageOutput
+    message(
+      input: SingleMessageInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleMessageOutput
+    messages(
+      input: MultiMessageInput @deprecated(reason: "Use the selector field instead"),
+      selector: MessageSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiMessageOutput
   }
 `;
-
-export const messageGqlQueryHandlers = getDefaultResolvers('Messages');
+export const messageGqlQueryHandlers = getDefaultResolvers('Messages', MessagesViews);
 export const messageGqlFieldResolvers = getFieldGqlResolvers('Messages', schema);

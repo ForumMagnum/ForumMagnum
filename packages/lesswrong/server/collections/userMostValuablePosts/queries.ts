@@ -3,22 +3,31 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { UserMostValuablePostsViews } from "@/lib/collections/userMostValuablePosts/views";
 
 export const graphqlUserMostValuablePostQueryTypeDefs = gql`
-  type UserMostValuablePost ${
-    getAllGraphQLFields(schema)
-  }
-
+  type UserMostValuablePost ${ getAllGraphQLFields(schema) }
+  
   input SingleUserMostValuablePostInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleUserMostValuablePostOutput {
     result: UserMostValuablePost
   }
-
+  
+  input UserMostValuablePostViewInput {
+    userId: String
+    postId: String
+   }
+  
+  input UserMostValuablePostSelector @oneOf {
+    default: UserMostValuablePostViewInput
+    currentUserMostValuablePosts: UserMostValuablePostViewInput
+    currentUserPost: UserMostValuablePostViewInput
+  }
+  
   input MultiUserMostValuablePostInput {
     terms: JSON
     resolverArgs: JSON
@@ -29,12 +38,20 @@ export const graphqlUserMostValuablePostQueryTypeDefs = gql`
     results: [UserMostValuablePost]
     totalCount: Int
   }
-
+  
   extend type Query {
-    userMostValuablePost(input: SingleUserMostValuablePostInput): SingleUserMostValuablePostOutput
-    userMostValuablePosts(input: MultiUserMostValuablePostInput): MultiUserMostValuablePostOutput
+    userMostValuablePost(
+      input: SingleUserMostValuablePostInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleUserMostValuablePostOutput
+    userMostValuablePosts(
+      input: MultiUserMostValuablePostInput @deprecated(reason: "Use the selector field instead"),
+      selector: UserMostValuablePostSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiUserMostValuablePostOutput
   }
 `;
-
-export const userMostValuablePostGqlQueryHandlers = getDefaultResolvers('UserMostValuablePosts');
+export const userMostValuablePostGqlQueryHandlers = getDefaultResolvers('UserMostValuablePosts', UserMostValuablePostsViews);
 export const userMostValuablePostGqlFieldResolvers = getFieldGqlResolvers('UserMostValuablePosts', schema);

@@ -220,7 +220,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
-    const {allowNull = false, resolverArgs} = input;
+    const { resolverArgs } = input;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
     // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
     // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -268,10 +268,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     }
 
     if (!doc) {
-      if (allowNull) {
-        return { result: null };
-      } else {
-        throwError({
+      throwError({
           id: 'app.missing_document',
           data: { documentId, selector, collectionName: collection.collectionName },
         });
