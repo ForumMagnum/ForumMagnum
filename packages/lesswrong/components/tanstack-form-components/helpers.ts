@@ -1,6 +1,7 @@
 import pick from "lodash/pick";
 import type { AnyFormApi } from "@tanstack/react-form";
 import mapValues from "lodash/mapValues";
+import isPlainObject from "lodash/isPlainObject";
 
 type EditableFieldsOf<T> = {
   [k in keyof T & string]: IfAny<T[k], never, T[k] extends { originalContents: any } | null | undefined ? k : never>;
@@ -36,7 +37,7 @@ function recursivelyRemoveTypenameFrom(json: any): any {
     return json;
   } else if (Array.isArray(json)) {
     return json.map(el => recursivelyRemoveTypenameFrom(el));
-  } else if (typeof json === 'object') {
+  } else if (typeof json === 'object' && isPlainObject(json)) {
     const clone = mapValues(json, v=>recursivelyRemoveTypenameFrom(v));
     delete clone.__typename;
     return clone;
