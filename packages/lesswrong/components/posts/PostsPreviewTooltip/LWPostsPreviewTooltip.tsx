@@ -226,7 +226,7 @@ const LWPostsPreviewTooltip = ({
             </ContentStyles>
           </div>
           { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton post={post}/>
+            <BookmarkButton documentId={post._id} collectionName="Posts"/>
           </div>}
         </div>
         {renderedComment

@@ -3,6 +3,26 @@ import BulkWriter from "@/server/sql/BulkWriter";
 import InsertQuery from "@/server/sql/InsertQuery";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 import DeleteQuery from "@/server/sql/DeleteQuery";
+import { concat, pgPromiseLib } from "../../server/sqlConnection";
+import Query from "@/server/sql/Query";
+
+jest.mock('../../server/sqlConnection', () => {
+  const originalModule = jest.requireActual('../../server/sqlConnection');
+
+  const mockConcat = jest.fn((queries: Query<any>[]): string => {
+    const compiled = queries.map((query) => {
+      const {sql, args} = query.compile();
+      return {query: sql, values: args};
+    });
+    return originalModule.pgPromiseLib.helpers.concat(compiled);
+  });
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    concat: mockConcat
+  };
+})
 
 describe("BulkWriter", () => {
   it("insertOne creates an InsertQuery", () => {
@@ -85,12 +105,11 @@ describe("BulkWriter", () => {
     ])).toThrowError("Invalid bulk write operation: anInvalidOperation");
   });
   it("can execute writer queries", async () => {
-    const concat = jest.fn();
     const multi = jest.fn();
     const mockSql = "some-mock-sql";
-    concat.mockReturnValueOnce(mockSql);
+    (concat as jest.Mock).mockReturnValueOnce(mockSql);
 
-    const client = {concat, multi} as unknown as SqlClient;
+    const client = {multi} as unknown as SqlClient;
     const writer = new BulkWriter(testTable, [
       {insertOne: {document: {_id: "some-id"} as DbObject}},
       {deleteOne: {filter: {a: 3}}},
@@ -99,7 +118,7 @@ describe("BulkWriter", () => {
     const result = await writer.execute(client);
     expect(result).toStrictEqual({ok: 1});
 
-    expect(client.concat).toHaveBeenCalledTimes(1);
+    expect(concat).toHaveBeenCalledTimes(1);
     expect(client.multi).toHaveBeenCalledTimes(1);
     expect(client.multi).toHaveBeenCalledWith(mockSql);
   });

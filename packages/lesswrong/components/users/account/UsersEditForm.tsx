@@ -134,10 +134,17 @@ const UsersForm = ({
   const formType = 'edit';
 
   const {
-    onSubmitCallback,
-    onSuccessCallback,
-    addOnSubmitCallback,
-    addOnSuccessCallback
+    onSubmitCallback: onSubmitBiographyCallback,
+    onSuccessCallback: onSuccessBiographyCallback,
+    addOnSubmitCallback: addOnSubmitBiographyCallback,
+    addOnSuccessCallback: addOnSuccessBiographyCallback
+  } = useEditorFormCallbacks<UsersEdit>();
+
+  const {
+    onSubmitCallback: onSubmitModerationGuidelinesCallback,
+    onSuccessCallback: onSuccessModerationGuidelinesCallback,
+    addOnSubmitCallback: addOnSubmitModerationGuidelinesCallback,
+    addOnSuccessCallback: addOnSuccessModerationGuidelinesCallback
   } = useEditorFormCallbacks<UsersEdit>();
 
   const { mutate } = useUpdate({
@@ -157,19 +164,23 @@ const UsersForm = ({
       defaultToCKEditor: initialData?.defaultToCKEditor ?? null,
     },
     onSubmit: async ({ formApi }) => {
-      await onSubmitCallback.current?.();
+      await Promise.all([
+        onSubmitBiographyCallback.current?.(),
+        onSubmitModerationGuidelinesCallback.current?.(),
+      ]);
 
       let result: UsersEdit;
 
-      const updatedFields = getUpdatedFieldValues(formApi);
+      const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
       const { data } = await mutate({
         selector: { _id: initialData?._id },
         data: updatedFields,
       });
       result = data?.updateUser.data;
 
-      onSuccessCallback.current?.(result);
-
+      onSuccessBiographyCallback.current?.(result);
+      onSuccessModerationGuidelinesCallback.current?.(result);
+      
       onSuccess(result);
     },
   });
@@ -240,8 +251,8 @@ const UsersForm = ({
                 name="biography"
                 formType={formType}
                 document={form.state.values}
-                addOnSubmitCallback={addOnSubmitCallback}
-                addOnSuccessCallback={addOnSuccessCallback}
+                addOnSubmitCallback={addOnSubmitBiographyCallback}
+                addOnSuccessCallback={addOnSuccessBiographyCallback}
                 hintText="Tell us about yourself"
                 fieldName="biography"
                 collectionName="Users"
@@ -1147,8 +1158,8 @@ const UsersForm = ({
                 name="moderationGuidelines"
                 formType={formType}
                 document={form.state.values}
-                addOnSubmitCallback={addOnSubmitCallback}
-                addOnSuccessCallback={addOnSuccessCallback}
+                addOnSubmitCallback={addOnSubmitModerationGuidelinesCallback}
+                addOnSuccessCallback={addOnSuccessModerationGuidelinesCallback}
                 hintText={defaultEditorPlaceholder}
                 fieldName="moderationGuidelines"
                 collectionName="Users"

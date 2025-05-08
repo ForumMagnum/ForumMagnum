@@ -58,7 +58,6 @@ import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolver
 import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
 import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
-import { bookmarkGqlMutations, bookmarkGqlTypeDefs } from '@/server/bookmarkMutation';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
 import { markAsUnreadMutations, markAsUnreadTypeDefs } from '@/server/markAsUnread';
 import { cronGraphQLMutations, cronGraphQLQueries, cronGraphQLTypeDefs } from '@/server/rss-integration/cron';
@@ -84,6 +83,7 @@ import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } fro
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
 import { graphqlBanQueryTypeDefs, banGqlQueryHandlers, banGqlFieldResolvers } from "@/server/collections/bans/queries";
+import { graphqlBookmarkQueryTypeDefs, bookmarkGqlFieldResolvers, bookmarkGqlQueryHandlers } from "@/server/collections/bookmarks/queries";
 import { graphqlBookQueryTypeDefs, bookGqlQueryHandlers, bookGqlFieldResolvers } from "@/server/collections/books/queries";
 import { graphqlChapterQueryTypeDefs, chapterGqlQueryHandlers, chapterGqlFieldResolvers } from "@/server/collections/chapters/queries";
 import { graphqlCkEditorUserSessionQueryTypeDefs, ckEditorUserSessionGqlQueryHandlers, ckEditorUserSessionGqlFieldResolvers } from "@/server/collections/ckEditorUserSessions/queries";
@@ -166,6 +166,7 @@ import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelG
 import { graphqlUserQueryTypeDefs, userGqlQueryHandlers, userGqlFieldResolvers } from "@/server/collections/users/queries";
 import { graphqlVoteQueryTypeDefs, voteGqlQueryHandlers, voteGqlFieldResolvers } from "@/server/collections/votes/queries";
 import { createAdvisorRequestGqlMutation, updateAdvisorRequestGqlMutation, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
+import { bookmarkGqlTypeDefs, bookmarkGqlMutations } from '@/server/collections/bookmarks/mutations';
 import { createBookGqlMutation, updateBookGqlMutation, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
 import { createChapterGqlMutation, updateChapterGqlMutation, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
 import { createCollectionGqlMutation, updateCollectionGqlMutation, graphqlCollectionTypeDefs } from "@/server/collections/collections/mutations";
@@ -308,6 +309,7 @@ export const typeDefs = gql`
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
   ${graphqlBanQueryTypeDefs}
+  ${graphqlBookmarkQueryTypeDefs}
   ${graphqlBookQueryTypeDefs}
   ${graphqlChapterQueryTypeDefs}
   ${graphqlCkEditorUserSessionQueryTypeDefs}
@@ -545,6 +547,7 @@ export const resolvers = {
     ...userTagRelGqlQueryHandlers,
     ...userGqlQueryHandlers,
     ...voteGqlQueryHandlers,
+    ...bookmarkGqlQueryHandlers,
   },
   Mutation: {
     ...userResolversMutations,
@@ -689,6 +692,7 @@ export const resolvers = {
   ...automatedContentEvaluationGqlFieldResolvers,
   ...banGqlFieldResolvers,
   ...bookGqlFieldResolvers,
+  ...bookmarkGqlFieldResolvers,
   ...chapterGqlFieldResolvers,
   ...ckEditorUserSessionGqlFieldResolvers,
   ...clientIdGqlFieldResolvers,

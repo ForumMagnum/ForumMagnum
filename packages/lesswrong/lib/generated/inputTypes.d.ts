@@ -824,6 +824,15 @@ interface ModeratorIPAddressInfo {
   userIds: Array<string>;
 }
 
+interface ToggleBookmarkInput {
+  documentId: string;
+  collectionName: string;
+}
+
+interface ToggleBookmarkOutput {
+  data: Bookmark | null;
+}
+
 interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
@@ -948,9 +957,12 @@ interface MultiArbitalTagContentRelOutput {
 interface AutomatedContentEvaluation {
   _id: string;
   createdAt: Date;
-  revisionId: string | null;
-  score: number | null;
-  sentenceScores: Array<SentenceScore | null> | null;
+  revisionId: string;
+  score: number;
+  sentenceScores: Array<SentenceScore>;
+  aiChoice: string;
+  aiReasoning: string;
+  aiCoT: string;
 }
 
 interface SentenceScore {
@@ -991,6 +1003,40 @@ interface MultiBanInput {
 
 interface MultiBanOutput {
   results: Array<Ban | null> | null;
+  totalCount: number | null;
+}
+
+interface Bookmark {
+  _id: string;
+  createdAt: Date;
+  documentId: string;
+  collectionName: string;
+  userId: string;
+  post: Post | null;
+  comment: Comment | null;
+  lastUpdated: Date;
+  active: boolean;
+}
+
+interface SingleBookmarkInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleBookmarkOutput {
+  result: Bookmark | null;
+}
+
+interface MultiBookmarkInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiBookmarkOutput {
+  results: Array<Bookmark | null> | null;
   totalCount: number | null;
 }
 
@@ -6471,6 +6517,8 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
+  ToggleBookmarkInput: ToggleBookmarkInput;
+  ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
@@ -6496,6 +6544,11 @@ interface GraphQLTypeMap {
   SingleBanOutput: SingleBanOutput;
   MultiBanInput: MultiBanInput;
   MultiBanOutput: MultiBanOutput;
+  Bookmark: Bookmark;
+  SingleBookmarkInput: SingleBookmarkInput;
+  SingleBookmarkOutput: SingleBookmarkOutput;
+  MultiBookmarkInput: MultiBookmarkInput;
+  MultiBookmarkOutput: MultiBookmarkOutput;
   Book: Book;
   SingleBookInput: SingleBookInput;
   SingleBookOutput: SingleBookOutput;
@@ -7082,6 +7135,7 @@ interface CreateInputsByCollectionName {
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
   Bans: never;
+  Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
@@ -7171,6 +7225,7 @@ interface UpdateInputsByCollectionName {
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
   Bans: never;
+  Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;

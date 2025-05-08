@@ -10,9 +10,19 @@ import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import _ from "underscore";
 
+const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser || !document) return false;
+  return userIsAdmin(currentUser)
+};
+
 const banCheckAccess: CheckAccessFunction<'Bans'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   return userCanDo(currentUser, 'bans.view')
+};
+
+const bookmarkCheckAccess: CheckAccessFunction<'Bookmarks'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser || !document) return false;
+  return userOwns(currentUser, document);
 };
 
 const chapterCheckAccess: CheckAccessFunction<'Chapters'> = async (currentUser, document, context): Promise<boolean> => {
@@ -23,7 +33,7 @@ const chapterCheckAccess: CheckAccessFunction<'Chapters'> = async (currentUser, 
 };
 
 const clientIdCheckAccess: CheckAccessFunction<'ClientIds'> = async (currentUser, document, context): Promise<boolean> => {
-  return currentUser?.isAdmin ?? false;
+  return userIsAdmin(currentUser)
 }
 
 const conversationCheckAccess: CheckAccessFunction<'Conversations'> = async (currentUser, document, context): Promise<boolean> => {
@@ -351,7 +361,9 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
   Bans: banCheckAccess,
+  Bookmarks: bookmarkCheckAccess,
   Chapters: chapterCheckAccess,
   ClientIds: clientIdCheckAccess,
   Conversations: conversationCheckAccess,

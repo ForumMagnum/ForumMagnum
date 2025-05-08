@@ -90,6 +90,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   createdAt
   revisionId
   score
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {
@@ -3342,6 +3345,9 @@ fragment SunshinePostsList on Post {
         sentence
         score
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
   }
 

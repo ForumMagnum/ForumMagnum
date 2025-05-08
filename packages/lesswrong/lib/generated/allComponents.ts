@@ -31,6 +31,7 @@ importComponent("AuthorAnalyticsPage", () => require("../../components/analytics
 importComponent("DateRangeModal", () => require("../../components/analytics/DateRangeModal.tsx"));
 importComponent("MyAnalyticsPage", () => require("../../components/analytics/MyAnalyticsPage.tsx"));
 importComponent("PostsAnalyticsPage", () => require("../../components/analytics/PostsAnalyticsPage.tsx"));
+importComponent("BookmarksFeed", () => require("../../components/bookmarks/BookmarksFeed.tsx"));
 importComponent("BookmarksList", () => require("../../components/bookmarks/BookmarksList.tsx"));
 importComponent("BookmarksPage", () => require("../../components/bookmarks/BookmarksPage.tsx"));
 importComponent("BookmarksTab", () => require("../../components/bookmarks/BookmarksTab.tsx"));

@@ -6,6 +6,7 @@ import { CollectionViewSet } from './collectionViewSet';
 
 // Collection imports
 import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
+import { BookmarksViews } from '../collections/bookmarks/views';
 import { ChaptersViews } from '../collections/chapters/views';
 import { ClientIdsViews } from '../collections/clientIds/views';
 import { CollectionsViews } from '../collections/collections/views';
@@ -65,6 +66,7 @@ export const allViews = {
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
   Bans: new CollectionViewSet('Bans', {}),
+  Bookmarks: BookmarksViews,
   Books: new CollectionViewSet('Books', {}),
   Chapters: ChaptersViews,
   CkEditorUserSessions: new CollectionViewSet('CkEditorUserSessions', {}),
