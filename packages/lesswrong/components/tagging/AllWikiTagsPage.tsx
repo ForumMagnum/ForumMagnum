@@ -259,12 +259,12 @@ const AllWikiTagsPage = () => {
   const isArbitalRedirect = query.ref === 'arbital';
 
   const { data: tagsData } = useQuery(TagsQuery, {
-    variables: { slugs: prioritySlugs },
+    variables: { slugs: [...prioritySlugs] },
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
 
-  const priorityTagsRaw = tagsData?.tags.results;
+  const priorityTagsRaw = tagsData?.tags?.results;
 
   // const { results: priorityTagsRaw } = useMulti({
   //   collectionName: "Tags",
