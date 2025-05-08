@@ -598,7 +598,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
+    ForumEventPostPagePollSection, SubscribeTo, LWTooltip, PostsPageDate,
     PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton, HoveredReactionContextProvider
   } = Components
 
@@ -918,7 +918,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
-                <NotifyMeButton
+                <SubscribeTo
                     showIcon
                     document={post.group}
                     subscribeMessage="Subscribe to group"

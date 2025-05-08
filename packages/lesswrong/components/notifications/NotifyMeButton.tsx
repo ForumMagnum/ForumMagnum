@@ -148,6 +148,6 @@ export const SubscribeTo = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    NotifyMeButton: typeof SubscribeTo
+    SubscribeTo: typeof SubscribeTo
   }
 }

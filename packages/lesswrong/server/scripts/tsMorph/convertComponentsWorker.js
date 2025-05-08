@@ -113,26 +113,64 @@ async function processFile(project, filePath) {
     // modulePath -> { defaultImport?: string, namedImports: Map<actualExportName, aliasName | undefined> }
     const componentsToImport = new Map();
     const vulcanLibImportPathSuffix = 'lib/vulcan-lib/components';
-    let componentsImportDeclaration;
+    // We still find the initial componentsIdentifierName to know what we're looking for.
+    // However, the componentsImportDeclaration variable itself will not be used for modification in step 4.
     let componentsIdentifierName;
-    sourceFile.getImportDeclarations().forEach(importDecl => {
-        if (importDecl.getModuleSpecifierValue().endsWith(vulcanLibImportPathSuffix)) {
+    let initialComponentsImportDeclaration; // Store for initial check
+    // ***** START DEBUG LOGGING for componentsIdentifierName initialization *****
+    if (filePath.includes('AFApplicationForm')) {
+        console.log(`Worker: [DEBUG] File: ${filePath} - Initializing componentsIdentifierName. Current value: ${componentsIdentifierName}`);
+    }
+    // ***** END DEBUG LOGGING *****
+    sourceFile.getImportDeclarations().forEach((importDecl, index) => {
+        const moduleSpecifier = importDecl.getModuleSpecifierValue();
+        // ***** START DEBUG LOGGING for each import declaration *****
+        if (filePath.includes('AFApplicationForm')) {
+            console.log(`Worker: [DEBUG] File: ${filePath} - Checking Import #${index}: ModuleSpecifier='${moduleSpecifier}'`);
+            console.log(`Worker: [DEBUG]   Does '${moduleSpecifier}' end with '${vulcanLibImportPathSuffix}'? ${moduleSpecifier.endsWith(vulcanLibImportPathSuffix)}`);
+        }
+        // ***** END DEBUG LOGGING *****
+        if (moduleSpecifier.endsWith(vulcanLibImportPathSuffix)) {
             const componentsImport = importDecl.getNamedImports().find(ni => ni.getNameNode().getText() === 'Components');
+            // ***** START DEBUG LOGGING for matching import *****
+            if (filePath.includes('AFApplicationForm')) {
+                console.log(`Worker: [DEBUG] File: ${filePath} - Matched suffix for ModuleSpecifier='${moduleSpecifier}'.`);
+                console.log(`Worker: [DEBUG]   Found 'Components' named import? ${!!componentsImport}`);
+            }
+            // ***** END DEBUG LOGGING *****
             if (componentsImport) {
-                componentsImportDeclaration = importDecl;
+                initialComponentsImportDeclaration = importDecl;
                 componentsIdentifierName = componentsImport.getAliasNode()?.getText() || componentsImport.getNameNode().getText();
+                // ***** START DEBUG LOGGING when componentsIdentifierName is set *****
+                if (filePath.includes('AFApplicationForm')) {
+                    console.log(`Worker: [DEBUG] File: ${filePath} - SET componentsIdentifierName TO: '${componentsIdentifierName}'`);
+                }
+                // ***** END DEBUG LOGGING *****
             }
         }
     });
+    // ***** START DEBUG LOGGING for componentsIdentifierName after loop *****
+    if (filePath.includes('AFApplicationForm')) {
+        console.log(`Worker: [DEBUG] File: ${filePath} - After import scan, componentsIdentifierName: '${componentsIdentifierName}'`);
+    }
+    // ***** END DEBUG LOGGING *****
     if (!componentsIdentifierName) {
-        // If 'Components' from the target lib is not imported, assume no changes for this specific transform.
-        // A more advanced version could check for a global 'Components' or 'Components' from other sources.
+        // ***** START DEBUG LOGGING for early exit *****
+        if (filePath.includes('AFApplicationForm')) {
+            console.log(`Worker: [DEBUG] File: ${filePath} - componentsIdentifierName is still UNDEFINED. Returning 'no_changes_needed'.`);
+        }
+        // ***** END DEBUG LOGGING *****
         const text = sourceFile.getFullText();
         if (text.includes("Components.") || text.match(/=\s*Components\b/)) {
             // console.log(`Worker: ${filePath} uses 'Components' but not via the expected import from '${vulcanLibImportPathSuffix}'. Skipping this file for this transform.`);
         }
         return { status: 'no_changes_needed' };
     }
+    // ***** START DEBUG LOGGING if proceeding *****
+    if (filePath.includes('AFApplicationForm')) {
+        console.log(`Worker: [DEBUG] File: ${filePath} - componentsIdentifierName IS DEFINED ('${componentsIdentifierName}'). Proceeding to transformations.`);
+    }
+    // ***** END DEBUG LOGGING *****
     // 1. Handle `Components.ComponentName` (Property Access)
     const propertyAccesses = sourceFile.getDescendantsOfKind(ts_morph_1.SyntaxKind.PropertyAccessExpression);
     for (const pae of propertyAccesses) {
@@ -166,25 +204,99 @@ async function processFile(project, filePath) {
         }
     }
     // 2. Handle Destructuring: `const { C1, C2 } = Components;`
-    const varStatements = sourceFile.getVariableStatements();
+    const varStatements = sourceFile.getDescendantsOfKind(ts_morph_1.SyntaxKind.VariableStatement);
     for (const varStmt of varStatements) {
-        for (const decl of varStmt.getDeclarations()) {
+        // If varStmt has been removed by a previous iteration's modification (e.g., a decl inside it was removed,
+        // and then the varStmt itself became empty and was removed), then varStmt.wasForgotten() would be true.
+        if (varStmt.wasForgotten()) {
+            if (filePath.includes('AFApplicationForm')) {
+                console.log(`Worker: [DEBUG] File: ${filePath} - varStmt ('${varStmt.getText().split('\n')[0]}...') was forgotten. Skipping.`);
+            }
+            continue; // Skip this varStmt as it's no longer valid
+        }
+        // Get the declarations ONCE for the current varStmt.
+        // If varStmt is modified later in the inner loop (e.g., by removing all its decls),
+        // this original `declarationsToProcess` list is what we iterate.
+        const declarationsToProcess = varStmt.getDeclarations();
+        for (const decl of declarationsToProcess) {
+            // Check if the decl itself was removed (e.g. by a previous iteration on the same varStmt if it had multiple decls
+            // and one was removed, potentially invalidating sibling decls if the parent structure changed significantly,
+            // though `decl.remove()` is usually specific). More importantly, varStmt could have been removed.
+            if (decl.wasForgotten() || varStmt.wasForgotten()) {
+                if (filePath.includes('AFApplicationForm')) {
+                    console.log(`Worker: [DEBUG] File: ${filePath} - decl ('${decl.getName()}') or its parent varStmt was forgotten. Skipping decl.`);
+                }
+                continue;
+            }
             const initializer = decl.getInitializer();
+            // ***** START DEBUG LOGGING for each variable declaration *****
+            if (filePath.includes('AFApplicationForm')) {
+                console.log(`Worker: [DEBUG] File: ${filePath} - Checking VarDecl: '${decl.getName()}' from VarStmt: '${varStmt.getText().split('\n')[0]}'`);
+                if (initializer) {
+                    console.log(`Worker: [DEBUG]   Initializer kind: ${initializer.getKindName()}, Initializer text: '${initializer.getText()}'`);
+                    console.log(`Worker: [DEBUG]   Is Initializer an Identifier? ${ts_morph_1.Node.isIdentifier(initializer)}`);
+                    if (ts_morph_1.Node.isIdentifier(initializer)) {
+                        console.log(`Worker: [DEBUG]   Does Initializer text === componentsIdentifierName ('${componentsIdentifierName}')? ${initializer.getText() === componentsIdentifierName}`);
+                    }
+                }
+                else {
+                    console.log(`Worker: [DEBUG]   No initializer for this declaration.`);
+                }
+            }
+            // ***** END DEBUG LOGGING *****
             if (initializer && ts_morph_1.Node.isIdentifier(initializer) && initializer.getText() === componentsIdentifierName) {
                 const nameNode = decl.getNameNode();
+                // ***** START DEBUG LOGGING for nameNode *****
+                if (filePath.includes('AFApplicationForm')) {
+                    console.log(`Worker: [DEBUG] File: ${filePath} - Matched initializer as Components. Checking nameNode.`);
+                    console.log(`Worker: [DEBUG]   nameNode kind: ${nameNode.getKindName()}, nameNode text: '${nameNode.getText()}'`);
+                    console.log(`Worker: [DEBUG]   Is nameNode an ObjectBindingPattern? ${ts_morph_1.Node.isObjectBindingPattern(nameNode)}`);
+                }
+                // ***** END DEBUG LOGGING *****
                 if (ts_morph_1.Node.isObjectBindingPattern(nameNode)) {
+                    // ***** START DEBUG LOGGING for entering destructuring block *****
+                    if (filePath.includes('AFApplicationForm')) {
+                        console.log(`Worker: [DEBUG] File: ${filePath} - Entered destructuring logic for an ObjectBindingPattern: ${nameNode.getText()}`);
+                    }
+                    // ***** END DEBUG LOGGING *****
                     const elementsInvolvedInReplacement = [];
                     for (const element of nameNode.getElements()) {
-                        const propertyNameNode = element.getPropertyNameNode(); // What's accessed on Components (e.g. RealName in { RealName: Alias })
-                        const localNameNode = element.getNameNode(); // The local variable (e.g. Alias in { RealName: Alias } or C1 in { C1 })
+                        const propertyNameNode = element.getPropertyNameNode();
+                        const localNameNode = element.getNameNode();
                         if (!ts_morph_1.Node.isIdentifier(localNameNode)) {
                             console.warn(`Worker: [WARN] Skipping complex binding element (non-identifier name part): ${element.getText()} in ${filePath}`);
                             continue;
                         }
                         const nameUsedForCacheLookup = propertyNameNode ? propertyNameNode.getText() : localNameNode.getText();
                         const localVariableName = localNameNode.getText();
+                        // ***** START DEBUG LOGGING (original detailed block) *****
+                        if (filePath.includes('AFApplicationForm')) {
+                            console.log(`Worker: [DEBUG] File: ${filePath}`);
+                            console.log(`Worker: [DEBUG] Destructuring element: '${element.getText()}'`);
+                            console.log(`Worker: [DEBUG]   Name for cache lookup: '${nameUsedForCacheLookup}' (from ${propertyNameNode ? 'propertyNameNode' : 'localNameNode'})`);
+                            console.log(`Worker: [DEBUG]   Local variable name: '${localVariableName}'`);
+                            if (!componentLocationCache) {
+                                console.log(`Worker: [DEBUG]   CRITICAL: componentLocationCache is null!`);
+                            }
+                            else {
+                                const hasKey = componentLocationCache.has(nameUsedForCacheLookup);
+                                console.log(`Worker: [DEBUG]   Cache has key '${nameUsedForCacheLookup}'? ${hasKey}`);
+                                if (hasKey) {
+                                    console.log(`Worker: [DEBUG]   Cache entry for '${nameUsedForCacheLookup}': ${JSON.stringify(componentLocationCache.get(nameUsedForCacheLookup))}`);
+                                }
+                                else {
+                                    // If the key is not found, log a few nearby keys or a small sample of the cache to see if there are subtle differences
+                                    let sampleKeys = Array.from(componentLocationCache.keys()).slice(0, 10);
+                                    console.log(`Worker: [DEBUG]   Cache does NOT have key. Sample keys: ${sampleKeys.join(', ')}... Total cache size: ${componentLocationCache.size}`);
+                                }
+                            }
+                        }
+                        // ***** END DEBUG LOGGING *****
                         const cacheEntry = componentLocationCache.get(nameUsedForCacheLookup);
                         if (cacheEntry) {
+                            if (filePath.includes('AFApplicationForm')) {
+                                console.log(`Worker: [DEBUG]   SUCCESS: Cache entry found for '${nameUsedForCacheLookup}'. Proceeding with transformation.`);
+                            }
                             elementsInvolvedInReplacement.push(element);
                             const componentDiskPath = cacheEntry.path;
                             if (!componentsToImport.has(componentDiskPath)) {
@@ -220,6 +332,10 @@ async function processFile(project, filePath) {
                             }
                         }
                         else {
+                            // This path is taken if cacheEntry is null/undefined
+                            if (filePath.includes('AFApplicationForm')) {
+                                console.log(`Worker: [DEBUG]   FAILURE: No cache entry found for '${nameUsedForCacheLookup}'. Element will be kept.`);
+                            }
                             console.warn(`Worker: [WARN] Could not find location for destructured component '${nameUsedForCacheLookup}' from ${componentsIdentifierName} in ${filePath}. Destructuring element kept.`);
                         }
                     }
@@ -230,9 +346,10 @@ async function processFile(project, filePath) {
                         if (elementsInvolvedInReplacement.length === totalElementsInPattern) {
                             // All elements in this destructuring pattern are being replaced by direct imports.
                             // Remove the entire variable declaration.
-                            decl.remove();
-                            if (varStmt.getDeclarations().length === 0) {
-                                varStmt.remove(); // Also remove the 'const/let/var' statement if it becomes empty.
+                            if (!decl.wasForgotten())
+                                decl.remove(); // Check before removing
+                            if (!varStmt.wasForgotten() && varStmt.getDeclarations().length === 0) {
+                                varStmt.remove();
                             }
                         }
                         else {
@@ -240,18 +357,19 @@ async function processFile(project, filePath) {
                             // others (not in elementsInvolvedInReplacement) should remain in the destructuring.
                             const elementsToKeep = nameNode.getElements().filter(element => !elementsInvolvedInReplacement.includes(element));
                             if (elementsToKeep.length > 0) {
-                                // Reconstruct the ObjectBindingPattern with only the elements to keep.
-                                const newBindingPatternText = `{ ${elementsToKeep.map(el => el.getText()).join(", ")} }`;
-                                nameNode.replaceWithText(newBindingPatternText);
+                                if (!nameNode.wasForgotten()) { // Check nameNode before replacing
+                                    const newBindingPatternText = `{ ${elementsToKeep.map(el => el.getText()).join(", ")} }`;
+                                    nameNode.replaceWithText(newBindingPatternText);
+                                }
+                                else if (filePath.includes('AFApplicationForm')) {
+                                    console.log(`Worker: [DEBUG] File: ${filePath} - nameNode was forgotten before replaceWithText for elementsToKeep.`);
+                                }
                             }
                             else {
-                                // This case means elementsToKeep is empty. This implies that all original elements
-                                // were indeed in elementsInvolvedInReplacement, which should have been caught by the
-                                // (elementsInvolvedInReplacement.length === totalElementsInPattern) condition.
-                                // This acts as a safeguard: if nothing is to be kept, remove the declaration.
-                                console.warn(`Worker: [INFO] Destructuring pattern for ${decl.getName()} in ${filePath} became empty after processing. Removing declaration.`);
-                                decl.remove();
-                                if (varStmt.getDeclarations().length === 0) {
+                                // This case means elementsToKeep is empty.
+                                if (!decl.wasForgotten())
+                                    decl.remove();
+                                if (!varStmt.wasForgotten() && varStmt.getDeclarations().length === 0) {
                                     varStmt.remove();
                                 }
                             }
@@ -259,6 +377,13 @@ async function processFile(project, filePath) {
                     }
                     // If elementsInvolvedInReplacement.length === 0, no changes needed for this destructuring declaration.
                 }
+            }
+            // Check if varStmt was removed by operations on its declarations
+            if (varStmt.wasForgotten()) {
+                if (filePath.includes('AFApplicationForm')) {
+                    console.log(`Worker: [DEBUG] File: ${filePath} - varStmt was forgotten after processing its declarations. Breaking from inner loop.`);
+                }
+                break; // varStmt is gone, no more declarations to process for it
             }
         }
     }
@@ -299,43 +424,61 @@ async function processFile(project, filePath) {
         }
         modified = true; // Ensure modified is true if imports were added/changed
     }
-    if (modified) { // Only organize if there's a reason to
-        sourceFile.organizeImports();
-    }
     // 4. Clean up `Components` import from `vulcan-lib/components`
-    if (componentsImportDeclaration && componentsIdentifierName && modified) { // Only try to remove if we made changes
-        let isStillUsed = false;
-        sourceFile.getDescendantsOfKind(ts_morph_1.SyntaxKind.Identifier).forEach(id => {
-            if (id.getText() === componentsIdentifierName) {
-                const parent = id.getParent();
-                if ((ts_morph_1.Node.isPropertyAccessExpression(parent) && parent.getExpression() === id) ||
-                    (ts_morph_1.Node.isVariableDeclaration(parent) && parent.getInitializer() === id)) {
-                    // Check if this usage was one we were supposed to handle but couldn't (e.g. component not in cache)
-                    if (ts_morph_1.Node.isPropertyAccessExpression(parent) && parent.getExpression() === id) {
-                        if (!componentLocationCache.has(parent.getName()))
-                            isStillUsed = true;
-                    }
-                    else { // For other direct usages like `const x = Components` or unhandled destructuring
-                        isStillUsed = true;
-                    }
+    // We only attempt cleanup if we originally identified a 'Components' import (via componentsIdentifierName)
+    // and actual modifications were made to the file.
+    if (componentsIdentifierName && modified) {
+        // Re-find the import declaration for 'Components' at this point, as previous operations
+        // (node replacements, additions, or a future organizeImports) might have changed it.
+        let currentComponentsImportDeclToClean;
+        for (const importDecl of sourceFile.getImportDeclarations()) {
+            if (importDecl.getModuleSpecifierValue().endsWith(vulcanLibImportPathSuffix)) {
+                const componentsImportSpecifier = importDecl.getNamedImports().find(ni => (ni.getAliasNode()?.getText() || ni.getNameNode().getText()) === componentsIdentifierName);
+                if (componentsImportSpecifier) {
+                    currentComponentsImportDeclToClean = importDecl;
+                    break; // Found it
                 }
             }
-        });
-        if (!isStillUsed) {
-            const componentsSpecifier = componentsImportDeclaration.getNamedImports()
-                .find(ni => (ni.getAliasNode()?.getText() || ni.getNameNode().getText()) === componentsIdentifierName);
-            if (componentsSpecifier) {
-                componentsSpecifier.remove();
-                if (componentsImportDeclaration.getNamedImports().length === 0 &&
-                    !componentsImportDeclaration.getDefaultImport() &&
-                    !componentsImportDeclaration.getNamespaceImport()) {
-                    componentsImportDeclaration.remove();
+        }
+        if (currentComponentsImportDeclToClean) {
+            let isStillUsed = false;
+            sourceFile.getDescendantsOfKind(ts_morph_1.SyntaxKind.Identifier).forEach(id => {
+                if (id.getText() === componentsIdentifierName) {
+                    const parent = id.getParent();
+                    if (ts_morph_1.Node.isPropertyAccessExpression(parent) && parent.getExpression() === id) {
+                        if (!componentLocationCache.has(parent.getName())) {
+                            isStillUsed = true;
+                        }
+                    }
+                    else if (ts_morph_1.Node.isVariableDeclaration(parent) && parent.getInitializer() === id) {
+                        const nameNode = parent.getNameNode();
+                        if (ts_morph_1.Node.isObjectBindingPattern(nameNode)) {
+                            if (nameNode.getElements().length > 0) { // If any elements remain in the destructuring
+                                isStillUsed = true;
+                            }
+                        }
+                        else { // e.g. const AllComponents = Components;
+                            isStillUsed = true;
+                        }
+                    }
                 }
-                sourceFile.organizeImports();
+            });
+            if (!isStillUsed) {
+                const componentsSpecifier = currentComponentsImportDeclToClean.getNamedImports()
+                    .find(ni => (ni.getAliasNode()?.getText() || ni.getNameNode().getText()) === componentsIdentifierName);
+                if (componentsSpecifier) {
+                    componentsSpecifier.remove();
+                    if (currentComponentsImportDeclToClean.getNamedImports().length === 0 &&
+                        !currentComponentsImportDeclToClean.getDefaultImport() &&
+                        !currentComponentsImportDeclToClean.getNamespaceImport()) {
+                        currentComponentsImportDeclToClean.remove();
+                    }
+                }
             }
         }
     }
     if (modified) {
+        // sourceFile.organizeImports(); // Call organizeImports ONCE here, after all modifications.
         await sourceFile.save();
         return { status: 'modified' };
     }
@@ -358,7 +501,7 @@ async function processComponentsBatch(batchFilePaths) {
             error: 'Worker received incomplete workerData (missing tsConfigFilePath or allSourceFilePaths)'
         }));
     }
-    const project = new ts_morph_1.Project({ tsConfigFilePath });
+    const project = new ts_morph_1.Project();
     // Add ALL source files to the project for comprehensive cache building and analysis
     project.addSourceFilesAtPaths(allSourceFilePaths);
     // Initialize the component cache (if not already initialized in this worker instance)

@@ -37,7 +37,7 @@ const SubscribedItemInner = ({
   renderDocument: (document: AnyBecauseTodo) => ReactNode,
   classes: ClassesType<typeof styles>
 }) => {
-  const {Loading, NotifyMeButton} = Components;
+  const {Loading, SubscribeTo} = Components;
   const {document, loading} = useSingle({
     documentId: subscription.documentId ?? undefined,
     collectionName, fragmentName,
@@ -53,7 +53,7 @@ const SubscribedItemInner = ({
 
   return (
     <div className={classes.root}>
-      <NotifyMeButton
+      <SubscribeTo
         document={document}
         subscriptionType={subscription.type}
         subscribeMessage="Resubscribe"

@@ -160,7 +160,7 @@ const TagPageButtonRowInner = ({
   const currentUser = useCurrentUser();
   const {
     LWTooltip,
-    NotifyMeButton,
+    SubscribeTo,
     TagDiscussionButton,
     ContentItemBody,
     ForumIcon,
@@ -290,7 +290,7 @@ const TagPageButtonRowInner = ({
         </span>
       </Link>}
       {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-        <NotifyMeButton
+        <SubscribeTo
           document={tag}
           className={classes.subscribeTo}
           showIcon

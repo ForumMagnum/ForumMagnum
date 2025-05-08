@@ -141,6 +141,6 @@ export const PostsSplashPageHeaderVote = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    LWPostsPageTopHeaderVote: typeof PostsSplashPageHeaderVote
+    PostsSplashPageHeaderVote: typeof PostsSplashPageHeaderVote
   }
 }

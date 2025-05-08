@@ -71,7 +71,7 @@ const PostAuthorCardInner = ({author, currentUser, classes}: {
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Typography, ContentStyles, NewConversationButton, NotifyMeButton, CloudinaryImage2 } = Components
+  const { Typography, ContentStyles, NewConversationButton, SubscribeTo, CloudinaryImage2 } = Components
   
     return <AnalyticsContext pageSectionContext="postAuthorCard">
     <div className={classes.root}>
@@ -104,7 +104,7 @@ const PostAuthorCardInner = ({author, currentUser, classes}: {
               Message
             </a>
           </NewConversationButton>}
-          {currentUser?._id !== author._id && <NotifyMeButton
+          {currentUser?._id !== author._id && <SubscribeTo
             document={author}
             className={classes.subscribeBtn}
             subscribeMessage="Subscribe"

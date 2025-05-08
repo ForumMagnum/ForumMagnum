@@ -62,7 +62,7 @@ export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPla
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
+  const { FooterTagList, PostsSplashPageHeaderVote, AudioToggle, PostActionsButton } = Components;
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
@@ -76,7 +76,7 @@ export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPla
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
-        <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
+        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>}
       <PostActionsButton post={post} className={classNames(classes.postActionsButton, post.shortform && classes.postActionsButtonShortform)} flip />
   </div>;

@@ -185,7 +185,7 @@ const SequencesPageInner = ({ documentId, classes }: {
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
     ChaptersList, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
+    ContentItemBody, Typography, SectionButton, ContentStyles, SubscribeTo
   } = Components
   
   if (document?.isDeleted) {
@@ -284,7 +284,7 @@ const SequencesPageInner = ({ documentId, classes }: {
             </div>
             {allowSubscribeToSequencePosts && <div className={classes.notifyCol}>
               <AnalyticsContext pageElementContext="notifyMeButton">
-                <NotifyMeButton
+                <SubscribeTo
                   document={document}
                   tooltip="Get notified when a new post is added to this sequence"
                   subscribeMessage="Get notified"

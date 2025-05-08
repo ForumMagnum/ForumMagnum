@@ -235,7 +235,7 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
   const currentUser = useCurrentUser();
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
-    Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
+    Loading, SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody,
     Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
     HoverOver, LocalGroupSubscribers, UsersNameDisplay,
   } = Components
@@ -341,7 +341,7 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
         <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
       </div>
     ) : <Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
-        <NotifyMeButton
+        <SubscribeTo
           showIcon={false}
           document={group}
           subscribeMessage="Subscribe to be notified when an event is added."
@@ -436,7 +436,7 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
           </div>
           <div>
             {currentUser && <SectionButton className={classes.notifyMe}>
-              <NotifyMeButton
+              <SubscribeTo
                 showIcon
                 document={group}
                 subscribeMessage="Subscribe to group"
