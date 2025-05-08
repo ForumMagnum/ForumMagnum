@@ -7,8 +7,9 @@ import type { Placement as PopperPlacementType } from "popper.js"
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('JargonTooltip', (theme: ThemeType) => ({
   card: {
     padding: 16,
     paddingBottom: 10,
@@ -82,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '.9em',
     marginBottom: 8,
   }
-});
+}));
 
 
 function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
@@ -116,7 +117,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   term: string,
   definitionHTML: string,
   approved: boolean,
@@ -126,13 +127,14 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   isFirstOccurrence?: boolean,
   placement?: PopperPlacementType
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   tooltipClassName?: string,
   tooltipTitleClassName?: string,
   forceTooltip?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
   const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
+  const classes = useStyles(styles);
+
   const { captureEvent } = useTracking();
   const [open, setOpen] = useState(false);
 
@@ -199,7 +201,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   </AnalyticsContext>;
 }
 
-const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});
+const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip);
 
 declare global {
   interface ComponentTypes {

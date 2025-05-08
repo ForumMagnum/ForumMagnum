@@ -19,6 +19,14 @@ import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/he
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
 import isEmpty from 'lodash/isEmpty';
+import { UserPageTitle } from '@/components/titles/UserPageTitle';
+import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
+import { TagHistoryPageTitle } from '@/components/tagging/TagHistoryPageTitle';
+import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
+import { TagPageTitle } from '@/components/tagging/TagPageTitle';
+import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
+import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
+import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
 const knownTagNames = ['tag', 'topic', 'concept', 'wikitag']
 const useShortAllTagsPath = isFriendlyUI;
 
@@ -122,7 +130,7 @@ addRoute(
     path:'/users/:slug',
     componentName: 'UsersSingle',
     //titleHoC: userPageTitleHoC,
-    titleComponentName: 'UserPageTitle',
+    titleComponent: UserPageTitle,
     getPingback: getUserPingbackBySlug,
   },
   {
@@ -280,15 +288,15 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
-    previewComponentName: 'SequencePreview'
+    previewComponent: SequencePreview,
   },
   {
     name: 'sequences.single',
     path: '/s/:_id',
     componentName: 'SequencesSingle',
-    titleComponentName: 'SequencesPageTitle',
-    subtitleComponentName: 'SequencesPageTitle',
-    previewComponentName: 'SequencePreview',
+    titleComponent: SequencesPageTitle,
+    subtitleComponent: SequencesPageTitle,
+    previewComponent: SequencePreview,
     enableResourcePrefetch: sequenceRouteWillDefinitelyReturn200,
   },
   {
@@ -306,8 +314,8 @@ addRoute(
     name: 'sequencesPost',
     path: '/s/:sequenceId/p/:postId',
     componentName: 'SequencesPost',
-    titleComponentName: 'PostsPageHeaderTitle',
-    previewComponentName: 'PostLinkPreviewSequencePost',
+    titleComponent: PostsPageHeaderTitle,
+    previewComponent: PostLinkPreviewSequencePost,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
     background: "white"
   },
@@ -338,7 +346,7 @@ addRoute(
     name: 'highlights.posts.single',
     path: '/highlights/:slug',
     componentName: 'PostsSingleSlug',
-    previewComponentName: 'PostLinkPreviewSlug',
+    previewComponent: PostLinkPreviewSlug,
     ...highlightsSubtitle,
     getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground
@@ -381,9 +389,9 @@ addRoute(
     name: 'tagsSingle',
     path: `/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagPageRouter',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagHoverPreview',
+    titleComponent: TagPageTitle,
+    subtitleComponent: TagPageTitle,
+    previewComponent: TagHoverPreview,
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     background: isLWorAF ? "white" : undefined,
     getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
@@ -404,9 +412,9 @@ addRoute(
     name: 'tagDiscussion',
     path: `/${tagUrlBaseSetting.get()}/:slug/discussion`,
     componentName: 'TagDiscussionPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagHoverPreview',
+    titleComponent: TagPageTitle,
+    subtitleComponent: TagPageTitle,
+    previewComponent: TagHoverPreview,
     background: isLWorAF ? "white" : undefined,
     noIndex: isEAForum,
     getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
@@ -415,8 +423,8 @@ addRoute(
     name: 'tagHistory',
     path: `/${tagUrlBaseSetting.get()}/:slug/history`,
     componentName: 'TagHistoryPage',
-    titleComponentName: 'TagHistoryPageTitle',
-    subtitleComponentName: 'TagHistoryPageTitle',
+    titleComponent: TagHistoryPageTitle,
+    subtitleComponent: TagHistoryPageTitle,
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     noIndex: true,
   },
@@ -424,15 +432,15 @@ addRoute(
     name: 'tagEdit',
     path: `/${tagUrlBaseSetting.get()}/:slug/edit`,
     componentName: 'EditTagPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
+    titleComponent: TagPageTitle,
+    subtitleComponent: TagPageTitle,
   },
   {
     name: 'tagCreate',
     path: `/${tagUrlBaseSetting.get()}/create`,
     title: `New ${taggingNameCapitalSetting.get()}`,
     componentName: 'NewTagPage',
-    subtitleComponentName: 'TagPageTitle',
+    subtitleComponent: TagPageTitle,
     background: "white"
   },
   {
@@ -576,14 +584,14 @@ export function initLegacyRoutes() {
       name: 'post.legacy',
       path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
       componentName: "LegacyPostRedirect",
-      previewComponentName: "PostLinkPreviewLegacy",
+      previewComponent: PostLinkPreviewLegacy,
       getPingback: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
     },
     {
       name: 'comment.legacy',
       path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
       componentName: "LegacyCommentRedirect",
-      previewComponentName: "CommentLinkPreviewLegacy",
+      previewComponent: CommentLinkPreviewLegacy,
       noIndex: true,
       // TODO: Pingback comment
     }
@@ -780,9 +788,9 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'tagsSubforum',
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum2`,
       componentName: 'TagSubforumPage2',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
+      titleComponent: TagPageTitle,
+      subtitleComponent: TagPageTitle,
+      previewComponent: TagHoverPreview,
       unspacedGrid: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
@@ -996,7 +1004,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
       componentName: 'PostsSingleSlug',
-      previewComponentName: 'PostLinkPreviewSlug',
+      previewComponent: PostLinkPreviewSlug,
       ...hpmorSubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1013,7 +1021,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Codex.posts.single',
       path: '/codex/:slug',
       componentName: 'PostsSingleSlug',
-      previewComponentName: 'PostLinkPreviewSlug',
+      previewComponent: PostLinkPreviewSlug,
       ...codexSubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1117,7 +1125,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Rationality.posts.single',
       path: '/rationality/:slug',
       componentName: 'PostsSingleSlug',
-      previewComponentName: 'PostLinkPreviewSlug',
+      previewComponent: PostLinkPreviewSlug,
       ...rationalitySubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1261,7 +1269,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Rationality.posts.single',
       path: '/rationality/:slug',
       componentName: 'PostsSingleSlug',
-      previewComponentName: 'PostLinkPreviewSlug',
+      previewComponent: PostLinkPreviewSlug,
       ...rationalitySubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1456,15 +1464,15 @@ if (hasEventsSetting.get()) {
       name:'Localgroups.single',
       path: '/groups/:groupId',
       componentName: 'LocalGroupSingle',
-      titleComponentName: 'LocalgroupPageTitle',
+      titleComponent: LocalgroupPageTitle,
       ...communitySubtitle
     },
     {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
-      titleComponentName: 'PostsPageHeaderTitle',
-      previewComponentName: 'PostLinkPreview',
+      titleComponent: PostsPageHeaderTitle,
+      previewComponent: PostLinkPreview,
       subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
       subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
@@ -1475,7 +1483,7 @@ if (hasEventsSetting.get()) {
       name: 'groups.post',
       path: '/g/:groupId/p/:_id',
       componentName: 'PostsSingle',
-      previewComponentName: 'PostLinkPreview',
+      previewComponent: PostLinkPreview,
       background: postBackground,
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
@@ -1497,8 +1505,8 @@ addRoute(
     name:'posts.single',
     path:'/posts/:_id/:slug?',
     componentName: 'PostsSingle',
-    titleComponentName: 'PostsPageHeaderTitle',
-    previewComponentName: 'PostLinkPreview',
+    titleComponent: PostsPageHeaderTitle,
+    previewComponent: PostLinkPreview,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
     noFooter: hasPostRecommendations,
@@ -1509,8 +1517,8 @@ addRoute(
     name:'posts.slug.single',
     path:'/posts/slug/:slug?',
     componentName: 'PostsSingleSlugRedirect',
-    titleComponentName: 'PostsPageHeaderTitle',
-    previewComponentName: 'PostLinkPreviewSlug',
+    titleComponent: PostsPageHeaderTitle,
+    previewComponent: PostLinkPreviewSlug,
     getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground,
     noFooter: hasPostRecommendations,
@@ -1519,25 +1527,25 @@ addRoute(
     name: 'posts.revisioncompare',
     path: '/compare/post/:_id/:slug',
     componentName: 'PostsCompareRevisions',
-    titleComponentName: 'PostsPageHeaderTitle',
+    titleComponent: PostsPageHeaderTitle,
   },
   {
     name: 'tags.revisioncompare',
     path: `/compare/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagCompareRevisions',
-    titleComponentName: 'PostsPageHeaderTitle',
+    titleComponent: PostsPageHeaderTitle,
   },
   {
     name: 'post.revisionsselect',
     path: '/revisions/post/:_id/:slug',
     componentName: 'PostsRevisionSelect',
-    titleComponentName: 'PostsPageHeaderTitle',
+    titleComponent: PostsPageHeaderTitle,
   },
   {
     name: 'tag.revisionsselect',
     path: `/revisions/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagPageRevisionSelect',
-    titleComponentName: 'TagPageTitle',
+    titleComponent: TagPageTitle,
   },
   // ----- Admin / Moderation -----
   {
@@ -1655,8 +1663,8 @@ addRoute(
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',
     componentName: "PostsSingle",
-    titleComponentName: 'PostsPageHeaderTitle',
-    previewComponentName: "PostCommentLinkPreviewGreaterWrong",
+    titleComponent: PostsPageHeaderTitle,
+    previewComponent: PostCommentLinkPreviewGreaterWrong,
     noIndex: true,
     noFooter: hasPostRecommendations,
     // TODO: Handle pingbacks leading to comments.

@@ -70,10 +70,17 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
 }) => {
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
-  let HintTextComponent: React.ComponentClass | React.FC;
-  if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
-    HintTextComponent = Components[hintText as keyof ComponentTypes]
-  }
+  
+  // RobertM: we're deleting the global components table.
+  // This form component isn't currently in use, and was only ever used by
+  // the FeaturedResources.ctaUrl field.  FeaturedResources don't currently
+  // have a form implemented for them.  If any future use of this component
+  // needs a hintText component, it should probably just be passed in as a prop.
+  
+  // let HintTextComponent: React.ComponentClass | React.FC;
+  // if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
+  //   HintTextComponent = Components[hintText as keyof ComponentTypes]
+  // }
 
   const updateValue = (value: string | null) => {
     void updateCurrentValues({
@@ -89,7 +96,8 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       setFooterContent(
         <div className={classes.footer}>
           <Components.Typography variant='body2' className={classes.hintText}>
-            {HintTextComponent ? <HintTextComponent /> : hintText}
+            {/* {HintTextComponent ? <HintTextComponent /> : hintText} */}
+            {hintText}
           </Components.Typography>
         </div>
       );

@@ -36,7 +36,7 @@ const HeadTags = ({
     const tabLongTitle = tabLongTitleSetting.get() || tabTitleSetting.get()
     const tabShortTitle = tabTitleSetting.get() || tabLongTitle
 
-    const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const TitleComponent = currentRoute?.titleComponent; // currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
 
     const rssUrl = `${getSiteUrl()}feed.xml`

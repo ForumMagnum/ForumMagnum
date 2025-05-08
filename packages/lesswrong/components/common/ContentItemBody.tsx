@@ -11,6 +11,13 @@ import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBl
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
+import { JargonTooltip } from '../jargon/JargonTooltip';
+import { InlineReactHoverableHighlight } from '../votes/lwReactions/InlineReactHoverableHighlight';
+
+const replacementComponentMap = {
+  JargonTooltip,
+  InlineReactHoverableHighlight,
+};
 
 interface ExternalProps {
   /**
@@ -77,7 +84,7 @@ export type ContentReplacementMode = 'first' | 'all';
 
 export type ContentReplacedSubstringComponentInfo = {
   replacedString: string
-  componentName: keyof ComponentTypes,
+  componentName: 'JargonTooltip' | 'InlineReactHoverableHighlight',
   replace: ContentReplacementMode,
   caseInsensitive?: boolean,
   isRegex?: boolean,
@@ -463,7 +470,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
     for (let replacement of sortedSubstrings) {
       if (replacement.replace === "all") {
-        const ReplacementComponent = Components[replacement.componentName];
+        const ReplacementComponent = replacementComponentMap[replacement.componentName];
         const replacementComponentProps = replacement.props;
         
         try {
@@ -552,10 +559,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       } else {
-        // The `AnyBecauseHard` is to avoid the type checker spending ~2 seconds
-        // uselessly checking whether you can spread `any`-typed props into 1200 different component types.
-        // (You can; we aren't getting any safety out of having it typed right now.)
-        const ReplacementComponent: AnyBecauseHard = Components[replacement.componentName];
+        const ReplacementComponent = replacementComponentMap[replacement.componentName];
         const replacementComponentProps = replacement.props;
         const str = replacement.replacedString;
   

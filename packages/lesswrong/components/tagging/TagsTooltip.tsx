@@ -10,6 +10,7 @@ import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
 import { MAIN_TAB_ID } from "@/lib/arbital/useTagLenses";
+import { TagHoverPreview } from "./TagHoverPreview";
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
@@ -105,7 +106,7 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
 );
 
 const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
-  const { Loading, TagHoverPreview } = Components;
+  const { Loading } = Components;
 
   const { selectedLens } = useTagPageContext() ?? {};
 
