@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Project, IndentationText, QuoteKind, SyntaxKind } from 'ts-morph'; // Reduced imports
 import path from 'path';
 import ts, { JsxEmit } from 'typescript';

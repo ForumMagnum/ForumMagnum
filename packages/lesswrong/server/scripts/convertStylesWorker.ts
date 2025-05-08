@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Project, SyntaxKind, CallExpression, Identifier, ObjectLiteralExpression, PropertyAssignment, VariableDeclarationKind, SourceFile, ImportSpecifier, ArrowFunction, FunctionExpression, FunctionDeclaration, Block, VariableStatement, IndentationText, QuoteKind, StringLiteral, ObjectBindingPattern, Node, ShorthandPropertyAssignment, TypeLiteralNode, VariableDeclaration } from 'ts-morph';
 import path from 'path';
 import ts, { JsxEmit } from 'typescript';

@@ -36,7 +36,7 @@ const InnerForumEventForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: UpdateForumEventDataInput & { _id: string; eventFormat?: DbForumEvent['eventFormat'] };
+  initialData?: UpdateForumEventDataInput & { _id: string; eventFormat?: DbForumEvent['eventFormat']; customComponent?: DbForumEvent['customComponent'] };
   onSuccess: (doc: ForumEventsEdit) => void;
 }) => {
   const classes = useStyles(styles);
