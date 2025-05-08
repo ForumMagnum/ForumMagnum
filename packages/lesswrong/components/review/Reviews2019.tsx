@@ -114,7 +114,7 @@ const Reviews2019Inner = ({classes}: {
   )
 }
 
-const Reviews2019Component = registerComponent('Reviews2019', Reviews2019Inner, {styles});
+export const Reviews2019 = registerComponent('Reviews2019', Reviews2019Inner, {styles});
 
 declare global {
   interface ComponentTypes {

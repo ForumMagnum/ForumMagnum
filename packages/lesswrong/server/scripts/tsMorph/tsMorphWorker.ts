@@ -11,10 +11,10 @@ export async function startWorkerForBatch(processBatchFunction: ProcessBatchFunc
   }
 
   if (workerData && workerData.filePaths && Array.isArray(workerData.filePaths)) {
-    console.log('Worker: Received initial task via workerData:', workerData); // DEBUG LOG
+    console.log('Worker: Received initial task via workerData'); // DEBUG LOG
     processBatchFunction(workerData.filePaths)
       .then(results => {
-        console.log('Worker: Sending batch results back to main', results); // DEBUG LOG
+        console.log('Worker: Sending batch results back to main'); // DEBUG LOG
         parentPort.postMessage(results); // Send the batch results
       })
       .catch(error => {

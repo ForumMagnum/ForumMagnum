@@ -373,7 +373,7 @@ const TagSubforumPage2Inner = ({classes}: {
   );
 }
 
-const TagSubforumPage2Component = registerComponent("TagSubforumPage2", TagSubforumPage2Inner, {styles});
+export const TagSubforumPage2 = registerComponent("TagSubforumPage2", TagSubforumPage2Inner, {styles});
 
 declare global {
   interface ComponentTypes {

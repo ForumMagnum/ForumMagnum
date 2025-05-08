@@ -26,15 +26,15 @@ async function refactorSourceFile(sourceFile) {
                             const declarationNameNode = componentDeclaration.getNameNode();
                             if (declarationNameNode) {
                                 const currentDeclarationName = declarationNameNode.getText();
-                                if (!currentDeclarationName.endsWith("Inner")) {
-                                    const newComponentName = `${currentDeclarationName}Inner`;
+                                if (currentDeclarationName.endsWith("Inner")) {
+                                    const newComponentName = currentDeclarationName.slice(0, -5);
                                     console.log(`Renaming component declaration ${currentDeclarationName} to ${newComponentName}`);
                                     componentDeclaration.rename(newComponentName);
                                     // Note: .rename() also updates all references, including componentIdentifierArg
                                     madeChanges = true;
                                 }
                                 else {
-                                    console.log(`Component declaration ${currentDeclarationName} already ends with 'Inner'. Skipping rename.`);
+                                    console.log(`Component declaration ${currentDeclarationName} doesn't end with 'Inner'. Skipping rename.`);
                                 }
                             }
                         }

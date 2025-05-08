@@ -4,7 +4,7 @@ import path from 'path';
 import { Worker } from 'worker_threads';
 import os from 'os';
 
-const BATCH_SIZE = 20; // Number of files per worker batch
+const BATCH_SIZE = 50; // Number of files per worker batch
 
 // --- Main Script ---
 async function main(workerScriptPath: string) {
@@ -106,6 +106,9 @@ async function main(workerScriptPath: string) {
       });
     });
   };
+
+  // Process the first batch with a worker to build the component cache, if needed
+  await processBatchWithWorker(fileBatches.shift()!, -1);
 
   // --- Worker Pool Management ---
   const executingPromises: Promise<Array<{ filePath: string, status: string, error?: string }>>[] = [];

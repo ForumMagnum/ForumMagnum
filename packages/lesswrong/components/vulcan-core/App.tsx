@@ -116,7 +116,7 @@ const AppInner = ({serverRequestStatus}: ExternalProps) => {
   );
 }
 
-const App = registerComponent('App', AppInner);
+export const App = registerComponent('App', AppInner);
 
 declare global {
   interface ComponentTypes {

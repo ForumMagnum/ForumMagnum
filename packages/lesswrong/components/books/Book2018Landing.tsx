@@ -526,7 +526,7 @@ const Book2018LandingInner = ({classes}: {
   )
 }
 
-const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018LandingInner, {
+export const Book2018Landing = registerComponent('Book2018Landing', Book2018LandingInner, {
   styles,
   
   // (Manually checked that there are no horrible contrast problems in dark mode.

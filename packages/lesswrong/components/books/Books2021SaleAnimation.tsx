@@ -427,7 +427,7 @@ const Books2021SaleAnimationInner = ({ classes, successContent }: {
 }
 
 
-const Books2021SaleAnimationComponent = registerComponent('Books2021SaleAnimation', Books2021SaleAnimationInner, {
+export const Books2021SaleAnimation = registerComponent('Books2021SaleAnimation', Books2021SaleAnimationInner, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode

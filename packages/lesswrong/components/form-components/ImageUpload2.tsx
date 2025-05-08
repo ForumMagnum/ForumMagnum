@@ -112,7 +112,7 @@ const ImageUpload2Inner = ({name, value, updateValue, clearField, label, croppin
   );
 };
 
-const ImageUpload2Component = registerComponent("ImageUpload2", ImageUpload2Inner, {styles});
+export const ImageUpload2 = registerComponent("ImageUpload2", ImageUpload2Inner, {styles});
 
 declare global {
   interface ComponentTypes {

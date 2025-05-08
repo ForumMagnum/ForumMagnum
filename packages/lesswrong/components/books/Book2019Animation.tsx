@@ -258,7 +258,7 @@ const Book2019AnimationInner = ({ classes, children, successContent }: {
 }
 
 
-const Book2019AnimationComponent = registerComponent('Book2019Animation', Book2019AnimationInner, {
+export const Book2019Animation = registerComponent('Book2019Animation', Book2019AnimationInner, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode

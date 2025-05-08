@@ -169,7 +169,7 @@ export const QuickReviewPage2022Inner = ({classes}: {
   </div>;
 }
 
-const QuickReviewPage2022Component = registerComponent('QuickReviewPage2022', QuickReviewPage2022Inner, {styles});
+export const QuickReviewPage2022 = registerComponent('QuickReviewPage2022', QuickReviewPage2022Inner, {styles});
 
 declare global {
   interface ComponentTypes {

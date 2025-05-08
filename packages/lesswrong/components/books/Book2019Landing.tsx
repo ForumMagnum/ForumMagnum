@@ -340,7 +340,7 @@ const Book2019LandingInner = ({classes}: {
   )
 }
 
-const Book2019LandingComponent = registerComponent('Book2019Landing', Book2019LandingInner, {styles});
+export const Book2019Landing = registerComponent('Book2019Landing', Book2019LandingInner, {styles});
 
 declare global {
   interface ComponentTypes {

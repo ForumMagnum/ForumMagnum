@@ -121,7 +121,7 @@ const PostsList2Inner = ({classes, ...props}: PostsList2Props) => {
   )
 }
 
-const PostsList2Component = registerComponent('PostsList2', PostsList2Inner, {
+export const PostsList2 = registerComponent('PostsList2', PostsList2Inner, {
   styles,
   areEqual: {
     terms: "deep",

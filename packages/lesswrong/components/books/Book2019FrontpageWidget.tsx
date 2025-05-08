@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import { LoginPopup } from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -139,7 +140,7 @@ const Book2019FrontpageWidgetInner = ({ classes }: {
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     }
   }
@@ -205,7 +206,7 @@ const Book2019FrontpageWidgetInner = ({ classes }: {
 }
 
 
-const Book2019FrontpageWidgetComponent = registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidgetInner, { styles });
+export const Book2019FrontpageWidget = registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidgetInner, { styles });
 
 declare global {
   interface ComponentTypes {

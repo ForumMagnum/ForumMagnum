@@ -295,7 +295,7 @@ const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
   );
 }
 
-const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
+export const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
 export const PostVersionHistory = registerComponent("PostVersionHistory", PostVersionHistoryInner, {styles});
 
 declare global {

@@ -136,7 +136,7 @@ export const AprilFools2022Inner = ({classes}: {
   </SingleColumnSection>;
 }
 
-const AprilFools2022Component = registerComponent('AprilFools2022', AprilFools2022Inner, {styles});
+export const AprilFools2022 = registerComponent('AprilFools2022', AprilFools2022Inner, {styles});
 
 declare global {
   interface ComponentTypes {

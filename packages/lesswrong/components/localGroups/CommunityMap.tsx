@@ -253,7 +253,7 @@ const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openW
     })}
   </React.Fragment>
 }
-const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkersInner, {
+export const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkersInner, {
   styles: personalMapMarkerStyles
 });
 

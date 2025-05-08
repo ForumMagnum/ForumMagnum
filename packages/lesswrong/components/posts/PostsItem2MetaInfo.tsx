@@ -27,7 +27,7 @@ const PostsItem2MetaInfoInner = ({children, className, classes}: {
   </Components.Typography>
 }
 
-const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfoInner, {styles});
+export const PostsItem2MetaInfo = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfoInner, {styles});
   
 declare global {
   interface ComponentTypes {
