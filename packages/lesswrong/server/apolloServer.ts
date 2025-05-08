@@ -440,7 +440,7 @@ export function startWebserver() {
     
     if (isStreaming) {
       await prefetchResourcesPromise();
-      prefetchResourcesPromise = () => true
+      prefetchResourcesPromise = async () => true
       response.write(jssSheetImports + "</head>");
     }
 

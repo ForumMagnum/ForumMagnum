@@ -10,7 +10,7 @@ type UseQueryOptions = {
   ssr: boolean,
 };
 
-export function useQuery(query: any, options: UseQueryOptions) {
+export const useQuery: typeof useQueryApollo = ((query: any, options: UseQueryOptions) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer && useContext(EnableSuspenseContext)) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -19,4 +19,4 @@ export function useQuery(query: any, options: UseQueryOptions) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useQueryApollo(query, options);
   }
-}
+}) as any;
