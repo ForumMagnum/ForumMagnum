@@ -74,7 +74,7 @@ interface AutomatedContentEvaluationsDefaultFragment { // fragment on AutomatedC
   readonly createdAt: Date,
   readonly revisionId: string,
   readonly score: number,
-  readonly aiChoice: string,
+  readonly aiChoice: "accept" | "review",
   readonly aiReasoning: string,
   readonly aiCoT: string,
 }
@@ -3032,7 +3032,7 @@ interface SunshinePostsList_contents_automatedContentEvaluations { // fragment o
   readonly _id: string,
   readonly score: number,
   readonly sentenceScores: Array<SentenceScore>,
-  readonly aiChoice: string,
+  readonly aiChoice: "accept" | "review",
   readonly aiReasoning: string,
   readonly aiCoT: string,
 }

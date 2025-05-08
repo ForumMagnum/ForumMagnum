@@ -80,7 +80,7 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "revisionId" VARCHAR(27) NOT NULL,
   "score" DOUBLE PRECISION NOT NULL,
   "sentenceScores" JSONB NOT NULL,
-  "aiChoice" VARCHAR(255) NOT NULL,
+  "aiChoice" TEXT NOT NULL,
   "aiReasoning" TEXT NOT NULL,
   "aiCoT" TEXT NOT NULL
 );

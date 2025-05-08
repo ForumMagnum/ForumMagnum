@@ -1430,7 +1430,7 @@ type AutomatedContentEvaluation {
   createdAt: Date!
   revisionId: String!
   score: Float!
-  sentenceScores: [SentenceScore]!
+  sentenceScores: [SentenceScore!]!
   aiChoice: String!
   aiReasoning: String!
   aiCoT: String!

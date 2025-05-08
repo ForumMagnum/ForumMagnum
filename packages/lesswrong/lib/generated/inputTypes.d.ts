@@ -950,7 +950,7 @@ interface AutomatedContentEvaluation {
   createdAt: Date;
   revisionId: string;
   score: number;
-  sentenceScores: Array<SentenceScore | null>;
+  sentenceScores: Array<SentenceScore>;
   aiChoice: string;
   aiReasoning: string;
   aiCoT: string;

@@ -34,7 +34,7 @@ const schema = {
       typescriptType: "{ sentence: string; score: number; }[]",
     },
     graphql: {
-      outputType: "[SentenceScore]!",
+      outputType: "[SentenceScore!]!",
       canRead: ["guests"],
     },
   },
