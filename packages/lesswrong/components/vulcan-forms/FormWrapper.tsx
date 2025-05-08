@@ -3,7 +3,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { gql as dynamicGql, useQuery } from '@apollo/client';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
@@ -26,7 +25,7 @@ function convertFields(field: string) {
  * generate query fragment based on the fields that can be edited. Note: always add _id.
  */
 function generateQueryFragment(queryFragmentName: string, collectionTypeName: string, queryFields: string[]) {
-  return graphql`
+  return dynamicGql`
     fragment ${queryFragmentName} on ${collectionTypeName} {
       _id
       ${queryFields.map(convertFields).join('\n')}
@@ -38,7 +37,7 @@ function generateQueryFragment(queryFragmentName: string, collectionTypeName: st
  * generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
  */
 function generateMutationFragment(mutationFragmentName: string, collectionTypeName: string, mutationFields: string[]) {
-  return graphql`
+  return dynamicGql`
     fragment ${mutationFragmentName} on ${collectionTypeName} {
       _id
       ${mutationFields.map(convertFields).join('\n')}
@@ -192,10 +191,6 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
     collectionName,
     fragment: mutationFragment,
   });
-  const {deleteDocument} = useDelete({
-    collectionName,
-    fragment: mutationFragment,
-  });
 
   if (!prefetchedDocument && loading) {
     return <Components.Loading/>
@@ -208,7 +203,7 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
     schema={props.schema}
     document={document ?? prefetchedDocument}
     updateMutation={updateMutation}
-    removeMutation={deleteDocument}
+    removeMutation={() => {}}
   />
 }
 

@@ -6196,7 +6196,11 @@ export type QueryTagRelsArgs = {
 
 
 export type QueryTagsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTagInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<TagSelector>;
 };
 
 
@@ -7871,6 +7875,14 @@ export type TagRelOutput = {
   __typename?: 'TagRelOutput';
   data?: Maybe<TagRel>;
 };
+
+export type TagSelector =
+  { allTagsAlphabetical: ViewInput; currentUserSubforums?: never; default?: never; tagByTagIds?: never; tagsBySlugs?: never; userTags?: never; }
+  |  { allTagsAlphabetical?: never; currentUserSubforums: ViewInput; default?: never; tagByTagIds?: never; tagsBySlugs?: never; userTags?: never; }
+  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default: ViewInput; tagByTagIds?: never; tagsBySlugs?: never; userTags?: never; }
+  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default?: never; tagByTagIds: ViewInput; tagsBySlugs?: never; userTags?: never; }
+  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default?: never; tagByTagIds?: never; tagsBySlugs: ViewInput; userTags?: never; }
+  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default?: never; tagByTagIds?: never; tagsBySlugs?: never; userTags: ViewInput; };
 
 export type TagUpdates = {
   __typename?: 'TagUpdates';
@@ -9574,6 +9586,10 @@ export type VertexRecommendedPost = {
   __typename?: 'VertexRecommendedPost';
   attributionId?: Maybe<Scalars['String']['output']>;
   post: Post;
+};
+
+export type ViewInput = {
+  slugs?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type Vote = {

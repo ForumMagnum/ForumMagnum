@@ -19,6 +19,7 @@ import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';
 import util from 'util';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
+import { PostsViews } from '@/lib/collections/posts/views';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -270,7 +271,7 @@ const helpers = {
     const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings };
 
     const postPromises = [curatedPostTerms, filteredStickiedPostTerms]
-      .map(terms => viewTermsToQuery("Posts", terms, undefined, context))
+      .map(terms => viewTermsToQuery(PostsViews, terms, undefined, context))
       .map(postsQuery => context.Posts.find(postsQuery.selector, postsQuery.options, { _id: 1 }).fetch());
 
     const [curatedPosts, stickiedPosts] = await Promise.all(postPromises);
@@ -376,7 +377,7 @@ const helpers = {
       ...loadMoreCountArg,
     };
 
-    const postsQuery = viewTermsToQuery('Posts', postsTerms, undefined, context);
+    const postsQuery = viewTermsToQuery(PostsViews, postsTerms, undefined, context);
 
     return performQueryFromViewParameters(context.Posts, postsTerms, postsQuery);
   },

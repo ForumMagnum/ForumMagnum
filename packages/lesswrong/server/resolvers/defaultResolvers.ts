@@ -14,14 +14,8 @@ import { print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolve
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
-export interface DefaultResolverOptions {
-  cacheMaxAge: number
-}
-
-const defaultOptions: DefaultResolverOptions = {
-  cacheMaxAge: 300,
-};
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
   const query = fieldNodes.find(
@@ -79,11 +73,11 @@ type DefaultMultiResolverHandler<N extends CollectionNameString> = {
 };
 
 export const getDefaultResolvers = <N extends CollectionNameString>(
-  collectionName: N, 
-  collectionOptions?: Partial<DefaultResolverOptions>,
+  collectionName: N,
+  viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
+  
 ): DefaultSingleResolverHandler<N> & DefaultMultiResolverHandler<N> => {
   type T = ObjectsByCollectionName[N];
-  const resolverOptions = {...defaultOptions, ...collectionOptions};
   const typeName = collectionNameToTypeName[collectionName];
 
   const multiResolver = async (
@@ -92,16 +86,23 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       input?: {
         terms: ViewTermsBase & Record<string, unknown>,
         enableTotal?: boolean,
-        resolverArgs?: Record<string, unknown>
+        resolverArgs?: Record<string, unknown>,
       },
+      selector?: Record<string, ViewTermsBase & Record<string, unknown>>,
       [resolverArgKeys: string]: unknown
     },
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
-    const { input } = args ?? { input: {} };
-    const { terms = {}, enableTotal = false, resolverArgs = {} } = input ?? {};
+    const { input, selector } = args ?? { input: {} };
+
+    // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
+    // with multiple named views. This translates this new input format into the old one.
+    const [selectorViewName, selectorViewTerms] = Object.entries(selector ?? {})?.[0] ?? [undefined, undefined];
+    const selectorTerms = { view: selectorViewName === 'default' ? undefined : selectorViewName, ...selectorViewTerms } as ViewTermsBase & Record<string, unknown>;
+
+    const { terms = selectorTerms, enableTotal = false, resolverArgs = {} } = input ?? {};
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
@@ -151,7 +152,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Get selector and options from terms and perform Mongo query
     // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
-    const parameters = viewTermsToQuery(collectionName, terms, {}, context);
+    const parameters = viewTermsToQuery(viewSet, terms, {}, context);
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "results", typeName);
@@ -232,7 +233,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     logGroupStart(
       `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
     );
-    logger(`Options: ${JSON.stringify(resolverOptions)}`);
     logger(`Selector: ${JSON.stringify(selector)}`);
 
     const { currentUser }: {currentUser: DbUser|null} = context;

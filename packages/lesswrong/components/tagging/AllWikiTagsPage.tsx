@@ -10,6 +10,8 @@ import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { useMulti } from '@/lib/crud/withMulti';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { gql } from '@/lib/generated/gql-codegen/gql';
+import { useQuery } from '@apollo/client';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -237,6 +239,16 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   );
 }
 
+const TagsQuery = gql(`
+  query TagsQuery($slugs: [String!]!) {
+    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {
+      results {
+        ...ConceptItemFragment
+      }
+    }
+  }
+`)
+
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
@@ -246,16 +258,24 @@ const AllWikiTagsPage = () => {
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
 
-  const { results: priorityTagsRaw } = useMulti({
-    collectionName: "Tags",
-    fragmentName: "ConceptItemFragment",
-    terms: { 
-      view: "tagsBySlugs",
-      slugs: [...prioritySlugs]
-    },
+  const { data: tagsData } = useQuery(TagsQuery, {
+    variables: { slugs: prioritySlugs },
     fetchPolicy: 'cache-and-network',
-    ssr: true,
+    ssr: true
   });
+
+  const priorityTagsRaw = tagsData?.tags.results;
+
+  // const { results: priorityTagsRaw } = useMulti({
+  //   collectionName: "Tags",
+  //   fragmentName: "ConceptItemFragment",
+  //   terms: { 
+  //     view: "tagsBySlugs",
+  //     slugs: [...prioritySlugs]
+  //   },
+  //   fetchPolicy: 'cache-and-network',
+  //   ssr: true,
+  // });
 
   const priorityTags = useMemo(() => {
     if (!priorityTagsRaw) return [];

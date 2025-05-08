@@ -1,6 +1,5 @@
 import { ApolloError, gql } from '@apollo/client';
-import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
-import { updateCacheAfterCreate } from './cacheUpdates';
+import { useMutation } from '@apollo/client/react/hooks';
 import { loggerConstructor } from '../utils/logging';
 import { useCallback, useMemo } from 'react';
 import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
@@ -47,8 +46,6 @@ export const useCreate = <CollectionName extends CollectionNameString, Fragment 
     ${fragment}
   `;
   
-  const client = useApolloClient();
-  
   const [mutate, {loading, error, called, data}] = useMutation(query, {
     ignoreResults: ignoreResults
   });
@@ -57,9 +54,8 @@ export const useCreate = <CollectionName extends CollectionNameString, Fragment 
   }) => {
     logger('useCreate, wrappedCreate()')
     return mutate({
-      variables: { data },
-      update: updateCacheAfterCreate(typeName, client)
+      variables: { data }
     })
-  }, [logger, mutate, typeName, client]);
+  }, [logger, mutate]);
   return {create: wrappedCreate, loading, error, called, data};
 }

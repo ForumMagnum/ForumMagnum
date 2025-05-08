@@ -182,6 +182,7 @@ type Documents = {
     "\n    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {\n      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {\n        ...SurveyMinimumInfo\n      }\n    }\n    \n  ": typeof types.EditSurveyDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  ": typeof types.AddPostsToTagDocument,
     "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n": typeof types.AllPostsPageTagRevisionItemDocument,
+    "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": typeof types.TagsQueryDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.FilterModeDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  ": typeof types.AddOrUpvoteTagDocument,
     "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  ": typeof types.GetRandomTagDocument,
@@ -631,6 +632,7 @@ const documents: Documents = {
     "\n    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {\n      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {\n        ...SurveyMinimumInfo\n      }\n    }\n    \n  ": types.EditSurveyDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  ": types.AddPostsToTagDocument,
     "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n": types.AllPostsPageTagRevisionItemDocument,
+    "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": types.TagsQueryDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.FilterModeDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  ": types.AddOrUpvoteTagDocument,
     "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  ": types.GetRandomTagDocument,
@@ -1598,6 +1600,10 @@ export function gql(source: "\n    mutation addPostsToTag($tagId: String, $postI
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n"): (typeof documents)["\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

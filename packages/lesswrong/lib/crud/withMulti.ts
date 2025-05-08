@@ -2,7 +2,6 @@ import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useAp
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
-import { invalidateQuery } from './cacheUpdates';
 import { apolloSSRFlag } from '../helpers';
 import { getMultiResolverName } from './utils';
 import type { PrimitiveGraphQLType } from './types';
@@ -88,7 +87,7 @@ export type UseMultiResult<
   results?: Array<F>,
   totalCount?: number,
   refetch: any,
-  invalidateCache: () => void,
+  // invalidateCache: () => void,
   error: ApolloError | undefined,
   count?: number,
   showLoadMore: boolean,
@@ -176,13 +175,6 @@ export function useMulti<
   }
   const { data, error, loading, refetch, fetchMore, networkStatus } = useQuery(query, useQueryArgument);
 
-  const client = useApolloClient();
-  const invalidateCache = useCallback(() => invalidateQuery({
-    client,
-    query,
-    variables: graphQLVariables,
-  }), [client, query, graphQLVariables]);
-
   if (error) {
     // This error was already caught by the apollo middleware, but the
     // middleware had no idea who  made the query. To aid in debugging, log a
@@ -218,10 +210,7 @@ export function useMulti<
           terms: { ...graphQLVariables.input.terms, limit: newLimit }
         }
       },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return fetchMoreResult
-      }
+      updateQuery: (prev, { fetchMoreResult }) => fetchMoreResult ?? prev
     })
     setLimit(newLimit)
   };
@@ -245,7 +234,7 @@ export function useMulti<
     results,
     totalCount: totalCount,
     refetch,
-    invalidateCache,
+    // invalidateCache,
     error,
     count,
     showLoadMore,

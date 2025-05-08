@@ -4295,6 +4295,19 @@ type SingleTagOutput {
   result: Tag
 }
 
+input ViewInput {
+  slugs: [String!]
+}
+
+input TagSelector @oneOf {
+  default: ViewInput
+  tagsBySlugs: ViewInput
+  tagByTagIds: ViewInput
+  allTagsAlphabetical: ViewInput
+  userTags: ViewInput
+  currentUserSubforums: ViewInput
+}
+
 input MultiTagInput {
   terms: JSON
   resolverArgs: JSON
@@ -4308,7 +4321,7 @@ type MultiTagOutput {
 
 extend type Query {
   tag(input: SingleTagInput): SingleTagOutput
-  tags(input: MultiTagInput): MultiTagOutput
+  tags(input: MultiTagInput, selector: TagSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagOutput
 }
 
 type Tweet {

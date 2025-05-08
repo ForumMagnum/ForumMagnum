@@ -4,7 +4,6 @@ import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
-import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 import { SearchBox, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -112,11 +111,7 @@ const AddPostsToTag = ({classes, tag}: {
       }
     }
     ${fragmentTextForQuery("TagRelCreationFragment")}
-  `, {
-    update(cache, { data: {addPostsToTag: TagRel}  }) {
-      updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
-    }
-  });
+  `);
 
   const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
