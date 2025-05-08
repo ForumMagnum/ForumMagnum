@@ -1,14 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, forwardRef } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { isClient } from '@/lib/executionEnvironment';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -28,6 +26,14 @@ export const useTheme = (): ThemeType => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useTheme() used without the context available";
   return themeContext.theme;
+}
+
+export const withTheme = <T extends {theme: ThemeType}>(Component: React.ComponentType<T>) => {
+  return forwardRef((props, ref) => {
+    const theme = useTheme();
+    const ComponentUntyped = Component as any;
+    return <ComponentUntyped ref={ref} {...props} theme={theme}/>
+  }) as React.ComponentType<Omit<T,"theme">>;
 }
 
 export const useThemeOptions = (): AbstractThemeOptions => {
@@ -94,7 +100,6 @@ export const ThemeContextProvider = ({options, children}: {
 }) => {
   const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const [themeOptions, setThemeOptions] = useState(options);
-  const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
@@ -141,8 +146,6 @@ export const ThemeContextProvider = ({options, children}: {
   );
   
   return <ThemeContext.Provider value={themeContext}>
-    <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
-      {children}
-    </MuiThemeProvider>
+    {children}
   </ThemeContext.Provider>
 }

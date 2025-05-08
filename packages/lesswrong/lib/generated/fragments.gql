@@ -2846,7 +2846,6 @@ fragment RevisionEdit on Revision {
     data
   }
   markdown
-  draftJS
   ckEditorMarkup
 }
 

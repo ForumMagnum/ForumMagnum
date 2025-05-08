@@ -108,7 +108,7 @@ const DatatableContents = (props: {
   count?: number;
   totalCount: number;
   loadingMore: boolean;
-  emptyState?: JSX.Element;
+  emptyState?: React.JSX.Element;
 }) => {
   const { title, collectionName, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
   const { LoadMore } = Components;

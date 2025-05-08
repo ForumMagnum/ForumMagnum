@@ -3084,7 +3084,6 @@ interface Revision {
   originalContents: ContentType | null;
   html: string | null;
   markdown: string | null;
-  draftJS: any;
   ckEditorMarkup: string | null;
   wordCount: number;
   htmlHighlight: string;

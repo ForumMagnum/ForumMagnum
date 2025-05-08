@@ -2,7 +2,6 @@ import Users from '../server/collections/users/collection';
 import { Posts } from '../server/collections/posts/collection'
 import { Comments } from '../server/collections/comments/collection'
 import { Votes } from '../server/collections/votes/collection'
-import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
@@ -265,7 +264,7 @@ export const createDummyConversation = async (user: any, data?: any) => {
 export const createDummyMessage = async (user: any, data?: any) => {
   let defaultData = {
     _id: randomId(),
-    contents: convertToRaw(ContentState.createFromText('Dummy Message Content')),
+    contents: '<p>Dummy Message Content</p>',
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};

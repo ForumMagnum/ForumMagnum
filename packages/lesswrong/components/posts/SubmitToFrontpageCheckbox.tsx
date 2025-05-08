@@ -6,6 +6,7 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => ({
   submitToFrontpageWrapper: {
@@ -53,35 +54,31 @@ const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => (
   },
 }));
 
-const defaultTooltipLWAF = ({classes}: {classes: ClassesType<typeof styles['styles']>}) => <div className={classes.tooltip}>
-  <p>LW moderators will consider this post for frontpage</p>
-  <p className={classes.guidelines}>Things to aim for:</p>
-  <ul>
-    <li className={classes.guidelines}>
-      Usefulness, novelty and fun
-    </li>
-    <li className={classes.guidelines}>
-      Timeless content (minimize reference to current events)
-    </li>
-    <li className={classes.guidelines}>
-      Explain rather than persuade
-    </li>
-  </ul>
-</div>
-
-const defaultTooltipEAF = () =>
-  <>
-    Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.
-  </>
-
-const forumDefaultTooltip: ForumOptions<FC<{classes?: ClassesType<typeof styles['styles']>}>> = {
-  LessWrong: defaultTooltipLWAF,
-  AlignmentForum: defaultTooltipLWAF,
-  EAForum: defaultTooltipEAF,
-  default: defaultTooltipEAF,
+const DefaultTooltip = () => {
+  const classes = useStyles(styles);
+  
+  if (isLWorAF) {
+    return <div className={classes.tooltip}>
+      <p>LW moderators will consider this post for frontpage</p>
+      <p className={classes.guidelines}>Things to aim for:</p>
+      <ul>
+        <li className={classes.guidelines}>
+          Usefulness, novelty and fun
+        </li>
+        <li className={classes.guidelines}>
+          Timeless content (minimize reference to current events)
+        </li>
+        <li className={classes.guidelines}>
+          Explain rather than persuade
+        </li>
+      </ul>
+    </div>
+  } else {
+    return <>
+      Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.
+    </>
+  }
 }
-
-const defaultTooltip = forumSelect(forumDefaultTooltip);
 
 export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
   field: TypedFieldApi<boolean>;
@@ -99,7 +96,9 @@ export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
     default: 'Moderators may promote to Frontpage'
   });
 
-  const displayedTooltip = tooltip ?? defaultTooltip({classes});
+  const displayedTooltip = tooltip
+    ? <>{tooltip}</>
+    : <DefaultTooltip/>
   const displayedLabel = label ?? defaultLabel;
 
   return <div className={classes.submitToFrontpageWrapper}>

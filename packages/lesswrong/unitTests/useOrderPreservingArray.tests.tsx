@@ -1,4 +1,12 @@
-import { renderHook } from "@testing-library/react-hooks";
+/**
+ * @jest-environment jsdom
+ */
+// The docstring above overrides the jest environment from node to jsdom
+// because the jsdom env is required for compatibility with
+// @testing-library/react, but other (server) code is incompatible with that
+// environment. The docstring must be the first thing in the file.
+
+import { renderHook } from "@testing-library/react";
 import { useOrderPreservingArray } from "../components/hooks/useOrderPreservingArray";
 
 describe("useOrderPreservingArray", () => {

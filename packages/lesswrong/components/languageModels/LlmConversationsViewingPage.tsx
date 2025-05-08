@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
 
 const styles = (theme: ThemeType) => ({
   root: {

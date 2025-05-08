@@ -3774,7 +3774,6 @@ type Revision {
   originalContents: ContentType
   html: String
   markdown: String
-  draftJS: JSON
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!
@@ -10276,7 +10275,6 @@ fragment RevisionEdit on Revision {
     data
   }
   markdown
-  draftJS
   ckEditorMarkup
 }
 

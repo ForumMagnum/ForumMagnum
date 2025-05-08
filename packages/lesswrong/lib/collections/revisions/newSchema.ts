@@ -8,7 +8,6 @@ import { extractTableOfContents } from "@/lib/tableOfContents";
 import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
-import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
 import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
@@ -252,14 +251,6 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ originalContents }) =>
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
-    },
-  },
-  draftJS: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: ({ originalContents }) =>
-        originalContents ? dataToDraftJS(originalContents.data, originalContents.type) : null,
     },
   },
   ckEditorMarkup: {

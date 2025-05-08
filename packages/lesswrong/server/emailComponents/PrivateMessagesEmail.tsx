@@ -55,7 +55,7 @@ export const EmailListOfUsers = ({users}: {
   } else if(users.length === 1) {
     return <EmailUsername user={users[0]}/>
   } else {
-    let result: Array<string|JSX.Element> = [];
+    let result: Array<string|React.JSX.Element> = [];
     for (let i=0; i<users.length; i++) {
       if (i===users.length-1) result.push(" and ");
       else if (i>0) result.push(", ");

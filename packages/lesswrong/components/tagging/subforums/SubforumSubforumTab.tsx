@@ -241,7 +241,7 @@ const SubforumSubforumTab = ({
     </div>
   );
 
-  const layoutComponents: Record<PostsLayout, JSX.Element> = {
+  const layoutComponents: Record<PostsLayout, React.JSX.Element> = {
     card: cardLayoutComponent,
     list: listLayoutComponent
   }
