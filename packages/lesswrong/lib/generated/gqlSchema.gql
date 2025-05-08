@@ -1699,7 +1699,7 @@ type Comment {
   forumEventId: String
   forumEvent: ForumEvent
   forumEventMetadata: JSON
-  tagCommentType: TagCommentType!
+  tagCommentType: String!
   subforumStickyPriority: Float
   userId: String
   user: User
@@ -3024,8 +3024,8 @@ type MultiGardencodeOutput {
 }
 
 extend type Query {
-  gardencode(input: SingleGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardencodeOutput
-  gardencodes(input: MultiGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: GardencodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardencodeOutput
+  gardenCode(input: SingleGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardencodeOutput
+  gardenCodes(input: MultiGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: GardencodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardencodeOutput
 }
 
 type GoogleServiceAccountSession {
@@ -3179,7 +3179,7 @@ input LWEventsEmailHistoryInput {
 
 input LWEventsGatherTownUsersInput
 
-input LweventSelector {
+input LWEventSelector {
   default: LWEventDefaultViewInput
   adminView: LWEventsAdminViewInput
   postVisits: LWEventsPostVisitsInput
@@ -3187,7 +3187,7 @@ input LweventSelector {
   gatherTownUsers: LWEventsGatherTownUsersInput
 }
 
-input MultiLweventInput {
+input MultiLWEventInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
@@ -3199,8 +3199,8 @@ type MultiLWEventOutput {
 }
 
 extend type Query {
-  lwevent(input: SingleLWEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLWEventOutput
-  lwevents(input: MultiLWEventInput @deprecated(reason: "Use the selector field instead"), selector: LWEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLWEventOutput
+  lWEvent(input: SingleLWEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLWEventOutput
+  lWEvents(input: MultiLWEventInput @deprecated(reason: "Use the selector field instead"), selector: LWEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLWEventOutput
 }
 
 type LegacyData {
@@ -7843,7 +7843,7 @@ input CreateCommentDataInput {
   tagId: String
   forumEventId: String
   forumEventMetadata: JSON
-  tagCommentType: TagCommentType
+  tagCommentType: String
   subforumStickyPriority: Float
   userId: String
   authorIsUnreviewed: Boolean
