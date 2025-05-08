@@ -24,7 +24,7 @@ function getRelativePath(fromPath, toPath) {
 async function initializeComponentCacheIfNeeded(projectForCache) {
     if (componentLocationCache)
         return;
-    const projectRootDir = path_1.default.dirname(projectForCache.getRootDirectories()[0]?.getPath() || '.');
+    const projectRootDir = path_1.default.dirname(__dirname);
     const cacheFilePath = path_1.default.join(projectRootDir, CACHE_FILE_NAME);
     // Try to load from file system cache
     if (fs_1.default.existsSync(cacheFilePath)) {
