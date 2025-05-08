@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
@@ -154,7 +154,7 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   />, [html, renderIndex]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (bodyRef.current) {
       setReplacedElements(applyLocalModificationsTo(bodyRef.current, {
         replacedSubstrings: props.replacedSubstrings,
