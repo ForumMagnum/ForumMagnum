@@ -1341,23 +1341,6 @@ extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
 }
 
-type BookmarksFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [BookmarksFeedEntryType!]
-}
-
-type BookmarksFeedEntryType {
-  type: String!
-  feedPost: FeedPost
-  feedCommentThread: FeedCommentThread
-  sortKey: Date!
-}
-
-extend type Query {
-  BookmarksFeed(limit: Int, cutoff: Date, offset: Int): BookmarksFeedQueryResults!
-}
-
 type ElicitQuestionPredictionCreator {
   _id: String!
   displayName: String!
@@ -1454,9 +1437,12 @@ extend type Query {
 type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
-  revisionId: String
-  score: Float
-  sentenceScores: [SentenceScore]
+  revisionId: String!
+  score: Float!
+  sentenceScores: [SentenceScore!]!
+  aiChoice: String!
+  aiReasoning: String!
+  aiCoT: String!
 }
 
 type SentenceScore {
@@ -7507,6 +7493,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   createdAt
   revisionId
   score
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {
@@ -10787,6 +10776,9 @@ fragment SunshinePostsList on Post {
         sentence
         score
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
   }
 

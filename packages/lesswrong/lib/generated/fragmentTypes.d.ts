@@ -72,8 +72,11 @@ interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagConten
 interface AutomatedContentEvaluationsDefaultFragment { // fragment on AutomatedContentEvaluations
   readonly _id: string,
   readonly createdAt: Date,
-  readonly revisionId: string|null,
-  readonly score: number|null,
+  readonly revisionId: string,
+  readonly score: number,
+  readonly aiChoice: "accept" | "review",
+  readonly aiReasoning: string,
+  readonly aiCoT: string,
 }
 
 interface BansAdminPageFragment { // fragment on Bans
@@ -3046,8 +3049,11 @@ interface SunshinePostsList_contents { // fragment on Revisions
 
 interface SunshinePostsList_contents_automatedContentEvaluations { // fragment on AutomatedContentEvaluations
   readonly _id: string,
-  readonly score: number|null,
+  readonly score: number,
   readonly sentenceScores: Array<SentenceScore>,
+  readonly aiChoice: "accept" | "review",
+  readonly aiReasoning: string,
+  readonly aiCoT: string,
 }
 
 interface SunshinePostsList_moderationGuidelines { // fragment on Revisions
