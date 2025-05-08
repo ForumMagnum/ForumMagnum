@@ -76,6 +76,18 @@ interface DbBan extends DbObject {
   userId: string
 }
 
+type BookmarksCollection = CollectionBase<"Bookmarks">;
+
+interface DbBookmark extends DbObject {
+  __collectionName?: "Bookmarks"
+  active: boolean
+  collectionName: "Posts" | "Comments"
+  createdAt: Date
+  documentId: string
+  lastUpdated: Date
+  userId: string
+}
+
 type BooksCollection = CollectionBase<"Books">;
 
 interface DbBook extends DbObject {
@@ -2278,6 +2290,7 @@ interface CollectionsByName {
   ArbitalTagContentRels: ArbitalTagContentRelsCollection
   AutomatedContentEvaluations: AutomatedContentEvaluationsCollection
   Bans: BansCollection
+  Bookmarks: BookmarksCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
   CkEditorUserSessions: CkEditorUserSessionsCollection
@@ -2370,6 +2383,7 @@ interface ObjectsByCollectionName {
   ArbitalTagContentRels: DbArbitalTagContentRel
   AutomatedContentEvaluations: DbAutomatedContentEvaluation
   Bans: DbBan
+  Bookmarks: DbBookmark
   Books: DbBook
   Chapters: DbChapter
   CkEditorUserSessions: DbCkEditorUserSession
@@ -2462,6 +2476,7 @@ interface ObjectsByTypeName {
   ArbitalTagContentRel: DbArbitalTagContentRel
   AutomatedContentEvaluation: DbAutomatedContentEvaluation
   Ban: DbBan
+  Bookmark: DbBookmark
   Book: DbBook
   Chapter: DbChapter
   CkEditorUserSession: DbCkEditorUserSession
