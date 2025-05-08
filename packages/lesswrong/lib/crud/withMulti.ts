@@ -48,7 +48,7 @@ export function getGraphQLMultiQueryFromOptions<F>({ collectionName, typeName, f
 
 export interface UseMultiOptions<
   F,
-  Fragment extends TypedDocumentNode<F, unknown>,
+  V,
   CollectionName extends CollectionNameString
 > {
   terms?: ViewTermsByCollectionName[CollectionName],
@@ -59,7 +59,7 @@ export interface UseMultiOptions<
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName: CollectionNameString,
-  fragmentDoc: Fragment,
+  fragmentDoc: TypedDocumentNode<F, V>,
   limit?: number,
   itemsPerPage?: number,
   skip?: boolean,
@@ -110,7 +110,7 @@ export type UseMultiResult<
  */
 export function useMulti<
   F,
-  Fragment extends TypedDocumentNode<F, unknown>,
+  V,
   CollectionName extends CollectionNameString
 >({
   terms,
@@ -128,7 +128,7 @@ export function useMulti<
   queryLimitName,
   alwaysShowLoadMore = false,
   ssr = true,
-}: UseMultiOptions<F, Fragment, CollectionName>): UseMultiResult<F> {
+}: UseMultiOptions<F, V, CollectionName>): UseMultiResult<F> {
   const { query: locationQuery, location } = useLocation();
   const navigate = useNavigate();
 

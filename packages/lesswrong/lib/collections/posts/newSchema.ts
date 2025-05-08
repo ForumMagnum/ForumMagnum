@@ -4138,7 +4138,9 @@ const schema = {
 
         if (cacheIsValid) {
           unfilteredResult = {
-            annotatedHtml: cache.annotatedHtml,
+            // We know that annotatedHtml is not null, it just looks that way cos of GraphQL-based perms
+            // TODO: rip out the GraphQL stuff for sideCommentsCache
+            annotatedHtml: cache.annotatedHtml!,
             commentsByBlock: cache.commentsByBlock,
           };
         } else {

@@ -3,10 +3,13 @@
 
 // Helper imports
 import { SqlFragment } from '@/server/sql/SqlFragment';
-import type { DocumentNode } from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode } from 'graphql';
 import uniq from 'lodash/uniq';
 import { isAnyTest } from '../executionEnvironment';
 import LRU from "lru-cache";
+import { TypedDocumentNode } from '@apollo/client';
+import { print } from 'graphql';
+import { transformFragments } from './fragmentWrapper';
 
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
@@ -81,7 +84,6 @@ import * as votesFragments from '../collections/votes/fragments';
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
 import * as ultraFeedFragments from '../ultraFeed';
-import { transformFragments } from './fragmentWrapper';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.

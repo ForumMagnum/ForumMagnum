@@ -132,7 +132,7 @@ const schema = {
       denormalized: true,
     },
     graphql: {
-      outputType: "JSON!",
+      outputType: "JSON",
       canRead: "guests",
       validation: {
         optional: true,
@@ -145,7 +145,7 @@ const schema = {
       foreignKey: "Comments",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -170,7 +170,7 @@ const schema = {
       foreignKey: "Comments",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -238,7 +238,7 @@ const schema = {
       foreignKey: "Posts",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -262,7 +262,7 @@ const schema = {
       foreignKey: "Tags",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -286,7 +286,7 @@ const schema = {
       foreignKey: "ForumEvents",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -314,7 +314,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON!",
+      outputType: "JSON",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -963,7 +963,7 @@ const schema = {
       type: "TEXT",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],

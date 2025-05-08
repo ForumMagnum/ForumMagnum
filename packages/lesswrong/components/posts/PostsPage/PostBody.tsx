@@ -10,6 +10,7 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import * as GQL from '@/lib/generated/gql-codegen/graphql';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
@@ -25,7 +26,7 @@ const PostSideCommentsQuery = gql(`
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
-function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) {
+function useDisplayGlossary(post: GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes) {
   const { captureEvent } = useTracking();
   const [showAllTerms, setShowAllTerms] = useState(false);
 
@@ -64,10 +65,10 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
 }
 
 const PostBody = ({post, html, isOldVersion, voteProps}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
+  post: GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes,
   html: string,
   isOldVersion: boolean
-  voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
+  voteProps: VotingProps<GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes>
 }) => {
 
   const { showAllTerms, setShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount } = useDisplayGlossary(post);

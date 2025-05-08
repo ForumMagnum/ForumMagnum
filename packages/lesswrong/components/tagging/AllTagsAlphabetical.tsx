@@ -8,6 +8,7 @@ import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { TagPreviewFragment } from '@/lib/collections/tags/fragments';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +34,7 @@ const AllTagsAlphabetical = ({classes}: {
       view: "allTagsHierarchical",
     },
     collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
+    fragmentDoc: TagPreviewFragment,
     limit: 750,
   });
   const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;

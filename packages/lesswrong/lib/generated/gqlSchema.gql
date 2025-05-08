@@ -1684,21 +1684,21 @@ type Comment {
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  pingbacks: JSON!
-  parentCommentId: String!
+  pingbacks: JSON
+  parentCommentId: String
   parentComment: Comment
-  topLevelCommentId: String!
+  topLevelCommentId: String
   topLevelComment: Comment
   postedAt: Date!
   lastEditedAt: Date
   author: String
-  postId: String!
+  postId: String
   post: Post
-  tagId: String!
+  tagId: String
   tag: Tag
-  forumEventId: String!
+  forumEventId: String
   forumEvent: ForumEvent
-  forumEventMetadata: JSON!
+  forumEventMetadata: JSON
   tagCommentType: TagCommentType!
   subforumStickyPriority: Float
   userId: String
@@ -1736,7 +1736,7 @@ type Comment {
   retracted: Boolean!
   deleted: Boolean!
   deletedPublic: Boolean!
-  deletedReason: String!
+  deletedReason: String
   deletedDate: Date
   deletedByUserId: String
   deletedByUser: User
@@ -7837,12 +7837,12 @@ extend type Mutation {
 input CreateCommentDataInput {
   legacyData: JSON
   contents: JSON
-  parentCommentId: String!
-  topLevelCommentId: String!
-  postId: String!
-  tagId: String!
-  forumEventId: String!
-  forumEventMetadata: JSON!
+  parentCommentId: String
+  topLevelCommentId: String
+  postId: String
+  tagId: String
+  forumEventId: String
+  forumEventMetadata: JSON
   tagCommentType: TagCommentType
   subforumStickyPriority: Float
   userId: String
@@ -7862,7 +7862,7 @@ input CreateCommentDataInput {
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
-  deletedReason: String!
+  deletedReason: String
   deletedDate: Date
   deletedByUserId: String
   spam: Boolean

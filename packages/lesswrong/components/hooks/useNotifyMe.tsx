@@ -14,6 +14,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import { Components } from "@/lib/vulcan-lib/components";
+import { CommentsList, PostsAuthors, PostsBase, PostsMinimumInfo, SequencesPageTitleFragment, SubscriptionState, UserOnboardingAuthor, UserOnboardingTag, UsersCurrent, UsersMinimumInfo, UsersProfile } from "@/lib/generated/gql-codegen/graphql";
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -24,8 +25,8 @@ export type NotifyMeDocument =
   CommentsList |
   PostsBase |
   PostsMinimumInfo |
-  PostsBase_group |
-  PostsAuthors_user;
+  PostsBase['group'] |
+  PostsAuthors['user'];
 
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,

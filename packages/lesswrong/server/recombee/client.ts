@@ -20,6 +20,7 @@ import { createAdminContext } from '../vulcan-lib/createContexts';
 import util from 'util';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 import { PostsViews } from '@/lib/collections/posts/views';
+import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -723,7 +724,7 @@ const recombeeApi = {
 
     const contents = await fetchFragmentSingle({
       collectionName: "Revisions",
-      fragmentName: "RevisionHTML",
+      fragmentDoc: RevisionHTML,
       selector: {_id: post.contents_latest},
       currentUser: context.currentUser,
       context,

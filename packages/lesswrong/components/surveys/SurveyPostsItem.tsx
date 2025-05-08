@@ -15,6 +15,8 @@ import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
 } from "@/lib/collections/surveyQuestions/newSchema";
+import { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
+import { SurveyResponseMinimumInfo } from "@/lib/collections/surveyResponses/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -183,7 +185,7 @@ const SurveyPostsItemInternal = ({
 
   const {create: createResponse} = useCreate({
     collectionName: "SurveyResponses",
-    fragmentName: "SurveyResponseMinimumInfo",
+    fragment: SurveyResponseMinimumInfo,
   });
 
   const onSubmit = useCallback(async (response: Record<string, QuestionResponse>) => {
