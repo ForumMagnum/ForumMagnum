@@ -41,6 +41,9 @@ export const AutomatedContentEvaluationsDefaultFragment = `
     createdAt
     revisionId
     score
+    aiChoice
+    aiReasoning
+    aiCoT
   }
 `;
 
@@ -56,6 +59,18 @@ export const BansDefaultFragment = `
     reason
     comment
     properties
+  }
+`;
+
+export const BookmarksDefaultFragment = `
+  fragment BookmarksDefaultFragment on Bookmark {
+    _id
+    createdAt
+    documentId
+    collectionName
+    userId
+    lastUpdated
+    active
   }
 `;
 

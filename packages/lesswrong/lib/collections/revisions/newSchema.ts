@@ -17,6 +17,7 @@ import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
 import { getOriginalContents } from "./helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
+import { isLWorAF } from "@/lib/instanceSettings";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -483,6 +484,7 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (revision, args, context) => {
+        if (!isLWorAF) return null;
         const {AutomatedContentEvaluations} =  context;
 
         return AutomatedContentEvaluations.findOne({

@@ -56,6 +56,14 @@ export const pgPromiseLib = pgp({
   // },
 });
 
+export const concat = (queries: Query<any>[]): string => {
+  const compiled = queries.map((query) => {
+    const {sql, args} = query.compile();
+    return {query: sql, values: args};
+  });
+  return pgPromiseLib.helpers.concat(compiled);
+}
+
 /**
  * The postgres default for max_connections is 100 - you can view the current setting
  * with `show max_connections`. When increasing max_connections, you also need to increase
@@ -237,13 +245,7 @@ export const createSqlConnection = async (
     any: wrapQueryMethod(db.any),
     multi: wrapQueryMethod(db.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
-    concat: (queries: Query<any>[]): string => {
-      const compiled = queries.map((query) => {
-        const {sql, args} = query.compile();
-        return {query: sql, values: args};
-      });
-      return pgPromiseLib.helpers.concat(compiled);
-    },
+    concat,
     isTestingClient,
   };
 

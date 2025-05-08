@@ -6,6 +6,8 @@ import ClickAwayListener from '@/lib/vendor/react-click-away-listener';
 import { createPortal } from 'react-dom';
 import { Paper } from '../widgets/Paper';
 
+const closeAnimDurationMs = 300;
+
 const styles = defineStyles("Drawer", theme => ({
   containerLeft: {
     position: "absolute",
@@ -24,28 +26,36 @@ const styles = defineStyles("Drawer", theme => ({
   docked: {
     flex: '0 0 auto',
   },
+  container: {
+    zIndex: theme.zIndexes.drawer,
+    position: 'fixed',
+    top: 0,
+  },
   paper: {
+    position: "absolute",
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
     flex: '1 0 auto',
-    zIndex: theme.zIndexes.drawer,
     WebkitOverflowScrolling: 'touch', // Add iOS momentum scrolling.
-    position: 'fixed',
-    top: 0,
     outline: 'none',
-    transition: "margin-left 0.35s ease-out",
+    //transition: "margin-left 0.35s ease-out",
+    transition: `transform ${closeAnimDurationMs / 1000}s ease-out`,
   },
   anchorLeft: {
-    left: 0,
-    right: 'auto',
-    marginLeft: -280,
+    right: "100%",
+    transform: "translateX(0)",
+    //left: 0,
+    //right: 'auto',
+    //marginLeft: -280,
   },
   anchorRight: {
-    left: 'auto',
-    right: 0,
-    marginRight: "-100%",
+    //left: 'auto',
+    //right: 0,
+    //marginRight: "-100%",
+    left: "100%",
+    transform: "translateX(0)",
   },
   open: {
     marginLeft: "0 !important",
@@ -77,7 +87,9 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   const classes = useStyles(styles);
   const [mounted, setMounted] = useState(false);
   const [slidIn, setSlidIn] = useState(false);
+  const paperRef = useRef<HTMLDivElement|null>(null);
   const clickAwayListenerActive = useRef(0);
+  const unmountTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
   
   useEffect(() => {
     if (open) {
@@ -97,13 +109,31 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
       }
     } else {
       setSlidIn(false);
+      
+      // Unmount after the animation finishes, to prevent a drop-shadow
+      // from the drawer overhanging into the visible part of the screen
+      if (unmountTimer.current) {
+        clearTimeout(unmountTimer.current);
+      }
+      unmountTimer.current = setTimeout(() => {
+        setMounted(false);
+      }, closeAnimDurationMs)
     }
+    
+    return () => {
+      if (unmountTimer.current) {
+        clearTimeout(unmountTimer.current);
+      }
+    };
   }, [open, mounted]);
+
+  const paperWidth = paperRef.current?.clientWidth ?? 280;
 
   const drawer = (
     <Paper
       elevation={variant === 'temporary' ? 16 : 0}
       square
+      nodeRef={paperRef}
       className={classNames(
         classes.paper,
         paperClassName, {
@@ -113,6 +143,9 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
           [classes.closed]: !slidIn,
         }
       )}
+      style={slidIn ? {
+        transform: `translateX(${anchor==="left" ? paperWidth : -paperWidth}px)`
+      } : {}}
     >
       {children}
     </Paper>
@@ -125,15 +158,17 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
       </div>
     );
   }
-
+  
   // variant === temporary
   return <>
     {mounted && <Backdrop visible={slidIn}/>}
     {mounted && createPortal(
-      <div className={classNames(className, {
-        [classes.containerLeft]: anchor==='left',
-        [classes.containerRight]: anchor==='right',
-      })}>
+      <div
+        className={classNames(classes.container, className, {
+          [classes.containerLeft]: anchor==='left',
+          [classes.containerRight]: anchor==='right',
+        })}
+      >
         <ClickAwayListener onClickAway={(ev) => {
           if (clickAwayListenerActive.current > 0) {
             onClose?.(ev)

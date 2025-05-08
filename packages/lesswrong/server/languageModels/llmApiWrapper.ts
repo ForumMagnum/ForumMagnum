@@ -1,4 +1,5 @@
-import type { ChatModel as OpenAIModel, ChatCompletionSystemMessageParam as OpenAISystemMessage } from 'openai/resources/chat';
+import type { ChatCompletionSystemMessageParam as OpenAISystemMessage } from 'openai/resources/chat';
+import type { ChatModel as OpenAIModel } from 'openai/resources/shared';
 import type { ChatCompletionCreateParamsBase as OpenAISendMessagesParams } from 'openai/resources/chat/completions';
 import type { Model as AnthropicModel } from '@anthropic-ai/sdk/resources/messages';
 import type { MessageCreateParamsBase as AnthropicSendMessagesParams, PromptCachingBetaMessageParam as AnthropicMessage, PromptCachingBetaToolUseBlockParam as AnthropicMessageToolUseBlock, PromptCachingBetaToolResultBlockParam as AnthropicMessageToolResultBlock, PromptCachingBetaTextBlockParam as AnthropicMessageTextBlock, PromptCachingBetaTool } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';

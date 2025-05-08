@@ -12,6 +12,7 @@ import { default as ArbitalCaches } from '../collections/arbitalCache/newSchema'
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/newSchema';
 import { default as AutomatedContentEvaluations } from '../collections/automatedContentEvaluations/newSchema';
 import { default as Bans } from '../collections/bans/newSchema';
+import { default as Bookmarks } from '../collections/bookmarks/newSchema';
 import { default as Books } from '../collections/books/newSchema';
 import { default as Chapters } from '../collections/chapters/newSchema';
 import { default as CkEditorUserSessions } from '../collections/ckEditorUserSessions/newSchema';
@@ -108,7 +109,7 @@ if (isAnyTest || isCodegen) {
 }
 
 export const allSchemas = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
   CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
   DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
   GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups,
