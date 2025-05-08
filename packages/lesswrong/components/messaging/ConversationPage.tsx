@@ -1,10 +1,21 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ConversationsListQuery = gql(`
+  query ConversationPage($documentId: String) {
+    conversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ConversationsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   conversationSection: {
@@ -37,11 +48,10 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document: conversation, loading } = useSingle({
-    documentId: conversationId,
-    collectionName: "Conversations",
-    fragmentName: 'ConversationsList',
+  const { loading, data } = useQuery(ConversationsListQuery, {
+    variables: { documentId: conversationId },
   });
+  const conversation = data?.conversation?.result;
 
   const { SingleColumnSection, ConversationContents, Error404, Loading, Typography, ConversationDetails } = Components
 

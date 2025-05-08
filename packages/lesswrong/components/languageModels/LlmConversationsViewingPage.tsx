@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
-import { useSingle } from '@/lib/crud/withSingle';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -12,6 +11,18 @@ import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
 import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const LlmConversationsWithMessagesFragmentQuery = gql(`
+  query LlmConversationsViewingPage($documentId: String) {
+    llmConversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...LlmConversationsWithMessagesFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -219,12 +230,11 @@ const LlmConversationViewer = ({conversationId, classes}: {
 }) => {
   const { LlmChatMessage, SectionTitle } = Components
 
-  const { document: conversation, loading } = useSingle({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsWithMessagesFragment",
-    documentId: conversationId,
-    skip: !conversationId
+  const { loading, data } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
+    variables: { documentId: conversationId },
+    skip: !conversationId,
   });
+  const conversation = data?.llmConversation?.result;
 
 
   if (!conversationId) {

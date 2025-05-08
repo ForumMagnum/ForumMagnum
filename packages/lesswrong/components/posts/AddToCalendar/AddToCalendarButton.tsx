@@ -2,10 +2,21 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsPlaintextDescriptionQuery = gql(`
+  query AddToCalendarButton($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsPlaintextDescription
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -89,12 +100,11 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   let eventDetails = post.facebookLink;
   // we try to use plaintextDescription instead if possible
   // (only PostsList should be missing the plaintextDescription, so we pull that in)
-  const { document: data } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsPlaintextDescription',
-    documentId: post._id,
-    skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents)
+  const { data: rawData } = useQuery(PostsPlaintextDescriptionQuery, {
+    variables: { documentId: post._id },
+    skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents),
   });
+  const data = rawData?.post?.result;
   
   if (!post.startTime) {
     return null;

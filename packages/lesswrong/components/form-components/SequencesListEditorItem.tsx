@@ -1,8 +1,19 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SequencesPageFragmentQuery = gql(`
+  query SequencesListEditorItem($documentId: String) {
+    sequence(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SequencesPageFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   box: {
@@ -53,11 +64,10 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   removeItem: (itemId: string) => void;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+  const { loading, data } = useQuery(SequencesPageFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.sequence?.result;
   
   if (document && !loading) {
     return <div>

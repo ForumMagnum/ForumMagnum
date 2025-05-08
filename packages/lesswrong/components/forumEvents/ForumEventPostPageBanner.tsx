@@ -2,12 +2,23 @@ import React, { CSSProperties } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
-import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsDetailsQuery = gql(`
+  query ForumEventPostPageBanner($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const BANNER_HEIGHT = 60;
 
@@ -57,16 +68,14 @@ export const ForumEventPostPageBanner = ({classes}: {
     currentForumEvent.eventFormat !== "BASIC" ||
     !!currentForumEvent.customComponent;
 
-  const {document: post} = useSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
-    documentId: params._id,
-    skip:
-      !hasForumEvents ||
-      !params._id ||
-      hideBanner ||
-      !currentForumEvent?.tagId,
+  const { data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: params._id },
+    skip: !hasForumEvents ||
+        !params._id ||
+        hideBanner ||
+        !currentForumEvent?.tagId,
   });
+  const post = data?.post?.result;
 
   if (hideBanner || !post) {
     return null;

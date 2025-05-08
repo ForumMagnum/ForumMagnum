@@ -1,12 +1,23 @@
 import React, { useCallback, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
-import { useSingle } from "../../lib/crud/withSingle";
 import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModerationTemplateFragmentQuery = gql(`
+  query MessagesNewForm($documentId: String) {
+    moderationTemplate(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ModerationTemplateFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -98,12 +109,11 @@ export const MessagesNewForm = ({
   const isMinimalist = formStyle === "minimalist"
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Type a new message..."} : {}
 
-  const { document: template, loading: loadingTemplate } = useSingle({
-    documentId: templateQueries?.templateId,
-    collectionName: "ModerationTemplates",
-    fragmentName: "ModerationTemplateFragment",
-    skip,
+  const { loading: loadingTemplate, data } = useQuery(ModerationTemplateFragmentQuery, {
+    variables: { documentId: templateQueries?.templateId },
+    skip: false,
   });
+  const template = data?.moderationTemplate?.result;
 
   const SubmitComponent = useCallback(
     ({ submitLabel = "Submit" }) => {

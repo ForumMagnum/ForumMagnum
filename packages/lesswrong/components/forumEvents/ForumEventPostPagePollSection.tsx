@@ -2,7 +2,6 @@ import React, { CSSProperties } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
-import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
@@ -10,6 +9,18 @@ import { POLL_MAX_WIDTH, getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsDetailsQuery = gql(`
+  query ForumEventPostPagePollSection($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -70,12 +81,11 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
   const hasVoted = getForumEventVoteForUser(currentForumEvent, currentUser) !== null
   const themeOptions = useConcreteThemeOptions()
 
-  const {document: post} = useSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
-    documentId: params._id,
+  const { data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: params._id },
     skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || currentForumEvent.eventFormat !== "POLL",
   });
+  const post = data?.post?.result;
 
   // Only show this section for forum events that have a poll
   if (!currentForumEvent || !post || currentForumEvent.eventFormat !== "POLL") {

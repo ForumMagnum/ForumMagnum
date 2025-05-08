@@ -21,14 +21,23 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RE
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { gql } from '@/lib/generated/gql-codegen/gql';
-import { ObservableQuery, useMutation } from '@apollo/client';
+import { ObservableQuery, useMutation, useQuery } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
-import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
+
+const PostsListWithVotesQuery = gql(`
+  query LWHomePosts($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -555,12 +564,11 @@ const LWHomePosts = ({ children, classes }: {
     </AnalyticsContext>
   );
 
-  const { document: subscribedTabAnnouncementPost } = useSingle({
-    documentId: '5rygaBBH7B4LNqQkz', 
-    collectionName: 'Posts', 
-    fragmentName: 'PostsListWithVotes',
-    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: '5rygaBBH7B4LNqQkz' },
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors',
   });
+  const subscribedTabAnnouncementPost = data?.post?.result;
 
   const subscriptionSettingsElement = <>
     {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>

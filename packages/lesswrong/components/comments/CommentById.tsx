@@ -1,7 +1,18 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
-import { useSingle } from '../../lib/crud/withSingle';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListQuery = gql(`
+  query CommentById($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
   commentId: string,
@@ -9,11 +20,10 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
   isChild?: boolean,
   treeOptions: CommentTreeOptions,
 }) => {
-  const {document: comment} = useSingle({
-    documentId: commentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
+  const { data } = useQuery(CommentsListQuery, {
+    variables: { documentId: commentId },
   });
+  const comment = data?.comment?.result;
   const { CommentsNode } = Components;
   if (!comment) return null;
   return <CommentsNode

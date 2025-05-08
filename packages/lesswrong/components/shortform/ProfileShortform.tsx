@@ -1,6 +1,17 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListWithVotesQuery = gql(`
+  query ProfileShortform($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,11 +26,10 @@ export const ProfileShortform = ({classes, user}: {
 
   const { PostsItem } = Components
 
-  const { document } = useSingle({
-    documentId: user.shortformFeedId,
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: user.shortformFeedId },
   });
+  const document = data?.post?.result;
 
   return <div className={classes.root}>
       {document && <PostsItem post={document} hideAuthor forceSticky />}

@@ -1,7 +1,18 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
-import { useSingle } from "@/lib/crud/withSingle";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ForumEventsMinimumInfoQuery = gql(`
+  query CommentPollVote($documentId: String) {
+    forumEvent(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ForumEventsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,12 +36,11 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
-  const { document: forumEvent, loading } = useSingle({
-    documentId: comment.forumEventId,
-    collectionName: "ForumEvents",
-    fragmentName: 'ForumEventsMinimumInfo',
-    skip: !comment.forumEventId
+  const { loading, data } = useQuery(ForumEventsMinimumInfoQuery, {
+    variables: { documentId: comment.forumEventId },
+    skip: !comment.forumEventId,
   });
+  const forumEvent = data?.forumEvent?.result;
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";

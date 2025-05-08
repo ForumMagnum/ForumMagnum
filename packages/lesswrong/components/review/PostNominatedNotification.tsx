@@ -1,10 +1,21 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListQuery = gql(`
+  query PostNominatedNotification($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,12 +35,11 @@ const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<type
 
   const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
 
-  const { document: post, loading } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-    documentId: postId
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: postId },
+    fetchPolicy: 'cache-then-network' as any,
   });
+  const post = data?.post?.result;
 
   if (loading) return <div className={classes.loading}>
     <Loading/>

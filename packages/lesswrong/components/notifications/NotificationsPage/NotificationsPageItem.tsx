@@ -1,9 +1,20 @@
 import React, { FC, ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useSingle } from "../../../lib/crud/withSingle";
 import type { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataQuery = gql(`
+  query NotificationsPageItem($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
 
 const ICON_WIDTH = 24;
 
@@ -119,15 +130,11 @@ export const NotificationsPageItem = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const showPreviewComment = !!previewCommentId;
-  const {
-    document: previewComment,
-    loading: previewCommentLoading,
-  } = useSingle({
+  const { loading: previewCommentLoading, data } = useQuery(CommentsListWithParentMetadataQuery, {
+    variables: { documentId: previewCommentId },
     skip: !showPreviewComment,
-    documentId: previewCommentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsListWithParentMetadata",
   });
+  const previewComment = data?.comment?.result;
 
   const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
   return (

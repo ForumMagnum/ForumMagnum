@@ -3,11 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, gql as graphql, useQuery } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
@@ -15,6 +14,17 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const RevisionDisplayQuery = gql(`
+  query PostVersionHistory($documentId: String) {
+    revision(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...RevisionDisplay
+      }
+    }
+  }
+`);
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -150,7 +160,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
 
-  const [revertMutation] = useMutation(gql`
+  const [revertMutation] = useMutation(graphql`
     mutation revertPostToRevision($postId: String!, $revisionId: String!) {
       revertPostToRevision(postId: $postId, revisionId: $revisionId) {
         ...PostsEdit
@@ -212,13 +222,12 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     onClose();
   })
 
-  const { document: revision, loading: revisionLoading } = useSingle({
+  const { loading: revisionLoading, data } = useQuery(RevisionDisplayQuery, {
+    variables: { documentId: selectedRevisionId||"" },
     skip: !selectedRevisionId,
-    documentId: selectedRevisionId||"",
-    collectionName: "Revisions",
     fetchPolicy: "cache-first",
-    fragmentName: "RevisionDisplay",
   });
+  const revision = data?.revision?.result;
 
   const isLive = (r: {_id: string}) => r._id === post.contents_latest
 

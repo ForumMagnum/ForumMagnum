@@ -1,7 +1,18 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
-import { useSingle } from '../../../lib/crud/withSingle';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsDetailsQuery = gql(`
+  query CommentActions($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
@@ -20,13 +31,12 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     BanUserFromPostDropdownItem, LockThreadDropdownItem,
   } = Components;
 
-  const {document: postDetails} = useSingle({
+  const { data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: post?._id },
     skip: !post,
-    documentId: post?._id,
-    collectionName: "Posts",
     fetchPolicy: "cache-first",
-    fragmentName: "PostsDetails",
   });
+  const postDetails = data?.post?.result;
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,

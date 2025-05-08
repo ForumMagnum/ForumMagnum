@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -13,6 +12,18 @@ import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SequencesPageFragmentQuery = gql(`
+  query SequencesPage($documentId: String) {
+    sequence(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SequencesPageFragment
+      }
+    }
+  }
+`);
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -132,11 +143,10 @@ const SequencesPage = ({ documentId, classes }: {
   const nextSuggestedNumberRef = useRef(1);
 
   const currentUser = useCurrentUser();
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+  const { loading, data } = useQuery(SequencesPageFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.sequence?.result;
 
   const showEdit = useCallback(() => {
     setEdit(true);

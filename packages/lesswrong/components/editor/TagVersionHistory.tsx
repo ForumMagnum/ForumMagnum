@@ -3,19 +3,28 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useMessages} from "../common/withMessages";
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, gql as graphql, useQuery } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
+const RevisionDisplayQuery = gql(`
+  query TagVersionHistory($documentId: String) {
+    revision(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...RevisionDisplay
+      }
+    }
+  }
+`);
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -92,7 +101,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
   // We need the $contributorsLimit arg to satisfy the fragment, other graphql complains, even though we don't use any results that come back.
-  const [revertMutation] = useMutation(gql`
+  const [revertMutation] = useMutation(graphql`
     mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {
       revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {
         ...TagPageFragment
@@ -120,13 +129,12 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
     revisions && revisions.length > 0 && setSelectedRevisionId(revisions[0]._id)
   }, [revisions])
   
-  const { document: revision } = useSingle({
+  const { data } = useQuery(RevisionDisplayQuery, {
+    variables: { documentId: selectedRevisionId||"" },
     skip: !selectedRevisionId,
-    documentId: selectedRevisionId||"",
-    collectionName: "Revisions",
     fetchPolicy: "cache-first",
-    fragmentName: "RevisionDisplay",
   });
+  const revision = data?.revision?.result;
 
   const { captureEvent } = useTracking()
   

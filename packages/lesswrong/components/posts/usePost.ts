@@ -1,6 +1,6 @@
 import { useMulti } from '../../lib/crud/withMulti';
-import { ApolloError } from '@apollo/client';
-import { useSingle, UseSingleProps } from '../../lib/crud/withSingle';
+import { ApolloError, useQuery } from '@apollo/client';
+import { UseSingleProps } from '../../lib/crud/withSingle';
 
 export const usePostBySlug = ({slug}: {slug: string}):
   {
@@ -80,26 +80,3 @@ type AdditionalDisplayedPostProps = Omit<
   UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
   'collectionName' | 'fragmentName' | 'extraVariables' | 'extraVariableValues' | 'documentId' | 'slug'
 >;
-
-/**
- * An optimized wrapper around a `useSingle` to make the main post body load more quickly.
- * Works by including a batchKey to ensure the post query is sent separately from other queries during client-side navigation (not SSR)
- */
-export const useDisplayedPost = (postId: string, sequenceId: string | null, version?: string, additionalProps?: AdditionalDisplayedPostProps) => {
-  const extraVariables = {sequenceId: 'String', ...(version && {version: 'String'}) }
-  const extraVariablesValues = {sequenceId, batchKey: "singlePost", ...(version && {version}) }
-  const fragmentName = version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation'
-
-  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
-    collectionName: "Posts",
-    fragmentName,
-    extraVariables,
-    extraVariablesValues,
-    documentId: postId,
-    ...additionalProps
-  };
-
-  const result = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
-
-  return { ...result, fetchProps };
-};

@@ -3,13 +3,13 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 
 /**
  * A component for handling the case where you have a page that loads something
- * with a useSingle resulting in a loading flag, an optional result object, and
+ * with a useQuery resulting in a loading flag, an optional result object, and
  * an optional error object, and if the result object is missing you want to
  * choose between a loading state, a 404 page, or an error page.
  *
  * An example usage would be:
  *   const SamplePage() {
- *     const { document, loading, error } = useSingle(...);
+ *     const { document, loading, error } = useQuery(...);
  *     if (!document) {
  *       return <LoadingOrErrorPage loading={loading} error={error}/>
  *     }

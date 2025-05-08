@@ -5,10 +5,31 @@ import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../l
 import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostWithDialogueMessageQuery = gql(`
+  query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostWithDialogueMessage
+      }
+    }
+  }
+`);
+
+const HighlightWithHashQuery = gql(`
+  query LWPostsPreviewTooltip($documentId: String, $hash: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...HighlightWithHash
+      }
+    }
+  }
+`);
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -148,29 +169,23 @@ const LWPostsPreviewTooltip = ({
 
   const foreignApolloClient = useForeignApolloClient();
   const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
-  const {document: postWithHighlight, loading} = useSingle({
-    collectionName: "Posts",
-    fragmentName: "HighlightWithHash",
-    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
+  const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
+    variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
-    extraVariables: { hash: "String" },
-    extraVariablesValues: {hash},
-    apolloClient: isForeign ? foreignApolloClient : undefined,
+    client: isForeign ? foreignApolloClient : undefined,
   });
+  const postWithHighlight = dataHighlight?.post?.result;
 
   const { dialogueMessageId, dialogueMessageContents } = dialogueMessageInfo ?? {}
 
-  const {document: postWithDialogueMessage} = useSingle({
-    collectionName: "Posts",
-    fragmentName: "PostWithDialogueMessage",
-    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
+  const { data: dataPostDialogueMessage } = useQuery(PostWithDialogueMessageQuery, {
+    variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, dialogueMessageId },
     skip: !post || !dialogueMessageId,
     fetchPolicy: "cache-first",
-    extraVariables: { dialogueMessageId: "String" },
-    extraVariablesValues: {dialogueMessageId},
-    apolloClient: isForeign ? foreignApolloClient : undefined,
+    client: isForeign ? foreignApolloClient : undefined,
   });
+  const postWithDialogueMessage = dataPostDialogueMessage?.post?.result;
 
   if (!post) return null
   

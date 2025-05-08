@@ -1,13 +1,24 @@
 import classNames from "classnames";
 import take from "lodash/take";
 import React, { useCallback, useState } from "react";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagSubtagFragmentQuery = gql(`
+  query SidebarSubtagsBox($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagSubtagFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,14 +57,10 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
 
   // TODO: we fetch the tag twice (once in TagSubforumPage2 and once here) because we want to get more info about the subtags, which could slow down the main page if there are a lot of them.
   // Change it so TagSubforumPage2 doesn't fetch the subtags at all. Not doing this right now because it's unclear whether TagPage and TagSubforumPage2 will be merged together.
-  const {
-    document: tagWithSubtags,
-    refetch,
-  } = useSingle({
-    documentId: tag._id,
-    collectionName: "Tags",
-    fragmentName: "TagSubtagFragment",
+  const { refetch, data } = useQuery(TagSubtagFragmentQuery, {
+    variables: { documentId: tag._id },
   });
+  const tagWithSubtags = data?.tag?.result;
 
   const { mutate: updateTag } = useUpdate({
     collectionName: "Tags",

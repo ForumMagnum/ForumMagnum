@@ -1,10 +1,21 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineUsersListQuery = gql(`
+  query SunshineNewUsersProfileInfo($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SunshineUsersList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,11 +32,10 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
 
   const { SunshineNewUsersInfo, SectionButton } = Components
 
-  const { document: user, refetch } = useSingle({
-    documentId:userId,
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
+  const { refetch, data } = useQuery(SunshineUsersListQuery, {
+    variables: { documentId: userId },
   });
+  const user = data?.user?.result;
 
   if (!user) return null
 

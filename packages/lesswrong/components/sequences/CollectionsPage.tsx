@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,6 +7,18 @@ import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CollectionsPageFragmentQuery = gql(`
+  query CollectionsPage($documentId: String) {
+    collection(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CollectionsPageFragment
+      }
+    }
+  }
+`);
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -69,11 +80,10 @@ const CollectionsPage = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Collections",
-    fragmentName: 'CollectionsPageFragment',
+  const { loading, data } = useQuery(CollectionsPageFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.collection?.result;
 
   const showEdit = useCallback(() => {
     setEdit(true);

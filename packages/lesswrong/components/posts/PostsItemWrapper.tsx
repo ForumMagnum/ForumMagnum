@@ -1,10 +1,21 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import classNames from 'classnames';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListQuery = gql(`
+  query PostsItemWrapper($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,11 +78,10 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
   draggable?: boolean
 }) => {
   const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.post?.result;
 
   if (document && !loading) {
     return <div className={classNames(

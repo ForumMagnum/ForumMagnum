@@ -7,12 +7,23 @@ import { defaultCenter } from '../../localGroups/CommunityMap';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListQuery = gql(`
+  query HomepageCommunityMap($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -54,11 +65,10 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   handleClose: (eventId: string) => void
 }) => {
   const { StyledMapPopup, GroupLinks } = Components
-  const { document, loading } = useSingle({
-    documentId: localEvent._id,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: localEvent._id },
   });
+  const document = data?.post?.result;
 
   if (loading) return null
 

@@ -1,8 +1,19 @@
 import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withUser from '../common/withUser';
-import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@/lib/vendor/@material-ui/core/src/Chip/Chip';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagBasicInfoQuery = gql(`
+  query TagSelect($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagBasicInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,12 +35,11 @@ const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
   label?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-  const {document: selectedTag, loading} = useSingle({
+  const { loading, data } = useQuery(TagBasicInfoQuery, {
+    variables: { documentId: value },
     skip: !value,
-    documentId: value,
-    collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
   });
+  const selectedTag = data?.tag?.result;
 
   const setSelectedTagId = useCallback((value?: string) => {
     updateCurrentValues({

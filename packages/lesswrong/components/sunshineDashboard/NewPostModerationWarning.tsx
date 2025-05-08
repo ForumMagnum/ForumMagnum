@@ -1,7 +1,18 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListQuery = gql(`
+  query NewPostModerationWarning($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
 
@@ -20,12 +31,11 @@ export const NewPostModerationWarning = ({classes}: {
 
   const documentId = postModerationWarningCommentIdSetting.get() 
   
-  const {document, loading} = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    skip: !documentId
+  const { loading, data } = useQuery(CommentsListQuery, {
+    variables: { documentId: documentId },
+    skip: !documentId,
   });
+  const document = data?.comment?.result;
 
   const { html = "" } = document?.contents || {}
 
