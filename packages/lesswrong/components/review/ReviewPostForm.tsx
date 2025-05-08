@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { PopupCommentEditor } from "../comments/PopupCommentEditor";
 
 const styles = (theme: ThemeType) => ({
   guidelines: {
@@ -38,7 +39,6 @@ const ReviewPostFormInner = ({classes, post, onClose}: {
   post: PostsBase,
   onClose: () => void,
 }) => {
-  const { PopupCommentEditor } = Components;
   const [ showPrompt, setShowPrompt ] = useState(true)
   
   return <PopupCommentEditor

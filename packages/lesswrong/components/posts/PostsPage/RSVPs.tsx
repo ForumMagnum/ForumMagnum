@@ -4,7 +4,7 @@ import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { useLocation } from '../../../lib/routeUtil';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
-import { responseToText, RsvpResponse } from './RSVPForm';
+import { responseToText, RsvpResponse, RSVPForm } from './RSVPForm';
 import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
@@ -12,8 +12,9 @@ import { gql, useMutation } from '@apollo/client';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { ContentStyles } from "../../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   body: {
@@ -109,14 +110,13 @@ const RSVPsInner = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ResponseIcon, ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
   const openRSVPForm = useCallback((initialResponse: string) => {
     openDialog({
       name: "RSVPForm",
-      contents: ({onClose}) => <Components.RSVPForm
+      contents: ({onClose}) => <RSVPForm
         onClose={onClose}
         post={post}
         initialResponse={initialResponse}

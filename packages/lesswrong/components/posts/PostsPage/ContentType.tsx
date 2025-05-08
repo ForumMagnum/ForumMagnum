@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
@@ -13,6 +13,9 @@ import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { Typography } from "../../common/Typography";
+import { LWTooltip } from "../../common/LWTooltip";
+import { SectionTitle } from "../../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -317,13 +320,13 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
 }) =>
   isFriendlyUI
     ? <>{children}</>
-    : <Components.Typography
+    : <Typography
       variant="body1"
       component="span"
       className={classNames(classes.root, className)}
     >
         {children}
-    </Components.Typography>;
+    </Typography>;
 
 const ContentTypeInner = ({classes, className, type, label}: {
   classes: ClassesType<typeof styles>,
@@ -334,8 +337,6 @@ const ContentTypeInner = ({classes, className, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const { LWTooltip, SectionTitle } = Components
-
   const contentData = forumSelect(contentTypes)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)

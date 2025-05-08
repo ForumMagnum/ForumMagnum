@@ -1,10 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useInitiateConversation } from "@/components/hooks/useInitiateConversation";
 import { getTopAuthor, getUserProfileLink } from "./wrappedHelpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useForumWrappedContext } from "./hooks";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
+import { UsersProfileImage } from "../../users/UsersProfileImage";
+import { MessagesNewForm } from "../../messaging/MessagesNewForm";
+import { Loading } from "../../vulcan-core/Loading";
+import { ForumIcon } from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -101,11 +107,6 @@ const WrappedThankAuthorSectionInner = ({classes}: {
   }, [captureEvent, conversation, currentUser, year]);
 
   const {displayName, slug} = topAuthorByEngagementPercentile;
-
-  const {
-    WrappedSection, WrappedHeading, UsersProfileImage, MessagesNewForm, Loading, ForumIcon,
-  } = Components;
-  
   const messageNode = conversation ? (
     <div className={classes.newMessageForm}>
       <MessagesNewForm

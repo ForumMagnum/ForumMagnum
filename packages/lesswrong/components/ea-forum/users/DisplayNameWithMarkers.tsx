@@ -1,5 +1,6 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { LWTooltip } from "../../common/LWTooltip";
 
 export const tenPercentPledgeDiamond = "🔸";
 export const trialPledgeDiamond = "🔹";
@@ -26,8 +27,6 @@ const MARKERS: Marker[] = [
  * the one closest to the end of their name.
  */
 const DisplayNameWithMarkersInner = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
-  const { LWTooltip } = Components;
-
   const markerIndices = MARKERS.map(marker => name.lastIndexOf(marker.text)).filter(i => i !== -1);
 
   const lastMarkerIndex = Math.max(...markerIndices);

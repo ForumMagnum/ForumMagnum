@@ -1,7 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Chip } from '@/components/widgets/Chip';
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   chip: {
@@ -36,7 +37,7 @@ const SingleUsersItemInner = ({userId, removeItem, classes }: {
       />
     </span>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 

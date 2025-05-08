@@ -1,6 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { UseMultiResult } from "../../lib/crud/withMulti";
+import { FriendlyConversationItem } from "./FriendlyConversationItem";
+import { Loading } from "../vulcan-core/Loading";
+import { SectionFooter } from "../common/SectionFooter";
+import { Typography } from "../common/Typography";
+import { LoadMore } from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   noConversationsMessage: {
@@ -24,15 +29,6 @@ const FriendlyInboxNavigationInner = ({
   classes: ClassesType<typeof styles>;
 }) => {
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
-
-  const {
-    FriendlyConversationItem,
-    Loading,
-    SectionFooter,
-    Typography,
-    LoadMore,
-  } = Components;
-
   return <>
       {conversations?.length ? (
         conversations.map((conversation, idx) => (

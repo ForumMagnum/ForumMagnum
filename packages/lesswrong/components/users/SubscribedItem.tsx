@@ -1,6 +1,8 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useSingle } from "@/lib/crud/withSingle";
+import { Loading } from "../vulcan-core/Loading";
+import { SubscribeTo } from "../notifications/NotifyMeButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +39,6 @@ const SubscribedItemInner = ({
   renderDocument: (document: AnyBecauseTodo) => ReactNode,
   classes: ClassesType<typeof styles>
 }) => {
-  const {Loading, SubscribeTo} = Components;
   const {document, loading} = useSingle({
     documentId: subscription.documentId ?? undefined,
     collectionName, fragmentName,

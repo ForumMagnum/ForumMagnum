@@ -2,12 +2,16 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
-import type { Column } from '../vulcan-core/Datatable';
+import type { Column, Datatable } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
+import { UsersName } from "../users/UsersName";
+import { FormatDate } from "../common/FormatDate";
+import { Error404 } from "../common/Error404";
+import { SectionTitle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +40,7 @@ const UserDisplay = ({column, document}: {
 }) => {
   const user = document.user || document
   return <div>
-    <Components.UsersName user={user} nofollow />
+    <UsersName user={user} nofollow />
   </div>
 }
 
@@ -65,7 +69,7 @@ const DateDisplay = ({column, document}: {
   column: Column;
   document: any;
 }) => {
-  return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
+  return <div>{document[column.name] && <FormatDate date={document[column.name]}/>}</div>
 }
 
 const columns: Column[] = [
@@ -101,14 +105,14 @@ const ModGPTDashboardInner = ({classes}: {
   const currentUser = useCurrentUser()
   
   if (!userIsAdminOrMod(currentUser)) {
-    return <Components.Error404 />
+    return <Error404 />
   }
 
   return (
     <div className={classes.root}>
-      <Components.SectionTitle title="ModGPT Dashboard" noTopMargin />
+      <SectionTitle title="ModGPT Dashboard" noTopMargin />
 
-      <Components.Datatable
+      <Datatable
         collectionName="Comments"
         columns={columns}
         fragmentName={'CommentsListWithModGPTAnalysis'}

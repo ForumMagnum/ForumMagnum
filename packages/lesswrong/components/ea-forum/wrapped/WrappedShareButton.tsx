@@ -1,9 +1,10 @@
 import React, { RefObject, useCallback } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
 import { captureException } from "@sentry/core";
+import { ForumIcon } from "../../common/ForumIcon";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
@@ -71,8 +72,6 @@ const WrappedShareButtonInner = ({name, screenshotRef, onRendered, className, cl
       link.click();
     }
   }, [name, screenshotRef, onRendered]);
-
-  const {ForumIcon} = Components;
   return (
     <button className={classNames(classes.root, className)} onClick={onClick}>
       <ForumIcon icon="Share" className={classes.icon} /> Share

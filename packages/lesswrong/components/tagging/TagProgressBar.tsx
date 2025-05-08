@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@/lib/vendor/@material-ui/core/src/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,6 +8,10 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import { LoginPopup } from "../users/LoginPopup";
+import { LWTooltip } from "../common/LWTooltip";
+import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
+import { SeparatorBullet } from "../common/SeparatorBullet";
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -77,8 +81,6 @@ const styles = (theme: ThemeType) => ({
 const TagProgressBarInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();
@@ -99,7 +101,7 @@ const TagProgressBarInner = ({ classes }: {
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }

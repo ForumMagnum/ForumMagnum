@@ -1,7 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { sectionTitleStyle } from '../common/SectionTitle';
+import { CommentsNode } from "./CommentsNode";
+import { Loading } from "../vulcan-core/Loading";
+import { LoadMore } from "../common/LoadMore";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -22,8 +27,6 @@ const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, tru
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { CommentsNode, Loading, LoadMore, SingleColumnSection, Typography } = Components;
-
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collectionName: "Comments",

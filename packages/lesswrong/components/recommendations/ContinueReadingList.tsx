@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { ContinueReading } from './withContinueReading';
-
+import { PostsItem } from "../posts/PostsItem";
+import { PostsLoading } from "../posts/PostsLoading";
+import { SectionFooter } from "../common/SectionFooter";
 
 const ContinueReadingListInner = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
   continueReading: ContinueReading[],
@@ -55,8 +57,6 @@ const ContinueReadingListInner = ({ continueReading, continueReadingLoading, lim
       }
     }
   }
-
-  const { PostsItem, PostsLoading, SectionFooter } = Components;
   if (continueReadingLoading || !continueReading)
     return <PostsLoading/>
 

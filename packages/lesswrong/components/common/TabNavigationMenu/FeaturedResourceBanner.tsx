@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
@@ -10,6 +10,8 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 import { TooltipSpan } from '../FMTooltip';
+import { Typography } from "../Typography";
+import { SimpleDivider } from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -91,8 +93,6 @@ const FeaturedResourceBannerInner = ({terms, classes}: {
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
-  const { Typography, SimpleDivider } = Components
-
   useEffect(() => {
     if (loading || !results?.length) {
       return;

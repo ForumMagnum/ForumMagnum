@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { TagExcerpt } from "../common/excerpts/TagExcerpt";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -56,7 +59,6 @@ const TagPreviewDescriptionInner = ({tag, hash, classes, activeTab}: {
   }
 
   if (isFriendlyUI) {
-    const {TagExcerpt} = Components;
     return (
       <TagExcerpt
         tag={tag}
@@ -87,9 +89,6 @@ const TagPreviewDescriptionInner = ({tag, hash, classes, activeTab}: {
 
   const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
-
-  const { ContentItemBody, ContentStyles } = Components;
-
   let html: string | undefined;
 
   if (activeTab !== undefined && tag.summaries) {

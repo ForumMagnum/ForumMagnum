@@ -1,8 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagUrlBaseSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
+import { TableOfContents } from "../posts/TableOfContents/TableOfContents";
+import { TableOfContentsRow } from "../posts/TableOfContents/TableOfContentsRow";
+import { TagContributorsList } from "./TagContributorsList";
 
 export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
@@ -31,8 +34,6 @@ const TagTableOfContentsInner = ({tag, expandAll, showContributors, onHoverContr
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
-  
   if (!tag.tableOfContents) {
     return null;
   }

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR, ReviewYear } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';
-
+import { PostsItem } from "../posts/PostsItem";
+import { SectionFooter } from "../common/SectionFooter";
+import { Loading } from "../vulcan-core/Loading";
+import { PostInteractionStripe } from "./PostInteractionStripe";
 
 const styles = (theme: ThemeType) => ({
   root: { 
@@ -62,8 +65,6 @@ export const QuickReviewPageInner = ({classes, reviewYear}: {
     itemsPerPage: 1000,
     skip: !reviewYear
   });
-
-  const { PostsItem, SectionFooter, Loading, PostInteractionStripe } = Components
 
   function comparePosts(post1: PostsReviewVotingList, post2: PostsReviewVotingList) {
     const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore ?? 0

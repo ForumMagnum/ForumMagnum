@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCreate } from '@/lib/crud/withCreate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -10,6 +10,9 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { Loading } from "../vulcan-core/Loading";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import { MetaInfo } from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,8 +38,6 @@ const RSSFeedsForm = ({
   userId: string;
   onSuccess: (doc: newRSSFeedFragment) => void;
 }) => {
-  const { FormComponentCheckbox } = Components;
-
   const classes = useStyles(formStyles);
 
   const { create } = useCreate({
@@ -172,8 +173,6 @@ const NewFeedButtonInner = ({classes, user, closeModal}: {
   closeModal?: any
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, MetaInfo } = Components
-
   const { results: feeds, loading } = useMulti({
     terms: {view: "usersFeed", userId: user._id},
     collectionName: "RSSFeeds",
@@ -200,7 +199,7 @@ const NewFeedButtonInner = ({classes, user, closeModal}: {
       </div>
     )
   } else {
-    return <div> <Components.Loading /> </div>
+    return <div> <Loading /> </div>
   }
 }
 

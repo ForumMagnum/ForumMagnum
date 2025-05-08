@@ -1,10 +1,11 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import {
   eaAnonymousEmojiPalette,
   eaEmojiPalette,
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
+import { SectionTitle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,7 +54,6 @@ const PaletteSection: FC<{
   onSelectEmoji: (emojiOption: EmojiOption) => void,
   classes: ClassesType<typeof styles>,
 }> = ({title, options, onSelectEmoji, classes}) => {
-  const {SectionTitle} = Components;
   return (
     <>
       <SectionTitle

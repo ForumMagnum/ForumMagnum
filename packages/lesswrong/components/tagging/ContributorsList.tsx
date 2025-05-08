@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { FieldsNotNull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/arbital/useTagLenses';
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
@@ -57,7 +59,6 @@ const ContributorsListInner = ({ contributors, onHoverContributor, endWithComma 
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
 }) => {
-  const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
@@ -73,7 +74,6 @@ function ToCContributorsListInner({
   contributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string | null) => void
 }) {
-  const { LWTooltip, UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   const displayedContributors = contributors.slice(0, 2);
@@ -111,8 +111,6 @@ const HeadingContributorsListInner = ({topContributors, smallContributors, onHov
   onHoverContributor: (userId: string|null) => void
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip } = Components;
-
   return <span className={classes.contributorNameWrapper}>
     <span>Written by </span>
     <ContributorsListInner

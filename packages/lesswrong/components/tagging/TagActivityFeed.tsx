@@ -1,12 +1,16 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { MixedTypeFeed } from "../common/MixedTypeFeed";
+import { TagRevisionItem } from "./TagRevisionItem";
+import { CommentsNode } from "../comments/CommentsNode";
+import { NewTagItem } from "./NewTagItem";
+import { SectionTitle } from "../common/SectionTitle";
 
 const TagActivityFeedInner = ({pageSize = 50}: {
   pageSize?: number
 }) => {
-  const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;
-  
   return <SingleColumnSection>
     <SectionTitle title={`Recent ${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag & Wiki'} Activity`}/>
     <MixedTypeFeed

@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
+import { LoginPopup } from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,7 +41,7 @@ const TagRelevanceButtonInner = ({document, voteType, vote, label, classes, canc
     if(!currentUser){
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     } else {
       vote({document, voteType: null, collectionName: "TagRels", currentUser});

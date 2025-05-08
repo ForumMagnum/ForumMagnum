@@ -1,8 +1,12 @@
 import React from 'react';
 
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { ConversationTitleEditForm } from "./ConversationTitleEditForm";
+import { Loading } from "../vulcan-core/Loading";
+import { MetaInfo } from "../common/MetaInfo";
+import { UsersName } from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,13 +25,12 @@ const ConversationDetailsInner = ({conversation, hideOptions = false, classes}: 
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
-  const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />
 
   const openConversationOptions = () => {
     openDialog({
       name: "ConversationTitleEditForm",
-      contents: ({onClose}) => <Components.ConversationTitleEditForm
+      contents: ({onClose}) => <ConversationTitleEditForm
         onClose={onClose}
         conversation={conversation}
       />

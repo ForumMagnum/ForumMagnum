@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
@@ -15,6 +15,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { LWTooltip } from "../common/LWTooltip";
+import { PopperCard } from "../common/PopperCard";
+import { TagPreview } from "./TagPreview";
+import { ContentStyles } from "../common/ContentStyles";
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -155,7 +159,6 @@ const FilterModeRawComponentInner = ({tagId="", label, mode, canRemove=false, on
   description?: React.ReactNode
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });

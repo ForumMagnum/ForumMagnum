@@ -1,14 +1,16 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { tagCreateUrl } from "../../lib/collections/tags/helpers";
 import { Paper }from '@/components/widgets/Paper';
+import { LWPopper } from "../common/LWPopper";
+import { DropdownMenu } from "../dropdowns/DropdownMenu";
+import { DropdownItem } from "../dropdowns/DropdownItem";
+import { DropdownDivider } from "../dropdowns/DropdownDivider";
 
 const NewWikiTagMenuInner = ({ children }: { children: React.ReactNode }) => {
   const subMenuHover = useHover();
   const { eventHandlers: subMenuHandlers, hover: subMenuIsOpen, anchorEl: subMenuAnchor, forceUnHover: closeSubMenu } = subMenuHover;
-  const { LWPopper, DropdownMenu, DropdownItem, DropdownDivider } = Components;
-
   return (
     <span {...subMenuHandlers}>
       {children}

@@ -8,8 +8,10 @@ import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import { LoginPopup } from "../../users/LoginPopup";
+import { DropdownItem } from "../DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -35,7 +37,7 @@ const DislikeRecommendationDropdownItemInner = ({post}: {post: PostsBase}) => {
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return;
     }
@@ -50,8 +52,6 @@ const DislikeRecommendationDropdownItemInner = ({post}: {post: PostsBase}) => {
 
   const title = 'Dismiss recommendation'
   const icon = 'NotInterested'
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}

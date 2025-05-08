@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
@@ -10,6 +10,9 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { CommentsNode } from "../comments/CommentsNode";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -74,8 +77,6 @@ const RecentDiscussionTagInner = ({ tag, refetch = () => {}, comments, expandAll
   tagCommentType?: TagCommentType,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   

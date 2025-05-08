@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/helpers";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "@/lib/collections/posts/helpers";
+import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -71,11 +72,6 @@ export const PostSubscriptionsDropdownItemInner = ({post}: {
   const notifyMeItems = useMemo(() => {
     return getNotifyMeItems({post, currentUser, showSubscribeToDialogueButton});
   }, [post, currentUser, showSubscribeToDialogueButton]);
-
-  const {
-    CombinedSubscriptionsDropdownItem
-  } = Components;
-
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 

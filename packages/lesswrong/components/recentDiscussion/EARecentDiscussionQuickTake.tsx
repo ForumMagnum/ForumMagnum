@@ -1,10 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
-import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
+import { EARecentDiscussionItemProps, EARecentDiscussionItem } from "./EARecentDiscussionItem";
 import classNames from "classnames";
+import { CommentsItem } from "../comments/CommentsItem/CommentsItem";
+import { CommentsNode } from "../comments/CommentsNode";
 
 const styles = (_theme: ThemeType) => ({
   quickTakeBody: {
@@ -106,8 +108,6 @@ const EARecentDiscussionQuickTakeInner = ({
   }
 
   const splitComments = splitByTopLevelComment(nestedComments);
-
-  const {EARecentDiscussionItem, CommentsItem, CommentsNode} = Components;
   return (
     <>
       {splitComments.map((comments) => {

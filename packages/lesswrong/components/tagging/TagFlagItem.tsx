@@ -1,13 +1,16 @@
 import React from "react"
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
+import { LWPopper } from "../common/LWPopper";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,7 +45,6 @@ const TagFlagItemInner = ({documentId, itemType = "tagFlagId", showNumber = true
   style?: "white"|"grey"|"black",
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({

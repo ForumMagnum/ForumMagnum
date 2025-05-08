@@ -9,8 +9,18 @@ import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import BestOfLessWrongAnnouncement from '../posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement';
+import { RecentDiscussionFeed } from "../recentDiscussion/RecentDiscussionFeed";
+import { AnalyticsInViewTracker } from "./AnalyticsInViewTracker";
+import { FrontpageReviewWidget } from "../review/FrontpageReviewWidget";
+import { SingleColumnSection } from "./SingleColumnSection";
+import { EAPopularCommentsSection } from "../ea-forum/EAPopularCommentsSection";
+import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
+import { QuickTakesSection } from "../quickTakes/QuickTakesSection";
+import { LWHomePosts } from "./LWHomePosts";
+import { HeadTags } from "./HeadTags";
+import { UltraFeed } from "../ultraFeed/UltraFeed";
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -41,11 +51,6 @@ const getStructuredData = () => ({
 })
 
 const LWHomeInner = () => {
-  const { RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, EAPopularCommentsSection, DismissibleSpotlightItem,
-    QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
-  } = Components;
-
   const currentUser = useCurrentUser();
   const [ultraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabled = !!currentUser && (ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true");

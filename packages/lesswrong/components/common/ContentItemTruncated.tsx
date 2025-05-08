@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
+import { ContentItemBody } from "./ContentItemBody";
 
 const TRUNCATION_MAX_HEIGHT = 600;
 
@@ -35,7 +36,6 @@ const ContentItemTruncatedInner = ({classes, maxLengthWords, graceWords=20, expa
   description?: string,
   nofollow?: boolean
 }) => {
-  const {ContentItemBody} = Components;
   const contentsRef = useRef<HTMLDivElement>(null);
   const [hasHeightLimit, setHasHeightLimit] = useState(false);
   

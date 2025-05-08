@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
@@ -6,6 +6,9 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { FormatDate } from "../common/FormatDate";
+import { UsersProfileImage } from "../users/UsersProfileImage";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,7 +70,6 @@ const ExpandedUsersSearchHitInner = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {FormatDate, UsersProfileImage, ForumIcon} = Components;
   const user = hit as SearchUser;
 
   return <div className={classes.root}>

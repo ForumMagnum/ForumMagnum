@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { TagsTooltip } from "./TagsTooltip";
+import { LWTooltip } from "../common/LWTooltip";
 
 const CONCEPT_ITEM_WIDTH = 280;
 
@@ -157,9 +159,6 @@ const ConceptItemInner = ({
   noLinkOrHoverOnTitle
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
-
-  const { TagsTooltip, LWTooltip } = Components;
-
   const usersWhoLiked = wikitag.usersWhoLiked ?? [];
   const maxScore = wikitag.maxScore ?? 0;
 

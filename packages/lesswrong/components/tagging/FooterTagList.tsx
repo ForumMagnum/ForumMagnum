@@ -4,7 +4,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
-import { tagStyle, smallTagTextStyle } from './FooterTag';
+import { tagStyle, smallTagTextStyle, FooterTag } from './FooterTag';
 import classNames from 'classnames';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -16,8 +16,14 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { HoverOver } from "../common/HoverOver";
+import { ContentStyles } from "../common/ContentStyles";
+import { Loading } from "../vulcan-core/Loading";
+import { AddTagButton } from "./AddTagButton";
+import { CoreTagsChecklist } from "./CoreTagsChecklist";
+import { PostsAnnualReviewMarketTag } from "../posts/PostsAnnualReviewMarketTag";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -274,7 +280,6 @@ const FooterTagListInner = ({
     label: string,
     neverCoreStyling?: boolean
   }) => {
-    const {HoverOver, ContentStyles} = Components;
     return (
       <HoverOver
         title={
@@ -323,9 +328,6 @@ const FooterTagListInner = ({
   const sortedTagInfo = results
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
     : post.tags.map((tag) => ({ tag, tagRel: undefined }));
-
-  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
-
   const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
   const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>

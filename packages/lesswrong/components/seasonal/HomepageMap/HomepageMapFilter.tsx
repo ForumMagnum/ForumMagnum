@@ -1,6 +1,6 @@
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
@@ -13,6 +13,9 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
 import { createFallBackDialogHandler } from '@/components/localGroups/CommunityMapFilter';
+import { EventNotificationsDialog } from "../../localGroups/EventNotificationsDialog";
+import { LWTooltip } from "../../common/LWTooltip";
+import { SimpleDivider } from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -91,9 +94,6 @@ const HomepageMapFilterInner = ({classes}: {classes: ClassesType<typeof styles>}
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
-  const { LWTooltip, SimpleDivider } = Components
-
   return <Paper>
     <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you." placement="left">
       <div className={classNames(classes.section, classes.title)}>
@@ -108,7 +108,7 @@ const HomepageMapFilterInner = ({classes}: {classes: ClassesType<typeof styles>}
           className={classNames(classes.section, classes.subscribeSection)}
           onClick={createFallBackDialogHandler(
             openDialog, "EventNotificationsDialog",
-            ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />,
+            ({onClose}) => <EventNotificationsDialog onClose={onClose} />,
             currentUser
           )}
         >

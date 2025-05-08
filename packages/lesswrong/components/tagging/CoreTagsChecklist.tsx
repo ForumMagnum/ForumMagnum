@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
+import { TagsChecklist } from "./TagsChecklist";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,8 +36,6 @@ const CoreTagsChecklistInner = ({onTagSelected, classes, existingTagIds=[] }: {
   classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
 }) => {
-  const { TagsChecklist } = Components
-
   const { results, loading } = useMulti({
     terms: {
       view: "coreTags",
@@ -44,8 +44,6 @@ const CoreTagsChecklistInner = ({onTagSelected, classes, existingTagIds=[] }: {
     fragmentName: "TagFragment",
     limit: 100,
   });
-  
-  const { Loading } = Components;
   if (loading) return <Loading/>
   if (!results) return null
   

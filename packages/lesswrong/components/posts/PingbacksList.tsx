@@ -1,8 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Pingback } from "./Pingback";
+import { LWTooltip } from "../common/LWTooltip";
+import { LoadMore } from "../common/LoadMore";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,9 +67,6 @@ const PingbacksListInner = ({classes, postId, limit=5}: {
     captureOnMount: (eventProps: { pingbackIds: string[] }) => eventProps.pingbackIds.length > 0,
     skip: !pingbackIds.length||loading
   })
-
-  const { Pingback, LWTooltip, LoadMore, Loading } = Components
-
   if (results) {
     if (results.length > 0) {
       return <div className={classes.root}>

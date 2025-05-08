@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';
+import { LWDialog } from "../../common/LWDialog";
+import { EAButton } from "../../ea-forum/EAButton";
+import { Loading } from "../../vulcan-core/Loading";
+import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   dialogPaper: {
@@ -46,7 +50,6 @@ const DeleteAccountConfirmationModalInner = ({onClose, confirmAction, classes}: 
   confirmAction: () => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {LWDialog, EAButton, Loading, Typography} = Components;
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
 

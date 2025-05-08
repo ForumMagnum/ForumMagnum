@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import type { CommentsNewFormProps } from './CommentsNewForm';
+import { CommentsNewFormProps, CommentsNewForm } from './CommentsNewForm';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,8 +69,6 @@ const PopupCommentEditorInner = ({title, guidelines, commentFormProps, onClose, 
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNewForm } = Components;
-
   return <Card className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>

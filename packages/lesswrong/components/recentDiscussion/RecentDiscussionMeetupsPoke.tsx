@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import { useMessages } from '../common/withMessages';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent'
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -9,6 +9,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +69,6 @@ const RecentDiscussionMeetupsPokeInner = ({classes}: {
   const [label, setLabel] = useState<any>(null)
   const [location, setLocation] = useState<any>(null);
   const { flash } = useMessages();
-  const { Loading } = Components;
   const [hidden, setHidden] = useState(false);
   const [notificationRadius, setNotificationRadius] = useState(30)
   const updateCurrentUser = useUpdateCurrentUser();

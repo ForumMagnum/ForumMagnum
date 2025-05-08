@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import Slide from '@/lib/vendor/@material-ui/core/src/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
+import { TAB_NAVIGATION_MENU_WIDTH, TabNavigationMenu } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -55,7 +55,6 @@ const NavigationStandaloneInner = ({
   noTopMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TabNavigationMenu } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;

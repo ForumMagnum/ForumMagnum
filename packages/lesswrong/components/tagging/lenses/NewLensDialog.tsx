@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogContentText } from "@/components/widgets/DialogContentText";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { LensForm } from './LensForm';
+import { LWDialog } from "../../common/LWDialog";
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
@@ -48,8 +49,6 @@ export const NewLensDialogInner = ({ tag, refetchTag, updateSelectedLens, onClos
   updateSelectedLens: (lensId: string) => void,
   onClose?: () => void,
 }) => {
-  const { LWDialog } = Components;
-  
   const classes = useStyles(styles);
 
   const wrappedSuccessCallback = async (lens: MultiDocumentMinimumInfo) => {

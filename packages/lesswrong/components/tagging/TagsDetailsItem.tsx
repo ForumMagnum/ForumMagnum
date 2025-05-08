@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -9,6 +9,11 @@ import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { LinkCard } from "../common/LinkCard";
+import { TagPreviewDescription } from "./TagPreviewDescription";
+import { TagSmallPostLink } from "./TagSmallPostLink";
+import { Loading } from "../vulcan-core/Loading";
+import { TagFlagItem } from "./TagFlagItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -87,7 +92,6 @@ const TagsDetailsItemInner = ({ tag, classes, showFlags = false, flagId, collaps
   flagId?: string,
   collapse?: boolean
 }) => {
-  const { LinkCard, TagPreviewDescription, TagSmallPostLink, Loading, TagFlagItem } = Components;
   const currentUser = useCurrentUser();
   const [editing, setEditing] = useState(false)
   const { query } = useLocation();

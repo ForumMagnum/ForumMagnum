@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { PopupCommentEditor } from "./PopupCommentEditor";
 
 /**
  * ReplyCommentDialog: A floating comment editor created by clicking the comment
@@ -16,8 +17,6 @@ const ReplyCommentDialogInner = ({post, initialHtml, onClose}: {
   parentComment?: CommentsList,
   onClose: () => void,
 }) => {
-  const { PopupCommentEditor } = Components;
-  
   return <PopupCommentEditor
     title={"New Comment: " + post.title}
     onClose={onClose}

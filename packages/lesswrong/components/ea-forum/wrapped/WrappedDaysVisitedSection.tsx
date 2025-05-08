@@ -1,9 +1,11 @@
 import React, { FC, Fragment } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { WrappedYear, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import moment from "moment";
 import classNames from "classnames";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 const MOBILE_SIZE = 6;
 const DESKTOP_SIZE = 8;
@@ -81,7 +83,6 @@ const WrappedDaysVisitedSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {daysVisited}} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="daysVisited">
       <WrappedHeading>

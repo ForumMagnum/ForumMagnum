@@ -1,12 +1,14 @@
 import React from 'react';
 import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import type { ContentItemBodyInner } from '../../common/ContentItemBody';
+import { ReactOrAntireactVote } from "./ReactOrAntireactVote";
+import { UsersWhoReacted } from "./UsersWhoReacted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +70,6 @@ const ReactionQuotesHoverInfoInner = ({react, quote, voteProps, commentBodyRef, 
   commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ReactOrAntireactVote, UsersWhoReacted } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
 
   const reactionsOfType: UserReactInfo[] = normalizedReactions?.reacts?.[react] ?? [];

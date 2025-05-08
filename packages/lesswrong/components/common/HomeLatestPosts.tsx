@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -8,7 +8,7 @@ import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
-import { sectionTitleStyle } from '../common/SectionTitle';
+import { sectionTitleStyle, SectionTitle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
@@ -19,6 +19,15 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
+import { SingleColumnSection } from "./SingleColumnSection";
+import { PostsList2 } from "../posts/PostsList2";
+import { TagFilterSettings } from "../tagging/TagFilterSettings";
+import { LWTooltip } from "./LWTooltip";
+import { SettingsButton } from "../icons/SettingsButton";
+import { CuratedPostsList } from "../recommendations/CuratedPostsList";
+import { StickiedPosts } from "../ea-forum/StickiedPosts";
+import { PostsListViewToggle } from "../posts/PostsListViewToggle";
+import { SurveyPostsItem } from "../surveys/SurveyPostsItem";
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -122,11 +131,6 @@ const HomeLatestPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) 
     captureOnMount: true,
   })
   const { query } = location;
-  const {
-    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts, PostsListViewToggle,
-    SurveyPostsItem,
-  } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();

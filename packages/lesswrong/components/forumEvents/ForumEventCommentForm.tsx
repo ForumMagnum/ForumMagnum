@@ -1,8 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { State } from '@popperjs/core/lib/types';
 import { PartialDeep } from 'type-fest';
+import { CommentsNewForm } from "../comments/CommentsNewForm";
+import { LWPopper } from "../common/LWPopper";
+import { ForumIcon } from "../common/ForumIcon";
+import { CommentsEditForm } from "../comments/CommentsEditForm";
+import { CommentBody } from "../comments/CommentsItem/CommentBody";
+import { ForumEventEmojiPicker } from "./ForumEventEmojiPicker";
 
 const WIDTH = 350;
 
@@ -131,8 +137,6 @@ const ForumEventCommentFormInner = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody, ForumEventEmojiPicker } = Components;
-
   const hasEmoji = !!setEmoji;
 
   const [editFormOpen, setEditFormOpen] = useState(false);

@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../../lib/crud/withMulti';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
+import { Loading } from "../../../vulcan-core/Loading";
 
 const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => ({
   root: { 
@@ -35,7 +36,6 @@ const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => (
 export const SplashImageEditingOptionsInner = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
 }) => {
-  const { Loading } = Components;
   const classes = useStyles(styles);
 
   const { results: images, loading } = useMulti({

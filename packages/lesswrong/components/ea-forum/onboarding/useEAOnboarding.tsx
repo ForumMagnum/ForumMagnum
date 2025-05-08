@@ -1,8 +1,8 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
-import { Components } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useTracking } from "../../../lib/analyticsEvents";
+import { LoginForm } from "../../users/LoginForm";
 
 export type OnboardingStage = string
 
@@ -71,7 +71,6 @@ export const EAOnboardingContextProvider: FC<{
 
   // This should never happen
   if (!currentUser) {
-    const {LoginForm} = Components;
     return (
       <LoginForm />
     );

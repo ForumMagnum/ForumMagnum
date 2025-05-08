@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import type {
   RecommendationsAlgorithmWithStrategy,
@@ -8,6 +8,10 @@ import type {
 } from "../../lib/collections/users/recommendationSettings";
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import DeferRender from "../common/DeferRender";
+import { SectionTitle } from "../common/SectionTitle";
+import { RecommendationsList } from "./RecommendationsList";
+import { PostsPageRecommendationItem } from "./PostsPageRecommendationItem";
+import { PostsLoading } from "../posts/PostsLoading";
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
@@ -69,9 +73,6 @@ const PostsPageRecommendationsListInner = ({
     },
     count: COUNT,
   };
-
-  const {SectionTitle, RecommendationsList, PostsPageRecommendationItem, PostsLoading} = Components;
-
   const loadingFallback = (
     <div className={classes.listWrapper}>
       <PostsLoading />

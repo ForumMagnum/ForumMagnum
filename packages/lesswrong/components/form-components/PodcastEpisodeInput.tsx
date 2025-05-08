@@ -4,11 +4,12 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({
   podcastEpisodeName: {
@@ -24,7 +25,6 @@ export const PodcastEpisodeInput = ({ field, document }: {
   field: TypedFieldApi<string | null>;
   document: EditablePost;
 }) => {
-  const { Loading, MenuItem } = Components;
   const classes = useStyles(styles);
 
   const value = field.state.value ?? '';

@@ -1,11 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { ExpandedDate } from "../common/FormatDate";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isMobile } from "../../lib/utils/isMobile";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
+import { SingleColumnSection } from "./SingleColumnSection";
 
 export const maintenanceTime = new DatabasePublicSetting<string | null>("maintenanceBannerTime", null);
 const explanationText = new DatabasePublicSetting<string>("maintenanceBannerExplanationText", "");
@@ -42,8 +43,6 @@ const MaintenanceBannerInner = ({ classes }: { classes: ClassesType<typeof style
   const maintenanceTimeValue = maintenanceTime.get();
   if (!maintenanceTimeValue) return <></>;
   const isUrgent = new Date(maintenanceTimeValue).getTime() - Date.now() < urgentCutoff;
-  const { SingleColumnSection } = Components;
-
   return (
     <SingleColumnSection
       className={classNames(classes.root, { [classes.rootMobile]: isMobile(), [classes.rootUrgent]: isUrgent })}

@@ -1,10 +1,13 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
+import { DeleteAccountConfirmationModal } from "./DeleteAccountConfirmationModal";
+import { ActionButtonSection } from "./ActionButtonSection";
+import { FormatDate } from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -24,7 +27,6 @@ const DeleteAccountSectionInner = ({
   user: UsersEdit,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ActionButtonSection, FormatDate } = Components;
   const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
@@ -79,7 +81,7 @@ const DeleteAccountSectionInner = ({
     } else {
       openDialog({
         name: 'DeleteAccountConfirmationModal',
-        contents: ({onClose}) => <Components.DeleteAccountConfirmationModal
+        contents: ({onClose}) => <DeleteAccountConfirmationModal
           onClose={onClose}
           confirmAction={confirmAction}
         />

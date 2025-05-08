@@ -2,11 +2,12 @@ import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   boxesRoot: {
@@ -64,8 +65,6 @@ export const SpotlightStartOrContinueReadingInner = ({classes, spotlight, classN
     EAForum: preferredHeadingCase("Start with: "),
     default: preferredHeadingCase("First Post: ")
   });
-
-  const {PostsTooltip} = Components;
   if (firstPost) {
     return <div className={classNames(classes.firstPost, className)}>
       {prefix}<PostsTooltip post={firstPost}>

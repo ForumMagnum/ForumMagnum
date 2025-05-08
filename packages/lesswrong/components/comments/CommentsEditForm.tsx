@@ -1,8 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentForm } from './CommentForm';
 import { useSingle } from '@/lib/crud/withSingle';
+import { Loading } from "../vulcan-core/Loading";
 
 const CommentsEditFormInner = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
@@ -12,8 +13,6 @@ const CommentsEditFormInner = ({ comment, successCallback, cancelCallback, class
   formProps?: Record<string, any>,
   prefilledProps?: AnyBecauseTodo
 }) => {
-  const { Loading } = Components;
-
   const { document: editableComment, loading } = useSingle({
     collectionName: 'Comments',
     fragmentName: 'CommentEdit',

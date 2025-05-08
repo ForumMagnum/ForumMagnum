@@ -1,11 +1,14 @@
 import React, { useState, FC } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { SideItemsSidebar } from "../contents/SideItems";
+import { ContentStyles } from "../common/ContentStyles";
+import { TagsTooltip } from "./TagsTooltip";
 
 const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
   rightColumn: {
@@ -158,7 +161,7 @@ const LWTagPageRightColumnInner = ({tag, selectedLens}: {
 
   return <div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      <Components.SideItemsSidebar/>
+      <SideItemsSidebar/>
     </div>
   </div>
 }
@@ -168,8 +171,6 @@ const ArbitalLinkedPagesRightSidebarInner = ({ tag, selectedLens, arbitalLinkedP
   selectedLens?: TagLens,
   arbitalLinkedPages?: ArbitalLinkedPagesFragment,
 }) => {
-  const { ContentStyles } = Components;
-  
   const classes = useStyles(styles);
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
 
@@ -237,7 +238,6 @@ const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
 }
 
 const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPage, className?: string}) => {
-  const { TagsTooltip } = Components;
   const classes = useStyles(styles);
   return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
     <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
@@ -256,8 +256,6 @@ const ArbitalRelationshipsSmallScreenInner = ({arbitalLinkedPages, selectedLens,
   if (!arbitalLinkedPages) {
     return null;
   }
-
-  const { TagsTooltip, ContentStyles } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   
@@ -302,9 +300,6 @@ const ParentsAndChildrenSmallScreenInner: FC<{ arbitalLinkedPages?: ArbitalLinke
   const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
   const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
-
-  const { ContentStyles } = Components;
-
   if (parents.length === 0 && children.length === 0) return null;
 
   return (

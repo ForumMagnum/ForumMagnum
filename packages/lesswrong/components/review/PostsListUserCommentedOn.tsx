@@ -3,8 +3,12 @@ import {AnalyticsContext} from '../../lib/analyticsEvents.tsx'
 import {useCurrentUser} from '../common/withUser.tsx'
 import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "../vulcan-core/Loading";
+import { PostsItem } from "../posts/PostsItem";
+import { LoadMore } from "../common/LoadMore";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -67,9 +71,6 @@ const PostsListUserCommentedOnInner = ({classes, filter, sort}: {
     filter,
     sort,
   })
-
-  const {Loading, PostsItem, LoadMore, Typography} = Components
-
   const posts = data?.PostsUserCommentedOn?.posts
 
   if (loading && networkStatus !== NetworkStatus.fetchMore) {

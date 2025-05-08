@@ -1,18 +1,24 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { captureException } from '@sentry/core';
-import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
+import { linkIsExcludedFromPreview, HoverPreviewLink } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
 import { JargonTooltip } from '../jargon/JargonTooltip';
 import { InlineReactHoverableHighlight } from '../votes/lwReactions/InlineReactHoverableHighlight';
+import { ConditionalVisibilityBlockDisplay } from "../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
+import { HorizScrollBlock } from "./HorizScrollBlock";
+import { CollapsedFootnotes } from "../posts/PostsPage/CollapsedFootnotes";
+import { ElicitBlock } from "../posts/ElicitBlock";
+import { WrappedStrawPoll } from "./WrappedStrawPoll";
+import { ForumEventPostPagePollSection } from "../forumEvents/ForumEventPostPagePollSection";
 
 const replacementComponentMap = {
   JargonTooltip,
@@ -309,9 +315,9 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
       }
 
       const BlockContents = rawExtractElementChildrenToReactComponent(block)
-      this.replaceElement(block, <Components.ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+      this.replaceElement(block, <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
         <BlockContents/>
-      </Components.ConditionalVisibilityBlockDisplay>);
+      </ConditionalVisibilityBlockDisplay>);
     }
   }
   
@@ -319,9 +325,9 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
   // <HorizScrollBlock>.
   addHorizontalScrollIndicators = (block: HTMLElement) => {
     const ScrollableContents = rawExtractElementChildrenToReactComponent(block)
-    this.replaceElement(block, <Components.HorizScrollBlock>
+    this.replaceElement(block, <HorizScrollBlock>
       <ScrollableContents/>
-    </Components.HorizScrollBlock>);
+    </HorizScrollBlock>);
   };
 
   forwardAttributes = (node: HTMLElement|Element) => {
@@ -351,7 +357,7 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
         innerHTML = `<section>${innerHTML}</section>`;
       }
       const collapsedFootnotes = (
-        <Components.CollapsedFootnotes
+        <CollapsedFootnotes
           footnotesHtml={innerHTML}
           attributes={this.forwardAttributes(footnotes)}
         />
@@ -370,7 +376,7 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
       const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
       const id = linkTag.getAttribute("id") ?? undefined;
       const rel = linkTag.getAttribute("rel") ?? undefined;
-      const replacementElement = <Components.HoverPreviewLink
+      const replacementElement = <HoverPreviewLink
         href={href}
         contentSourceDescription={this.props.description}
         id={id}
@@ -379,7 +385,7 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
         contentStyleType={this.props.contentStyleType}
       >
         <TagLinkContents/>
-      </Components.HoverPreviewLink>
+      </HoverPreviewLink>
       this.replaceElement(linkTag, replacementElement);
     }
   }
@@ -388,7 +394,7 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
     const elicitBlocks = this.getElementsByClassname(element, "elicit-binary-prediction");
     for (const elicitBlock of elicitBlocks) {
       if (elicitBlock.dataset?.elicitId) {
-        const replacementElement = <Components.ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
+        const replacementElement = <ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
         this.replaceElement(elicitBlock, replacementElement)
       }
     }
@@ -415,7 +421,7 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
       const id = strawpollBlock.getAttribute("id");
       const iframe = strawpollBlock.getElementsByTagName("iframe");
       const iframeSrc = iframe[0]?.getAttribute("src") ?? "";
-      const replacementElement = <Components.WrappedStrawPoll id={id} src={iframeSrc} />
+      const replacementElement = <WrappedStrawPoll id={id} src={iframeSrc} />
       this.replaceElement(strawpollBlock, replacementElement)
     }
   }
@@ -441,9 +447,6 @@ export class ContentItemBodyInner extends Component<ContentItemBodyProps,Content
 
   replaceForumEventPollPlaceholders = (element: HTMLElement) => {
     const pollPlaceholders = element.getElementsByClassName('ck-poll');
-
-    const { ForumEventPostPagePollSection } = Components;
-
     const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
       placeholder,
       forumEventId: placeholder.getAttribute('data-internal-id')
@@ -663,7 +666,7 @@ const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-const ContentItemBody = registerComponent<ExternalProps>("ContentItemBody", ContentItemBodyInner, {
+export const ContentItemBody = registerComponent<ExternalProps>("ContentItemBody", ContentItemBodyInner, {
   hocs: [withTracking],
   
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.

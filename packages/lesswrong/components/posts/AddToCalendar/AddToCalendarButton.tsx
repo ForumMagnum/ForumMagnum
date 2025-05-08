@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
@@ -6,6 +6,8 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { LWTooltip } from "../../common/LWTooltip";
+import { LWPopper } from "../../common/LWPopper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -82,9 +84,6 @@ const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClass
     }
     setOpen(!open)
   }
-  
-  const { LWPopper } = Components
-  
   // we use the Facebook link as the default event details text
   let eventDetails = post.facebookLink;
   // we try to use plaintextDescription instead if possible
@@ -151,9 +150,9 @@ const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClass
   }
   
   return (
-    <Components.LWTooltip title="Add to calendar" placement="left">
+    <LWTooltip title="Add to calendar" placement="left">
       {calendarIconNode}
-    </Components.LWTooltip>
+    </LWTooltip>
   )
 };
 

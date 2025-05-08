@@ -1,5 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { MetaInfo } from "../../common/MetaInfo";
+import { FormatDate } from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,7 +20,6 @@ export const UserReviewMetadataInner = ({classes, user}: {
   user: SunshineUsersList
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, FormatDate } = Components
   return <div className={classes.root}>
     <MetaInfo>
       {user.email}

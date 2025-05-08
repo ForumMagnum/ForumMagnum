@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
@@ -18,8 +18,9 @@ import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { getClassName } from '@/components/hooks/useStyles';
-import type { TableOfContentsRowStyles } from './TableOfContentsRow';
+import { TableOfContentsRowStyles, TableOfContentsRow } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
+import { AnswerTocRow } from "./AnswerTocRow";
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -244,8 +245,6 @@ const FixedPositionTocInner = ({tocSections, title, heading, onClickSection, dis
   classes: ClassesType<typeof styles>,
   hover?: boolean,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;

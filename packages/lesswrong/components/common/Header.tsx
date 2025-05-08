@@ -1,5 +1,5 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
@@ -19,6 +19,19 @@ import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
+import { SearchBar } from "./SearchBar";
+import { UsersMenu } from "../users/UsersMenu";
+import { UsersAccountMenu } from "../users/UsersAccountMenu";
+import { NotificationsMenuButton } from "../notifications/NotificationsMenuButton";
+import { NavigationDrawer } from "./TabNavigationMenu/NavigationDrawer";
+import { NotificationsMenu } from "../notifications/NotificationsMenu";
+import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
+import { HeaderSubtitle } from "./HeaderSubtitle";
+import { Typography } from "./Typography";
+import { ForumIcon } from "./ForumIcon";
+import { ActiveDialogues } from "../dialogues/ActiveDialogues";
+import { SiteLogo } from "../ea-forum/SiteLogo";
+import { MessagesMenuButton } from "../messaging/MessagesMenuButton";
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -304,13 +317,6 @@ const HeaderInner = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
-
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton,
-  } = Components;
-
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
     // the page (unless the hash is set) but Headroom doesn't run this callback

@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
 import {
@@ -8,6 +8,7 @@ import {
   PostsPreviewTooltipSingleWithComment,
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
+import { HoverOver } from "../../common/HoverOver";
 
 const PostsTooltipInner = ({
   post,
@@ -94,8 +95,6 @@ const PostsTooltipInner = ({
     {children}
     </>
   };
-
-  const {HoverOver} = Components;
   return (
     <HoverOver
       title={renderTitle()}

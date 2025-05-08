@@ -1,11 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import type { FriendlyHoverOverProps } from "./FriendlyHoverOver";
-import type { LWTooltipProps } from "./LWTooltip";
+import { FriendlyHoverOverProps, FriendlyHoverOver } from "./FriendlyHoverOver";
+import { LWTooltipProps, LWTooltip } from "./LWTooltip";
 
 const HoverOverInner = (props: LWTooltipProps & FriendlyHoverOverProps) => {
-  const {LWTooltip, FriendlyHoverOver} = Components;
   const Tooltip = isFriendlyUI ? FriendlyHoverOver : LWTooltip;
   return (
     <Tooltip {...props} />

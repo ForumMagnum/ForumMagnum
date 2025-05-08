@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +36,6 @@ const SidebarActionInner = ({children, classes, title, warningHighlight, onClick
   warningHighlight?: boolean,
   onClick: () => void,
 }) => {
-  const { LWTooltip } = Components
   return <LWTooltip title={title} placement="bottom">
     <div onClick={onClick} className={classes.root}>
       {children}

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { EditTagForm } from '../EditTagPage';
 import { useApolloClient } from '@apollo/client/react';
@@ -15,6 +15,17 @@ import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useSingle } from '@/lib/crud/withSingle';
+import { PostsListSortDropdown } from "../../posts/PostsListSortDropdown";
+import { PostsList2 } from "../../posts/PostsList2";
+import { ContentItemBody } from "../../common/ContentItemBody";
+import { AddPostsToTag } from "../AddPostsToTag";
+import { UsersNameDisplay } from "../../users/UsersNameDisplay";
+import { TagDiscussionSection } from "../TagDiscussionSection";
+import { TagPageButtonRow } from "../TagPageButtonRow";
+import { TagIntroSequence } from "../TagIntroSequence";
+import { SectionTitle } from "../../common/SectionTitle";
+import { ContentStyles } from "../../common/ContentStyles";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -45,20 +56,6 @@ const SubforumWikiTabInner = ({tag, revision, truncated, setTruncated, classes}:
   setTruncated: (truncated: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    PostsListSortDropdown,
-    PostsList2,
-    ContentItemBody,
-    AddPostsToTag,
-    UsersNameDisplay,
-    TagDiscussionSection,
-    TagPageButtonRow,
-    TagIntroSequence,
-    SectionTitle,
-    ContentStyles,
-    Loading,
-  } = Components;
-
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const client = useApolloClient()

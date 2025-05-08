@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import {useLocation} from "../../lib/routeUtil";
+import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { DraftsList } from "./DraftsList";
 
 const styles = (theme: ThemeType) => ({
   checkbox: {
@@ -23,13 +26,11 @@ const styles = (theme: ThemeType) => ({
 const DraftsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const {SingleColumnSection, DraftsList } = Components
-  
   const currentUser = useCurrentUser()
   const { query } = useLocation();
   
   if (!currentUser) {
-    return <Components.ErrorAccessDenied />
+    return <ErrorAccessDenied />
   }
   
   return <SingleColumnSection>

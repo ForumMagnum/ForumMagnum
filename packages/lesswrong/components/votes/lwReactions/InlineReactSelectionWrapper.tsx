@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ContentItemBodyInner } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
+import { AddInlineReactionButton } from "./AddInlineReactionButton";
+import { LWPopper } from "../../common/LWPopper";
 
 export const hideSelectorClassName = "hidden-selector";
 const hiddenSelector = `& .${hideSelectorClassName}`;
@@ -35,9 +37,6 @@ export const InlineReactSelectionWrapperInner = ({contentRef, voteProps, styling
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const [yOffset, setYOffset] = useState<number>(0);
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
-
-  const { AddInlineReactionButton, LWPopper } = Components;
-  
   const detectSelection = useCallback((e: MouseEvent): void => {
     function clearAll() {
       setAnchorEl(null);

@@ -5,8 +5,11 @@ import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from 
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { ReviewVotingButtons } from "./ReviewVotingButtons";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,9 +25,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const ReviewVotingWidgetInner = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
-
-  const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
-  
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch

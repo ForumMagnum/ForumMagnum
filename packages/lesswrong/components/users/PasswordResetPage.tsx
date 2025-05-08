@@ -1,10 +1,11 @@
 import React, { useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
+import { SingleColumnSection } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,8 +45,6 @@ const PasswordResetPageInner = ({classes}: {
     const result = await emailTokenMutation({token, args: { password }})
     setUseTokenResult(result?.data?.useEmailToken)
   }
-  const { SingleColumnSection } = Components;
-  
   const ResultComponent = useTokenResult?.componentName && emailTokenResultComponents[useTokenResult.componentName];
   
   return <SingleColumnSection className={classes.root}>

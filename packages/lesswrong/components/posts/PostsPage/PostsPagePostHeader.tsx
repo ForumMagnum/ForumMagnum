@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -9,6 +9,24 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { PostsPageTitle } from "./PostsPageTitle";
+import { PostsAuthors } from "./PostsAuthors";
+import { LWTooltip } from "../../common/LWTooltip";
+import { PostsPageDate } from "./PostsPageDate";
+import { CrosspostHeaderIcon } from "./CrosspostHeaderIcon";
+import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
+import { PostsVote } from "../../votes/PostsVote";
+import { PostsGroupDetails } from "../PostsGroupDetails";
+import { PostsTopSequencesNav } from "./PostsTopSequencesNav";
+import { PostsPageEventData } from "./PostsPageEventData";
+import { FooterTagList } from "../../tagging/FooterTagList";
+import { AddToCalendarButton } from "../AddToCalendar/AddToCalendarButton";
+import { BookmarkButton } from "../BookmarkButton";
+import { ForumIcon } from "../../common/ForumIcon";
+import { GroupLinks } from "../../localGroups/GroupLinks";
+import { SharePostButton } from "../SharePostButton";
+import { AudioToggle } from "./AudioToggle";
+import { ReadTime } from "./ReadTime";
 
 const SECONDARY_SPACING = 20;
 
@@ -224,11 +242,6 @@ const PostsPagePostHeaderInner = ({post, answers = [], dialogueResponses = [], s
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
-    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
-
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;

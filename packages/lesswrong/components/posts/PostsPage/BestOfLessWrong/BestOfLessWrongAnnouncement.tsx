@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
@@ -7,6 +7,7 @@ import groupBy from 'lodash/groupBy';
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { SingleColumnSection } from "../../../common/SingleColumnSection";
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
   titleContainer: {
@@ -255,9 +256,6 @@ const BestOfLessWrongAnnouncementInner = () => {
   });
 
   const topPerCategory = groupBy(results, 'category');
-
-  const { SingleColumnSection } = Components;
-
   const sections = {
     'Rationality': {
       img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.15,x_0.29,y_-0.05,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753260/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_09275054-eb84-43c4-9cfa-4a05e1818c9e_rmov5i.png',

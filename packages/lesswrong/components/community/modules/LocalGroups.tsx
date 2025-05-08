@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -6,6 +6,8 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { CommunityMapWrapper } from "../../localGroups/CommunityMapWrapper";
+import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -171,8 +173,6 @@ const LocalGroupsInner = ({keywordSearch, userLocation, distanceUnit='km', inclu
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommunityMapWrapper, CloudinaryImage2 } = Components
-
   let groupsListTerms: LocalgroupsViewTerms = {}
   groupsListTerms = userLocation.known ? {
     view: 'nearby',

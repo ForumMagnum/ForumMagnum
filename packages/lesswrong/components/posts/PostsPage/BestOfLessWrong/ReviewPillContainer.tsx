@@ -1,10 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
 import { HashLink } from '@/components/common/HashLink';
 import { hideScrollBars } from '@/themes/styleUtils';
+import { UsersName } from "../../../users/UsersName";
+import { CommentBody } from "../../../comments/CommentsItem/CommentBody";
+import { SmallSideVote } from "../../../votes/SmallSideVote";
+import { LWTooltip } from "../../../common/LWTooltip";
+import { UsersNameDisplay } from "../../../users/UsersNameDisplay";
 
 const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({ 
   root: {
@@ -67,8 +72,6 @@ const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({
 
 const ReviewPreview = ({review}: {review: CommentsList}) => {
   const classes = useStyles(styles);
-  const { UsersName, CommentBody, SmallSideVote } = Components;
-
   return <div className={classes.reviewPreviewContainer}>
     <div className={classes.reviewPreview}>
       <div className={classes.reviewMeta}>
@@ -97,9 +100,6 @@ const ReviewPillContainerInner = ({postId}: {postId: string}) => {
     fetchPolicy: 'cache-and-network',
     limit: 5
   });
-
-  const { LWTooltip, UsersNameDisplay } = Components;
-  
   return <AnalyticsContext pageElementContext="reviewPillContainer">
     <div className={classes.root}>
       {reviews?.map((review) => (

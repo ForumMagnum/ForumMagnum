@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import React from 'react';
@@ -9,6 +9,19 @@ import DeleteIcon from '@/lib/vendor/@material-ui/icons/src/Delete';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonOutlineIcon from '@/lib/vendor/@material-ui/icons/src/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
+import { SunshineListItem } from "./SunshineListItem";
+import { SidebarInfo } from "./SidebarInfo";
+import { SidebarHoverOver } from "./SidebarHoverOver";
+import { PostsTitle } from "../posts/PostsTitle";
+import { PostsHighlight } from "../posts/PostsHighlight";
+import { SidebarActionMenu } from "./SidebarActionMenu";
+import { SidebarAction } from "./SidebarAction";
+import { FormatDate } from "../common/FormatDate";
+import { CommentsNode } from "../comments/CommentsNode";
+import { Typography } from "../common/Typography";
+import { SunshineCommentsItemOverview } from "./SunshineCommentsItemOverview";
+import { SunshineNewUsersInfo } from "./SunshineNewUsersInfo";
+import { UsersName } from "../users/UsersName";
 
 const styles = (_theme: ThemeType) => ({
   reportedUser: {
@@ -83,11 +96,6 @@ const SunshineReportedItemInner = ({report, updateReport, classes, currentUser, 
   }
 
   const {comment, post, reportedUser} = report;
-  const {
-    SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight,
-    SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography,
-    SunshineCommentsItemOverview, SunshineNewUsersInfo, UsersName,
-  } = Components;
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>

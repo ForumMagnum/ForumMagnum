@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
@@ -7,6 +7,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { defaultSequenceBannerIdSetting } from './SequencesPage';
 import { isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
+import { CloudinaryImage } from "../common/CloudinaryImage";
+import { UsersName } from "../users/UsersName";
+import { LinkCard } from "../common/LinkCard";
+import { SequencesSummary } from "./SequencesSummary";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -129,8 +133,6 @@ const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemS
   classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) => {
-  const { LinkCard, SequencesSummary } = Components;
-
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20
@@ -151,7 +153,7 @@ const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemS
     }>
       <div className={classes.image}>
         <DeferRender ssr={false}>
-          {imageId && <Components.CloudinaryImage
+          {imageId && <CloudinaryImage
             publicId={imageId}
             height={124}
             width={315}
@@ -165,7 +167,7 @@ const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemS
         </div>
         { showAuthor && sequence.user &&
           <div className={classes.author}>
-            by <Components.UsersName user={sequence.user} />
+            by <UsersName user={sequence.user} />
           </div>}
       </div>
     </LinkCard>

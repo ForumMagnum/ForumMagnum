@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { generateTextFragment } from './textFragmentHelpers'
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
@@ -288,9 +290,9 @@ const FeedContentBodyInner = ({
       )}
       onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
-      <Components.ContentStyles contentType="ultraFeed">
+      <ContentStyles contentType="ultraFeed">
         <div>
-          <Components.ContentItemBody
+          <ContentItemBody
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
             nofollow={nofollow}
             className={classNames({
@@ -301,7 +303,7 @@ const FeedContentBodyInner = ({
             })}
           />
         </div>
-      </Components.ContentStyles>
+      </ContentStyles>
       {showContinueReadingAction && <div
         className={classes.readMoreButton}
         onClick={(e) => {

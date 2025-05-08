@@ -4,10 +4,14 @@ import React, { useCallback, useState } from "react";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
+import { ContentStyles } from "../../common/ContentStyles";
+import { FooterTag } from "../FooterTag";
+import { AddTagButton } from "../AddTagButton";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,8 +42,6 @@ const SidebarSubtagsBoxInner = ({ tag, className, classes }: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
-
   const [isAwaiting, setIsAwaiting] = useState(false)
   const [showAllSubtags, setShowAllSubtags] = useState(false)
   const currentUser = useCurrentUser();

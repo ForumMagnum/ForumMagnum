@@ -1,10 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { PeopleDirectoryResultsList } from "./PeopleDirectoryResultsList";
+import { PeopleDirectoryResultsMap } from "./PeopleDirectoryResultsMap";
 
 const PeopleDirectoryResultsInner = () => {
   const {view} = usePeopleDirectory();
-  const {PeopleDirectoryResultsList, PeopleDirectoryResultsMap} = Components;
   return view === "list"
     ? <PeopleDirectoryResultsList />
     : <PeopleDirectoryResultsMap />;

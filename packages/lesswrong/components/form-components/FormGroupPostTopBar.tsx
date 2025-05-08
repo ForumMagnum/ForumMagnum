@@ -1,5 +1,5 @@
 import React from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
@@ -8,6 +8,10 @@ import { isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { QuestionIcon } from '../icons/questionIcon';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
+import { LWTooltip } from "../common/LWTooltip";
+import { EAButton } from "../ea-forum/EAButton";
+import { ForumIcon } from "../common/ForumIcon";
+import { GoogleDocImportButton } from "../posts/GoogleDocImportButton";
 
 // We want the buttons to go _above_ the tabs when the space gets too tight,
 // which requires some special breakpoint logic (due to the how the central column
@@ -85,7 +89,6 @@ const styles = defineStyles("FormGroupPostTopBar", (theme: ThemeType) => ({
 
 const LinkToEditorGuideButton = () => {
   const classes = useStyles(styles);
-  const {LWTooltip, EAButton, ForumIcon} = Components;
   const navigate = useNavigate();
 
   if (isLWorAF) {
@@ -115,9 +118,6 @@ const FormGroupPostTopBarInner = ({ children }: { children: React.ReactNode }) =
   const { query } = useLocation();
   const postId = query.postId;
   const version = query.version;
-
-  const { GoogleDocImportButton } = Components;
-
   return (
     <div className={classes.root}>
       <div className={classes.tabs}>{tabs}</div>

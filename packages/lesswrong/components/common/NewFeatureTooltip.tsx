@@ -1,7 +1,8 @@
 import React, { ReactNode } from 'react';
 import { useHover } from './withHover';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import { LWPopper } from "./LWPopper";
 
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
@@ -115,9 +116,6 @@ const NewFeatureTooltipInner = ({classes, children, title = 'New feature!', plac
       title,
     },
   });
-
-  const { LWPopper } = Components;
-
   return (
     <span className={classes.container}>
       {everHovered &&

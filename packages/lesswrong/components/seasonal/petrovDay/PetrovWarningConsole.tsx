@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { gql, useQuery } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
+import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
+import { PastWarnings } from "./PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,8 +38,6 @@ export const PetrovWarningConsoleInner = ({classes, currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
-  const { PetrovWorldmapWrapper, PastWarnings } = Components;
-
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',

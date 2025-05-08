@@ -1,8 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
-import { isEAReactableDocument } from "./EAReactsSection";
+import { isEAReactableDocument, EAReactsSection } from "./EAReactsSection";
+import { OverallVoteAxis } from "./OverallVoteAxis";
 
 const styles = (_theme: ThemeType) => ({
   overallAxis: {
@@ -35,7 +36,6 @@ const EAEmojisVoteOnCommentInner = ({
     collectionName,
     votingSystem,
   );
-  const {OverallVoteAxis, EAReactsSection} = Components;
   return (
     <>
       <OverallVoteAxis

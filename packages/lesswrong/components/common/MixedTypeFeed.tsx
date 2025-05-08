@@ -4,8 +4,9 @@ import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from '@/lib/analyticsEvents';
+import { Loading } from "../vulcan-core/Loading";
 
 const defaultLoadMoreDistance = 500;
 
@@ -152,9 +153,6 @@ const MixedTypeFeedInner = (args: {
   // updates would be a problem.
   const queryIsPending = useRef(false);
   const {captureEvent} = useTracking();
-  
-  const {Loading} = Components;
-  
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
   const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {

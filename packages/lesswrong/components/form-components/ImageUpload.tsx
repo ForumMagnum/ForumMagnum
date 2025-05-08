@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ImageIcon from '@/lib/vendor/@material-ui/icons/src/Image';
 import classNames from 'classnames';
@@ -11,6 +10,9 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { UsersProfileImage } from "../users/UsersProfileImage";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { ImageUploadDefaultsDialog } from "./ImageUploadDefaultsDialog";
 
 const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   root: {
@@ -107,7 +109,7 @@ const FormProfileImage: FC<{
     documentId: document?._id,
   });
   return (
-    <Components.UsersProfileImage
+    <UsersProfileImage
       user={user ? {...user, profileImageId} : undefined}
       size={size}
     />
@@ -223,7 +225,7 @@ export const ImageUpload = ({
           />
         }
         {imageId && !showUserProfileImage &&
-          <Components.CloudinaryImage2
+          <CloudinaryImage2
             publicId={imageId}
             {...formPreviewSize}
           />
@@ -245,7 +247,7 @@ export const ImageUpload = ({
           variant="outlined"
           onClick={() => openDialog({
             name: "ImageUploadDefaultsDialog",
-            contents: ({onClose}) => <Components.ImageUploadDefaultsDialog onClose={onClose} onSelect={(id: string) => field.handleChange(id)} />
+            contents: ({onClose}) => <ImageUploadDefaultsDialog onClose={onClose} onSelect={(id: string) => field.handleChange(id)} />
           })}
         >
           Choose from ours
@@ -255,7 +257,7 @@ export const ImageUpload = ({
             variant="outlined"
             onClick={() => openDialog({
               name: "ImageUploadDefaultsDialog",
-              contents: ({onClose}) => <Components.ImageUploadDefaultsDialog
+              contents: ({onClose}) => <ImageUploadDefaultsDialog
                 onClose={onClose}
                 onSelect={(id: string) => field.handleChange(id)}
                 type={"Profile"}

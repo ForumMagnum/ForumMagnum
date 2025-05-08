@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
@@ -8,6 +8,9 @@ import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
 
 const BANNER_HEIGHT = 60;
 
@@ -80,8 +83,6 @@ export const ForumEventPostPageBannerInner = ({classes}: {
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
   if (!postPageDescription?.html) return null;
-
-  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
       <ContentStyles contentType="comment" className={classes.descriptionWrapper}>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCreate } from '@/lib/crud/withCreate';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { LWDialog } from "../../common/LWDialog";
+import { Typography } from "../../common/Typography";
 
 const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   root: {
@@ -35,7 +37,6 @@ const CreateClaimDialogInner = ({initialTitle, onSubmit, onCancel, onClose}: Cre
     collectionName: "ElicitQuestions",
     fragmentName: "ElicitQuestionFragment",
   });
-  const { LWDialog, Typography } = Components;
 
   function submit() {
     void (async () => {

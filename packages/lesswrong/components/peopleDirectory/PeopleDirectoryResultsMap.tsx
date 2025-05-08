@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { RawSearchResultsMap } from "../community/modules/SearchResultsMap";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -12,7 +13,6 @@ const PeopleDirectoryResultsMapInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = usePeopleDirectory();
-  const {RawSearchResultsMap} = Components;
   return (
     <RawSearchResultsMap
       hits={results as AnyBecauseTodo[]}

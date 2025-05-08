@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
@@ -7,6 +7,14 @@ import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { UsersNameDisplay } from "../../users/UsersNameDisplay";
+import { AlignmentPendingApprovalMessage } from "../../alignment-forum/AlignmentPendingApprovalMessage";
+import { LinkPostMessage } from "../LinkPostMessage";
+import { PostsRevisionMessage } from "./PostsRevisionMessage";
+import { LWTooltip } from "../../common/LWTooltip";
+import { ContentItemBody } from "../../common/ContentItemBody";
+import { ContentStyles } from "../../common/ContentStyles";
+import { PostPageReviewButton } from "./PostPageReviewButton";
 
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -60,7 +68,6 @@ const PostBodyPrefixInner = ({post, query, classes}: {
   query?: any,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
@@ -73,7 +80,7 @@ const PostBodyPrefixInner = ({post, query, classes}: {
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
       <>
-        This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+        This is a special post for quick takes by <UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
       </>
     </div>}
 

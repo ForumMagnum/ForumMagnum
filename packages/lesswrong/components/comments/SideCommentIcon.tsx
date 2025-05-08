@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from "../common/withHover";
 import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
@@ -10,6 +10,12 @@ import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
+import { LWDialog } from "../common/LWDialog";
+import { SideItem } from "../contents/SideItems";
+import { SideItemLine } from "../contents/SideItemLine";
+import { LWPopper } from "../common/LWPopper";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import { CommentWithReplies } from "./CommentWithReplies";
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
@@ -118,8 +124,6 @@ const SideCommentDialogInner = ({ commentIds, post, onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof dialogStyles>
 }) => {
-  const { SideCommentHover, LWDialog } = Components;
-
   return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
     <SideCommentHover commentIds={commentIds} post={post} closeDialog={onClose} />
   </LWDialog>;
@@ -130,14 +134,12 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType<typeof styles>
 }) => {
-  const {SideItem, SideItemLine} = Components;
-
   const { openDialog } = useDialog();
 
   const openModal = () => {
     openDialog({
       name: 'SideCommentDialog',
-      contents: ({onClose}) => <Components.SideCommentDialog
+      contents: ({onClose}) => <SideCommentDialog
         onClose={onClose}
         commentIds={commentIds}
         post={post}
@@ -161,7 +163,6 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType<typeof styles>
 }) => {
-  const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -233,8 +234,6 @@ const SideCommentHoverInner = ({commentIds, post, closeDialog, classes}: {
   closeDialog?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideCommentSingle } = Components;
-  
   // If there's only one comment (not counting replies to that comment), don't
   // truncate it with a read more.
   const dontTruncateRoot = (commentIds.length === 1); 
@@ -261,9 +260,6 @@ const SideCommentSingleInner = ({commentId, post, dontTruncateRoot=false, closeD
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
-  
-  const { CommentWithReplies } = Components;
-  
   const { bestResult: comment, fetchedResult: { document: loadedComment } } = useSingleWithPreload({
     collectionName: 'Comments',
     fragmentName: 'CommentWithRepliesFragment',

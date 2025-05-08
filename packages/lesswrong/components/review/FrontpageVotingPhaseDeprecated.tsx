@@ -1,10 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { getReviewAlgorithm } from "./FrontpageReviewWidget";
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { SectionSubtitle } from "../common/SectionSubtitle";
+import { SectionFooter } from "../common/SectionFooter";
+import { RecommendationsList } from "../recommendations/RecommendationsList";
+import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   timeRemaining: {
@@ -33,8 +38,6 @@ const FrontpageVotingPhaseInner = ({settings, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components
-
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
     <ul>

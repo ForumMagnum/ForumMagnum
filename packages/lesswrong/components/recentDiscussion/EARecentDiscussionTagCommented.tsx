@@ -1,11 +1,14 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode, unflattenComments } from "../../lib/utils/unflatten";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameCapitalSetting } from "../../lib/instanceSettings";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import type { CommentTreeOptions } from "../comments/commentTree";
+import { EARecentDiscussionItem } from "./EARecentDiscussionItem";
+import { TagExcerpt } from "../common/excerpts/TagExcerpt";
+import { CommentsNode } from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -60,8 +63,6 @@ const EARecentDiscussionTagCommentedInner = ({
   const metadata = tag.wikiOnly
     ? "Wiki page"
     : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
-
-  const {EARecentDiscussionItem, TagExcerpt, CommentsNode} = Components;
   return (
     <EARecentDiscussionItem
       icon="CommentFilled"

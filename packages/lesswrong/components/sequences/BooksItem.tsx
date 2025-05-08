@@ -1,9 +1,18 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { BooksForm } from './BooksForm';
 import { useSingle } from '@/lib/crud/withSingle';
+import { Loading } from "../vulcan-core/Loading";
+import { BooksProgressBar } from "./BooksProgressBar";
+import { SectionTitle } from "../common/SectionTitle";
+import { SectionButton } from "../common/SectionButton";
+import { LargeSequencesItem } from "./LargeSequencesItem";
+import { SequencesPostsList } from "./SequencesPostsList";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { SequencesGrid } from "./SequencesGrid";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -38,9 +47,6 @@ const BooksItemInner = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
-
   const { document: editableBook, loading } = useSingle({
     collectionName: 'Books',
     documentId: book._id,
@@ -56,7 +62,7 @@ const BooksItemInner = ({ book, canEdit, classes }: {
   }, []);
 
   if (loading) {
-    return <Components.Loading />
+    return <Loading />
   } else if (edit) {
     return <BooksForm
       initialData={editableBook}

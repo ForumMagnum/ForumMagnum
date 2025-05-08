@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -10,6 +10,13 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { SunshineListItem } from "./SunshineListItem";
+import { SidebarHoverOver } from "./SidebarHoverOver";
+import { Typography } from "../common/Typography";
+import { CommentBody } from "../comments/CommentsItem/CommentBody";
+import { SunshineCommentsItemOverview } from "./SunshineCommentsItemOverview";
+import { SidebarActionMenu } from "./SidebarActionMenu";
+import { SidebarAction } from "./SidebarAction";
 
 const SunshineNewCommentsItemInner = ({comment}: {
   comment: CommentsListWithParentMetadata
@@ -45,25 +52,25 @@ const SunshineNewCommentsItemInner = ({comment}: {
 
   return (
     <span {...eventHandlers}>
-        <Components.SunshineListItem hover={hover}>
-          <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-            <Components.Typography variant="body2">
+        <SunshineListItem hover={hover}>
+          <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+            <Typography variant="body2">
               <Link to={commentGetPageUrl(comment)}>
                 Commented on post: <strong>{ comment.post?.title }</strong>
               </Link>
-              <Components.CommentBody comment={comment}/>
-            </Components.Typography>
-          </Components.SidebarHoverOver>
-          <Components.SunshineCommentsItemOverview comment={comment}/>
-            {hover && <Components.SidebarActionMenu>
-              <Components.SidebarAction title="Mark as Reviewed" onClick={handleReview}>
+              <CommentBody comment={comment}/>
+            </Typography>
+          </SidebarHoverOver>
+          <SunshineCommentsItemOverview comment={comment}/>
+            {hover && <SidebarActionMenu>
+              <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
                 <DoneIcon/>
-              </Components.SidebarAction>
-              <Components.SidebarAction title={`Spam${!isLWorAF ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
+              </SidebarAction>
+              <SidebarAction title={`Spam${!isLWorAF ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
                 <ClearIcon/>
-              </Components.SidebarAction>
-            </Components.SidebarActionMenu>}
-        </Components.SunshineListItem>
+              </SidebarAction>
+            </SidebarActionMenu>}
+        </SunshineListItem>
     </span>
   )
 }

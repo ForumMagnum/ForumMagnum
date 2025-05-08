@@ -1,10 +1,12 @@
 import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { slugify } from "@/lib/utils/slugify";
+import { SequencesTooltip } from "../sequences/SequencesTooltip";
+import { EASequenceOrCollectionCard } from "./EASequenceOrCollectionCard";
 
 const EASequenceCardInner = ({sequence, className}: {
   sequence: SequencesPageFragment,
@@ -33,15 +35,12 @@ const EASequenceCardInner = ({sequence, className}: {
   const href = sequenceGetPageUrl(sequence);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
-    const {SequencesTooltip} = Components;
     return (
       <SequencesTooltip sequence={sequence} placement="bottom">
         {children}
       </SequencesTooltip>
     );
   }, [sequence]);
-
-  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={slug}>
       <EASequenceOrCollectionCard

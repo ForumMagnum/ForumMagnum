@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { ReactNode, useRef } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/searchUtil';
@@ -9,6 +9,11 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
+import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
+import { NewConversationButton } from "../../messaging/NewConversationButton";
+import { SearchResultsMap } from "./SearchResultsMap";
+import { ContentStyles } from "../../common/ContentStyles";
+import { ForumIcon } from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   filters: {
@@ -192,9 +197,6 @@ const CommunityMembersInner = ({currentUser, userLocation, distanceUnit='km', lo
 }) => {
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)
-
-  const { NewConversationButton, SearchResultsMap, ContentStyles, ForumIcon } = Components
-  
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
@@ -247,7 +249,7 @@ const CommunityMembersInner = ({currentUser, userLocation, distanceUnit='km', lo
     return <div className={classes.person}>
       <div className={classes.content}>
         <div className={classes.photoRow}>
-          {hit.profileImageId && <Components.CloudinaryImage2
+          {hit.profileImageId && <CloudinaryImage2
             height={50}
             width={50}
             imgProps={{q: '100'}}

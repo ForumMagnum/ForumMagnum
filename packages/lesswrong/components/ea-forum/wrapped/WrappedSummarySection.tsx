@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useTheme } from "@/components/themes/useTheme";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
@@ -8,6 +8,10 @@ import { formatPercentile, getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
+import { WrappedSection } from "./WrappedSection";
+import { UsersProfileImage } from "../../users/UsersProfileImage";
+import { CoreTagIcon } from "../../tagging/CoreTagIcon";
+import { WrappedShareButton } from "./WrappedShareButton";
 
 const TOP_PADDING = 12;
 const BOTTOM_PADDING = 14;
@@ -222,10 +226,6 @@ const WrappedSummarySectionInner = ({classes}: {
       console.error(e);
     }
   }, [color, theme]);
-
-  const {
-    WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
-  } = Components;
   return (
     <WrappedSection
       pageSectionContext="summary"

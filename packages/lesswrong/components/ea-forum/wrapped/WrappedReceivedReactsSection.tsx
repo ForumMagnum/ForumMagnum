@@ -1,10 +1,12 @@
 import React, { ComponentType, useMemo } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { isClient } from "@/lib/executionEnvironment";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import { getTotalReactsReceived } from "./wrappedHelpers";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 type ReceivedReact = {
   top: string,
@@ -98,8 +100,6 @@ const WrappedReceivedReactsSectionInner = ({classes}: {
     [mostReceivedReacts],
   );
   const totalReactsReceived = getTotalReactsReceived(data);
-
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="reactsReceived" fullHeight>
       {allReactsReceived?.map(({top, left, transform, Component}, i) => (

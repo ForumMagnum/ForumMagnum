@@ -1,10 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { FooterTagList } from "../../tagging/FooterTagList";
+import { PostsSplashPageHeaderVote } from "../../votes/LWPostsPageTopHeaderVote";
+import { AudioToggle } from "./AudioToggle";
+import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,8 +66,6 @@ export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPla
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { FooterTagList, PostsSplashPageHeaderVote, AudioToggle, PostActionsButton } = Components;
-
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>

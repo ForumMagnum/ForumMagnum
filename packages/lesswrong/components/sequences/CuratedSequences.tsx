@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SequencesGridWrapper } from "./SequencesGridWrapper";
 
 export const CuratedSequencesInner = () => {
-  return <Components.SequencesGridWrapper
+  return <SequencesGridWrapper
       terms={{'view':'curatedSequences', limit:3}}
       showAuthor={true}
       showLoadMore={false}

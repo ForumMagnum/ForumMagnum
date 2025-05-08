@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
@@ -9,6 +9,19 @@ import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
+import { MetaInfo } from "../common/MetaInfo";
+import { UserReviewMetadata } from "./ModeratorUserInfo/UserReviewMetadata";
+import { LWTooltip } from "../common/LWTooltip";
+import { UserReviewStatus } from "./ModeratorUserInfo/UserReviewStatus";
+import { SunshineNewUserPostsList } from "./SunshineNewUserPostsList";
+import { ContentSummaryRows } from "./ModeratorUserInfo/ContentSummaryRows";
+import { SunshineNewUserCommentsList } from "./SunshineNewUserCommentsList";
+import { ModeratorActions } from "./ModeratorActions";
+import { UsersName } from "../users/UsersName";
+import { NewUserDMSummary } from "./ModeratorUserInfo/NewUserDMSummary";
+import { SunshineUserMessages } from "./SunshineUserMessages";
+import { FirstContentIcons } from "./FirstContentIcons";
+import { UserAutoRateLimitsDisplay } from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
 
 export const CONTENT_LIMIT = 20
 
@@ -164,12 +177,6 @@ const UsersReviewInfoCardInner = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
-    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
-  } = Components
-
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   

@@ -1,7 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
+import { NoContent } from "../common/NoContent";
+import { PostsItemNewCommentsListNode } from "./PostsItemNewCommentsListNode";
 
 const styles = (theme: ThemeType) => ({})
 
@@ -28,9 +30,6 @@ const PostsDialogItemNewCommentsListInner = ({ terms, post, treeOptions }: {
       limit: 2,
     },
   });
-
-  const { NoContent, PostsItemNewCommentsListNode } = Components
-
   const noCommentsFound = !loading && results && !results.length;
   const noDebateResponsesFound = !debateResponsesLoading && debateResponses && !debateResponses.length;
 

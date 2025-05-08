@@ -1,7 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
+import { CalendarDate } from "../common/CalendarDate";
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const VISITS_TO_SHOW = 4
 const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
@@ -11,8 +14,6 @@ const LastVisitListInner = ({ postId, currentUser, clickCallback }: {
   currentUser: UsersCurrent,
   clickCallback: (date: Date) => void,
 }) => {
-  const { Loading, MenuItem } = Components;
-  
   const { results, loading } = useMulti({
     terms: {
       view: "postVisits",
@@ -50,7 +51,7 @@ const LastVisitListInner = ({ postId, currentUser, clickCallback }: {
     filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
   
   return <>{filteredVisits.map((visit) =>
-    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt!)}>Visit at:&nbsp;<Components.CalendarDate date={visit.createdAt!}/> </MenuItem>
+    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt!)}>Visit at:&nbsp;<CalendarDate date={visit.createdAt!}/> </MenuItem>
   )}</>
 }
 

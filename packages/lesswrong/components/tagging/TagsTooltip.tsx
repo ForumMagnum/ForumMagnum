@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -11,6 +11,13 @@ import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
 import { MAIN_TAB_ID } from "@/lib/arbital/useTagLenses";
 import { TagHoverPreview } from "./TagHoverPreview";
+import { Loading } from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import { ContentStyles } from "../common/ContentStyles";
+import { HoverOver } from "../common/HoverOver";
+import { TagRelCard } from "./TagRelCard";
+import { TagPreview } from "./TagPreview";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
@@ -106,8 +113,6 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
 );
 
 const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
-  const { Loading } = Components;
-
   const { selectedLens } = useTagPageContext() ?? {};
 
   // We don't want to show pingbacks from the lens that the redlink is in
@@ -160,7 +165,6 @@ const RedLinkTooltip = ({ tag, slug }: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { Typography, ContentStyles } = Components;
   const title = inferRedLinkTitle(tag, slug ?? null);
 
   if (!tag) {
@@ -227,8 +231,6 @@ const TagsTooltipInner = ({
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered)
   );
-
-  const { HoverOver, Loading, TagRelCard, TagPreview, LWClickAwayListener } = Components;
   return (
     <HoverOver
       title={

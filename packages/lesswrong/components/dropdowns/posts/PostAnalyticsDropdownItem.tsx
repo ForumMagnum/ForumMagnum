@@ -1,9 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isEAForum } from "../../../lib/instanceSettings";
 import qs from "qs";
+import { DropdownItem } from "../DropdownItem";
 
 const PostAnalyticsDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -13,8 +14,6 @@ const PostAnalyticsDropdownItemInner = ({post}: {post: PostsBase}) => {
   }
 
   const link = `/postAnalytics?${qs.stringify({postId: post._id})}`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Analytics"

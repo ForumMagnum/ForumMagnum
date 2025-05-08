@@ -10,9 +10,13 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { ContentStyles } from "../common/ContentStyles";
+import { LWTooltip } from "../common/LWTooltip";
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -160,8 +164,6 @@ export const ReviewVotingPageMenuInner = ({classes, reviewPhase, loading, sorted
   postsResults: PostsList[]|null,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentStyles, LWTooltip, Loading, MenuItem, } = Components
-
   const accountSettings = preferredHeadingCase("Account Settings");
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)

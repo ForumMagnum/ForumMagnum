@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -51,9 +52,6 @@ const SettingsButtonInner = ({classes, className, onClick, showIcon=true, label=
   textShadow?: boolean,
   labelClassName?: string,
 }) => {
-
-  const { ForumIcon } = Components
-
   const iconType = !!useArrow ? "ThickChevronDown" : "Settings"
 
   if (label) {

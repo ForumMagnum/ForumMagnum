@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { useMulti } from '../../lib/crud/withMulti'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components'
+import { registerComponent } from '../../lib/vulcan-lib/components'
+import { SectionTitle } from "../common/SectionTitle";
+import { Loading } from "../vulcan-core/Loading";
+import { PostsItemIntroSequence } from "../posts/PostsItemIntroSequence";
+import { LoadMore } from "../common/LoadMore";
 
 const PREVIEW_N = 3
 
@@ -15,7 +19,6 @@ const TagIntroSequenceInner = ({tag, classes}: {
   tag: TagPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { SectionTitle, Loading, PostsItemIntroSequence, LoadMore } = Components
   const { results: seqChapters, loading } = useMulti({
     terms: {
       view: "SequenceChapters",

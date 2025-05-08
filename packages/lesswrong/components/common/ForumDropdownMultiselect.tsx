@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Menu } from '@/components/widgets/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -7,6 +7,8 @@ import ArrowDropDownIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDropDown
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { MenuItem } from "./Menus";
+import { ForumIcon } from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -129,9 +131,6 @@ const ForumDropdownMultiselectInner = ({
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-
-  const {MenuItem, ForumIcon} = Components;
-
   const label = useIconLabel
     ? <ForumIcon icon={options[values[0]].icon!} className={classes.iconLabel} />
     : values.reduce((prev, next) => {

@@ -1,10 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
+import { CommentsNode } from "../comments/CommentsNode";
+import { QuickTakesCollapsedListItem } from "./QuickTakesCollapsedListItem";
+import { LWQuickTakesCollapsedListItem } from "./LWQuickTakesCollapsedListItem";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
@@ -34,9 +37,6 @@ const QuickTakesListItemInner = ({quickTake, classes}: {
     setExpanded(value);
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
   }, [captureEvent, setExpanded]);
-
-  const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
-
   const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
   // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take

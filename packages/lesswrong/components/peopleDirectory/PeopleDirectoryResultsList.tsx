@@ -1,8 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
+import { SCROLL_INDICATOR_SIZE, HorizScrollBlock } from "../common/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";
+import { PeopleDirectoryHeading } from "./PeopleDirectoryHeading";
+import { PeopleDirectoryResultRow } from "./PeopleDirectoryResultRow";
+import { PeopleDirectoryNoResults } from "./PeopleDirectoryNoResults";
+import { PeopleDirectoryCard } from "./PeopleDirectoryCard";
 
 const HORIZ_PADDING = 24;
 
@@ -71,11 +75,6 @@ const PeopleDirectoryResultsListInner = ({classes}: {
       gridTemplateColumns += ` ${column.columnWidth ?? " 1fr"}`;
     }
   }
-
-  const {
-    HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow,
-    PeopleDirectoryNoResults, PeopleDirectoryCard,
-  } = Components;
   if (results.length < 1 && !resultsLoading) {
     return <PeopleDirectoryNoResults />
   }

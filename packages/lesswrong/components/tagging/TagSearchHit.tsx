@@ -1,10 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import { PopperCard } from "../common/PopperCard";
+import { TagPreview } from "./TagPreview";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +42,6 @@ const TagSearchHitInner = ({hit, onClick, hidePostCount=false, isVotingContext, 
   isVotingContext?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PopperCard, TagPreview, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
     collectionName: "Tags",

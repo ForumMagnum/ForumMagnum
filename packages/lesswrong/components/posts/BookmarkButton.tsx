@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useBookmark } from '../hooks/useBookmark';
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 export const bookmarkableCollectionNames = new TupleSet(["Posts", "Comments"] as const);
 
@@ -54,7 +56,6 @@ const BookmarkButtonInner = ({
 }) => {
   const {icon, labelText, hoverText, toggleBookmark} = useBookmark(documentId, collectionName);
   const Component = withText ? "a" : "span";
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip title={overrideTooltipText ?? hoverText} placement={withText ? "bottom" : placement}>
       <Component onClick={toggleBookmark} className={classNames({

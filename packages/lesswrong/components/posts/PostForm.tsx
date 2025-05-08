@@ -8,7 +8,7 @@ import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -42,6 +42,11 @@ import { PostSubmit } from "./PostSubmit";
 import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { userCanCommentLock } from "@/lib/collections/users/helpers";
+import { LWTooltip } from "../common/LWTooltip";
+import { Error404 } from "../common/Error404";
+import { FormGroupPostTopBar } from "../form-components/FormGroupPostTopBar";
+import { FooterTagList } from "../tagging/FooterTagList";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -106,7 +111,6 @@ const PostFormInner = ({
   initialData: EditablePost;
   onSuccess: (doc: PostsEditMutationFragment, options?: { submitOptions: PostSubmitMeta }) => void;
 }) => {
-  const { LWTooltip, Error404, FormGroupPostTopBar, FooterTagList, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string>();

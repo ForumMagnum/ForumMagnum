@@ -1,8 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { SectionSubtitle } from "../common/SectionSubtitle";
+import { RecommendationsList } from "../recommendations/RecommendationsList";
+import { SectionFooter } from "../common/SectionFooter";
+import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   hideOnMobile: {
@@ -23,7 +28,6 @@ const FrontpageNominationPhaseInner = ({classes, settings}: {
   classes: ClassesType<typeof styles>,
   settings: DefaultRecommendationsAlgorithm,
 }) => {
-  const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>

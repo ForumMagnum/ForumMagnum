@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { PostsItem } from "./PostsItem";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { Loading } from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import { LoadMore } from "../common/LoadMore";
+import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   checkboxRow: {
@@ -19,7 +26,6 @@ const LWPostsByVoteInner = ({classes, postIds, year, limit, showMostValuableChec
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore, SectionFooterCheckbox, LWTooltip } = Components
   const [requiredUnnominated, setRequiredUnnominated] = useState(true)
   const [requiredFrontpage, setRequiredFrontpage] = useState(true)
 

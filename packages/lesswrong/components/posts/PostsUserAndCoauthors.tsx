@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
+import { UsersName } from "../users/UsersName";
+import { UserNameDeleted } from "../users/UserNameDeleted";
+import { UserCommentMarkers } from "../users/UserCommentMarkers";
 
 const styles = (theme: ThemeType) => ({
   lengthLimited: {
@@ -58,9 +61,6 @@ const PostsUserAndCoauthorsInner = ({
   showMarkers?: boolean,
 }) => {
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
-
-  const {UsersName, UserNameDeleted, UserCommentMarkers} = Components
-
   if (isAnon)
     return <UserNameDeleted/>;
 

@@ -1,8 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import { Answer } from "./Answer";
+import { SectionTitle } from "../common/SectionTitle";
+import { AnswersSorting } from "./AnswersSorting";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,8 +40,6 @@ const AnswersListInner = ({post, answersTree, classes}: {
 }) => {
   const location = useLocation();
   const { query } = location;
-  const { Answer, SectionTitle, AnswersSorting } = Components
-
   if (answersTree?.length) {
     return <div className={classes.root}>
       <SectionTitle title={

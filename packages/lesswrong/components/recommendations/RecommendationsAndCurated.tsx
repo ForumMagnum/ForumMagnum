@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import { getRecommendationSettings, RecommendationsAlgorithmPicker } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { isLW, isEAForum } from '../../lib/instanceSettings';
@@ -10,6 +10,17 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SettingsButton } from "../icons/SettingsButton";
+import { ContinueReadingList } from "./ContinueReadingList";
+import { RecommendationsList } from "./RecommendationsList";
+import { SectionTitle } from "../common/SectionTitle";
+import { SectionSubtitle } from "../common/SectionSubtitle";
+import { BookmarksList } from "../bookmarks/BookmarksList";
+import { LWTooltip } from "../common/LWTooltip";
+import { CuratedPostsList } from "./CuratedPostsList";
+import { ForumIcon } from "../common/ForumIcon";
 
 export const curatedUrl = "/recommendations"
 
@@ -142,9 +153,6 @@ const RecommendationsAndCuratedInner = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
-      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
-
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,

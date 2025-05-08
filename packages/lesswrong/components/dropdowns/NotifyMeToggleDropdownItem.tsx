@@ -1,9 +1,11 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../hooks/useOptimisticToggle";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import { DropdownItem } from "./DropdownItem";
+import { ToggleSwitch } from "../common/ToggleSwitch";
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -46,9 +48,6 @@ export const NotifyMeToggleDropdownItemInternal = ({
     isSubscribed ?? false,
     onSubscribe ?? (() => {}),
   );
-
-  const {DropdownItem, ToggleSwitch} = Components;
-
   const afterIcon = useCallback(
     () => {
       if (useCheckboxIcon) {
@@ -57,7 +56,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
 
       return <ToggleSwitch value={subscribed} className={classes.toggle} smallVersion />
     },
-    [subscribed, useCheckboxIcon, ToggleSwitch, classes.toggle],
+    [subscribed, useCheckboxIcon, classes.toggle],
   );
 
   return (

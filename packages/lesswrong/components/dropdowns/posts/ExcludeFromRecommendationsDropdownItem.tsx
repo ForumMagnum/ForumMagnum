@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import { DropdownItem } from "../DropdownItem";
 
 const ExcludeFromRecommendationsDropdownItemInner = ({post}: {
   post: PostsList|SunshinePostsList,
@@ -31,8 +31,6 @@ const ExcludeFromRecommendationsDropdownItemInner = ({post}: {
   const label = post.disableRecommendation
     ? "Include in Recommendations"
     : "Exclude from Recommendations"
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(label)}

@@ -5,9 +5,9 @@ import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
-import { Components } from "../../lib/vulcan-lib/components";
 import { RouterLocation } from "../../lib/vulcan-lib/routes";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { TagsTooltip } from "./TagsTooltip";
 
 const styles = defineStyles('TagHoverPreview', (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -55,8 +55,6 @@ export const TagHoverPreview = ({
 
   const isRead = tag?.isRead;
   const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
-
-  const {TagsTooltip} = Components;
   return (
     <TagsTooltip
       tagSlug={previewSlug}

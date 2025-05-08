@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useState} from 'react';
 import classNames from 'classnames';
 import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
@@ -7,6 +7,7 @@ import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displa
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { TooltipSpan } from '../common/FMTooltip';
+import { CommentsNewForm } from "../comments/CommentsNewForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,8 +78,6 @@ const NewAnswerCommentQuestionFormInner = ({post, classes}: {
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const {CommentsNewForm} = Components;
-
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
   }

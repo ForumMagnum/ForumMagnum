@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isMobile } from '@/lib/utils/isMobile';
+import { SharePostActions } from "./SharePostActions";
+import { DropdownItem } from "../DropdownItem";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
 })
@@ -13,7 +16,6 @@ const SharePostSubmenuInner = ({post, closeMenu, classes}: {
   closeMenu?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SharePostActions, DropdownItem, LWTooltip } = Components;
   const { hover, eventHandlers } = useHover();
   
   function shareClicked() {

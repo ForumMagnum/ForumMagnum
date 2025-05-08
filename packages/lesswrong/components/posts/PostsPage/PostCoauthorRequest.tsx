@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { Typography } from "../../common/Typography";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   coauthorRequest: {
@@ -81,8 +83,6 @@ const PostCoauthorRequestInner = ({post, currentUser, classes}: {
 
   const onDecline = () => onResponse(false);
   const onAccept = () => onResponse(true);
-
-  const { Typography, Loading } = Components;
   return (
     <div className={classes.coauthorRequest}>
       <div className={classes.content}>

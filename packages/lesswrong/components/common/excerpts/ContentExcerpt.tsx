@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
-import type { ContentStyleType } from "../ContentStyles";
+import { ContentStyleType, ContentStyles } from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
+import { ContentItemBody } from "../ContentItemBody";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -125,8 +126,6 @@ const ContentExcerptInner = ({
     "...",
     false,
   );
-
-  const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <ContentStyles

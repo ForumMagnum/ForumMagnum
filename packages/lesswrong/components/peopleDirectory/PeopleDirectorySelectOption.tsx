@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { MultiSelectState } from "../hooks/useMultiSelect";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -60,8 +61,6 @@ const PeopleDirectorySelectOptionInner = ({state, className, classes}: {
     onToggle();
     captureEvent();
   }, [onToggle, captureEvent]);
-
-  const {ForumIcon} = Components;
   return (
     <div onClick={onClick} className={classNames(classes.root, className)}>
       <div className={classNames(classes.check, {[classes.selected]: selected})}>

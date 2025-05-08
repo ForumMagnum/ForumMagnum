@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { useApolloClient } from '@apollo/client/react/hooks';
@@ -8,6 +8,8 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import ArrowRightAlt from '@/lib/vendor/@material-ui/icons/src/ArrowRightAlt';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
+import { DropdownItem } from "../DropdownItem";
+import { OmegaIcon } from "../../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -75,8 +77,6 @@ const MoveToAlignmentCommentDropdownItemInner = ({comment, post, classes}: {
   if (!post?.af || !userCanDo(currentUser, 'comments.alignment.move.all')) {
     return null;
   }
-
-  const {DropdownItem, OmegaIcon} = Components
   if (!comment.af) {
     return (
       <DropdownItem

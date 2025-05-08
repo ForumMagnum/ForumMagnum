@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from './FMTooltip';
+import { MetaInfo } from "./MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   selectionList: {
@@ -60,8 +61,6 @@ interface Props {
 }
 
 const SettingsColumnInner = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
-  const { MetaInfo } = Components
-
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
       {title}

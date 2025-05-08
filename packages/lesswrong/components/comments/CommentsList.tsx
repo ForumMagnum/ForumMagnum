@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,6 +8,11 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { CommentsNode } from "./CommentsNode";
+import { SettingsButton } from "../icons/SettingsButton";
+import { LoginPopupButton } from "../users/LoginPopupButton";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -50,9 +55,6 @@ const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThrea
   const [expandAllThreads,setExpandAllThreads] = useState(false);
   
   useOnSearchHotkey(() => setExpandAllThreads(true));
-
-  const { CommentsNode, SettingsButton, LoginPopupButton, LWTooltip } = Components
-  
   const renderExpandOptions = () => {
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
       const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
@@ -90,7 +92,7 @@ const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThrea
       <p>No comments to display.</p>
     </div>
   }
-  return <Components.ErrorBoundary>
+  return <ErrorBoundary>
     {renderExpandOptions()}
     {/* commentsListLoadingSpacer makes the comments list keep a minimum height while reloading a different comment
         sorting view, so that the scroll position doesn't move. */}
@@ -111,7 +113,7 @@ const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThrea
         />)
       }
     </div>
-  </Components.ErrorBoundary>
+  </ErrorBoundary>
 }
 
 

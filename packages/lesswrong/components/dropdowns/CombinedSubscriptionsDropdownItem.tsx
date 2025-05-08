@@ -1,9 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Card } from "@/components/widgets/Paper";
-import { NotifyMeDropdownItemProps } from "./NotifyMeDropdownItem";
-import { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdownItem";
+import { NotifyMeDropdownItemProps, NotifyMeDropdownItem } from "./NotifyMeDropdownItem";
+import { NotifyMeToggleDropdownItemPropsExternal, NotifyMeToggleDropdownItem } from "./NotifyMeToggleDropdownItem";
+import { LWTooltip } from "../common/LWTooltip";
+import { DropdownMenu } from "./DropdownMenu";
+import { DropdownItem } from "./DropdownItem";
 
 const styles = (_theme: ThemeType) => ({
   dropdownWrapper: {
@@ -20,11 +23,6 @@ export const CombinedSubscriptionsDropdownItemInner = ({notifyMeItems, classes}:
   notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemPropsExternal>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    LWTooltip, DropdownMenu, DropdownItem, NotifyMeDropdownItem,
-    NotifyMeToggleDropdownItem,
-  } = Components;
-
   return isFriendlyUI
     ? (
       <LWTooltip

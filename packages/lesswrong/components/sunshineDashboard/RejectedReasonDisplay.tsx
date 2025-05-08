@@ -1,7 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { htmlToText } from 'html-to-text';
+import { LWTooltip } from "../common/LWTooltip";
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { MetaInfo } from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,8 +30,6 @@ export const RejectedReasonDisplayInner = ({classes, reason}: {
   classes: ClassesType<typeof styles>,
   reason: string|null
 }) => {
-  const { LWTooltip, ContentStyles, ContentItemBody, MetaInfo } = Components
-
   function getShortRejectedReason (reason: string|null|undefined) {
     const reasonSnippet = htmlToText(reason || "").split(".")[0]
     const bulletStrippedSnippet = reasonSnippet.includes(" * ") ? reasonSnippet.split(" * ")[1] : reasonSnippet

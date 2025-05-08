@@ -1,11 +1,18 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
-import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
+import { EARecentDiscussionItemProps, EARecentDiscussionItem } from "./EARecentDiscussionItem";
 import classNames from "classnames";
+import { EAPostMeta } from "../ea-forum/EAPostMeta";
+import { ForumIcon } from "../common/ForumIcon";
+import { CommentsNode } from "../comments/CommentsNode";
+import { PostExcerpt } from "../common/excerpts/PostExcerpt";
+import { LinkPostMessage } from "../posts/LinkPostMessage";
+import { EAKarmaDisplay } from "../common/EAKarmaDisplay";
+import { PostsTitle } from "../posts/PostsTitle";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -117,11 +124,6 @@ const EARecentDiscussionThreadInner = ({
   if (isSkippable) {
     return null;
   }
-
-  const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
-    PostExcerpt, LinkPostMessage, EAKarmaDisplay, PostsTitle,
-  } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
       <div className={classes.header}>

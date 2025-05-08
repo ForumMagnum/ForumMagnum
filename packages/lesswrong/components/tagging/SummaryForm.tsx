@@ -2,7 +2,6 @@ import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/hel
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -12,6 +11,8 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { Error404 } from "../common/Error404";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
   defaultFormSection: {
@@ -49,7 +50,6 @@ export const SummaryForm = ({
   onSuccess: (doc: MultiDocumentContentDisplay) => void;
   onCancel: () => void;
 }) => {
-  const { Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

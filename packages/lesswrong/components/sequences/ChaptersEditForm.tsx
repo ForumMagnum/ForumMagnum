@@ -4,8 +4,9 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ChaptersForm } from './ChaptersForm';
+import { AddDraftPostDialog } from "./AddDraftPostDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +46,7 @@ const ChaptersEditFormInner = ({classes, chapter, successCallback, cancelCallbac
     if (saved) {
       openDialog({
         name: "AddDraftPostDialog",
-        contents: ({onClose}) => <Components.AddDraftPostDialog
+        contents: ({onClose}) => <AddDraftPostDialog
           onClose={onClose}
           documentId={chapter._id}
           postIds={chapter.postIds}

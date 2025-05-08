@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { ContentType } from "../posts/PostsPage/ContentType";
+import { SingleLineTagUpdates } from "./SingleLineTagUpdates";
+import { LoadMore } from "../common/LoadMore";
 
 const INITIAL_LIMIT = 5
 
@@ -21,7 +24,6 @@ const TagEditsTimeBlockInner = ({before, after, reportEmpty, classes}: {
   reportEmpty: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
   // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff
   const { data, loading } = useQuery(gql`
     query getTagUpdates($before: Date!, $after: Date!) {

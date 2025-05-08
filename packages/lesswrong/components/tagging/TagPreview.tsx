@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -10,9 +10,11 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
+import { getTagDescriptionHtmlHighlight, TagPreviewDescription } from './TagPreviewDescription';
 import startCase from 'lodash/startCase';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import { TagSmallPostLink } from "./TagSmallPostLink";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -236,8 +238,6 @@ const TagPreviewInner = ({
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
   const hasMultipleSummaries = summaryTabs.length > 1;
-
-  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,

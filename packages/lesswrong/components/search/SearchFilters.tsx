@@ -1,5 +1,5 @@
 import React, { MutableRefObject } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -14,6 +14,10 @@ import {
 } from '../../lib/search/searchUtil';
 import { communityPath } from '../../lib/routes';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import { TagMultiselect } from "../form-components/TagMultiselect";
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {
@@ -91,7 +95,7 @@ type TagsRefinementProps = {
 const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
   RefinementListProvided & TagsRefinementProps
 ) => {
-  return <Components.TagMultiselect
+  return <TagMultiselect
     value={tagsFilter ?? []}
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
@@ -115,8 +119,6 @@ const SearchFiltersInner = ({classes, tab, tagsFilter, handleUpdateTagsFilter, o
 }) => {
 
   const [pastDay, pastWeek, pastMonth, pastYear] = dateRangeValues;
-  const { Typography, MenuItem, ForumIcon } = Components;
-
   return <div className={classes.filtersColumn}>
     <div className={classes.filtersHeadlineWrapper}>
       <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>

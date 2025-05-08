@@ -1,8 +1,9 @@
 import React from 'react';
 import { makeSortableListComponent } from '../form-components/sortableList';
-import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { SequencesListEditorItem } from "./SequencesListEditorItem";
+import { SequencesSearchAutoComplete } from "../search/SequencesSearchAutoComplete";
 
 const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
   root: {
@@ -17,7 +18,7 @@ const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
+      <SequencesListEditorItem documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -36,7 +37,7 @@ export const SequencesListEditor = ({ field }: {
       }}
       classes={classes}
     />
-    <Components.SequencesSearchAutoComplete
+    <SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {
         field.handleChange([...value, sequenceId]);
       }}

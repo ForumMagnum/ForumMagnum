@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
 import {
@@ -8,6 +8,8 @@ import {
   wrappedSecondaryColor,
   wrappedWhiteColor,
 } from "./wrappedHelpers";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -41,7 +43,6 @@ const WrappedKarmaChangeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="karmaChange">
       <WrappedHeading>

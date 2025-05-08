@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { UsersName } from "../users/UsersName";
+import { ContentStyles } from "../common/ContentStyles";
+import { SequencesSmallPostLink } from "./SequencesSmallPostLink";
+import { ContentItemTruncated } from "../common/ContentItemTruncated";
+import { LWTooltip } from "../common/LWTooltip";
+import { ChapterTitle } from "./ChapterTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -148,8 +154,6 @@ export const LargeSequencesItemInner = ({sequence, showAuthor=false, showChapter
   showChapters?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
-
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()

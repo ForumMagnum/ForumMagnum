@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import { DropdownItem } from "../DropdownItem";
 
 const RetractCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -29,8 +29,6 @@ const RetractCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => 
   if (!currentUser || comment.userId !== currentUser._id) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   if (comment.retracted) {
     return (
       <DropdownItem

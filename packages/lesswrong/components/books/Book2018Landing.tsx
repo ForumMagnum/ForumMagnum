@@ -1,8 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import {captureEvent, useTracking} from "../../lib/analyticsEvents";
+import { BookAnimation } from "./BookAnimation";
+import { BookCheckout } from "../review/BookCheckout";
+import { HeadTags } from "../common/HeadTags";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -359,8 +362,6 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
 const Book2018LandingInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {BookAnimation, BookCheckout, HeadTags} = Components;
-
   return (
     <div>
       <HeadTags 

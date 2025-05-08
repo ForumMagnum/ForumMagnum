@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
@@ -7,6 +7,11 @@ import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { SectionTitle } from "../common/SectionTitle";
+import { PeopleDirectoryFilterDropdown } from "../peopleDirectory/PeopleDirectoryFilterDropdown";
+import { PeopleDirectorySelectOption } from "../peopleDirectory/PeopleDirectorySelectOption";
+import { MenuItem } from "../common/Menus";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   greyDropdownRoot: {
@@ -116,9 +121,6 @@ const MultiSelectInner = ({
   }, [value, setValue]);
 
   if (isGrey) {
-    const {
-      SectionTitle, PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
-    } = Components;
     return (
       <div>
         {label && <SectionTitle title={label} titleClassName={classes.sectionTitle} />}
@@ -142,8 +144,6 @@ const MultiSelectInner = ({
       </div>
     );
   }
-
-  const {MenuItem, Typography} = Components;
   return <FormControl>
     {label && <FormLabel className={classes.formLabel}>{label}</FormLabel>}
     <Select
@@ -190,7 +190,7 @@ export const FormComponentMultiSelect = ({
 }: FormComponentMultiSelectProps) => {
   const value = useMemo(() => field.state.value ?? [], [field.state.value]);
 
-  return <Components.MultiSelect
+  return <MultiSelect
     label={label}
     placeholder={placeholder}
     separator={separator}

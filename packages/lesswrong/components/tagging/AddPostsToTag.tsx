@@ -13,8 +13,11 @@ import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { LoginPopup } from "../users/LoginPopup";
+import { SearchPagination } from "../search/SearchPagination";
+import { PostsListEditorSearchHit } from "../search/PostsListEditorSearchHit";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -122,7 +125,7 @@ const AddPostsToTagInner = ({classes, tag}: {
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return
     }
@@ -137,8 +140,6 @@ const AddPostsToTagInner = ({classes, tag}: {
     setIsAwaiting(false)
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
-
-  const { SearchPagination, PostsListEditorSearchHit } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
     {!searchOpen && !isAwaiting && <span 
       onClick={() => setSearchOpen(true)}

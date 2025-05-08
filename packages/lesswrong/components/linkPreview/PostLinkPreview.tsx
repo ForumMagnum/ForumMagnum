@@ -5,7 +5,7 @@ import SupervisorAccountIcon from '@/lib/vendor/@material-ui/icons/src/Superviso
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -15,6 +15,11 @@ import classNames from 'classnames';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { AnalyticsTracker } from "../common/AnalyticsTracker";
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { SequencesTooltip } from "../sequences/SequencesTooltip";
+import { LWPopper } from "../common/LWPopper";
+import { ContentStyles } from "../common/ContentStyles";
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -325,7 +330,6 @@ const PostLinkPreviewWithPost = ({href, post, id, children}: {
   }
 
   const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
-  const {PostsTooltip} = Components;
   const visited = post?.isRead;
   return (
     <PostsTooltip
@@ -361,8 +365,6 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, children}: {
       </Link>
     </span>
   }
-
-  const {PostsTooltip} = Components;
   return (
     <PostsTooltip
       post={post}
@@ -385,8 +387,6 @@ export const SequencePreview = ({targetLocation, href, children}: {
   href: string,
   children: ReactNode,
 }) => {
-  const {SequencesTooltip} = Components;
-
   const classes = useStyles(sequencePreviewStyles);
   
   const sequenceId = targetLocation.params._id;
@@ -439,7 +439,6 @@ export const DefaultPreview = ({href, onsite=false, id, rel, children}: {
   rel?: string
   children: ReactNode,
 }) => {
-  const { LWPopper } = Components
   const classes = useStyles(defaultPreviewStyles);
 
   const { eventHandlers, hover, anchorEl } = useHover({
@@ -462,11 +461,11 @@ export const DefaultPreview = ({href, onsite=false, id, rel, children}: {
 
       {onsite
         ? <Link to={href} id={id} rel={rel}>{children}</Link>
-        : <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
+        : <AnalyticsTracker eventType="link" eventProps={{to: href}}>
             <a href={href} id={id} rel={rel}>
               {children}
             </a>
-          </Components.AnalyticsTracker>}
+          </AnalyticsTracker>}
     </span>
   );
 }
@@ -487,7 +486,6 @@ export const OWIDPreview = ({href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
   const classes = useStyles(owidStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
@@ -531,7 +529,6 @@ export const MetaculusPreview = ({href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
   const classes = useStyles(metaculusStyles);
 
   const { anchorEl, hover, eventHandlers } = useHover();
@@ -576,7 +573,6 @@ export const FatebookPreview = ({href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const classes = useStyles(fatebookStyles);
   
   const { anchorEl, hover, eventHandlers } = useHover();
@@ -625,7 +621,6 @@ export const ManifoldPreview = ({href, id, children}: {
   id?: string;
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const classes = useStyles(manifoldStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -677,7 +672,6 @@ export const NeuronpediaPreview = ({href, id, children}: {
   id?: string;
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const classes = useStyles(neuronpediaStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -728,7 +722,6 @@ export const MetaforecastPreview = ({href, id, children}: {
   id?: string;
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const classes = useStyles(metaforecastStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -796,7 +789,6 @@ export const ArbitalPreview = ({href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const classes = useStyles(arbitalStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
@@ -855,7 +847,6 @@ export const EstimakerPreview = ({href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const classes = useStyles(estimakerStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -900,7 +891,6 @@ export const ViewpointsPreview = ({href, id, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(viewpointsStyles);
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://viewpoints.xyz/embed/polls/$slug

@@ -1,8 +1,10 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
+import { ForumEventFrontpageBanner } from "./ForumEventFrontpageBanner";
+import { ForumEventPostPageBanner } from "./ForumEventPostPageBanner";
 
 type BannerType = "frontpage" | "postpage";
 
@@ -14,7 +16,6 @@ const bannerTypes: Record<string, BannerType> = {
 export const ForumEventBannerInner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
-  const {ForumEventFrontpageBanner, ForumEventPostPageBanner} = Components;
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
   if (!hasForumEvents) {

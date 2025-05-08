@@ -1,10 +1,15 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isMobile } from '@/lib/utils/isMobile';
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
+import { PopperCard } from "../common/PopperCard";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import { SharePostActions } from "../dropdowns/posts/SharePostActions";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,9 +54,6 @@ const SharePostButtonInner = ({
     }
     setIsOpen(!isOpen)
   }
-
-  const {LWTooltip, ForumIcon, PopperCard, LWClickAwayListener, SharePostActions} = Components
-
   return <div className={classes.root}>
     <div ref={anchorEl}>
       <LWTooltip title="Share post" placement="bottom-start" disabled={isOpen}>

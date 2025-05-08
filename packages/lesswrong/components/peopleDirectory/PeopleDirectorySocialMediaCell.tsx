@@ -1,10 +1,10 @@
 import React from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import { socialMediaSiteNameToHref } from "../../lib/collections/users/helpers";
 import { objectKeys } from "../../lib/utils/typeGuardUtils";
 import { useTracking } from "../../lib/analyticsEvents";
 import { EMPTY_TEXT_PLACEHOLDER, emptyTextCellStyles } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { SocialMediaIcon } from "../icons/SocialMediaIcon";
 
 const styles = defineStyles('PeopleDirectorySocialMediaCell', (theme: ThemeType) => ({
   root: {
@@ -40,8 +40,6 @@ export const PeopleDirectorySocialMediaCell = ({user}: {
 
   const urls = user.socialMediaUrls ?? {};
   const keys = objectKeys(urls);
-
-  const {SocialMediaIcon} = Components;
   return (
     <div className={classes.root}>
       {keys.length < 1 &&

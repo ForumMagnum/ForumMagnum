@@ -1,7 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
+import { Typography } from "../common/Typography";
+import { Loading } from "../vulcan-core/Loading";
+import { CommentsNode } from "./CommentsNode";
+import { LoadMore } from "../common/LoadMore";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -31,18 +35,18 @@ const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfi
   const validResults = results?.filter(comment => comment.post?._id || comment.tag?._id)
 
   if (!loadingInitial && validResults && !validResults.length) {
-    return (<Components.Typography variant="body2">{noResultsMessage}</Components.Typography>)
+    return (<Typography variant="body2">{noResultsMessage}</Typography>)
   }
   if (loadingInitial || !validResults) {
     return <div className={classes.verticalHeightSpacer}>
-      <Components.Loading />
+      <Loading />
     </div>
   }
   
   return <div className={classes.root}>
     {validResults.map(comment =>
       <div key={comment._id}>
-        <Components.CommentsNode
+        <CommentsNode
           treeOptions={{
             condensed: false,
             post: comment.post || undefined,
@@ -56,7 +60,7 @@ const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfi
         />
       </div>
     )}
-    <Components.LoadMore {...loadMoreProps} />
+    <LoadMore {...loadMoreProps} />
   </div>
 }
 

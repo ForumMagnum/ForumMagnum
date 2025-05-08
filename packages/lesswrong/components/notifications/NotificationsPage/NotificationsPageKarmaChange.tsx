@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import type {
   EAReactionChanges,
@@ -15,6 +15,9 @@ import { captureException } from "@sentry/core";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { NotifPopoverLink } from "../useNotificationsPopoverContext";
 import type { TagCommentType } from "@/lib/collections/comments/types";
+import { NotificationsPageItem } from "./NotificationsPageItem";
+import { PostsTooltip } from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const logAndCaptureError = (error: Error) => {
   // eslint-disable-next-line no-console
@@ -135,8 +138,6 @@ export const NotificationsPageKarmaChangeInner = ({
   let karmaChange: number;
   let reactions: AddedReactions[] = [];
   let display: ReactNode;
-
-  const {NotificationsPageItem, PostsTooltip, LWTooltip} = Components;
   if (postKarmaChange) {
     const postUrl = postGetPageUrl({_id: postKarmaChange.postId, slug: postKarmaChange.slug})
     karmaChange = postKarmaChange.scoreChange;

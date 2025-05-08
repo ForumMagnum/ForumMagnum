@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
@@ -10,12 +10,33 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
-import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
+import { MENU_WIDTH, DismissButton, PostsItemTrailingButtons } from './PostsItemTrailingButtons';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
 import { isLW } from '@/lib/instanceSettings';
-
+import { PostsItemTagRelevance } from "../tagging/PostsItemTagRelevance";
+import { EventVicinity } from "../localGroups/EventVicinity";
+import { PostsItemComments } from "./PostsItemComments";
+import { KarmaDisplay } from "../common/KarmaDisplay";
+import { PostsTitle } from "./PostsTitle";
+import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
+import { LWTooltip } from "../common/LWTooltip";
+import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
+import { PostsItemIcons } from "./PostsItemIcons";
+import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
+import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
+import { BookmarkButton } from "./BookmarkButton";
+import { PostsItemDate } from "./PostsItemDate";
+import { PostsItemNewCommentsWrapper } from "./PostsItemNewCommentsWrapper";
+import { PostsItemNewDialogueResponses } from "./PostsItemNewDialogueResponses";
+import { AnalyticsTracker } from "../common/AnalyticsTracker";
+import { AddToCalendarButton } from "./AddToCalendar/AddToCalendarButton";
+import { PostsItemReviewVote } from "../review/PostsItemReviewVote";
+import { ReviewPostButton } from "../review/ReviewPostButton";
+import { PostReadCheckbox } from "./PostReadCheckbox";
+import { PostMostValuableCheckbox } from "./PostMostValuableCheckbox";
+import { ResponseIcon } from "./PostsPage/RSVPs";
 
 export const KARMA_WIDTH = 32;
 
@@ -430,16 +451,6 @@ const LWPostsItemInner = ({classes, ...props}: PostsList2Props) => {
   if (isRepeated) {
     return null;
   }
-
-  const {
-    PostsItemComments, KarmaDisplay, PostsTitle, PostsUserAndCoauthors, LWTooltip,
-    PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
-    AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
-    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons, ResponseIcon,
-  } = Components;
-
-
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";
@@ -475,7 +486,7 @@ const LWPostsItemInner = ({classes, ...props}: PostsList2Props) => {
                 }
               )}
             >
-              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
+              {tagRel && <PostsItemTagRelevance tagRel={tagRel} />}
               {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
                   [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
@@ -522,7 +533,7 @@ const LWPostsItemInner = ({classes, ...props}: PostsList2Props) => {
               }
 
               {post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
-                <Components.EventVicinity post={post} />
+                <EventVicinity post={post} />
               </PostsItem2MetaInfo>}
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />

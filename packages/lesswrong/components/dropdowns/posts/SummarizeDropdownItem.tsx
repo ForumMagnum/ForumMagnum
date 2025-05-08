@@ -1,8 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
+import { PostSummaryDialog } from "../../languageModels/PostSummaryDialog";
+import { DropdownItem } from "../DropdownItem";
 
 const SummarizeDropdownItemInner = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
@@ -18,14 +20,12 @@ const SummarizeDropdownItemInner = ({post, closeMenu}: {
     closeMenu?.();
     openDialog({
       name: "PostSummaryDialog",
-      contents: ({onClose}) => <Components.PostSummaryDialog
+      contents: ({onClose}) => <PostSummaryDialog
         onClose={onClose}
         post={post}
       />
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Summarize"

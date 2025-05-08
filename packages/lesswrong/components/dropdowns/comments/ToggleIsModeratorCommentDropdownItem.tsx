@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import { DropdownItem } from "../DropdownItem";
 
 const ToggleIsModeratorCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -31,8 +31,6 @@ const ToggleIsModeratorCommentDropdownItemInner = ({comment}: {comment: Comments
       data: {moderatorHat: false},
     });
   }
-
-  const {DropdownItem} = Components;
   if (comment.moderatorHat) {
     return (
       <DropdownItem

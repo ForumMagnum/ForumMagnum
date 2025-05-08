@@ -1,5 +1,4 @@
 import React from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
 import {
   EMPTY_TEXT_PLACEHOLDER,
@@ -7,6 +6,8 @@ import {
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = defineStyles('PeopleDirectoryCareerStageCell', (theme: ThemeType) => ({
   root: {
@@ -36,7 +37,6 @@ export const PeopleDirectoryCareerStageCell = ({user}: {
   const stage = user.careerStage?.[0]
     ? CAREER_STAGES.find(({value}) => value === user.careerStage?.[0])
     : null;
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip title={stage?.label}>
       <div className={classes.root}>

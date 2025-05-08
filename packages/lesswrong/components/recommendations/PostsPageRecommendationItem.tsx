@@ -1,11 +1,17 @@
 import React, { FC, PropsWithChildren } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import classNames from "classnames";
+import { PostsItemTooltipWrapper } from "../posts/PostsItemTooltipWrapper";
+import { KarmaDisplay } from "../common/KarmaDisplay";
+import { PostsTitle } from "../posts/PostsTitle";
+import { UsersName } from "../users/UsersName";
+import { LWTooltip } from "../common/LWTooltip";
+import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -90,12 +96,6 @@ const PostsPageRecommendationItemInner = ({
     onClickCell,
     disableAnalytics,
   );
-
-  const {
-    PostsItemTooltipWrapper, KarmaDisplay, PostsTitle, UsersName, LWTooltip,
-    PostActionsButton,
-  } = Components;
-
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (

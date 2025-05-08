@@ -1,7 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
+import { SubforumSubscribeSection } from "./SubforumSubscribeSection";
+import { SubforumMember } from "./SubforumMember";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,9 +82,6 @@ const SidebarMembersBoxInner = ({tag, className, classes}: {
       otherMembers.push(member)
     }
   })
-  
-  const { SubforumSubscribeSection, SubforumMember, Loading } = Components
-  
   return (
     <div className={classNames(className, classes.root)}>
       <h2 className={classes.titleRow}>

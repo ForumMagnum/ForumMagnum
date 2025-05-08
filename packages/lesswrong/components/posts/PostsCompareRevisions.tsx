@@ -1,14 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { styles } from './PostsPage/PostsPage';
 import { useMulti } from '@/lib/crud/withMulti';
+import { CompareRevisions } from "../revisions/CompareRevisions";
+import { PostsPagePostHeader } from "./PostsPage/PostsPagePostHeader";
+import { RevisionComparisonNotice } from "../revisions/RevisionComparisonNotice";
+import { LoadingOrErrorPage } from "../common/LoadingOrErrorPage";
+import { ErrorPage } from "../common/ErrorPage";
 
 const PostsCompareRevisionsInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, LoadingOrErrorPage, ErrorPage } = Components;
   const { params, query } = useLocation();
   const postId = params._id;
   const versionBefore = query.before;

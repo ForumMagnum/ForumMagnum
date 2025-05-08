@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { TooltipProps } from "recharts";
 import { requireCssVar } from "../../themes/cssVars";
@@ -8,6 +8,12 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { useDialog } from "../common/withDialog";
+import { DateRangeModal } from "./DateRangeModal";
+import { Typography } from "../common/Typography";
+import { ForumDropdown } from "../common/ForumDropdown";
+import { LWTooltip } from "../common/LWTooltip";
+import { AnalyticsGraphSkeleton } from "./AnalyticsGraphSkeleton";
+import { AnalyticsDisclaimers } from "./AnalyticsDisclaimers";
 
 const CONTROLS_BREAKPOINT = 650;
 
@@ -253,8 +259,6 @@ export const AnalyticsGraphInner = ({
   disclaimerEarliestDate?: Date,
   classes: ClassesType<typeof styles>;
 }) => {
-  const {Typography, ForumDropdown, LWTooltip} = Components;
-
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
 
@@ -293,7 +297,7 @@ export const AnalyticsGraphInner = ({
     } else {
       openDialog({
         name: 'DateRangeModal',
-        contents: ({onClose}) => <Components.DateRangeModal
+        contents: ({onClose}) => <DateRangeModal
           onClose={onClose}
           startDate={displayStartDate}
           endDate={displayEndDate}
@@ -345,8 +349,6 @@ export const AnalyticsGraphInner = ({
       className={classes.dateDropdown}
     />
   );
-
-  const {AnalyticsGraphSkeleton, AnalyticsDisclaimers} = Components;
   if (loading || (!userId && !postIds?.length)) {
     return (
       <AnalyticsGraphSkeleton dateOptionDropdown={dateOptionDropdown} />

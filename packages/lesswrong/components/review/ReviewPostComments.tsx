@@ -1,9 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
+import { Loading } from "../vulcan-core/Loading";
+import { CommentsList } from "../comments/CommentsList";
+import { SubSection } from "../common/SubSection";
+import { CommentOnPostWithReplies } from "../comments/CommentOnPostWithReplies";
+import { LoadMore } from "../common/LoadMore";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -43,9 +49,6 @@ const ReviewPostCommentsInner = ({ terms, classes, title, post, singleLine, plac
     fetchPolicy: 'cache-and-network',
     limit: 5
   });
-  
-  const { Loading, CommentsList, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
-  
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)

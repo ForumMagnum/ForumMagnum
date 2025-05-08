@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
+import { EAGWillingToRelocateOption, JOB_AD_DATA, TargetedJobAd } from './TargetedJobAd';
 import { gql, useQuery } from '@apollo/client';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
@@ -238,9 +238,6 @@ const TargetedJobAdSectionInner = () => {
     }
     flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
   }, [currentUser, userJobAds, activeJob, updateUserJobAd, flash])
-  
-  const { TargetedJobAd } = Components
-  
   // Only show this section if we have a matching job for this user
   if (
     !currentUser ||

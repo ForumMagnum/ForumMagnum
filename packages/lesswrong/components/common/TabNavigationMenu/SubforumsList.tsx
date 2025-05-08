@@ -1,9 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
+import { TabNavigationSubItem } from "./TabNavigationSubItem";
+import { MenuItem, MenuItemLink } from "../Menus";
 
 const styles = ((theme: ThemeType) => ({
   menuItem: {
@@ -59,9 +61,6 @@ const SubforumsListInner = ({ onClick, classes }: {
   const initialResults = results.slice(0, INITIAL_LIMIT)
   const maybeHiddenResults = results.slice(INITIAL_LIMIT)
   const displayShowMoreOrLess = results.length > INITIAL_LIMIT
-
-  const { TabNavigationSubItem, MenuItem, MenuItemLink } = Components
-  
   const getListItem = (tag: TagSubforumSidebarFragment) => (
     <MenuItemLink
       key={tag._id}

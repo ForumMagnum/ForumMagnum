@@ -1,6 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import { CommunityMap } from "./CommunityMap";
 
 /**
  * This component is for a standalone route that displays a map of all groups.
@@ -14,7 +15,7 @@ const GroupsMapInner = () => {
     center = {center: {lat: parseInt(query.lat), lng: parseInt(query.lng)}}
   }
   
-  return <Components.CommunityMap
+  return <CommunityMap
     groupTerms={{view: "all"}}
     zoom={parseInt(query?.zoom) || 1}
     initialOpenWindows={[]}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
@@ -9,6 +9,12 @@ import { useNavigate } from "../../lib/routeUtil";
 import type { Hit } from "react-instantsearch-core";
 import { Chip } from "@/components/widgets/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
+import { LWDialog } from "../common/LWDialog";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { ExpandedUsersConversationSearchHit } from "../search/ExpandedUsersConversationSearchHit";
+import { ForumIcon } from "../common/ForumIcon";
+import { Typography } from "../common/Typography";
+import { EAButton } from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   paper: {
@@ -160,14 +166,6 @@ const NewConversationDialogInner = ({
   classes: ClassesType<typeof styles>
   onClose: () => void;
 }) => {
-  const {
-    LWDialog,
-    ErrorBoundary,
-    ExpandedUsersConversationSearchHit,
-    ForumIcon,
-    Typography,
-    EAButton
-  } = Components;
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();

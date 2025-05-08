@@ -1,8 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import { useTracking } from "../../lib/analyticsEvents";
+import { ForumIcon } from "../common/ForumIcon";
 
 // For large screens, we show the card on the right-hand side of the editor.
 const MIN_WIDTH_RHS_CARD = '1670px'
@@ -105,9 +106,6 @@ const PostsEditBotTipsInner = ({handleDismiss, postId, className, classes}: {
   if (!isEAForum) {
     return null
   }
-  
-  const { ForumIcon } = Components
-
   return <aside className={classes.root}>
     <div className={classNames(className, classes.card)}>
       <div className={classes.headingRow}>

@@ -1,7 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useVote } from "./withVote";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
+import { SectionTitle } from "../common/SectionTitle";
+import { EAReactsSection } from "./EAReactsSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,8 +47,6 @@ const EAEmojisVoteOnPostSecondaryInner = ({
   classes,
 }: EAEmojisVoteOnPostSecondaryProps) => {
   const voteProps = useVote(document, "Posts", votingSystem);
-
-  const {SectionTitle, EAReactsSection} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.divider} />

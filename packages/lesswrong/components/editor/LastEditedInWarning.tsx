@@ -1,7 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { editorTypeToDisplay, EditorTypeString, EditorContents, EditorChangeEvent } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
+import { Loading } from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   lastEditedWarning: {
@@ -20,7 +22,6 @@ const LastEditedInWarningInner = ({initialType, currentType, defaultType, value,
   setValue: (change: EditorChangeEvent) => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { Loading, Typography } = Components;
   const {convertDocument, loading, error} = useConvertDocument({
     onCompleted: (result: EditorContents) => {
       setValue({

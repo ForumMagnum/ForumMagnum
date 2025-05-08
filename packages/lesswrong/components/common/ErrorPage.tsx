@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { SingleColumnSection } from "./SingleColumnSection";
+import { ErrorMessage } from "./ErrorMessage";
 
 const ErrorPageInner = ({error}: {
   error: any
 }) => {
-  const { SingleColumnSection, ErrorMessage } = Components;
-  
   const message = error?.message ?? error ?? "Error";
   
   return <SingleColumnSection>

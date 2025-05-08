@@ -1,8 +1,11 @@
 import range from 'lodash/range';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';
+import { Loading } from "../vulcan-core/Loading";
+import { FriendlyPlaceholderPostsItem } from "./FriendlyPlaceholderPostsItem";
+import { LWPlaceholderPostsItem } from "./LWPlaceholderPostsItem";
 
 const PostsLoadingInner = ({
   placeholderCount,
@@ -14,13 +17,13 @@ const PostsLoadingInner = ({
   viewType?: PostsListViewType,
 }) => {
   if (!placeholderCount) {
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   if (isFriendlyUI) {
     return <>
       {range(0, placeholderCount)
-        .map(i => <Components.FriendlyPlaceholderPostsItem
+        .map(i => <FriendlyPlaceholderPostsItem
           key={i}
           viewType={viewType}
         />)}
@@ -28,7 +31,7 @@ const PostsLoadingInner = ({
   } else {
     return <>
       {range(0, placeholderCount)
-        .map(i => <Components.LWPlaceholderPostsItem
+        .map(i => <LWPlaceholderPostsItem
           key={i}
           showBottomBorder={showFinalBottomBorder || i+1<placeholderCount}
         />)}

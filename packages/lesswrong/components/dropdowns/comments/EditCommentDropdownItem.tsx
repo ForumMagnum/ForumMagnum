@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userOwns, userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
+import { DropdownItem } from "../DropdownItem";
 
 const EditCommentDropdownItemInner = ({comment, showEdit}: {
   comment: CommentsList,
@@ -15,8 +16,6 @@ const EditCommentDropdownItemInner = ({comment, showEdit}: {
   ) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Edit"

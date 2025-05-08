@@ -7,7 +7,7 @@ import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
@@ -27,6 +27,13 @@ import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import { useSingle } from '@/lib/crud/withSingle';
 import { FormComponentFriendlyDisplayNameInput } from '../form-components/FormComponentFriendlyDisplayNameInput';
+import { Error404 } from "../common/Error404";
+import { FormGroupFriendlyUserProfile } from "../form-components/FormGroupFriendlyUserProfile";
+import { TagMultiselect } from "../form-components/TagMultiselect";
+import { PrefixedInput } from "../form-components/PrefixedInput";
+import { Typography } from "../common/Typography";
+import { ForumIcon } from "../common/ForumIcon";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -144,8 +151,6 @@ const UserProfileForm = ({
   initialData: Pick<UpdateUserDataInput, ProfileFormFields> & { _id: string };
   onSuccess: (doc: UsersEdit) => void;
 }) => {
-  const { Error404, FormGroupFriendlyUserProfile, TagMultiselect, PrefixedInput } = Components;
-  
   const classes = useStyles(styles);
 
   const formType = 'edit';
@@ -483,9 +488,6 @@ const EditProfileFormInner = () => {
   const [cookies, setCookie] = useCookiesWithConsent([
     HIDE_IMPORT_EAG_PROFILE,
   ]);
-
-  const { Typography, ForumIcon, Loading } = Components;
-
   let terms: {slug?: string, documentId?: string} = {}
   if (params.slug) {
     terms.slug = params.slug

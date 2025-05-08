@@ -1,16 +1,15 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import { DropdownItem } from "../DropdownItem";
 
 const MoveToDraftDropdownItemInner = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
-  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',

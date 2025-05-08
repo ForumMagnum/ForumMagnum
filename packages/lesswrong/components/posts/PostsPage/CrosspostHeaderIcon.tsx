@@ -7,8 +7,9 @@ import {
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { isFriendlyUI } from "../../../themes/forumTheme";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,8 +31,6 @@ const CrosspostHeaderIconInner = ({post, classes}: {
   if (!post.fmCrosspost) {
     return null;
   }
-
-  const {LWTooltip} = Components;
   const icon = isLW ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import { DropdownItem } from "../DropdownItem";
 
 const MoveToAnswersDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
@@ -50,8 +50,6 @@ const MoveToAnswersDropdownItemInner = ({comment, post}: {
     flash("Answer moved to the Comments section.")
     await client.resetStore()
   }
-
-  const {DropdownItem} = Components;
   if (comment.answer) {
     return (
       <DropdownItem

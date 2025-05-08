@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, VotingPropsDocument, VotingSystem, } from '../../../lib/voting/votingSystems';
 import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -9,6 +9,10 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
 import { isMobile } from '@/lib/utils/isMobile';
+import { LoginPopup } from "../../users/LoginPopup";
+import { NamesAttachedReactionsCommentBottom } from "./NamesAttachedReactionsVoteOnComment";
+import { LWTooltip } from "../../common/LWTooltip";
+import { ForumIcon } from "../../common/ForumIcon";
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
@@ -79,7 +83,6 @@ const ReactionsAndLikesVoteInner  = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip, ForumIcon } = Components;
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
@@ -96,7 +99,7 @@ const ReactionsAndLikesVoteInner  = ({
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     } else if (currentUserLikesIt) {
       await voteProps.vote({
@@ -146,7 +149,7 @@ const ReactionsAndLikesVoteInner  = ({
 const ReactionsAndLikesCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, voteProps, post, collectionName, votingSystem
 }: NamesAttachedReactionsCommentBottomProps) => {
-  return <Components.NamesAttachedReactionsCommentBottom
+  return <NamesAttachedReactionsCommentBottom
     document={document} hideKarma={hideKarma} commentBodyRef={commentBodyRef}
     voteProps={voteProps} post={post}
     collectionName={collectionName} votingSystem={votingSystem}

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
-
+import { OverallVoteAxis } from "./OverallVoteAxis";
 
 const VoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
-  return <Components.OverallVoteAxis
+  return <OverallVoteAxis
     document={document}
     hideKarma={hideKarma}
     voteProps={voteProps}

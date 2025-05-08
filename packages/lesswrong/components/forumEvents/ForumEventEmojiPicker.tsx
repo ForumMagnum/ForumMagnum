@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { Components, registerComponent } from '@/lib/vulcan-lib/components'
+import { registerComponent } from '@/lib/vulcan-lib/components'
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ForumIcon } from "../common/ForumIcon";
 
 /** Hack: Inlined styling for the emoji-picker shadow DOM */
 const pickerStyles = `
@@ -112,9 +113,6 @@ const ForumEventEmojiPickerInner: FC<{ onSelect: (value: string) => void }> = ({
       elem.addEventListener("emoji-click", handleEmojiPickerSelect as EventListener);
     }
   };
-
-  const { ForumIcon } = Components;
-
   const showSelectedOrPlaceholder = emoji ? (
     <span className={classes.selectedEmoji}>{emoji}</span>
   ) : (

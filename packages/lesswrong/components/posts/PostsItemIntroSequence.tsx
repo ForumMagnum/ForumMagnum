@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -8,6 +8,12 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { KarmaDisplay } from "../common/KarmaDisplay";
+import { PostsTitle } from "./PostsTitle";
+import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
+import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
+import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
+import { AnalyticsTracker } from "../common/AnalyticsTracker";
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
@@ -150,12 +156,6 @@ const PostsItemIntroSequenceInner = ({
   withImage?: boolean,
 }) => {
   const { isRead } = useRecordPostView(post);
-
-  const {
-    KarmaDisplay, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo,
-    PostsItemTooltipWrapper, AnalyticsTracker,
-  } = Components;
-
   const postLink = postGetPageUrl(post, false, sequence?._id);
 
   return (

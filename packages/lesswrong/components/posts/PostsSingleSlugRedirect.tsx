@@ -1,8 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { PermanentRedirect } from "../common/PermanentRedirect";
+import { Loading } from "../vulcan-core/Loading";
+import { Error404 } from "../common/Error404";
 
 const PostsSingleSlugRedirectInner = () => {
   const { params } = useLocation();
@@ -11,9 +14,9 @@ const PostsSingleSlugRedirectInner = () => {
 
   if (post) {
     const canonicalUrl = postGetPageUrl(post);
-    return <Components.PermanentRedirect url={canonicalUrl}/>
+    return <PermanentRedirect url={canonicalUrl}/>
   } else {
-    return loading ? <Components.Loading/> : <Components.Error404 />
+    return loading ? <Loading/> : <Error404 />
   }
 };
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import { ReviewPostForm } from "./ReviewPostForm";
+import { LoginPopup } from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +35,7 @@ const ReviewPostButtonInner = ({classes, post, reviewMessage="Review", year}: {
   const handleClick = () => {
     if (currentUser) {
       openCommentBox({
-        commentBox: ({onClose}) => <Components.ReviewPostForm
+        commentBox: ({onClose}) => <ReviewPostForm
           onClose={onClose}
           post={post}
         />
@@ -41,7 +43,7 @@ const ReviewPostButtonInner = ({classes, post, reviewMessage="Review", year}: {
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }

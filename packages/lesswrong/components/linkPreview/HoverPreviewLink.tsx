@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import {parseRoute, parsePath, checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { classifyHost, useLocation } from '../../lib/routeUtil';
@@ -11,6 +11,7 @@ import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStyles';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from './PostLinkPreview';
+import { FootnotePreview } from "./FootnotePreview";
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -71,9 +72,9 @@ const HoverPreviewLinkInner = ({ href, contentSourceDescription, id, rel, noPref
   // Within-page relative link?
   if (href.startsWith("#")) {
     if (locationHashIsFootnote(href)){
-      return <Components.FootnotePreview href={href} id={id} rel={rel} contentStyleType={contentStyleType}>
+      return <FootnotePreview href={href} id={id} rel={rel} contentStyleType={contentStyleType}>
         {children}
-      </Components.FootnotePreview>
+      </FootnotePreview>
     } else if (locationHashIsFootnoteBackreference(href)) {
       return <a href={href} id={id} rel={rel}>
         {children}

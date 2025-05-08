@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { formatRole } from '../users/EAUserTooltipContent';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -7,6 +7,12 @@ import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
 import type { Placement as PopperPlacementType } from "popper.js"
+import { LWPopper } from "../common/LWPopper";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import { ForumIcon } from "../common/ForumIcon";
+import { CommentBody } from "../comments/CommentsItem/CommentBody";
+import { CommentsNewForm } from "../comments/CommentsNewForm";
+import { UsersProfileImage } from "../users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
@@ -121,15 +127,6 @@ const ForumEventResultPopperInner = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const {
-    LWPopper,
-    LWClickAwayListener,
-    ForumIcon,
-    CommentBody,
-    CommentsNewForm,
-    UsersProfileImage
-  } = Components;
-
   const [replyFormOpen, setReplyFormOpen] = useState(false);
 
   const replySuccessCallback = useCallback(() => {

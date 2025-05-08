@@ -3,9 +3,12 @@ import { RecommendationsAlgorithm } from '../../lib/collections/users/recommenda
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
+import { SectionTitle } from "../common/SectionTitle";
+import { RecommendationsList } from "../recommendations/RecommendationsList";
+import { PostsItem } from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,8 +71,6 @@ export const FrontpageBestOfLWWidgetInner = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components
-
   const { document: postVoting } = useSingle({
     documentId: "zajNa9fdr8JYJpxrG",
     collectionName: "Posts",

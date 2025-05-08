@@ -1,8 +1,11 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { SingleUsersItem } from "./SingleUsersItem";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
 
 const styles = defineStyles('UserMultiselect', (theme: ThemeType) => ({
   root: {
@@ -22,7 +25,7 @@ const styles = defineStyles('UserMultiselect', (theme: ThemeType) => ({
 export const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -35,14 +38,14 @@ const UserMultiselectInner = ({value, setValue, label}: {
   const classes = useStyles(styles);
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.UsersSearchAutoComplete
+      <ErrorBoundary>
+        <UsersSearchAutoComplete
           clickAction={(userId: string) => {
             setValue([...value, userId]);
           }}
           label={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       <SortableList
         axis="xy"
         value={value}
@@ -66,7 +69,7 @@ export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) 
     field.handleChange(newValue);
   }, [field]);
 
-  return <Components.UserMultiselect
+  return <UserMultiselect
     value={value}
     setValue={setValue}
     label={label}

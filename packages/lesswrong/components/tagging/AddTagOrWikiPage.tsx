@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -10,6 +10,8 @@ import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../.
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '../../lib/routes';
 import type { SearchState } from 'react-instantsearch-core';
+import { TagSearchHit } from "./TagSearchHit";
+import { DropdownDivider } from "../dropdowns/DropdownDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,7 +46,6 @@ const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSug
   showAllTagsAndCreateTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {

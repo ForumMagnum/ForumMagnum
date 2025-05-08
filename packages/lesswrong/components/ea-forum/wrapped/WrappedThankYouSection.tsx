@@ -1,7 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -26,7 +28,6 @@ const WrappedThankYouSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentUser} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="thankYou">
       <div className={classes.root}>

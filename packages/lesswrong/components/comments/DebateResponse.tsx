@@ -1,11 +1,18 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
 import type { ContentItemBodyInner } from '../common/ContentItemBody';
+import { CommentUserName } from "./CommentsItem/CommentUserName";
+import { CommentsItemDate } from "./CommentsItem/CommentsItemDate";
+import { CommentBody } from "./CommentsItem/CommentBody";
+import { CommentsEditForm } from "./CommentsEditForm";
+import { CommentsMenu } from "../dropdowns/comments/CommentsMenu";
+import { DebateCommentsListSection } from "./DebateCommentsListSection";
+import { HoveredReactionContextProvider } from "../votes/lwReactions/HoveredReactionContextProvider";
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -92,8 +99,6 @@ export const DebateResponseInner = ({classes, comment, replies, idx, responseCou
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, HoveredReactionContextProvider } = Components;
-
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     

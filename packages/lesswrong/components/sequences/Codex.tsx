@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { CollectionsPage } from "./CollectionsPage";
 
 const CodexInner = () => {
-  return <Components.CollectionsPage documentId={'2izXHCrmJ684AnZ5X'} />
+  return <CollectionsPage documentId={'2izXHCrmJ684AnZ5X'} />
 };
 
 export const Codex = registerComponent('Codex', CodexInner);

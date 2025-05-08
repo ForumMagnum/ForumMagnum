@@ -1,9 +1,11 @@
 import React, { useCallback, ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { CollectionsTooltip } from "../collections/CollectionsTooltip";
+import { EASequenceOrCollectionCard } from "./EASequenceOrCollectionCard";
 
 const defaultImageId = forumSelect({
   EAForum: "Banner/yeldubyolqpl3vqqy0m6.jpg",
@@ -50,15 +52,12 @@ const EACollectionCardInner = ({collection}: {collection: CollectionsBestOfFragm
   const href = collectionGetPageUrl(collection);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
-    const {CollectionsTooltip} = Components;
     return (
       <CollectionsTooltip collection={collection}>
         {children}
       </CollectionsTooltip>
     );
   }, [collection]);
-
-  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={collection.slug}>
       <EASequenceOrCollectionCard

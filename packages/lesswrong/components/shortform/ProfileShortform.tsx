@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { PostsItem } from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,9 +13,6 @@ export const ProfileShortformInner = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
-
-  const { PostsItem } = Components
-
   const { document } = useSingle({
     documentId: user.shortformFeedId!,
     collectionName: "Posts",

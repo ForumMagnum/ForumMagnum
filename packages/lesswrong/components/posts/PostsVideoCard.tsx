@@ -1,7 +1,12 @@
 import React, { useMemo, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
+import { PostsTitle } from "./PostsTitle";
+import { TruncatedAuthorsList } from "./TruncatedAuthorsList";
+import { PostsItemDate } from "./PostsItemDate";
+import { EAKarmaDisplay } from "../common/EAKarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,11 +63,6 @@ const PostsVideoCardInner = ({post, classes}: {
   if (!embedAttribs) {
     return null;
   }
-
-  const {
-    PostsItemTooltipWrapper, PostsTitle, TruncatedAuthorsList, PostsItemDate,
-    EAKarmaDisplay,
-  } = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div {...eventHandlers} className={classes.root}>

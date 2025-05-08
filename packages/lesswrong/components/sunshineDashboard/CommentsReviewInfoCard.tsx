@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { COMMENT_MODERATOR_ACTION_TYPES } from "@/lib/collections/commentModeratorActions/constants";
+import { CommentWithReplies } from "../comments/CommentWithReplies";
+import { LWTooltip } from "../common/LWTooltip";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -118,7 +121,6 @@ export const CommentsReviewInfoCardInner = ({ commentModeratorAction, classes }:
   commentModeratorAction: CommentWithModeratorActions,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentWithReplies, LWTooltip, Loading } = Components;
   const { comment, actions } = commentModeratorAction;
   const commentVotes = getVoteDistribution(comment);
   const [commentTreeNode] = unflattenComments([comment]);

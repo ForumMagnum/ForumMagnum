@@ -1,10 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
+import { SunshineNewUsersInfo } from "./SunshineNewUsersInfo";
+import { SectionButton } from "../common/SectionButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,9 +20,6 @@ const styles = (theme: ThemeType) => ({
 const SunshineNewUsersProfileInfoInner = ({userId, classes}: {userId: string, classes: ClassesType<typeof styles>}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
-
-  const { SunshineNewUsersInfo, SectionButton } = Components
-
   const { document: user, refetch } = useSingle({
     documentId:userId,
     collectionName: "Users",

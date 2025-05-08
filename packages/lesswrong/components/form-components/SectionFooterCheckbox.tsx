@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,7 +51,6 @@ const SectionFooterCheckboxInner = ({ classes, label, onClick, value, disabled, 
   tooltipPlacement?: PopperPlacementType,
   labelClassName?: string
 }) => {
-  const { LWTooltip } = Components
   const checkbox = <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled ? onClick : undefined}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
     <span className={classNames(classes.label, labelClassName)}>{ label }</span>

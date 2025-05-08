@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
@@ -8,6 +7,10 @@ import {isEAForum} from '../../lib/instanceSettings';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { SingleUsersItem } from "./SingleUsersItem";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
+import { LWTooltip } from "../common/LWTooltip";
 
 const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({
   root: {
@@ -46,7 +49,7 @@ type CoauthorListItem = {
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -80,12 +83,12 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
   return (
     <>
       <div className={classes.root}>
-        <Components.ErrorBoundary>
-          <Components.UsersSearchAutoComplete
+        <ErrorBoundary>
+          <UsersSearchAutoComplete
             clickAction={addUserId}
             label={post.collabEditorDialogue ? "Add participant" : label}
             />
-        </Components.ErrorBoundary>
+        </ErrorBoundary>
         <SortableList
           axis="xy"
           value={value.map(v=>v.userId)}
@@ -104,7 +107,7 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
         />
       </div>
       {isEAForum && <div className={classes.checkboxContainer}>
-        <Components.LWTooltip
+        <LWTooltip
           title='If this box is left unchecked then these users will be asked if they want to be co-authors. If you click Publish with pending co-authors, publishing will be delayed for up to 24 hours to allow for co-authors to give permission.'
           placement='left'
         >
@@ -112,7 +115,7 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
             <Checkbox className={classes.checkbox} checked={hasPermission} onChange={toggleHasPermission} />
             These users have agreed to co-author this post
           </InputLabel>
-        </Components.LWTooltip>
+        </LWTooltip>
       </div>}
     </>
   );

@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -11,6 +11,11 @@ import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { ReactionIcon } from "./ReactionIcon";
+import { LWTooltip } from "../common/LWTooltip";
+import { Row } from "../common/Row";
+import { ReactionDescription } from "./lwReactions/ReactionDescription";
+import { MetaInfo } from "../common/MetaInfo";
 
 const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
@@ -151,7 +156,6 @@ const ReactionsPaletteInner = ({getCurrentUserReactionVote, toggleReaction, quot
   quote: QuoteLocator|null,
 }) => {
   const classes = useStyles(styles);
-  const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";

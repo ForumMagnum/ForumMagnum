@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { 
   UltraFeedSettingsType, 
   DEFAULT_SOURCE_WEIGHTS, 
@@ -26,6 +26,7 @@ import {
   ValidatedUltraFeedSettings
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
+import { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings } from "./settingsComponents/UltraFeedSettingsComponents";
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -136,9 +137,6 @@ const UltraFeedSettingsInner = ({
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
-
-  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings } = Components; 
-
   const { flash } = useMessages();
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);

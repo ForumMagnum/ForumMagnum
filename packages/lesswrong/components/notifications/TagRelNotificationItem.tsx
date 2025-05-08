@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   meta: {
@@ -18,8 +19,6 @@ export const TagRelNotificationItemInner = ({classes, tagRelId}: {
   classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
-  const { Loading } = Components
-
   const { document: tagRel, loading } = useSingle({
     documentId: tagRelId,
     collectionName: "TagRels",

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -7,6 +7,8 @@ import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { requireCssVar } from '../../themes/cssVars';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import { FormatDate } from "../common/FormatDate";
+import { UserNameDeleted } from "../users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -74,7 +76,6 @@ const ExpandedSequencesSearchHitInner = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const sequence: SearchSequence = hit
   
   const handleClick = () => {

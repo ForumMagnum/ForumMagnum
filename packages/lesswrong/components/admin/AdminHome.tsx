@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { hasDigests, hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { AdminMetadata } from "./AdminMetadata";
+import { Loading } from "../vulcan-core/Loading";
 
 // Also used in ModerationLog
 export const styles = (theme: ThemeType) => ({
@@ -38,7 +41,6 @@ export const styles = (theme: ThemeType) => ({
 const AdminHomeInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {SingleColumnSection, AdminMetadata, Loading} = Components;
   const currentUser = useCurrentUser();
   const {refreshDbSettings, isRefreshingDbSettings} = useRefreshDbSettings();
   

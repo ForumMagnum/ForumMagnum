@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -16,7 +16,27 @@ import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
-
+import { ForumIcon } from "../common/ForumIcon";
+import { HeadTags } from "../common/HeadTags";
+import { CommunityMapWrapper } from "./CommunityMapWrapper";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { PostsList2 } from "../posts/PostsList2";
+import { Loading } from "../vulcan-core/Loading";
+import { SectionButton } from "../common/SectionButton";
+import { SubscribeTo } from "../notifications/NotifyMeButton";
+import { SectionFooter } from "../common/SectionFooter";
+import { GroupFormLink } from "./GroupFormLink";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { Error404 } from "../common/Error404";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { EventCards } from "../events/modules/EventCards";
+import { LoadMore } from "../common/LoadMore";
+import { ContentStyles } from "../common/ContentStyles";
+import { Typography } from "../common/Typography";
+import { HoverOver } from "../common/HoverOver";
+import { LocalGroupSubscribers } from "./LocalGroupSubscribers";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -233,13 +253,6 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const {
-    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
-    Loading, SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
-    HoverOver, LocalGroupSubscribers, UsersNameDisplay,
-  } = Components
-
   const { document: group, loading: groupLoading } = useSingle({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
@@ -532,7 +545,7 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
                   target="_blank" rel="noopener noreferrer"
                   className={classes.externalLinkBtn}
                 >
-                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
+                  <ForumIcon icon="Link" className={classes.linkIcon} />
                   Explore our website
                 </Button>
               </div>}

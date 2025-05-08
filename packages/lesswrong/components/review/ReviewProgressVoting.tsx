@@ -1,10 +1,11 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@/lib/vendor/@material-ui/icons/src/CropSquare';
 import range from 'lodash/range';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,9 +39,6 @@ export const ReviewProgressVotingInner = ({classes, reviewYear}: {
 }) => {
 
   const currentUser = useCurrentUser()
-
-  const { LWTooltip } = Components
-
   const { results: reviewsResults, totalCount } = useMulti({
     terms: {
       view: "reviewVotesFromUser",

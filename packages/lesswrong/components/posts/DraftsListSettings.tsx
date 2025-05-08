@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -10,7 +10,8 @@ import { useCurrentUser } from '../common/withUser';
 import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
-
+import { MetaInfo } from "../common/MetaInfo";
+import { SettingsColumn } from "../common/SettingsColumn";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,7 +64,6 @@ const DraftsListSettingsInner = ({
   sortings?: any,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   

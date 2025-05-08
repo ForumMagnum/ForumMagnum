@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Components } from "@/lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from 'popper.js'
 import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { createPortal } from 'react-dom';
 import { isClient } from '@/lib/executionEnvironment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import { LWPopper } from "../common/LWPopper";
 
 const styles = defineStyles("Menu", (theme) => ({
   menu: {
@@ -22,7 +23,6 @@ export function Menu({open, anchorEl, onClose, onClick, className, children}: {
   className?: string,
   children?: React.ReactNode
 }) {
-  const { LWClickAwayListener, LWPopper } = Components;
   if (!anchorEl) return null;
   function sendCloseAndClick() {
     onClick?.();

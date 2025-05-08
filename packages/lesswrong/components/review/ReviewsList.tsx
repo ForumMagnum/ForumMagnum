@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
 import sortBy from 'lodash/sortBy';
+import { Typography } from "../common/Typography";
+import { CommentsNode } from "../comments/CommentsNode";
+import { SectionTitle } from "../common/SectionTitle";
+import { ReviewsLeaderboard } from "./ReviewsLeaderboard";
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +30,6 @@ export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear
 }) => {
-  const { CommentsNode, SectionTitle, ReviewsLeaderboard, Loading, MenuItem } = Components
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
   const { loading, results: reviews } = useMulti({
@@ -55,9 +60,9 @@ export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
           </Select>
         </SectionTitle>
         {reviews && <ReviewsLeaderboard reviews={reviews} reviewYear={reviewYear} />}
-      {!loading && reviews && !reviews.length && <Components.Typography variant="body2">   
+      {!loading && reviews && !reviews.length && <Typography variant="body2">   
         No Reviews Found
-      </Components.Typography>}
+      </Typography>}
       {(loading) && <Loading />}
       {sortedReviews.map(comment =>
         <div key={comment._id} id={comment._id}>

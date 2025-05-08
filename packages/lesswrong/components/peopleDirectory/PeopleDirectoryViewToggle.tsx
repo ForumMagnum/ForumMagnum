@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";
+import { ForumIcon } from "../common/ForumIcon";
 
 const PeopleDirectoryViewToggleInner = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -12,7 +13,6 @@ const PeopleDirectoryViewToggleInner = ({classes}: {
   const onClick = useCallback(() => {
     setView(isList ? "map" : "list");
   }, [isList, setView]);
-  const {ForumIcon} = Components;
   return (
     <div className={classNames(classes.container, classes.button)} onClick={onClick}>
       <div className={classes.title}>

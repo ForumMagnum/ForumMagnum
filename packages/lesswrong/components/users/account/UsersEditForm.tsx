@@ -10,7 +10,7 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -34,6 +34,16 @@ import { FormComponentCheckboxGroup } from '@/components/form-components/FormCom
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { HIGHLIGHT_DURATION } from '@/components/comments/CommentFrame';
+import { Loading } from "../../vulcan-core/Loading";
+import { LWTooltip } from "../../common/LWTooltip";
+import { Error404 } from "../../common/Error404";
+import { PrefixedInput } from "../../form-components/PrefixedInput";
+import { NotificationTypeSettingsWidget } from "../../notifications/NotificationTypeSettings";
+import { KarmaChangeNotifierSettings } from "../KarmaChangeNotifierSettings";
+import { UsersEmailVerification } from "../UsersEmailVerification";
+import { EmailConfirmationRequiredCheckbox } from "../EmailConfirmationRequiredCheckbox";
+import { FormComponentCheckbox } from "../../form-components/FormComponentCheckbox";
+import { ErrorAccessDenied } from "../../common/ErrorAccessDenied";
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -124,8 +134,6 @@ const UsersForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: UsersEdit) => void;
 }) => {
-  const { LWTooltip, Error404, PrefixedInput, NotificationTypeSettingsWidget, KarmaChangeNotifierSettings, UsersEmailVerification, EmailConfirmationRequiredCheckbox, FormComponentCheckbox } = Components;
-
   const classes = useStyles(styles);
   const { query } = useLocation();
 
@@ -1296,7 +1304,6 @@ const UsersEditFormInner = ({ terms }: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const { ErrorAccessDenied } = Components;
   const [mutate, loading] = useMutation(gql`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
@@ -1356,7 +1363,7 @@ const UsersEditFormInner = ({ terms }: {
         {preferredHeadingCase("Reset Password")}
       </Button>}
 
-      {loadingUser && <Components.Loading />}
+      {loadingUser && <Loading />}
       {!loadingUser && userBySlug && (
         <UsersForm
           initialData={userBySlug}

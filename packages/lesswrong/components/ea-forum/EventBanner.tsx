@@ -1,6 +1,6 @@
 import React from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -32,8 +32,6 @@ const styles = (theme: ThemeType) => ({
 const EventBannerInner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection } = Components
-
   const mobileImageId = eventBannerMobileImageSetting.get()
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from 'moment';
 import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { loadMoreTimeframeMessages, TimeframeType } from './timeframeUtils';
+import { PostsTimeBlock } from "./PostsTimeBlock";
+import { Typography } from "../common/Typography";
 
 interface TimeBlockRange {
   before: Moment
@@ -19,7 +21,6 @@ interface TimeBlockRange {
 const PostsTimeframeListExponentialInner = ({postListParameters}: {
   postListParameters: PostsViewTerms,
 }) => {
-  const { PostsTimeBlock, Typography } = Components;
   const now = useCurrentTime();
   const [moreMonthsCount,setMoreMonthsCount] = useState(0);
   

@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import ArrowBack from '@/lib/vendor/@material-ui/icons/src/ArrowBack'
 import pick from 'lodash/pick';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { useGoogleMaps } from '../../form-components/LocationFormComponent';
+import { useGoogleMaps, LocationPicker } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
@@ -15,6 +15,10 @@ import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { Loading } from "../../vulcan-core/Loading";
+import { Typography } from "../../common/Typography";
+import { MultiSelect } from "../../form-components/FormComponentMultiSelect";
+import { PrefixedInput } from "../../form-components/PrefixedInput";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -205,7 +209,6 @@ type EditorFormComponentRefType = {
 // edit bio, howICanHelpOthers.
 const EAGApplicationImportFormWrapperInner = () => {
   const currentUser = useCurrentUser()
-  const { Loading, EAGApplicationImportForm } = Components;
   const { document: currentUserEdit, loading } = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -485,10 +488,6 @@ const EAGApplicationImportFormInner = ({currentUser, classes}: {
       setSubmitLoading(false)
     })
   }
-  
-  const { Typography, MultiSelect, LocationPicker,
-    PrefixedInput, ContentStyles, Loading } = Components
-
   if (!currentUser) {
     return (
       <AnalyticsContext pageContext="eagApplicationImportForm">

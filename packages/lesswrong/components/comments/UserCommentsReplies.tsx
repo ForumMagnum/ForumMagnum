@@ -1,9 +1,14 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getUserFromResults } from '../users/UsersProfile';
 import { slugify } from '@/lib/utils/slugify';
+import { CommentsNode } from "./CommentsNode";
+import { LoadMore } from "../common/LoadMore";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -14,8 +19,6 @@ const styles = (theme: ThemeType) =>  ({
 })
 
 const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SingleColumnSection, SectionTitle, Loading } = Components
-
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
@@ -45,7 +48,7 @@ const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof sty
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
-            <Components.CommentsNode
+            <CommentsNode
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -60,7 +63,7 @@ const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof sty
             />
           </div>
         )}
-        <Components.LoadMore {...loadMoreProps} />
+        <LoadMore {...loadMoreProps} />
       </div>
     </SingleColumnSection>
   )

@@ -1,6 +1,7 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
+import { CalendarDate } from "../../common/CalendarDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,7 +29,7 @@ const CommentDeletedMetadataInner = ({documentId, classes}: {
       <div className={classes.root}>
         <div className={classes.meta}>
           {deletedByUsername && <span>Deleted by {deletedByUsername}</span>}, {document.deletedDate && <span>
-            <Components.CalendarDate date={document.deletedDate}/>
+            <CalendarDate date={document.deletedDate}/>
           </span>} 
         </div>
         {document.deletedReason &&

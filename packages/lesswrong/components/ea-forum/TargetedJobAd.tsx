@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button'
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close'
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -10,6 +10,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import type { CareerStageValue } from "@/lib/collections/users/helpers";
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { TooltipSpan } from '../common/FMTooltip';
+import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
+import { EAButton } from "./EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -321,9 +325,6 @@ const TargetedJobAdInner = ({jobName, userJobAd, onDismiss, onApply, onRemindMe,
 }) => {
   const adData = JOB_AD_DATA[jobName]
   const now = useCurrentTime();
-  
-  const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
-  
   if (!adData) {
     return null
   }

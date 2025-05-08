@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,7 +80,7 @@ export const PostMostValuableCheckboxInner = ({post, classes}: {
   
   if (!currentUser || loading || !results) return null
   
-  return <Components.ForumIcon
+  return <ForumIcon
     onClick={toggleChecked}
     icon={checked ? "Heart" : "HeartOutline"}
     className={classes.root}

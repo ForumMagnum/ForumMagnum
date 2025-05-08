@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -7,6 +7,11 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import { Paper }from '@/components/widgets/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
+import { LoginPopup } from "../users/LoginPopup";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import { LWPopper } from "../common/LWPopper";
+import { ForumIcon } from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,9 +93,6 @@ const WriteNewButtonInner = ({
   const { openDialog } = useDialog();
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
-
-  const { LWClickAwayListener, LWPopper, ForumIcon, MenuItem } = Components;
-
   return (
     <div className={classNames(className, classes.root)}>
       <Button
@@ -102,7 +104,7 @@ const WriteNewButtonInner = ({
           if (!currentUser) {
             openDialog({
               name: "LoginPopup",
-              contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+              contents: ({onClose}) => <LoginPopup onClose={onClose} />
             });
             return
           }

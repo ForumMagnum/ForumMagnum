@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
@@ -8,6 +8,10 @@ import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { TagsListItem } from "./TagsListItem";
+import { SectionTitle } from "../common/SectionTitle";
+import { SectionButton } from "../common/SectionButton";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +40,6 @@ const AllTagsAlphabeticalInner = ({classes}: {
     fragmentName: "TagPreviewFragment",
     limit: 750,
   });
-  const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;
   const currentUser = useCurrentUser()
 
   const alphabetical = _sortBy(results, tag=>tag.name)

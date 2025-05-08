@@ -15,7 +15,7 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { TabRecord } from './TabPicker';
+import { TabRecord, TabPicker } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
@@ -26,9 +26,24 @@ import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { FeedPostCommentsCard } from "../recentDiscussion/FeedPostCommentsCard";
+import { SettingsButton } from "../icons/SettingsButton";
+import { SingleColumnSection } from "./SingleColumnSection";
+import { PostsList2 } from "../posts/PostsList2";
+import { TagFilterSettings } from "../tagging/TagFilterSettings";
+import { RecombeePostsList } from "../posts/RecombeePostsList";
+import { CuratedPostsList } from "../recommendations/CuratedPostsList";
+import { RecombeePostsListSettings } from "../posts/RecombeePostsListSettings";
+import { BookmarksList } from "../bookmarks/BookmarksList";
+import { ContinueReadingList } from "../recommendations/ContinueReadingList";
+import { VertexPostsList } from "../posts/VertexPostsList";
+import { WelcomePostItem } from "../recommendations/WelcomePostItem";
+import { MixedTypeFeed } from "./MixedTypeFeed";
+import { SuggestedFeedSubscriptions } from "../subscriptions/SuggestedFeedSubscriptions";
+import { PostsItem } from "../posts/PostsItem";
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -341,8 +356,6 @@ const FrontpageSettingsButton = ({
   labelClassName?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SettingsButton } = Components;
-
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
@@ -404,10 +417,6 @@ const LWHomePostsInner = ({ children, classes }: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
-  const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, TabPicker, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
-
   const { captureEvent } = useTracking();
 
   const currentUser = useCurrentUser();
@@ -480,7 +489,7 @@ const LWHomePostsInner = ({ children, classes }: {
         render: (postCommented: SubscribedPostAndCommentsFeed) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
           const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(filterNonnull(userSubscriptions.map(({ documentId }) => documentId))) : undefined;
-          return <Components.FeedPostCommentsCard
+          return <FeedPostCommentsCard
             key={postCommented.post._id}
             post={postCommented.post}
             comments={postCommented.comments}

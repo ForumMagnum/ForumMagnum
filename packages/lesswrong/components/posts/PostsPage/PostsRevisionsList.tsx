@@ -1,8 +1,10 @@
 import React from 'react'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { QueryLink } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
+import { FormatDate } from "../../common/FormatDate";
+import { MenuItem } from "../../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   version: {
@@ -21,7 +23,6 @@ const PostsRevisionsListInner = ({post, classes}: {
     fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
     fragmentName: 'PostsRevisionsList'
   });
-  const { FormatDate, MenuItem } = Components
   if (loading || !document) {return <MenuItem disabled> Loading... </MenuItem>} 
   const { revisions } = document
   

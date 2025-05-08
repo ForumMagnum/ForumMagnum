@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { voteTextStyling } from './PostsItemReviewVote';
+import { voteTextStyling, PostsItemReviewVote } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { usePostsItem } from '../posts/usePostsItem';
+import { PostsTitle } from "../posts/PostsTitle";
+import { LWTooltip } from "../common/LWTooltip";
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { MetaInfo } from "../common/MetaInfo";
+import { ReviewVotingButtons } from "./ReviewVotingButtons";
+import { PostsItemComments } from "../posts/PostsItemComments";
+import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
+import { ReviewPostComments } from "./ReviewPostComments";
+import { PostInteractionStripe } from "./PostInteractionStripe";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import { ForumIcon } from "../common/ForumIcon";
+import { PostsItemNewCommentsWrapper } from "../posts/PostsItemNewCommentsWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -218,13 +230,6 @@ const ReviewVoteTableRowInner = ({ post, index, dispatch, costTotal, classes, ex
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
-  const {
-    PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
-    PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon,
-    PostsItemNewCommentsWrapper
-  } = Components
-
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);

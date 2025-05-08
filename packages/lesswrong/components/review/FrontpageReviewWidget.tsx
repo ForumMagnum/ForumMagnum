@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -11,6 +11,13 @@ import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { SectionTitle } from "../common/SectionTitle";
+import { SettingsButton } from "../icons/SettingsButton";
+import { LWTooltip } from "../common/LWTooltip";
+import { PostsList2 } from "../posts/PostsList2";
+import { ReviewProgressReviews } from "./ReviewProgressReviews";
+import { ReviewProgressVoting } from "./ReviewProgressVoting";
+import { ReviewProgressNominations } from "./ReviewProgressNominations";
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -226,7 +233,6 @@ export function ReviewOverviewTooltip() {
 }
 
 const FrontpageReviewWidgetInner = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations } = Components
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
-import type { ToCDisplayOptions } from './TableOfContentsList';
+import { ToCDisplayOptions, TableOfContentsList } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { FixedPositionToc } from './FixedPositionToC';
 
 const styles = (theme: ThemeType) => ({
 });
@@ -37,7 +38,7 @@ const TableOfContentsInner = ({sectionData, title, heading, onClickSection, disp
   if (fixedPositionToc) {
     return (
       <AnalyticsContext pageSectionContext="tableOfContents" componentName="FixedPositionToC">
-        <Components.FixedPositionToC
+        <FixedPositionToc
           tocSections={displayToc.sectionData.sections}
           title={title}
           heading={heading}
@@ -51,7 +52,7 @@ const TableOfContentsInner = ({sectionData, title, heading, onClickSection, disp
 
   return (
     <AnalyticsContext pageSectionContext="tableOfContents" componentName="TableOfContentsList">
-      <Components.TableOfContentsList
+      <TableOfContentsList
         tocSections={sectionData.sections}
         title={title}
         onClickSection={onClickSection}

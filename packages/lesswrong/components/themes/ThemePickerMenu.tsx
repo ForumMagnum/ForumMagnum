@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -9,6 +9,12 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { LWTooltip } from "../common/LWTooltip";
+import { Typography } from "../common/Typography";
+import { DropdownMenu } from "../dropdowns/DropdownMenu";
+import { DropdownItem } from "../dropdowns/DropdownItem";
+import { DropdownDivider } from "../dropdowns/DropdownDivider";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (_theme: ThemeType) => ({
   check: {
@@ -77,10 +83,6 @@ const ThemePickerMenuInner = ({children, classes}: {
     setTheme(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
-
-  const {
-    LWTooltip, Typography, DropdownMenu, DropdownItem, DropdownDivider, ForumIcon,
-  } = Components;
   const submenu = (
     <Paper>
       <DropdownMenu>

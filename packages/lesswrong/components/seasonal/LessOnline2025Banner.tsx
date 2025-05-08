@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
 
 const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   root: {
@@ -104,8 +105,6 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
 
 export const LessOnline2025BannerInner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
   const classes = useStyles(styles);
-  const { CloudinaryImage2 } = Components
-
   const timeRemaining = priceIncreaseDate.getTime() - new Date().getTime();
   const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
 
@@ -143,4 +142,3 @@ declare global {
   }
 }
 
-export default LessOnline2025BannerInner;

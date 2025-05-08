@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
@@ -318,7 +318,7 @@ export const FormComponentDatePicker = ({ field, label, name, below }: {
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
 
   return (<>
-    <Components.DatePicker
+    <DatePicker
       label={label}
       name={name}
       value={date}

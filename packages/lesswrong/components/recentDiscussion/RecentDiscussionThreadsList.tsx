@@ -1,10 +1,18 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { RecentDiscussionThread } from "./RecentDiscussionThread";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { SectionButton } from "../common/SectionButton";
+import { ShortformSubmitForm } from "../shortform/ShortformSubmitForm";
+import { Loading } from "../vulcan-core/Loading";
+import { AnalyticsInViewTracker } from "../common/AnalyticsInViewTracker";
+import { LoadMore } from "../common/LoadMore";
 
 const RecentDiscussionThreadsListInner = ({
   terms, commentsLimit, maxAgeHours, af,
@@ -51,11 +59,6 @@ const RecentDiscussionThreadsListInner = ({
     },
     [setShowShortformFeed, showShortformFeed]
   );
-  
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, AnalyticsInViewTracker } = Components
-
-  const { LoadMore } = Components
-
   if (!loading && results && !results.length) {
     return null
   }
@@ -76,7 +79,7 @@ const RecentDiscussionThreadsListInner = ({
       <div>
         {results && <div>
           {results.map((post, i) =>
-            <Components.RecentDiscussionThread
+            <RecentDiscussionThread
               key={post._id}
               post={post}
               refetch={refetch}

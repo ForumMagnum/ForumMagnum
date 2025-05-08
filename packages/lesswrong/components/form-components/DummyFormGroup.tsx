@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { FormGroupHeader } from "../vulcan-forms/FormGroup";
 
 const styles = (theme: ThemeType) => ({
   formSection: {
@@ -39,7 +40,6 @@ const DummyFormGroupInner = ({
   children,
   classes
 }: DummyFormGroupProps & { classes: ClassesType<typeof styles> }) => {
-  const { FormGroupHeader } = Components;
   const [collapsed, setCollapsed] = useState(startCollapsed)
 
   return (

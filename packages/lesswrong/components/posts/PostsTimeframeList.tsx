@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
-import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
+import { PostsTimeBlockShortformOption, PostsTimeBlock } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loading: {
@@ -79,9 +80,6 @@ const PostsTimeframeListInner = ({ after, before, timeframe, numTimeBlocks, post
       setDim(false);
     }
   }
-
-  const { PostsTimeBlock, Typography } = Components
-
   const timeBlock = timeframeToTimeBlock[timeframe]
   const dates = getDateRange(afterState, beforeState, timeBlock)
   const orderedDates = reverse ? dates.reverse() : dates

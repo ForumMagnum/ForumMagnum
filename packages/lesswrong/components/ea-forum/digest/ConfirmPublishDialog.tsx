@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { LWDialog } from "../../common/LWDialog";
+import { EAButton } from "../EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,9 +45,6 @@ const ConfirmPublishDialogInner = ({ digest, onClose, classes }: {
     })
     onClose?.()
   }
-  
-  const { LWDialog, EAButton } = Components
-
   return (
     <LWDialog open onClose={onClose} dialogClasses={{paper: classes.root}}>
       <DialogContent className={classes.text}>

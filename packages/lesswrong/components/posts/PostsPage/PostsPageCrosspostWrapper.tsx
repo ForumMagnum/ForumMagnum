@@ -1,9 +1,11 @@
 import React, { createContext, useContext } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
-import type { EagerPostComments } from "./PostsPage";
+import { EagerPostComments, PostsPage } from "./PostsPage";
+import { Error404 } from "../../common/Error404";
+import { Loading } from "../../vulcan-core/Loading";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -45,8 +47,6 @@ const PostsPageCrosspostWrapperInner = ({post, eagerPostComments, refetch, fetch
     foreignPost,
     combinedPost,
   } = useForeignCrosspost(post, fetchProps);
-
-  const { Error404, Loading, PostsPage } = Components;
   // If we get a error fetching the foreign xpost data, that should not stop us
   // from rendering the post if we have it locally
   if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {

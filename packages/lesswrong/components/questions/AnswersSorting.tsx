@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import * as _ from 'underscore';
-import type { Option } from '../common/InlineSelect';
+import { Option, InlineSelect } from '../common/InlineSelect';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
@@ -20,9 +20,6 @@ const AnswersSortingInner = ({ post }: {
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  
-  const {InlineSelect} = Components;
-
   const handleSortingClick = (opt: Option) => {
     const sorting = opt.value;
     const { query } = location;

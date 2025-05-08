@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import SvgIcon from '../icons/SvgIcon';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { TooltipSpan } from '../common/FMTooltip';
-
+import { ForumIcon } from "../common/ForumIcon";
 
 // just the "f", used for the FB Group link
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -145,8 +145,6 @@ const GroupLinksInner = ({ document, noMargin, classes }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
-  const {ForumIcon} = Components;
-
   const groupLinkProps = {
     className: classes.groupLink,
     target: "_blank",

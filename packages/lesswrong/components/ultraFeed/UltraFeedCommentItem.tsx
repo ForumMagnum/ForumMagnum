@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
@@ -9,6 +9,11 @@ import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
+import { UltraFeedCommentsDialog } from "./UltraFeedCommentsDialog";
+import { UltraFeedCommentsItemMeta } from "./UltraFeedCommentsItemMeta";
+import { FeedContentBody } from "./FeedContentBody";
+import { UltraFeedItemFooter } from "./UltraFeedItemFooter";
+import { OverflowNavButtons } from "./OverflowNavButtons";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -179,7 +184,6 @@ const UltraFeedCommentItemInner = ({
   settings = DEFAULT_SETTINGS,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter, OverflowNavButtons } = Components;
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
@@ -259,7 +263,7 @@ const UltraFeedCommentItemInner = ({
       name: "UltraFeedCommentsDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
-        <Components.UltraFeedCommentsDialog 
+        <UltraFeedCommentsDialog 
           document={comment}
           collectionName="Comments"
           onClose={onClose}

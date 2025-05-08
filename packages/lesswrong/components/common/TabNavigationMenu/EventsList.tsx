@@ -1,15 +1,14 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { TabNavigationEventsList } from "../../localGroups/TabNavigationEventsList";
 
 export const EventsListInner = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
   onClick: (e?: React.BaseSyntheticEvent) => void
 }) => {
-  const { TabNavigationEventsList } = Components
-  
   const {lat, lng, known} = useUserLocation(currentUser, true)
   
   if (lat && lng && known) {

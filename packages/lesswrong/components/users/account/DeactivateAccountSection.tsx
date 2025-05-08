@@ -1,14 +1,14 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
+import { ActionButtonSection } from "./ActionButtonSection";
 
 const DeactivateAccountSectionInner = ({
   user,
 }: {
   user: UsersEdit,
 }) => {
-  const { ActionButtonSection } = Components;
   const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',

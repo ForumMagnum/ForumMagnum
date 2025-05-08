@@ -1,5 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getDisplayConfig } from "./NotificationsPage/NotificationsPageNotification";
 import { useClickableCell } from "../common/useClickableCell";
 import { useTracking } from "@/lib/analyticsEvents";
@@ -9,6 +9,8 @@ import classNames from "classnames";
 import moment from "moment";
 import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
 import { useUpdate } from "@/lib/crud/withUpdate";
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { NotificationsPageItem } from "./NotificationsPage/NotificationsPageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -131,7 +133,6 @@ const NotificationsPopoverNotificationInner = ({notification, refetch, classes}:
   }
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
-  const {PostsTooltip, NotificationsPageItem} = Components;
   return (
     <PostsTooltip
       postId={post?._id ?? comment?.post?._id}

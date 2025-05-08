@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { MenuItem } from "../common/Menus";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { RecentComments } from "./RecentComments";
+import { SectionTitle } from "../common/SectionTitle";
+import { SettingsButton } from "../icons/SettingsButton";
 
 const styles = defineStyles('AllComments', theme => ({
   settings: {
@@ -31,7 +36,6 @@ const AllCommentsSettings = ({ expanded, settings, setSettings }: {
   settings: AllCommentsViewSettings
   setSettings: (newSettings: AllCommentsViewSettings) => void
 }) => {
-  const { MenuItem } = Components;
   const classes = useStyles(styles);
   if (!expanded) return null;
   return <div className={classes.settings}>
@@ -64,8 +68,6 @@ const AllCommentsSettings = ({ expanded, settings, setSettings }: {
 
 const AllCommentsInner = () => {
   const { query } = useLocation();
-  const { SingleColumnSection, RecentComments, SectionTitle, SettingsButton } = Components
-
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(defaultCommentsViewSettings);
 

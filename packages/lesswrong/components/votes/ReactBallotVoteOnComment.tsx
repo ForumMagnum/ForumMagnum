@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, reactBallotAxes, ReactBallotAxis, ReactBallotStandaloneReaction, reactBallotStandaloneReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
@@ -8,6 +8,11 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import chunk from 'lodash/chunk';
 import { VotingProps } from './votingProps';
+import { VoteArrowIcon } from "./VoteArrowIcon";
+import { LoginPopup } from "../users/LoginPopup";
+import { AxisVoteButton } from "./AxisVoteButton";
+import { OverallVoteAxis } from "./OverallVoteAxis";
+import { PopperCard } from "../common/PopperCard";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,8 +120,6 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
   direction: "up"|"down",
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AxisVoteButton } = Components;
-  
   return (
     <AxisVoteButton
       VoteIconComponent={({eventHandlers, voted, ...rest}) => {
@@ -132,7 +135,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
           })}
         >
           <span className={classes.voteArrow}>
-            <Components.VoteArrowIcon eventHandlers={{}} voted={voted} {...rest} alwaysColored />
+            <VoteArrowIcon eventHandlers={{}} voted={voted} {...rest} alwaysColored />
           </span>
           <span className={classes.buttonLabel}>
             {direction==="up" ? axis.goodLabel : axis.badLabel}
@@ -189,7 +192,7 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
     if(!currentUser){
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     } else {
       await voteProps.vote({
@@ -209,7 +212,6 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
 
 const ReactBallotVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
-  const { OverallVoteAxis, PopperCard } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   
   return <span className={classes.root} {...eventHandlers}>

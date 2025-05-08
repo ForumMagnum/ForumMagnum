@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { DialogActions } from '../widgets/DialogActions';
@@ -7,6 +7,8 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useDialog } from '../common/withDialog';
+import { LWDialog } from "../common/LWDialog";
+import { SequenceDraftsList } from "./SequenceDraftsList";
 
 const AddDraftPostDialogInner = ({documentId, postIds, onClose}: {
   documentId: string,
@@ -33,9 +35,6 @@ const AddDraftPostDialogInner = ({documentId, postIds, onClose}: {
       data: {postIds: [...dialogPostIds, newPostId]}
     })
   }, [documentId, updatePostIds, dialogPostIds, flash])
-
-  const { LWDialog, SequenceDraftsList } = Components;
-
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>

@@ -1,15 +1,18 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
-import { jargonTermsToTextReplacements } from './JargonTooltip';
+import { jargonTermsToTextReplacements, JargonTooltip } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { useHover } from '../common/withHover';
+import { SideItem } from "../contents/SideItems";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const lowOpacity = .4;
 const highOpacity = .85;
@@ -188,8 +191,6 @@ const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTerm
   unapprovedTermsCount: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
-
   const { captureEvent } = useTracking();
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
 

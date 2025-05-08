@@ -10,7 +10,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -27,19 +27,46 @@ import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
-import { useTagEditingRestricted } from "./TagPageButtonRow";
+import { useTagEditingRestricted, TagPageButtonRow } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
-import type { ContentItemBodyInner } from "../common/ContentItemBody";
+import { ContentItemBodyInner, ContentItemBody } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
-import { useDisplayedContributors } from "./ContributorsList";
+import { useDisplayedContributors, ToCContributorsList, HeadingContributorsList } from "./ContributorsList";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { LensForm } from "./lenses/LensForm";
 import { useSingle } from "@/lib/crud/withSingle";
+import { ErrorPage } from "../common/ErrorPage";
+import { RedlinkTagPage } from "./RedlinkTagPage";
+import { SideItem, SideItemsContainer } from "../contents/SideItems";
+import { ArbitalLinkedPagesRightSidebar, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
+import { TagAudioPlayerWrapper } from "./TagAudioPlayerWrapper";
+import { LensTabBar } from "./lenses/LensTab";
+import { SectionTitle } from "../common/SectionTitle";
+import { PostsListSortDropdown } from "../posts/PostsListSortDropdown";
+import { PostsList2 } from "../posts/PostsList2";
+import { Loading } from "../vulcan-core/Loading";
+import { AddPostsToTag } from "./AddPostsToTag";
+import { Typography } from "../common/Typography";
+import { ContentStyles } from "../common/ContentStyles";
+import { PermanentRedirect } from "../common/PermanentRedirect";
+import { HeadTags } from "../common/HeadTags";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import { TagFlagItem } from "./TagFlagItem";
+import { CommentsListCondensed } from "../common/CommentsListCondensed";
+import { SubscribeButton } from "./SubscribeButton";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { TagIntroSequence } from "./TagIntroSequence";
+import { MultiToCLayout } from "../posts/TableOfContents/MultiToCLayout";
+import { TableOfContents } from "../posts/TableOfContents/TableOfContents";
+import { FormatDate } from "../common/FormatDate";
+import { InlineReactSelectionWrapper } from "../votes/lwReactions/InlineReactSelectionWrapper";
+import { HoveredReactionContextProvider } from "../votes/lwReactions/HoveredReactionContextProvider";
+import { PathInfo } from "./PathInfo";
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -301,7 +328,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
     return (
       <>
@@ -505,13 +531,6 @@ function getTagQueryOptions(
 }
 
 const LWTagPageInner = () => {
-  const {
-    PostsList2, Loading, AddPostsToTag, Typography, ContentStyles,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, CommentsListCondensed,
-    TagPageButtonRow, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    MultiToCLayout, TableOfContents, FormatDate, LWTagPageRightColumn,
-    ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
-  } = Components;
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
@@ -681,7 +700,7 @@ const LWTagPageInner = () => {
   if (loadingTag && !tag) {
     return <Loading/>
   } else if (tagError) {
-    return <Components.ErrorPage error={tagError}/>
+    return <ErrorPage error={tagError}/>
   } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
@@ -697,7 +716,7 @@ const LWTagPageInner = () => {
     }
   }
   if (!tag || tag.isPlaceholderPage) {
-    return <Components.RedlinkTagPage tag={tag} slug={slug} />
+    return <RedlinkTagPage tag={tag} slug={slug} />
   }
 
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
@@ -790,9 +809,9 @@ const LWTagPageInner = () => {
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
-        <Components.SideItem>
-          <Components.ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
-        </Components.SideItem>
+        <SideItem>
+          <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+        </SideItem>
         { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
@@ -864,7 +883,7 @@ const LWTagPageInner = () => {
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={<Components.ToCContributorsList contributors={topContributors.concat(smallContributors)} onHoverContributor={onHoverContributor} />}
+      heading={<ToCContributorsList contributors={topContributors.concat(smallContributors)} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover
@@ -875,7 +894,7 @@ const LWTagPageInner = () => {
     <div className={classNames(classes.header,classes.centralColumn)}>
       {tag && showEmbeddedPlayer && <>
         <span className={classNames(classes.nonMobileAudioPlayer)}>
-          <Components.TagAudioPlayerWrapper tag={tag} showEmbeddedPlayer={showEmbeddedPlayer} />
+          <TagAudioPlayerWrapper tag={tag} showEmbeddedPlayer={showEmbeddedPlayer} />
         </span>
         <div className={classes.nonMobileAudioPlayerSpaceHolder} />
       </>}
@@ -897,7 +916,7 @@ const LWTagPageInner = () => {
         You are viewing version {revision} of this page.
         Click here to view the latest version.
       </Link>}
-      {(lenses.length > 1) && <Components.LensTabBar
+      {(lenses.length > 1) && <LensTabBar
         lenses={lenses}
         selectedLens={selectedLens}
         switchLens={switchLens}
@@ -930,14 +949,14 @@ const LWTagPageInner = () => {
         }
       </div>
       {tag && <span className={classNames(classes.mobileAudioPlayer)}>
-          <Components.TagAudioPlayerWrapper
+          <TagAudioPlayerWrapper
             tag={tag}
             showEmbeddedPlayer={showEmbeddedPlayer}
           />
         </span>}
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
         <span className={classes.contributorRowContent}>
-          <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
+          <HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
           {selectedLens?.textLastUpdatedAt && <>
             {' '}{'last updated '}
             <FormatDate date={selectedLens.textLastUpdatedAt} format="Do MMM YYYY" tooltip={false} />
@@ -1008,9 +1027,9 @@ const LWTagPageInner = () => {
           toggleEmbeddedPlayer={toggleEmbeddedPlayer}
           showEmbeddedPlayer={showEmbeddedPlayer}
         />
-        <Components.SideItemsContainer>
+        <SideItemsContainer>
           {multiColumnToc}
-        </Components.SideItemsContainer>
+        </SideItemsContainer>
       </div>
     </TagPageContext.Provider>
   </AnalyticsContext>
@@ -1021,7 +1040,6 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   selectedLens: TagLens|undefined,
   description: string,
 }) => {
-  const { ContentItemBody, InlineReactSelectionWrapper, HoveredReactionContextProvider, PathInfo } = Components;
   const classes = useStyles(styles);
 
   const contentRef = useRef<ContentItemBodyInner>(null);

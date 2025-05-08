@@ -5,11 +5,12 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
-
+import { ContentItemBody } from "../common/ContentItemBody";
+import { BasicFormStyles } from "../form-components/BasicFormStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,8 +92,6 @@ export const CurationNoticesItemInner = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, BasicFormStyles } = Components;
-
   const currentUser = useCurrentUser();
 
   const [edit, setEdit] = useState<boolean>(false)

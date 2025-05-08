@@ -1,6 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
+import { WrappedWelcomeMessage } from "./WrappedWelcomeMessage";
+import { ForumIcon } from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -36,7 +38,6 @@ const WrappedWelcomeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, currentUser, goToNextSection} = useForumWrappedContext();
-  const {WrappedWelcomeMessage, ForumIcon} = Components;
   return (
     <WrappedWelcomeMessage currentUser={currentUser} year={year}>
       <button onClick={goToNextSection} className={classes.button}>

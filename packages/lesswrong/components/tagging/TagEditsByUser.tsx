@@ -1,8 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
+import { Loading } from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import { SingleLineTagUpdates } from "./SingleLineTagUpdates";
+import { LoadMore } from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +38,7 @@ const TagEditsByUserInner = ({userId, limit, classes}: {
   });
 
   if (loadingInitial || !results) {
-    return <Components.Loading />
+    return <Loading />
   }
 
   const resultsWithLiveTags = results
@@ -45,15 +49,15 @@ const TagEditsByUserInner = ({userId, limit, classes}: {
     });
 
   if (resultsWithLiveTags.length === 0) {
-    return <Components.Typography variant="body2" className={classes.wikiEmpty}>
+    return <Typography variant="body2" className={classes.wikiEmpty}>
       No {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contributions to display.
-    </Components.Typography>
+    </Typography>
   }
 
   return <div className={classes.root}>
     {resultsWithLiveTags.map(tagUpdates => {
       const topLevelTag = tagUpdates.tag ?? tagUpdates.lens?.parentTag;
-      return <Components.SingleLineTagUpdates
+      return <SingleLineTagUpdates
         key={tagUpdates.documentId + " " + tagUpdates.editedAt}
         tag={topLevelTag!}
         revisionIds={[tagUpdates._id]}
@@ -61,7 +65,7 @@ const TagEditsByUserInner = ({userId, limit, classes}: {
         lastRevisedAt={tagUpdates.editedAt}
       />
     })}
-    <Components.LoadMore {...loadMoreProps} />
+    <LoadMore {...loadMoreProps} />
   </div>
 }
 

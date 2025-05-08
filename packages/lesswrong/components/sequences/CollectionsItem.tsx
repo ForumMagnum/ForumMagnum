@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -10,6 +10,11 @@ import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { TooltipSpan } from '../common/FMTooltip';
+import { Typography } from "../common/Typography";
+import { LinkCard } from "../common/LinkCard";
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,10 +106,6 @@ export const CollectionsItemInner = ({classes, showCloseIcon, collection}: {
   showCloseIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip
-  } = Components;
-
   const { firstPost } = collection;
 
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere

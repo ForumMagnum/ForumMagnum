@@ -1,8 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
 import Button  from '@/lib/vendor/@material-ui/core/src/Button'
+import { ContentItemBody } from "../common/ContentItemBody";
+import { LWDialog } from "../common/LWDialog";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -35,7 +38,6 @@ const AFNonMemberSuccessPopupInner = ({_id, postId, onClose, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(true)
-  const { ContentItemBody, LWDialog, ContentStyles } = Components
   const { tag } = useTagBySlug("af-non-member-submission-success", "TagFragment")
   
   const handleClose = () => {

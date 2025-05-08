@@ -1,8 +1,11 @@
 import React, { useRef, useEffect, RefObject, useState, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import { UserNameDeleted } from "../users/UserNameDeleted";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -88,9 +91,6 @@ const TruncatedAuthorsListInner = ({
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
   }, [isAnon, authors, topCommentAuthor, ref, classes, expandContainer, useMoreSuffix, reformatAuthorPlaceholderCurried]);
-
-  const {UsersNameDisplay, UserNameDeleted, LWTooltip} = Components;
-
   return isAnon || authors.length === 0
     ? <UserNameDeleted />
     : (

@@ -1,7 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import type { CommonExcerptProps } from "./ContentExcerpt";
+import { CommonExcerptProps, ContentExcerpt } from "./ContentExcerpt";
 
 const CommentExcerptInner = ({
   comment,
@@ -13,8 +13,6 @@ const CommentExcerptInner = ({
   if (!contentHtml) {
     return null;
   }
-
-  const {ContentExcerpt} = Components;
   return (
     <ContentExcerpt
       contentHtml={contentHtml}

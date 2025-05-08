@@ -1,10 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { LWTooltip } from "../common/LWTooltip";
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { LoginToTrack } from "./LoginToTrack";
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -61,8 +64,6 @@ const BooksProgressBarInner = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWTooltip, PostsTooltip, LoginToTrack } = Components;
-
   const { postsRead: clientPostsRead } = useItemsRead();
 
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));

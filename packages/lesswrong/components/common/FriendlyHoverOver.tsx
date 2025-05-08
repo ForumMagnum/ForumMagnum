@@ -1,8 +1,9 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
+import { LWTooltip } from "./LWTooltip";
 
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;
@@ -58,7 +59,6 @@ const FriendlyHoverOverInner = ({
   forceOpen,
   classes,
 }: FriendlyHoverOverProps) => {
-  const {LWTooltip} = Components;
   return (
     <LWTooltip
       title={title}

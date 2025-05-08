@@ -1,8 +1,11 @@
 import React, { RefObject } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
 import { gql, useMutation } from '@apollo/client';
+import { SplashImageEditingOptions } from "./SplashImageEditingOptions";
+import { ImageCropPreview } from "./ImageCropPreview";
+import { LWPopper } from "../../../common/LWPopper";
 
 const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 
   root: {
@@ -45,8 +48,6 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
 
 const SplashImageEditingInner = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
-  const { SplashImageEditingOptions, ImageCropPreview, LWPopper } = Components;
-
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const [flipMutation] = useMutation(gql`

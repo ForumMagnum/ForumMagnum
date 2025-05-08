@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -36,9 +36,9 @@ const FormGroupHeaderInner = ({ toggle, collapsed, label, classes }: {
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
     <span className="form-section-heading-toggle">
       {collapsed ? (
-        <Components.IconRight height={16} width={16} />
+        <IconRight height={16} width={16} />
       ) : (
-        <Components.IconDown height={16} width={16} />
+        <IconDown height={16} width={16} />
       )}
     </span>
   </div>

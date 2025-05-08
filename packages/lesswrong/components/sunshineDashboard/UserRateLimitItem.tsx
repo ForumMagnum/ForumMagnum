@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
@@ -16,6 +16,11 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { Error404 } from "../common/Error404";
+import { MenuItem } from "../common/Menus";
+import { Loading } from "../vulcan-core/Loading";
+import { MetaInfo } from "../common/MetaInfo";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -179,8 +184,6 @@ export const UserRateLimitsForm = ({
   onCancel,
 }: EditableUserRateLimitFormData) => {
   const classes = useStyles(formStyles);
-  const { Error404 } = Components;
-
   const formType = initialData ? 'edit' : 'new';
 
   const { create } = useCreate({
@@ -327,7 +330,6 @@ export const UserRateLimitItemInner = ({ userId, classes }: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MenuItem, Loading, MetaInfo, LWTooltip } = Components;
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { DialogContent } from '../widgets/DialogContent';
@@ -7,6 +7,7 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { DialogActions } from '../widgets/DialogActions';
+import { LWDialog } from "../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   modalTextField: {
@@ -36,8 +37,6 @@ const AFApplicationFormInner = ({ onClose, classes }: AFApplicationFormProps) =>
       onClose()
     }).catch(/* error */);
   };
-
-  const { LWDialog } = Components;
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>

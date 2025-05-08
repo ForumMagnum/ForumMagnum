@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import type {
   CommentCancelCallback,
   CommentSuccessCallback,
 } from '../comments/CommentsNewForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { QuickTakesEntry } from "../quickTakes/QuickTakesEntry";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,8 +59,6 @@ const ShortformSubmitFormInner = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {QuickTakesEntry, ForumIcon} = Components;
-
   return (
     <div className={className}>
       {!hideCloseButton &&

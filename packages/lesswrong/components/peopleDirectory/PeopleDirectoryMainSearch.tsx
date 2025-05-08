@@ -1,10 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { PeopleDirectoryInput } from "./PeopleDirectoryInput";
 
 const PeopleDirectoryMainSearchInner = () => {
   const {query, setQuery} = usePeopleDirectory();
-  const {PeopleDirectoryInput} = Components;
   return (
     <PeopleDirectoryInput
       value={query}

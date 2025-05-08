@@ -1,9 +1,11 @@
 import React, { FC, MouseEvent, ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import { UseHoverEventHandlers } from "../common/withHover";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
@@ -102,7 +104,6 @@ const EASequenceOrCollectionCardInner = ({
 }) => {
   const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;
-  const {CloudinaryImage2, UsersNameDisplay} = Components;
   return (
     <div
       {...eventHandlers}

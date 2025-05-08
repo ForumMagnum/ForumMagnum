@@ -1,12 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { PostsItem } from "../posts/PostsItem";
 
 const SequencesPostsListInner = ({posts, chapter}: {
   posts: Array<PostsListWithVotes>,
   chapter?: ChaptersFragment,
 }) => {
   return <div>
-    {posts.map((post) => <Components.PostsItem key={post._id} post={post} chapter={chapter} />)}
+    {posts.map((post) => <PostsItem key={post._id} post={post} chapter={chapter} />)}
   </div>
 }
 

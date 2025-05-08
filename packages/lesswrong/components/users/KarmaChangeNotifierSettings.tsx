@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { PureComponent } from 'react';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
@@ -14,6 +14,8 @@ import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles('KarmaChangeNotifierSettings', (theme: ThemeType) => ({
   root: {
@@ -89,7 +91,6 @@ const KarmaChangeNotifierSettingsInner = ({
 }: {
   field: TypedFieldApi<KarmaChangeSettingsType>;
 }) => {
-  const { Typography, MenuItem } = Components;
   const classes = useStyles(styles);
   const { timezone } = useTimezone();
   const settings = field.state.value;

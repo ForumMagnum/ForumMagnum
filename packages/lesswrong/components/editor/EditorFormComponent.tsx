@@ -30,10 +30,15 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
-import { Components } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { LastEditedInWarning } from "./LastEditedInWarning";
+import { LocalStorageCheck } from "./LocalStorageCheck";
+import { EditorTypeSelect } from "./EditorTypeSelect";
+import { PostsEditBotTips } from "../posts/PostsEditBotTips";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { PostVersionHistoryButton } from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -553,21 +558,21 @@ function InnerEditorFormComponent<S, R>({
 
   return <div className={classes.root}>
     {showEditorWarning && 
-      <Components.LastEditedInWarning
+      <LastEditedInWarning
         initialType={initialEditorType}
         currentType={contents.type}
         defaultType={defaultEditorType}
         value={contents} setValue={wrappedSetContents}
       />
     }
-    {!isCollabEditor && <Components.LocalStorageCheck
+    {!isCollabEditor && <LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
       onRestoreNewPostLegacy={onRestoreNewPostLegacy}
       getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
-    <Components.Editor
+    <Editor
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
@@ -595,16 +600,16 @@ function InnerEditorFormComponent<S, R>({
     />
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" && (
-      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+      <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
     )}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id && (
-      <Components.PostVersionHistoryButton
+      <PostVersionHistoryButton
         post={document}
         postId={document._id}
       />
     )}
     <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
-      {(state) => <Components.PostsEditBotTips
+      {(state) => <PostsEditBotTips
         handleDismiss={handleDismissCriticismTips}
         postId={document._id}
         className={classes[`${state}BotTips`]}
@@ -614,8 +619,6 @@ function InnerEditorFormComponent<S, R>({
 }
 
 export function EditorFormComponent<S, R>(props: EditorFormComponentProps<S, R>) {
-  const { ErrorBoundary } = Components;
-
   const { field, formType, ...rest } = props;
   if (typeof field.state.value !== 'object' && formType === 'edit') {
     return null;

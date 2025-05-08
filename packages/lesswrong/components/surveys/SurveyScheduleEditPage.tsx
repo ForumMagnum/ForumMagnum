@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -18,6 +18,11 @@ import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/constan
 import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { z } from "zod";
+import { Error404 } from "../common/Error404";
+import { LWTooltip } from "../common/LWTooltip";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
 
 const styles = defineStyles('SurveyScheduleEditPage', (theme: ThemeType) => ({
   root: {
@@ -41,7 +46,6 @@ const SurveySchedulesForm = ({
   initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; target?: DbSurveySchedule['target'] };
   onSuccess: (doc: SurveyScheduleEdit) => void;
 }) => {
-  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(styles);
 
   const formType = initialData ? 'edit' : 'new';
@@ -252,8 +256,6 @@ const SurveyScheduleEditor = () => {
   const onCreate = useCallback(() => {
     navigate("/admin/surveys");
   }, [navigate]);
-
-  const { SingleColumnSection, SectionTitle } = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
@@ -272,7 +274,7 @@ const SurveyScheduleEditPageInner = () => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyScheduleEditor />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
 export const SurveyScheduleEditPage = registerComponent(

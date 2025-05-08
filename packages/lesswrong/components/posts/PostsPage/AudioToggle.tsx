@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { LWTooltip } from "../../common/LWTooltip";
+import { ForumIcon } from "../../common/ForumIcon";
 
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
@@ -36,8 +38,6 @@ const AudioToggleInner = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlay
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
 }) => {
-  const { LWTooltip, ForumIcon } = Components;
-
   if (!postHasAudioPlayer(post)) {
     return null;
   }

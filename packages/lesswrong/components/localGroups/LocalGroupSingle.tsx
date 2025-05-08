@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import { LocalGroupPage } from "./LocalGroupPage";
 
 const LocalGroupSingleInner = () => {
   const { params } = useLocation();
-  return <Components.LocalGroupPage documentId={params.groupId}/>
+  return <LocalGroupPage documentId={params.groupId}/>
 }
 
 export const LocalGroupSingle = registerComponent('LocalGroupSingle', LocalGroupSingleInner);

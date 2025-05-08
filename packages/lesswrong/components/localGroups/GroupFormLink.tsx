@@ -1,22 +1,21 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import AddLocationIcon from '@/lib/vendor/@material-ui/icons/src/AddLocation';
 import { useDialog } from '../common/withDialog'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
-
+import { GroupFormDialog } from "./GroupFormDialog";
+import { SectionButton } from "../common/SectionButton";
 
 const GroupFormLinkInner = ({documentId, isOnline}: {
   documentId?: string
   isOnline?: boolean
 }) => {
   const { openDialog } = useDialog();
-  const { SectionButton } = Components
-
   const handleOpenGroupForm = () => {
     openDialog({
       name: "GroupFormDialog",
-      contents: ({onClose}) => <Components.GroupFormDialog
+      contents: ({onClose}) => <GroupFormDialog
         onClose={onClose}
         documentId={documentId}
         isOnline={isOnline}

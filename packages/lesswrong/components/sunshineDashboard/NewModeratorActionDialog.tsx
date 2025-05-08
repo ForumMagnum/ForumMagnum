@@ -5,13 +5,14 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { FormUserSelect } from '@/components/form-components/UserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { LWDialog } from "../common/LWDialog";
 
 const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -30,7 +31,6 @@ const NewModeratorActionDialogInner = ({ onClose, userId }: {
   onClose: () => void,
   userId: string
 }) => {
-  const { LWDialog } = Components;
   const classes = useStyles(styles);
 
   const { create, error } = useCreate({

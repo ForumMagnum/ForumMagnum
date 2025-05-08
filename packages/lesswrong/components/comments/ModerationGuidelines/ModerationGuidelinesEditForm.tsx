@@ -3,7 +3,7 @@ import { DialogContent } from '../../widgets/DialogContent';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import { useForm } from '@tanstack/react-form';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
@@ -15,6 +15,9 @@ import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useSingle } from '@/lib/crud/withSingle';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { LWDialog } from "../../common/LWDialog";
+import { Typography } from "../../common/Typography";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = defineStyles('ModerationGuidelinesEditForm', (theme: ThemeType) => ({
   formButton: {
@@ -170,7 +173,7 @@ export const ModerationGuidelinesEditFormInner = ({ commentType = "post", docume
   const { document: editableDocument } = useSingle(useSingleArgs);
 
   return (
-    <Components.LWDialog
+    <LWDialog
       open={true}
       onClose={onClose}
     >
@@ -178,10 +181,10 @@ export const ModerationGuidelinesEditFormInner = ({ commentType = "post", docume
         Moderation Guidelines Edit Form
       </DialogTitle>
       <DialogContent>
-        <Components.Typography variant="body2">
+        <Typography variant="body2">
           Edit the moderation guidelines specific to this {commentType}:
-        </Components.Typography>
-        {!editableDocument && <Components.Loading />}
+        </Typography>
+        {!editableDocument && <Loading />}
         {editableDocument && (
           <PostModerationGuidelinesForm
             documentType={commentType}
@@ -190,7 +193,7 @@ export const ModerationGuidelinesEditFormInner = ({ commentType = "post", docume
           />
         )}
       </DialogContent>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 

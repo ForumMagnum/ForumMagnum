@@ -1,9 +1,10 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { COLUMN_HORIZONTAL_PADDING } from "./PeopleDirectoryResultRow";
 import classNames from "classnames";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,8 +54,6 @@ const PeopleDirectoryHeadingInner = ({column, classes}: {
   }, [sorting, setSorting, column.sortField, column.defaultSort]);
 
   const isCurrentSort = column.sortField && sorting?.field === column.sortField;
-
-  const {ForumIcon} = Components;
   return (
     <div className={classNames(
       classes.root,

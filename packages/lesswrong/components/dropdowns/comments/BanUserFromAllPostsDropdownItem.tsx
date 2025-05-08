@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import { DropdownItem } from "../DropdownItem";
 
 const BanUserFromAllPostsDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
@@ -38,8 +39,6 @@ const BanUserFromAllPostsDropdownItemInner = ({comment, post}: {
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your posts`}))
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban from all your posts"

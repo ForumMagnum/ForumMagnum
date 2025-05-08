@@ -1,9 +1,10 @@
 import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
+import { LWPopper } from "./LWPopper";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -64,7 +65,6 @@ const LWTooltipInner = ({
   forceOpen,
   classes,
 }: LWTooltipProps) => {
-  const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

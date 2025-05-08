@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
@@ -12,6 +12,15 @@ import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingName
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { LoginPopup } from "../users/LoginPopup";
+import { AllTagsAlphabetical } from "./AllTagsAlphabetical";
+import { SectionButton } from "../common/SectionButton";
+import { SectionTitle } from "../common/SectionTitle";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { Loading } from "../vulcan-core/Loading";
+import { CoreTagsSection } from "./CoreTagsSection";
+import { SingleColumnSection } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -75,9 +84,6 @@ const EAAllTagsPageInner = ({classes}: {
     skip: !tag || !editing,
     ssr: false,
   });
-
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, Loading, CoreTagsSection, SingleColumnSection } = Components;
-
   const portalTitle = `EA Forum ${`${taggingNamePluralCapitalSetting.get()} `}Wiki`
   
   const htmlWithAnchors = tag?.tableOfContents?.html || tag?.description?.html || "";
@@ -99,7 +105,7 @@ const EAAllTagsPageInner = ({classes}: {
               {!currentUser && <a onClick={(ev) => {
                 openDialog({
                   name: "LoginPopup",
-                  contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+                  contents: ({onClose}) => <LoginPopup onClose={onClose} />
                 });
                 ev.preventDefault();
               }}>

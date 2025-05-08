@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { formatRole, formatStat } from "../../users/EAUserTooltipContent";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
+import { UsersProfileImage } from "../../users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -74,8 +75,6 @@ export const EAOnboardingAuthorInner = ({user, onSubscribed, classes}: {
   useEffect(() => {
     onSubscribed?.(_id, subscribed);
   }, [_id, subscribed, onSubscribed]);
-
-  const {UsersProfileImage} = Components;
   return (
     <div
       onClick={toggleSubscribed}

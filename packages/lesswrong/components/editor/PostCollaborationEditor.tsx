@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -9,6 +9,17 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
+import { Error404 } from "../common/Error404";
+import { PostsAuthors } from "../posts/PostsPage/PostsAuthors";
+import { CollabEditorPermissionsNotices } from "./CollabEditorPermissionsNotices";
+import { CKPostEditor } from "./CKPostEditor";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { Loading } from "../vulcan-core/Loading";
+import { ContentStyles } from "../common/ContentStyles";
+import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
+import { PermanentRedirect } from "../common/PermanentRedirect";
+import { ForeignCrosspostEditForm } from "../posts/ForeignCrosspostEditForm";
+import { PostVersionHistoryButton } from './PostVersionHistory';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -34,7 +45,6 @@ const styles = (theme: ThemeType) => ({
 const PostCollaborationEditorInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();
 
   const { query: { postId, key } } = useLocation();
@@ -58,7 +68,7 @@ const PostCollaborationEditorInner = ({ classes }: {
   // Error handling and loading state
   if (error) {
     if (isMissingDocumentError(error)) {
-      return <Components.Error404 />
+      return <Error404 />
     }
     return <SingleColumnSection>Sorry, you don't have access to this draft</SingleColumnSection>
   }
@@ -94,14 +104,14 @@ const PostCollaborationEditorInner = ({ classes }: {
 
   return <SingleColumnSection>
     <div className={classes.title}>{post.title}</div>
-    <Components.PostsAuthors post={post}/>
-    <Components.CollabEditorPermissionsNotices post={post}/>
+    <PostsAuthors post={post}/>
+    <CollabEditorPermissionsNotices post={post}/>
     {/*!post.draft && <div>
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
     <ContentStyles className={classes.editor} contentType="post">
       <DeferRender ssr={false}>
-        <Components.CKPostEditor
+        <CKPostEditor
           documentId={postId}
           collectionName="Posts"
           fieldName="contents"

@@ -1,8 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { Link } from '../../lib/reactRouterWrapper';
+import { SunshineListCount } from "./SunshineListCount";
+import { SunshineListTitle } from "./SunshineListTitle";
+import { SunshineNewUsersItem } from "./SunshineNewUsersItem";
+import { LoadMore } from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -25,8 +29,6 @@ const SunshineNewUsersListInner = ({ classes, terms, currentUser }: {
     enableTotal: true,
     itemsPerPage: 60
   });
-  const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components
-
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div>

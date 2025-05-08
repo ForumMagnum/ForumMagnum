@@ -1,15 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
-
+import { CommentsList } from "../comments/CommentsList";
+import { Loading } from "../vulcan-core/Loading";
 
 const RepliesToCommentListInner = ({ post, parentCommentId, directReplies = false }: {
   post: PostsBase,
   parentCommentId: string,
   directReplies?: boolean
 }) => {
-  const { CommentsList, Loading } = Components;
   const terms: CommentsViewTerms = directReplies ? {
     view: "commentReplies",
     parentCommentId,

@@ -9,8 +9,16 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { Error404 } from "../common/Error404";
+import { HeadTags } from "../common/HeadTags";
+import { PostsLoading } from "../posts/PostsLoading";
+import { EAPostsItem } from "../posts/EAPostsItem";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { ForumIcon } from "../common/ForumIcon";
+import { LWTooltip } from "../common/LWTooltip";
+import { EAButton } from "./EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -218,11 +226,6 @@ const EADigestPageInner = ({ classes }: { classes: ClassesType<typeof styles> })
       }
     }
   }
-  
-  const {
-    Error404, HeadTags, PostsLoading, EAPostsItem, CloudinaryImage2, ForumIcon, LWTooltip, EAButton
-  } = Components;
-  
   // TODO: Probably we'll want to check the publishedDate instead of the endDate, but we haven't been using it.
   // If we do start using it, we'll need to backfill the publishedDate values and update this condition.
   const isPublished = digest && digest.endDate

@@ -1,11 +1,12 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import range from 'lodash/range';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,9 +43,6 @@ export const ReviewProgressReviewsInner = ({classes, reviewYear}: {
   const TARGET_NUM = 3
 
   const currentUser = useCurrentUser()
-
-  const { LWTooltip } = Components
-
   const { results: reviewsResults, totalCount } = useMulti({
     terms: {
       view: "reviews",

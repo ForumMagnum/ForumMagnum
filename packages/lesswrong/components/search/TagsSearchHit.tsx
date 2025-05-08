@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { SearchHitComponentProps } from './types';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +37,6 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 }
 
 const TagsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
-  const { LWTooltip } = Components
   const tag = hit as SearchTag;
 
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"

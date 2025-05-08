@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useSingle } from "@/lib/crud/withSingle";
-
+import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
+import { UltraFeedPostItem } from "./UltraFeedPostItem";
+import { Loading } from "../vulcan-core/Loading";
 
 const itemSeparator = (theme: ThemeType) => ({
   content: '""',
@@ -162,9 +164,6 @@ const UltraFeedThreadItemInner = ({thread, index, settings = DEFAULT_SETTINGS}: 
   const initialHighlightStatuses = initializeHighlightStatuses(initialDisplayStatuses, commentMetaInfos);
   const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<CommentDisplayStatusMap>(initialDisplayStatuses);
   const [highlightStatuses] = useState<Record<string, boolean>>(initialHighlightStatuses);
-
-  const { UltraFeedCommentItem, UltraFeedCompressedCommentsItem, UltraFeedPostItem, Loading } = Components;
-
   const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
     setCommentDisplayStatuses(prev => ({
       ...prev,

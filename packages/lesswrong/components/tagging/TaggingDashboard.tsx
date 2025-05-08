@@ -4,11 +4,21 @@ import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSe
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useSingle } from '@/lib/crud/withSingle';
+import { TagFlagEditAndNewForm } from "./TagFlagEditAndNewForm";
+import { SectionTitle } from "../common/SectionTitle";
+import { TagsDetailsItem } from "./TagsDetailsItem";
+import { SectionButton } from "../common/SectionButton";
+import { TagFlagItem } from "./TagFlagItem";
+import { NewTagsList } from "./NewTagsList";
+import { LoadMore } from "../common/LoadMore";
+import { TagActivityFeed } from "./TagActivityFeed";
+import { TagVoteActivity } from "./TagVoteActivity";
+import { SingleColumnSection } from "../common/SingleColumnSection";
 
 const SECTION_WIDTH = 960
 
@@ -76,7 +86,6 @@ const styles = (theme: ThemeType) => ({
 const TaggingDashboardInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
@@ -139,7 +148,7 @@ const TaggingDashboardInner = ({classes}: {
             {currentUser?.isAdmin &&
               <span className={classes.editButton} onClick={() => openDialog({
                 name: "TagFlagEditAndNewForm",
-                contents: ({onClose}) => <Components.TagFlagEditAndNewForm
+                contents: ({onClose}) => <TagFlagEditAndNewForm
                   onClose={onClose}
                   {...(query.focus && focusedTagFlag) ? { initialData: focusedTagFlag } : {}}
                 />

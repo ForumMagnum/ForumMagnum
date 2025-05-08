@@ -1,9 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { ExpandedDate } from '../../common/FormatDate';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { ExpandedDate, FormatDate } from '../../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { PostsRevisionSelector } from "./PostsRevisionSelector";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   date: {
@@ -24,8 +26,6 @@ const PostsPageDateInner = ({ post, hasMajorRevision, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const now = moment(useCurrentTime())
-  const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
-  
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
     

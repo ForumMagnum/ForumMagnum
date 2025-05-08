@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
@@ -12,6 +12,9 @@ import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
+import { OmegaIcon } from "../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconSet: {
@@ -83,8 +86,6 @@ export const CuratedIconInner = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, ForumIcon } = Components;
-
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}>
@@ -105,8 +106,6 @@ const RecommendedPostIcon = ({post, hover, classes}: {
   hover?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, ForumIcon } = Components;
-
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
   const currentUser = useCurrentUser();
@@ -141,7 +140,6 @@ const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersona
   hidePersonalIcon?: boolean
   classes: ClassesType<typeof styles>,
 }) => {
-  const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>

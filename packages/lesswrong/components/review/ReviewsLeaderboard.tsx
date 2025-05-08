@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { Card } from "@/components/widgets/Paper";
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import { Row } from "../common/Row";
+import { MetaInfo } from "../common/MetaInfo";
+import { LWTooltip } from "../common/LWTooltip";
+import { CommentsNode } from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,8 +63,6 @@ export const ReviewsLeaderboardInner = ({classes, reviews, reviewYear}: {
 }) => {
   const currentUser = useCurrentUser()
   const [truncated, setTruncated] = useState<boolean>(true)
-  const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
-
   // TODO find the place in the code where this is normally set
   const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
     if (user?.karma && user?.karma >= 1000) {

@@ -1,7 +1,9 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import type { Placement as PopperPlacementType } from "popper.js"
+import { HoverOver } from "../common/HoverOver";
+import { SequencesSummary } from "./SequencesSummary";
 
 export const SequencesTooltipInner = ({
   sequence,
@@ -16,7 +18,6 @@ export const SequencesTooltipInner = ({
   placement?: PopperPlacementType,
   children?: ReactNode,
 }) => {
-  const {HoverOver, SequencesSummary} = Components;
   return (
     <HoverOver
       title={

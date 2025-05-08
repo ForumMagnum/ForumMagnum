@@ -1,11 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { ForumIcon } from "../../common/ForumIcon";
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -195,7 +196,7 @@ export const ToCColumnInner = ({
             [classes.hideTocButtonHidden]: !hideTocButtonHidden,
           })}
         >
-          <Components.ForumIcon icon="ListBullet" />
+          <ForumIcon icon="ListBullet" />
           {hidden ? "Show" : "Hide"} table of contents
         </div>
       }

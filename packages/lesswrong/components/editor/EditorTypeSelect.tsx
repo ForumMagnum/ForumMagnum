@@ -1,9 +1,11 @@
 import React from 'react'
 import { EditorContents, EditorTypeString, EditorChangeEvent, nonAdminEditors, adminEditors, editorTypeToDisplay } from './Editor';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useConvertDocument } from './useConvertDocument';
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   select: {
@@ -17,7 +19,6 @@ const EditorTypeSelectInner = ({value, setValue, isCollaborative, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, MenuItem } = Components;
   const {convertDocument, loading, error} = useConvertDocument({
     onCompleted: (result: EditorContents) => {
       setValue({

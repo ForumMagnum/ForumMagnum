@@ -1,8 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import { PostsList2 } from "../posts/PostsList2";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { SunshineCuratedSuggestionsList } from "../sunshineDashboard/SunshineCuratedSuggestionsList";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -19,8 +23,6 @@ const styles = (theme: ThemeType) => ({
 const RecommendationsPageCuratedListInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
-
   const currentUser = useCurrentUser()
 
   return (

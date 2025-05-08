@@ -1,8 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
-import type { ForumIconName } from "../common/ForumIcon";
+import { ForumIconName, ForumIcon } from "../common/ForumIcon";
 import { useDismissable } from "../hooks/useDismissable";
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
 
@@ -83,8 +83,6 @@ export const NewPostHowToGuidesInner = ({classes}: {
   if (dismissed) {
     return null;
   }
-
-  const {ForumIcon} = Components;
   return (
     <AnalyticsContext pageElementContext="newPostHowToGuides">
       <div className={classes.root}>

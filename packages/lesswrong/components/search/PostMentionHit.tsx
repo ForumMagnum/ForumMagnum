@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = () => ({
   root: {
@@ -24,7 +25,7 @@ const PostMentionHitInner = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const icon = isFriendlyUI
-    ? <Components.ForumIcon icon="Document" className={classes.icon} />
+    ? <ForumIcon icon="Document" className={classes.icon} />
     : "📃";
   return (
     <span className={classes.root}>

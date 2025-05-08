@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { EAButton } from "../../ea-forum/EAButton";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   blurb: {
@@ -13,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 
 type ActionButtonSectionProps = {
   buttonText: string;
-  buttonProps: Partial<Omit<ComponentProps<typeof Components.EAButton>, "onClick">>;
+  buttonProps: Partial<Omit<ComponentProps<typeof EAButton>, "onClick">>;
   description: ReactNode;
   loading?: boolean;
   onClick: () => void;
@@ -28,8 +30,6 @@ const ActionButtonSectionInner = ({
   onClick,
   classes,
 }: ActionButtonSectionProps) => {
-  const { EAButton, Loading } = Components;
-
   return (
     <div>
       <div className={classes.blurb}>{description}</div>

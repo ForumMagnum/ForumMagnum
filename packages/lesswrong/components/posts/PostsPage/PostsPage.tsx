@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -25,7 +25,7 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
-import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { postHasAudioPlayer, PostsAudioPlayerWrapper } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
@@ -37,13 +37,55 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
-import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import { LW_POST_PAGE_PADDING, LWPostsPageHeader } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
+import { SharePostPopup } from "../SharePostPopup";
+import { ReplyCommentDialog } from "../../comments/ReplyCommentDialog";
+import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
+import { MultiToCLayout } from "../TableOfContents/MultiToCLayout";
+import { HeadTags } from "../../common/HeadTags";
+import { CitationTags } from "../../common/CitationTags";
+import { PostsPagePostHeader } from "./PostsPagePostHeader";
+import { PostsPagePostFooter } from "./PostsPagePostFooter";
+import { PostBodyPrefix } from "./PostBodyPrefix";
+import { PostCoauthorRequest } from "./PostCoauthorRequest";
+import { CommentPermalink } from "../../comments/CommentPermalink";
+import { ToCColumn } from "../TableOfContents/ToCColumn";
+import { WelcomeBox } from "./WelcomeBox";
+import { TableOfContents } from "../TableOfContents/TableOfContents";
+import { RSVPs } from "./RSVPs";
+import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
+import { ContentStyles } from "../../common/ContentStyles";
+import { PostBody } from "./PostBody";
+import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
+import { PermanentRedirect } from "../../common/PermanentRedirect";
+import { DebateBody } from "../../comments/DebateBody";
+import { PostsPageRecommendationsList } from "../../recommendations/PostsPageRecommendationsList";
+import { PostSideRecommendations } from "../../recommendations/PostSideRecommendations";
+import { PostBottomRecommendations } from "../../recommendations/PostBottomRecommendations";
+import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
+import { Row } from "../../common/Row";
+import { AnalyticsInViewTracker } from "../../common/AnalyticsInViewTracker";
+import { PostsPageQuestionContent } from "../../questions/PostsPageQuestionContent";
+import { AFUnreviewedCommentCount } from "../../alignment-forum/AFUnreviewedCommentCount";
+import { CommentsListSection } from "../../comments/CommentsListSection";
+import { CommentsTableOfContents } from "../../comments/CommentsTableOfContents";
+import { StickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
+import { AttributionInViewTracker } from "../../common/AttributionInViewTracker";
+import { ForumEventPostPagePollSection } from "../../forumEvents/ForumEventPostPagePollSection";
+import { SubscribeTo } from "../../notifications/NotifyMeButton";
+import { LWTooltip } from "../../common/LWTooltip";
+import { PostsPageDate } from "./PostsPageDate";
+import { SingleColumnSection } from "../../common/SingleColumnSection";
+import { FundraisingThermometer } from "../../common/FundraisingThermometer";
+import { PostPageReviewButton } from "./PostPageReviewButton";
+import { HoveredReactionContextProvider } from "../../votes/lwReactions/HoveredReactionContextProvider";
+import { FixedPositionToCHeading } from '../TableOfContents/PostFixedPositionToCHeading';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -523,7 +565,7 @@ const PostsPageInner = ({fullPost, postPreload, eagerPostComments, refetch, clas
     if (fullPost) {
       openDialog({
         name: "SharePostPopup",
-        contents: ({onClose}) => <Components.SharePostPopup
+        contents: ({onClose}) => <SharePostPopup
           onClose={onClose}
           post={fullPost}
         />,
@@ -590,17 +632,6 @@ const PostsPageInner = ({fullPost, postPreload, eagerPostComments, refetch, clas
     fetchPolicy: 'cache-and-network',
     skip: !post.debate || !fullPost
   });
-
-const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
-    PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
-    PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, SubscribeTo, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton, HoveredReactionContextProvider
-  } = Components
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
@@ -684,7 +715,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
       name: "ReplyCommentDialog",
-      contents: ({onClose}) => <Components.ReplyCommentDialog
+      contents: ({onClose}) => <ReplyCommentDialog
         onClose={onClose}
         post={post}
         initialHtml={html}
@@ -742,7 +773,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         ? <TableOfContents
             sectionData={sectionData}
             title={post.title}
-            heading={<PostFixedPositionToCHeading post={post}/>}
+            heading={<FixedPositionToCHeading post={post}/>}
             fixedPositionToc={true}
           />
         : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
@@ -843,7 +874,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
-      <Components.SideItemsSidebar/>
+      <SideItemsSidebar/>
     </>}
   </>;
 
@@ -1007,13 +1038,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
-    <Components.SideItemsContainer>
+    <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {splashHeaderImage}
     {commentsTableOfContentsEnabled
-      ? <Components.MultiToCLayout
+      ? <MultiToCLayout
           segments={[
             {
               toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
@@ -1055,7 +1086,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </AnalyticsInViewTracker>}
     </SideItemVisibilityContextProvider>
     </ImageProvider>
-    </Components.SideItemsContainer>
+    </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>

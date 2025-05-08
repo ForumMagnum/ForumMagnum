@@ -1,8 +1,10 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useEventListener } from "../hooks/useEventListener";
-import type { ForumIconName } from "../common/ForumIcon";
+import { ForumIconName, ForumIcon } from "../common/ForumIcon";
 import classNames from "classnames";
+import { LWPopper } from "../common/LWPopper";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -122,8 +124,6 @@ const PeopleDirectoryFilterDropdownInner = ({
   }, [onOpen, onClose]);
 
   useEventListener("resize", () => setOpen(false));
-
-  const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
     <div ref={anchorRef} className={classes.root}>
       <div

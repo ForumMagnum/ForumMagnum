@@ -1,5 +1,5 @@
 import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
 import {useMulti} from '../../lib/crud/withMulti.ts'
@@ -8,6 +8,9 @@ import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent.ts
 import qs from 'qs'
 import range from 'lodash/range'
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { SingleColumnSection } from "./SingleColumnSection";
+import { ForumIcon } from "./ForumIcon";
+import { LWTooltip } from "./LWTooltip";
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -327,9 +330,6 @@ const HomeTagBarInner = (
     }, {replace: true})
     captureEvent('topicsBarTabClicked', {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
-
-  const {SingleColumnSection, ForumIcon, LWTooltip} = Components
-
   return (
     <>
       <AnalyticsContext pageSectionContext="topicsBar">

@@ -1,8 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { WarningBanner } from "../common/WarningBanner";
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   lwBanner: {
@@ -29,8 +32,6 @@ const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessa
   rateLimitMessage?: string,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentStyles, ContentItemBody } = Components
-
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
     const now = moment()
@@ -60,7 +61,7 @@ const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessa
   }
 
   if (isFriendlyUI) {
-    return <Components.WarningBanner message={message}/>
+    return <WarningBanner message={message}/>
   } else {
     return <ContentStyles contentType="comment" className={classes.lwBanner}>
       <AlarmIcon className={classes.icon} />

@@ -1,10 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import { DropdownItem } from "../DropdownItem";
 
 const ApproveNewUserDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -31,8 +32,6 @@ const ApproveNewUserDropdownItemInner = ({post}: {post: PostsBase}) => {
       },
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase("Approve New User")}

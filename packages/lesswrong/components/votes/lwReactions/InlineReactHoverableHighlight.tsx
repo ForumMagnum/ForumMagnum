@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
 import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
@@ -9,6 +9,11 @@ import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
 import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ReactionIcon } from "../ReactionIcon";
+import { InlineReactHoverInfo } from "./InlineReactHoverInfo";
+import { SideItem } from "../../contents/SideItems";
+import { LWTooltip } from "../../common/LWTooltip";
+import { SideItemLine } from "../../contents/SideItemLine";
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -42,7 +47,6 @@ export const InlineReactHoverableHighlightInner = ({quote, reactions, isSplitCon
   isSplitContinuation?: boolean
   children: React.ReactNode,
 }) => {
-  const { InlineReactHoverInfo, SideItem, LWTooltip } = Components;
   const classes = useStyles(inlineReactHoverableHighlightStyles);
   
   const hoveredReactions = useContext(HoveredReactionListContext);
@@ -116,7 +120,6 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, cla
   hoverEventHandlers: UseHoverEventHandlers,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItemLine, LWTooltip, InlineReactHoverInfo } = Components;
   const currentUser = useCurrentUser();
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
@@ -139,7 +142,7 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, cla
           inlineBlock={false}
           clickable={true}
         >
-          <Components.ReactionIcon react={r}/>
+          <ReactionIcon react={r}/>
         </LWTooltip>
       </span>)}
     </span>

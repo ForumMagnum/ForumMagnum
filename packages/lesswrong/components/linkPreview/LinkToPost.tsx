@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { linkStyle } from './PostLinkPreview';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -21,8 +22,6 @@ const LinkToPostInner = ({post, classes}: {
   if (!post) {
     return <span>[Deleted]</span>
   }
-
-  const {PostsTooltip} = Components;
   const visited = post?.isRead;
   return (
     <PostsTooltip post={post} placement="bottom-start" clickable>

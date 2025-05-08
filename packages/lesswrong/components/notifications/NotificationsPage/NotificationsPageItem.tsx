@@ -1,9 +1,12 @@
 import React, { FC, ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useSingle } from "../../../lib/crud/withSingle";
-import type { ForumIconName } from "../../common/ForumIcon";
+import { ForumIconName, ForumIcon } from "../../common/ForumIcon";
 import classNames from "classnames";
+import { LWTooltip } from "../../common/LWTooltip";
+import { CommentsNode } from "../../comments/CommentsNode";
+import { Loading } from "../../vulcan-core/Loading";
 
 const ICON_WIDTH = 24;
 
@@ -128,8 +131,6 @@ export const NotificationsPageItemInner = ({
     collectionName: "Comments",
     fragmentName: "CommentsListWithParentMetadata",
   });
-
-  const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>

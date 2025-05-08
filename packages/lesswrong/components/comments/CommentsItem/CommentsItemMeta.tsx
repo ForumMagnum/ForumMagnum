@@ -1,6 +1,6 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
@@ -11,6 +11,19 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { CommentShortformIcon } from "./CommentShortformIcon";
+import { CommentDiscussionIcon } from "./CommentDiscussionIcon";
+import { ShowParentComment } from "../ShowParentComment";
+import { CommentUserName } from "./CommentUserName";
+import { CommentsItemDate } from "./CommentsItemDate";
+import { SmallSideVote } from "../../votes/SmallSideVote";
+import { CommentOutdatedWarning } from "./CommentOutdatedWarning";
+import { FooterTag } from "../../tagging/FooterTag";
+import { LoadMore } from "../../common/LoadMore";
+import { ForumIcon } from "../../common/ForumIcon";
+import { CommentsMenu } from "../../dropdowns/comments/CommentsMenu";
+import { UserCommentMarkers } from "../../users/UserCommentMarkers";
+import { CommentPollVote } from "./CommentPollVote";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -224,13 +237,6 @@ export const CommentsItemMetaInner = ({
     shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked;
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
-
-  const {
-    CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
-    CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers, CommentPollVote
-  } = Components;
-
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
   const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
 

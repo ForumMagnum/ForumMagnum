@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { frontpageDaysAgoCutoffSetting } from "../../lib/scoring";
 import { useMulti } from "../../lib/crud/withMulti";
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
@@ -19,6 +19,14 @@ import moment from "moment";
 import qs from "qs";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { Error404 } from "../common/Error404";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { PostsItem } from "../posts/PostsItem";
+import { PostsPageRecommendationsList } from "./PostsPageRecommendationsList";
+import { LoadMore } from "../common/LoadMore";
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -114,7 +122,7 @@ const RecommendationsSamplePageInner = ({classes}: {
 
   if (!currentUser?.isAdmin) {
     return (
-      <Components.Error404 />
+      <Error404 />
     );
   }
 
@@ -169,12 +177,6 @@ const RecommendationsSamplePageInner = ({classes}: {
 
   const showBias = strategy === "tagWeightedCollabFilter";
   const showFeatures = strategy === "feature";
-
-  const {
-    SingleColumnSection, SectionTitle, PostsItem, PostsPageRecommendationsList,
-    LoadMore, Loading, MenuItem,
-  } = Components;
-
   return (
     <div className={classes.root}>
       <SingleColumnSection>

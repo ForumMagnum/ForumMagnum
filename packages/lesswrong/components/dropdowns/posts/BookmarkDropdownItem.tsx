@@ -1,10 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useBookmarkPost } from "../../hooks/useBookmarkPost";
+import { DropdownItem } from "../DropdownItem";
 
 const BookmarkDropdownItemInner = ({post}: {post: PostsBase}) => {
   const {icon, labelText, toggleBookmark} = useBookmarkPost(post);
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={labelText}

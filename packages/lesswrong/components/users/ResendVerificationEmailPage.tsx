@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
+import { UsersEmailVerification } from "./UsersEmailVerification";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,7 @@ const ResendVerificationEmailPageInner = ({classes}: {
     </div>;
   } else {
     return <div className={classes.root}>
-      <Components.UsersEmailVerification resend />
+      <UsersEmailVerification resend />
     </div>;
   }
 }

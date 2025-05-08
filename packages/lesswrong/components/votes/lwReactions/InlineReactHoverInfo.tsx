@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import type { VotingProps } from '../votingProps';
 import { Card } from "@/components/widgets/Paper";
+import { ReactionHoverTopRow } from "./ReactionHoverTopRow";
+import { ReactionQuotesHoverInfo } from "./ReactionQuotesHoverInfo";
 
 const styles = (theme: ThemeType) => ({
 })
@@ -20,7 +22,6 @@ const InlineReactHoverInfoInner = ({quote, reactions, voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const reactionNames = Object.keys(reactions);
 
   return <Card>

@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import classNames from 'classnames'
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link'
 import LinkOffIcon from '@/lib/vendor/@material-ui/icons/src/LinkOff';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,10 +96,10 @@ const EditUrlInner = ({ value, path, classes, document, defaultValue, label, hin
       }
       setFooterContent(
         <div className={classes.footer}>
-          <Components.Typography variant='body2' className={classes.hintText}>
+          <Typography variant='body2' className={classes.hintText}>
             {/* {HintTextComponent ? <HintTextComponent /> : hintText} */}
             {hintText}
-          </Components.Typography>
+          </Typography>
         </div>
       );
     } else {

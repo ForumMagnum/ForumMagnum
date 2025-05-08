@@ -1,6 +1,11 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { PostsItem } from "./PostsItem";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { Loading } from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import { LoadMore } from "../common/LoadMore";
 
 const PostsByVoteInner = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   postIds: Array<string>,
@@ -10,8 +15,6 @@ const PostsByVoteInner = ({postIds, year, limit, showMostValuableCheckbox=false,
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore } = Components
-
   const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
 

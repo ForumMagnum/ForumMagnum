@@ -1,6 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
+import { Loading } from "../vulcan-core/Loading";
+import { ChaptersItem } from "./ChaptersItem";
 
 const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   sequenceId: string,
@@ -19,7 +21,7 @@ const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   });
 
   if (!results || loading) {
-    return <Components.Loading />
+    return <Loading />
   }
 
   // If any chapter has a number already, suggest the next number after the highest number.
@@ -28,7 +30,7 @@ const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   nextSuggestedNumberRef.current = nextNumber;
 
   return <div className="chapters-list">
-    {results.map((chapter) => <Components.ChaptersItem
+    {results.map((chapter) => <ChaptersItem
       key={chapter._id}
       chapter={chapter}
       canEdit={canEdit}

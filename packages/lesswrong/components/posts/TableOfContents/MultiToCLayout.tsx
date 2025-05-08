@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
+import { LWCommentCount } from "./LWCommentCount";
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
@@ -177,7 +178,6 @@ const MultiToCLayoutInner = ({segments, classes, tocRowMap = [], showSplashPageH
   commentCount?: number,
   tocContext?: 'tag' | 'post'
 }) => {
-  const { LWCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)

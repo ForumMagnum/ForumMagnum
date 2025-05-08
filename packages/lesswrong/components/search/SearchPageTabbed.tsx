@@ -1,5 +1,5 @@
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
@@ -28,6 +28,15 @@ import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { SearchFilters } from "./SearchFilters";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { ExpandedUsersSearchHit } from "./ExpandedUsersSearchHit";
+import { ExpandedPostsSearchHit } from "./ExpandedPostsSearchHit";
+import { ExpandedCommentsSearchHit } from "./ExpandedCommentsSearchHit";
+import { ExpandedTagsSearchHit } from "./ExpandedTagsSearchHit";
+import { ExpandedSequencesSearchHit } from "./ExpandedSequencesSearchHit";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const hitsPerPage = 10
 
@@ -277,12 +286,6 @@ const SearchPageTabbedInner = ({classes}: {
       }),
     }, {replace: true});
   }
-
-  const {
-    ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon
-  } = Components;
-
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     navigate({
@@ -361,7 +364,7 @@ const SearchPageTabbedInner = ({classes}: {
     >
 
       <div className={classes.filtersColumnWrapper}>
-        <Components.SearchFilters
+        <SearchFilters
           tab={tab}
           tagsFilter={tagsFilter}
           handleUpdateTagsFilter={handleUpdateTagsFilter}
@@ -405,7 +408,7 @@ const SearchPageTabbedInner = ({classes}: {
           keepMounted
         >
           <div className={classes.filtersModalContent}>
-            <Components.SearchFilters
+            <SearchFilters
               tab={tab}
               tagsFilter={tagsFilter}
               handleUpdateTagsFilter={handleUpdateTagsFilter}

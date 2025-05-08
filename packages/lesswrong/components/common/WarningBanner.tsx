@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { ForumIcon } from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +35,7 @@ const WarningBannerInner = ({message, classes}: {
 }) => {
   
   return <div className={classes.root}>
-    <Components.ForumIcon icon="Warning" className={classes.icon} />
+    <ForumIcon icon="Warning" className={classes.icon} />
     <div className={classes.message} dangerouslySetInnerHTML={{__html: message}} />
   </div>
 }

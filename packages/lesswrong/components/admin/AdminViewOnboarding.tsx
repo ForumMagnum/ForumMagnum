@@ -1,8 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { EAOnboardingFlow } from "../ea-forum/onboarding/EAOnboardingFlow";
+import { BasicOnboardingFlow } from "../onboarding/BasicOnboardingFlow";
+import { Error404 } from "../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -21,14 +25,6 @@ const AdminViewOnboardingInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  
-  const { 
-    SingleColumnSection, 
-    EAOnboardingFlow,
-    BasicOnboardingFlow,
-    Error404 ,
-  } = Components;
-  
   if (!currentUser?.isAdmin) {
     return <Error404 />
   }

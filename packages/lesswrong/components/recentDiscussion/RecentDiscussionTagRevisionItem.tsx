@@ -1,8 +1,9 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { Components, registerComponent } from "../../lib/vulcan-lib/components"
+import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { TagRevisionItem } from "../tagging/TagRevisionItem";
 
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
@@ -46,8 +47,6 @@ function RecentDiscussionTagRevisionItemInner({
   documentId: string,
 }) {
   const classes = useStyles(styles);
-  const { TagRevisionItem } = Components
-  
   if (tag.adminOnly) {
     return null
   }

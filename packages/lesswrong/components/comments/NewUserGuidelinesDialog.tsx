@@ -1,13 +1,17 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
 import { DialogActions } from '../widgets/DialogActions';
+import { LWDialog } from "../common/LWDialog";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { Loading } from "../vulcan-core/Loading";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
@@ -28,7 +32,6 @@ const NewUserGuidelinesDialogInner = ({classes, onClose, post, user}: {
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
-  const { LWDialog, ContentItemBody, ContentStyles, Loading } = Components;
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 

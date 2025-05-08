@@ -1,7 +1,7 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../withUser';
-import { iconWidth } from './TabNavigationItem'
+import { iconWidth, TabNavigationItem } from './TabNavigationItem'
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
@@ -68,8 +68,6 @@ const TabNavigationMenuInner = ({
 }) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { TabNavigationItem } = Components
-  
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)

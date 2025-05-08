@@ -1,6 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
+import { LWTooltip } from "../../common/LWTooltip";
+import { FormatDate } from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,8 +42,6 @@ const AnswerTocRowInner = ({classes, answer}: {
   classes: ClassesType<typeof styles>,
   answer: ToCAnswer,
 }) => {
-  const { LWTooltip, FormatDate } = Components
-
   const tooltip = <div>
     <div className={classes.tooltipKarma}>
       <div>

@@ -1,7 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
+import { SectionTitle } from "../common/SectionTitle";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,7 +30,6 @@ export const ForumEventsListInner = ({title, view, classes}: {
       view,
     },
   });
-  const {SectionTitle, Loading} = Components;
   return (
     <div className={classes.root}>
       <SectionTitle title={title} />

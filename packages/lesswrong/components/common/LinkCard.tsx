@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import { LWTooltip } from "./LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +46,6 @@ const LinkCardInner = ({children, to, tooltip, className, classes, onClick, clic
   onClick?: any,
   clickable?: boolean
 }) => {
-  const { LWTooltip } = Components
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>

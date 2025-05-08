@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { tagHistoryStyles } from './TagHistoryPage';
+import { SingleLineFeedEvent } from "../../common/SingleLineFeedEvent";
+import { CompareRevisions } from "../../revisions/CompareRevisions";
+import { ContentStyles } from "../../common/ContentStyles";
+import { ForumIcon } from "../../common/ForumIcon";
+import { TagRevisionItemShortMetadata } from "../TagRevisionItemShortMetadata";
 
 const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -17,7 +22,6 @@ const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, ContentStyles, ForumIcon, TagRevisionItemShortMetadata } = Components;
   const [expanded, setExpanded] = useState(false);
   const documentId = revision.documentId ?? '';
 
@@ -48,7 +52,7 @@ const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
     />
   </ContentStyles>
 
-  return <Components.SingleLineFeedEvent
+  return <SingleLineFeedEvent
     icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
     frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
     tooltip={(collapsed && !expanded) && diffBody}
@@ -58,7 +62,7 @@ const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
       <div><TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} /></div>
       {diffBody}
     </>}
-  </Components.SingleLineFeedEvent>
+  </SingleLineFeedEvent>
 }
 
 export const SummaryRevisionItem = registerComponent('SummaryRevisionItem', SummaryRevisionItemInner);

@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
 import { useEAOnboarding } from "./useEAOnboarding";
 import classNames from "classnames";
+import { EAOnboardingStage } from "./EAOnboardingStage";
+import { EAOnboardingPodcast } from "./EAOnboardingPodcast";
+import { SectionTitle } from "../../common/SectionTitle";
+import { EAButton } from "../EAButton";
+import { ToggleSwitch } from "../../common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -132,10 +137,6 @@ export const EAOnboardingThankYouStageInner = ({classes}: {
     void goToNextStage();
     captureOnboardingEvent("onboardingComplete");
   }, [goToNextStage, captureOnboardingEvent]);
-
-  const {
-    EAOnboardingStage, EAOnboardingPodcast, SectionTitle, EAButton, ToggleSwitch,
-  } = Components;
   return (
     <EAOnboardingStage
       stageName="thankyou"

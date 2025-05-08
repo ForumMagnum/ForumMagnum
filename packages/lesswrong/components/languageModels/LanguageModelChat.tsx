@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -18,7 +18,10 @@ import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
-import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { Loading } from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -156,8 +159,6 @@ const LLMChatMessageInner = ({message, classes}: {
   message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
-
   const { role, content } = message;
 
   return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
@@ -175,8 +176,6 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles } = Components;
-  
   const [currentMessage, setCurrentMessage] = useState('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -306,8 +305,6 @@ function useCurrentPostContext(): CurrentPostContext {
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
-
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);

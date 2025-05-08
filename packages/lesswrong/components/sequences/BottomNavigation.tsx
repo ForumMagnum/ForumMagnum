@@ -1,9 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import { BottomNavigationItem } from "./BottomNavigationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,14 +87,14 @@ const BottomNavigationInner = ({post, classes}: {
   return <div className={classes.root}>
     {prevPost &&
       <div className={classnames(classes.post, classes.prevPost)}>
-      <Components.BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
+      <BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
       </div>}
     
     <div className={classes.divider}></div>
     
     {nextPost &&
       <div className={classnames(classes.post, classes.nextPost)}>
-        <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
+        <BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
       </div>}
     
     <div className={classes.clear}></div>

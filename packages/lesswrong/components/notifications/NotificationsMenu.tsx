@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { Badge } from "@/components/widgets/Badge";
@@ -13,6 +13,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
+import { ForumIcon } from "../common/ForumIcon";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { NotificationsList } from "./NotificationsList";
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -85,7 +88,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
-      icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),
+      icon: () => (<ForumIcon icon="Bell" className={classes.icon}/>),
       terms: {view: "userNotifications"},
     },
     {
@@ -117,7 +120,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
 
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
+      <ErrorBoundary>
         {open && <Drawer
           open={open}
           anchor="right"
@@ -158,10 +161,10 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
               <Tab className={classes.hiddenTab} />
             </Tabs>
             <ClearIcon className={classes.cancel} onClick={() => setIsOpen(false)} />
-            <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
+            <NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
           </div>}
         </Drawer>}
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
     </div>
   )
 };

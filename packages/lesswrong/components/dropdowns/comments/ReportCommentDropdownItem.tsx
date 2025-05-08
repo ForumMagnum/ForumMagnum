@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
+import { ReportForm } from "../../sunshineDashboard/ReportForm";
+import { DropdownItem } from "../DropdownItem";
 
 const ReportCommentDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
@@ -22,7 +24,7 @@ const ReportCommentDropdownItemInner = ({comment, post}: {
 
     openDialog({
       name: "ReportForm",
-      contents: ({onClose}) => <Components.ReportForm
+      contents: ({onClose}) => <ReportForm
         onClose={onClose}
         commentId={comment._id}
         postId={comment.postId ?? undefined}
@@ -31,8 +33,6 @@ const ReportCommentDropdownItemInner = ({comment, post}: {
       />
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Report"

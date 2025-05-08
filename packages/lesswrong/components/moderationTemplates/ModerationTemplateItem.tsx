@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ModerationTemplatesForm } from './ModerationTemplateForm';
+import { ContentItemBody } from "../common/ContentItemBody";
+import { MetaInfo } from "../common/MetaInfo";
+import { BasicFormStyles } from "../form-components/BasicFormStyles";
+import { Row } from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +30,6 @@ export const ModerationTemplateItemInner = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
-  const { ContentItemBody, MetaInfo, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
 
   const {hash} = useLocation()

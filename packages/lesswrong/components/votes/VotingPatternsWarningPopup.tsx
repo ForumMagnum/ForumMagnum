@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
+import { LWDialog } from "../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dismissButton: {
@@ -13,8 +14,6 @@ const VotingPatternsWarningPopupInner = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog } = Components;
-  
   return <LWDialog open={true}>
     <DialogTitle>
       Hang on there

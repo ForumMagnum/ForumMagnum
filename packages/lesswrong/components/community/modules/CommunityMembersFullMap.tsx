@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
+import { SearchResultsMap } from "./SearchResultsMap";
 
 const styles = (theme: ThemeType) => ({
   map: {
@@ -17,8 +18,6 @@ const styles = (theme: ThemeType) => ({
 const CommunityMembersFullMapInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SearchResultsMap } = Components
-  
   return <InstantSearch
     indexName={'test_users'}
     searchClient={getSearchClient()}

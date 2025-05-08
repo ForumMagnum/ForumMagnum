@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/publicSettings';
@@ -9,6 +9,7 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
 import Confetti from 'react-confetti';
+import { LWTooltip } from "./LWTooltip";
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -356,9 +357,6 @@ const FundraisingThermometerInner: React.FC<
   const timeRemainingText = remainingHours <= 72 
     ? `${remainingHours} hours remaining`
     : `${remainingDays} days remaining`;
-
-  const { LWTooltip } = Components;
-
   // State for final push countdown and—for after the fundraiser—confetti
   const [showCountdown, setShowCountdown] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
+import { ForumDropdown } from "../common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {}
@@ -14,8 +15,6 @@ const PostsListSortDropdownInner = ({value, options=defaultOptions, sortingParam
   sortingParam?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumDropdown } = Components;
-
   // if specific options are passed in, filter out any other options from TAG_POSTS_SORT_ORDER_OPTIONS
   const filteredOptions = options
     ? defaultOptions

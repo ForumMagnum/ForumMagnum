@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import ExposurePlus1 from '@/lib/vendor/@material-ui/icons/src/ExposurePlus1';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
+import { DropdownItem } from "../DropdownItem";
+import { OmegaIcon } from "../../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -52,8 +54,6 @@ const SuggestAlignmentCommentDropdownItemInner = ({ comment, post, classes }: {
 
   const userHasSuggested = comment.suggestForAlignmentUserIds &&
     comment.suggestForAlignmentUserIds.includes(currentUser!._id);
-
-  const {DropdownItem, OmegaIcon} = Components
   if (!userHasSuggested) {
     return (
       <DropdownItem

@@ -5,16 +5,24 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { formStyles } from './JargonEditorRow';
+import { formStyles, JargonEditorRow } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { JargonTermForm } from './JargonTermForm';
 import { EditablePost } from '@/lib/collections/posts/helpers';
+import { LoadMore } from "../common/LoadMore";
+import { Loading } from "../vulcan-core/Loading";
+import { LWTooltip } from "../common/LWTooltip";
+import { IconRight, IconDown } from "../vulcan-forms/FormGroup";
+import { Row } from "../common/Row";
+import { MetaInfo } from "../common/MetaInfo";
+import { EditUserJargonSettings } from "./EditUserJargonSettings";
+import { ForumIcon } from "../common/ForumIcon";
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -286,8 +294,6 @@ export const GlossaryEditFormInner = ({ classes, document, showTitle = true }: {
   document: EditablePost,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
-
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsEdit',

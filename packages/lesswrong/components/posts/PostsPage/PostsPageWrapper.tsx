@@ -1,16 +1,19 @@
 import React from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
+import { isPostWithForeignId, PostsPageCrosspostWrapper } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
-import { postsCommentsThreadMultiOptions } from './PostsPage';
+import { postsCommentsThreadMultiOptions, PostsPage } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
 import { useApolloClient } from '@apollo/client';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
+import { ErrorAccessDenied } from "../../common/ErrorAccessDenied";
+import { Error404 } from "../../common/Error404";
+import { Loading } from "../../vulcan-core/Loading";
 
 const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -72,8 +75,6 @@ const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
     : { terms, queryResponse: commentQueryResult };
     
   // End of performance section
-
-  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading && !postPreloadWithSequence) {
@@ -82,7 +83,7 @@ const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
     if (isMissingDocumentError(error)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
-      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
+      return <ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
     } else {
       throw new Error(error.message);
     }

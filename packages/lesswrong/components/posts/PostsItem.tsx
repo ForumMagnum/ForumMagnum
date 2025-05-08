@@ -1,11 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import type { EAPostsItemProps } from "./EAPostsItem";
-import type { PostsList2Props } from "./LWPostsItem";
+import type { EAPostsItemProps, EAPostsItem } from "./EAPostsItem";
+import type { PostsList2Props, LWPostsItem } from "./LWPostsItem";
 
 const PostsItemInner = (props: EAPostsItemProps | PostsList2Props) => {
-  return isFriendlyUI ? <Components.EAPostsItem {...props} /> : <Components.LWPostsItem {...props} />;
+  return isFriendlyUI ? <EAPostsItem {...props} /> : <LWPostsItem {...props} />;
 };
 
 export const PostsItem = registerComponent("PostsItem", PostsItemInner);

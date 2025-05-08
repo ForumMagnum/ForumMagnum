@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -15,6 +15,14 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { EAButton } from "../ea-forum/EAButton";
+import { LWDialog } from "../common/LWDialog";
+import { Loading } from "../vulcan-core/Loading";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { FormatDate } from "../common/FormatDate";
+import { LoadMore } from "../common/LoadMore";
+import { ChangeMetricsDisplay } from "../tagging/ChangeMetricsDisplay";
+import { LWTooltip } from "../common/LWTooltip";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -103,15 +111,12 @@ const PostVersionHistoryButtonInner = ({post, postId, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
-
-  const { EAButton } = Components;
-
   return <EAButton
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
         name: "PostVersionHistory",
-        contents: ({onClose}) => <Components.PostVersionHistory
+        contents: ({onClose}) => <PostVersionHistory
           onClose={onClose}
           post={post}
           postId={postId}
@@ -135,8 +140,6 @@ const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay, EAButton, LWTooltip } = Components;
-
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const location = useLocation();
@@ -295,12 +298,12 @@ const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
   );
 }
 
-export const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
+export const PostVersionHistoryButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
 export const PostVersionHistory = registerComponent("PostVersionHistory", PostVersionHistoryInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostVersionHistoryButton: typeof PostVersionHistoryEAButton
+    PostVersionHistoryButton: typeof PostVersionHistoryButton
     PostVersionHistory: typeof PostVersionHistory
   }
 }

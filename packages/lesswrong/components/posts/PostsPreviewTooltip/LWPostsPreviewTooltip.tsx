@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
@@ -9,6 +9,15 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
+import { PostsUserAndCoauthors } from "../PostsUserAndCoauthors";
+import { PostsTitle } from "../PostsTitle";
+import { ContentItemBody } from "../../common/ContentItemBody";
+import { CommentsNode } from "../../comments/CommentsNode";
+import { BookmarkButton } from "../BookmarkButton";
+import { FormatDate } from "../../common/FormatDate";
+import { Loading } from "../../vulcan-core/Loading";
+import { ContentStyles } from "../../common/ContentStyles";
+import { EventTime } from "../../localGroups/EventTime";
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -142,8 +151,6 @@ const LWPostsPreviewTooltipInner = ({
   dialogueMessageInfo,
   classes,
 }: LWPostsPreviewTooltipProps) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
-    Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
   const foreignApolloClient = useForeignApolloClient();

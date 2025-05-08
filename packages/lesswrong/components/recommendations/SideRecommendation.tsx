@@ -1,9 +1,12 @@
 import React, { MouseEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
+import { ForumIcon } from "../common/ForumIcon";
+import { KarmaDisplay } from "../common/KarmaDisplay";
+import { PostsItemTooltipWrapper } from "../posts/PostsItemTooltipWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,7 +61,6 @@ const SideRecommendationInner = ({post, classes}: {
     onClickLink(e);
     onClickCell(e);
   }, [onClickCell, onClickLink]);
-  const {ForumIcon, KarmaDisplay, PostsItemTooltipWrapper} = Components;
   return (
     <div
       className={classes.root}

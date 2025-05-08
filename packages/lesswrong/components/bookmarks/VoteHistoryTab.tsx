@@ -1,9 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import moment from 'moment';
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
+import { Loading } from "../vulcan-core/Loading";
+import { SectionTitle } from "../common/SectionTitle";
+import { PostsItem } from "../posts/PostsItem";
+import { CommentsNode } from "../comments/CommentsNode";
+import { LoadMore } from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -68,9 +73,6 @@ const VoteHistoryTabInner = ({classes}: {classes: ClassesType<typeof styles>}) =
     }
     return null
   }
-  
-  const {Loading, SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
-
   if (loading && !votes) {
     return <Loading />
   }

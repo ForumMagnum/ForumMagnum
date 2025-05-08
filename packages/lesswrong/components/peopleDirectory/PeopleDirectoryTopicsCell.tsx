@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import { tagStyle, smallTagTextStyle, coreTagStyle } from "../tagging/FooterTag";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
@@ -10,6 +9,8 @@ import {
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { TagsTooltip } from "../tagging/TagsTooltip";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = defineStyles('PeopleDirectoryTopicsCell', (theme: ThemeType) => ({
   root: {
@@ -55,7 +56,6 @@ const TagDisplay = ({name, slug}: {
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const {TagsTooltip} = Components;
   return (
     <InteractionWrapper
       key={slug}
@@ -75,7 +75,6 @@ export const PeopleDirectoryTopicsCell = ({user}: {
   user: SearchUser,
 }) => {
   const classes = useStyles(styles);
-  const {LWTooltip} = Components;
   return (
     <div className={classes.root}>
       {(user.tags?.length ?? 0) === 0 &&

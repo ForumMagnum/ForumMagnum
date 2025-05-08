@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
@@ -11,6 +11,12 @@ import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
 import { tagGetHistoryUrl, tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import { ForumIcon } from "../common/ForumIcon";
+import { DropdownMenu } from "../dropdowns/DropdownMenu";
+import { DropdownItem } from "../dropdowns/DropdownItem";
+import { MenuItem } from "../common/Menus";
+import { LWTooltip } from "../common/LWTooltip";
+import { AnalyticsTracker } from "../common/AnalyticsTracker";
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {
@@ -48,8 +54,6 @@ const TagPageActionsMenuButtonInner = ({tagOrLens, createLens, handleEditClick}:
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const [everOpened, setEverOpened] = useState(false);
   const { captureEvent } = useTracking({eventType: "tagPageMenuClicked", eventProps: {tagOrLensId: tagOrLens?._id, itemType: "tag"}});
-  const { ForumIcon } = Components;
-
   if (!tagOrLens) {
     return null;
   }
@@ -87,7 +91,6 @@ const TagPageActionsMenuInner = ({tagOrLens, handleEditClick, createLens}: {
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
   createLens: (() => void)|null,
 }) => {
-  const { DropdownMenu, DropdownItem, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const apolloClient = useApolloClient();

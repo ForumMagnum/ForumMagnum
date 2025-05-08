@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
+import { ErrorMessage } from "../common/ErrorMessage";
+import { Loading } from "../vulcan-core/Loading";
+import { ContentItemTruncated } from "../common/ContentItemTruncated";
+import { ForumIcon } from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles("CompareRevisions", (theme: ThemeType) => ({
   differences: {
@@ -55,9 +60,6 @@ const CompareRevisionsInner = ({
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser();
-
-  const { ErrorMessage, Loading, ContentItemTruncated } = Components;
-  
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
   const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
@@ -111,7 +113,6 @@ const CompareRevisionsInner = ({
 const CompareRevisionsMenu = ({revision}: {
   revision: RevisionHistoryEntry
 }) => {
-  const { ForumIcon } = Components;
   const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const [everOpened, setEverOpened] = useState(false);
@@ -143,8 +144,6 @@ const CompareRevisionsMenu = ({revision}: {
 const RevisionsMenuActions = ({revision}: {
   revision: RevisionHistoryEntry
 }) => {
-  const { MenuItem } = Components;
-
   const {mutate: updateRevision} = useUpdate({
     collectionName: "Revisions",
     fragmentName: "RevisionEdit",

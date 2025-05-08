@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,9 +65,6 @@ export const PostsTagsListInner = (
     defaultMax?: number // default number of tags to show
     afterChildren?: React.ReactNode,
   }) => {
-  const { LWTooltip } = Components
-
-
   const allTags = posts?.flatMap(post => post.tags) ?? []
   const uniqueTags = [...new Set(allTags)]
   const tagsWithCount: TagWithCount[] = uniqueTags.map(tag => ({

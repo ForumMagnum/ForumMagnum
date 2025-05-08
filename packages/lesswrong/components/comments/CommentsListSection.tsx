@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
@@ -9,12 +9,27 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import { filter } from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
-import { CommentsNewFormProps } from './CommentsNewForm';
+import { CommentsNewFormProps, CommentsNewForm } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { CommentsViews } from "./CommentsViews";
+import { Loading } from "../vulcan-core/Loading";
+import { CalendarDate } from "../common/CalendarDate";
+import { LastVisitList } from "./LastVisitList";
+import { CantCommentExplanation } from "./CantCommentExplanation";
+import { LWTooltip } from "../common/LWTooltip";
+import { CommentsList } from "./CommentsList";
+import { PostsPageCrosspostComments } from "../posts/PostsPage/PostsPageCrosspostComments";
+import { MetaInfo } from "../common/MetaInfo";
+import { Row } from "../common/Row";
+import { QuickTakesEntry } from "../quickTakes/QuickTakesEntry";
+import { SimpleDivider } from "../widgets/SimpleDivider";
+import { CommentsListMeta } from "./CommentsListMeta";
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -118,12 +133,6 @@ const CommentsListSectionInner = ({
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-
-  const {
-    LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row,
-    CommentsNewForm, QuickTakesEntry, SimpleDivider,
-  } = Components;
-
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate
     ? filter(
@@ -156,19 +165,18 @@ const CommentsListSectionInner = ({
   }, [restoreScrollPos])
 
   const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography, MenuItem } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     let commentSortNode = (commentCount < totalComments) ?
       <span>
-        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
-        {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+        Rendering {commentCount}/{totalComments} comments, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+        {loadingMoreComments ? <Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
       </span> :
       <span>
-        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+        {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
       </span>
     if (isFriendlyUI) {
-      commentSortNode = <>Sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
+      commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
     }
 
     const contentType = isEAForum && post?.shortform
@@ -192,14 +200,14 @@ const CommentsListSectionInner = ({
         {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
         {!highlightDate && `Click to highlight new ${contentType} since: `}
         <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate || now}/>
+          <CalendarDate date={highlightDate || now}/>
         </a>
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          {currentUser && post && <Components.LastVisitList
+          {currentUser && post && <LastVisitList
             postId={post._id}
             currentUser={currentUser}
             clickCallback={handleDateChange}/>}
@@ -269,7 +277,7 @@ const CommentsListSectionInner = ({
         </div>
       )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
-        <Components.CantCommentExplanation post={post}/>
+        <CantCommentExplanation post={post}/>
       }
       { totalComments ? renderTitleComponent() : null }
       <CommentsList

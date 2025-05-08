@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
+import { ContentReplacedSubstringComponentInfo, ContentItemBody } from '../common/ContentItemBody';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
 
 const styles = defineStyles('JargonTooltip', (theme: ThemeType) => ({
   card: {
@@ -132,7 +135,6 @@ export const JargonTooltipInner = ({term, definitionHTML, approved, deleted, hum
   forceTooltip?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
-  const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
   const classes = useStyles(styles);
 
   const { captureEvent } = useTracking();

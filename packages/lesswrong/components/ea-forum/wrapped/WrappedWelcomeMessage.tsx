@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { WrappedYear } from "./hooks";
+import { WrappedSection } from "./WrappedSection";
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -39,7 +40,6 @@ const WrappedWelcomeMessageInner = ({currentUser, year, children, classes}: {
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {WrappedSection} = Components;
   return (
     <WrappedSection pageSectionContext="top" align="left">
       <div className={classes.container}>

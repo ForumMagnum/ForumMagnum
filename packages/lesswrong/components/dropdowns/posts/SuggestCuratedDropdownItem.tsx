@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
@@ -6,11 +6,10 @@ import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
 import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import { DropdownItem } from "../DropdownItem";
 
 const SuggestCuratedDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',

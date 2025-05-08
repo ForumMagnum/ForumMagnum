@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Typography } from "./Typography";
 
 const styles = (theme: ThemeType) => ({
   errorText: {
@@ -12,7 +13,7 @@ const ErrorMessageInner = ({message, classes}: {
   message: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  return <Components.Typography
+  return <Typography
     className={classes.errorText}
     variant="body1"
   >
@@ -25,7 +26,7 @@ const ErrorMessageInner = ({message, classes}: {
       ? message
       : `Error: ${message}`
     }
-  </Components.Typography>
+  </Typography>
 }
 
 export const ErrorMessage = registerComponent("ErrorMessage", ErrorMessageInner, {styles});

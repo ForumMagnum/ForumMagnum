@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
@@ -13,6 +13,9 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { StyledMapPopup } from "../../localGroups/StyledMapPopup";
+import { GroupLinks } from "../../localGroups/GroupLinks";
+import { HomepageMapFilter } from "./HomepageMapFilter";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -53,7 +56,6 @@ const LocalEventWrapperPopUpInner = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
-  const { StyledMapPopup, GroupLinks } = Components
   const { document, loading } = useSingle({
     documentId: localEvent._id,
     collectionName: "Posts",
@@ -104,7 +106,6 @@ const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
-  const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
     (id: string) => { setOpenWindows([id]) }
@@ -150,8 +151,6 @@ export const HomepageCommunityMapInner = ({dontAskUserLocation = false, classes}
   dontAskUserLocation?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
-
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
@@ -170,7 +169,7 @@ export const HomepageCommunityMapInner = ({dontAskUserLocation = false, classes}
         <HomepageMapFilter />
       </div>
     </>
-  }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
+  }, [classes.mapButtons])
 
   const mapStyle = useMapStyle();
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { DebateResponse } from "./DebateResponse";
 
 const styles = (theme: ThemeType) => ({
   divider: {
@@ -32,8 +33,6 @@ export const DebateResponseBlockInner = ({ responses, post, orderedParticipantLi
   daySeparator?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponse } = Components;
-
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>

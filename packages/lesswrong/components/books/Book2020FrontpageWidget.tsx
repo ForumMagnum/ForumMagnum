@@ -1,10 +1,14 @@
 import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { LoginPopup } from "../users/LoginPopup";
+import { BookCheckout } from "../review/BookCheckout";
+import { Book2020Animation } from "./Book2020Animation";
+import { ContentStyles } from "../common/ContentStyles";
+import { Row } from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,7 +108,6 @@ const styles = (theme: ThemeType) => ({
 const Book2020FrontpageWidgetInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { BookCheckout, Book2020Animation, ContentStyles, Row } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",

@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
+import { LWTooltip } from "../common/LWTooltip";
 
 const selectedTextToolbarStyles = (theme: ThemeType) => ({
   toolbarWrapper: {
@@ -58,7 +59,6 @@ type SelectedTextToolbarState =
 const CommentOnSelectionPageWrapperInner = ({children}: {
   children: React.ReactNode
 }) => {
-  const { SelectedTextToolbar } = Components;
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
   
   const closeToolbar = useCallback(() => {
@@ -157,7 +157,6 @@ const SelectedTextToolbarInner = ({onClickComment, x, y, classes}: {
   x: number, y: number,
   classes: ClassesType<typeof selectedTextToolbarStyles>,
 }) => {
-  const { LWTooltip } = Components;
   const { captureEvent } = useTracking()
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>

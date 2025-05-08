@@ -2,9 +2,14 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
+import { Loading } from "../vulcan-core/Loading";
+import { PostsTitle } from "../posts/PostsTitle";
+import { ReviewPostButton } from "./ReviewPostButton";
+import { LWTooltip } from "../common/LWTooltip";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,9 +26,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostNominatedNotificationInner = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
-
-  const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
-
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',

@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, ChangeEvent } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import {
   isNotificationsPageTabName,
@@ -11,6 +11,12 @@ import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { useNotificationDisplays } from "./useNotificationDisplays";
+import { NotificationsPageNotification } from "./NotificationsPageNotification";
+import { NotificationsPageKarmaChangeList } from "./NotificationsPageKarmaChangeList";
+import { NotificationsPageEmpty } from "./NotificationsPageEmpty";
+import { LoadMore } from "../../common/LoadMore";
+import { Loading } from "../../vulcan-core/Loading";
+import { SectionTitle } from "../../common/SectionTitle";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 
@@ -122,11 +128,6 @@ export const NotificationsPageFeedInner = ({karmaChanges, classes}: {
       setTab(tabName);
     }
   }, [setTab]);
-
-  const {
-    NotificationsPageNotification, NotificationsPageKarmaChangeList,
-    NotificationsPageEmpty, LoadMore, Loading, SectionTitle,
-  } = Components;
   return (
     <div className={classes.root}>
       <Tabs

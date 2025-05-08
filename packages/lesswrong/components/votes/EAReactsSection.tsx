@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type {
   CommentVotingComponentProps,
   PostVotingComponentProps,
@@ -17,6 +17,10 @@ import type { VotingProps } from "./votingProps";
 import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
+import { LoginPopup } from "../users/LoginPopup";
+import { EAEmojiPalette } from "./EAEmojiPalette";
+import { ForumIcon } from "../common/ForumIcon";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -254,7 +258,7 @@ const EAReactsSectionInner: FC<{
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
       return;
     }
@@ -277,8 +281,6 @@ const EAReactsSectionInner: FC<{
   }, [currentUser, openDialog, voteProps, viewOnly]);
 
   const reactions = getCurrentReactions(voteProps.document?.extendedScore);
-
-  const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
       {reactions.map(({emojiOption, anonymous, score}) => {

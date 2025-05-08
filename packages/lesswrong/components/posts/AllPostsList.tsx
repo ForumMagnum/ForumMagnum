@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
 import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
@@ -20,6 +20,9 @@ import {
 } from "../../lib/publicSettings";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { PostsTimeframeList } from "./PostsTimeframeList";
+import { PostsTimeframeListExponential } from "./PostsTimeframeListExponential";
+import { PostsList2 } from "./PostsList2";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -66,9 +69,6 @@ const AllPostsListInner = ({
     after: query.after,
     before: query.before,
   };
-
-  const {PostsTimeframeList, PostsTimeframeListExponential, PostsList2} = Components;
-
   if (currentTimeframe === "allTime") {
     return (
       <AnalyticsContext

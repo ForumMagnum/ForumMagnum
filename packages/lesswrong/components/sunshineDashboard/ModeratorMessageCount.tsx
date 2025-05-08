@@ -1,8 +1,9 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,6 @@ export const ModeratorMessageCountInner = ({classes, userId}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components
   const { loading, totalCount } = useMulti({
     terms: {view: "moderatorConversations", userId},
     collectionName: "Conversations",

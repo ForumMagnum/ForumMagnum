@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { DropdownItem } from "../DropdownItem";
 
 const styles = (_: ThemeType) => ({
   icon: isFriendlyUI
@@ -42,8 +43,6 @@ const PinToProfileDropdownItemInner = ({comment, post, classes}: {
   const title = comment.isPinnedOnProfile
     ? `Unpin from ${username} profile`
     : `Pin to ${username} profile`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}

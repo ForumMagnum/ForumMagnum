@@ -1,7 +1,8 @@
 import React, { CSSProperties } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import type { Placement as PopperPlacementType } from "popper.js"
+import { LWPopper } from "./LWPopper";
 
 const PopperCardInner = ({
   children,
@@ -22,11 +23,11 @@ const PopperCardInner = ({
   style?: CSSProperties,
   className?: string,
 }) => {
-  return <Components.LWPopper open={open} anchorEl={anchorEl} placement={placement} allowOverflow={allowOverflow} flip={flip}>
+  return <LWPopper open={open} anchorEl={anchorEl} placement={placement} allowOverflow={allowOverflow} flip={flip}>
     <Card style={style} className={className}>
       {children}
     </Card>
-  </Components.LWPopper>
+  </LWPopper>
 }
 
 export const PopperCard = registerComponent("PopperCard", PopperCardInner, {stylePriority: -1});

@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { tagHistoryStyles } from './TagHistoryPage';
+import { SingleLineFeedEvent } from "../../common/SingleLineFeedEvent";
+import { CompareRevisions } from "../../revisions/CompareRevisions";
+import { TagRevisionItemShortMetadata } from "../TagRevisionItemShortMetadata";
+import { ForumIcon } from "../../common/ForumIcon";
+import { ContentStyles } from "../../common/ContentStyles";
 
 const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   contentStyle: {
@@ -23,7 +28,6 @@ const LensRevisionItemInner = ({tag, collapsed, lens, revision, noContainer = fa
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, TagRevisionItemShortMetadata, ForumIcon, ContentStyles } = Components
   const documentId = lens._id;
 
   const [expanded, setExpanded] = useState(false);
@@ -54,7 +58,7 @@ const LensRevisionItemInner = ({tag, collapsed, lens, revision, noContainer = fa
 
   return (noContainer
     ? contents
-    : <Components.SingleLineFeedEvent
+    : <SingleLineFeedEvent
         icon={showIcon ? <ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/> : undefined}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
         tooltip={!(expanded || !collapsed) && diffBody}
@@ -62,7 +66,7 @@ const LensRevisionItemInner = ({tag, collapsed, lens, revision, noContainer = fa
         <div className={classes.container}>
           {contents}
         </div>
-      </Components.SingleLineFeedEvent>
+      </SingleLineFeedEvent>
   );
 }
 

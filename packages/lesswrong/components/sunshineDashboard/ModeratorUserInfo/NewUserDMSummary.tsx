@@ -1,6 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,8 +19,6 @@ export const NewUserDMSummaryInner = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
 }) => {
-  const { LWTooltip } = Components;
-  
   if (!user.usersContactedBeforeReview?.length) return null
   
   return <div className={classes.root}>

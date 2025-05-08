@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
@@ -9,6 +9,9 @@ import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { ExpandableSection } from "../common/ExpandableSection";
+import { PostsList2 } from "../posts/PostsList2";
+import { SectionFooter } from "../common/SectionFooter";
 
 const styles = (theme: ThemeType) => ({
   readMoreLinkMobile: {
@@ -50,8 +53,6 @@ const EAHomeCommunityPostsInner = ({classes}: {classes: ClassesType<typeof style
     after: dateCutoff,
     limit: 5,
   } as const;
-
-  const {ExpandableSection, PostsList2, SectionFooter} = Components;
   return (
     <ExpandableSection
       pageSectionContext="communityPosts"

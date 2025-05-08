@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
@@ -7,6 +7,10 @@ import { useMessages } from '../../common/withMessages';
 import { Paper }from '@/components/widgets/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { DropdownMenu } from "../DropdownMenu";
+import { DropdownItem } from "../DropdownItem";
+import { DropdownDivider } from "../DropdownDivider";
+import { SocialMediaIcon } from "../../icons/SocialMediaIcon";
 
 const styles = (_theme: ThemeType) => ({
   icon: {
@@ -20,7 +24,6 @@ const SharePostActionsInner = ({post, onClick, classes}: {
   onClick?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   

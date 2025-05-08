@@ -1,8 +1,11 @@
 import React from 'react'
 import { useCurrentUser } from '../../common/withUser';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
+import { UsersNamePending } from "../../users/UsersNamePending";
+import { UsersName } from "../../users/UsersName";
+import { UserCommentMarkers } from "../../users/UserCommentMarkers";
 
 const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
@@ -23,8 +26,6 @@ const PostsCoauthorInner = ({ post, coauthor, pageSectionContext, classes }: {
   ) {
     return null;
   }
-
-  const { UsersNamePending, UsersName, UserCommentMarkers } = Components;
   const Component = isPending
     ? UsersNamePending
     : UsersName;

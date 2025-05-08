@@ -1,6 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
+import { ErrorBoundary } from "./ErrorBoundary";
 
 export const SECTION_WIDTH = 765
 
@@ -26,11 +27,11 @@ const SingleColumnSectionInner = ({classes, className, children}: {
 }) => {
 
   return (
-    <Components.ErrorBoundary>
+    <ErrorBoundary>
       <div className={classNames(classes.root, className)}>
         { children }
       </div>
-    </Components.ErrorBoundary>
+    </ErrorBoundary>
   )
 };
 

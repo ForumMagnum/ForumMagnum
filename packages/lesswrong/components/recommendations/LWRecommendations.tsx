@@ -1,13 +1,24 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import { getRecommendationSettings, RecommendationsAlgorithmPicker } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SettingsButton } from "../icons/SettingsButton";
+import { RecommendationsList } from "./RecommendationsList";
+import { SectionTitle } from "../common/SectionTitle";
+import { LWTooltip } from "../common/LWTooltip";
+import { CuratedPostsList } from "./CuratedPostsList";
+import { Book2020FrontpageWidget } from "../books/Book2020FrontpageWidget";
+import { SectionSubtitle } from "../common/SectionSubtitle";
+import { ContinueReadingList } from "./ContinueReadingList";
+import { BookmarksList } from "../bookmarks/BookmarksList";
 
 export const curatedUrl = "/recommendations"
 
@@ -114,10 +125,6 @@ const LWRecommendationsInner = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle,
-      ContinueReadingList, BookmarksList } = Components;
-
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,

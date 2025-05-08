@@ -13,6 +13,7 @@ import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abT
 import type { AbstractThemeOptions } from '../themes/themeNames';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '../lib/utils/timeUtil';
+import AppComponent from '../components/vulcan-core/App';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
@@ -33,7 +34,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
                   <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <Components.App apolloClient={apolloClient} />
+                    <AppComponent apolloClient={apolloClient} />
                   </EnvironmentOverrideContextProvider>
                 </LayoutOptionsContextProvider>
               </PrefersDarkModeProvider>

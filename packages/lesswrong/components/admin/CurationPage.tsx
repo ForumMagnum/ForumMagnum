@@ -3,9 +3,16 @@ import { unflattenComments } from '@/lib/utils/unflatten';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
+import { SunshineCuratedSuggestionsList } from "../sunshineDashboard/SunshineCuratedSuggestionsList";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { BasicFormStyles } from "../form-components/BasicFormStyles";
+import { SectionTitle } from "../common/SectionTitle";
+import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
+import { CurationNoticesItem } from "./CurationNoticesItem";
+import { CommentsList } from "../comments/CommentsList";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -23,9 +30,6 @@ export const CurationPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-
-  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
-
   const [post, setPost] = useState<PostsList|null>(null)
 
   const { results: curationNotices = [], loading } = useMulti({

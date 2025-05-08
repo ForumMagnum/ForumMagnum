@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -7,6 +7,12 @@ import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import { BookmarksTab } from "./BookmarksTab";
+import { ReadHistoryTab } from "./ReadHistoryTab";
+import { VoteHistoryTab } from "./VoteHistoryTab";
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
@@ -57,11 +63,8 @@ const BookmarksPageInner = ({ classes }: {
 
   const currentUser = useCurrentUser()
   if (!currentUser) {
-    return <Components.ErrorAccessDenied />
+    return <ErrorAccessDenied />
   }
-  
-  const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components
-
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>

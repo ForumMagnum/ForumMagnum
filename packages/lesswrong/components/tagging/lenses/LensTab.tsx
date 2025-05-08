@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import classNames from 'classnames';
+import { ReactionsAndLikesVote } from "../../votes/lwReactions/ReactionsAndLikesVote";
 
 const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   lensTabBar: {
@@ -282,7 +283,7 @@ const TagOrLensLikeButtonInner = ({lens, isSelected, stylingVariant, className}:
   const lensVotingSystem = getVotingSystemByName("reactionsAndLikes");
   const isMainLens = (lens._id === MAIN_TAB_ID);
 
-  return <Components.ReactionsAndLikesVote
+  return <ReactionsAndLikesVote
     document={isMainLens ? {
       ...lens,
       //HACK: For the main lens we put a placeholder _id (see `getDefaultLens`). Put it back to make an object close-enough to a TagBasicInfo that it will work for voting.

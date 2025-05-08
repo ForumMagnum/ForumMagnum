@@ -1,15 +1,15 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import type {
+import {
   CommentCancelCallback,
-  CommentSuccessCallback,
-} from "../comments/CommentsNewForm";
+  CommentSuccessCallback, CommentsNewForm } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import { LoginPopup } from "../users/LoginPopup";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -125,7 +125,7 @@ const QuickTakesEntryInner = ({
       } else {
         openDialog({
           name: "LoginPopup",
-          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+          contents: ({onClose}) => <LoginPopup onClose={onClose} />
         });
         setExpanded(true);
       }
@@ -154,8 +154,6 @@ const QuickTakesEntryInner = ({
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
-
-  const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}

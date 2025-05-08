@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import React from 'react';
@@ -6,6 +6,9 @@ import ChatBubbleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ChatBubbl
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import type { SearchHitComponentProps } from './types';
+import { MetaInfo } from "../common/MetaInfo";
+import { FormatDate } from "../common/FormatDate";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,8 +38,6 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 
 const CommentsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const comment = (hit as SearchComment);
-  const { LWTooltip } = Components
-
   let url = "";
   if (comment.postId && comment.postSlug) {
     url = `${postGetPageUrl({
@@ -55,11 +56,11 @@ const CommentsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: Sea
     </LWTooltip>}
     <Link to={url} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
-        <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>
-        <Components.MetaInfo>
-          <Components.FormatDate date={comment.postedAt}/>
-        </Components.MetaInfo>
+        <MetaInfo>{comment.authorDisplayName}</MetaInfo>
+        <MetaInfo>{comment.baseScore} karma </MetaInfo>
+        <MetaInfo>
+          <FormatDate date={comment.postedAt}/>
+        </MetaInfo>
       </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />

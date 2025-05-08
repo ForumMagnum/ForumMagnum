@@ -1,9 +1,12 @@
 import React from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { UsersProfileImage } from "../users/UsersProfileImage";
+import { NewConversationButton } from "../messaging/NewConversationButton";
+import { ForumIcon } from "../common/ForumIcon";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = defineStyles('PeopleDirectoryUserCell', (theme: ThemeType) => ({
   root: {
@@ -31,9 +34,6 @@ export const PeopleDirectoryUserCell = ({user}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const isCurrentUser = user._id === currentUser?._id;
-  const {
-    UsersProfileImage, NewConversationButton, ForumIcon, LWTooltip,
-  } = Components;
   return (
     <div className={classes.root}>
       <UsersProfileImage user={user} size={32} />

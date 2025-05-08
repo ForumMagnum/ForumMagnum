@@ -5,11 +5,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { ContentItemBody } from "../common/ContentItemBody";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { Typography } from "../common/Typography";
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
@@ -233,9 +236,6 @@ const SpotlightFeedItemInner = ({
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
-
-  const { ContentItemBody, CloudinaryImage2, Typography } = Components
-
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;

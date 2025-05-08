@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
@@ -15,6 +15,17 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
+import { MixedTypeFeed } from "../common/MixedTypeFeed";
+import { UltraFeedPostItem } from "./UltraFeedPostItem";
+import { FeedItemWrapper } from "./FeedItemWrapper";
+import { SectionTitle } from "../common/SectionTitle";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SettingsButton } from "../icons/SettingsButton";
+import { SpotlightFeedItem } from "../spotlights/SpotlightFeedItem";
+import { UltraFeedSettings } from "./UltraFeedSettings";
+import { UltraFeedThreadItem } from "./UltraFeedThreadItem";
+import { SpotlightItem } from "../spotlights/SpotlightItem";
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -147,10 +158,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
   alwaysShow?: boolean
 }) => {
   const classes = useStyles(styles);
-  const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
-    FeedItemWrapper, SectionTitle, SingleColumnSection, SettingsButton, 
-    SpotlightFeedItem, UltraFeedSettings, UltraFeedThreadItem, SpotlightItem } = Components;
-  
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabledCookie = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";

@@ -1,7 +1,8 @@
 import React, { FC, memo } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
 
 export type ProfileImageFallback = "initials";
 
@@ -133,7 +134,7 @@ const UsersProfileImageInner = ({user, size, fallback="initials", className, cla
 
   if (user.profileImageId) {
     return (
-      <Components.CloudinaryImage2
+      <CloudinaryImage2
         width={size}
         height={size}
         imgProps={{q: "100", dpr: "2"}}

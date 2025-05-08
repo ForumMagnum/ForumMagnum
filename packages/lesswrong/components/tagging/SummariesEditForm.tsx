@@ -5,8 +5,13 @@ import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { SummaryForm } from "./SummaryForm";
+import { LWTooltip } from "../common/LWTooltip";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { ForumIcon } from "../common/ForumIcon";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -164,7 +169,6 @@ const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
   refetch: () => Promise<void>,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles, ForumIcon } = Components;
   const classes = useStyles(styles);
 
   const [edit, setEdit] = useState(false);
@@ -228,7 +232,6 @@ const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, 
 }
 
 const SortableRowHandle = sortableHandle(() => {
-  const { ForumIcon, LWTooltip } = Components;
   const classes = useStyles(styles);
   return <span className={classes.dragHandle}>
     <LWTooltip title="Drag to reorder" placement='left'>
@@ -253,8 +256,6 @@ interface SummariesEditFormProps {
 }
 
 const SummariesEditFormInner = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
-  const { Loading, ForumIcon, LWTooltip } = Components;
-
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();

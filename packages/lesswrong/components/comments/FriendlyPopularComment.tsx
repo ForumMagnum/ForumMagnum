@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -10,6 +10,11 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { UsersName } from "../users/UsersName";
+import { LWTooltip } from "../common/LWTooltip";
+import { SmallSideVote } from "../votes/SmallSideVote";
+import { CommentBody } from "./CommentsItem/CommentBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,7 +100,6 @@ const PopularCommentTitle: FC<{
   classes: ClassesType<typeof styles>,
 }> = ({comment, post, classes}) => {
   const {isRead} = useRecordPostView(post);
-  const {PostsTooltip} = Components;
   return (
     <div className={classes.row}>
       <InteractionWrapper className={classes.postWrapper}>
@@ -134,8 +138,6 @@ const FriendlyPopularCommentInner = ({comment, classes}: {
     onClick: onClickCallback,
     ignoreLinks: true,
   });
-
-  const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
     <AnalyticsContext
       pageElementContext="popularComment"

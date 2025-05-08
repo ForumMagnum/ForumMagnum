@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
 import { slugify } from '@/lib/utils/slugify';
+import { Typography } from "./Typography";
 
 export const sectionTitleStyle = isFriendlyUI
   ? (theme: ThemeType) => ({
@@ -84,7 +85,7 @@ const SectionTitleInner = ({
 }: SectionTitleProps & {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
-      <Components.Typography
+      <Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
         className={classNames(classes.title, titleClassName)}
@@ -93,7 +94,7 @@ const SectionTitleInner = ({
           ? <Link to={href}>{title}</Link>
           : title
         }
-      </Components.Typography>
+      </Typography>
       {!centered && <div className={classes.children}>{ children }</div>}
     </div>
   )

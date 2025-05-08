@@ -1,7 +1,10 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { Loading } from "../vulcan-core/Loading";
 
 const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
 
@@ -16,8 +19,6 @@ const styles = (theme: ThemeType) => ({
 export const NewPostModerationWarningInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody, Loading } = Components
-
   const documentId = postModerationWarningCommentIdSetting.get() 
   
   const {document, loading} = useSingle({

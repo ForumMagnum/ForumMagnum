@@ -1,16 +1,19 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import type { ContentItemBodyInner, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import { ContentItemBodyInner, ContentReplacedSubstringComponentInfo, ContentItemBody } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import { SideCommentIcon } from "../../comments/SideCommentIcon";
+import { InlineReactSelectionWrapper } from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import { GlossarySidebar } from "../../jargon/GlossarySidebar";
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -77,8 +80,6 @@ const PostBodyInner = ({post, html, isOldVersion, voteProps}: {
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  
-  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
   const contentRef = useRef<ContentItemBodyInner>(null);
   let content: React.ReactNode

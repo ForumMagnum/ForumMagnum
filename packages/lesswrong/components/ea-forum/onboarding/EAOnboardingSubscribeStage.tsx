@@ -1,7 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
+import { EAOnboardingStage } from "./EAOnboardingStage";
+import { EAOnboardingTag } from "./EAOnboardingTag";
+import { EAOnboardingAuthor } from "./EAOnboardingAuthor";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -52,10 +56,6 @@ export const EAOnboardingSubscribeStageInner = ({classes}: {
   const {tags, users} = useSuggestedSubscriptions();
 
   const canContinue = !!(subscribedTags.length || subscribedUsers.length);
-
-  const {
-    EAOnboardingStage, EAOnboardingTag, EAOnboardingAuthor, Loading,
-  } = Components;
   return (
     <EAOnboardingStage
       stageName="subscribe"

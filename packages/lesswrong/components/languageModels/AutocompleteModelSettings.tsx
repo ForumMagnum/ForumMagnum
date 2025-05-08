@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
@@ -9,6 +9,12 @@ import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import LinearProgress from "@/lib/vendor/@material-ui/core/src/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
+import { PostsItem } from "../posts/PostsItem";
+import { CommentsNode } from "../comments/CommentsNode";
+import { ForumIcon } from "../common/ForumIcon";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { Loading } from "../vulcan-core/Loading";
+import { LoadMore } from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -140,7 +146,6 @@ const SelectableList = ({
   ItemComponent,
   classes,
 }: SelectableListProps<PostsList | CommentsList>) => {
-  const { ForumIcon } = Components
   return (
     <div className={classes.list}>
       {items.map((item, i) => (
@@ -231,7 +236,6 @@ const AuthorSection = ({
   onSelectAll,
   classes,
 }: AuthorSectionProps) => {
-  const { ForumIcon } = Components
   const [expanded, setExpanded] = useState(false);
 
   const postsTokens = useMemo(
@@ -303,7 +307,7 @@ const AuthorSection = ({
             selectedItems={selectedItems}
             onToggle={onToggle}
             onSelectAll={onSelectAll}
-            ItemComponent={({ item }) => <Components.PostsItem post={item as PostsListWithVotes} />}
+            ItemComponent={({ item }) => <PostsItem post={item as PostsListWithVotes} />}
             classes={classes}
           />
           <SelectableList
@@ -312,7 +316,7 @@ const AuthorSection = ({
             onToggle={onToggle}
             onSelectAll={onSelectAll}
             ItemComponent={({ item }) => (
-              <Components.CommentsNode
+              <CommentsNode
                 treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                 comment={item as CommentsList}
               />
@@ -350,7 +354,6 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
 }, 200);
 
 const AutocompleteModelSettingsInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SingleColumnSection, Loading, PostsItem, LoadMore, CommentsNode } = Components;
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
     const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");

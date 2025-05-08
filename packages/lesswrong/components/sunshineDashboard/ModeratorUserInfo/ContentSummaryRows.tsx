@@ -1,9 +1,14 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import * as _ from 'underscore'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import { LWTooltip } from "../../common/LWTooltip";
+import { PostKarmaWithPreview } from "../PostKarmaWithPreview";
+import { CommentKarmaWithPreview } from "../CommentKarmaWithPreview";
+import { Loading } from "../../vulcan-core/Loading";
+import { Row } from "../../common/Row";
 
 const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
@@ -49,7 +54,6 @@ export const ContentSummaryRowsInner = ({classes, comments, posts, user, loading
   user: SunshineUsersList,
   loading: boolean
 }) => {
-  const { LWTooltip, PostKarmaWithPreview, CommentKarmaWithPreview, Loading, Row } = Components 
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 
