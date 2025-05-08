@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=false, fallbackText, classes}: {
+export const ResolverPostsListInner = ({resolverName, skip, limit=13, showLoadMore=false, fallbackText, classes}: {
   resolverName: string,
   skip?: boolean,
   limit?: number,
@@ -55,11 +55,11 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
 
 }
 
-const ResolverPostsListComponent = registerComponent('ResolverPostsList', ResolverPostsList, {styles});
+export const ResolverPostsList = registerComponent('ResolverPostsList', ResolverPostsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ResolverPostsList: typeof ResolverPostsListComponent
+    ResolverPostsList: typeof ResolverPostsList
   }
 }
 

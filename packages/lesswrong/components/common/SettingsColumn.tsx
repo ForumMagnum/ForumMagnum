@@ -59,7 +59,7 @@ interface Props {
   nofollow?: boolean;
 }
 
-const SettingsColumn = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
+const SettingsColumnInner = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
   const { MetaInfo } = Components
 
   return <div className={classes.selectionList}>
@@ -92,10 +92,10 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
   </div>
 }
 
-const SettingsColumnComponent = registerComponent('SettingsColumn', SettingsColumn, {styles});
+export const SettingsColumn = registerComponent('SettingsColumn', SettingsColumnInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SettingsColumn: typeof SettingsColumnComponent
+    SettingsColumn: typeof SettingsColumn
   }
 }

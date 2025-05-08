@@ -162,7 +162,7 @@ const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { 
   return !tagNameIsBoldedAnywhere(tooltipText, tag.name);
 };
 
-const TagPreview = ({
+const TagPreviewInner = ({
   tag,
   hash,
   showCount=true,
@@ -352,12 +352,12 @@ const TagPreviewTitle = ({tag}: {
   </div>
 }
 
-const TagPreviewComponent = registerComponent("TagPreview", TagPreview);
+export const TagPreview = registerComponent("TagPreview", TagPreviewInner);
 
-export default TagPreviewComponent;
+
 
 declare global {
   interface ComponentTypes {
-    TagPreview: typeof TagPreviewComponent
+    TagPreview: typeof TagPreview
   }
 }

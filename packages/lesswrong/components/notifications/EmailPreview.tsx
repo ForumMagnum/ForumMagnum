@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EmailPreview = ({email, sentDate, classes}: {
+export const EmailPreviewInner = ({email, sentDate, classes}: {
   email: any,
   sentDate?: Date,
   classes: ClassesType<typeof styles>,
@@ -46,11 +46,11 @@ export const EmailPreview = ({email, sentDate, classes}: {
   </div>;
 }
 
-const EmailPreviewComponent = registerComponent('EmailPreview', EmailPreview, {styles});
+export const EmailPreview = registerComponent('EmailPreview', EmailPreviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EmailPreview: typeof EmailPreviewComponent
+    EmailPreview: typeof EmailPreview
   }
 }
 

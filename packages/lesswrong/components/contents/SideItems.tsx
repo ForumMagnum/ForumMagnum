@@ -63,7 +63,7 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-const SideItemsContainer = ({classes, children}: {
+const SideItemsContainerInner = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
@@ -147,7 +147,7 @@ const SideItemsContainer = ({classes, children}: {
   );
 }
 
-const SideItemsSidebar = ({classes}: {
+const SideItemsSidebarInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const placementContext = useContext(SideItemsPlacementContext);
@@ -226,7 +226,7 @@ const SideItemsSidebar = ({classes}: {
   />, [classes]);
 }
 
-const SideItem = ({options, children}: {
+const SideItemInner = ({options, children}: {
   options?: Partial<SideItemOptions>,
   children: React.ReactNode
 }) => {
@@ -261,14 +261,14 @@ export const useHasSideItemsSidebar = (): boolean => {
   return !!useContext(SideItemsPlacementContext);
 }
 
-const SideItemsContainerComponent = registerComponent('SideItemsContainer', SideItemsContainer, {styles});
-const SideItemsSidebarComponent = registerComponent('SideItemsSidebar', SideItemsSidebar, {styles});
-const SideItemComponent = registerComponent('SideItem', SideItem, {});
+export const SideItemsContainer = registerComponent('SideItemsContainer', SideItemsContainerInner, {styles});
+export const SideItemsSidebar = registerComponent('SideItemsSidebar', SideItemsSidebarInner, {styles});
+export const SideItem = registerComponent('SideItem', SideItemInner, {});
 
 declare global {
   interface ComponentTypes {
-    SideItemsContainer: typeof SideItemsContainerComponent,
-    SideItemsSidebar: typeof SideItemsSidebarComponent,
-    SideItem: typeof SideItemComponent
+    SideItemsContainer: typeof SideItemsContainer,
+    SideItemsSidebar: typeof SideItemsSidebar,
+    SideItem: typeof SideItem
   }
 }

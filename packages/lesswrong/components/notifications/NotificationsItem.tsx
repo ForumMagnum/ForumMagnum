@@ -89,7 +89,7 @@ const TooltipWrapper: FC<{
   );
 }
 
-const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
+const NotificationsItemInner = ({notification, lastNotificationsCheck, currentUser, classes}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
@@ -260,13 +260,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   );
 }
 
-const NotificationsItemComponent = registerComponent('NotificationsItem', NotificationsItem, {
+export const NotificationsItem = registerComponent('NotificationsItem', NotificationsItemInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    NotificationsItem: typeof NotificationsItemComponent
+    NotificationsItem: typeof NotificationsItem
   }
 }

@@ -6,7 +6,7 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const ExcludeFromRecommendationsDropdownItem = ({post}: {
+const ExcludeFromRecommendationsDropdownItemInner = ({post}: {
   post: PostsList|SunshinePostsList,
 }) => {
   const currentUser = useCurrentUser();
@@ -41,13 +41,13 @@ const ExcludeFromRecommendationsDropdownItem = ({post}: {
   );
 }
 
-const ExcludeFromRecommendationsDropdownItemComponent = registerComponent(
+export const ExcludeFromRecommendationsDropdownItem = registerComponent(
   'ExcludeFromRecommendationsDropdownItem',
-  ExcludeFromRecommendationsDropdownItem,
+  ExcludeFromRecommendationsDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ExcludeFromRecommendationsDropdownItem: typeof ExcludeFromRecommendationsDropdownItemComponent
+    ExcludeFromRecommendationsDropdownItem: typeof ExcludeFromRecommendationsDropdownItem
   }
 }

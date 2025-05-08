@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
  * This is used inside fo EditorTopBar. If alwaysShownUserIds is provided, those
  * users will be shown even if they're not connected (but grayed out).
  */
-const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
+const PresenceListInner = ({connectedUsers, alwaysShownUserIds, classes}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
   classes: ClassesType<typeof styles>,
@@ -100,10 +100,10 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   </span>
 }
 
-const PresenceListComponent = registerComponent('PresenceList', PresenceList, {styles});
+export const PresenceList = registerComponent('PresenceList', PresenceListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PresenceList: typeof PresenceListComponent
+    PresenceList: typeof PresenceList
   }
 }

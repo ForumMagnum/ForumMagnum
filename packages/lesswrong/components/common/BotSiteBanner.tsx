@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const BotSiteBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection } = Components;
 
   return (
@@ -37,10 +37,10 @@ const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   );
 };
 
-const BotSiteBannerComponent = registerComponent("BotSiteBanner", BotSiteBanner, { styles });
+export const BotSiteBanner = registerComponent("BotSiteBanner", BotSiteBannerInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    BotSiteBanner: typeof BotSiteBannerComponent;
+    BotSiteBanner: typeof BotSiteBanner;
   }
 }

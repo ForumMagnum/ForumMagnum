@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
+const PostNominatedNotificationInner = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
 
   const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
 
@@ -51,10 +51,10 @@ const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<type
   </div>
 }
 
-const PostNominatedNotificationComponent = registerComponent('PostNominatedNotification', PostNominatedNotification, {styles});
+export const PostNominatedNotification = registerComponent('PostNominatedNotification', PostNominatedNotificationInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostNominatedNotification: typeof PostNominatedNotificationComponent
+    PostNominatedNotification: typeof PostNominatedNotification
   }
 }

@@ -45,7 +45,7 @@ type TagWithCount = TagBasicInfo & {count: number}
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 
 // those tags.
-export const PostsTagsList = (
+export const PostsTagsListInner = (
   {
     classes, 
     posts, 
@@ -99,11 +99,11 @@ export const PostsTagsList = (
   </div>;
 }
 
-const PostsTagsListComponent = registerComponent('PostsTagsList', PostsTagsList, {styles});
+export const PostsTagsList = registerComponent('PostsTagsList', PostsTagsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsTagsList: typeof PostsTagsListComponent
+    PostsTagsList: typeof PostsTagsList
   }
 }
 

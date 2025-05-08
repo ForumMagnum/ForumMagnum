@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const RecombeePostsListSettings = ({ settings, updateSettings, classes }: {
+export const RecombeePostsListSettingsInner = ({ settings, updateSettings, classes }: {
   settings: RecombeeConfiguration,
   updateSettings: (settings: RecombeeConfiguration) => void,
   classes: ClassesType<typeof styles>,
@@ -128,10 +128,10 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   );
 }
  
-const RecombeePostsListSettingsComponent = registerComponent('RecombeePostsListSettings', RecombeePostsListSettings, {styles});
+export const RecombeePostsListSettings = registerComponent('RecombeePostsListSettings', RecombeePostsListSettingsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecombeePostsListSettings: typeof RecombeePostsListSettingsComponent
+    RecombeePostsListSettings: typeof RecombeePostsListSettings
   }
 }

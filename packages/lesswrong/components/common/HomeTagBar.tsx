@@ -186,7 +186,7 @@ export type TopicsBarTab = {
  * @param frontpageTab - Description for "show everything" tab
  * @param sortTopics - you can define custom ordering/additional filtering for the tabs
  */
-const HomeTagBar = (
+const HomeTagBarInner = (
   {
     classes,
     onTagSelectionUpdated,
@@ -386,10 +386,10 @@ const HomeTagBar = (
   )
 }
 
-const HomeTagBarComponent = registerComponent('HomeTagBar', HomeTagBar, {styles})
+export const HomeTagBar = registerComponent('HomeTagBar', HomeTagBarInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    HomeTagBar: typeof HomeTagBarComponent
+    HomeTagBar: typeof HomeTagBar
   }
 }

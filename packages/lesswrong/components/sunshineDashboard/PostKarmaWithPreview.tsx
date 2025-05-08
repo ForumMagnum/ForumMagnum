@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
+const PostKarmaWithPreviewInner = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
@@ -70,10 +70,10 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   );
 }
 
-const PostKarmaWithPreviewComponent = registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
+export const PostKarmaWithPreview = registerComponent('PostKarmaWithPreview', PostKarmaWithPreviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostKarmaWithPreview: typeof PostKarmaWithPreviewComponent
+    PostKarmaWithPreview: typeof PostKarmaWithPreview
   }
 }

@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const SunshineSidebarInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
 
@@ -100,13 +100,13 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const SunshineSidebarComponent = registerComponent("SunshineSidebar", SunshineSidebar, {
+export const SunshineSidebar = registerComponent("SunshineSidebar", SunshineSidebarInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineSidebar: typeof SunshineSidebarComponent
+    SunshineSidebar: typeof SunshineSidebar
   }
 }

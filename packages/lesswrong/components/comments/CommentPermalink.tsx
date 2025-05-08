@@ -45,7 +45,7 @@ const getCommentDescription = (comment: CommentWithRepliesFragment) => {
   }- ${comment.contents?.plaintextMainText}`
 }
 
-const CommentPermalink = ({
+const CommentPermalinkInner = ({
   documentId,
   post,
   silentLoading=false,
@@ -144,11 +144,11 @@ const CommentPermalink = ({
   );
 }
 
-const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });
+export const CommentPermalink = registerComponent("CommentPermalink", CommentPermalinkInner, { styles });
 
 
 declare global {
   interface ComponentTypes {
-    CommentPermalink: typeof CommentPermalinkComponent,
+    CommentPermalink: typeof CommentPermalink,
   }
 }

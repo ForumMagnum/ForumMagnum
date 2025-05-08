@@ -192,7 +192,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const Community = ({classes}: {
+const CommunityInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -539,10 +539,10 @@ const Community = ({classes}: {
   )
 }
 
-const CommunityComponent = registerComponent('Community', Community, {styles});
+export const Community = registerComponent('Community', CommunityInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    Community: typeof CommunityComponent
+    Community: typeof Community
   }
 }

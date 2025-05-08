@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
+const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -115,13 +115,13 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
 }
 
 
-const CommentsListComponent = registerComponent('CommentsList', CommentsListFn, {
+export const CommentsList = registerComponent('CommentsList', CommentsListFnInner, {
   styles, hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    CommentsList: typeof CommentsListComponent,
+    CommentsList: typeof CommentsList,
   }
 }
 

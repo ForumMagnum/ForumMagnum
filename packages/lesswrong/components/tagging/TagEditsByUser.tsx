@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const TagEditsByUser = ({userId, limit, classes}: {
+const TagEditsByUserInner = ({userId, limit, classes}: {
   userId: string,
   limit: number,
   classes: ClassesType<typeof styles>
@@ -65,12 +65,12 @@ const TagEditsByUser = ({userId, limit, classes}: {
   </div>
 }
 
-const TagEditsByUserComponent = registerComponent('TagEditsByUser', TagEditsByUser, {
+export const TagEditsByUser = registerComponent('TagEditsByUser', TagEditsByUserInner, {
   styles, hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    TagEditsByUser: typeof TagEditsByUserComponent
+    TagEditsByUser: typeof TagEditsByUser
   }
 }

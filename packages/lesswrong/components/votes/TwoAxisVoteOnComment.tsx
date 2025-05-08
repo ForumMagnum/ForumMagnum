@@ -13,7 +13,7 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType<typeof styles>
 }
 
-const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
+const TwoAxisVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
@@ -33,10 +33,10 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, voting
 }
 
 
-const TwoAxisVoteOnCommentComponent = registerComponent('TwoAxisVoteOnComment', TwoAxisVoteOnComment, {styles});
+export const TwoAxisVoteOnComment = registerComponent('TwoAxisVoteOnComment', TwoAxisVoteOnCommentInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TwoAxisVoteOnComment: typeof TwoAxisVoteOnCommentComponent
+    TwoAxisVoteOnComment: typeof TwoAxisVoteOnComment
   }
 }

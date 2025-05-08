@@ -37,7 +37,7 @@ const variantToDefaultComponent: Record<VariantString, string> = {
   body1: 'p',
 };
 
-const Typography = ({children, variant, component, className, onClick, gutterBottom=false, classes, id, htmlFor}: {
+const TypographyInner = ({children, variant, component, className, onClick, gutterBottom=false, classes, id, htmlFor}: {
   children: React.ReactNode,
   variant: VariantString,
   component?: "div"|"span"|"label"|"aside"|"p",
@@ -67,13 +67,13 @@ const Typography = ({children, variant, component, className, onClick, gutterBot
   );
 }
 
-const TypographyComponent = registerComponent("Typography", Typography, {
+export const Typography = registerComponent("Typography", TypographyInner, {
   styles,
   stylePriority: -2,
 });
 
 declare global {
   interface ComponentTypes {
-    Typography: typeof TypographyComponent
+    Typography: typeof Typography
   }
 }

@@ -6,7 +6,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 
-const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
+const ShortformFrontpageDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -44,12 +44,12 @@ const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 };
 
-const ShortformFrontpageDropdownItemComponent = registerComponent(
-  "ShortformFrontpageDropdownItem", ShortformFrontpageDropdownItem,
+export const ShortformFrontpageDropdownItem = registerComponent(
+  "ShortformFrontpageDropdownItem", ShortformFrontpageDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ShortformFrontpageDropdownItem: typeof ShortformFrontpageDropdownItemComponent;
+    ShortformFrontpageDropdownItem: typeof ShortformFrontpageDropdownItem;
   }
 }

@@ -12,14 +12,14 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const LWHelpIconInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 
-const LWHelpIconComponent = registerComponent("LWHelpIcon", LWHelpIcon, {styles});
+export const LWHelpIcon = registerComponent("LWHelpIcon", LWHelpIconInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWHelpIcon: typeof LWHelpIconComponent
+    LWHelpIcon: typeof LWHelpIcon
   }
 }

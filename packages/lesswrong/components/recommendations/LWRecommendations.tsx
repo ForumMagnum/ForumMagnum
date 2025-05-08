@@ -93,7 +93,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 
 export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
 
-const LWRecommendations = ({
+const LWRecommendationsInner = ({
   configName,
   classes,
 }: {
@@ -245,10 +245,10 @@ const LWRecommendations = ({
   return render();
 }
 
-const LWRecommendationsComponent = registerComponent("LWRecommendations", LWRecommendations, {styles});
+export const LWRecommendations = registerComponent("LWRecommendations", LWRecommendationsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWRecommendations: typeof LWRecommendationsComponent
+    LWRecommendations: typeof LWRecommendations
   }
 }

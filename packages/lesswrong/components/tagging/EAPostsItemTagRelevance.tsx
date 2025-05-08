@@ -41,7 +41,7 @@ export const styles = (theme: ThemeType) => ({
  * votes yet, but most of the logic is in place. Once the design is finished, this
  * is a drop-in replacement for `PostsItemTagRelevance` in `EAPostsItem`.
  */
-const EAPostsItemTagRelevance = ({tagRel, classes}: {
+const EAPostsItemTagRelevanceInner = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -115,14 +115,14 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   );
 }
 
-const EAPostsItemTagRelevanceComponent = registerComponent(
+export const EAPostsItemTagRelevance = registerComponent(
   "EAPostsItemTagRelevance",
-  EAPostsItemTagRelevance,
+  EAPostsItemTagRelevanceInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAPostsItemTagRelevance: typeof EAPostsItemTagRelevanceComponent
+    EAPostsItemTagRelevance: typeof EAPostsItemTagRelevance
   }
 }

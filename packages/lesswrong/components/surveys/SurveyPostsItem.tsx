@@ -366,7 +366,7 @@ const SurveyPostsItemInternal = ({
   );
 }
 
-const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
+const SurveyPostsItemInner = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   survey: SurveyMinimumInfo,
   surveyScheduleId?: string,
   refetchSurvey?: () => Promise<void>,
@@ -399,14 +399,14 @@ const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   );
 }
 
-const SurveyPostsItemComponent = registerComponent(
+export const SurveyPostsItem = registerComponent(
   "SurveyPostsItem",
-  SurveyPostsItem,
+  SurveyPostsItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    SurveyPostsItem: typeof SurveyPostsItemComponent
+    SurveyPostsItem: typeof SurveyPostsItem
   }
 }

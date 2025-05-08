@@ -40,7 +40,7 @@ function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|Post
   }
 }
 
-const CommentOutdatedWarning = ({comment, post, classes}: {
+const CommentOutdatedWarningInner = ({comment, post, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
@@ -57,13 +57,13 @@ const CommentOutdatedWarning = ({comment, post, classes}: {
   </span>;
 };
 
-const CommentOutdatedWarningComponent = registerComponent(
-  'CommentOutdatedWarning', CommentOutdatedWarning, {styles}
+export const CommentOutdatedWarning = registerComponent(
+  'CommentOutdatedWarning', CommentOutdatedWarningInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    CommentOutdatedWarning: typeof CommentOutdatedWarningComponent,
+    CommentOutdatedWarning: typeof CommentOutdatedWarning,
   }
 }
 

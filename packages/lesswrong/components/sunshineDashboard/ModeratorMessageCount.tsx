@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModeratorMessageCount = ({classes, userId}: {
+export const ModeratorMessageCountInner = ({classes, userId}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -41,11 +41,11 @@ export const ModeratorMessageCount = ({classes, userId}: {
   </LWTooltip>
 }
 
-const ModeratorMessageCountComponent = registerComponent('ModeratorMessageCount', ModeratorMessageCount, {styles});
+export const ModeratorMessageCount = registerComponent('ModeratorMessageCount', ModeratorMessageCountInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModeratorMessageCount: typeof ModeratorMessageCountComponent
+    ModeratorMessageCount: typeof ModeratorMessageCount
   }
 }
 

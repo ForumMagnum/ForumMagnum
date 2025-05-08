@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const NewTagInfoBoxInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const tag = taggingNameSetting.get();
   return (
     <AnalyticsContext pageElementContext="newTagInfoBox">
@@ -69,14 +69,14 @@ const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagInfoBoxComponent = registerComponent(
+export const NewTagInfoBox = registerComponent(
   "NewTagInfoBox",
-  NewTagInfoBox,
+  NewTagInfoBoxInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NewTagInfoBox: typeof NewTagInfoBoxComponent
+    NewTagInfoBox: typeof NewTagInfoBox
   }
 }

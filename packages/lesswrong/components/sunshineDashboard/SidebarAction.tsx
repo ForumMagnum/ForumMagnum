@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
+const SidebarActionInner = ({children, classes, title, warningHighlight, onClick}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   title: string,
@@ -44,11 +44,11 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   </LWTooltip>
 }
 
-const SidebarActionComponent = registerComponent('SidebarAction', SidebarAction, {styles});
+export const SidebarAction = registerComponent('SidebarAction', SidebarActionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SidebarAction: typeof SidebarActionComponent
+    SidebarAction: typeof SidebarAction
   }
 }
 

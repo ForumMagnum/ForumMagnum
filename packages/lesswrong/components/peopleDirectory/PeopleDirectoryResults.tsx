@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
-const PeopleDirectoryResults = () => {
+const PeopleDirectoryResultsInner = () => {
   const {view} = usePeopleDirectory();
   const {PeopleDirectoryResultsList, PeopleDirectoryResultsMap} = Components;
   return view === "list"
@@ -10,13 +10,13 @@ const PeopleDirectoryResults = () => {
     : <PeopleDirectoryResultsMap />;
 }
 
-const PeopleDirectoryResultsComponent = registerComponent(
+export const PeopleDirectoryResults = registerComponent(
   "PeopleDirectoryResults",
-  PeopleDirectoryResults,
+  PeopleDirectoryResultsInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryResults: typeof PeopleDirectoryResultsComponent
+    PeopleDirectoryResults: typeof PeopleDirectoryResults
   }
 }

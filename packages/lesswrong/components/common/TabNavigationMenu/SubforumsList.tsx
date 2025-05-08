@@ -35,7 +35,7 @@ const styles = ((theme: ThemeType) => ({
 
 const INITIAL_LIMIT = 3
 
-const SubforumsList = ({ onClick, classes }: {
+const SubforumsListInner = ({ onClick, classes }: {
   onClick: () => void
   classes: ClassesType<typeof styles>
 }) => {
@@ -92,10 +92,10 @@ const SubforumsList = ({ onClick, classes }: {
   );
 }
 
-const SubforumsListComponent = registerComponent("SubforumsList", SubforumsList, {styles})
+export const SubforumsList = registerComponent("SubforumsList", SubforumsListInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SubforumsList: typeof SubforumsListComponent;
+    SubforumsList: typeof SubforumsList;
   }
 }

@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji", tooltipDisabled, onClear, saveDraftSticker, setUserVoteRef, classes }: {
+const ForumEventStickerInner = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji", tooltipDisabled, onClear, saveDraftSticker, setUserVoteRef, classes }: {
   x: number;
   y: number;
   theta: number;
@@ -128,10 +128,10 @@ const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji
 }
 
 
-const ForumEventStickerComponent = registerComponent( 'ForumEventSticker', ForumEventSticker, {styles});
+export const ForumEventSticker = registerComponent( 'ForumEventSticker', ForumEventStickerInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ForumEventSticker: typeof ForumEventStickerComponent;
+    ForumEventSticker: typeof ForumEventSticker;
   }
 }

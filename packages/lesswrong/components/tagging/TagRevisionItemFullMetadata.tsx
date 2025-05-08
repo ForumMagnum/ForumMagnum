@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
+const TagRevisionItemFullMetadataInner = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
   classes: ClassesType<typeof styles>,
@@ -100,10 +100,10 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   </div>;
 }
 
-const TagRevisionItemFullMetadataComponent = registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
+export const TagRevisionItemFullMetadata = registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadataInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagRevisionItemFullMetadata: typeof TagRevisionItemFullMetadataComponent
+    TagRevisionItemFullMetadata: typeof TagRevisionItemFullMetadata
   }
 }

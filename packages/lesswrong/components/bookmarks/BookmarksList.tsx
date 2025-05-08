@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, classes}: {
+const BookmarksListInner = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, classes}: {
   showMessageIfEmpty?: boolean,
   limit?: number,
   hideLoadMore?: boolean,
@@ -62,13 +62,13 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   </AnalyticsContext>
 }
 
-const BookmarksListComponent = registerComponent('BookmarksList', BookmarksList, {
+export const BookmarksList = registerComponent('BookmarksList', BookmarksListInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    BookmarksList: typeof BookmarksListComponent
+    BookmarksList: typeof BookmarksList
   }
 }

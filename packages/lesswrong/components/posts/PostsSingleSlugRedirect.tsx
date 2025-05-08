@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
-const PostsSingleSlugRedirect = () => {
+const PostsSingleSlugRedirectInner = () => {
   const { params } = useLocation();
   const slug = params.slug;
   const { post, loading } = usePostBySlug({ slug });
@@ -17,10 +17,10 @@ const PostsSingleSlugRedirect = () => {
   }
 };
 
-const PostsSingleSlugRedirectComponent = registerComponent('PostsSingleSlugRedirect', PostsSingleSlugRedirect);
+export const PostsSingleSlugRedirect = registerComponent('PostsSingleSlugRedirect', PostsSingleSlugRedirectInner);
 
 declare global {
   interface ComponentTypes {
-    PostsSingleSlugRedirect: typeof PostsSingleSlugRedirectComponent
+    PostsSingleSlugRedirect: typeof PostsSingleSlugRedirect
   }
 }

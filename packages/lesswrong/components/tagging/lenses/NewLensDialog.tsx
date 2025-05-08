@@ -42,7 +42,7 @@ const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   },
 }));
 
-export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: {
+export const NewLensDialogInner = ({ tag, refetchTag, updateSelectedLens, onClose }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
   refetchTag: () => Promise<void>,
   updateSelectedLens: (lensId: string) => void,
@@ -75,10 +75,10 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
   </LWDialog>;
 }
 
-const NewLensDialogComponent = registerComponent('NewLensDialog', NewLensDialog);
+export const NewLensDialog = registerComponent('NewLensDialog', NewLensDialogInner);
 
 declare global {
   interface ComponentTypes {
-    NewLensDialog: typeof NewLensDialogComponent
+    NewLensDialog: typeof NewLensDialog
   }
 }

@@ -63,7 +63,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ExpandedUsersSearchHit = ({hit, classes}: {
+const ExpandedUsersSearchHitInner = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -99,11 +99,11 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedUsersSearchHitComponent = registerComponent("ExpandedUsersSearchHit", ExpandedUsersSearchHit, {styles});
+export const ExpandedUsersSearchHit = registerComponent("ExpandedUsersSearchHit", ExpandedUsersSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ExpandedUsersSearchHit: typeof ExpandedUsersSearchHitComponent
+    ExpandedUsersSearchHit: typeof ExpandedUsersSearchHit
   }
 }
 

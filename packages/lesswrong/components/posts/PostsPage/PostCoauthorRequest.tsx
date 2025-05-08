@@ -45,7 +45,7 @@ const isRequestedCoauthor = (
   currentUser: UsersCurrent|null
 ) => currentUser && post.coauthorStatuses?.find?.(({ userId, confirmed }) => userId === currentUser._id && !confirmed);
 
-const PostCoauthorRequest = ({post, currentUser, classes}: {
+const PostCoauthorRequestInner = ({post, currentUser, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
@@ -108,12 +108,12 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
   );
 }
 
-const PostCoauthorRequestComponent = registerComponent(
-  'PostCoauthorRequest', PostCoauthorRequest, {styles}
+export const PostCoauthorRequest = registerComponent(
+  'PostCoauthorRequest', PostCoauthorRequestInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    PostCoauthorRequest: typeof PostCoauthorRequestComponent,
+    PostCoauthorRequest: typeof PostCoauthorRequest,
   }
 }

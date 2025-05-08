@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => {
   }
 }
 
-const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
+const ReviewVotingButtonsInner = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
   const { LWTooltip } = Components
 
   const currentUser = useCurrentUser()
@@ -100,10 +100,10 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
   </AnalyticsContext>
 }
 
-const ReviewVotingButtonsComponent = registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});
+export const ReviewVotingButtons = registerComponent("ReviewVotingButtons", ReviewVotingButtonsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingButtons: typeof ReviewVotingButtonsComponent
+    ReviewVotingButtons: typeof ReviewVotingButtons
   }
 }

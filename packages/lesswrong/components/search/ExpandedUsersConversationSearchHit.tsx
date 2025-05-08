@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ExpandedUsersConversationSearchHit = ({
+const ExpandedUsersConversationSearchHitInner = ({
   hit,
   currentUser,
   onClose,
@@ -121,11 +121,11 @@ const ExpandedUsersConversationSearchHit = ({
   );
 };
 
-const ExpandedUsersConversationSearchHitComponent = registerComponent("ExpandedUsersConversationSearchHit", ExpandedUsersConversationSearchHit, {styles});
+export const ExpandedUsersConversationSearchHit = registerComponent("ExpandedUsersConversationSearchHit", ExpandedUsersConversationSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ExpandedUsersConversationSearchHit: typeof ExpandedUsersConversationSearchHitComponent
+    ExpandedUsersConversationSearchHit: typeof ExpandedUsersConversationSearchHit
   }
 }
 

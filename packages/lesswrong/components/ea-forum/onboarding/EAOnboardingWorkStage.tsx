@@ -12,7 +12,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingWorkStage = ({classes}: {
+export const EAOnboardingWorkStageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {updateCurrentUser, goToNextStage, goToNextStageAfter, viewAsAdmin} = useEAOnboarding();
@@ -81,14 +81,14 @@ export const EAOnboardingWorkStage = ({classes}: {
   );
 }
 
-const EAOnboardingWorkStageComponent = registerComponent(
+export const EAOnboardingWorkStage = registerComponent(
   "EAOnboardingWorkStage",
-  EAOnboardingWorkStage,
+  EAOnboardingWorkStageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingWorkStage: typeof EAOnboardingWorkStageComponent
+    EAOnboardingWorkStage: typeof EAOnboardingWorkStage
   }
 }

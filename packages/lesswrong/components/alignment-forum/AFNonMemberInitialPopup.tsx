@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberInitialPopup = ({onClose, classes}: {
+const AFNonMemberInitialPopupInner = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -70,10 +70,10 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
   );
 }
 
-const AFNonMemberInitialPopupComponent = registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopup, {styles});
+export const AFNonMemberInitialPopup = registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopupInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AFNonMemberInitialPopup: typeof AFNonMemberInitialPopupComponent
+    AFNonMemberInitialPopup: typeof AFNonMemberInitialPopup
   }
 }

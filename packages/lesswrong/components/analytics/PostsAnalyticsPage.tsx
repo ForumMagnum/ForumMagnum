@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const PostsAnalyticsPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
 
   const {document: post, error} = useSingle({
@@ -223,10 +223,10 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
   );
 };
 
-const PostsAnalyticsPageComponent = registerComponent("PostsAnalyticsPage", PostsAnalyticsPage, { styles });
+export const PostsAnalyticsPage = registerComponent("PostsAnalyticsPage", PostsAnalyticsPageInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    PostsAnalyticsPage: typeof PostsAnalyticsPageComponent;
+    PostsAnalyticsPage: typeof PostsAnalyticsPage;
   }
 }

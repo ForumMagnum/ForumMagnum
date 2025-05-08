@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
+const AddTagButtonInner = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
   menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
@@ -83,10 +83,10 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   return button;
 }
 
-const AddTagButtonComponent = registerComponent("AddTagButton", AddTagButton, {styles});
+export const AddTagButton = registerComponent("AddTagButton", AddTagButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AddTagButton: typeof AddTagButtonComponent
+    AddTagButton: typeof AddTagButton
   }
 }

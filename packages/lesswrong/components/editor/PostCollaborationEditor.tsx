@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
-const PostCollaborationEditor = ({ classes }: {
+const PostCollaborationEditorInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
@@ -121,10 +121,10 @@ const PostCollaborationEditor = ({ classes }: {
   </SingleColumnSection>
 };
 
-const PostCollaborationEditorComponent = registerComponent('PostCollaborationEditor', PostCollaborationEditor, {styles});
+export const PostCollaborationEditor = registerComponent('PostCollaborationEditor', PostCollaborationEditorInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostCollaborationEditor: typeof PostCollaborationEditorComponent
+    PostCollaborationEditor: typeof PostCollaborationEditor
   }
 }

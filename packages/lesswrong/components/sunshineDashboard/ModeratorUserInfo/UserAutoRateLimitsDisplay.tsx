@@ -56,7 +56,7 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
   </div>
 }
 
-export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
+export const UserAutoRateLimitsDisplayInner = ({user, showKarmaMeta=false, classes}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
@@ -107,10 +107,10 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   </div>;
 }
 
-const UserAutoRateLimitsDisplayComponent = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
+export const UserAutoRateLimitsDisplay = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplayInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplayComponent
+    UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplay
   }
 }

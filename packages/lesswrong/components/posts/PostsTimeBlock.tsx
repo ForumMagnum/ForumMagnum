@@ -89,7 +89,7 @@ const postTypes: PostTypeOptions[] = [
 
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
-const PostsTimeBlock = ({
+const PostsTimeBlockInner = ({
   terms,
   timeBlockLoadComplete,
   dateForTitle,
@@ -264,12 +264,12 @@ const PostsTimeBlock = ({
   );
 };
 
-const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
+export const PostsTimeBlock = registerComponent('PostsTimeBlock', PostsTimeBlockInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    PostsTimeBlock: typeof PostsTimeBlockComponent
+    PostsTimeBlock: typeof PostsTimeBlock
   }
 }

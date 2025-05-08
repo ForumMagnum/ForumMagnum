@@ -145,7 +145,7 @@ export const useLlmChat = (): LlmChatContextType => {
 }
 
 
-const LlmChatWrapper = ({children}: {
+const LlmChatWrapperInner = ({children}: {
   children: React.ReactNode
 }) => {
 
@@ -573,10 +573,10 @@ const LlmChatWrapper = ({children}: {
   </LlmChatContext.Provider>
 }
 
-const LlmChatWrapperComponent = registerComponent("LlmChatWrapper", LlmChatWrapper);
+export const LlmChatWrapper = registerComponent("LlmChatWrapper", LlmChatWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    LlmChatWrapper: typeof LlmChatWrapperComponent
+    LlmChatWrapper: typeof LlmChatWrapper
   }
 }

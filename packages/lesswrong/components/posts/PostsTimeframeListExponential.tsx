@@ -16,7 +16,7 @@ interface TimeBlockRange {
   getTitle: (size: 'xsDown' | 'smUp' | null) => string
 }
 
-const PostsTimeframeListExponential = ({postListParameters}: {
+const PostsTimeframeListExponentialInner = ({postListParameters}: {
   postListParameters: PostsViewTerms,
 }) => {
   const { PostsTimeBlock, Typography } = Components;
@@ -107,11 +107,11 @@ const PostsTimeframeListExponential = ({postListParameters}: {
   </div>
 }
 
-const PostsTimeframeListExponentialComponent = registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponential);
+export const PostsTimeframeListExponential = registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponentialInner);
 
 declare global {
   interface ComponentTypes {
-    PostsTimeframeListExponential: typeof PostsTimeframeListExponentialComponent
+    PostsTimeframeListExponential: typeof PostsTimeframeListExponential
   }
 }
 

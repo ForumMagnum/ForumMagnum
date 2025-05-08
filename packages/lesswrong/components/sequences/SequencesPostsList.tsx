@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const SequencesPostsList = ({posts, chapter}: {
+const SequencesPostsListInner = ({posts, chapter}: {
   posts: Array<PostsListWithVotes>,
   chapter?: ChaptersFragment,
 }) => {
@@ -10,10 +10,10 @@ const SequencesPostsList = ({posts, chapter}: {
   </div>
 }
 
-const SequencesPostsListComponent = registerComponent('SequencesPostsList', SequencesPostsList)
+export const SequencesPostsList = registerComponent('SequencesPostsList', SequencesPostsListInner)
 
 declare global {
   interface ComponentTypes {
-    SequencesPostsList: typeof SequencesPostsListComponent
+    SequencesPostsList: typeof SequencesPostsList
   }
 }

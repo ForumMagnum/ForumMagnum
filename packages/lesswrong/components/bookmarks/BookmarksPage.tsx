@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const BookmarksPage = ({ classes }: {
+const BookmarksPageInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
@@ -84,13 +84,13 @@ const BookmarksPage = ({ classes }: {
 }
 
 
-const BookmarksPageComponent = registerComponent('BookmarksPage', BookmarksPage, {
+export const BookmarksPage = registerComponent('BookmarksPage', BookmarksPageInner, {
   hocs: [withErrorBoundary],
   styles
 });
 
 declare global {
   interface ComponentTypes {
-    BookmarksPage: typeof BookmarksPageComponent
+    BookmarksPage: typeof BookmarksPage
   }
 }

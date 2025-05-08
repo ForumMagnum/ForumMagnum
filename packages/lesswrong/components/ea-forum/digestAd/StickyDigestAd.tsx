@@ -127,7 +127,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * This is the Forum Digest ad that appears fixed to the bottom of the screen on the EA Forum post page.
  */
-const StickyDigestAd = ({className, classes}: {
+const StickyDigestAdInner = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -204,10 +204,10 @@ const StickyDigestAd = ({className, classes}: {
   </AnalyticsContext>
 }
 
-const StickyDigestAdComponent = registerComponent("StickyDigestAd", StickyDigestAd, {styles, stylePriority: -1});
+export const StickyDigestAd = registerComponent("StickyDigestAd", StickyDigestAdInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    StickyDigestAd: typeof StickyDigestAdComponent
+    StickyDigestAd: typeof StickyDigestAd
   }
 }

@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import {taggingNameSetting} from '../../lib/instanceSettings'
 
-const EARecentDiscussionTagRevision = ({
+const EARecentDiscussionTagRevisionInner = ({
   tag,
   revision,
   collapsed,
@@ -38,13 +38,13 @@ const EARecentDiscussionTagRevision = ({
   );
 }
 
-const EARecentDiscussionTagRevisionComponent = registerComponent(
+export const EARecentDiscussionTagRevision = registerComponent(
   "EARecentDiscussionTagRevision",
-  EARecentDiscussionTagRevision,
+  EARecentDiscussionTagRevisionInner,
 );
 
 declare global {
   interface ComponentTypes {
-    EARecentDiscussionTagRevision: typeof EARecentDiscussionTagRevisionComponent,
+    EARecentDiscussionTagRevision: typeof EARecentDiscussionTagRevision,
   }
 }

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsStats = ({post, classes}: {
+const PostsStatsInner = ({post, classes}: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -29,10 +29,10 @@ const PostsStats = ({post, classes}: {
   )
 }
 
-const PostsStatsComponent = registerComponent('PostsStats', PostsStats, {styles});
+export const PostsStats = registerComponent('PostsStats', PostsStatsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsStats: typeof PostsStatsComponent
+    PostsStats: typeof PostsStats
   }
 }

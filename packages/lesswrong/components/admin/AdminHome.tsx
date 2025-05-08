@@ -35,7 +35,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const AdminHome = ({ classes }: {
+const AdminHomeInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const {SingleColumnSection, AdminMetadata, Loading} = Components;
@@ -101,10 +101,10 @@ const AdminHome = ({ classes }: {
   </SingleColumnSection>
 }
 
-const AdminHomeComponent = registerComponent('AdminHome', AdminHome, {styles});
+export const AdminHome = registerComponent('AdminHome', AdminHomeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AdminHome: typeof AdminHomeComponent
+    AdminHome: typeof AdminHome
   }
 }

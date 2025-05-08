@@ -100,7 +100,7 @@ const getSubforumModerationGuidelines = (tag: TagFragment) => {
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
+const ModerationGuidelinesBoxInner = ({classes, commentType = "post", documentId}: {
   classes: ClassesType<typeof styles>,
   commentType?: "post" | "subforum",
   documentId: string,
@@ -197,13 +197,13 @@ const moderationStyleLookup: Partial<Record<string,string>> = {
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
+export const ModerationGuidelinesBox = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBoxInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    ModerationGuidelinesBox: typeof ModerationGuidelinesBoxComponent
+    ModerationGuidelinesBox: typeof ModerationGuidelinesBox
   }
 }

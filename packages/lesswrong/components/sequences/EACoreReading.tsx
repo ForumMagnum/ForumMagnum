@@ -49,7 +49,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const EACoreReading = ({minimal=false, classes}: {
+const EACoreReadingInner = ({minimal=false, classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => (
@@ -66,10 +66,10 @@ const EACoreReading = ({minimal=false, classes}: {
   </Components.CollectionsCardContainer>
 );
 
-const EACoreReadingComponent = registerComponent("EACoreReading", EACoreReading, {styles});
+export const EACoreReading = registerComponent("EACoreReading", EACoreReadingInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EACoreReading: typeof EACoreReadingComponent
+    EACoreReading: typeof EACoreReading
   }
 }

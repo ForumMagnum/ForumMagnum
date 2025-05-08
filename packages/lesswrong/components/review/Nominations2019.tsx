@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Nominations2019 = ({classes}: {
+const Nominations2019Inner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [sortByMost, setSortBy] = useState(false);
@@ -60,7 +60,7 @@ const Nominations2019 = ({classes}: {
   )
 }
 
-const Nominations2019Component = registerComponent('Nominations2019', Nominations2019, {styles});
+const Nominations2019Component = registerComponent('Nominations2019', Nominations2019Inner, {styles});
 
 declare global {
   interface ComponentTypes {

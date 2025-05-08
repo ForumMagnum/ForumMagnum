@@ -117,7 +117,7 @@ const styles = (theme: ThemeType) => ({
  *
  * See EAHomeRightHandSide.tsx for the other component.
  */
-const RecentDiscussionSubscribeReminder = ({classes}: {
+const RecentDiscussionSubscribeReminderInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -424,8 +424,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }
 }
 
-const RecentDiscussionSubscribeReminderComponent = registerComponent(
-  'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminder, {
+export const RecentDiscussionSubscribeReminder = registerComponent(
+  'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminderInner, {
     styles,
     hocs: [withErrorBoundary],
   }
@@ -433,6 +433,6 @@ const RecentDiscussionSubscribeReminderComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionSubscribeReminder: typeof RecentDiscussionSubscribeReminderComponent,
+    RecentDiscussionSubscribeReminder: typeof RecentDiscussionSubscribeReminder,
   }
 }

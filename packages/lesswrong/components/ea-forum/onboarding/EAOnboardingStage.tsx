@@ -163,7 +163,7 @@ const LogoutConfirmationDialog = (
   </LWDialog>
 };
 
-export const EAOnboardingStage = ({
+export const EAOnboardingStageInner = ({
   stageName,
   title,
   skippable,
@@ -288,14 +288,14 @@ export const EAOnboardingStage = ({
   );
 }
 
-const EAOnboardingStageComponent = registerComponent(
+export const EAOnboardingStage = registerComponent(
   "EAOnboardingStage",
-  EAOnboardingStage,
+  EAOnboardingStageInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingStage: typeof EAOnboardingStageComponent
+    EAOnboardingStage: typeof EAOnboardingStage
   }
 }

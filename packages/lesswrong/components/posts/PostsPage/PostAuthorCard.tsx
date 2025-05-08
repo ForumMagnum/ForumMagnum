@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostAuthorCard = ({author, currentUser, classes}: {
+const PostAuthorCardInner = ({author, currentUser, classes}: {
   author: PostsAuthors_user,
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
@@ -120,10 +120,10 @@ const PostAuthorCard = ({author, currentUser, classes}: {
   </AnalyticsContext>
 }
 
-const PostAuthorCardComponent = registerComponent("PostAuthorCard", PostAuthorCard, {styles});
+export const PostAuthorCard = registerComponent("PostAuthorCard", PostAuthorCardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostAuthorCard: typeof PostAuthorCardComponent
+    PostAuthorCard: typeof PostAuthorCard
   }
 }

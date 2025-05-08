@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FrontpageVotingPhase = ({settings, classes}: {
+const FrontpageVotingPhaseInner = ({settings, classes}: {
   settings: DefaultRecommendationsAlgorithm,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -84,10 +84,10 @@ const FrontpageVotingPhase = ({settings, classes}: {
   )
 }
 
-const FrontpageVotingPhaseComponent = registerComponent('FrontpageVotingPhase', FrontpageVotingPhase, {styles});
+export const FrontpageVotingPhase = registerComponent('FrontpageVotingPhase', FrontpageVotingPhaseInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FrontpageVotingPhase: typeof FrontpageVotingPhaseComponent
+    FrontpageVotingPhase: typeof FrontpageVotingPhase
   }
 }

@@ -53,7 +53,7 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const VertexPostsList = ({ limit = 100, classes }: {
+export const VertexPostsListInner = ({ limit = 100, classes }: {
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -114,10 +114,10 @@ export const VertexPostsList = ({ limit = 100, classes }: {
   </div>;
 }
 
-const VertexPostsListComponent = registerComponent('VertexPostsList', VertexPostsList, {styles});
+export const VertexPostsList = registerComponent('VertexPostsList', VertexPostsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    VertexPostsList: typeof VertexPostsListComponent
+    VertexPostsList: typeof VertexPostsList
   }
 }

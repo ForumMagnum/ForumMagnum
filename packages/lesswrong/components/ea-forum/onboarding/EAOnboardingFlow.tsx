@@ -1,7 +1,7 @@
 import React from 'react'
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components'
 
-const EAOnboardingFlow = ({viewAsAdmin}: {
+const EAOnboardingFlowInner = ({viewAsAdmin}: {
   // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
   viewAsAdmin?: boolean,
 }) => {
@@ -27,13 +27,13 @@ const EAOnboardingFlow = ({viewAsAdmin}: {
   )
 }
 
-const EAOnboardingFlowComponent = registerComponent(
+export const EAOnboardingFlow = registerComponent(
   'EAOnboardingFlow',
-  EAOnboardingFlow,
+  EAOnboardingFlowInner,
 )
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingFlow: typeof EAOnboardingFlowComponent
+    EAOnboardingFlow: typeof EAOnboardingFlow
   }
 }

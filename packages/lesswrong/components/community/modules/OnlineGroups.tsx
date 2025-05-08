@@ -143,7 +143,7 @@ const styles = (theme: ThemeType) => ({
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
 const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
-const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
+const OnlineGroupsInner = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
@@ -226,10 +226,10 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   )
 }
 
-const OnlineGroupsComponent = registerComponent('OnlineGroups', OnlineGroups, {styles});
+export const OnlineGroups = registerComponent('OnlineGroups', OnlineGroupsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    OnlineGroups: typeof OnlineGroupsComponent
+    OnlineGroups: typeof OnlineGroups
   }
 }

@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
 
 export const eaSequencesHomeDescription = "Featured readings and collections of posts on specific topics.";
 
-const EASequencesHome = ({classes}: {
+const EASequencesHomeInner = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
@@ -42,10 +42,10 @@ const EASequencesHome = ({classes}: {
   </AnalyticsContext>
 };
 
-const EASequencesHomeComponent = registerComponent('EASequencesHome', EASequencesHome, {styles});
+export const EASequencesHome = registerComponent('EASequencesHome', EASequencesHomeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EASequencesHome: typeof EASequencesHomeComponent
+    EASequencesHome: typeof EASequencesHome
   }
 }

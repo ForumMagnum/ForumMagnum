@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const MigrationsDashboard = ({classes}: {
+const MigrationsDashboardInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -52,12 +52,12 @@ const MigrationsDashboard = ({classes}: {
   </SingleColumnSection>;
 }
 
-const MigrationsDashboardComponent = registerComponent(
-  "MigrationsDashboard", MigrationsDashboard, {styles}
+export const MigrationsDashboard = registerComponent(
+  "MigrationsDashboard", MigrationsDashboardInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    MigrationsDashboard: typeof MigrationsDashboardComponent
+    MigrationsDashboard: typeof MigrationsDashboard
   }
 }

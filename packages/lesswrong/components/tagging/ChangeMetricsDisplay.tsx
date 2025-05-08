@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes}: {
+const ChangeMetricsDisplayInner = ({changeMetrics, showCharacters, className, classes}: {
   changeMetrics: ChangeMetrics,
   showCharacters?: boolean,
   className?: string,
@@ -34,14 +34,14 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   </span>
 }
 
-const ChangeMetricsDisplayComponent = registerComponent(
+export const ChangeMetricsDisplay = registerComponent(
   "ChangeMetricsDisplay",
-  ChangeMetricsDisplay,
+  ChangeMetricsDisplayInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    ChangeMetricsDisplay: typeof ChangeMetricsDisplayComponent
+    ChangeMetricsDisplay: typeof ChangeMetricsDisplay
   }
 }

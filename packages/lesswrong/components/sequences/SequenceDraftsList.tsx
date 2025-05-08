@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
+const SequenceDraftsListInner = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
   classes: ClassesType<typeof styles>,
   limit: number,
   title?: string,
@@ -80,12 +80,12 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
   </>
 }
 
-const SequenceDraftsListComponent = registerComponent(
-  'SequenceDraftsList', SequenceDraftsList, {styles}
+export const SequenceDraftsList = registerComponent(
+  'SequenceDraftsList', SequenceDraftsListInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    SequenceDraftsList: typeof SequenceDraftsListComponent
+    SequenceDraftsList: typeof SequenceDraftsList
   }
 }

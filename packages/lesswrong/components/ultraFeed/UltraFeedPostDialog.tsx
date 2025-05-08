@@ -195,7 +195,7 @@ const UltraFeedDialogContent = ({
 }
 
 
-const UltraFeedPostDialog = ({
+const UltraFeedPostDialogInner = ({
   postId,
   post,
   onClose,
@@ -243,12 +243,12 @@ const UltraFeedPostDialog = ({
 
 };
 
-const UltraFeedPostDialogComponent = registerComponent("UltraFeedPostDialog", UltraFeedPostDialog);
+export const UltraFeedPostDialog = registerComponent("UltraFeedPostDialog", UltraFeedPostDialogInner);
 
-export default UltraFeedPostDialog;
+export default UltraFeedPostDialogInner;
 
 declare global {
   interface ComponentTypes {
-    UltraFeedPostDialog: typeof UltraFeedPostDialogComponent
+    UltraFeedPostDialog: typeof UltraFeedPostDialog
   }
 }

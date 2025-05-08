@@ -69,7 +69,7 @@ const getCookieData = (data: unknown): ViewToggleCookieData => {
   }
 }
 
-const PostsListViewToggle = ({classes}: {
+const PostsListViewToggleInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
@@ -137,14 +137,14 @@ const PostsListViewToggle = ({classes}: {
   );
 }
 
-const PostsListViewToggleComponent = registerComponent(
+export const PostsListViewToggle = registerComponent(
   "PostsListViewToggle",
-  PostsListViewToggle,
+  PostsListViewToggleInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsListViewToggle: typeof PostsListViewToggleComponent
+    PostsListViewToggle: typeof PostsListViewToggle
   }
 }

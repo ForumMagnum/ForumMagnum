@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const UserReviewMetadata = ({classes, user}: {
+export const UserReviewMetadataInner = ({classes, user}: {
   user: SunshineUsersList
   classes: ClassesType<typeof styles>,
 }) => {
@@ -32,11 +32,11 @@ export const UserReviewMetadata = ({classes, user}: {
   </div>
 }
 
-const UserReviewMetadataComponent = registerComponent('UserReviewMetadata', UserReviewMetadata, {styles});
+export const UserReviewMetadata = registerComponent('UserReviewMetadata', UserReviewMetadataInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserReviewMetadata: typeof UserReviewMetadataComponent
+    UserReviewMetadata: typeof UserReviewMetadata
   }
 }
 

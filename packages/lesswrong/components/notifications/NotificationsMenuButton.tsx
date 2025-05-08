@@ -261,7 +261,7 @@ const FriendlyNotificationsMenuButton = ({
   );
 }
 
-const NotificationsMenuButtonComponent = registerComponent(
+export const NotificationsMenuButton = registerComponent(
   "NotificationsMenuButton",
   isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
   {
@@ -273,6 +273,6 @@ const NotificationsMenuButtonComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    NotificationsMenuButton: typeof NotificationsMenuButtonComponent
+    NotificationsMenuButton: typeof NotificationsMenuButton
   }
 }

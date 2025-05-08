@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const Row = ({classes, justifyContent="space-between", alignItems="center", children}: {
+export const RowInner = ({classes, justifyContent="space-between", alignItems="center", children}: {
   classes: ClassesType<typeof styles>,
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch",
   justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch",
@@ -19,11 +19,11 @@ export const Row = ({classes, justifyContent="space-between", alignItems="center
   </div>;
 }
 
-const RowComponent = registerComponent('Row', Row, {styles});
+export const Row = registerComponent('Row', RowInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    Row: typeof RowComponent
+    Row: typeof Row
   }
 }
 

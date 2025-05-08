@@ -30,7 +30,7 @@ const styles = (_theme: ThemeType) => ({
  * when the given user has published a new post or a new comment.
  * Currently only used in the FriendlyUsersProfile.
  */
-const UserNotifyDropdown = ({
+const UserNotifyDropdownInner = ({
   user,
   popperPlacement="bottom-start",
   className,
@@ -116,10 +116,10 @@ const UserNotifyDropdown = ({
   );
 }
 
-const UserNotifyDropdownComponent = registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
+export const UserNotifyDropdown = registerComponent('UserNotifyDropdown', UserNotifyDropdownInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserNotifyDropdown: typeof UserNotifyDropdownComponent
+    UserNotifyDropdown: typeof UserNotifyDropdown
   }
 }

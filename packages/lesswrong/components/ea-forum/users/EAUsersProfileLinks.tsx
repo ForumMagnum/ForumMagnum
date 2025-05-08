@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersProfileLinks = ({user, classes}: {
+const EAUsersProfileLinksInner = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -92,14 +92,14 @@ const EAUsersProfileLinks = ({user, classes}: {
   );
 }
 
-const EAUsersProfileLinksComponent = registerComponent(
+export const EAUsersProfileLinks = registerComponent(
   "EAUsersProfileLinks",
-  EAUsersProfileLinks,
+  EAUsersProfileLinksInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAUsersProfileLinks: typeof EAUsersProfileLinksComponent
+    EAUsersProfileLinks: typeof EAUsersProfileLinks
   }
 }

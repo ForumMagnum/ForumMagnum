@@ -83,7 +83,7 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNode = ({
+const CommentsNodeInner = ({
   treeOptions,
   comment,
   startThreadTruncated,
@@ -346,7 +346,7 @@ const CommentsNode = ({
   </div>
 }
 
-const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
+export const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
   styles,
   areEqual: {
     treeOptions: "shallow",
@@ -357,6 +357,6 @@ const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
 
 declare global {
   interface ComponentTypes {
-    CommentsNode: typeof CommentsNodeComponent,
+    CommentsNode: typeof CommentsNode,
   }
 }

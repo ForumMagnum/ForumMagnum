@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const DraftsPage = ({classes}: {
+const DraftsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   const {SingleColumnSection, DraftsList } = Components
@@ -40,12 +40,12 @@ const DraftsPage = ({classes}: {
 }
 
 
-const DraftsPageComponent = registerComponent('DraftsPage', DraftsPage, {
+export const DraftsPage = registerComponent('DraftsPage', DraftsPageInner, {
   hocs: [withErrorBoundary], styles
 });
 
 declare global {
   interface ComponentTypes {
-    DraftsPage: typeof DraftsPageComponent
+    DraftsPage: typeof DraftsPage
   }
 }

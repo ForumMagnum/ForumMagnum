@@ -26,7 +26,7 @@ const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-const NewModeratorActionDialog = ({ onClose, userId }: {
+const NewModeratorActionDialogInner = ({ onClose, userId }: {
   onClose: () => void,
   userId: string
 }) => {
@@ -139,10 +139,10 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
   )
 };
 
-const NewModeratorActionDialogComponent = registerComponent('NewModeratorActionDialog', NewModeratorActionDialog);
+export const NewModeratorActionDialog = registerComponent('NewModeratorActionDialog', NewModeratorActionDialogInner);
 
 declare global {
   interface ComponentTypes {
-    NewModeratorActionDialog: typeof NewModeratorActionDialogComponent
+    NewModeratorActionDialog: typeof NewModeratorActionDialog
   }
 }

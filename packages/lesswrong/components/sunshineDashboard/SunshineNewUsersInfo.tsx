@@ -83,7 +83,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersInfoInner = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   refetch: () => void,
@@ -163,7 +163,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   )
 }
 
-const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
+export const SunshineNewUsersInfo = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfoInner, {
   styles,
   hocs: [
     withErrorBoundary,
@@ -172,6 +172,6 @@ const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', 
 
 declare global {
   interface ComponentTypes {
-    SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
+    SunshineNewUsersInfo: typeof SunshineNewUsersInfo
   }
 }

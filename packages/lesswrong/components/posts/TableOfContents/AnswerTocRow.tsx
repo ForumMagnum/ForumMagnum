@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AnswerTocRow = ({classes, answer}: {
+const AnswerTocRowInner = ({classes, answer}: {
   classes: ClassesType<typeof styles>,
   answer: ToCAnswer,
 }) => {
@@ -71,10 +71,10 @@ const AnswerTocRow = ({classes, answer}: {
   </div>
 }
 
-const AnswerTocRowComponent = registerComponent('AnswerTocRow', AnswerTocRow, {styles});
+export const AnswerTocRow = registerComponent('AnswerTocRow', AnswerTocRowInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AnswerTocRow: typeof AnswerTocRowComponent
+    AnswerTocRow: typeof AnswerTocRow
   }
 }

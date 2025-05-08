@@ -16,7 +16,7 @@ interface ErrorBoundaryState {
   errorLocation?: string,
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { error: false };
@@ -56,10 +56,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const ErrorBoundaryComponent = registerComponent("ErrorBoundary", ErrorBoundary);
+export const ErrorBoundary = registerComponent("ErrorBoundary", ErrorBoundaryInner);
 
 declare global {
   interface ComponentTypes {
-    ErrorBoundary: typeof ErrorBoundaryComponent
+    ErrorBoundary: typeof ErrorBoundary
   }
 }

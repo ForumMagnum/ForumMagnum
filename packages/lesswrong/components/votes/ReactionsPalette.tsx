@@ -145,7 +145,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
 
 type paletteView = "listView"|"gridView";
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
+const ReactionsPaletteInner = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
   quote: QuoteLocator|null,
@@ -368,13 +368,13 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
   );
 }
 
-const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette);
+export const ReactionsPalette = registerComponent('ReactionsPalette', ReactionsPaletteInner);
 
-export default ReactionsPaletteComponent;
+
 
 declare global {
   interface ComponentTypes {
-    ReactionsPalette: typeof ReactionsPaletteComponent
+    ReactionsPalette: typeof ReactionsPalette
   }
 }
 

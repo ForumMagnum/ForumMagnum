@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SidebarSubtagsBox = ({ tag, className, classes }: {
+const SidebarSubtagsBoxInner = ({ tag, className, classes }: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -150,10 +150,10 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
   );
 };
 
-const SidebarSubtagsBoxComponent = registerComponent("SidebarSubtagsBox", SidebarSubtagsBox, { styles });
+export const SidebarSubtagsBox = registerComponent("SidebarSubtagsBox", SidebarSubtagsBoxInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    SidebarSubtagsBox: typeof SidebarSubtagsBoxComponent;
+    SidebarSubtagsBox: typeof SidebarSubtagsBox;
   }
 }

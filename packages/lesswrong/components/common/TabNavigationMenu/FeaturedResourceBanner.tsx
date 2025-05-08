@@ -79,7 +79,7 @@ const LinkButton = ({ resource, classes }: {
   </a>;
 };
 
-const FeaturedResourceBanner = ({terms, classes}: {
+const FeaturedResourceBannerInner = ({terms, classes}: {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -134,12 +134,12 @@ const FeaturedResourceBanner = ({terms, classes}: {
   </AnalyticsContext>
 }
 
-const FeaturedResourceBannerComponent = registerComponent(
-  'FeaturedResourceBanner', FeaturedResourceBanner, { styles }
+export const FeaturedResourceBanner = registerComponent(
+  'FeaturedResourceBanner', FeaturedResourceBannerInner, { styles }
 )
 
 declare global {
   interface ComponentTypes {
-    FeaturedResourceBanner: typeof FeaturedResourceBannerComponent
+    FeaturedResourceBanner: typeof FeaturedResourceBanner
   }
 }

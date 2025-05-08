@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 
-const ForumDropdown = ({
+const ForumDropdownInner = ({
   value,
   options,
   queryParam,
@@ -33,10 +33,10 @@ const ForumDropdown = ({
   />
 }
 
-const ForumDropdownComponent = registerComponent('ForumDropdown', ForumDropdown);
+export const ForumDropdown = registerComponent('ForumDropdown', ForumDropdownInner);
 
 declare global {
   interface ComponentTypes {
-    ForumDropdown: typeof ForumDropdownComponent
+    ForumDropdown: typeof ForumDropdown
   }
 }

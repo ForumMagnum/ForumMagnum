@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
+const PeopleDirectoryClearAllInner = ({text = "Clear all", onClear, classes}: {
   text?: string,
   onClear: () => void,
   classes: ClassesType<typeof styles>,
@@ -24,14 +24,14 @@ const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
   );
 }
 
-const PeopleDirectoryClearAllComponent = registerComponent(
+export const PeopleDirectoryClearAll = registerComponent(
   "PeopleDirectoryClearAll",
-  PeopleDirectoryClearAll,
+  PeopleDirectoryClearAllInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryClearAll: typeof PeopleDirectoryClearAllComponent
+    PeopleDirectoryClearAll: typeof PeopleDirectoryClearAll
   }
 }

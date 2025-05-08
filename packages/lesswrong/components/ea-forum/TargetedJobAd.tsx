@@ -311,7 +311,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
 /**
  * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
  */
-const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
+const TargetedJobAdInner = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
   jobName: string,
   userJobAd?: UserJobAdsMinimumInfo,
   onDismiss: () => void,
@@ -425,10 +425,10 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
   </AnalyticsContext>
 }
 
-const TargetedJobAdComponent = registerComponent("TargetedJobAd", TargetedJobAd, {styles});
+export const TargetedJobAd = registerComponent("TargetedJobAd", TargetedJobAdInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TargetedJobAd: typeof TargetedJobAdComponent
+    TargetedJobAd: typeof TargetedJobAd
   }
 }

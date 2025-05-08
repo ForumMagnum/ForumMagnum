@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagMultiselect = ({
+const TagMultiselectInner = ({
   value,
   label,
   placeholder,
@@ -148,10 +148,10 @@ const TagMultiselect = ({
   )
 }
 
-const TagMultiselectComponent = registerComponent('TagMultiselect', TagMultiselect, {styles});
+export const TagMultiselect = registerComponent('TagMultiselect', TagMultiselectInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagMultiselect: typeof TagMultiselectComponent
+    TagMultiselect: typeof TagMultiselect
   }
 }

@@ -195,7 +195,7 @@ const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) =>
   );
 };
 
-const SharePostPopup = ({
+const SharePostPopupInner = ({
   post,
   onClose,
   classes,
@@ -331,12 +331,12 @@ const SharePostPopup = ({
   );
 };
 
-export default SharePostPopup;
+export default SharePostPopupInner;
 
-const SharePostPopupComponent = registerComponent("SharePostPopup", SharePostPopup, { styles });
+export const SharePostPopup = registerComponent("SharePostPopup", SharePostPopupInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    SharePostPopup: typeof SharePostPopupComponent;
+    SharePostPopup: typeof SharePostPopup;
   }
 }

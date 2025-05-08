@@ -152,7 +152,7 @@ const styles = (theme: ThemeType) => ({
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
-const LLMChatMessage = ({message, classes}: {
+const LLMChatMessageInner = ({message, classes}: {
   message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -476,7 +476,7 @@ export const ChatInterface = ({classes}: {
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChat = ({classes}: {
+export const LanguageModelChatInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>
@@ -488,13 +488,13 @@ export const LanguageModelChat = ({classes}: {
   </DeferRender>;
 }
 
-const LanguageModelChatComponent = registerComponent('LanguageModelChat', LanguageModelChat, {styles});
+export const LanguageModelChat = registerComponent('LanguageModelChat', LanguageModelChatInner, {styles});
 
-const LlmChatMessageComponent = registerComponent('LlmChatMessage', LLMChatMessage, {styles});
+export const LlmChatMessage = registerComponent('LlmChatMessage', LLMChatMessageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LanguageModelChat: typeof LanguageModelChatComponent
-    LlmChatMessage: typeof LlmChatMessageComponent
+    LanguageModelChat: typeof LanguageModelChat
+    LlmChatMessage: typeof LlmChatMessage
   }
 }

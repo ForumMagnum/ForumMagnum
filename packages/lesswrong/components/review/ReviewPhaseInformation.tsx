@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
+export const ReviewPhaseInformationInner = ({classes, reviewYear, reviewPhase}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
@@ -103,11 +103,11 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   </ContentStyles>
 }
 
-const ReviewPhaseInformationComponent = registerComponent('ReviewPhaseInformation', ReviewPhaseInformation, {styles});
+export const ReviewPhaseInformation = registerComponent('ReviewPhaseInformation', ReviewPhaseInformationInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewPhaseInformation: typeof ReviewPhaseInformationComponent
+    ReviewPhaseInformation: typeof ReviewPhaseInformation
   }
 }
 

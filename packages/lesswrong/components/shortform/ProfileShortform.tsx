@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ProfileShortform = ({classes, user}: {
+export const ProfileShortformInner = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
@@ -27,11 +27,11 @@ export const ProfileShortform = ({classes, user}: {
   </div>;
 }
 
-const ProfileShortformComponent = registerComponent('ProfileShortform', ProfileShortform, {styles});
+export const ProfileShortform = registerComponent('ProfileShortform', ProfileShortformInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ProfileShortform: typeof ProfileShortformComponent
+    ProfileShortform: typeof ProfileShortform
   }
 }
 

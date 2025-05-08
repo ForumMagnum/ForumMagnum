@@ -4,7 +4,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
-import { SimpleDivider } from '@/components/widgets/SimpleDivider';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
@@ -63,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomepageMapFilterInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
@@ -93,7 +92,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
 
-  const { LWTooltip } = Components
+  const { LWTooltip, SimpleDivider } = Components
 
   return <Paper>
     <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you." placement="left">
@@ -127,11 +126,11 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
   </Paper>
 }
 
-const HomepageMapFilterComponent = registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
+export const HomepageMapFilter = registerComponent('HomepageMapFilter', HomepageMapFilterInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    HomepageMapFilter: typeof HomepageMapFilterComponent
+    HomepageMapFilter: typeof HomepageMapFilter
   }
 }
 

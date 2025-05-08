@@ -98,7 +98,7 @@ export type UserProfileTabType = {
   collapsable?: boolean
 }
 
-const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
+const EAUsersProfileTabbedSectionInner = ({tabs, id, classes}: {
   tabs: Array<UserProfileTabType>,
   id?: string,
   classes: ClassesType<typeof styles>,
@@ -165,12 +165,12 @@ const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   )
 }
 
-const EAUsersProfileTabbedSectionComponent = registerComponent(
-  'EAUsersProfileTabbedSection', EAUsersProfileTabbedSection, {styles}
+export const EAUsersProfileTabbedSection = registerComponent(
+  'EAUsersProfileTabbedSection', EAUsersProfileTabbedSectionInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    EAUsersProfileTabbedSection: typeof EAUsersProfileTabbedSectionComponent
+    EAUsersProfileTabbedSection: typeof EAUsersProfileTabbedSection
   }
 }

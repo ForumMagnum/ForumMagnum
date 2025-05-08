@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
 const ExternalLink: FC<PropsWithChildren<{href: string}>> = ({href, children}) =>
   <a href={href} target="_blank" rel="noreferrer">{children}</a>
 
-const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EATermsOfUsePageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {Typography} = Components;
   return (
     <div className={classes.root}>
@@ -95,10 +95,10 @@ const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const EATermsOfUsePageComponent = registerComponent('EATermsOfUsePage', EATermsOfUsePage, {styles})
+export const EATermsOfUsePage = registerComponent('EATermsOfUsePage', EATermsOfUsePageInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    EATermsOfUsePage: typeof EATermsOfUsePageComponent
+    EATermsOfUsePage: typeof EATermsOfUsePage
   }
 }

@@ -41,7 +41,7 @@ const commentEditorToolbarConfig = {
   ],
 };
 
-const CKCommentEditor = ({
+const CKCommentEditorInner = ({
   data,
   collectionName,
   fieldName,
@@ -116,11 +116,11 @@ const CKCommentEditor = ({
   </div>
 }
 
-const CKCommentEditorComponent = registerComponent("CKCommentEditor", CKCommentEditor, {
+export const CKCommentEditor = registerComponent("CKCommentEditor", CKCommentEditorInner, {
   debugRerenders: true
 });
 declare global {
   interface ComponentTypes {
-    CKCommentEditor: typeof CKCommentEditorComponent
+    CKCommentEditor: typeof CKCommentEditor
   }
 }

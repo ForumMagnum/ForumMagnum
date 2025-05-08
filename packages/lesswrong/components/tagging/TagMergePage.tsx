@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TagMergePageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { TagsSearchAutoComplete, Typography, SingleColumnSection, Loading, EAButton, LWTooltip } = Components;
 
   const currentUser = useCurrentUser();
@@ -226,10 +226,10 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const TagMergePageComponent = registerComponent("TagMergePage", TagMergePage, { styles });
+export const TagMergePage = registerComponent("TagMergePage", TagMergePageInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    TagMergePage: typeof TagMergePageComponent;
+    TagMergePage: typeof TagMergePage;
   }
 }

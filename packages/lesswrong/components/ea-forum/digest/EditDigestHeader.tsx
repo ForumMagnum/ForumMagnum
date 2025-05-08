@@ -83,7 +83,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EditDigestHeader = ({digest, classes}: {
+export const EditDigestHeaderInner = ({digest, classes}: {
   digest: DigestsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -224,10 +224,10 @@ export const EditDigestHeader = ({digest, classes}: {
   </div>
 }
 
-const EditDigestHeaderComponent = registerComponent('EditDigestHeader', EditDigestHeader, {styles});
+export const EditDigestHeader = registerComponent('EditDigestHeader', EditDigestHeaderInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditDigestHeader: typeof EditDigestHeaderComponent
+    EditDigestHeader: typeof EditDigestHeader
   }
 }

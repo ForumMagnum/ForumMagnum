@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   ...tagPageHeaderStyles(theme),
 });
 
-const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
+const SubforumWikiTabInner = ({tag, revision, truncated, setTruncated, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   revision?: string,
   truncated: boolean,
@@ -154,12 +154,12 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
     </>
 }
 
-const SubforumWikiTabComponent = registerComponent(
-  'SubforumWikiTab', SubforumWikiTab, {styles}
+export const SubforumWikiTab = registerComponent(
+  'SubforumWikiTab', SubforumWikiTabInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    SubforumWikiTab: typeof SubforumWikiTabComponent
+    SubforumWikiTab: typeof SubforumWikiTab
   }
 }

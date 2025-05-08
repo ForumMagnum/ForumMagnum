@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays a screenshottable summary of the user's Wrapped data
  */
-const WrappedSummarySection = ({classes}: {
+const WrappedSummarySectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -324,14 +324,14 @@ const WrappedSummarySection = ({classes}: {
   );
 }
 
-const WrappedSummarySectionComponent = registerComponent(
+export const WrappedSummarySection = registerComponent(
   "WrappedSummarySection",
-  WrappedSummarySection,
+  WrappedSummarySectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedSummarySection: typeof WrappedSummarySectionComponent
+    WrappedSummarySection: typeof WrappedSummarySection
   }
 }

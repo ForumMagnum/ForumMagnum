@@ -107,7 +107,7 @@ const LinkToEditorGuideButton = () => {
   }
 }
 
-const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {
+const FormGroupPostTopBarInner = ({ children }: { children: React.ReactNode }) => {
   const classes = useStyles(styles);
   const childrenArray = React.Children.toArray(children);
   const [tabs, ...otherChildren] = childrenArray;
@@ -130,10 +130,10 @@ const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const FormGroupPostTopBarComponent = registerComponent('FormGroupPostTopBar', FormGroupPostTopBar)
+export const FormGroupPostTopBar = registerComponent('FormGroupPostTopBar', FormGroupPostTopBarInner)
 
 declare global {
   interface ComponentTypes {
-    FormGroupPostTopBar: typeof FormGroupPostTopBarComponent
+    FormGroupPostTopBar: typeof FormGroupPostTopBar
   }
 }

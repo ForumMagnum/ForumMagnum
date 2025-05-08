@@ -89,7 +89,7 @@ const getItemProps = (
  * comments on posts, and new events. See `getItemProps` for the logic deciding
  * which variant we choose.
  */
-const EARecentDiscussionThread = ({
+const EARecentDiscussionThreadInner = ({
   post,
   comments,
   refetch,
@@ -172,14 +172,14 @@ const EARecentDiscussionThread = ({
   );
 }
 
-const EARecentDiscussionThreadComponent = registerComponent(
+export const EARecentDiscussionThread = registerComponent(
   "EARecentDiscussionThread",
-  EARecentDiscussionThread,
+  EARecentDiscussionThreadInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EARecentDiscussionThread: typeof EARecentDiscussionThreadComponent,
+    EARecentDiscussionThread: typeof EARecentDiscussionThread,
   }
 }

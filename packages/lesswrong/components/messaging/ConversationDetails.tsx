@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // Component for displaying details about currently selected conversation
-const ConversationDetails = ({conversation, hideOptions = false, classes}: {
+const ConversationDetailsInner = ({conversation, hideOptions = false, classes}: {
   conversation: ConversationsList,
   hideOptions?: boolean,
   classes: ClassesType<typeof styles>,
@@ -51,10 +51,10 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   )
 }
 
-const ConversationDetailsComponent = registerComponent('ConversationDetails', ConversationDetails, {styles});
+export const ConversationDetails = registerComponent('ConversationDetails', ConversationDetailsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ConversationDetails: typeof ConversationDetailsComponent
+    ConversationDetails: typeof ConversationDetails
   }
 }

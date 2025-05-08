@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
+const SettingsButtonInner = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
@@ -65,13 +65,13 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
 }
 
-const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {
+export const SettingsButton = registerComponent('SettingsButton', SettingsButtonInner, {
   styles,
   stylePriority: -1,
 });
 
 declare global {
   interface ComponentTypes {
-    SettingsButton: typeof SettingsButtonComponent
+    SettingsButton: typeof SettingsButton
   }
 }

@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LanguageModelLauncherButton = ({classes}: {
+export const LanguageModelLauncherButtonInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -70,10 +70,10 @@ export const LanguageModelLauncherButton = ({classes}: {
   </div>;
 }
 
-const LanguageModelLauncherButtonComponent = registerComponent('LanguageModelLauncherButton', LanguageModelLauncherButton, {styles});
+export const LanguageModelLauncherButton = registerComponent('LanguageModelLauncherButton', LanguageModelLauncherButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LanguageModelLauncherButton: typeof LanguageModelLauncherButtonComponent
+    LanguageModelLauncherButton: typeof LanguageModelLauncherButton
   }
 }

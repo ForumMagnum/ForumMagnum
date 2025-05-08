@@ -120,7 +120,7 @@ const FeedPostHighlightBody = ({
   </Components.ContentStyles>
 }
 
-const FeedPostsHighlight = ({post, ...rest}: {
+const FeedPostsHighlightInner = ({post, ...rest}: {
   post: PostsList,
   maxCollapsedLengthWords: number,
   initiallyExpanded?: boolean,
@@ -159,11 +159,11 @@ const FeedPostsHighlight = ({post, ...rest}: {
       }}/>;
 }
 
-const FeedPostsHighlightComponent = registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
+export const FeedPostsHighlight = registerComponent('FeedPostsHighlight', FeedPostsHighlightInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FeedPostsHighlight: typeof FeedPostsHighlightComponent
+    FeedPostsHighlight: typeof FeedPostsHighlight
   }
 }
 

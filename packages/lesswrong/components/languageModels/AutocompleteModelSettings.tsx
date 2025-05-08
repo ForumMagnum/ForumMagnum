@@ -349,7 +349,7 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
   localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
-const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const AutocompleteModelSettingsInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection, Loading, PostsItem, LoadMore, CommentsNode } = Components;
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
@@ -491,12 +491,12 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
   );
 };
 
-const AutocompleteModelSettingsComponent = registerComponent("AutocompleteModelSettings", AutocompleteModelSettings, {
+export const AutocompleteModelSettings = registerComponent("AutocompleteModelSettings", AutocompleteModelSettingsInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    AutocompleteModelSettings: typeof AutocompleteModelSettingsComponent;
+    AutocompleteModelSettings: typeof AutocompleteModelSettings;
   }
 }

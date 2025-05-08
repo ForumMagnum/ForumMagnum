@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
 
-const TagsSearchAutoComplete = ({
+const TagsSearchAutoCompleteInner = ({
   clickAction,
   placeholder='Search for posts',
   hidePostCount=false,
@@ -25,11 +25,11 @@ const TagsSearchAutoComplete = ({
   />
 }
 
-const TagsSearchAutoCompleteComponent = registerComponent("TagsSearchAutoComplete", TagsSearchAutoComplete);
+export const TagsSearchAutoComplete = registerComponent("TagsSearchAutoComplete", TagsSearchAutoCompleteInner);
 
 declare global {
   interface ComponentTypes {
-    TagsSearchAutoComplete: typeof TagsSearchAutoCompleteComponent
+    TagsSearchAutoComplete: typeof TagsSearchAutoComplete
   }
 }
 

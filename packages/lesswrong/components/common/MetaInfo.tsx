@@ -22,7 +22,7 @@ export const styles = (theme: ThemeType) => ({
   }
 })
 
-const MetaInfo = ({children, classes, button, className}: {
+const MetaInfoInner = ({children, classes, button, className}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   button?: boolean,
@@ -37,10 +37,10 @@ const MetaInfo = ({children, classes, button, className}: {
   </Components.Typography>
 }
 
-const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, {styles});
+export const MetaInfo = registerComponent('MetaInfo', MetaInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    MetaInfo: typeof MetaInfoComponent
+    MetaInfo: typeof MetaInfo
   }
 }

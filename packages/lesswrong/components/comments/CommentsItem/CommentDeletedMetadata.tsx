@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentDeletedMetadata = ({documentId, classes}: {
+const CommentDeletedMetadataInner = ({documentId, classes}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -43,13 +43,13 @@ const CommentDeletedMetadata = ({documentId, classes}: {
   }
 };
 
-const CommentDeletedMetadataComponent = registerComponent(
-  'CommentDeletedMetadata', CommentDeletedMetadata, {styles}
+export const CommentDeletedMetadata = registerComponent(
+  'CommentDeletedMetadata', CommentDeletedMetadataInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    CommentDeletedMetadata: typeof CommentDeletedMetadataComponent,
+    CommentDeletedMetadata: typeof CommentDeletedMetadata,
   }
 }
 

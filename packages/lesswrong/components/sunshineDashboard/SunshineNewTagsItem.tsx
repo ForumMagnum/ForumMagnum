@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewTagsItem = ({tag, classes}: {
+const SunshineNewTagsItemInner = ({tag, classes}: {
   tag: SunshineTagFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -124,12 +124,12 @@ const SunshineNewTagsItem = ({tag, classes}: {
   )
 }
 
-const SunshineNewTagsItemComponent = registerComponent('SunshineNewTagsItem', SunshineNewTagsItem, {styles, 
+export const SunshineNewTagsItem = registerComponent('SunshineNewTagsItem', SunshineNewTagsItemInner, {styles, 
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineNewTagsItem: typeof SunshineNewTagsItemComponent
+    SunshineNewTagsItem: typeof SunshineNewTagsItem
   }
 }

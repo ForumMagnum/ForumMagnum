@@ -11,7 +11,7 @@ type ImgPropsType = {
   background?: string,
 }
 
-const CloudinaryImage = ({width, height, publicId, imgProps = {}}: {
+const CloudinaryImageInner = ({width, height, publicId, imgProps = {}}: {
   width?: number|string,
   height?: number|string,
   publicId: string,
@@ -38,10 +38,10 @@ const CloudinaryImage = ({width, height, publicId, imgProps = {}}: {
   />
 };
 
-const CloudinaryImageComponent = registerComponent('CloudinaryImage', CloudinaryImage);
+export const CloudinaryImage = registerComponent('CloudinaryImage', CloudinaryImageInner);
 
 declare global {
   interface ComponentTypes {
-    CloudinaryImage: typeof CloudinaryImageComponent
+    CloudinaryImage: typeof CloudinaryImage
   }
 }

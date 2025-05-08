@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
+const AllPostsPageTagRevisionItemInner = ({tag, revisionId, documentId, classes}: {
   tag: TagHistoryFragment,
   revisionId: string,
   documentId: string,
@@ -53,11 +53,11 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   }
 }
 
-const AllPostsPageTagRevisionItemComponent = registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItem, {styles});
+export const AllPostsPageTagRevisionItem = registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AllPostsPageTagRevisionItem: typeof AllPostsPageTagRevisionItemComponent
+    AllPostsPageTagRevisionItem: typeof AllPostsPageTagRevisionItem
   }
 }
 

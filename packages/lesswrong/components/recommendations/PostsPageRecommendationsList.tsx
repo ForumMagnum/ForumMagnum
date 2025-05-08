@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPageRecommendationsList = ({
+const PostsPageRecommendationsListInner = ({
   title = "More posts like this",
   strategy = "moreFromTag",
   bias,
@@ -104,14 +104,14 @@ const PostsPageRecommendationsList = ({
   );
 }
 
-const PostsPageRecommendationsListComponent = registerComponent(
+export const PostsPageRecommendationsList = registerComponent(
   "PostsPageRecommendationsList",
-  PostsPageRecommendationsList,
+  PostsPageRecommendationsListInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsPageRecommendationsList: typeof PostsPageRecommendationsListComponent
+    PostsPageRecommendationsList: typeof PostsPageRecommendationsList
   }
 }

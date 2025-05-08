@@ -121,7 +121,7 @@ const getAddedReactions = (addedReactions?: EAReactionChanges): AddedReactions[]
   });
 }
 
-export const NotificationsPageKarmaChange = ({
+export const NotificationsPageKarmaChangeInner = ({
   postKarmaChange,
   commentKarmaChange,
   tagRevisionKarmaChange,
@@ -251,14 +251,14 @@ export const NotificationsPageKarmaChange = ({
   );
 }
 
-const NotificationsPageKarmaChangeComponent = registerComponent(
+export const NotificationsPageKarmaChange = registerComponent(
   "NotificationsPageKarmaChange",
-  NotificationsPageKarmaChange,
+  NotificationsPageKarmaChangeInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageKarmaChange: typeof NotificationsPageKarmaChangeComponent
+    NotificationsPageKarmaChange: typeof NotificationsPageKarmaChange
   }
 }

@@ -63,7 +63,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CollectionsPage = ({ documentId, classes }: {
+const CollectionsPageInner = ({ documentId, classes }: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -180,11 +180,11 @@ const CollectionsPage = ({ documentId, classes }: {
   }
 }
 
-const CollectionsPageComponent = registerComponent('CollectionsPage', CollectionsPage, {styles});
+export const CollectionsPage = registerComponent('CollectionsPage', CollectionsPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CollectionsPage: typeof CollectionsPageComponent
+    CollectionsPage: typeof CollectionsPage
   }
 }
 

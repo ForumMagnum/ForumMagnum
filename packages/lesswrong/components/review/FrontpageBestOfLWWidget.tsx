@@ -64,7 +64,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   excludeDefaultRecommendations: true
 }
 
-export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
+export const FrontpageBestOfLWWidgetInner = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
@@ -87,14 +87,14 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   </div>;
 }
 
-const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
+export const FrontpageBestOfLWWidget = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidgetInner, {
   styles,
   allowNonThemeColors: true, // Overlayed on an image
 });
 
 declare global {
   interface ComponentTypes {
-    FrontpageBestOfLWWidget: typeof FrontpageBestOfLWWidgetComponent
+    FrontpageBestOfLWWidget: typeof FrontpageBestOfLWWidget
   }
 }
 

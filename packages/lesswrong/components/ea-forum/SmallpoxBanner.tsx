@@ -25,7 +25,7 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-const SmallpoxBanner = ({ classes }: {
+const SmallpoxBannerInner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
   const { SingleColumnSection } = Components
@@ -41,12 +41,12 @@ const SmallpoxBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-const SmallpoxBannerComponent = registerComponent(
-  'SmallpoxBanner', SmallpoxBanner, {styles},
+export const SmallpoxBanner = registerComponent(
+  'SmallpoxBanner', SmallpoxBannerInner, {styles},
 )
 
 declare global {
   interface ComponentTypes {
-    SmallpoxBanner: typeof SmallpoxBannerComponent
+    SmallpoxBanner: typeof SmallpoxBanner
   }
 }

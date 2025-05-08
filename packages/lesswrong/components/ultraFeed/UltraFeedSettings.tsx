@@ -121,7 +121,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedSettings = ({
+const UltraFeedSettingsInner = ({
   settings,
   updateSettings,
   resetSettingsToDefault,
@@ -500,12 +500,12 @@ const UltraFeedSettings = ({
   );
 };
 
-const UltraFeedSettingsComponent = registerComponent('UltraFeedSettings', UltraFeedSettings);
+export const UltraFeedSettings = registerComponent('UltraFeedSettings', UltraFeedSettingsInner);
 
-export default UltraFeedSettings;
+export default UltraFeedSettingsInner;
 
 declare global {
   interface ComponentTypes {
-    UltraFeedSettings: typeof UltraFeedSettingsComponent
+    UltraFeedSettings: typeof UltraFeedSettings
   }
 } 

@@ -16,7 +16,7 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
  *   }
  *
  */
-const LoadingOrErrorPage = ({loading, error}: {
+const LoadingOrErrorPageInner = ({loading, error}: {
   loading: boolean
   error: any
 }) => {
@@ -33,11 +33,11 @@ const LoadingOrErrorPage = ({loading, error}: {
   }
 }
 
-const LoadingOrErrorPageComponent = registerComponent('LoadingOrErrorPage', LoadingOrErrorPage);
+export const LoadingOrErrorPage = registerComponent('LoadingOrErrorPage', LoadingOrErrorPageInner);
 
 declare global {
   interface ComponentTypes {
-    LoadingOrErrorPage: typeof LoadingOrErrorPageComponent
+    LoadingOrErrorPage: typeof LoadingOrErrorPage
   }
 }
 

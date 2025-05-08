@@ -115,7 +115,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FooterTagList = ({
+const FooterTagListInner = ({
   post,
   hideScore,
   hideAddTag,
@@ -384,10 +384,10 @@ const FooterTagList = ({
   </>
 };
 
-const FooterTagListComponent = registerComponent("FooterTagList", FooterTagList, {styles});
+export const FooterTagList = registerComponent("FooterTagList", FooterTagListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FooterTagList: typeof FooterTagListComponent
+    FooterTagList: typeof FooterTagList
   }
 }

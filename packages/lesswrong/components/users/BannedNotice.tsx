@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BannedNotice = ({classes}: {
+const BannedNoticeInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const {SingleColumnSection, Typography } = Components;
@@ -38,12 +38,12 @@ const BannedNotice = ({classes}: {
   </SingleColumnSection>
 }
 
-const BannedNoticeComponent = registerComponent(
-  'BannedNotice', BannedNotice, {styles}
+export const BannedNotice = registerComponent(
+  'BannedNotice', BannedNoticeInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    BannedNotice: typeof BannedNoticeComponent
+    BannedNotice: typeof BannedNotice
   }
 }

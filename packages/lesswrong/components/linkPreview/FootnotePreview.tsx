@@ -129,7 +129,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   },
 })
 
-const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
+const FootnotePreviewInner = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
   classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
@@ -377,12 +377,12 @@ function getFootnoteIndex(href: string, html: string): string|null {
   return null;
 }
 
-const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
+export const FootnotePreview = registerComponent('FootnotePreview', FootnotePreviewInner, {
   styles: footnotePreviewStyles,
 });
 
 declare global {
   interface ComponentTypes {
-    FootnotePreview: typeof FootnotePreviewComponent
+    FootnotePreview: typeof FootnotePreview
   }
 }

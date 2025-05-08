@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
+const PostsItemDateInner = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
@@ -145,11 +145,11 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   </LWTooltip>
 }
 
-const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, {styles});
+export const PostsItemDate = registerComponent("PostsItemDate", PostsItemDateInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemDate: typeof PostsItemDateComponent
+    PostsItemDate: typeof PostsItemDate
   }
 }
 

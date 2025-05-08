@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
+const FriendlyPlaceholderPostsItemInner = ({viewType = "list", classes}: {
   viewType?: PostsListViewType,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -138,10 +138,10 @@ const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
   );
 }
 
-const FriendlyPlaceholderPostsItemComponent = registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItem, {styles});
+export const FriendlyPlaceholderPostsItem = registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FriendlyPlaceholderPostsItem: typeof FriendlyPlaceholderPostsItemComponent
+    FriendlyPlaceholderPostsItem: typeof FriendlyPlaceholderPostsItem
   }
 }

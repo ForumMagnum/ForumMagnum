@@ -10,7 +10,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
  *   the selected content.
  * onClose: Called when the close button is clicked on the floating editor.
  */
-const ReplyCommentDialog = ({post, initialHtml, onClose}: {
+const ReplyCommentDialogInner = ({post, initialHtml, onClose}: {
   post: PostsList,
   initialHtml: string,
   parentComment?: CommentsList,
@@ -35,10 +35,10 @@ const ReplyCommentDialog = ({post, initialHtml, onClose}: {
   />
 }
 
-const ReplyCommentDialogComponent = registerComponent('ReplyCommentDialog', ReplyCommentDialog);
+export const ReplyCommentDialog = registerComponent('ReplyCommentDialog', ReplyCommentDialogInner);
 
 declare global {
   interface ComponentTypes {
-    ReplyCommentDialog: typeof ReplyCommentDialogComponent
+    ReplyCommentDialog: typeof ReplyCommentDialog
   }
 }

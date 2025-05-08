@@ -51,7 +51,7 @@ type ReviewLeaderboardRow = {
   reviews: CommentsListWithParentMetadata[]
 }
 
-export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
+export const ReviewsLeaderboardInner = ({classes, reviews, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviews?: CommentsListWithParentMetadata[],
   reviewYear?: ReviewYear
@@ -134,11 +134,11 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   </div>
 }
 
-const ReviewsLeaderboardComponent = registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
+export const ReviewsLeaderboard = registerComponent('ReviewsLeaderboard', ReviewsLeaderboardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewsLeaderboard: typeof ReviewsLeaderboardComponent
+    ReviewsLeaderboard: typeof ReviewsLeaderboard
   }
 }
 

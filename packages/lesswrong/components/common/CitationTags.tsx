@@ -13,7 +13,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
  * The primary author is separate from the coauthors as, even though Highwire Press
  * doesn't make a distinction, some of the other formats do.
  */
-const CitationTags = ({title, author, coauthors, date}: {
+const CitationTagsInner = ({title, author, coauthors, date}: {
   title?: string,
   author?: string,
   coauthors?: string[],
@@ -38,10 +38,10 @@ const CitationTags = ({title, author, coauthors, date}: {
   );
 }
 
-const CitationTagsComponent = registerComponent("CitationTags", CitationTags);
+export const CitationTags = registerComponent("CitationTags", CitationTagsInner);
 
 declare global {
   interface ComponentTypes {
-    CitationTags: typeof CitationTagsComponent
+    CitationTags: typeof CitationTags
   }
 }

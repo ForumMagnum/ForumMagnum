@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   
 });
 
-const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
+const TagFlagToggleListInner = ({ value, path, updateCurrentValues }: {
   value: string[],
   path: string,
   updateCurrentValues: UpdateCurrentValues,
@@ -49,10 +49,10 @@ const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
   </div></DeferRender>
 }
 
-const TagFlagToggleListComponent = registerComponent("TagFlagToggleList", TagFlagToggleList, {styles});
+export const TagFlagToggleList = registerComponent("TagFlagToggleList", TagFlagToggleListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagFlagToggleList: typeof TagFlagToggleListComponent
+    TagFlagToggleList: typeof TagFlagToggleList
   }
 }

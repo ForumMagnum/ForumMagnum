@@ -74,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupsItem = ({group, classes}: {
+const LocalGroupsItemInner = ({group, classes}: {
   group: localGroupsHomeFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -95,11 +95,11 @@ const LocalGroupsItem = ({group, classes}: {
   )
 }
 
-const LocalGroupsItemComponent = registerComponent('LocalGroupsItem', LocalGroupsItem, {styles});
+export const LocalGroupsItem = registerComponent('LocalGroupsItem', LocalGroupsItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalGroupsItem: typeof LocalGroupsItemComponent
+    LocalGroupsItem: typeof LocalGroupsItem
   }
 }
 

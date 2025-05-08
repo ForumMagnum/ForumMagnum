@@ -22,7 +22,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedThankYouSection = ({classes}: {
+const WrappedThankYouSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentUser} = useForumWrappedContext();
@@ -41,14 +41,14 @@ const WrappedThankYouSection = ({classes}: {
   );
 }
 
-const WrappedThankYouSectionComponent = registerComponent(
+export const WrappedThankYouSection = registerComponent(
   "WrappedThankYouSection",
-  WrappedThankYouSection,
+  WrappedThankYouSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedThankYouSection: typeof WrappedThankYouSectionComponent
+    WrappedThankYouSection: typeof WrappedThankYouSection
   }
 }

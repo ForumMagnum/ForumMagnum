@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
+const AddInlineReactionButtonInner = ({voteProps, classes, quote, disabled}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
   quote: QuoteLocator|null,
@@ -81,10 +81,10 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   </LWTooltip>
 }
 
-const AddInlineReactionButtonComponent = registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
+export const AddInlineReactionButton = registerComponent('AddInlineReactionButton', AddInlineReactionButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AddInlineReactionButton: typeof AddInlineReactionButtonComponent
+    AddInlineReactionButton: typeof AddInlineReactionButton
   }
 }

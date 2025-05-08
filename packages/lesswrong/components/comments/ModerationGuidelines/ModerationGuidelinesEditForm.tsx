@@ -146,7 +146,7 @@ const PostModerationGuidelinesForm = ({
   </form>);
 };
 
-export const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose }: {
+export const ModerationGuidelinesEditFormInner = ({ commentType = "post", documentId, onClose }: {
   commentType?: "post" | "subforum",
   documentId: string,
   onClose?: () => void,
@@ -194,10 +194,10 @@ export const ModerationGuidelinesEditForm = ({ commentType = "post", documentId,
   )
 }
 
-const ModerationGuidelinesEditFormComponent = registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm);
+export const ModerationGuidelinesEditForm = registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    ModerationGuidelinesEditForm: typeof ModerationGuidelinesEditFormComponent
+    ModerationGuidelinesEditForm: typeof ModerationGuidelinesEditForm
   }
 }

@@ -20,7 +20,7 @@ export interface PickedTime {
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
+const BatchTimePickerInner = ({ mode, value, onChange, disabled = false }: {
   mode: string,
   value: PickedTime,
   onChange: (value: PickedTime) => void,
@@ -75,10 +75,10 @@ const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
   </React.Fragment>;
 }
 
-const BatchTimePickerComponent = registerComponent("BatchTimePicker", BatchTimePicker, {hocs:[withErrorBoundary]});
+export const BatchTimePicker = registerComponent("BatchTimePicker", BatchTimePickerInner, {hocs:[withErrorBoundary]});
 
 declare global {
   interface ComponentTypes {
-    BatchTimePicker: typeof BatchTimePickerComponent
+    BatchTimePicker: typeof BatchTimePicker
   }
 }

@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const SequencesNewButton = ({ classes }: {
+export const SequencesNewButtonInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { SectionButton } = Components
@@ -21,11 +21,11 @@ export const SequencesNewButton = ({ classes }: {
   </Link>
 }
 
-const SequencesNewButtonComponent = registerComponent('SequencesNewButton', SequencesNewButton, {styles});
+export const SequencesNewButton = registerComponent('SequencesNewButton', SequencesNewButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesNewButton: typeof SequencesNewButtonComponent
+    SequencesNewButton: typeof SequencesNewButton
   }
 }
 

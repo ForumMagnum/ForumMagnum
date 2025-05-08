@@ -20,7 +20,7 @@ import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
@@ -282,7 +282,7 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
 }
 
 
-const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
@@ -302,7 +302,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
   </span>
 }
 
-const NamesAttachedReactionsCommentBottom = ({
+const NamesAttachedReactionsCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, classes, voteProps, post
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
@@ -341,7 +341,7 @@ const NamesAttachedReactionsCommentBottom = ({
       {hideKarma && <AddReactionIcon />}
     </span>}
     {(hiddenReacts.length > 0 || alwaysShowReactionOverviewButton) && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
-    {showReactButton && <AddReactionButton voteProps={voteProps} classes={classes}/>}
+    {showReactButton && <AddReactionButtonInner voteProps={voteProps} classes={classes}/>}
   </span>
 }
 
@@ -354,7 +354,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
@@ -479,7 +479,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   react: EmojiReactName,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null
+  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null
 }) => {
   const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
@@ -508,7 +508,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   </div>
 }
 
-export const AddReactionButton = ({voteProps, classes}: {
+export const AddReactionButtonInner = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>
 }) => {
@@ -577,23 +577,23 @@ const ReactionOverviewButton = ({voteProps, classes}: {
 }
 
 
-const AddReactionButtonComponent = registerComponent('AddReactionButton', AddReactionButton, {styles});
+export const AddReactionButton = registerComponent('AddReactionButton', AddReactionButtonInner, {styles});
 
-const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
+export const NamesAttachedReactionsVoteOnComment = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnCommentInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-const NamesAttachedReactionsCommentBottomComponent = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottom, {
+export const NamesAttachedReactionsCommentBottom = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottomInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnCommentComponent
-    NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottomComponent
-    AddReactionButton: typeof AddReactionButtonComponent
+    NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnComment
+    NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottom
+    AddReactionButton: typeof AddReactionButton
   }
 }
 

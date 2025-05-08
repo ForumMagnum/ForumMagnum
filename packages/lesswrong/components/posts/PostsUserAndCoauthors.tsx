@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsUserAndCoauthors = ({
+const PostsUserAndCoauthorsInner = ({
   post,
   abbreviateIfLong=false,
   classes,
@@ -82,10 +82,10 @@ const PostsUserAndCoauthors = ({
   </div>;
 };
 
-const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
+export const PostsUserAndCoauthors = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthorsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsUserAndCoauthors: typeof PostsUserAndCoauthorsComponent
+    PostsUserAndCoauthors: typeof PostsUserAndCoauthors
   }
 }

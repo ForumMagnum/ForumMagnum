@@ -203,7 +203,7 @@ const styles = (theme: ThemeType) => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
+const LWPostsPageHeaderInner = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
@@ -309,14 +309,14 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   </div>
 }
 
-const LWPostsPageHeaderComponent = registerComponent(
-  'LWPostsPageHeader', LWPostsPageHeader, {styles}
+export const LWPostsPageHeader = registerComponent(
+  'LWPostsPageHeader', LWPostsPageHeaderInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    LWPostsPageHeader: typeof LWPostsPageHeaderComponent,
+    LWPostsPageHeader: typeof LWPostsPageHeader,
   }
 }
 
-export default LWPostsPageHeaderComponent;
+

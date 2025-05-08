@@ -10,7 +10,7 @@ const styles = (_: ThemeType) => ({
     : {},
 });
 
-const PinToProfileDropdownItem = ({comment, post, classes}: {
+const PinToProfileDropdownItemInner = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
@@ -53,15 +53,15 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   );
 };
 
-const PinToProfileDropdownItemComponent = registerComponent(
+export const PinToProfileDropdownItem = registerComponent(
   "PinToProfileDropdownItem",
-  PinToProfileDropdownItem,
+  PinToProfileDropdownItemInner,
   {styles},
 );
 
 
 declare global {
   interface ComponentTypes {
-    PinToProfileDropdownItem: typeof PinToProfileDropdownItemComponent
+    PinToProfileDropdownItem: typeof PinToProfileDropdownItem
   }
 }

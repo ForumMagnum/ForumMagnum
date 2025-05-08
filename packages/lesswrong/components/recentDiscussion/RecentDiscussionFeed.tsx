@@ -28,7 +28,7 @@ const recentDisucssionFeedComponents = () => forumSelect({
   },
 });
 
-const RecentDiscussionFeed = ({
+const RecentDiscussionFeedInner = ({
   commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }: {
@@ -164,12 +164,12 @@ const RecentDiscussionFeed = ({
   )
 }
 
-const RecentDiscussionFeedComponent = registerComponent('RecentDiscussionFeed', RecentDiscussionFeed, {
+export const RecentDiscussionFeed = registerComponent('RecentDiscussionFeed', RecentDiscussionFeedInner, {
   areEqual: "auto",
 });
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionFeed: typeof RecentDiscussionFeedComponent,
+    RecentDiscussionFeed: typeof RecentDiscussionFeed,
   }
 }

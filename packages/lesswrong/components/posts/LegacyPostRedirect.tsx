@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
-const LegacyPostRedirect = () => {
+const LegacyPostRedirectInner = () => {
   const { params } = useLocation();
   const legacyId = params.id;
   const { post, loading } = usePostByLegacyId({ legacyId });
@@ -17,11 +17,11 @@ const LegacyPostRedirect = () => {
   }
 };
 
-const LegacyPostRedirectComponent = registerComponent('LegacyPostRedirect', LegacyPostRedirect);
+export const LegacyPostRedirect = registerComponent('LegacyPostRedirect', LegacyPostRedirectInner);
 
 declare global {
   interface ComponentTypes {
-    LegacyPostRedirect: typeof LegacyPostRedirectComponent
+    LegacyPostRedirect: typeof LegacyPostRedirect
   }
 }
 

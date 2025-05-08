@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingSelect = ({
+export const EAOnboardingSelectInner = ({
   value,
   setValue,
   options,
@@ -52,14 +52,14 @@ export const EAOnboardingSelect = ({
   );
 }
 
-const EAOnboardingSelectComponent = registerComponent(
+export const EAOnboardingSelect = registerComponent(
   "EAOnboardingSelect",
-  EAOnboardingSelect,
+  EAOnboardingSelectInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingSelect: typeof EAOnboardingSelectComponent
+    EAOnboardingSelect: typeof EAOnboardingSelect
   }
 }

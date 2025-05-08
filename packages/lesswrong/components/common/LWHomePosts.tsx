@@ -400,7 +400,7 @@ const FrontpageSettingsButton = ({
   </>;
 }
 
-const LWHomePosts = ({ children, classes }: {
+const LWHomePostsInner = ({ children, classes }: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
@@ -711,10 +711,10 @@ const LWHomePosts = ({ children, classes }: {
 
 }
 
-const LWHomePostsComponent = registerComponent('LWHomePosts', LWHomePosts, {styles});
+export const LWHomePosts = registerComponent('LWHomePosts', LWHomePostsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWHomePosts: typeof LWHomePostsComponent
+    LWHomePosts: typeof LWHomePosts
   }
 }

@@ -40,7 +40,7 @@ const getStructuredData = () => ({
   }),
 })
 
-const LWHome = () => {
+const LWHomeInner = () => {
   const { RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, EAPopularCommentsSection, DismissibleSpotlightItem,
     QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
@@ -97,10 +97,10 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-const LWHomeComponent = registerComponent('LWHome', LWHome);
+export const LWHome = registerComponent('LWHome', LWHomeInner);
 
 declare global {
   interface ComponentTypes {
-    LWHome: typeof LWHomeComponent
+    LWHome: typeof LWHome
   }
 }

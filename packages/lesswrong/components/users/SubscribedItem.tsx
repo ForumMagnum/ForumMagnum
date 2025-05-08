@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SubscribedItem = ({
+const SubscribedItemInner = ({
   collectionName,
   fragmentName,
   subscription,
@@ -67,14 +67,14 @@ const SubscribedItem = ({
   );
 }
 
-const SubscribedItemComponent = registerComponent(
+export const SubscribedItem = registerComponent(
   "SubscribedItem",
-  SubscribedItem,
+  SubscribedItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    SubscribedItem: typeof SubscribedItemComponent
+    SubscribedItem: typeof SubscribedItem
   }
 }

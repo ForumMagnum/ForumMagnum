@@ -114,7 +114,7 @@ const NotSubscribedPlaceholder = ({classes}: {
   );
 }
 
-const NoNotificationsPlaceholder = ({subscribedToDigest, classes}: {
+const NoNotificationsPlaceholderInner = ({subscribedToDigest, classes}: {
   subscribedToDigest: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -125,14 +125,14 @@ const NoNotificationsPlaceholder = ({subscribedToDigest, classes}: {
     );
 }
 
-const NoNotificationsPlaceholderComponent = registerComponent(
+export const NoNotificationsPlaceholder = registerComponent(
   "NoNotificationsPlaceholder",
-  NoNotificationsPlaceholder,
+  NoNotificationsPlaceholderInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NoNotificationsPlaceholder: typeof NoNotificationsPlaceholderComponent
+    NoNotificationsPlaceholder: typeof NoNotificationsPlaceholder
   }
 }

@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const FirstContentIcons = ({user, classes}: {
+export const FirstContentIconsInner = ({user, classes}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,11 +28,11 @@ export const FirstContentIcons = ({user, classes}: {
   </span>;
 }
 
-const FirstContentIconsComponent = registerComponent('FirstContentIcons', FirstContentIcons, {styles});
+export const FirstContentIcons = registerComponent('FirstContentIcons', FirstContentIconsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FirstContentIcons: typeof FirstContentIconsComponent
+    FirstContentIcons: typeof FirstContentIcons
   }
 }
 

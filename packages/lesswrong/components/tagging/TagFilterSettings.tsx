@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
  * See the documentation for useFilterSettings for more information about the
  * behavior of filter settings.
  */
-const TagFilterSettings = ({
+const TagFilterSettingsInner = ({
   filterSettings,
   setPersonalBlogFilter,
   setTagFilter,
@@ -128,10 +128,10 @@ const TagFilterSettings = ({
   </span>
 }
 
-const TagFilterSettingsComponent = registerComponent("TagFilterSettings", TagFilterSettings, {styles});
+export const TagFilterSettings = registerComponent("TagFilterSettings", TagFilterSettingsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagFilterSettings: typeof TagFilterSettingsComponent
+    TagFilterSettings: typeof TagFilterSettings
   }
 }

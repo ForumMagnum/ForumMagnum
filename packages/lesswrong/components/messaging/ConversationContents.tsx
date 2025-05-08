@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ConversationContents = ({
+const ConversationContentsInner = ({
   conversation,
   currentUser,
   scrollRef,
@@ -163,13 +163,13 @@ const ConversationContents = ({
   );
 };
 
-const ConversationContentsComponent = registerComponent("ConversationContents", ConversationContents, {
+export const ConversationContents = registerComponent("ConversationContents", ConversationContentsInner, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    ConversationContents: typeof ConversationContentsComponent;
+    ConversationContents: typeof ConversationContents;
   }
 }

@@ -99,7 +99,7 @@ export const inferRedLinkTitle = (tag: TagBasicInfo|null, slug: string|null): st
   return tag?.name ?? derivedTitle ?? null;
 }
 
-const RedlinkTagPage = ({tag, slug}: {
+const RedlinkTagPageInner = ({tag, slug}: {
   tag: TagPageFragment|TagPageWithRevisionFragment|null
   slug?: string
 }) => {
@@ -151,11 +151,11 @@ const RedlinkTagPage = ({tag, slug}: {
   </SingleColumnSection>
 }
 
-const RedlinkTagPageComponent = registerComponent('RedlinkTagPage', RedlinkTagPage);
+export const RedlinkTagPage = registerComponent('RedlinkTagPage', RedlinkTagPageInner);
 
 declare global {
   interface ComponentTypes {
-    RedlinkTagPage: typeof RedlinkTagPageComponent
+    RedlinkTagPage: typeof RedlinkTagPage
   }
 }
 

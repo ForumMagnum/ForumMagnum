@@ -72,7 +72,7 @@ interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
 // Results have type ResultType and are rendered into React elements by the
 // renderResult function. If not provided, the results are presumed to be usable
 // as React elements as-is (ie, strings).
-const MixedTypeFeed = (args: {
+const MixedTypeFeedInner = (args: {
   resolverName: string,
   
   // Types for parameters given to the resolver, as an object mapping from
@@ -274,10 +274,10 @@ function elementIsNearVisible(element: HTMLElement|null, distance: number) {
   return (top-distance) <= windowHeight;
 }
 
-const MixedTypeInfiniteComponent = registerComponent('MixedTypeFeed', MixedTypeFeed);
+export const MixedTypeInfinite = registerComponent('MixedTypeFeed', MixedTypeFeedInner);
 
 declare global {
   interface ComponentTypes {
-    MixedTypeFeed: typeof MixedTypeInfiniteComponent,
+    MixedTypeFeed: typeof MixedTypeInfinite,
   }
 }

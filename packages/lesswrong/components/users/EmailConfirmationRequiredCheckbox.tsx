@@ -4,7 +4,7 @@ import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers'
 import { useCurrentUser } from '../common/withUser';
 import type { FormComponentCheckboxProps } from '@/components/form-components/FormComponentCheckbox';
 
-const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) => {
+const EmailConfirmationRequiredCheckboxInner = (props: FormComponentCheckboxProps) => {
   const { FormComponentCheckbox } = Components;
   
   const currentUser = useCurrentUser();
@@ -27,10 +27,10 @@ const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) =>
   }
 }
 
-const EmailConfirmationRequiredCheckboxComponent = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox);
+export const EmailConfirmationRequiredCheckbox = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckboxInner);
 
 declare global {
   interface ComponentTypes {
-    EmailConfirmationRequiredCheckbox: typeof EmailConfirmationRequiredCheckboxComponent
+    EmailConfirmationRequiredCheckbox: typeof EmailConfirmationRequiredCheckbox
   }
 }

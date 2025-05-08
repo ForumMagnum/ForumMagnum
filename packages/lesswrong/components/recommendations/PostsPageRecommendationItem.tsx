@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsPageRecommendationItem = ({
+const PostsPageRecommendationItemInner = ({
   post,
   disableAnalytics,
   className,
@@ -156,14 +156,14 @@ const PostsPageRecommendationItem = ({
   );
 }
 
-const PostsPageRecommendationItemComponent = registerComponent(
+export const PostsPageRecommendationItem = registerComponent(
   "PostsPageRecommendationItem",
-  PostsPageRecommendationItem,
+  PostsPageRecommendationItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsPageRecommendationItem: typeof PostsPageRecommendationItemComponent
+    PostsPageRecommendationItem: typeof PostsPageRecommendationItem
   }
 }

@@ -10,7 +10,7 @@ import type { Placement as PopperPlacementType } from "popper.js"
  * display their name. If the nofollow attribute is true OR the user has a
  * spam-risk score below 0.8, the user-page link will be marked nofollow.
  */
-const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=false, className, ...otherProps}: {
+const UsersNameWrapperInner = ({documentId, nofollow=false, simple=false, nowrap=false, className, ...otherProps}: {
   documentId: string,
   nofollow?: boolean,
   simple?: boolean,
@@ -32,10 +32,10 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
   }
 };
 
-const UsersNameWrapperComponent = registerComponent('UsersNameWrapper', UsersNameWrapper);
+export const UsersNameWrapper = registerComponent('UsersNameWrapper', UsersNameWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    UsersNameWrapper: typeof UsersNameWrapperComponent
+    UsersNameWrapper: typeof UsersNameWrapper
   }
 }

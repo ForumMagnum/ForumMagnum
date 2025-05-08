@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CommentsListSection = ({
+const CommentsListSectionInner = ({
   post,
   tag,
   commentCount,
@@ -298,10 +298,10 @@ const CommentsListSection = ({
   );
 }
 
-const CommentsListSectionComponent = registerComponent("CommentsListSection", CommentsListSection, {styles});
+export const CommentsListSection = registerComponent("CommentsListSection", CommentsListSectionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentsListSection: typeof CommentsListSectionComponent,
+    CommentsListSection: typeof CommentsListSection,
   }
 }

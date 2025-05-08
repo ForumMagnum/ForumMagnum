@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
  * ForumWrappedContext here as this component is also used when the page is
  * still loading.
  */
-const WrappedSection = ({
+const WrappedSectionInner = ({
   pageSectionContext,
   align = "center",
   fullWidth,
@@ -90,14 +90,14 @@ const WrappedSection = ({
   );
 }
 
-const WrappedSectionComponent = registerComponent(
+export const WrappedSection = registerComponent(
   "WrappedSection",
-  WrappedSection,
+  WrappedSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedSection: typeof WrappedSectionComponent
+    WrappedSection: typeof WrappedSection
   }
 }

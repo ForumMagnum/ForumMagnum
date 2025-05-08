@@ -204,7 +204,7 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRowInner = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   index: number,
   costTotal?: number,
@@ -371,13 +371,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   </AnalyticsContext>
 }
 
-const ReviewVoteTableRowComponent = registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
+export const ReviewVoteTableRow = registerComponent("ReviewVoteTableRow", ReviewVoteTableRowInner, {
   styles,
   //areEqual: "auto"
 });
 
 declare global {
   interface ComponentTypes {
-    ReviewVoteTableRow: typeof ReviewVoteTableRowComponent
+    ReviewVoteTableRow: typeof ReviewVoteTableRow
   }
 }

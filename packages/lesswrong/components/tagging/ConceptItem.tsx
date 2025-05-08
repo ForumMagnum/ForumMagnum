@@ -150,7 +150,7 @@ interface ConceptItemProps {
   noLinkOrHoverOnTitle?: boolean;
 }
 
-const ConceptItem = ({
+const ConceptItemInner = ({
   wikitag,
   isTitleItem,
   showArbitalIcon,
@@ -265,12 +265,12 @@ const ConceptItem = ({
   );
 };
 
-const ConceptItemComponent = registerComponent('ConceptItem', ConceptItem);
+export const ConceptItem = registerComponent('ConceptItem', ConceptItemInner);
 
-export default ConceptItemComponent;
+
 
 declare global {
   interface ComponentTypes {
-    ConceptItem: typeof ConceptItemComponent
+    ConceptItem: typeof ConceptItem
   }
 }

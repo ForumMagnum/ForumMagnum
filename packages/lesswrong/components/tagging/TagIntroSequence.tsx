@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const TagIntroSequence = ({tag, classes}: {
+const TagIntroSequenceInner = ({tag, classes}: {
   tag: TagPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -60,10 +60,10 @@ const TagIntroSequence = ({tag, classes}: {
   </div>
 }
 
-const TagIntroSequenceComponent = registerComponent("TagIntroSequence", TagIntroSequence, {styles})
+export const TagIntroSequence = registerComponent("TagIntroSequence", TagIntroSequenceInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    TagIntroSequence: typeof TagIntroSequenceComponent
+    TagIntroSequence: typeof TagIntroSequence
   }
 }

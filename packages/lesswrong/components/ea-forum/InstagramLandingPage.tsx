@@ -29,7 +29,7 @@ const SEQUENCE_ID = 'iNAgbC98BnMuNWmxN';
  * This is a page that the EAF links to from our Instagram account bio.
  * Basically this is the way to get visitors from Instagram to go where you want them to go.
  */
-const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const InstagramLandingPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
       view: "SequenceChapters",
@@ -85,14 +85,14 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
   );
 };
 
-const InstagramLandingPageComponent = registerComponent(
+export const InstagramLandingPage = registerComponent(
   "InstagramLandingPage",
-  InstagramLandingPage,
+  InstagramLandingPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    InstagramLandingPage: typeof InstagramLandingPageComponent;
+    InstagramLandingPage: typeof InstagramLandingPage;
   }
 }

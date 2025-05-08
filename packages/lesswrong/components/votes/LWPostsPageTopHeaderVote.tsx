@@ -47,7 +47,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LWPostsPageTopHeaderVote = ({
+const LWPostsPageTopHeaderVoteInner = ({
   post,
   votingSystem,
   classes,
@@ -133,14 +133,14 @@ const LWPostsPageTopHeaderVote = ({
   );
 }
 
-const PostsSplashPageHeaderVoteComponent = registerComponent(
+export const PostsSplashPageHeaderVote = registerComponent(
   "LWPostsPageTopHeaderVote",
-  LWPostsPageTopHeaderVote,
+  LWPostsPageTopHeaderVoteInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    LWPostsPageTopHeaderVote: typeof PostsSplashPageHeaderVoteComponent
+    LWPostsPageTopHeaderVote: typeof PostsSplashPageHeaderVote
   }
 }

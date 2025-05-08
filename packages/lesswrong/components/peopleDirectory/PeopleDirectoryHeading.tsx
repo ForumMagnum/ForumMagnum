@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryHeading = ({column, classes}: {
+const PeopleDirectoryHeadingInner = ({column, classes}: {
   column: PeopleDirectoryColumn,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -72,14 +72,14 @@ const PeopleDirectoryHeading = ({column, classes}: {
   );
 }
 
-const PeopleDirectoryHeadingComponent = registerComponent(
+export const PeopleDirectoryHeading = registerComponent(
   "PeopleDirectoryHeading",
-  PeopleDirectoryHeading,
+  PeopleDirectoryHeadingInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryHeading: typeof PeopleDirectoryHeadingComponent
+    PeopleDirectoryHeading: typeof PeopleDirectoryHeading
   }
 }

@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UserMentionHit = ({hit, classes}: {
+const UserMentionHitInner = ({hit, classes}: {
   hit: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -50,14 +50,14 @@ const UserMentionHit = ({hit, classes}: {
   </span>
 }
 
-const UserMentionHitComponent = registerComponent(
+export const UserMentionHit = registerComponent(
   "UserMentionHit",
-  UserMentionHit,
+  UserMentionHitInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    UserMentionHit: typeof UserMentionHitComponent
+    UserMentionHit: typeof UserMentionHit
   }
 }

@@ -146,7 +146,7 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
   },
 }
 
-export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
+export const ReviewVotingPageMenuInner = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
   classes: ClassesType<typeof styles>,
   reviewPhase: ReviewPhase,
   loading: boolean,
@@ -284,10 +284,10 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   </AnalyticsContext>;
 }
 
-const ReviewVotingPageMenuComponent = registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenu, {styles});
+export const ReviewVotingPageMenu = registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenuInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingPageMenu: typeof ReviewVotingPageMenuComponent
+    ReviewVotingPageMenu: typeof ReviewVotingPageMenu
   }
 }

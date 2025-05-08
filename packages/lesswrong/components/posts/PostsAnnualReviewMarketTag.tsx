@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
+const PostsAnnualReviewMarketTagInner = ({ annualReviewMarketInfo, classes }: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -91,10 +91,10 @@ const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   </span>
 };
 
-const PostsAnnualReviewMarketTagComponent = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
+export const PostsAnnualReviewMarketTag = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTagInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    PostsAnnualReviewMarketTag: typeof PostsAnnualReviewMarketTagComponent
+    PostsAnnualReviewMarketTag: typeof PostsAnnualReviewMarketTag
   }
 }

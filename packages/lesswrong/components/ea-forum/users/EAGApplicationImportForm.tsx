@@ -203,7 +203,7 @@ type EditorFormComponentRefType = {
 // Wrapper around EAGApplicationImportForm which fetches the current user with
 // the UsersEdit fragment so that it will have all the fields to be able to
 // edit bio, howICanHelpOthers.
-const EAGApplicationImportFormWrapper = () => {
+const EAGApplicationImportFormWrapperInner = () => {
   const currentUser = useCurrentUser()
   const { Loading, EAGApplicationImportForm } = Components;
   const { document: currentUserEdit, loading } = useSingle({
@@ -222,7 +222,7 @@ const EAGApplicationImportFormWrapper = () => {
   />
 }
 
-const EAGApplicationImportForm = ({currentUser, classes}: {
+const EAGApplicationImportFormInner = ({currentUser, classes}: {
   currentUser: UsersEdit,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -749,12 +749,12 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
 }
 
 
-const EAGApplicationImportFormWrapperComponent = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportForm);
-const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm, {styles});
+export const EAGApplicationImportFormWrapper = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapperInner);
+export const EAGApplicationImportForm = registerComponent('EAGApplicationImportForm', EAGApplicationImportFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapperComponent
-    EAGApplicationImportForm: typeof EAGApplicationImportFormComponent
+    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapper
+    EAGApplicationImportForm: typeof EAGApplicationImportForm
   }
 }

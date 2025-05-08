@@ -101,7 +101,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   }
 }));
 
-export const LWBackgroundImage = ({standaloneNavigation}: {
+export const LWBackgroundImageInner = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -149,10 +149,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div>;
 }
 
-const LWBackgroundImageComponent = registerComponent('LWBackgroundImage', LWBackgroundImage);
+export const LWBackgroundImage = registerComponent('LWBackgroundImage', LWBackgroundImageInner);
 
 declare global {
   interface ComponentTypes {
-    LWBackgroundImage: typeof LWBackgroundImageComponent
+    LWBackgroundImage: typeof LWBackgroundImage
   }
 }

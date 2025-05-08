@@ -76,7 +76,7 @@ const guides: HowToGuide[] = [
   },
 ];
 
-export const NewPostHowToGuides = ({classes}: {
+export const NewPostHowToGuidesInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {dismissed, dismiss} = useDismissable(HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE);
@@ -106,14 +106,14 @@ export const NewPostHowToGuides = ({classes}: {
   );
 }
 
-const NewPostHowToGuidesComponent = registerComponent(
+export const NewPostHowToGuides = registerComponent(
   "NewPostHowToGuides",
-  NewPostHowToGuides,
+  NewPostHowToGuidesInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NewPostHowToGuides: typeof NewPostHowToGuidesComponent
+    NewPostHowToGuides: typeof NewPostHowToGuides
   }
 }

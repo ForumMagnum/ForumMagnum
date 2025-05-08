@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 const VISITS_TO_SHOW = 4
 const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
 
-const LastVisitList = ({ postId, currentUser, clickCallback }: {
+const LastVisitListInner = ({ postId, currentUser, clickCallback }: {
   postId: string,
   currentUser: UsersCurrent,
   clickCallback: (date: Date) => void,
@@ -54,11 +54,11 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   )}</>
 }
 
-const LastVisitListComponent = registerComponent("LastVisitList", LastVisitList);
+export const LastVisitList = registerComponent("LastVisitList", LastVisitListInner);
 
 declare global {
   interface ComponentTypes {
-    LastVisitList: typeof LastVisitListComponent,
+    LastVisitList: typeof LastVisitList,
   }
 }
 

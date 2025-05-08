@@ -178,7 +178,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
+const CommunityMembersInner = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
   currentUser: UsersCurrent | null,
   userLocation: {
     lat: number,
@@ -307,11 +307,11 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   </InstantSearch>
 }
 
-const CommunityMembersComponent = registerComponent('CommunityMembers', CommunityMembers, {styles});
+export const CommunityMembers = registerComponent('CommunityMembers', CommunityMembersInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommunityMembers: typeof CommunityMembersComponent
+    CommunityMembers: typeof CommunityMembers
   }
 }
 

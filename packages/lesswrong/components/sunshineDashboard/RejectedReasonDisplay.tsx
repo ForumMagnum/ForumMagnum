@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const RejectedReasonDisplay = ({classes, reason}: {
+export const RejectedReasonDisplayInner = ({classes, reason}: {
   classes: ClassesType<typeof styles>,
   reason: string|null
 }) => {
@@ -50,11 +50,11 @@ export const RejectedReasonDisplay = ({classes, reason}: {
   </span>;
 }
 
-const RejectedReasonDisplayComponent = registerComponent('RejectedReasonDisplay', RejectedReasonDisplay, {styles});
+export const RejectedReasonDisplay = registerComponent('RejectedReasonDisplay', RejectedReasonDisplayInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RejectedReasonDisplay: typeof RejectedReasonDisplayComponent
+    RejectedReasonDisplay: typeof RejectedReasonDisplay
   }
 }
 

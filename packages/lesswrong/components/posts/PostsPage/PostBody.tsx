@@ -5,7 +5,7 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
@@ -52,7 +52,7 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
   return { showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount };
 }
 
-const PostBody = ({post, html, isOldVersion, voteProps}: {
+const PostBodyInner = ({post, html, isOldVersion, voteProps}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   html: string,
   isOldVersion: boolean
@@ -80,7 +80,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
-  const contentRef = useRef<ContentItemBody>(null);
+  const contentRef = useRef<ContentItemBodyInner>(null);
   let content: React.ReactNode
   
   const highlights = votingSystem.getPostHighlights
@@ -135,10 +135,10 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   }
 }
 
-const PostBodyComponent = registerComponent('PostBody', PostBody);
+export const PostBody = registerComponent('PostBody', PostBodyInner);
 
 declare global {
   interface ComponentTypes {
-    PostBody: typeof PostBodyComponent
+    PostBody: typeof PostBody
   }
 }

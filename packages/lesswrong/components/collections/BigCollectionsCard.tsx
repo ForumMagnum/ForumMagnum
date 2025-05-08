@@ -68,7 +68,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const BigCollectionsCard = ({ collection, url, classes }: {
+const BigCollectionsCardInner = ({ collection, url, classes }: {
   collection: CoreReadingCollection,
   url: string,
   classes: ClassesType<typeof styles>,
@@ -96,12 +96,12 @@ const BigCollectionsCard = ({ collection, url, classes }: {
   </LinkCard>
 }
 
-const BigCollectionsCardComponent = registerComponent(
-  "BigCollectionsCard", BigCollectionsCard, { styles }
+export const BigCollectionsCard = registerComponent(
+  "BigCollectionsCard", BigCollectionsCardInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    BigCollectionsCard: typeof BigCollectionsCardComponent
+    BigCollectionsCard: typeof BigCollectionsCard
   }
 }

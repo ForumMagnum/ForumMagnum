@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
+const PostsAudioCardInner = ({post}: {post: PostsBestOfList}) => {
   const {eventHandlers} = useHover({
     eventProps: {
       pageElementContext: "audioCard",
@@ -30,13 +30,13 @@ const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
   );
 }
 
-const PostsAudioCardComponent = registerComponent(
+export const PostsAudioCard = registerComponent(
   "PostsAudioCard",
-  PostsAudioCard,
+  PostsAudioCardInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PostsAudioCard: typeof PostsAudioCardComponent;
+    PostsAudioCard: typeof PostsAudioCard;
   }
 }

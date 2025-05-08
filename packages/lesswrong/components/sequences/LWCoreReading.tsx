@@ -97,7 +97,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const LWCoreReading = ({classes}: {
+const LWCoreReadingInner = ({classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -108,10 +108,10 @@ const LWCoreReading = ({classes}: {
   </SingleColumnSection>
 }
 
-const LWCoreReadingComponent = registerComponent("LWCoreReading", LWCoreReading, {styles});
+export const LWCoreReading = registerComponent("LWCoreReading", LWCoreReadingInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWCoreReading: typeof LWCoreReadingComponent
+    LWCoreReading: typeof LWCoreReading
   }
 }

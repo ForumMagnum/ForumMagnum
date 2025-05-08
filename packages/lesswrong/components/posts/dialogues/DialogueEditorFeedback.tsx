@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
 type ClickState = 'unclicked' | 'success' | 'failure'
 
 
-export const DialogueEditorFeedback = ({ classes, post }: {
+export const DialogueEditorFeedbackInner = ({ classes, post }: {
   post: PostsEdit,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -52,10 +52,10 @@ export const DialogueEditorFeedback = ({ classes, post }: {
   </div>
 }
 
-const DialogueEditorFeedbackComponent = registerComponent('DialogueEditorFeedback', DialogueEditorFeedback, { styles });
+export const DialogueEditorFeedback = registerComponent('DialogueEditorFeedback', DialogueEditorFeedbackInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    DialogueEditorFeedback: typeof DialogueEditorFeedbackComponent
+    DialogueEditorFeedback: typeof DialogueEditorFeedback
   }
 }

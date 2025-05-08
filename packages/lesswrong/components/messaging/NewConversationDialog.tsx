@@ -151,7 +151,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NewConversationDialog = ({
+const NewConversationDialogInner = ({
   isModInbox = false,
   classes,
   onClose,
@@ -280,10 +280,10 @@ const NewConversationDialog = ({
   );
 };
 
-const NewConversationDialogComponent = registerComponent("NewConversationDialog", NewConversationDialog, { styles });
+export const NewConversationDialog = registerComponent("NewConversationDialog", NewConversationDialogInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    NewConversationDialog: typeof NewConversationDialogComponent;
+    NewConversationDialog: typeof NewConversationDialog;
   }
 }

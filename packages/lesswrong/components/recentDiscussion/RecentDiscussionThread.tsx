@@ -145,7 +145,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const RecentDiscussionThread = ({
+const RecentDiscussionThreadInner = ({
   post,
   comments,
   refetch,
@@ -259,8 +259,8 @@ const RecentDiscussionThread = ({
   )
 };
 
-const RecentDiscussionThreadComponent = registerComponent(
-  'RecentDiscussionThread', RecentDiscussionThread, {
+export const RecentDiscussionThread = registerComponent(
+  'RecentDiscussionThread', RecentDiscussionThreadInner, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {
@@ -272,6 +272,6 @@ const RecentDiscussionThreadComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
+    RecentDiscussionThread: typeof RecentDiscussionThread,
   }
 }

@@ -115,7 +115,7 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
   return <>{nodes}</>;
 }
 
-export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
+export const SequencesSummaryInner = ({classes, sequence, showAuthor=true, maxPosts}: {
   classes: ClassesType<typeof styles>,
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
@@ -187,10 +187,10 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
   </Card>;
 }
 
-const SequencesSummaryComponent = registerComponent('SequencesSummary', SequencesSummary, {styles});
+export const SequencesSummary = registerComponent('SequencesSummary', SequencesSummaryInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesSummary: typeof SequencesSummaryComponent
+    SequencesSummary: typeof SequencesSummary
   }
 }

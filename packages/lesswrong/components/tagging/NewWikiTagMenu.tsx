@@ -4,7 +4,7 @@ import { useHover } from "../common/withHover";
 import { tagCreateUrl } from "../../lib/collections/tags/helpers";
 import { Paper }from '@/components/widgets/Paper';
 
-const NewWikiTagMenu = ({ children }: { children: React.ReactNode }) => {
+const NewWikiTagMenuInner = ({ children }: { children: React.ReactNode }) => {
   const subMenuHover = useHover();
   const { eventHandlers: subMenuHandlers, hover: subMenuIsOpen, anchorEl: subMenuAnchor, forceUnHover: closeSubMenu } = subMenuHover;
   const { LWPopper, DropdownMenu, DropdownItem, DropdownDivider } = Components;
@@ -37,12 +37,12 @@ const NewWikiTagMenu = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const NewWikiTagMenuComponent = registerComponent("NewWikiTagMenu", NewWikiTagMenu);
+export const NewWikiTagMenu = registerComponent("NewWikiTagMenu", NewWikiTagMenuInner);
 
-export default NewWikiTagMenuComponent; 
+ 
 
 declare global {
   interface ComponentTypes {
-    NewWikiTagMenu: typeof NewWikiTagMenuComponent;
+    NewWikiTagMenu: typeof NewWikiTagMenu;
   }
 } 

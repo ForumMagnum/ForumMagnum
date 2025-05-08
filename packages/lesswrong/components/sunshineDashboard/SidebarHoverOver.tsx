@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
+const SidebarHoverOverInner = ({children, classes, hover, anchorEl, width=500}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   hover: boolean,
@@ -31,11 +31,11 @@ const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
   </LWPopper>
 };
 
-const SidebarHoverOverComponent = registerComponent('SidebarHoverOver', SidebarHoverOver, {styles});
+export const SidebarHoverOver = registerComponent('SidebarHoverOver', SidebarHoverOverInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SidebarHoverOver: typeof SidebarHoverOverComponent
+    SidebarHoverOver: typeof SidebarHoverOver
   }
 }
 

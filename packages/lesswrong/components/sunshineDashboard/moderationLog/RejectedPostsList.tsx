@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectedPostsList = ({classes}: {
+export const RejectedPostsListInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -60,11 +60,11 @@ export const RejectedPostsList = ({classes}: {
   </SingleColumnSection>;
 }
 
-const RejectedPostsListComponent = registerComponent('RejectedPostsList', RejectedPostsList, {styles});
+export const RejectedPostsList = registerComponent('RejectedPostsList', RejectedPostsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RejectedPostsList: typeof RejectedPostsListComponent
+    RejectedPostsList: typeof RejectedPostsList
   }
 }
 

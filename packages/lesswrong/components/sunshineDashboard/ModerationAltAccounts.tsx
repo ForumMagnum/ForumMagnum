@@ -47,7 +47,7 @@ const accountIdentifierTypes = [
   { key: "ip", label: "IP Address" },
 ];
 
-const ModerationAltAccounts = ({classes}: {
+const ModerationAltAccountsInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, SectionTitle, MenuItem, ContentStyles } = Components;
@@ -316,11 +316,11 @@ const CensoredUserName = ({user, classes}: {
   }
 }
 
-const ModerationAltAccountsComponent = registerComponent('ModerationAltAccounts', ModerationAltAccounts, {styles});
+export const ModerationAltAccounts = registerComponent('ModerationAltAccounts', ModerationAltAccountsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModerationAltAccounts: typeof ModerationAltAccountsComponent
+    ModerationAltAccounts: typeof ModerationAltAccounts
   }
 }
 

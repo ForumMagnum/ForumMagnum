@@ -13,7 +13,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const UsersAccountManagement = ({terms: { slug }, classes}: {
+const UsersAccountManagementInner = ({terms: { slug }, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
 }) => {
@@ -41,10 +41,10 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   );
 };
 
-const UsersAccountManagementComponent = registerComponent('UsersAccountManagement', UsersAccountManagement, {styles});
+export const UsersAccountManagement = registerComponent('UsersAccountManagement', UsersAccountManagementInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersAccountManagement: typeof UsersAccountManagementComponent
+    UsersAccountManagement: typeof UsersAccountManagement
   }
 }

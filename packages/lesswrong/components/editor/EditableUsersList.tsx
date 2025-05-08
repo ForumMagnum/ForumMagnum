@@ -26,7 +26,7 @@ const SortableList = makeSortableListComponent({
  * An editable list of users, with a straightforward getValue/setValue
  * and no form-system integration.
  */
-export function EditableUsersList({value, setValue, label, classes}: {
+export function EditableUsersListInner({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[]) => void,
   label: string,
@@ -53,10 +53,10 @@ export function EditableUsersList({value, setValue, label, classes}: {
   </span>
 }
 
-const EditableUsersListComponent = registerComponent('EditableUsersList', EditableUsersList, {styles});
+export const EditableUsersList = registerComponent('EditableUsersList', EditableUsersListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditableUsersList: typeof EditableUsersListComponent
+    EditableUsersList: typeof EditableUsersList
   }
 }

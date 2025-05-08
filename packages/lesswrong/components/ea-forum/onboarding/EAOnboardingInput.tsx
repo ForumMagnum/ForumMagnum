@@ -23,7 +23,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAOnboardingInput = ({
+const EAOnboardingInputInner = ({
   value,
   setValue,
   placeholder,
@@ -63,14 +63,14 @@ const EAOnboardingInput = ({
   );
 }
 
-const EAOnboardingInputComponent = registerComponent(
+export const EAOnboardingInput = registerComponent(
   "EAOnboardingInput",
-  EAOnboardingInput,
+  EAOnboardingInputInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingInput: typeof EAOnboardingInputComponent
+    EAOnboardingInput: typeof EAOnboardingInput
   }
 }

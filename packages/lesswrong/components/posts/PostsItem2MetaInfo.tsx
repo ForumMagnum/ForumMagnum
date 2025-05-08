@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsItem2MetaInfo = ({children, className, classes}: {
+const PostsItem2MetaInfoInner = ({children, className, classes}: {
   children?: React.ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -27,7 +27,7 @@ const PostsItem2MetaInfo = ({children, className, classes}: {
   </Components.Typography>
 }
 
-const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});
+const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfoInner, {styles});
   
 declare global {
   interface ComponentTypes {

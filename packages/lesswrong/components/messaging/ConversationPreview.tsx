@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ConversationPreview = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
+const ConversationPreviewInner = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
   conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -58,10 +58,10 @@ const ConversationPreview = ({conversationId, currentUser, classes, showTitle=tr
   </div>
 }
 
-const ConversationPreviewComponent = registerComponent('ConversationPreview', ConversationPreview, {styles});
+export const ConversationPreview = registerComponent('ConversationPreview', ConversationPreviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ConversationPreview: typeof ConversationPreviewComponent
+    ConversationPreview: typeof ConversationPreview
   }
 }

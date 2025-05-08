@@ -118,7 +118,7 @@ const PopularCommentTitle: FC<{
   );
 }
 
-const FriendlyPopularComment = ({comment, classes}: {
+const FriendlyPopularCommentInner = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -183,14 +183,14 @@ const FriendlyPopularComment = ({comment, classes}: {
   );
 }
 
-const FriendlyPopularCommentComponent = registerComponent(
+export const FriendlyPopularComment = registerComponent(
   "FriendlyPopularComment",
-  FriendlyPopularComment,
+  FriendlyPopularCommentInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    FriendlyPopularComment: typeof FriendlyPopularCommentComponent
+    FriendlyPopularComment: typeof FriendlyPopularComment
   }
 }

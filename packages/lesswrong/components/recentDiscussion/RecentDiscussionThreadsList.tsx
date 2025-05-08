@@ -6,7 +6,7 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const RecentDiscussionThreadsList = ({
+const RecentDiscussionThreadsListInner = ({
   terms, commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }: {
@@ -94,7 +94,7 @@ const RecentDiscussionThreadsList = ({
   )
 }
 
-const RecentDiscussionThreadsListComponent = registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, {
+export const RecentDiscussionThreadsList = registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsListInner, {
   areEqual: {
     terms: "deep",
   },
@@ -102,6 +102,6 @@ const RecentDiscussionThreadsListComponent = registerComponent('RecentDiscussion
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionThreadsList: typeof RecentDiscussionThreadsListComponent,
+    RecentDiscussionThreadsList: typeof RecentDiscussionThreadsList,
   }
 }

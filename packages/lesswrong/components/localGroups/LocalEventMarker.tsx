@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalEventMarkerInner = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   event: PostsList,
   handleMarkerClick: (eventId: string) => void,
   handleInfoWindowClose: (eventId: string) => void,
@@ -72,11 +72,11 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-const LocalEventMarkerComponent = registerComponent("LocalEventMarker", LocalEventMarker, {styles});
+export const LocalEventMarker = registerComponent("LocalEventMarker", LocalEventMarkerInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalEventMarker: typeof LocalEventMarkerComponent
+    LocalEventMarker: typeof LocalEventMarker
   }
 }
 

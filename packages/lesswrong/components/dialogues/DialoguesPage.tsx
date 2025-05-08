@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 
-const DialoguesPage = () => {
+const DialoguesPageInner = () => {
   const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionFooter, LoadMore } = Components
 
   const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
@@ -82,12 +82,12 @@ const DialoguesPage = () => {
   </AnalyticsContext>
 }
 
-const DialoguesPageComponent = registerComponent('DialoguesPage', DialoguesPage, {
+export const DialoguesPage = registerComponent('DialoguesPage', DialoguesPageInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    DialoguesPage: typeof DialoguesPageComponent
+    DialoguesPage: typeof DialoguesPage
   }
 }

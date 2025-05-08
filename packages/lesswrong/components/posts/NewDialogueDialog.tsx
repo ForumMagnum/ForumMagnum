@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+const NewDialogueDialogInner = ({initialParticipantIds, onClose, classes}: {
   initialParticipantIds?: string[],
   onClose: () => void,
   classes: ClassesType<typeof styles>,
@@ -137,10 +137,10 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   </LWDialog>
 }
 
-const NewDialogueDialogComponent = registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
+export const NewDialogueDialog = registerComponent('NewDialogueDialog', NewDialogueDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewDialogueDialog: typeof NewDialogueDialogComponent
+    NewDialogueDialog: typeof NewDialogueDialog
   }
 }

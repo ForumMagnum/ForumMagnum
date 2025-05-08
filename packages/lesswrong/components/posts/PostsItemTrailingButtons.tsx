@@ -70,7 +70,7 @@ export const DismissButton = ({ onDismiss }: {
   </Components.LWTooltip>
 };
 
-const PostsItemTrailingButtons = ({
+const PostsItemTrailingButtonsInner = ({
   post,
   showTrailingButtons,
   showMostValuableCheckbox,
@@ -108,10 +108,10 @@ const PostsItemTrailingButtons = ({
   );
 }
 
-const PostsItemTrailingButtonsComponent = registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtons);
+export const PostsItemTrailingButtons = registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtonsInner);
 
 declare global {
   interface ComponentTypes {
-    PostsItemTrailingButtons: typeof PostsItemTrailingButtonsComponent
+    PostsItemTrailingButtons: typeof PostsItemTrailingButtons
   }
 }

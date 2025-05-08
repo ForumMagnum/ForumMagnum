@@ -21,7 +21,7 @@ interface ExternalProps {
 interface AFApplicationFormProps extends ExternalProps, WithStylesProps {
 }
 
-const AFApplicationForm = ({ onClose, classes }: AFApplicationFormProps) => {
+const AFApplicationFormInner = ({ onClose, classes }: AFApplicationFormProps) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
   const [applicationText, setApplicationText] = useState("");
@@ -78,12 +78,12 @@ const AFApplicationForm = ({ onClose, classes }: AFApplicationFormProps) => {
   )
 }
 
-const AFApplicationFormComponent = registerComponent(
-  'AFApplicationForm', AFApplicationForm, { styles }
+export const AFApplicationForm = registerComponent(
+  'AFApplicationForm', AFApplicationFormInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    AFApplicationForm: typeof AFApplicationFormComponent
+    AFApplicationForm: typeof AFApplicationForm
   }
 }

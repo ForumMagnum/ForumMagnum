@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CurationNoticesItem = ({curationNotice, classes}: {
+export const CurationNoticesItemInner = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -195,11 +195,11 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   </div>
 }
 
-const CurationNoticesItemComponent = registerComponent('CurationNoticesItem', CurationNoticesItem, {styles});
+export const CurationNoticesItem = registerComponent('CurationNoticesItem', CurationNoticesItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CurationNoticesItem: typeof CurationNoticesItemComponent
+    CurationNoticesItem: typeof CurationNoticesItem
   }
 }
 

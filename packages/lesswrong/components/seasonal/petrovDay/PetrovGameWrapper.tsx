@@ -2,9 +2,6 @@ import React, { useEffect } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
-import { DatabasePublicSetting } from '@/lib/publicSettings';
-import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpotlightItem';
-import { useSingle } from '@/lib/crud/withSingle';
 import { gql, useQuery } from '@apollo/client';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 
@@ -36,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PetrovGameWrapper = ({classes}: {
+export const PetrovGameWrapperInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { PetrovAdminConsole, PetrovWarningConsole, PetrovLaunchConsole, PetrovWorldmapWrapper, PetrovDayLossScreen } = Components;
@@ -108,10 +105,10 @@ export const PetrovGameWrapper = ({classes}: {
   // return <DismissibleSpotlightItem spotlight={spotlight}/>
 }
 
-const PetrovGameWrapperComponent = registerComponent('PetrovGameWrapper', PetrovGameWrapper, {styles});
+export const PetrovGameWrapper = registerComponent('PetrovGameWrapper', PetrovGameWrapperInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PetrovGameWrapper: typeof PetrovGameWrapperComponent
+    PetrovGameWrapper: typeof PetrovGameWrapper
   }
 }

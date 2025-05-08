@@ -42,7 +42,7 @@ export type FriendlyHoverOverProps = {
  * will switch between the correct styles depending on whether or not the
  * current site is using friendly UI.
  */
-const FriendlyHoverOver = ({
+const FriendlyHoverOverInner = ({
   title,
   placement,
   inlineBlock,
@@ -81,14 +81,14 @@ const FriendlyHoverOver = ({
   );
 }
 
-const FriendlyHoverOverComponent = registerComponent(
+export const FriendlyHoverOver = registerComponent(
   "FriendlyHoverOver",
-  FriendlyHoverOver,
+  FriendlyHoverOverInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    FriendlyHoverOver: typeof FriendlyHoverOverComponent
+    FriendlyHoverOver: typeof FriendlyHoverOver
   }
 }

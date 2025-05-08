@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * A single comment item, used in TopCommentSection and TopShortformSection
  */
-const WrappedComment = ({comment, classes}: {
+const WrappedCommentInner = ({comment, classes}: {
   comment: WrappedTopComment | WrappedTopShortform,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -140,14 +140,14 @@ const WrappedComment = ({comment, classes}: {
   );
 }
 
-const WrappedCommentComponent = registerComponent(
+export const WrappedComment = registerComponent(
   "WrappedComment",
-  WrappedComment,
+  WrappedCommentInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedComment: typeof WrappedCommentComponent
+    WrappedComment: typeof WrappedComment
   }
 }

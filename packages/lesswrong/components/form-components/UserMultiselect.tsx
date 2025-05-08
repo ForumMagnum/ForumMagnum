@@ -27,7 +27,7 @@ export const SortableList = makeSortableListComponent({
   }
 });
 
-const UserMultiselect = ({value, setValue, label}: {
+const UserMultiselectInner = ({value, setValue, label}: {
   value: string[],
   setValue: (newValue: string[]) => void
   label: string,
@@ -73,10 +73,10 @@ export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) 
   />
 };
 
-const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect);
+export const UserMultiselect = registerComponent("UserMultiselect", UserMultiselectInner);
 
 declare global {
   interface ComponentTypes {
-    UserMultiselect: typeof UserMultiselectComponent
+    UserMultiselect: typeof UserMultiselect
   }
 }

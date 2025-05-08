@@ -45,20 +45,20 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemInternalProps> = ({
   );
 }
 
-const NotifyMeDropdownItem = (props: NotifyMeDropdownItemProps) =>
+const NotifyMeDropdownItemInner = (props: NotifyMeDropdownItemProps) =>
   props.document && (props.enabled ?? true)
     ? <NotifyMeDropdownItemInternal
       {...props as NotifyMeDropdownItemInternalProps}
     />
     : null;
 
-const NotifyMeDropdownItemComponent = registerComponent(
+export const NotifyMeDropdownItem = registerComponent(
   "NotifyMeDropdownItem",
-  NotifyMeDropdownItem,
+  NotifyMeDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    NotifyMeDropdownItem: typeof NotifyMeDropdownItemComponent
+    NotifyMeDropdownItem: typeof NotifyMeDropdownItem
   }
 }

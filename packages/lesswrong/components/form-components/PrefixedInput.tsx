@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +36,7 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
  * This is similar to a normal text input,
  * except it also displays an inputPrefix to the left of the cursor.
  */
-const PrefixedInput = ({
+const PrefixedInputInner = ({
   field,
   heading,
   inputPrefix,
@@ -52,7 +53,7 @@ const PrefixedInput = ({
   smallBottomMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SocialMediaIcon, FormComponentFriendlyTextInput} = Components;
+  const {SocialMediaIcon} = Components;
 
   const value = field.state.value;
   const fieldName = field.name;
@@ -81,10 +82,10 @@ const PrefixedInput = ({
   );
 }
 
-const PrefixedInputComponent = registerComponent("PrefixedInput", PrefixedInput, { styles });
+export const PrefixedInput = registerComponent("PrefixedInput", PrefixedInputInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    PrefixedInput: typeof PrefixedInputComponent
+    PrefixedInput: typeof PrefixedInput
   }
 }

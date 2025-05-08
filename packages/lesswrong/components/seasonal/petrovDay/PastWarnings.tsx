@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PastWarnings = ({classes, petrovDayActions, side, general}: {
+export const PastWarningsInner = ({classes, petrovDayActions, side, general}: {
   classes: ClassesType<typeof styles>,
   petrovDayActions: PetrovDayActionInfo[],
   side: 'east' | 'west',
@@ -52,10 +52,10 @@ export const PastWarnings = ({classes, petrovDayActions, side, general}: {
   </div>;
 }
 
-const PastWarningsComponent = registerComponent('PastWarnings', PastWarnings, {styles});
+export const PastWarnings = registerComponent('PastWarnings', PastWarningsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PastWarnings: typeof PastWarningsComponent
+    PastWarnings: typeof PastWarnings
   }
 }

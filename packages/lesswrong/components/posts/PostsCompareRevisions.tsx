@@ -5,7 +5,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { styles } from './PostsPage/PostsPage';
 import { useMulti } from '@/lib/crud/withMulti';
 
-const PostsCompareRevisions = ({ classes }: {
+const PostsCompareRevisionsInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, LoadingOrErrorPage, ErrorPage } = Components;
@@ -64,10 +64,10 @@ const PostsCompareRevisions = ({ classes }: {
   </div>;
 }
 
-const PostsCompareRevisionsComponent = registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
+export const PostsCompareRevisions = registerComponent("PostsCompareRevisions", PostsCompareRevisionsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsCompareRevisions: typeof PostsCompareRevisionsComponent
+    PostsCompareRevisions: typeof PostsCompareRevisions
   }
 }

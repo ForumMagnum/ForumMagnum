@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPageDate = ({ post, hasMajorRevision, classes }: {
+const PostsPageDateInner = ({ post, hasMajorRevision, classes }: {
   post: PostsBase,
   hasMajorRevision: boolean,
   classes: ClassesType<typeof styles>,
@@ -58,10 +58,10 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   </LWTooltip>
 }
 
-const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate, {styles});
+export const PostsPageDate = registerComponent("PostsPageDate", PostsPageDateInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsPageDate: typeof PostsPageDateComponent
+    PostsPageDate: typeof PostsPageDate
   }
 }

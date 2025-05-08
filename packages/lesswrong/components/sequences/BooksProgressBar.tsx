@@ -57,7 +57,7 @@ const WORDS_PER_MINUTE = 300;
 const WORDS_PER_HOUR = WORDS_PER_MINUTE * 60;
 const WORDS_PER_PAGE = 500;
 
-const BooksProgressBar = ({ book, classes }: {
+const BooksProgressBarInner = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -101,11 +101,11 @@ const BooksProgressBar = ({ book, classes }: {
   </div>;
 };
 
-const BooksProgressBarComponent = registerComponent('BooksProgressBar', BooksProgressBar, { styles });
+export const BooksProgressBar = registerComponent('BooksProgressBar', BooksProgressBarInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    BooksProgressBar: typeof BooksProgressBarComponent
+    BooksProgressBar: typeof BooksProgressBar
   }
 }
 

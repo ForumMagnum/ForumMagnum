@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UsersNamePending = ({ user, classes }: {
+const UsersNamePendingInner = ({ user, classes }: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -41,12 +41,12 @@ const UsersNamePending = ({ user, classes }: {
   );
 }
 
-const UsersNamePendingComponent = registerComponent(
-  'UsersNamePending', UsersNamePending, {styles}
+export const UsersNamePending = registerComponent(
+  'UsersNamePending', UsersNamePendingInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    UsersNamePending: typeof UsersNamePendingComponent
+    UsersNamePending: typeof UsersNamePending
   }
 }

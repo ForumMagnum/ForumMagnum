@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes}: {
+const WrappedShareButtonInner = ({name, screenshotRef, onRendered, className, classes}: {
   name: string,
   screenshotRef: RefObject<HTMLElement>,
   onRendered?: (canvas: HTMLCanvasElement) => void,
@@ -80,14 +80,14 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
   );
 }
 
-const WrappedShareButtonComponent = registerComponent(
+export const WrappedShareButton = registerComponent(
   "WrappedShareButton",
-  WrappedShareButton,
+  WrappedShareButtonInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedShareButton: typeof WrappedShareButtonComponent
+    WrappedShareButton: typeof WrappedShareButton
   }
 }

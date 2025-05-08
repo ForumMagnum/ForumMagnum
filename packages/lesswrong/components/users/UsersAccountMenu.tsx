@@ -99,7 +99,7 @@ const LWUsersAccountMenu = ({classes}: {
   );
 }
 
-const UsersAccountMenuComponent = registerComponent(
+export const UsersAccountMenu = registerComponent(
   "UsersAccountMenu",
   isFriendlyUI ? EAUsersAccountMenu : LWUsersAccountMenu,
   {styles},
@@ -107,6 +107,6 @@ const UsersAccountMenuComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    UsersAccountMenu: typeof UsersAccountMenuComponent
+    UsersAccountMenu: typeof UsersAccountMenu
   }
 }

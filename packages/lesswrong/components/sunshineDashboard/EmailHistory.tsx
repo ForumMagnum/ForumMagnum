@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 
-export const EmailHistoryPage = () => {
+export const EmailHistoryPageInner = () => {
   const currentUser = useCurrentUser();
   if (!currentUser) return <div/>
   
@@ -12,10 +12,10 @@ export const EmailHistoryPage = () => {
   />
 }
 
-const EmailHistoryPageComponent = registerComponent('EmailHistoryPage', EmailHistoryPage);
+export const EmailHistoryPage = registerComponent('EmailHistoryPage', EmailHistoryPageInner);
 
 
-export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
+export const EmailHistoryInner = ({terms}: {terms: LWEventsViewTerms}) => {
   const { results } = useMulti({
     terms,
     collectionName: 'LWEvents',
@@ -29,11 +29,11 @@ export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   }</>
 }
 
-const EmailHistoryComponent = registerComponent('EmailHistory', EmailHistory);
+export const EmailHistory = registerComponent('EmailHistory', EmailHistoryInner);
 
 declare global {
   interface ComponentTypes {
-    EmailHistoryPage: typeof EmailHistoryPageComponent
-    EmailHistory: typeof EmailHistoryComponent
+    EmailHistoryPage: typeof EmailHistoryPage
+    EmailHistory: typeof EmailHistory
   }
 }

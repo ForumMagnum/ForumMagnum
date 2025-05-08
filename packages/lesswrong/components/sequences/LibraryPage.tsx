@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LibraryPage = ({classes}: {
+const LibraryPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
@@ -58,11 +58,11 @@ const LibraryPage = ({classes}: {
   </React.Fragment>;
 };
 
-const LibraryPageComponent = registerComponent('LibraryPage', LibraryPage, {styles});
+export const LibraryPage = registerComponent('LibraryPage', LibraryPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LibraryPage: typeof LibraryPageComponent
+    LibraryPage: typeof LibraryPage
   }
 }
 

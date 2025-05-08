@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
 
 // A link to a post. Differs from the stuff in PostLinkPreview in that it's a
 // provided post object, rather than integrating with user-provided markup.
-const LinkToPost = ({post, classes}: {
+const LinkToPostInner = ({post, classes}: {
   post: PostsList|null,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -33,10 +33,10 @@ const LinkToPost = ({post, classes}: {
   );
 }
 
-const LinkToPostComponent = registerComponent("LinkToPost", LinkToPost, {styles});
+export const LinkToPost = registerComponent("LinkToPost", LinkToPostInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LinkToPost: typeof LinkToPostComponent
+    LinkToPost: typeof LinkToPost
   }
 }

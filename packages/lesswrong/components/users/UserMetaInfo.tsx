@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoOnSmallScreen, infoClassName, classes}: {
+export const UserMetaInfoInner = ({user, hideAfKarma, hideWikiContribution, hideInfoOnSmallScreen, infoClassName, classes}: {
   user: UsersMinimumInfo,
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
@@ -87,11 +87,11 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
     </div>
 }
 
-const UserMetaInfoComponent = registerComponent('UserMetaInfo', UserMetaInfo, {styles});
+export const UserMetaInfo = registerComponent('UserMetaInfo', UserMetaInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserMetaInfo: typeof UserMetaInfoComponent
+    UserMetaInfo: typeof UserMetaInfo
   }
 }
 

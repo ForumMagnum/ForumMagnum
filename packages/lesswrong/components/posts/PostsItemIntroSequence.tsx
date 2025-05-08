@@ -126,7 +126,7 @@ export const styles = (theme: ThemeType)=> ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const PostsItemIntroSequence = ({
+const PostsItemIntroSequenceInner = ({
   post,
   sequence,
   showBottomBorder=true,
@@ -214,13 +214,13 @@ const PostsItemIntroSequence = ({
   )
 };
 
-const PostsItemIntroSequenceComponent = registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
+export const PostsItemIntroSequence = registerComponent('PostsItemIntroSequence', PostsItemIntroSequenceInner, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    PostsItemIntroSequence: typeof PostsItemIntroSequenceComponent
+    PostsItemIntroSequence: typeof PostsItemIntroSequence
   }
 }

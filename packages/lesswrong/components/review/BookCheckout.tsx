@@ -81,7 +81,7 @@ const Message = ({ message, classes }: {message: string, classes: ClassesType<ty
     <p>{message}</p>
   </section>
 );
-export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
+export default function BookCheckoutInner({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   
@@ -106,10 +106,10 @@ export default function BookCheckout({classes, ignoreMessages = false, text, lin
   </div>
 }
 
-const BookCheckoutComponent = registerComponent('BookCheckout', BookCheckout, {styles});
+export const BookCheckout = registerComponent('BookCheckout', BookCheckoutInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    BookCheckout: typeof BookCheckoutComponent
+    BookCheckout: typeof BookCheckout
   }
 }

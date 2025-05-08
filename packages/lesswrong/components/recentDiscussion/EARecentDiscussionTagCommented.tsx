@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EARecentDiscussionTagCommented = ({
+const EARecentDiscussionTagCommentedInner = ({
   tag,
   comments,
   refetch,
@@ -95,14 +95,14 @@ const EARecentDiscussionTagCommented = ({
   );
 }
 
-const EARecentDiscussionTagCommentedComponent = registerComponent(
+export const EARecentDiscussionTagCommented = registerComponent(
   "EARecentDiscussionTagCommented",
-  EARecentDiscussionTagCommented,
+  EARecentDiscussionTagCommentedInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EARecentDiscussionTagCommented: typeof EARecentDiscussionTagCommentedComponent,
+    EARecentDiscussionTagCommented: typeof EARecentDiscussionTagCommented,
   }
 }

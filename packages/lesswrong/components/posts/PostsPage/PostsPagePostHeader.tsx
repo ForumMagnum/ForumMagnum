@@ -213,7 +213,7 @@ export const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+const PostsPagePostHeaderInner = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
@@ -337,12 +337,12 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   </>
 }
 
-const PostsPagePostHeaderComponent = registerComponent(
-  'PostsPagePostHeader', PostsPagePostHeader, {styles}
+export const PostsPagePostHeader = registerComponent(
+  'PostsPagePostHeader', PostsPagePostHeaderInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    PostsPagePostHeader: typeof PostsPagePostHeaderComponent,
+    PostsPagePostHeader: typeof PostsPagePostHeader,
   }
 }

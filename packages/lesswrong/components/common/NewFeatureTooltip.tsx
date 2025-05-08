@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement = 'left'}: {
+const NewFeatureTooltipInner = ({classes, children, title = 'New feature!', placement = 'left'}: {
   children?: ReactNode,
   title?: string,
   placement?: 'top'|'right'|'left'|'bottom',
@@ -143,10 +143,10 @@ const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement
   );
 }
 
-const NewFeatureTooltipComponent = registerComponent('NewFeatureTooltip', NewFeatureTooltip, { styles });
+export const NewFeatureTooltip = registerComponent('NewFeatureTooltip', NewFeatureTooltipInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    NewFeatureTooltip: typeof NewFeatureTooltipComponent
+    NewFeatureTooltip: typeof NewFeatureTooltip
   }
 }

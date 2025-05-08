@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import type { Option } from '../common/InlineSelect';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 
-export const CommentsSortBySelector = ({setRestoreScrollPos}: {
+export const CommentsSortBySelectorInner = ({setRestoreScrollPos}: {
   setRestoreScrollPos?: (pos: number) => void
 }) => {
   const navigate = useNavigate();
@@ -37,10 +37,10 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   return <InlineSelect options={sortByOptions} selected={selectedOption} handleSelect={handleViewClick}/>
 };
 
-const CommentsSortBySelectorComponent = registerComponent('CommentsSortBySelector', CommentsSortBySelector);
+export const CommentsSortBySelector = registerComponent('CommentsSortBySelector', CommentsSortBySelectorInner);
 
 declare global {
   interface ComponentTypes {
-    CommentsSortBySelector: typeof CommentsSortBySelectorComponent
+    CommentsSortBySelector: typeof CommentsSortBySelector
   }
 }

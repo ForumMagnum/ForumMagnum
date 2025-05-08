@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ForumEventCommentForm = ({
+const ForumEventCommentFormInner = ({
   open,
   comment,
   forumEvent,
@@ -228,14 +228,14 @@ const ForumEventCommentForm = ({
   );
 };
 
-const ForumEventCommentFormComponent = registerComponent(
+export const ForumEventCommentForm = registerComponent(
   'ForumEventCommentForm',
-  ForumEventCommentForm,
+  ForumEventCommentFormInner,
   { styles, stylePriority: 1 }
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventCommentForm: typeof ForumEventCommentFormComponent;
+    ForumEventCommentForm: typeof ForumEventCommentForm;
   }
 }

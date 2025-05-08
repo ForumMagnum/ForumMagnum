@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TabNavigationMenuFooter = ({classes}: {
+const TabNavigationMenuFooterInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { TabNavigationFooterItem } = Components
@@ -54,12 +54,12 @@ const TabNavigationMenuFooter = ({classes}: {
   )
 };
 
-const TabNavigationMenuFooterComponent = registerComponent(
-  'TabNavigationMenuFooter', TabNavigationMenuFooter, {styles}
+export const TabNavigationMenuFooter = registerComponent(
+  'TabNavigationMenuFooter', TabNavigationMenuFooterInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    TabNavigationMenuFooter: typeof TabNavigationMenuFooterComponent
+    TabNavigationMenuFooter: typeof TabNavigationMenuFooter
   }
 }

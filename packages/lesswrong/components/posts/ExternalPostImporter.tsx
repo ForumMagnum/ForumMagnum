@@ -220,7 +220,7 @@ const CommentEditor = ({
   );
 };
 
-const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
+const ExternalPostImporterInner = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
   const [value, setValue] = useState('');
   const [post, setPost] = useState<ExternalPostImportData['post'] | null>(null);
   const [postContent, setPostContent] = useState<string>('');
@@ -412,12 +412,12 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   );
 };
 
-const ExternalPostImporterComponent = registerComponent('ExternalPostImporter', ExternalPostImporter, {
+export const ExternalPostImporter = registerComponent('ExternalPostImporter', ExternalPostImporterInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    ExternalPostImporter: typeof ExternalPostImporterComponent;
+    ExternalPostImporter: typeof ExternalPostImporter;
   }
 }

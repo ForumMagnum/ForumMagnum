@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
+const PostsLayoutDropdownInner = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
   classes: ClassesType<typeof styles>,
   value?: PostsLayout
   queryParam?: string,
@@ -63,10 +63,10 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
   return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} />;
 }
 
-const PostsLayoutDropdownComponent = registerComponent('PostsLayoutDropdown', PostsLayoutDropdown, {styles});
+export const PostsLayoutDropdown = registerComponent('PostsLayoutDropdown', PostsLayoutDropdownInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsLayoutDropdown: typeof PostsLayoutDropdownComponent
+    PostsLayoutDropdown: typeof PostsLayoutDropdown
   }
 }

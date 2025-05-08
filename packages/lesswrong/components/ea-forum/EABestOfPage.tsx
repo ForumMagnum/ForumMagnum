@@ -139,7 +139,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EABestOfPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { results: posts, loading } = useMulti({
@@ -304,14 +304,14 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const EABestOfPageComponent = registerComponent(
+export const EABestOfPage = registerComponent(
   "EABestOfPage",
-  EABestOfPage,
+  EABestOfPageInner,
   {styles, stylePriority: 2},
 );
 
 declare global {
   interface ComponentTypes {
-    EABestOfPage: typeof EABestOfPageComponent;
+    EABestOfPage: typeof EABestOfPage;
   }
 }

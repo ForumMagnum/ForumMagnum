@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 
-const SequencesPost = () => {
+const SequencesPostInner = () => {
   const { query, params } = useLocation();
   const { postId, sequenceId } = params;
   
@@ -10,11 +10,11 @@ const SequencesPost = () => {
   return <Components.PostsPageWrapper documentId={postId} sequenceId={sequenceId} version={version} />
 };
 
-const SequencesPostComponent = registerComponent('SequencesPost', SequencesPost);
+export const SequencesPost = registerComponent('SequencesPost', SequencesPostInner);
 
 declare global {
   interface ComponentTypes {
-    SequencesPost: typeof SequencesPostComponent
+    SequencesPost: typeof SequencesPost
   }
 }
 

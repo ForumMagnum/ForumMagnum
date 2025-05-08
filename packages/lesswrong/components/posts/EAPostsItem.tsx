@@ -260,7 +260,7 @@ export type EAPostsItemProps = PostsItemConfig & {
   classes: ClassesType<typeof styles>,
 };
 
-const EAPostsItem = ({
+const EAPostsItemInner = ({
   openInNewTab,
   hideSecondaryInfo,
   secondaryInfoNode,
@@ -528,9 +528,9 @@ const EAPostsItem = ({
   );
 }
 
-const EAPostsItemComponent = registerComponent(
+export const EAPostsItem = registerComponent(
   "EAPostsItem",
-  EAPostsItem,
+  EAPostsItemInner,
   {
     styles,
     stylePriority: 1,
@@ -543,6 +543,6 @@ const EAPostsItemComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    EAPostsItem: typeof EAPostsItemComponent
+    EAPostsItem: typeof EAPostsItem
   }
 }

@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Reviews2019 = ({classes}: {
+const Reviews2019Inner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -114,7 +114,7 @@ const Reviews2019 = ({classes}: {
   )
 }
 
-const Reviews2019Component = registerComponent('Reviews2019', Reviews2019, {styles});
+const Reviews2019Component = registerComponent('Reviews2019', Reviews2019Inner, {styles});
 
 declare global {
   interface ComponentTypes {

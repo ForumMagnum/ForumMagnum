@@ -6,7 +6,7 @@ import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/use
 import { useCurrentUser } from '../../common/withUser';
 import { isLWorAF } from '../../../lib/instanceSettings';
 
-const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
+const SuggestAlignmentPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
@@ -43,13 +43,13 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const SuggestAlignmentPostDropdownItemComponent = registerComponent(
+export const SuggestAlignmentPostDropdownItem = registerComponent(
   'SuggestAlignmentPostDropdownItem',
-  SuggestAlignmentPostDropdownItem,
+  SuggestAlignmentPostDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    SuggestAlignmentPostDropdownItem: typeof SuggestAlignmentPostDropdownItemComponent
+    SuggestAlignmentPostDropdownItem: typeof SuggestAlignmentPostDropdownItem
   }
 }

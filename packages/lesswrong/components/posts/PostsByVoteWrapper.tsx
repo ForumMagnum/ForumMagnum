@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isLWorAF } from '@/lib/instanceSettings';
 
-const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+const PostsByVoteWrapperInner = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   voteType: string,
   year: number | '≤2020',
   limit?: number,
@@ -52,10 +52,10 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   </ErrorBoundary>
 }
 
-const PostsByVoteWrapperComponent = registerComponent("PostsByVoteWrapper", PostsByVoteWrapper);
+export const PostsByVoteWrapper = registerComponent("PostsByVoteWrapper", PostsByVoteWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    PostsByVoteWrapper: typeof PostsByVoteWrapperComponent
+    PostsByVoteWrapper: typeof PostsByVoteWrapper
   }
 }

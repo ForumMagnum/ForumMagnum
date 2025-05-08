@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagContributorsList = ({tag, onHoverUser, classes}: {
+const TagContributorsListInner = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
   onHoverUser?: (userId: string|null) => void,
   classes: ClassesType<typeof styles>,
@@ -102,13 +102,13 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   </div>
 }
 
-const TagContributorsListComponent = registerComponent("TagContributorsList", TagContributorsList, {
+export const TagContributorsList = registerComponent("TagContributorsList", TagContributorsListInner, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    TagContributorsList: typeof TagContributorsListComponent
+    TagContributorsList: typeof TagContributorsList
   }
 }

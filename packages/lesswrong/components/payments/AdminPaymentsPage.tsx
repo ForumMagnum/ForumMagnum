@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AdminPaymentsPage = ({classes}: {
+export const AdminPaymentsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Loading, LoadMore,
@@ -122,11 +122,11 @@ export const AdminPaymentsPage = ({classes}: {
   </div>;
 }
 
-const AdminPaymentsPageComponent = registerComponent('AdminPaymentsPage', AdminPaymentsPage, {styles});
+export const AdminPaymentsPage = registerComponent('AdminPaymentsPage', AdminPaymentsPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AdminPaymentsPage: typeof AdminPaymentsPageComponent
+    AdminPaymentsPage: typeof AdminPaymentsPage
   }
 }
 

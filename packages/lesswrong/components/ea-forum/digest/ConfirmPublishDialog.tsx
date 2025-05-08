@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ConfirmPublishDialog = ({ digest, onClose, classes }: {
+const ConfirmPublishDialogInner = ({ digest, onClose, classes }: {
   digest: DigestsMinimumInfo,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -69,10 +69,10 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   )
 }
 
-const ConfirmPublishDialogComponent = registerComponent('ConfirmPublishDialog', ConfirmPublishDialog, {styles});
+export const ConfirmPublishDialog = registerComponent('ConfirmPublishDialog', ConfirmPublishDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ConfirmPublishDialog: typeof ConfirmPublishDialogComponent
+    ConfirmPublishDialog: typeof ConfirmPublishDialog
   }
 }

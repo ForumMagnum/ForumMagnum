@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 /**
  * Wrapper around the html <time> element
  */
-const TimeTag = ({dateTime, children, className}: {
+const TimeTagInner = ({dateTime, children, className}: {
   dateTime: Date | string,
   children: ReactNode,
   className?: string
@@ -14,10 +14,10 @@ const TimeTag = ({dateTime, children, className}: {
   return <time className={className} dateTime={dateTimeString}>{children}</time>
 };
 
-const TimeTagComponent = registerComponent('TimeTag', TimeTag);
+export const TimeTag = registerComponent('TimeTag', TimeTagInner);
 
 declare global {
   interface ComponentTypes {
-    TimeTag: typeof TimeTagComponent
+    TimeTag: typeof TimeTag
   }
 }

@@ -70,7 +70,7 @@ export type SectionTitleProps = {
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({
+const SectionTitleInner = ({
   title,
   noTopMargin,
   noBottomPadding,
@@ -99,10 +99,10 @@ const SectionTitle = ({
   )
 }
 
-const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
+export const SectionTitle = registerComponent('SectionTitle', SectionTitleInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    SectionTitle: typeof SectionTitleComponent
+    SectionTitle: typeof SectionTitle
   }
 }

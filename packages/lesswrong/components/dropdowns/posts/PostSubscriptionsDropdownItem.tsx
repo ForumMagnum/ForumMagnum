@@ -60,7 +60,7 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const PostSubscriptionsDropdownItem = ({post}: {
+export const PostSubscriptionsDropdownItemInner = ({post}: {
   post: PostsList|SunshinePostsList,
 }) => {
   const currentUser = useCurrentUser();
@@ -79,13 +79,13 @@ export const PostSubscriptionsDropdownItem = ({post}: {
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
-const PostSubscriptionsDropdownItemComponent = registerComponent(
+export const PostSubscriptionsDropdownItem = registerComponent(
   "PostSubscriptionsDropdownItem",
-  PostSubscriptionsDropdownItem,
+  PostSubscriptionsDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PostSubscriptionsDropdownItem: typeof PostSubscriptionsDropdownItemComponent
+    PostSubscriptionsDropdownItem: typeof PostSubscriptionsDropdownItem
   }
 }

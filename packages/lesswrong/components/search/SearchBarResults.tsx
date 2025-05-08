@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SearchBarResults = ({closeSearch, currentQuery, classes}: {
+const SearchBarResultsInner = ({closeSearch, currentQuery, classes}: {
   closeSearch: () => void,
   currentQuery: string,
   classes: ClassesType<typeof styles>
@@ -106,10 +106,10 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   </div>
 }
 
-const SearchBarResultsComponent = registerComponent("SearchBarResults", SearchBarResults, {styles});
+export const SearchBarResults = registerComponent("SearchBarResults", SearchBarResultsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SearchBarResults: typeof SearchBarResultsComponent
+    SearchBarResults: typeof SearchBarResults
   }
 }

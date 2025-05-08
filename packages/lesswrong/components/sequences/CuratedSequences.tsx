@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-export const CuratedSequences = () => {
+export const CuratedSequencesInner = () => {
   return <Components.SequencesGridWrapper
       terms={{'view':'curatedSequences', limit:3}}
       showAuthor={true}
@@ -9,11 +9,11 @@ export const CuratedSequences = () => {
     />
 }
 
-const CuratedSequencesComponent = registerComponent('CuratedSequences', CuratedSequences);
+export const CuratedSequences = registerComponent('CuratedSequences', CuratedSequencesInner);
 
 declare global {
   interface ComponentTypes {
-    CuratedSequences: typeof CuratedSequencesComponent
+    CuratedSequences: typeof CuratedSequences
   }
 }
 

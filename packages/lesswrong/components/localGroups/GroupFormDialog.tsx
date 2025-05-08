@@ -367,7 +367,7 @@ const LocalGroupForm = ({
   );
 };
 
-const GroupFormDialog = ({ onClose, documentId, isOnline }: {
+const GroupFormDialogInner = ({ onClose, documentId, isOnline }: {
   onClose: () => void,
   documentId?: string,
   isOnline?: boolean
@@ -414,11 +414,11 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   </LWDialog>
 }
 
-const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog);
+export const GroupFormDialog = registerComponent('GroupFormDialog', GroupFormDialogInner);
 
 declare global {
   interface ComponentTypes {
-    GroupFormDialog: typeof GroupFormDialogComponent
+    GroupFormDialog: typeof GroupFormDialog
   }
 }
 

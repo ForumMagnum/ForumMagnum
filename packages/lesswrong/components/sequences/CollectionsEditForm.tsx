@@ -58,7 +58,7 @@ export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => 
   cancelButton: cancelButtonStyles(theme),
 }));
 
-const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
+const CollectionsEditFormInner = ({ initialData, successCallback, cancelCallback }: {
   initialData: UpdateCollectionDataInput & { _id: string },
   successCallback: (doc: CollectionsPageFragment) => void,
   cancelCallback: () => void,
@@ -230,11 +230,11 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   )
 }
 
-const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm);
+export const CollectionsEditForm = registerComponent('CollectionsEditForm', CollectionsEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    CollectionsEditForm: typeof CollectionsEditFormComponent
+    CollectionsEditForm: typeof CollectionsEditForm
   }
 }
 

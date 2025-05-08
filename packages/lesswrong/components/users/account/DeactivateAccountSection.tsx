@@ -3,7 +3,7 @@ import React from 'react';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 
-const DeactivateAccountSection = ({
+const DeactivateAccountSectionInner = ({
   user,
 }: {
   user: UsersEdit,
@@ -33,12 +33,12 @@ const DeactivateAccountSection = ({
   );
 };
 
-const DeactivateAccountSectionComponent = registerComponent('DeactivateAccountSection', DeactivateAccountSection);
+export const DeactivateAccountSection = registerComponent('DeactivateAccountSection', DeactivateAccountSectionInner);
 
 declare global {
   interface ComponentTypes {
-    DeactivateAccountSection: typeof DeactivateAccountSectionComponent
+    DeactivateAccountSection: typeof DeactivateAccountSection
   }
 }
 
-export default DeactivateAccountSectionComponent;
+

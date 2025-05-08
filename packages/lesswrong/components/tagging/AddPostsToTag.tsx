@@ -95,7 +95,7 @@ const styles = (theme: ThemeType) => ({
 
 
 
-const AddPostsToTag = ({classes, tag}: {
+const AddPostsToTagInner = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagPreviewFragment
 }) => {
@@ -173,10 +173,10 @@ const AddPostsToTag = ({classes, tag}: {
   </div>
 }
 
-const AddPostsToTagComponent = registerComponent("AddPostsToTag", AddPostsToTag, {styles})
+export const AddPostsToTag = registerComponent("AddPostsToTag", AddPostsToTagInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    AddPostsToTag: typeof AddPostsToTagComponent
+    AddPostsToTag: typeof AddPostsToTag
   }
 }

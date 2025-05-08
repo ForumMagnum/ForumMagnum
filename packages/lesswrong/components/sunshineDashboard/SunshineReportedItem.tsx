@@ -22,7 +22,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
+const SunshineReportedItemInner = ({report, updateReport, classes, currentUser, refetch}: {
   report: UnclaimedReportsList,
   updateReport: WithUpdateFunction<"Reports">,
   classes: ClassesType<typeof styles>,
@@ -137,12 +137,12 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
   );
 }
 
-const SunshineReportedItemComponent = registerComponent('SunshineReportedItem', SunshineReportedItem, {
+export const SunshineReportedItem = registerComponent('SunshineReportedItem', SunshineReportedItemInner, {
   styles, hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineReportedItem: typeof SunshineReportedItemComponent
+    SunshineReportedItem: typeof SunshineReportedItem
   }
 }

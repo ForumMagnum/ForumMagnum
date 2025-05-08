@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalGroupMarkerInner = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   group: any,
   handleMarkerClick: any,
   handleInfoWindowClose: any,
@@ -69,11 +69,11 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-const LocalGroupMarkerComponent = registerComponent("LocalGroupMarker", LocalGroupMarker, {styles});
+export const LocalGroupMarker = registerComponent("LocalGroupMarker", LocalGroupMarkerInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalGroupMarker: typeof LocalGroupMarkerComponent
+    LocalGroupMarker: typeof LocalGroupMarker
   }
 }
 

@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
+const ReviewVotingExpandedPostInner = ({classes, post, setExpandedPost}: {
   classes: ClassesType<typeof styles>,
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
@@ -114,10 +114,10 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   </div>
 }
 
-const ReviewVotingExpandedPostComponent = registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
+export const ReviewVotingExpandedPost = registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPostInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingExpandedPost: typeof ReviewVotingExpandedPostComponent
+    ReviewVotingExpandedPost: typeof ReviewVotingExpandedPost
   }
 }

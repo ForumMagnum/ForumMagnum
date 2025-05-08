@@ -35,7 +35,7 @@ const styles = defineStyles("CompareRevisions", (theme: ThemeType) => ({
   },
 }));
 
-const CompareRevisions = ({
+const CompareRevisionsInner = ({
   collectionName,
   fieldName,
   documentId,
@@ -168,10 +168,10 @@ const RevisionsMenuActions = ({revision}: {
 }
 
 
-const CompareRevisionsComponent = registerComponent("CompareRevisions", CompareRevisions);
+export const CompareRevisions = registerComponent("CompareRevisions", CompareRevisionsInner);
 
 declare global {
   interface ComponentTypes {
-    CompareRevisions: typeof CompareRevisionsComponent
+    CompareRevisions: typeof CompareRevisions
   }
 }

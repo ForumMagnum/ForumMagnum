@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EASequenceOrCollectionCard = ({
+const EASequenceOrCollectionCardInner = ({
   title,
   author,
   TitleWrapper,
@@ -140,14 +140,14 @@ const EASequenceOrCollectionCard = ({
   );
 };
 
-const EASequenceOrCollectionCardComponent = registerComponent(
+export const EASequenceOrCollectionCard = registerComponent(
   "EASequenceOrCollectionCard",
-  EASequenceOrCollectionCard,
+  EASequenceOrCollectionCardInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EASequenceOrCollectionCard: typeof EASequenceOrCollectionCardComponent;
+    EASequenceOrCollectionCard: typeof EASequenceOrCollectionCard;
   }
 }

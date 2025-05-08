@@ -4,7 +4,7 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
 
-const ReportCommentDropdownItem = ({comment, post}: {
+const ReportCommentDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
 }) => {
@@ -42,10 +42,10 @@ const ReportCommentDropdownItem = ({comment, post}: {
   );
 }
 
-const ReportCommentDropdownItemComponent = registerComponent('ReportCommentDropdownItem', ReportCommentDropdownItem);
+export const ReportCommentDropdownItem = registerComponent('ReportCommentDropdownItem', ReportCommentDropdownItemInner);
 
 declare global {
   interface ComponentTypes {
-    ReportCommentDropdownItem: typeof ReportCommentDropdownItemComponent
+    ReportCommentDropdownItem: typeof ReportCommentDropdownItem
   }
 }

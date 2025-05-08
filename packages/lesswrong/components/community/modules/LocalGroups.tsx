@@ -158,7 +158,7 @@ export const distance = (
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
 const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
-const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
+const LocalGroupsInner = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
     lat: number,
@@ -270,10 +270,10 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   )
 }
 
-const LocalGroupsComponent = registerComponent('LocalGroups', LocalGroups, {styles});
+export const LocalGroups = registerComponent('LocalGroups', LocalGroupsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalGroups: typeof LocalGroupsComponent
+    LocalGroups: typeof LocalGroups
   }
 }

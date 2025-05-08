@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
+const UsersWhoReactedInner = ({reactions, wrap=false, showTooltip=true, classes}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
@@ -76,11 +76,11 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   }
 }
 
-const UsersWhoReactedComponent = registerComponent('UsersWhoReacted', UsersWhoReacted, {styles});
+export const UsersWhoReacted = registerComponent('UsersWhoReacted', UsersWhoReactedInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersWhoReacted: typeof UsersWhoReactedComponent
+    UsersWhoReacted: typeof UsersWhoReacted
   }
 }
 

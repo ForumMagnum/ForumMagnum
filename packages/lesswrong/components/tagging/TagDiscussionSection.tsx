@@ -5,7 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 const styles = (theme: ThemeType) => ({
 });
 
-const TagDiscussionSection = ({classes, tag}: {
+const TagDiscussionSectionInner = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagBasicInfo
 }) => {
@@ -43,11 +43,11 @@ const TagDiscussionSection = ({classes, tag}: {
   );
 }
 
-const TagDiscussionSectionComponent = registerComponent("TagDiscussionSection", TagDiscussionSection, {styles});
+export const TagDiscussionSection = registerComponent("TagDiscussionSection", TagDiscussionSectionInner, {styles});
 
 
 declare global {
   interface ComponentTypes {
-    TagDiscussionSection: typeof TagDiscussionSectionComponent
+    TagDiscussionSection: typeof TagDiscussionSection
   }
 }

@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FriendlyConversationItem = ({
+const FriendlyConversationItemInner = ({
   conversation,
   currentUser,
   classes,
@@ -142,10 +142,10 @@ const FriendlyConversationItem = ({
   );
 };
 
-const FriendlyConversationItemComponent = registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
+export const FriendlyConversationItem = registerComponent("FriendlyConversationItem", FriendlyConversationItemInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    FriendlyConversationItem: typeof FriendlyConversationItemComponent;
+    FriendlyConversationItem: typeof FriendlyConversationItem;
   }
 }

@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 
-const AlignmentCrosspostLink = ({post}: {
+const AlignmentCrosspostLinkInner = ({post}: {
   post: PostsBase,
 }) => {
   const { LWTooltip } = Components
@@ -20,10 +20,10 @@ const AlignmentCrosspostLink = ({post}: {
   }
 }
 
-const AlignmentCrosspostLinkComponent = registerComponent('AlignmentCrosspostLink', AlignmentCrosspostLink);
+export const AlignmentCrosspostLink = registerComponent('AlignmentCrosspostLink', AlignmentCrosspostLinkInner);
 
 declare global {
   interface ComponentTypes {
-    AlignmentCrosspostLink: typeof AlignmentCrosspostLinkComponent
+    AlignmentCrosspostLink: typeof AlignmentCrosspostLink
   }
 }

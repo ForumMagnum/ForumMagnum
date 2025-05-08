@@ -62,7 +62,7 @@ const AllCommentsSettings = ({ expanded, settings, setSettings }: {
 }
 
 
-const AllComments = () => {
+const AllCommentsInner = () => {
   const { query } = useLocation();
   const { SingleColumnSection, RecentComments, SectionTitle, SettingsButton } = Components
 
@@ -93,11 +93,11 @@ const AllComments = () => {
   )
 };
 
-const AllCommentsComponent = registerComponent('AllComments', AllComments);
+export const AllComments = registerComponent('AllComments', AllCommentsInner);
 
 declare global {
   interface ComponentTypes {
-    AllComments: typeof AllCommentsComponent,
+    AllComments: typeof AllComments,
   }
 }
 

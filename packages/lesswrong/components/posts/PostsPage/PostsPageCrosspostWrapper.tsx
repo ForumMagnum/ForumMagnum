@@ -32,7 +32,7 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
   typeof post.fmCrosspost.hostedHere === "boolean" &&
   !!post.fmCrosspost.foreignPostId;
 
-const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
+const PostsPageCrosspostWrapperInner = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
   eagerPostComments?: EagerPostComments,
   refetch: () => Promise<void>,
@@ -76,10 +76,10 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
   );
 }
 
-const PostsPageCrosspostWrapperComponent = registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapper);
+export const PostsPageCrosspostWrapper = registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    PostsPageCrosspostWrapper: typeof PostsPageCrosspostWrapperComponent
+    PostsPageCrosspostWrapper: typeof PostsPageCrosspostWrapper
   }
 }

@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
+const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
   contentType: 'comment' | 'post',
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
@@ -69,10 +69,10 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 }
 
-const RateLimitWarningComponent = registerComponent('RateLimitWarning', RateLimitWarning, {styles});
+export const RateLimitWarning = registerComponent('RateLimitWarning', RateLimitWarningInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RateLimitWarning: typeof RateLimitWarningComponent
+    RateLimitWarning: typeof RateLimitWarning
   }
 }

@@ -114,7 +114,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 // NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
 // more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
 // create an EARecommendations component, or we can just delete it.
-const RecommendationsAndCurated = ({
+const RecommendationsAndCuratedInner = ({
   configName,
   classes,
 }: {
@@ -315,10 +315,10 @@ const RecommendationsAndCurated = ({
   return render();
 }
 
-const RecommendationsAndCuratedComponent = registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+export const RecommendationsAndCurated = registerComponent("RecommendationsAndCurated", RecommendationsAndCuratedInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
+    RecommendationsAndCurated: typeof RecommendationsAndCurated
   }
 }

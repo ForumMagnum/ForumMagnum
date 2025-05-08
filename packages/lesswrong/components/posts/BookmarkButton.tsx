@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const BookmarkButton = ({
+const BookmarkButtonInner = ({
   documentId,
   collectionName,
   withText,
@@ -71,13 +71,13 @@ const BookmarkButton = ({
   );
 }
 
-const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, {
+export const BookmarkButton = registerComponent('BookmarkButton', BookmarkButtonInner, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    BookmarkButton: typeof BookmarkButtonComponent
+    BookmarkButton: typeof BookmarkButton
   }
 }

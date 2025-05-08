@@ -26,7 +26,7 @@ const styles = (_theme: ThemeType) => ({
   }
 })
 
-const SubforumSubscribeSection = ({
+const SubforumSubscribeSectionInner = ({
   tag,
   joinCallback = () => {},
   leaveCallback = () => {},
@@ -100,10 +100,10 @@ const SubforumSubscribeSection = ({
   </div>
 }
 
-const SubforumSubscribeSectionComponent = registerComponent('SubforumSubscribeSection', SubforumSubscribeSection, {styles, stylePriority: 1});
+export const SubforumSubscribeSection = registerComponent('SubforumSubscribeSection', SubforumSubscribeSectionInner, {styles, stylePriority: 1});
 
 declare global {
   interface ComponentTypes {
-    SubforumSubscribeSection: typeof SubforumSubscribeSectionComponent
+    SubforumSubscribeSection: typeof SubforumSubscribeSection
   }
 }

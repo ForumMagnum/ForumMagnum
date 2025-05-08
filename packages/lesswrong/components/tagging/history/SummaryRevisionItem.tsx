@@ -10,7 +10,7 @@ const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   },
 }));
 
-const SummaryRevisionItem = ({tag, collapsed, revision}: {
+const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
   tag: TagBasicInfo,
   collapsed: boolean,
   revision: RevisionHistorySummaryEdit,
@@ -61,11 +61,11 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   </Components.SingleLineFeedEvent>
 }
 
-const SummaryRevisionItemComponent = registerComponent('SummaryRevisionItem', SummaryRevisionItem);
+export const SummaryRevisionItem = registerComponent('SummaryRevisionItem', SummaryRevisionItemInner);
 
 declare global {
   interface ComponentTypes {
-    SummaryRevisionItem: typeof SummaryRevisionItemComponent
+    SummaryRevisionItem: typeof SummaryRevisionItem
   }
 }
 

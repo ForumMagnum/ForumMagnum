@@ -143,7 +143,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
+const PostsListSettingsInner = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -268,12 +268,12 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   );
 };
 
-const PostsListSettingsComponent = registerComponent(
-  'PostsListSettings', PostsListSettings, { styles }
+export const PostsListSettings = registerComponent(
+  'PostsListSettings', PostsListSettingsInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    PostsListSettings: typeof PostsListSettingsComponent
+    PostsListSettings: typeof PostsListSettings
   }
 }

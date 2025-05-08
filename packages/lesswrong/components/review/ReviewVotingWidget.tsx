@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
+const ReviewVotingWidgetInner = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
   
@@ -65,10 +65,10 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     </ErrorBoundary>
 }
 
-const ReviewVotingWidgetComponent = registerComponent('ReviewVotingWidget', ReviewVotingWidget, {styles});
+export const ReviewVotingWidget = registerComponent('ReviewVotingWidget', ReviewVotingWidgetInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingWidget: typeof ReviewVotingWidgetComponent
+    ReviewVotingWidget: typeof ReviewVotingWidget
   }
 }

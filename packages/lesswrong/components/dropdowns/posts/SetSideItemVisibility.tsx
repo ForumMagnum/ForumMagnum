@@ -63,7 +63,7 @@ export type SideItemVisibilityContextType = {
 
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
-const SetSideItemVisibility = ({classes}: {
+const SetSideItemVisibilityInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const sideItemVisibility = useContext(SideItemVisibilityContext);
@@ -175,10 +175,10 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   </SideItemVisibilityContext.Provider>
 }
 
-const SetSideItemVisibilityComponent = registerComponent('SetSideItemVisibility', SetSideItemVisibility, {styles});
+export const SetSideItemVisibility = registerComponent('SetSideItemVisibility', SetSideItemVisibilityInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SetSideItemVisibility: typeof SetSideItemVisibilityComponent
+    SetSideItemVisibility: typeof SetSideItemVisibility
   }
 }

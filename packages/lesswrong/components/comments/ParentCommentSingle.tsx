@@ -4,7 +4,7 @@ import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
 
-const ParentCommentSingle = ({
+const ParentCommentSingleInner = ({
   documentId,
   nestingLevel,
   post,
@@ -49,11 +49,11 @@ const ParentCommentSingle = ({
   }
 }
 
-const ParentCommentSingleComponent = registerComponent('ParentCommentSingle', ParentCommentSingle, {});
+export const ParentCommentSingle = registerComponent('ParentCommentSingle', ParentCommentSingleInner, {});
 
 declare global {
   interface ComponentTypes {
-    ParentCommentSingle: typeof ParentCommentSingleComponent,
+    ParentCommentSingle: typeof ParentCommentSingle,
   }
 }
 

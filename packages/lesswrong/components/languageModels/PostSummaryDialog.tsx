@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { DialogContent } from "@/components/widgets/DialogContent";
 
-const PostSummaryDialog = ({post, onClose}: {
+const PostSummaryDialogInner = ({post, onClose}: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void,
 }) => {
@@ -24,13 +24,13 @@ const PostSummaryDialog = ({post, onClose}: {
   </LWDialog>
 }
 
-const PostSummaryDialogComponent = registerComponent(
+export const PostSummaryDialog = registerComponent(
   'PostSummaryDialog',
-  PostSummaryDialog,
+  PostSummaryDialogInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PostSummaryDialog: typeof PostSummaryDialogComponent
+    PostSummaryDialog: typeof PostSummaryDialog
   }
 }

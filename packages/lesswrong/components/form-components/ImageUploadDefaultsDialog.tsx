@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
+const ImageUploadDefaultsDialogInner = ({ onSelect, onClose, classes, type }: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -142,10 +142,10 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   )
 }
 
-const ImageUploadDefaultsDialogComponent = registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialog, {styles});
+export const ImageUploadDefaultsDialog = registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ImageUploadDefaultsDialog: typeof ImageUploadDefaultsDialogComponent
+    ImageUploadDefaultsDialog: typeof ImageUploadDefaultsDialog
   }
 }

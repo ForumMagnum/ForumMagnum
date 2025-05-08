@@ -37,7 +37,7 @@ interface CommunityHomeState {
   currentUserLocation: any,
 }
 
-const CommunityHome = ({classes}: {
+const CommunityHomeInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -266,10 +266,10 @@ const CommunityHome = ({classes}: {
   return render();
 }
 
-const CommunityHomeComponent = registerComponent('CommunityHome', CommunityHome, {styles});
+export const CommunityHome = registerComponent('CommunityHome', CommunityHomeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommunityHome: typeof CommunityHomeComponent
+    CommunityHome: typeof CommunityHome
   }
 }

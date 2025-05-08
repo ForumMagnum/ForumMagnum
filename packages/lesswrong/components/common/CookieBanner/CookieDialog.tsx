@@ -163,7 +163,7 @@ const CookieCategory = ({
   );
 };
 
-const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
+const CookieDialogInner = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
   const { LWDialog, Typography } = Components;
 
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();
@@ -229,12 +229,12 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   );
 };
 
-const CookieDialogComponent = registerComponent("CookieDialog", CookieDialog, {
+export const CookieDialog = registerComponent("CookieDialog", CookieDialogInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    CookieDialog: typeof CookieDialogComponent;
+    CookieDialog: typeof CookieDialog;
   }
 }

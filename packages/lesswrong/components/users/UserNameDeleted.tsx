@@ -11,7 +11,7 @@ import { useCurrentUser } from '../common/withUser';
  * provided and the current user is an admin, then this will reveal the name on
  * hover-over and work as a link.
  */
-const UserNameDeleted = ({userShownToAdmins}: {
+const UserNameDeletedInner = ({userShownToAdmins}: {
   userShownToAdmins?: UsersMinimumInfo|null
 }) => {
   const currentUser = useCurrentUser();
@@ -53,10 +53,10 @@ const UserNameDeletedWithAdminHover = ({user}: {
   </span>
 }
 
-const UserNameDeletedComponent = registerComponent('UserNameDeleted', UserNameDeleted);
+export const UserNameDeleted = registerComponent('UserNameDeleted', UserNameDeletedInner);
 
 declare global {
   interface ComponentTypes {
-    UserNameDeleted: typeof UserNameDeletedComponent
+    UserNameDeleted: typeof UserNameDeleted
   }
 }

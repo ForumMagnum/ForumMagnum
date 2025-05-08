@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewAnswerCommentQuestionForm = ({post, classes}: {
+const NewAnswerCommentQuestionFormInner = ({post, classes}: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -125,10 +125,10 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
   </div>
 }
 
-const NewAnswerCommentQuestionFormComponent = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
+export const NewAnswerCommentQuestionForm = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionFormComponent
+    NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionForm
   }
 }

@@ -43,7 +43,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   return isLWorAF ? 8 : 2;
 }
 
-const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
+const TagPreviewDescriptionInner = ({tag, hash, classes, activeTab}: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   activeTab?: number,
@@ -122,10 +122,10 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
 
-const TagPreviewDescriptionComponent = registerComponent("TagPreviewDescription", TagPreviewDescription, {styles});
+export const TagPreviewDescription = registerComponent("TagPreviewDescription", TagPreviewDescriptionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagPreviewDescription: typeof TagPreviewDescriptionComponent
+    TagPreviewDescription: typeof TagPreviewDescription
   }
 }

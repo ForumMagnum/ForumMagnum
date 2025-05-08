@@ -130,7 +130,7 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
-const PostsNewForm = () => {
+const PostsNewFormInner = () => {
   const { LoginForm, SingleColumnSection, Typography, Loading } = Components;
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
@@ -257,10 +257,10 @@ const PostsNewForm = () => {
   }
 }
 
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm);
+export const PostsNewForm = registerComponent('PostsNewForm', PostsNewFormInner);
 
 declare global {
   interface ComponentTypes {
-    PostsNewForm: typeof PostsNewFormComponent
+    PostsNewForm: typeof PostsNewForm
   }
 }

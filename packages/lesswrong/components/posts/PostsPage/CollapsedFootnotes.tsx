@@ -64,7 +64,7 @@ const splitFootnotes = (html: string, previewCount: number) => {
     : {preview: "", rest: "", totalCount: 0};
 }
 
-const CollapsedFootnotes = ({
+const CollapsedFootnotesInner = ({
   footnotesHtml,
   attributes,
   previewCount = 3,
@@ -133,14 +133,14 @@ const CollapsedFootnotes = ({
   );
 }
 
-const CollapsedFootnotesComponent = registerComponent(
+export const CollapsedFootnotes = registerComponent(
   "CollapsedFootnotes",
-  CollapsedFootnotes,
+  CollapsedFootnotesInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    CollapsedFootnotes: typeof CollapsedFootnotesComponent
+    CollapsedFootnotes: typeof CollapsedFootnotes
   }
 }

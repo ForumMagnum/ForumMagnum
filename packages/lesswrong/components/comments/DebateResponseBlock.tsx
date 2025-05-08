@@ -25,7 +25,7 @@ export interface DebateResponseWithReplies {
   replies: CommentsList[];
 }
 
-export const DebateResponseBlock = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
+export const DebateResponseBlockInner = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
@@ -51,10 +51,10 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   </div>;
 }
 
-const DebateResponseBlockComponent = registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
+export const DebateResponseBlock = registerComponent('DebateResponseBlock', DebateResponseBlockInner, {styles, stylePriority: 200});
 
 declare global {
   interface ComponentTypes {
-    DebateResponseBlock: typeof DebateResponseBlockComponent
+    DebateResponseBlock: typeof DebateResponseBlock
   }
 }

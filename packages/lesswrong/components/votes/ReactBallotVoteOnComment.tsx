@@ -207,7 +207,7 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   </div>
 }
 
-const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
+const ReactBallotVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, PopperCard } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
@@ -254,11 +254,11 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, vo
 }
 
 
-const ReactBallotVoteOnCommentComponent = registerComponent('ReactBallotVoteOnComment', ReactBallotVoteOnComment, {styles});
+export const ReactBallotVoteOnComment = registerComponent('ReactBallotVoteOnComment', ReactBallotVoteOnCommentInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReactBallotVoteOnComment: typeof ReactBallotVoteOnCommentComponent
+    ReactBallotVoteOnComment: typeof ReactBallotVoteOnComment
   }
 }
 

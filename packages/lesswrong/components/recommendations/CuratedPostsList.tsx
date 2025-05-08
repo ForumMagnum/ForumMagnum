@@ -6,7 +6,7 @@ import { isEAForum } from "../../lib/instanceSettings";
 import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 
-const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
+const CuratedPostsListInner = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
 
@@ -32,10 +32,10 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   );
 }
 
-const CuratedPostsListComponent = registerComponent("CuratedPostsList", CuratedPostsList, {});
+export const CuratedPostsList = registerComponent("CuratedPostsList", CuratedPostsListInner, {});
 
 declare global {
   interface ComponentTypes {
-    CuratedPostsList: typeof CuratedPostsListComponent
+    CuratedPostsList: typeof CuratedPostsList
   }
 }

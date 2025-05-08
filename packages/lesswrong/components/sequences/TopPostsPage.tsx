@@ -682,7 +682,7 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
   return newState;
 }
 
-const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TopPostsPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SectionTitle, HeadTags, ContentStyles, Loading } = Components;
 
   const location = useLocation();
@@ -1239,14 +1239,14 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   </Link>;
 }
 
-const TopPostsPageComponent = registerComponent(
+export const TopPostsPage = registerComponent(
   "TopPostsPage",
-  TopPostsPage,
+  TopPostsPageInner,
   { styles },
 );
 
 declare global {
   interface ComponentTypes {
-    TopPostsPage: typeof TopPostsPageComponent
+    TopPostsPage: typeof TopPostsPage
   }
 }

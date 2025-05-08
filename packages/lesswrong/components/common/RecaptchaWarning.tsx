@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const RecaptchaWarning = ({ currentUser, classes, children }: {
+const RecaptchaWarningInner = ({ currentUser, classes, children }: {
   currentUser: UsersCurrent | null,
   classes: any,
   children: React.ReactNode
@@ -41,10 +41,10 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
 }
 
 
-const RecaptchaWarningComponent = registerComponent('RecaptchaWarning', RecaptchaWarning, { styles }) 
+export const RecaptchaWarning = registerComponent('RecaptchaWarning', RecaptchaWarningInner, { styles }) 
 
 declare global {
   interface ComponentTypes {
-    RecaptchaWarning: typeof RecaptchaWarningComponent
+    RecaptchaWarning: typeof RecaptchaWarning
   }
 }

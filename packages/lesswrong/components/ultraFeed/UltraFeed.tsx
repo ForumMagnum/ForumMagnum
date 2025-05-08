@@ -328,7 +328,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   );
 };
 
-const UltraFeed = ({alwaysShow = false}: {
+const UltraFeedInner = ({alwaysShow = false}: {
   alwaysShow?: boolean
 }) => {
   return (
@@ -338,10 +338,10 @@ const UltraFeed = ({alwaysShow = false}: {
   );
 };
 
-const UltraFeedComponent = registerComponent('UltraFeed', UltraFeed);
+export const UltraFeed = registerComponent('UltraFeed', UltraFeedInner);
 
 declare global {
   interface ComponentTypes {
-    UltraFeed: typeof UltraFeedComponent
+    UltraFeed: typeof UltraFeed
   }
 } 

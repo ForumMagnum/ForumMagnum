@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const LoginPopup = ({onClose, classes}: {
+const LoginPopupInner = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -43,10 +43,10 @@ const LoginPopup = ({onClose, classes}: {
   );
 }
 
-const LoginPopupComponent = registerComponent('LoginPopup', LoginPopup, {styles});
+export const LoginPopup = registerComponent('LoginPopup', LoginPopupInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LoginPopup: typeof LoginPopupComponent
+    LoginPopup: typeof LoginPopup
   }
 }

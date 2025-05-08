@@ -56,7 +56,7 @@ const links = {
   license: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
 
-export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
+export const EAOnboardingUserStageInner = ({classes, icon = lightbulbIcon}: {
   icon?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -198,14 +198,14 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   );
 }
 
-const EAOnboardingUserStageComponent = registerComponent(
+export const EAOnboardingUserStage = registerComponent(
   "EAOnboardingUserStage",
-  EAOnboardingUserStage,
+  EAOnboardingUserStageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingUserStage: typeof EAOnboardingUserStageComponent
+    EAOnboardingUserStage: typeof EAOnboardingUserStage
   }
 }

@@ -33,7 +33,6 @@ import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
@@ -428,7 +427,7 @@ export const postsCommentsThreadMultiOptions = {
   enableTotal: true,
 }
 
-const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
+const PostsPageInner = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
   classes: ClassesType<typeof styles>,
@@ -600,7 +599,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton
+    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton, HoveredReactionContextProvider
   } = Components
 
   useEffect(() => {
@@ -1062,12 +1061,12 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   </AnalyticsContext>
 }
 
-const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
+export const PostsPage = registerComponent('PostsPage', PostsPageInner, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",
 });
 declare global {
   interface ComponentTypes {
-    PostsPage: typeof PostsPageComponent
+    PostsPage: typeof PostsPage
   }
 }

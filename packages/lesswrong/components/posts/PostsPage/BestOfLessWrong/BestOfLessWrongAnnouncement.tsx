@@ -242,7 +242,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   },
 }), { allowNonThemeColors: true });
 
-const BestOfLessWrongAnnouncement = () => {
+const BestOfLessWrongAnnouncementInner = () => {
   const classes = useStyles(styles);
 
   const { results } = useMulti({
@@ -327,12 +327,12 @@ const BestOfLessWrongAnnouncement = () => {
   )
 }
 
-const BestOfLessWrongAnnouncementComponent = registerComponent('BestOfLessWrongAnnouncement', BestOfLessWrongAnnouncement);
+export const BestOfLessWrongAnnouncement = registerComponent('BestOfLessWrongAnnouncement', BestOfLessWrongAnnouncementInner);
 
 declare global {
   interface ComponentTypes {
-    BestOfLessWrongAnnouncement: typeof BestOfLessWrongAnnouncementComponent
+    BestOfLessWrongAnnouncement: typeof BestOfLessWrongAnnouncement
   }
 }
 
-export default BestOfLessWrongAnnouncement;
+export default BestOfLessWrongAnnouncementInner;

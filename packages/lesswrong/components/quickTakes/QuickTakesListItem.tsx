@@ -24,7 +24,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const QuickTakesListItem = ({quickTake, classes}: {
+const QuickTakesListItemInner = ({quickTake, classes}: {
   quickTake: ShortformComments,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -72,14 +72,14 @@ const QuickTakesListItem = ({quickTake, classes}: {
   </>;
 }
 
-const QuickTakesListItemComponent = registerComponent(
+export const QuickTakesListItem = registerComponent(
   "QuickTakesListItem",
-  QuickTakesListItem,
+  QuickTakesListItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    QuickTakesListItem: typeof QuickTakesListItemComponent
+    QuickTakesListItem: typeof QuickTakesListItem
   }
 }

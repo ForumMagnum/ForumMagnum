@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ReadTime = ({classes, post, dialogueResponses}: {
+export const ReadTimeInner = ({classes, post, dialogueResponses}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   dialogueResponses: CommentsList[],
@@ -46,10 +46,10 @@ export const ReadTime = ({classes, post, dialogueResponses}: {
       </LWTooltip>
 }
 
-const ReadTimeComponent = registerComponent('ReadTime', ReadTime, {styles});
+export const ReadTime = registerComponent('ReadTime', ReadTimeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReadTime: typeof ReadTimeComponent
+    ReadTime: typeof ReadTime
   }
 }

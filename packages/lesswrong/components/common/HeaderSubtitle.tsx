@@ -15,7 +15,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const HeaderSubtitle = ({classes}: {
+const HeaderSubtitleInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { currentRoute } = useSubscribedLocation();
@@ -42,12 +42,12 @@ const HeaderSubtitle = ({classes}: {
   }
 }
 
-const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle, {
+export const HeaderSubtitle = registerComponent("HeaderSubtitle", HeaderSubtitleInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    HeaderSubtitle: typeof HeaderSubtitleComponent
+    HeaderSubtitle: typeof HeaderSubtitle
   }
 }

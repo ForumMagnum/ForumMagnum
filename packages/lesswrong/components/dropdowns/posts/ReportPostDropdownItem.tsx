@@ -4,7 +4,7 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
 
-const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
+const ReportPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
@@ -37,13 +37,13 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 };
 
-const ReportPostDropdownItemComponent = registerComponent(
+export const ReportPostDropdownItem = registerComponent(
   'ReportPostDropdownItem',
-  ReportPostDropdownItem,
+  ReportPostDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ReportPostDropdownItem: typeof ReportPostDropdownItemComponent
+    ReportPostDropdownItem: typeof ReportPostDropdownItem
   }
 }

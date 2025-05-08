@@ -71,7 +71,7 @@ export const defaultTagHistorySettings: TagHistorySettings = {
   lensId: "all",
 };
 
-const TagHistoryPage = () => {
+const TagHistoryPageInner = () => {
   const classes = useStyles(tagHistoryStyles);
   const { params, query } = useLocation();
   const { slug } = params;
@@ -327,10 +327,10 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   </div>
 }
 
-const TagHistoryPageComponent = registerComponent("TagHistoryPage", TagHistoryPage);
+export const TagHistoryPage = registerComponent("TagHistoryPage", TagHistoryPageInner);
 
 declare global {
   interface ComponentTypes {
-    TagHistoryPage: typeof TagHistoryPageComponent
+    TagHistoryPage: typeof TagHistoryPage
   }
 }

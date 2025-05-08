@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
+const CommentKarmaWithPreviewInner = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
@@ -73,11 +73,11 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   </span>
 }
 
-const CommentKarmaWithPreviewComponent = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
+export const CommentKarmaWithPreview = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentKarmaWithPreview: typeof CommentKarmaWithPreviewComponent
+    CommentKarmaWithPreview: typeof CommentKarmaWithPreview
   }
 }
 

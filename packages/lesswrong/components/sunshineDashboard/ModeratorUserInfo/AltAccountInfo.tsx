@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AltAccountInfo = ({classes, user}: {
+export const AltAccountInfoInner = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
@@ -70,11 +70,11 @@ export const AltAccountInfo = ({classes, user}: {
   </div>;
 }
 
-const AltAccountInfoComponent = registerComponent('AltAccountInfo', AltAccountInfo, {styles});
+export const AltAccountInfo = registerComponent('AltAccountInfo', AltAccountInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AltAccountInfo: typeof AltAccountInfoComponent
+    AltAccountInfo: typeof AltAccountInfo
   }
 }
 

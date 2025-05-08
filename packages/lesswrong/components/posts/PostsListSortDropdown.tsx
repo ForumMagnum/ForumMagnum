@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
 
 const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS) as (keyof typeof TAG_POSTS_SORT_ORDER_OPTIONS)[];
 
-const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sortedBy", classes}: {
+const PostsListSortDropdownInner = ({value, options=defaultOptions, sortingParam="sortedBy", classes}: {
   value: string
   options?: string[],
   sortingParam?: string,
@@ -28,10 +28,10 @@ const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sor
   return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} />;
 }
 
-const PostsListSortDropdownComponent = registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});
+export const PostsListSortDropdown = registerComponent('PostsListSortDropdown', PostsListSortDropdownInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsListSortDropdown: typeof PostsListSortDropdownComponent
+    PostsListSortDropdown: typeof PostsListSortDropdown
   }
 }

@@ -6,7 +6,7 @@ import {
 } from "../../lib/collections/users/helpers";
 import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
 
-const SocialMediaLink = ({user, field, className}: {
+const SocialMediaLinkInner = ({user, field, className}: {
   user: UsersProfile,
   field: SocialMediaProfileField,
   className?: string,
@@ -28,13 +28,13 @@ const SocialMediaLink = ({user, field, className}: {
   );
 }
 
-const SocialMediaLinkComponent = registerComponent(
+export const SocialMediaLink = registerComponent(
   "SocialMediaLink",
-  SocialMediaLink,
+  SocialMediaLinkInner,
 );
 
 declare global {
   interface ComponentTypes {
-    SocialMediaLink: typeof SocialMediaLinkComponent
+    SocialMediaLink: typeof SocialMediaLink
   }
 }

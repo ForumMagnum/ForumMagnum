@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 
-const PostsSingleRoute = () => {
+const PostsSingleRouteInner = () => {
   const { currentRoute, query } = useLocation();
   const version = query?.revision
   if (currentRoute?._id) {
@@ -12,10 +12,10 @@ const PostsSingleRoute = () => {
   }
 };
 
-const PostsSingleRouteComponent = registerComponent('PostsSingleRoute', PostsSingleRoute);
+export const PostsSingleRoute = registerComponent('PostsSingleRoute', PostsSingleRouteInner);
 
 declare global {
   interface ComponentTypes {
-    PostsSingleRoute: typeof PostsSingleRouteComponent
+    PostsSingleRoute: typeof PostsSingleRoute
   }
 }

@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SingleColumnSection = ({classes, className, children}: {
+const SingleColumnSectionInner = ({classes, className, children}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   children?: React.ReactNode,
@@ -34,10 +34,10 @@ const SingleColumnSection = ({classes, className, children}: {
   )
 };
 
-const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, {styles, stylePriority: -1});
+export const SingleColumnSection = registerComponent('SingleColumnSection', SingleColumnSectionInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    SingleColumnSection: typeof SingleColumnSectionComponent
+    SingleColumnSection: typeof SingleColumnSection
   }
 }

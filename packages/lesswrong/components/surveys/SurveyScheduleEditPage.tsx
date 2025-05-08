@@ -268,20 +268,20 @@ const SurveyScheduleEditor = () => {
   );
 }
 
-const SurveyScheduleEditPage = () => {
+const SurveyScheduleEditPageInner = () => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyScheduleEditor />
     : <Components.Error404 />;
 }
 
-const SurveyScheduleEditPageComponent = registerComponent(
+export const SurveyScheduleEditPage = registerComponent(
   "SurveyScheduleEditPage",
-  SurveyScheduleEditPage,
+  SurveyScheduleEditPageInner,
 );
 
 declare global {
   interface ComponentTypes {
-    SurveyScheduleEditPage: typeof SurveyScheduleEditPageComponent
+    SurveyScheduleEditPage: typeof SurveyScheduleEditPage
   }
 }

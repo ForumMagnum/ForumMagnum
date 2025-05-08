@@ -6,7 +6,7 @@ import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 
-const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
+const ApproveNewUserDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -41,13 +41,13 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const ApproveNewUserDropdownItemComponent = registerComponent(
+export const ApproveNewUserDropdownItem = registerComponent(
   "ApproveNewUserDropdownItem",
-  ApproveNewUserDropdownItem,
+  ApproveNewUserDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ApproveNewUserDropdownItem: typeof ApproveNewUserDropdownItemComponent
+    ApproveNewUserDropdownItem: typeof ApproveNewUserDropdownItem
   }
 }

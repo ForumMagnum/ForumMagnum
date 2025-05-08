@@ -95,7 +95,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
-const EventNotificationsDialog = ({ onClose, classes }: {
+const EventNotificationsDialogInner = ({ onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -212,11 +212,11 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   )
 }
 
-const EventNotificationsDialogComponent = registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
+export const EventNotificationsDialog = registerComponent('EventNotificationsDialog', EventNotificationsDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EventNotificationsDialog: typeof EventNotificationsDialogComponent
+    EventNotificationsDialog: typeof EventNotificationsDialog
   }
 }
 

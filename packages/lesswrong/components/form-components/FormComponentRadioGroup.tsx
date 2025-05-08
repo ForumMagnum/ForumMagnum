@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FormComponentRadioGroup = ({ path, value, options, name, label, updateCurrentValues, classes }: {
+const FormComponentRadioGroupInner = ({ path, value, options, name, label, updateCurrentValues, classes }: {
   path: string,
   value: string,
   options: Array<{ value: string, label: string }>,
@@ -46,11 +46,11 @@ const FormComponentRadioGroup = ({ path, value, options, name, label, updateCurr
   </FormControl>
 }
 
-const FormComponentRadioGroupComponent = registerComponent("FormComponentRadioGroup", FormComponentRadioGroup, {styles});
+export const FormComponentRadioGroup = registerComponent("FormComponentRadioGroup", FormComponentRadioGroupInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FormComponentRadioGroup: typeof FormComponentRadioGroupComponent
+    FormComponentRadioGroup: typeof FormComponentRadioGroup
   }
 }
 

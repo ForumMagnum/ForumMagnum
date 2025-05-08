@@ -33,7 +33,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const CommentsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const comment = (hit as SearchComment);
   const { LWTooltip } = Components
 
@@ -68,11 +68,11 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHi
   </div>
 }
 
-const CommentsSearchHitComponent = registerComponent("CommentsSearchHit", CommentsSearchHit, {styles});
+export const CommentsSearchHit = registerComponent("CommentsSearchHit", CommentsSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentsSearchHit: typeof CommentsSearchHitComponent
+    CommentsSearchHit: typeof CommentsSearchHit
   }
 }
 

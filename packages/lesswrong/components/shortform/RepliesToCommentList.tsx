@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
-const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: {
+const RepliesToCommentListInner = ({ post, parentCommentId, directReplies = false }: {
   post: PostsBase,
   parentCommentId: string,
   directReplies?: boolean
@@ -42,11 +42,11 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
 }
 
 
-const RepliesToCommentListComponent = registerComponent('RepliesToCommentList', RepliesToCommentList)
+export const RepliesToCommentList = registerComponent('RepliesToCommentList', RepliesToCommentListInner)
 
 declare global {
   interface ComponentTypes {
-    RepliesToCommentList: typeof RepliesToCommentListComponent
+    RepliesToCommentList: typeof RepliesToCommentList
   }
 }
 

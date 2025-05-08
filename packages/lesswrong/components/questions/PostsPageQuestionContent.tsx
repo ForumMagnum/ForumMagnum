@@ -5,7 +5,7 @@ import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 
-const PostsPageQuestionContent = ({post, answersTree, refetch}: {
+const PostsPageQuestionContentInner = ({post, answersTree, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answersTree: CommentTreeNode<CommentsList>[],
   refetch: () => void,
@@ -26,13 +26,13 @@ const PostsPageQuestionContent = ({post, answersTree, refetch}: {
 
 };
 
-const PostsPageQuestionContentComponent = registerComponent('PostsPageQuestionContent', PostsPageQuestionContent, {
+export const PostsPageQuestionContent = registerComponent('PostsPageQuestionContent', PostsPageQuestionContentInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    PostsPageQuestionContent: typeof PostsPageQuestionContentComponent
+    PostsPageQuestionContent: typeof PostsPageQuestionContent
   }
 }
 

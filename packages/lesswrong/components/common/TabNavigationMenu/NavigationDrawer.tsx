@@ -52,7 +52,7 @@ const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   },
 }))
 
-const NavigationDrawer = ({open, handleClose, toc}: {
+const NavigationDrawerInner = ({open, handleClose, toc}: {
   open: boolean,
   handleOpen: () => void,
   handleClose: () => void,
@@ -88,10 +88,10 @@ const NavigationDrawer = ({open, handleClose, toc}: {
   </Drawer>
 }
 
-const NavigationDrawerComponent = registerComponent('NavigationDrawer', NavigationDrawer);
+export const NavigationDrawer = registerComponent('NavigationDrawer', NavigationDrawerInner);
 
 declare global {
   interface ComponentTypes {
-    NavigationDrawer: typeof NavigationDrawerComponent
+    NavigationDrawer: typeof NavigationDrawer
   }
 }

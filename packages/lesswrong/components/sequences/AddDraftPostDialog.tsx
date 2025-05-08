@@ -8,7 +8,7 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useDialog } from '../common/withDialog';
 
-const AddDraftPostDialog = ({documentId, postIds, onClose}: {
+const AddDraftPostDialogInner = ({documentId, postIds, onClose}: {
   documentId: string,
   postIds: string[],
   onClose?: () => void,
@@ -53,12 +53,12 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   )
 }
 
-const AddDraftPostDialogComponent = registerComponent(
-  'AddDraftPostDialog', AddDraftPostDialog
+export const AddDraftPostDialog = registerComponent(
+  'AddDraftPostDialog', AddDraftPostDialogInner
 );
 
 declare global {
   interface ComponentTypes {
-    AddDraftPostDialog: typeof AddDraftPostDialogComponent
+    AddDraftPostDialog: typeof AddDraftPostDialog
   }
 }

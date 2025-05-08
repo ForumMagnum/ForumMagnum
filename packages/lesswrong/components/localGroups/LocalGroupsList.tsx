@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
+const LocalGroupsListInner = ({terms, children, classes, showNoResults=true, heading}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
@@ -55,10 +55,10 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   </MaybeTitleWrapper>;
 }
 
-const LocalGroupsListComponent = registerComponent('LocalGroupsList', LocalGroupsList, {styles})
+export const LocalGroupsList = registerComponent('LocalGroupsList', LocalGroupsListInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    LocalGroupsList: typeof LocalGroupsListComponent
+    LocalGroupsList: typeof LocalGroupsList
   }
 }

@@ -184,7 +184,7 @@ const useFlag = (tab: MenuTabRegular): {
   return {flag};
 }
 
-const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
+const TabNavigationItemInner = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
@@ -252,12 +252,12 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   </LWTooltip>
 }
 
-const TabNavigationItemComponent = registerComponent(
-  'TabNavigationItem', TabNavigationItem, {styles}
+export const TabNavigationItem = registerComponent(
+  'TabNavigationItem', TabNavigationItemInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    TabNavigationItem: typeof TabNavigationItemComponent
+    TabNavigationItem: typeof TabNavigationItem
   }
 }

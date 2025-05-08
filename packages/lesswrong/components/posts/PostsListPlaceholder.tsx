@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { styles } from './LWPostsItem';
 
-const PostsListPlaceholder = ({count, classes}: {
+const PostsListPlaceholderInner = ({count, classes}: {
   count: number,
   classes: ClassesType<typeof styles>
 }) => {
@@ -25,10 +25,10 @@ const PostsListPlaceholder = ({count, classes}: {
   return <React.Fragment>{placeholders}</React.Fragment>;
 }
 
-const PostsListPlaceholderComponent = registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
+export const PostsListPlaceholder = registerComponent("PostsListPlaceholder", PostsListPlaceholderInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsListPlaceholder: typeof PostsListPlaceholderComponent
+    PostsListPlaceholder: typeof PostsListPlaceholder
   }
 }

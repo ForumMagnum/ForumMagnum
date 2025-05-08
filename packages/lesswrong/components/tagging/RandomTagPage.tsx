@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql } from '@apollo/client';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
-const RandomTagPage = () => {
+const RandomTagPageInner = () => {
   const {PermanentRedirect, Loading, SingleColumnSection} = Components;
   const {data, loading} = useQuery(gql`
     query getRandomTag {
@@ -19,11 +19,11 @@ const RandomTagPage = () => {
   </SingleColumnSection>
 }
 
-const RandomTagPageComponent = registerComponent('RandomTagPage', RandomTagPage);
+export const RandomTagPage = registerComponent('RandomTagPage', RandomTagPageInner);
 
 declare global {
   interface ComponentTypes {
-    RandomTagPage: typeof RandomTagPageComponent
+    RandomTagPage: typeof RandomTagPage
   }
 }
 

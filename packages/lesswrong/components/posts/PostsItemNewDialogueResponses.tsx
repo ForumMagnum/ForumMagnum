@@ -2,7 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import React from "react";
 
-const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, unreadCount: number}) => {
+const PostsItemNewDialogueResponsesInner = ({postId, unreadCount}: {postId: string, unreadCount: number}) => {
   
   const { ContentItemBody, Loading, NoContent }= Components
 
@@ -17,10 +17,10 @@ const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, u
     : <NoContent>No new responses found</NoContent> : <div></div>
 }
 
-const PostsItemNewDialogueResponsesComponent = registerComponent('PostsItemNewDialogueResponses', PostsItemNewDialogueResponses);
+export const PostsItemNewDialogueResponses = registerComponent('PostsItemNewDialogueResponses', PostsItemNewDialogueResponsesInner);
 
 declare global {
   interface ComponentTypes {
-    PostsItemNewDialogueResponses: typeof PostsItemNewDialogueResponsesComponent
+    PostsItemNewDialogueResponses: typeof PostsItemNewDialogueResponses
   }
 }

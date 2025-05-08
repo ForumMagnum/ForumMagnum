@@ -60,7 +60,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
   return {data, loading, fetchMore, networkStatus}
 }
 
-const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
+const ReadHistoryTabInner = ({classes, groupByDate = true, filter, sort}: {
   classes: ClassesType<typeof styles>,
   groupByDate?: boolean,
   filter?: FilterPostsForReview,
@@ -135,10 +135,10 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
 }
 
 
-const ReadHistoryTabComponent = registerComponent('ReadHistoryTab', ReadHistoryTab, {styles})
+export const ReadHistoryTab = registerComponent('ReadHistoryTab', ReadHistoryTabInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    ReadHistoryTab: typeof ReadHistoryTabComponent
+    ReadHistoryTab: typeof ReadHistoryTab
   }
 }

@@ -193,7 +193,7 @@ const SurveysEditor = ({classes}: {
   );
 }
 
-const SurveyAdminPage = ({classes}: {
+const SurveyAdminPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -202,14 +202,14 @@ const SurveyAdminPage = ({classes}: {
     : <Components.Error404 />;
 }
 
-const SurveyAdminPageComponent = registerComponent(
+export const SurveyAdminPage = registerComponent(
   "SurveyAdminPage",
-  SurveyAdminPage,
+  SurveyAdminPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    SurveyAdminPage: typeof SurveyAdminPageComponent
+    SurveyAdminPage: typeof SurveyAdminPage
   }
 }

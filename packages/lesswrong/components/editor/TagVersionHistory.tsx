@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagVersionHistoryButton = ({tagId, classes}: {
+const TagVersionHistoryButtonInner = ({tagId, classes}: {
   tagId: string,
   classes: ClassesType<typeof styles>
 }) => {
@@ -82,7 +82,7 @@ const TagVersionHistoryButton = ({tagId, classes}: {
   </Button>
 }
 
-const TagVersionHistory = ({tagId, onClose, classes}: {
+const TagVersionHistoryInner = ({tagId, onClose, classes}: {
   tagId: string,
   onClose: () => void,
   classes: ClassesType<typeof styles>
@@ -181,12 +181,12 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   </LWDialog>
 }
 
-const TagVersionHistoryButtonComponent = registerComponent("TagVersionHistoryButton", TagVersionHistoryButton, {styles});
-const TagVersionHistoryComponent = registerComponent("TagVersionHistory", TagVersionHistory, {styles});
+export const TagVersionHistoryButton = registerComponent("TagVersionHistoryButton", TagVersionHistoryButtonInner, {styles});
+export const TagVersionHistory = registerComponent("TagVersionHistory", TagVersionHistoryInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagVersionHistoryButton: typeof TagVersionHistoryButtonComponent
-    TagVersionHistory: typeof TagVersionHistoryComponent
+    TagVersionHistoryButton: typeof TagVersionHistoryButton
+    TagVersionHistory: typeof TagVersionHistory
   }
 }

@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // this is currently unused, but will hopefully be used someday after we reflect on it a bit more.
-const KarmaIcon = ({classes, className}: {
+const KarmaIconInner = ({classes, className}: {
   classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
@@ -37,10 +37,10 @@ const KarmaIcon = ({classes, className}: {
     </span>
 }
 
-const KarmaIconComponent = registerComponent('KarmaIcon', KarmaIcon, {styles});
+export const KarmaIcon = registerComponent('KarmaIcon', KarmaIconInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    KarmaIcon: typeof KarmaIconComponent
+    KarmaIcon: typeof KarmaIcon
   }
 }

@@ -199,7 +199,7 @@ const useSpotlightFeedItemStyles = defineStyles(
   { stylePriority: -1 }
 );
 
-const SpotlightFeedItem = ({
+const SpotlightFeedItemInner = ({
   spotlight,
   index,
   showSubtitle=true,
@@ -313,12 +313,12 @@ const SpotlightFeedItem = ({
   )
 }
 
-const SpotlightFeedItemComponent = registerComponent('SpotlightFeedItem', SpotlightFeedItem)
+export const SpotlightFeedItem = registerComponent('SpotlightFeedItem', SpotlightFeedItemInner)
 
-export default SpotlightFeedItemComponent;
+
 
 declare global {
   interface ComponentTypes {
-    SpotlightFeedItem: typeof SpotlightFeedItemComponent
+    SpotlightFeedItem: typeof SpotlightFeedItem
   }
 }

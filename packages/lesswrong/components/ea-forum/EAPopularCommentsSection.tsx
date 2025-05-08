@@ -4,7 +4,7 @@ import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSectio
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
 import { preferredHeadingCase } from "../../themes/forumTheme";
 
-const EAPopularCommentsSection = () => {
+const EAPopularCommentsSectionInner = () => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "popularComments",
     defaultExpanded: "all",
@@ -25,13 +25,13 @@ const EAPopularCommentsSection = () => {
   );
 }
 
-const EAPopularCommentsSectionComponent = registerComponent(
+export const EAPopularCommentsSection = registerComponent(
   "EAPopularCommentsSection",
-  EAPopularCommentsSection,
+  EAPopularCommentsSectionInner,
 );
 
 declare global {
   interface ComponentTypes {
-    EAPopularCommentsSection: typeof EAPopularCommentsSectionComponent
+    EAPopularCommentsSection: typeof EAPopularCommentsSection
   }
 }

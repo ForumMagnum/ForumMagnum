@@ -33,7 +33,7 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
 /**
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
-const TagPageRouter = () => {
+const TagPageRouterInner = () => {
   const { EATagPage, LWTagPage, TagSubforumPage2 } = Components;
   const TagPage = isFriendlyUI ? EATagPage : LWTagPage;
   const { query, params: { slug } } = useLocation();
@@ -91,10 +91,10 @@ const TagPageRouter = () => {
   return <TagPage/>
 }
 
-const TagPageRouterComponent = registerComponent("TagPageRouter", TagPageRouter);
+export const TagPageRouter = registerComponent("TagPageRouter", TagPageRouterInner);
 
 declare global {
   interface ComponentTypes {
-    TagPageRouter: typeof TagPageRouterComponent
+    TagPageRouter: typeof TagPageRouter
   }
 }

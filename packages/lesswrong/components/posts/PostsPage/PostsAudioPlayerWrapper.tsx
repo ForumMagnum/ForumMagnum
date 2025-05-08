@@ -17,7 +17,7 @@ export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigation
     || isPostAllowedType3Audio(post);
 }
 
-export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
+export const PostsAudioPlayerWrapperInner = ({post, showEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
   classes: ClassesType<typeof styles>,
@@ -33,10 +33,10 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
   </>;
 }
 
-const PostsAudioPlayerWrapperComponent = registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapper, {styles});
+export const PostsAudioPlayerWrapper = registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapperInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsAudioPlayerWrapper: typeof PostsAudioPlayerWrapperComponent
+    PostsAudioPlayerWrapper: typeof PostsAudioPlayerWrapper
   }
 }

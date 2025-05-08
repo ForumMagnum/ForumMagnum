@@ -206,7 +206,7 @@ const getInitialFilters = ({query}: RouterLocation) => {
   return [];
 }
 
-const CommunityMapFilter = ({
+const CommunityMapFilterInner = ({
   setShowMap,
   showHideMap,
   toggleGroups,
@@ -422,14 +422,14 @@ const CommunityMapFilter = ({
   );
 }
 
-const CommunityMapFilterComponent = registerComponent(
+export const CommunityMapFilter = registerComponent(
   'CommunityMapFilter',
-  CommunityMapFilter,
+  CommunityMapFilterInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    CommunityMapFilter: typeof CommunityMapFilterComponent
+    CommunityMapFilter: typeof CommunityMapFilter
   }
 }

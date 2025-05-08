@@ -28,7 +28,7 @@ const styles = defineStyles("CommentShortformIcon", (theme: ThemeType) => ({
   },
 }));
 
-const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
+const CommentShortformIconInner = ({comment, post, simple, iconClassName}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
   simple?: boolean,
@@ -50,15 +50,15 @@ const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
   )
 }
 
-const CommentShortformIconComponent = registerComponent(
-  'CommentShortformIcon', CommentShortformIcon
+export const CommentShortformIcon = registerComponent(
+  'CommentShortformIcon', CommentShortformIconInner
 );
 
-export default CommentShortformIconComponent;
+
 
 declare global {
   interface ComponentTypes {
-    CommentShortformIcon: typeof CommentShortformIconComponent,
+    CommentShortformIcon: typeof CommentShortformIcon,
   }
 }
 

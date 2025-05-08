@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewCommentsList = ({ terms, classes }: {
+const SunshineNewCommentsListInner = ({ terms, classes }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -38,11 +38,11 @@ const SunshineNewCommentsList = ({ terms, classes }: {
   }
 }
 
-const SunshineNewCommentsListComponent = registerComponent('SunshineNewCommentsList', SunshineNewCommentsList, {styles});
+export const SunshineNewCommentsList = registerComponent('SunshineNewCommentsList', SunshineNewCommentsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineNewCommentsList: typeof SunshineNewCommentsListComponent
+    SunshineNewCommentsList: typeof SunshineNewCommentsList
   }
 }
 

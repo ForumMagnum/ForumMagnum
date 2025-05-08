@@ -188,7 +188,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
 }));
 
-const LensTabBar = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: {
+const LensTabBarInner = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: {
   lenses: TagLens[],
   selectedLens: TagLens|undefined,
   switchLens: (lensId: string) => void,
@@ -209,7 +209,7 @@ const LensTabBar = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: 
   return (
     <div className={classes.lensTabBar}>
       <div className={classes.lensTabsContainer}>
-        {sortedLenses.map(lens => <LensTab
+        {sortedLenses.map(lens => <LensTabInner
           key={lens._id}
           lens={lens}
           switchLens={switchLens}
@@ -222,7 +222,7 @@ const LensTabBar = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: 
 }
 
 // We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
-const LensTab = ({ lens, isSelected, getSelectedLensUrlPath, switchLens }: {
+const LensTabInner = ({ lens, isSelected, getSelectedLensUrlPath, switchLens }: {
   lens: TagLens,
   isSelected: boolean,
   getSelectedLensUrlPath: (lensId: string) => string,
@@ -237,7 +237,7 @@ const LensTab = ({ lens, isSelected, getSelectedLensUrlPath, switchLens }: {
       <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
       {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
     </div>
-    <TagOrLensLikeButton lens={lens} isSelected={isSelected} className={classes.likeButton}/>
+    <TagOrLensLikeButtonInner lens={lens} isSelected={isSelected} className={classes.likeButton}/>
   </div>;
   
   // In the case where the user is cmd-clicking to open a link in a new tab (or doing something other than just clicking), we want to prevent the tab from being selected
@@ -273,7 +273,7 @@ const LensTab = ({ lens, isSelected, getSelectedLensUrlPath, switchLens }: {
   );
 };
 
-const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
+const TagOrLensLikeButtonInner = ({lens, isSelected, stylingVariant, className}: {
   lens: TagLens,
   isSelected: boolean,
   stylingVariant?: "default" | "buttonRow",
@@ -297,15 +297,15 @@ const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
 }
 
 
-const LensTabBarComponent = registerComponent('LensTabBar', LensTabBar);
-const LensTabComponent = registerComponent('LensTab', LensTab);
-const TagOrLensLikeButtonComponent = registerComponent('TagOrLensLikeButton', TagOrLensLikeButton);
+export const LensTabBar = registerComponent('LensTabBar', LensTabBarInner);
+export const LensTab = registerComponent('LensTab', LensTabInner);
+export const TagOrLensLikeButton = registerComponent('TagOrLensLikeButton', TagOrLensLikeButtonInner);
 
 declare global {
   interface ComponentTypes {
-    LensTabBar: typeof LensTabBarComponent
-    LensTab: typeof LensTabComponent
-    TagOrLensLikeButton: typeof TagOrLensLikeButtonComponent
+    LensTabBar: typeof LensTabBar
+    LensTab: typeof LensTab
+    TagOrLensLikeButton: typeof TagOrLensLikeButton
   }
 }
 

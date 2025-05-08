@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // The Navigation for the Inbox components
-const FriendlyInboxNavigation = ({
+const FriendlyInboxNavigationInner = ({
   conversationsResult,
   currentUser,
   selectedConversationId,
@@ -57,10 +57,10 @@ const FriendlyInboxNavigation = ({
   </>;
 };
 
-const FriendlyInboxNavigationComponent = registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigation, {styles});
+export const FriendlyInboxNavigation = registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigationInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FriendlyInboxNavigation: typeof FriendlyInboxNavigationComponent;
+    FriendlyInboxNavigation: typeof FriendlyInboxNavigation;
   }
 }

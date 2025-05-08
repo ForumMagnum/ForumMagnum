@@ -8,7 +8,7 @@ import { useTimezone } from '../common/withTimezone';
  * cases like "Yesterday at 1:00 PM", "Last Tuesday at 1:00 PM". Turns into a
  * more normal date (in locale format) if more than a week away.
  */
-const CalendarDate = ({date}: {
+const CalendarDateInner = ({date}: {
   date: Date | string,
 }) => {
   const { TimeTag } = Components;
@@ -17,10 +17,10 @@ const CalendarDate = ({date}: {
   return <TimeTag dateTime={date}>{moment(new Date(date)).tz(timezone).calendar()}</TimeTag>
 };
 
-const CalendarDateComponent = registerComponent('CalendarDate', CalendarDate);
+export const CalendarDate = registerComponent('CalendarDate', CalendarDateInner);
 
 declare global {
   interface ComponentTypes {
-    CalendarDate: typeof CalendarDateComponent
+    CalendarDate: typeof CalendarDate
   }
 }

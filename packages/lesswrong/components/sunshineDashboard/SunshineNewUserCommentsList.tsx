@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewUserCommentsList = ({comments, user, classes}: {
+const SunshineNewUserCommentsListInner = ({comments, user, classes}: {
   comments?: Array<CommentsListWithParentMetadata>,
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
@@ -57,10 +57,10 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   )
 }
 
-const SunshineNewUserCommentsListComponent = registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsList, {styles});
+export const SunshineNewUserCommentsList = registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineNewUserCommentsList: typeof SunshineNewUserCommentsListComponent
+    SunshineNewUserCommentsList: typeof SunshineNewUserCommentsList
   }
 }

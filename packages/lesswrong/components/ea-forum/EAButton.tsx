@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
  * Button component with the standard EA Forum styling
  * (see login and sign up site header buttons for example)
  */
-const EAButton = ({style, variant="contained", eventProps, className, children, classes, ...buttonProps}: {
+const EAButtonInner = ({style, variant="contained", eventProps, className, children, classes, ...buttonProps}: {
   style?: 'primary'|'grey',
   eventProps?: Record<string, string>,
   className?: string,
@@ -92,12 +92,12 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
   )
 }
 
-const EAButtonComponent = registerComponent(
-  'EAButton', EAButton, {styles, stylePriority: -2}
+export const EAButton = registerComponent(
+  'EAButton', EAButtonInner, {styles, stylePriority: -2}
 )
 
 declare global {
   interface ComponentTypes {
-    EAButton: typeof EAButtonComponent
+    EAButton: typeof EAButton
   }
 }

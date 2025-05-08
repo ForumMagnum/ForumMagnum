@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import classNames from 'classnames'
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
+const EditUrlInner = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
   value: string,
   path: keyof DbPost,
   classes: ClassesType<typeof styles>,
@@ -143,10 +143,10 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   );
 }
 
-export const EditUrlComponent = registerComponent("EditUrl", EditUrl, {styles});
+export const EditUrl = registerComponent("EditUrl", EditUrlInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditUrl: typeof EditUrlComponent
+    EditUrl: typeof EditUrl
   }
 }

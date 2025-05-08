@@ -51,7 +51,7 @@ export type ForumEventVoteDisplay = {
   comment: ShortformComments | null
 }
 
-const ForumEventResultIcon = ({
+const ForumEventResultIconInner = ({
   vote,
   tooltipDisabled,
   classes,
@@ -116,14 +116,14 @@ const ForumEventResultIcon = ({
   );
 };
 
-const ForumEventResultIconComponent = registerComponent(
+export const ForumEventResultIcon = registerComponent(
   'ForumEventResultIcon',
-  ForumEventResultIcon,
+  ForumEventResultIconInner,
   { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventResultIcon: typeof ForumEventResultIconComponent;
+    ForumEventResultIcon: typeof ForumEventResultIcon;
   }
 }

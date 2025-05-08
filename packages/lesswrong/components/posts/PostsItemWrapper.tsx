@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
+const PostsItemWrapperInner = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
   addItem?: any,
@@ -96,11 +96,11 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
   }
 };
 
-const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
+export const PostsItemWrapper = registerComponent('PostsItemWrapper', PostsItemWrapperInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemWrapper: typeof PostsItemWrapperComponent
+    PostsItemWrapper: typeof PostsItemWrapper
   }
 }
 

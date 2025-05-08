@@ -76,7 +76,7 @@ export const allPostsParams = (reviewYear: ReviewYear=REVIEW_YEAR) => {
   return {after: dateStr(startDate), before: dateStr(endDate), sortedBy: 'top', timeframe: 'yearly', frontpage: 'true', unnominated: 'true', limit: "100"}
 }  
 
-const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
+const NominationsPageInner = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {location, query} = useLocation()
@@ -183,13 +183,13 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
   </AnalyticsContext>
 }
 
-const NominationsPageComponent = registerComponent("NominationsPage", NominationsPage, {
+export const NominationsPage = registerComponent("NominationsPage", NominationsPageInner, {
   hocs: [withErrorBoundary],
   styles
 });
 
 declare global {
   interface ComponentTypes {
-    NominationsPage: typeof NominationsPageComponent
+    NominationsPage: typeof NominationsPage
   }
 }

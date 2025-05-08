@@ -4,8 +4,11 @@ import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
 import { gql, useMutation } from '@apollo/client';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
+import { ErrorAccessDenied } from '../common/ErrorAccessDenied';
+import { SingleColumnSection } from '../common/SingleColumnSection';
+import { EAButton } from '../ea-forum/EAButton';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,11 +23,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AdminGoogleServiceAccount = ({classes}: {
+const AdminGoogleServiceAccountInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, ErrorAccessDenied, EAButton } = Components;
 
   const { results: serviceAccounts } = useMulti({
     terms: {},
@@ -88,12 +90,12 @@ const AdminGoogleServiceAccount = ({classes}: {
   );
 }
 
-const AdminGoogleServiceAccountComponent = registerComponent(
-  "AdminGoogleServiceAccount", AdminGoogleServiceAccount, {styles}
+export const AdminGoogleServiceAccount = registerComponent(
+  "AdminGoogleServiceAccount", AdminGoogleServiceAccountInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    AdminGoogleServiceAccount: typeof AdminGoogleServiceAccountComponent
+    AdminGoogleServiceAccount: typeof AdminGoogleServiceAccount
   }
 }

@@ -29,7 +29,7 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
+const DraftsListInner = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
   limit: number,
   title?: string,
   userId?: string,
@@ -124,13 +124,13 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   </>
 }
 
-const DraftsListComponent = registerComponent('DraftsList', DraftsList, {
+export const DraftsList = registerComponent('DraftsList', DraftsListInner, {
   hocs: [withErrorBoundary], styles
 });
 
 declare global {
   interface ComponentTypes {
-    DraftsList: typeof DraftsListComponent
+    DraftsList: typeof DraftsList
   }
 }
 

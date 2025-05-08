@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AdminToggle = ({classes}: {
+export const AdminToggleInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -110,11 +110,11 @@ export const AdminToggle = ({classes}: {
   return null
 }
 
-const AdminToggleComponent = registerComponent('AdminToggle', AdminToggle, {styles});
+export const AdminToggle = registerComponent('AdminToggle', AdminToggleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AdminToggle: typeof AdminToggleComponent
+    AdminToggle: typeof AdminToggle
   }
 }
 

@@ -20,7 +20,7 @@ function getDateFormat(dense: boolean, isThisYear: boolean): string {
   }
 }
 
-const EventTime = ({post, dense=false}: {
+const EventTimeInner = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,
 }) => {
@@ -82,11 +82,11 @@ const EventTime = ({post, dense=false}: {
   }
 };
 
-const EventTimeComponent = registerComponent('EventTime', EventTime);
+export const EventTime = registerComponent('EventTime', EventTimeInner);
 
 declare global {
   interface ComponentTypes {
-    EventTime: typeof EventTimeComponent
+    EventTime: typeof EventTime
   }
 }
 

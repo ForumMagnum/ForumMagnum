@@ -6,7 +6,7 @@ const styles = (theme: ThemeType) => ({})
 
 const isDialogPost = (post: PostsList): post is PostsList & { debate: true } => !!post.debate;
 
-const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
+const PostsItemNewCommentsWrapperInner = ({ terms, classes, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   post: PostsList,
@@ -29,14 +29,14 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
   />;
 };
 
-const PostsItemNewCommentsWrapperComponent = registerComponent(
-  'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, {
+export const PostsItemNewCommentsWrapper = registerComponent(
+  'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapperInner, {
     styles,
   }
 );
 
 declare global {
   interface ComponentTypes {
-    PostsItemNewCommentsWrapper: typeof PostsItemNewCommentsWrapperComponent
+    PostsItemNewCommentsWrapper: typeof PostsItemNewCommentsWrapper
   }
 }

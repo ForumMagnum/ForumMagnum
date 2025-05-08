@@ -18,18 +18,18 @@ const styles = defineStyles("SimpleDivider", (theme: ThemeType) => ({
  * horizontal rule; not to be confused with Divider, which puts a fancy logo
  * in the middle.
  */
-export const SimpleDivider = ({className}: {
+export const SimpleDividerInner = ({className}: {
   className?: string
 }) => {
   const classes = useStyles(styles);
   return <hr className={classNames(classes.root, className)} />;
 }
 
-const SimpleDividerComponent = registerComponent('SimpleDivider', SimpleDivider);
+export const SimpleDivider = registerComponent('SimpleDivider', SimpleDividerInner);
 
 declare global {
   interface ComponentTypes {
-    SimpleDivider: typeof SimpleDividerComponent
+    SimpleDivider: typeof SimpleDivider
   }
 }
 

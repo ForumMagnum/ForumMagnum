@@ -14,7 +14,7 @@ const sortingNames = {
   'recentComments': preferredHeadingCase('latest reply'),
 }
 
-const AnswersSorting = ({ post }: {
+const AnswersSortingInner = ({ post }: {
   post?: PostsList,
 }) => {
   const navigate = useNavigate();
@@ -42,10 +42,10 @@ const AnswersSorting = ({ post }: {
   return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
 };
 
-const AnswersSortingComponent = registerComponent('AnswersSorting', AnswersSorting);
+export const AnswersSorting = registerComponent('AnswersSorting', AnswersSortingInner);
 
 declare global {
   interface ComponentTypes {
-    AnswersSorting: typeof AnswersSortingComponent,
+    AnswersSorting: typeof AnswersSorting,
   }
 }

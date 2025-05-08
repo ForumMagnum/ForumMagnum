@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, classes}: {
+export const NotificationsPageKarmaChangeListInner = ({karmaChanges, truncateAt, classes}: {
   karmaChanges?: Pick<KarmaChanges, "posts" | "comments" | "tagRevisions">,
   truncateAt?: number,
   classes: ClassesType<typeof styles>,
@@ -99,14 +99,14 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
   );
 }
 
-const NotificationsPageKarmaChangeListComponent = registerComponent(
+export const NotificationsPageKarmaChangeList = registerComponent(
   "NotificationsPageKarmaChangeList",
-  NotificationsPageKarmaChangeList,
+  NotificationsPageKarmaChangeListInner,
   {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageKarmaChangeList: typeof NotificationsPageKarmaChangeListComponent
+    NotificationsPageKarmaChangeList: typeof NotificationsPageKarmaChangeList
   }
 }

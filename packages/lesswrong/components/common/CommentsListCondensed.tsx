@@ -15,7 +15,7 @@ const styles = (_: ThemeType) => ({
   }
 });
 
-const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
+const CommentsListCondensedInner = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
   label: string,
   terms: CommentsViewTerms
   initialLimit?: number,
@@ -75,14 +75,14 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   </>;
 }
 
-const CommentsListCondensedComponent = registerComponent(
+export const CommentsListCondensed = registerComponent(
   'CommentsListCondensed',
-  CommentsListCondensed,
+  CommentsListCondensedInner,
   {styles, stylePriority: 1},
 );
 
 declare global {
   interface ComponentTypes {
-    CommentsListCondensed: typeof CommentsListCondensedComponent
+    CommentsListCondensed: typeof CommentsListCondensed
   }
 }

@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) =>  ({
 })
 
 
-const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
+const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
@@ -62,11 +62,11 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
   )
 }
 
-const ModeratorCommentsComponent = registerComponent('ModeratorComments', ModeratorComments, {styles});
+export const ModeratorComments = registerComponent('ModeratorComments', ModeratorCommentsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModeratorComments: typeof ModeratorCommentsComponent,
+    ModeratorComments: typeof ModeratorComments,
   }
 }
 

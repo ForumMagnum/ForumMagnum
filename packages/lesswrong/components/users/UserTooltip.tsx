@@ -21,7 +21,7 @@ const styles = () => ({
   }
 });
 
-const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children, classes}: {
+const UserTooltipInner = ({user, placement, inlineBlock, hideFollowButton, disabled, children, classes}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
@@ -50,10 +50,10 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
   );
 }
 
-const UserTooltipComponent = registerComponent("UserTooltip", UserTooltip, {styles});
+export const UserTooltip = registerComponent("UserTooltip", UserTooltipInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserTooltip: typeof UserTooltipComponent
+    UserTooltip: typeof UserTooltip
   }
 }

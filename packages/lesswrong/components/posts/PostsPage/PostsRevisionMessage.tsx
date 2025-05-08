@@ -13,7 +13,7 @@ interface PostsRevisionMessageFragment {
   contents: { editedAt: Date } | null
 }
 
-const PostsRevisionMessage = ({post, classes}: {
+const PostsRevisionMessageInner = ({post, classes}: {
   post: PostsRevisionMessageFragment|PostsList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -32,10 +32,10 @@ const PostsRevisionMessage = ({post, classes}: {
   );
 }
 
-const PostsRevisionMessageComponent = registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
+export const PostsRevisionMessage = registerComponent('PostsRevisionMessage', PostsRevisionMessageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsRevisionMessage: typeof PostsRevisionMessageComponent
+    PostsRevisionMessage: typeof PostsRevisionMessage
   }
 }

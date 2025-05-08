@@ -5,7 +5,7 @@ import { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType) => ({})
 
-const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
+const PostsItemNewCommentsListInner = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   post: PostsList,
@@ -39,14 +39,14 @@ const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-const PostsItemNewCommentsListComponent = registerComponent(
-  'PostsItemNewCommentsList', PostsItemNewCommentsList, {
+export const PostsItemNewCommentsList = registerComponent(
+  'PostsItemNewCommentsList', PostsItemNewCommentsListInner, {
     styles,
   }
 );
 
 declare global {
   interface ComponentTypes {
-    PostsItemNewCommentsList: typeof PostsItemNewCommentsListComponent
+    PostsItemNewCommentsList: typeof PostsItemNewCommentsList
   }
 }

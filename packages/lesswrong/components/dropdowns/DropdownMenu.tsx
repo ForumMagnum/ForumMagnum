@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const DropdownMenu = ({children, className, classes}: {
+const DropdownMenuInner = ({children, className, classes}: {
   children: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -26,14 +26,14 @@ const DropdownMenu = ({children, className, classes}: {
   );
 }
 
-const DropdownMenuComponent = registerComponent(
+export const DropdownMenu = registerComponent(
   "DropdownMenu",
-  DropdownMenu,
+  DropdownMenuInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    DropdownMenu: typeof DropdownMenuComponent
+    DropdownMenu: typeof DropdownMenu
   }
 }

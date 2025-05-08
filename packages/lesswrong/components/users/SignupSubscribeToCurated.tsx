@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
+const SignupSubscribeToCuratedInner = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
   onChange: (checked: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -64,10 +64,10 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   </div>
 }
 
-const SignupSubscribeToCuratedComponent = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated, {styles});
+export const SignupSubscribeToCurated = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCuratedInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SignupSubscribeToCurated: typeof SignupSubscribeToCuratedComponent
+    SignupSubscribeToCurated: typeof SignupSubscribeToCurated
   }
 }

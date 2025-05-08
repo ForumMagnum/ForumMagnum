@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PingbacksList = ({classes, postId, limit=5}: {
+const PingbacksListInner = ({classes, postId, limit=5}: {
   classes: ClassesType<typeof styles>,
   postId: string,
   limit?: number
@@ -89,10 +89,10 @@ const PingbacksList = ({classes, postId, limit=5}: {
   return null;
 }
 
-const PingbacksListComponent = registerComponent("PingbacksList", PingbacksList, {styles});
+export const PingbacksList = registerComponent("PingbacksList", PingbacksListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PingbacksList: typeof PingbacksListComponent
+    PingbacksList: typeof PingbacksList
   }
 }

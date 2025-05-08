@@ -14,7 +14,7 @@ const styles = defineStyles('FormUserSelect', (theme: ThemeType) => ({
   },
 }));
 
-const UserSelect = ({ value, setValue, label }: {
+const UserSelectInner = ({ value, setValue, label }: {
   value: string | null,
   setValue: (newValue: string | null, result: SearchUser | null) => void,
   label: string,
@@ -56,10 +56,10 @@ export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
   />
 };
 
-const UserSelectComponent = registerComponent("UserSelect", UserSelect);
+export const UserSelect = registerComponent("UserSelect", UserSelectInner);
 
 declare global {
   interface ComponentTypes {
-    UserSelect: typeof UserSelectComponent
+    UserSelect: typeof UserSelect
   }
 }

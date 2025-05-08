@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const NoContent = ({children, classes}: {
+const NoContentInner = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -17,10 +17,10 @@ const NoContent = ({children, classes}: {
   </Components.Typography>
 }
 
-const NoContentComponent = registerComponent('NoContent', NoContent, {styles});
+export const NoContent = registerComponent('NoContent', NoContentInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NoContent: typeof NoContentComponent
+    NoContent: typeof NoContent
   }
 }

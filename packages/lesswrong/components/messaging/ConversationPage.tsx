@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
  * Page for viewing a private messages conversation. Typically invoked from
  * ConversationWrapper, which takes care of the URL parsing.
  */
-const ConversationPage = ({ conversationId, currentUser, classes }: {
+const ConversationPageInner = ({ conversationId, currentUser, classes }: {
   conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -72,14 +72,14 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   )
 }
 
-const ConversationPageComponent = registerComponent('ConversationPage', ConversationPage, {
+export const ConversationPage = registerComponent('ConversationPage', ConversationPageInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    ConversationPage: typeof ConversationPageComponent
+    ConversationPage: typeof ConversationPage
   }
 }
 

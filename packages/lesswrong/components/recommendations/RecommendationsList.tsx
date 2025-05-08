@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecommendationsList = ({
+const RecommendationsListInner = ({
   algorithm,
   translucentBackground,
   ListItem = Components.PostsItem,
@@ -52,14 +52,14 @@ const RecommendationsList = ({
   </div>
 }
 
-const RecommendationsListComponent = registerComponent(
+export const RecommendationsList = registerComponent(
   'RecommendationsList',
-  RecommendationsList,
+  RecommendationsListInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    RecommendationsList: typeof RecommendationsListComponent
+    RecommendationsList: typeof RecommendationsList
   }
 }

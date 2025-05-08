@@ -8,7 +8,7 @@ import { TupleSet } from '@/lib/utils/typeGuardUtils';
 
 const includeRelatedQuestionsParam = new TupleSet(['true', 'false'] as const);
 
-const QuestionsPage = () => {
+const QuestionsPageInner = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
@@ -57,11 +57,11 @@ const QuestionsPage = () => {
   )
 }
 
-const QuestionsPageComponent = registerComponent('QuestionsPage', QuestionsPage);
+export const QuestionsPage = registerComponent('QuestionsPage', QuestionsPageInner);
 
 declare global {
   interface ComponentTypes {
-    QuestionsPage: typeof QuestionsPageComponent
+    QuestionsPage: typeof QuestionsPage
   }
 }
 

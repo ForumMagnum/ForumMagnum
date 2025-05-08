@@ -180,7 +180,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
+const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
@@ -329,10 +329,10 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
   </SideItem></div>
 }
 
-const GlossarySidebarComponent = registerComponent('GlossarySidebar', GlossarySidebar, {styles});
+export const GlossarySidebar = registerComponent('GlossarySidebar', GlossarySidebarInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    GlossarySidebar: typeof GlossarySidebarComponent
+    GlossarySidebar: typeof GlossarySidebar
   }
 }

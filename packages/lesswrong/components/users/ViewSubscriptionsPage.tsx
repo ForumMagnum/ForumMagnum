@@ -173,7 +173,7 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
   );
 }
 
-const ViewSubscriptionsPage = ({classes}: {
+const ViewSubscriptionsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {SingleColumnSection} = Components;
@@ -192,14 +192,14 @@ const ViewSubscriptionsPage = ({classes}: {
   );
 }
 
-const ViewSubscriptionsPageComponent = registerComponent(
+export const ViewSubscriptionsPage = registerComponent(
   "ViewSubscriptionsPage",
-  ViewSubscriptionsPage,
+  ViewSubscriptionsPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ViewSubscriptionsPage: typeof ViewSubscriptionsPageComponent,
+    ViewSubscriptionsPage: typeof ViewSubscriptionsPage,
   }
 }

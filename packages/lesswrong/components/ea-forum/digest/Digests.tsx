@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const DigestsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
   const { results } = useMulti({
     terms: {
@@ -72,10 +72,10 @@ const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const DigestsComponent = registerComponent('Digests', Digests, {styles});
+export const Digests = registerComponent('Digests', DigestsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    Digests: typeof DigestsComponent
+    Digests: typeof Digests
   }
 }

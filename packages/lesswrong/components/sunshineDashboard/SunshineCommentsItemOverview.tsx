@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineCommentsItemOverview = ({ comment, classes }: {
+const SunshineCommentsItemOverviewInner = ({ comment, classes }: {
   comment: any,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -43,11 +43,11 @@ const SunshineCommentsItemOverview = ({ comment, classes }: {
   )
 }
 
-const SunshineCommentsItemOverviewComponent = registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, {styles});
+export const SunshineCommentsItemOverview = registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineCommentsItemOverview: typeof SunshineCommentsItemOverviewComponent
+    SunshineCommentsItemOverview: typeof SunshineCommentsItemOverview
   }
 }
 

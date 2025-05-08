@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectorySearchableFilter = ({
+const PeopleDirectorySearchableFilterInner = ({
   filter: {
     search,
     setSearch,
@@ -132,14 +132,14 @@ const PeopleDirectorySearchableFilter = ({
   );
 }
 
-const PeopleDirectorySearchableFilterComponent = registerComponent(
+export const PeopleDirectorySearchableFilter = registerComponent(
   "PeopleDirectorySearchableFilter",
-  PeopleDirectorySearchableFilter,
+  PeopleDirectorySearchableFilterInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectorySearchableFilter: typeof PeopleDirectorySearchableFilterComponent
+    PeopleDirectorySearchableFilter: typeof PeopleDirectorySearchableFilter
   }
 }

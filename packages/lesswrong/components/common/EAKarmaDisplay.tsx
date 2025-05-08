@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAKarmaDisplay = ({post, className, classes}: {
+const EAKarmaDisplayInner = ({post, className, classes}: {
   post: PostsList,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -32,14 +32,14 @@ const EAKarmaDisplay = ({post, className, classes}: {
   );
 };
 
-const EAKarmaDisplayComponent = registerComponent(
+export const EAKarmaDisplay = registerComponent(
   "EAKarmaDisplay",
-  EAKarmaDisplay,
+  EAKarmaDisplayInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EAKarmaDisplay: typeof EAKarmaDisplayComponent,
+    EAKarmaDisplay: typeof EAKarmaDisplay,
   }
 }

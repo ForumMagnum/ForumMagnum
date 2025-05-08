@@ -21,7 +21,7 @@ export const validatedCalendlyUrl = (url: string) => {
   }
 }
 
-const CalendlyIFrame = ({url, classes}: {url: string, classes: ClassesType<typeof styles>}) => {
+const CalendlyIFrameInner = ({url, classes}: {url: string, classes: ClassesType<typeof styles>}) => {
   const valid = validatedCalendlyUrl(url)
   if (!valid.valid) return <div>Invalid Calendly URL</div>
   // The IFrame element is used in the modal, but is stripped out by CKEditor
@@ -39,10 +39,10 @@ const CalendlyIFrame = ({url, classes}: {url: string, classes: ClassesType<typeo
   </div>
 }
 
-const CalendlyIFrameComponent = registerComponent('CalendlyIFrame', CalendlyIFrame, {styles})
+export const CalendlyIFrame = registerComponent('CalendlyIFrame', CalendlyIFrameInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    CalendlyIFrame: typeof CalendlyIFrameComponent
+    CalendlyIFrame: typeof CalendlyIFrame
   }
 }

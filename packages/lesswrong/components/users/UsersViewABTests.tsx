@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UsersViewABTests = ({classes}: {
+const UsersViewABTestsInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, MenuItem } = Components;
@@ -96,10 +96,10 @@ const UsersViewABTests = ({classes}: {
   </SingleColumnSection>
 }
 
-const UsersViewABTestsComponent = registerComponent("UsersViewABTests", UsersViewABTests, {styles});
+export const UsersViewABTests = registerComponent("UsersViewABTests", UsersViewABTestsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersViewABTests: typeof UsersViewABTestsComponent
+    UsersViewABTests: typeof UsersViewABTests
   }
 }

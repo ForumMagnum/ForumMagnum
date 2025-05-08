@@ -410,7 +410,7 @@ const customComponents: Partial<Record<Exclude<DbForumEvent['customComponent'], 
   // GivingSeason2024Banner,
 };
 
-export const ForumEventFrontpageBanner = ({classes}: {
+export const ForumEventFrontpageBannerInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
@@ -443,14 +443,14 @@ export const ForumEventFrontpageBanner = ({classes}: {
   }
 }
 
-const ForumEventFrontpageBannerComponent = registerComponent(
+export const ForumEventFrontpageBanner = registerComponent(
   "ForumEventFrontpageBanner",
-  ForumEventFrontpageBanner,
+  ForumEventFrontpageBannerInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventFrontpageBanner: typeof ForumEventFrontpageBannerComponent
+    ForumEventFrontpageBanner: typeof ForumEventFrontpageBanner
   }
 }

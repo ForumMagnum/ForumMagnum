@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsRevisionSelect = ({ classes }: {
+const PostsRevisionSelectInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, RevisionSelect, Loading } = Components;
@@ -58,10 +58,10 @@ const PostsRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-const PostsRevisionSelectComponent = registerComponent("PostsRevisionSelect", PostsRevisionSelect, {styles});
+export const PostsRevisionSelect = registerComponent("PostsRevisionSelect", PostsRevisionSelectInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsRevisionSelect: typeof PostsRevisionSelectComponent
+    PostsRevisionSelect: typeof PostsRevisionSelect
   }
 }

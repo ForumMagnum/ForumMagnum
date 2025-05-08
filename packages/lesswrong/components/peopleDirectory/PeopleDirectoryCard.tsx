@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
+const PeopleDirectoryCardInner = ({user, isFirst, isLast, classes}: {
   user: SearchUser,
   isFirst?: boolean,
   isLast?: boolean,
@@ -168,14 +168,14 @@ const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   );
 }
 
-const PeopleDirectoryCardComponent = registerComponent(
+export const PeopleDirectoryCard = registerComponent(
   "PeopleDirectoryCard",
-  PeopleDirectoryCard,
+  PeopleDirectoryCardInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryCard: typeof PeopleDirectoryCardComponent
+    PeopleDirectoryCard: typeof PeopleDirectoryCard
   }
 }

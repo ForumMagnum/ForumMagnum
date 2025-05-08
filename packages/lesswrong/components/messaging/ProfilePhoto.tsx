@@ -61,7 +61,7 @@ const getUserInitials = (displayName: string) => {
  * where we didn't like how the layout looked with that empty space.
  * So this component includes a couple fallbacks in case the user has no photo.
  */
-const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
+const ProfilePhotoInner = ({user, noLink=false, from, className, classes}: {
   user: {
     slug: string,
     profileImageId: string | null,
@@ -108,11 +108,11 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
 }
 
 
-const ProfilePhotoComponent = registerComponent('ProfilePhoto', ProfilePhoto, {styles});
+export const ProfilePhoto = registerComponent('ProfilePhoto', ProfilePhotoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ProfilePhoto: typeof ProfilePhotoComponent
+    ProfilePhoto: typeof ProfilePhoto
   }
 }
 

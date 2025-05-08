@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CurationPage = ({classes}: {
+export const CurationPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -81,10 +81,10 @@ export const CurationPage = ({classes}: {
   </div>;
 }
 
-const CurationPageComponent = registerComponent('CurationPage', CurationPage, {styles});
+export const CurationPage = registerComponent('CurationPage', CurationPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CurationPage: typeof CurationPageComponent
+    CurationPage: typeof CurationPage
   }
 }

@@ -76,7 +76,7 @@ const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes
 }
 
 // Modeled off and modified from AddTag.tsx
-const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
+const FollowUserSearchInner = ({onUserSelected, currentUser, classes}: {
   onUserSelected: (user: UsersMinimumInfo ) => void,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -163,10 +163,10 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
   </div>
 }
 
-const FollowUserSearchComponent = registerComponent("FollowUserSearch", FollowUserSearch, {styles});
+export const FollowUserSearch = registerComponent("FollowUserSearch", FollowUserSearchInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FollowUserSearch: typeof FollowUserSearchComponent
+    FollowUserSearch: typeof FollowUserSearch
   }
 }

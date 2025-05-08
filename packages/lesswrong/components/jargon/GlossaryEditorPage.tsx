@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const GlossaryEditorPage = ({classes}: {
+export const GlossaryEditorPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -74,10 +74,10 @@ export const GlossaryEditorPage = ({classes}: {
   </div>;
 }
 
-const GlossaryEditorPageComponent = registerComponent('GlossaryEditorPage', GlossaryEditorPage, {styles});
+export const GlossaryEditorPage = registerComponent('GlossaryEditorPage', GlossaryEditorPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    GlossaryEditorPage: typeof GlossaryEditorPageComponent
+    GlossaryEditorPage: typeof GlossaryEditorPage
   }
 }

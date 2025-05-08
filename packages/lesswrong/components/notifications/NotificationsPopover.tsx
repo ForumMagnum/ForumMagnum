@@ -99,7 +99,7 @@ const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
 
 const defaultLimit = 20;
 
-const NotificationsPopover = ({
+const NotificationsPopoverInner = ({
   karmaChanges,
   onOpenNotificationsPopover,
   closePopover,
@@ -318,14 +318,14 @@ const NotificationsPopover = ({
   );
 }
 
-const NotificationsPopoverComponent = registerComponent(
+export const NotificationsPopover = registerComponent(
   "NotificationsPopover",
-  NotificationsPopover,
+  NotificationsPopoverInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPopover: typeof NotificationsPopoverComponent
+    NotificationsPopover: typeof NotificationsPopover
   }
 }

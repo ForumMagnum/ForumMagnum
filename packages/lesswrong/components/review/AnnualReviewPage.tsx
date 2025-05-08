@@ -122,7 +122,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AnnualReviewPage = ({classes}: {
+export const AnnualReviewPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, FrontpageReviewWidget, ReviewVotingPage, NominationsPage, ReviewVotingExpandedPost, ReviewsPage, ReviewPhaseInformation, QuickReviewPage } = Components
@@ -225,10 +225,10 @@ export const AnnualReviewPage = ({classes}: {
   </div>
 }
 
-const AnnualReviewPageComponent = registerComponent('AnnualReviewPage', AnnualReviewPage, {styles});
+export const AnnualReviewPage = registerComponent('AnnualReviewPage', AnnualReviewPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AnnualReviewPage: typeof AnnualReviewPageComponent
+    AnnualReviewPage: typeof AnnualReviewPage
   }
 }

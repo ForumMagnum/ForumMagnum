@@ -57,7 +57,7 @@ const Column: FC<{
   );
 }
 
-const PeopleDirectoryResultRow = ({result, classes}: {
+const PeopleDirectoryResultRowInner = ({result, classes}: {
   result?: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -81,14 +81,14 @@ const PeopleDirectoryResultRow = ({result, classes}: {
   );
 }
 
-const PeopleDirectoryResultRowComponent = registerComponent(
+export const PeopleDirectoryResultRow = registerComponent(
   "PeopleDirectoryResultRow",
-  PeopleDirectoryResultRow,
+  PeopleDirectoryResultRowInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryResultRow: typeof PeopleDirectoryResultRowComponent
+    PeopleDirectoryResultRow: typeof PeopleDirectoryResultRow
   }
 }

@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsListItem = ({tag, classes, postCount=3}: {
+const TagsListItemInner = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType<typeof styles>,
   postCount?: number,
@@ -55,10 +55,10 @@ const TagsListItem = ({tag, classes, postCount=3}: {
   </div>;
 }
 
-const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});
+export const TagsListItem = registerComponent("TagsListItem", TagsListItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagsListItem: typeof TagsListItemComponent
+    TagsListItem: typeof TagsListItem
   }
 }

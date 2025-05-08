@@ -16,7 +16,7 @@ const styles = defineStyles("ArbitalImportRevisionDetails", (theme) => ({
   },
 }));
 
-const ArbitalImportRevisionDetails = ({onClose, revision}: {
+const ArbitalImportRevisionDetailsInner = ({onClose, revision}: {
   onClose: () => void,
   revision: RevisionHistoryEntry
 }) => {
@@ -36,11 +36,11 @@ const ArbitalImportRevisionDetails = ({onClose, revision}: {
   </LWDialog>
 }
 
-const ArbitalImportRevisionDetailsComponent = registerComponent('ArbitalImportRevisionDetails', ArbitalImportRevisionDetails);
+export const ArbitalImportRevisionDetails = registerComponent('ArbitalImportRevisionDetails', ArbitalImportRevisionDetailsInner);
 
 declare global {
   interface ComponentTypes {
-    ArbitalImportRevisionDetails: typeof ArbitalImportRevisionDetailsComponent
+    ArbitalImportRevisionDetails: typeof ArbitalImportRevisionDetails
   }
 }
 

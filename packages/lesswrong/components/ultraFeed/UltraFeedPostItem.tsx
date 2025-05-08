@@ -195,7 +195,7 @@ const UltraFeedPostItemHeader = ({
   );
 };
 
-const UltraFeedPostItem = ({
+const UltraFeedPostItemInner = ({
   post,
   postMetaInfo,
   index,
@@ -377,12 +377,12 @@ const UltraFeedPostItem = ({
   );
 };
 
-const UltraFeedPostItemComponent = registerComponent("UltraFeedPostItem", UltraFeedPostItem);
+export const UltraFeedPostItem = registerComponent("UltraFeedPostItem", UltraFeedPostItemInner);
 
-export default UltraFeedPostItemComponent;
+
 
 declare global {
   interface ComponentTypes {
-    UltraFeedPostItem: typeof UltraFeedPostItemComponent
+    UltraFeedPostItem: typeof UltraFeedPostItem
   }
 } 

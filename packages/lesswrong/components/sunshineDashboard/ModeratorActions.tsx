@@ -81,7 +81,7 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
-export const ModeratorActions = ({classes, user, currentUser, refetch, comments, posts}: {
+export const ModeratorActionsInner = ({classes, user, currentUser, refetch, comments, posts}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
@@ -405,11 +405,11 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   </div>
 }
 
-const ModeratorActionsComponent = registerComponent('ModeratorActions', ModeratorActions, {styles});
+export const ModeratorActions = registerComponent('ModeratorActions', ModeratorActionsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModeratorActions: typeof ModeratorActionsComponent
+    ModeratorActions: typeof ModeratorActions
   }
 }
 

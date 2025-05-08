@@ -168,7 +168,7 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
+const MultiToCLayoutInner = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
@@ -243,11 +243,11 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   </div>
 }
 
-const MultiToCLayoutComponent = registerComponent('MultiToCLayout', MultiToCLayout, {styles});
+export const MultiToCLayout = registerComponent('MultiToCLayout', MultiToCLayoutInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    MultiToCLayout: typeof MultiToCLayoutComponent
+    MultiToCLayout: typeof MultiToCLayout
   }
 }
 

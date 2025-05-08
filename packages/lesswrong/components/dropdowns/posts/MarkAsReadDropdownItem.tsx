@@ -5,7 +5,7 @@ import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useNamedMutation } from "../../../lib/crud/withMutation";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 
-const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
+const MarkAsReadDropdownItemInner = ({post}: {post: PostsBase}) => {
   const {postsRead, setPostRead} = useItemsRead();
   const {mutate: markAsReadOrUnread} = useNamedMutation<{
     postId: string, isRead: boolean,
@@ -34,13 +34,13 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const MarkAsReadDropdownItemComponent = registerComponent(
+export const MarkAsReadDropdownItem = registerComponent(
   "MarkAsReadDropdownItem",
-  MarkAsReadDropdownItem,
+  MarkAsReadDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    MarkAsReadDropdownItem: typeof MarkAsReadDropdownItemComponent
+    MarkAsReadDropdownItem: typeof MarkAsReadDropdownItem
   }
 }

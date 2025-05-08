@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectedCommentsList = ({classes}: {
+export const RejectedCommentsListInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
@@ -69,11 +69,11 @@ export const RejectedCommentsList = ({classes}: {
   </div>;
 }
 
-const RejectedCommentsListComponent = registerComponent('RejectedCommentsList', RejectedCommentsList, {styles});
+export const RejectedCommentsList = registerComponent('RejectedCommentsList', RejectedCommentsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RejectedCommentsList: typeof RejectedCommentsListComponent
+    RejectedCommentsList: typeof RejectedCommentsList
   }
 }
 

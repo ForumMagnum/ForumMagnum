@@ -4,7 +4,7 @@ import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 
 
-const VoteOnComment = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
+const VoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
   return <Components.OverallVoteAxis
     document={document}
@@ -15,10 +15,10 @@ const VoteOnComment = ({document, hideKarma=false, collectionName, votingSystem}
 }
 
 
-const VoteOnCommentComponent = registerComponent('VoteOnComment', VoteOnComment);
+export const VoteOnComment = registerComponent('VoteOnComment', VoteOnCommentInner);
 
 declare global {
   interface ComponentTypes {
-    VoteOnComment: typeof VoteOnCommentComponent
+    VoteOnComment: typeof VoteOnComment
   }
 }

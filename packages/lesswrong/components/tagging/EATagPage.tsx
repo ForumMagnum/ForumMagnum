@@ -188,7 +188,7 @@ const PostsListHeading: FC<{
   );
 }
 
-const EATagPage = ({classes}: {
+const EATagPageInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const {
@@ -478,10 +478,10 @@ const EATagPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const EATagPageComponent = registerComponent("EATagPage", EATagPage, {styles});
+export const EATagPage = registerComponent("EATagPage", EATagPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EATagPage: typeof EATagPageComponent
+    EATagPage: typeof EATagPage
   }
 }

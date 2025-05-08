@@ -122,7 +122,7 @@ const UserPaymentInfoForm = ({
   );
 };
 
-export const EditPaymentInfoPage = () => {
+export const EditPaymentInfoPageInner = () => {
   const { SectionTitle, Error404, ContentStyles } = Components
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
@@ -146,11 +146,11 @@ export const EditPaymentInfoPage = () => {
   </ContentStyles>;
 }
 
-const EditPaymentInfoPageComponent = registerComponent('EditPaymentInfoPage', EditPaymentInfoPage);
+export const EditPaymentInfoPage = registerComponent('EditPaymentInfoPage', EditPaymentInfoPageInner);
 
 declare global {
   interface ComponentTypes {
-    EditPaymentInfoPage: typeof EditPaymentInfoPageComponent
+    EditPaymentInfoPage: typeof EditPaymentInfoPage
   }
 }
 

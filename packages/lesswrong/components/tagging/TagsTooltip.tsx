@@ -188,7 +188,7 @@ const RedLinkTooltip = ({ tag, slug }: {
   );
 };
 
-const TagsTooltip = ({
+const TagsTooltipInner = ({
   tagRel,
   hash,
   previewPostCount = 6,
@@ -269,10 +269,10 @@ const TagsTooltip = ({
   );
 }
 
-const TagsTooltipComponent = registerComponent("TagsTooltip", TagsTooltip);
+export const TagsTooltip = registerComponent("TagsTooltip", TagsTooltipInner);
 
 declare global {
   interface ComponentTypes {
-    TagsTooltip: typeof TagsTooltipComponent
+    TagsTooltip: typeof TagsTooltip
   }
 }

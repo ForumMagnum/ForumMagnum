@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommentDiscussionIcon = ({comment, small = false, classes}: {
+const CommentDiscussionIconInner = ({comment, small = false, classes}: {
   comment: CommentsList,
   small?: boolean,
   classes: ClassesType<typeof styles>,
@@ -35,13 +35,13 @@ const CommentDiscussionIcon = ({comment, small = false, classes}: {
   )
 }
 
-const CommentDiscussionIconComponent = registerComponent(
-  'CommentDiscussionIcon', CommentDiscussionIcon, {styles}
+export const CommentDiscussionIcon = registerComponent(
+  'CommentDiscussionIcon', CommentDiscussionIconInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    CommentDiscussionIcon: typeof CommentDiscussionIconComponent,
+    CommentDiscussionIcon: typeof CommentDiscussionIcon,
   }
 }
 

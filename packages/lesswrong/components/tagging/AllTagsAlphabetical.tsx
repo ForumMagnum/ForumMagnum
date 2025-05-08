@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AllTagsAlphabetical = ({classes}: {
+const AllTagsAlphabeticalInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = useMulti({
@@ -64,10 +64,10 @@ const AllTagsAlphabetical = ({classes}: {
   );
 }
 
-const AllTagsAlphabeticalComponent = registerComponent("AllTagsAlphabetical", AllTagsAlphabetical, {styles});
+export const AllTagsAlphabetical = registerComponent("AllTagsAlphabetical", AllTagsAlphabeticalInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AllTagsAlphabetical: typeof AllTagsAlphabeticalComponent
+    AllTagsAlphabetical: typeof AllTagsAlphabetical
   }
 }

@@ -51,7 +51,7 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   }
 }));
 
-const UltraFeedCommentsDialog = ({
+const UltraFeedCommentsDialogInner = ({
   document,
   collectionName,
   onClose
@@ -183,12 +183,12 @@ const UltraFeedCommentsDialog = ({
   );
 };
 
-const UltraFeedCommentsDialogComponent = registerComponent("UltraFeedCommentsDialog", UltraFeedCommentsDialog);
+export const UltraFeedCommentsDialog = registerComponent("UltraFeedCommentsDialog", UltraFeedCommentsDialogInner);
 
-export default UltraFeedCommentsDialogComponent;
+
 
 declare global {
   interface ComponentTypes {
-    UltraFeedCommentsDialog: typeof UltraFeedCommentsDialogComponent
+    UltraFeedCommentsDialog: typeof UltraFeedCommentsDialog
   }
 } 

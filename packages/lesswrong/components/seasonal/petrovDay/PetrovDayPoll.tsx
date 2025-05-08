@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 
-export const PetrovDayPoll = () => {
+export const PetrovDayPollInner = () => {
   const { SingleColumnSection, Error404, ContentStyles } = Components
   const currentUser = useCurrentUser()
   if (!currentUser) return <Error404/>
@@ -14,10 +14,10 @@ export const PetrovDayPoll = () => {
   </SingleColumnSection>;
 }
 
-const PetrovDayPollComponent = registerComponent('PetrovDayPoll', PetrovDayPoll);
+export const PetrovDayPoll = registerComponent('PetrovDayPoll', PetrovDayPollInner);
 
 declare global {
   interface ComponentTypes {
-    PetrovDayPoll: typeof PetrovDayPollComponent
+    PetrovDayPoll: typeof PetrovDayPoll
   }
 }

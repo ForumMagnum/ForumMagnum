@@ -30,7 +30,7 @@ export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >
  * Given a user (which may not be null), render the user name as a link with a
  * tooltip. This should not be used directly; use UsersName instead.
  */
-const UsersNameDisplay = ({
+const UsersNameDisplayInner = ({
   user,
   color=false,
   nofollow=false,
@@ -135,12 +135,12 @@ const UsersNameDisplay = ({
   </span>
 }
 
-const UsersNameDisplayComponent = registerComponent(
-  'UsersNameDisplay', UsersNameDisplay, {styles}
+export const UsersNameDisplay = registerComponent(
+  'UsersNameDisplay', UsersNameDisplayInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    UsersNameDisplay: typeof UsersNameDisplayComponent
+    UsersNameDisplay: typeof UsersNameDisplay
   }
 }

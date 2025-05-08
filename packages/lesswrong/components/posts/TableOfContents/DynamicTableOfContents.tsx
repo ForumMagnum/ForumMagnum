@@ -9,7 +9,7 @@ export interface DynamicTableOfContentsContextType {
 
 export const DynamicTableOfContentsContext = React.createContext<DynamicTableOfContentsContextType | null>(null);
 
-export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
+export const DynamicTableOfContentsInner = ({title, rightColumnChildren, children}: {
   title?: string,
   rightColumnChildren?: React.ReactNode,
   children: React.ReactNode
@@ -53,11 +53,11 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   </div>;
 }
 
-const DynamicTableOfContentsComponent = registerComponent('DynamicTableOfContents', DynamicTableOfContents);
+export const DynamicTableOfContents = registerComponent('DynamicTableOfContents', DynamicTableOfContentsInner);
 
 declare global {
   interface ComponentTypes {
-    DynamicTableOfContents: typeof DynamicTableOfContentsComponent
+    DynamicTableOfContents: typeof DynamicTableOfContents
   }
 }
 

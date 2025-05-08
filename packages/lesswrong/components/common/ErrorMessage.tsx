@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ErrorMessage = ({message, classes}: {
+const ErrorMessageInner = ({message, classes}: {
   message: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,10 +28,10 @@ const ErrorMessage = ({message, classes}: {
   </Components.Typography>
 }
 
-const ErrorMessageComponent = registerComponent("ErrorMessage", ErrorMessage, {styles});
+export const ErrorMessage = registerComponent("ErrorMessage", ErrorMessageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ErrorMessage: typeof ErrorMessageComponent
+    ErrorMessage: typeof ErrorMessage
   }
 }

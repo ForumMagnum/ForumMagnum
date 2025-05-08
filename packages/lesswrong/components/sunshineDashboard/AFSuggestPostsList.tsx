@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const AFSuggestPostsList = ({ classes }: {
+const AFSuggestPostsListInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
@@ -36,11 +36,11 @@ const AFSuggestPostsList = ({ classes }: {
   }
 }
 
-const AFSuggestPostsListComponent = registerComponent('AFSuggestPostsList', AFSuggestPostsList, {styles});
+export const AFSuggestPostsList = registerComponent('AFSuggestPostsList', AFSuggestPostsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AFSuggestPostsList: typeof AFSuggestPostsListComponent
+    AFSuggestPostsList: typeof AFSuggestPostsList
   }
 }
 

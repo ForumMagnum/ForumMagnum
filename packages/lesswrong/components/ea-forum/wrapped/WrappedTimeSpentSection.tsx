@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedTimeSpentSection = ({classes}: {
+const WrappedTimeSpentSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -71,14 +71,14 @@ const WrappedTimeSpentSection = ({classes}: {
   );
 }
 
-const WrappedTimeSpentSectionComponent = registerComponent(
+export const WrappedTimeSpentSection = registerComponent(
   "WrappedTimeSpentSection",
-  WrappedTimeSpentSection,
+  WrappedTimeSpentSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedTimeSpentSection: typeof WrappedTimeSpentSectionComponent
+    WrappedTimeSpentSection: typeof WrappedTimeSpentSection
   }
 }

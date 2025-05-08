@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const SequencesSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const sequence: SearchSequence = hit;
   const { LWTooltip, MetaInfo } = Components
   
@@ -80,11 +80,11 @@ const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchH
   </div>
 }
 
-const SequencesSearchHitComponent = registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
+export const SequencesSearchHit = registerComponent("SequencesSearchHit", SequencesSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesSearchHit: typeof SequencesSearchHitComponent
+    SequencesSearchHit: typeof SequencesSearchHit
   }
 }
 

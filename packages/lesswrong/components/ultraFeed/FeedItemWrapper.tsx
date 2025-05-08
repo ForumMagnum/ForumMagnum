@@ -12,7 +12,7 @@ const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   },
 }));
 
-const FeedItemWrapper = ({children}: {
+const FeedItemWrapperInner = ({children}: {
   children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
@@ -24,12 +24,12 @@ const FeedItemWrapper = ({children}: {
   );
 };
 
-const FeedItemWrapperComponent = registerComponent('FeedItemWrapper', FeedItemWrapper);
+export const FeedItemWrapper = registerComponent('FeedItemWrapper', FeedItemWrapperInner);
 
-export default FeedItemWrapperComponent;
+
 
 declare global {
   interface ComponentTypes {
-    FeedItemWrapper: typeof FeedItemWrapperComponent
+    FeedItemWrapper: typeof FeedItemWrapper
   }
 } 

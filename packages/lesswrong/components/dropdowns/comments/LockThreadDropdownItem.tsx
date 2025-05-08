@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
+const LockThreadDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
@@ -60,12 +60,12 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 }
 
-const LockThreadDropdownItemComponent = registerComponent(
-  'LockThreadDropdownItem', LockThreadDropdownItem,
+export const LockThreadDropdownItem = registerComponent(
+  'LockThreadDropdownItem', LockThreadDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    LockThreadDropdownItem: typeof LockThreadDropdownItemComponent
+    LockThreadDropdownItem: typeof LockThreadDropdownItem
   }
 }

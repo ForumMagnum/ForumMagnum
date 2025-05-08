@@ -33,7 +33,7 @@ const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   },
 }));
 
-const NewWikiTagButton = ({ hideLabel=false, className }: {
+const NewWikiTagButtonInner = ({ hideLabel=false, className }: {
   hideLabel?: boolean,
   className?: string
 }) => {
@@ -106,12 +106,12 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   );
 };
 
-const NewWikiTagButtonComponent = registerComponent("NewWikiTagButton", NewWikiTagButton);
+export const NewWikiTagButton = registerComponent("NewWikiTagButton", NewWikiTagButtonInner);
 
-export default NewWikiTagButtonComponent;
+
 
 declare global {
   interface ComponentTypes {
-    NewWikiTagButton: typeof NewWikiTagButtonComponent;
+    NewWikiTagButton: typeof NewWikiTagButton;
   }
 } 

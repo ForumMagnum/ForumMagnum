@@ -134,7 +134,7 @@ type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
 
-const LWPostsPreviewTooltip = ({
+const LWPostsPreviewTooltipInner = ({
   postsList,
   post,
   hash,
@@ -262,10 +262,10 @@ const LWPostsPreviewTooltip = ({
 
 }
 
-const LWPostsPreviewTooltipComponent = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
+export const LWPostsPreviewTooltip = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltipInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWPostsPreviewTooltip: typeof LWPostsPreviewTooltipComponent
+    LWPostsPreviewTooltip: typeof LWPostsPreviewTooltip
   }
 }

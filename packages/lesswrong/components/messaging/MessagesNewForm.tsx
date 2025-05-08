@@ -225,7 +225,7 @@ const InnerMessagesNewForm = ({
   );
 };
 
-export const MessagesNewForm = ({
+export const MessagesNewFormInner = ({
   conversationId,
   templateQueries,
   successEvent,
@@ -280,10 +280,10 @@ export const MessagesNewForm = ({
   );
 };
 
-const MessagesNewFormComponent = registerComponent("MessagesNewForm", MessagesNewForm, { styles });
+export const MessagesNewForm = registerComponent("MessagesNewForm", MessagesNewFormInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    MessagesNewForm: typeof MessagesNewFormComponent;
+    MessagesNewForm: typeof MessagesNewForm;
   }
 }

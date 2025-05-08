@@ -39,7 +39,7 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
 }))
 
-const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
+const TagPageActionsMenuButtonInner = ({tagOrLens, createLens, handleEditClick}: {
   tagOrLens: TagLens|undefined
   createLens: (() => void)|null,
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
@@ -73,7 +73,7 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
       anchorEl={anchorEl}
       className={classes.menu}
     >
-      {everOpened && <TagPageActionsMenu
+      {everOpened && <TagPageActionsMenuInner
         tagOrLens={tagOrLens}
         createLens={createLens}
         handleEditClick={handleEditClick}
@@ -82,7 +82,7 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
   </>
 }
 
-const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
+const TagPageActionsMenuInner = ({tagOrLens, handleEditClick, createLens}: {
   tagOrLens: TagLens
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
   createLens: (() => void)|null,
@@ -146,13 +146,13 @@ const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
   </AnalyticsTracker>
 }
 
-const TagPageActionsMenuButtonComponent = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButton);
-const TagPageActionsMenuComponent = registerComponent('TagPageActionsMenu', TagPageActionsMenu);
+export const TagPageActionsMenuButton = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButtonInner);
+export const TagPageActionsMenu = registerComponent('TagPageActionsMenu', TagPageActionsMenuInner);
 
 declare global {
   interface ComponentTypes {
-    TagPageActionsMenu: typeof TagPageActionsMenuComponent
-    TagPageActionsMenuButton: typeof TagPageActionsMenuButtonComponent
+    TagPageActionsMenu: typeof TagPageActionsMenu
+    TagPageActionsMenuButton: typeof TagPageActionsMenuButton
   }
 }
 

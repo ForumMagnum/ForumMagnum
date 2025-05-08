@@ -144,7 +144,7 @@ const shouldHideToggleContentsButton = () => {
   return scrollY > 0 && scrollY < scrollEnd * 0.99;
 }
 
-export const ToCColumn = ({
+export const ToCColumnInner = ({
   tableOfContents,
   header,
   rightColumnChildren,
@@ -228,10 +228,10 @@ export const ToCColumn = ({
   );
 }
 
-const ToCColumnComponent = registerComponent("ToCColumn", ToCColumn, {styles});
+export const ToCColumn = registerComponent("ToCColumn", ToCColumnInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ToCColumn: typeof ToCColumnComponent
+    ToCColumn: typeof ToCColumn
   }
 }

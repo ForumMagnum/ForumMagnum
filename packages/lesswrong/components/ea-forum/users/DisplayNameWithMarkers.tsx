@@ -25,7 +25,7 @@ const MARKERS: Marker[] = [
  * Wrap certain special characters with a tooltip explaining them. Currently only allows one tooltip, preferring
  * the one closest to the end of their name.
  */
-const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
+const DisplayNameWithMarkersInner = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
   const markerIndices = MARKERS.map(marker => name.lastIndexOf(marker.text)).filter(i => i !== -1);
@@ -58,13 +58,13 @@ const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: Clas
   );
 };
 
-const DisplayNameWithMarkersComponent = registerComponent("DisplayNameWithMarkers", DisplayNameWithMarkers, {
+export const DisplayNameWithMarkers = registerComponent("DisplayNameWithMarkers", DisplayNameWithMarkersInner, {
   styles,
   areEqual: "auto",
 });
 
 declare global {
   interface ComponentTypes {
-    DisplayNameWithMarkers: typeof DisplayNameWithMarkersComponent;
+    DisplayNameWithMarkers: typeof DisplayNameWithMarkers;
   }
 }

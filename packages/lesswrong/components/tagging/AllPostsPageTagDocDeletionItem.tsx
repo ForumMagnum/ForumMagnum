@@ -59,7 +59,7 @@ const DocumentTitle = ({tag, documentDeletion}: {
   return <>{titleText}</>;
 }
 
-export const AllPostsPageTagDocDeletionItem = ({tag, documentDeletion}: {
+export const AllPostsPageTagDocDeletionItemInner = ({tag, documentDeletion}: {
   tag: TagHistoryFragment,
   documentDeletion: DocumentDeletion,
 }) => {
@@ -82,10 +82,10 @@ export const AllPostsPageTagDocDeletionItem = ({tag, documentDeletion}: {
   </div>;
 }
 
-const AllPostsPageTagDocDeletionItemComponent = registerComponent('AllPostsPageTagDocDeletionItem', AllPostsPageTagDocDeletionItem);
+export const AllPostsPageTagDocDeletionItem = registerComponent('AllPostsPageTagDocDeletionItem', AllPostsPageTagDocDeletionItemInner);
 
 declare global {
   interface ComponentTypes {
-    AllPostsPageTagDocDeletionItem: typeof AllPostsPageTagDocDeletionItemComponent
+    AllPostsPageTagDocDeletionItem: typeof AllPostsPageTagDocDeletionItem
   }
 }

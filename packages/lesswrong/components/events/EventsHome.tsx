@@ -161,7 +161,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EventsHome = ({classes}: {
+const EventsHomeInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -503,10 +503,10 @@ const EventsHome = ({classes}: {
   )
 }
 
-const EventsHomeComponent = registerComponent('EventsHome', EventsHome, {styles});
+export const EventsHome = registerComponent('EventsHome', EventsHomeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EventsHome: typeof EventsHomeComponent
+    EventsHome: typeof EventsHome
   }
 }

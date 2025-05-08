@@ -23,7 +23,7 @@ export const styles = (_theme: ThemeType) => ({
   },
 });
 
-const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const NewTagPageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const { SingleColumnSection, SectionTitle, NewTagInfoBox, Loading } = Components;
@@ -104,10 +104,10 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage, {styles});
+export const NewTagPage = registerComponent('NewTagPage', NewTagPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewTagPage: typeof NewTagPageComponent
+    NewTagPage: typeof NewTagPage
   }
 }

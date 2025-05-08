@@ -59,7 +59,7 @@ function splitItemsIntoColumns<T>(items: T[], itemsPerColumn: number): T[][] {
   return columns;
 }
 
-const WikiTagGroup = ({
+const WikiTagGroupInner = ({
   coreTag,
   searchTagIds,
   initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
@@ -185,12 +185,12 @@ const WikiTagGroup = ({
 };
 
 
-const WikiTagGroupComponent = registerComponent("WikiTagGroup", WikiTagGroup);
+export const WikiTagGroup = registerComponent("WikiTagGroup", WikiTagGroupInner);
 
 declare global {
   interface ComponentTypes {
-    WikiTagGroup: typeof WikiTagGroupComponent
+    WikiTagGroup: typeof WikiTagGroup
   }
 }
-export default WikiTagGroupComponent;
+
 

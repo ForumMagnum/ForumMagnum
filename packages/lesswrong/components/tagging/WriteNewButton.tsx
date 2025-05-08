@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const WriteNewButton = ({
+const WriteNewButtonInner = ({
   tag,
   isSubscribed,
   setNewShortformOpen,
@@ -141,10 +141,10 @@ const WriteNewButton = ({
   );
 }
 
-const WriteNewButtonComponent = registerComponent('WriteNewButton', WriteNewButton, {styles});
+export const WriteNewButton = registerComponent('WriteNewButton', WriteNewButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    WriteNewButton: typeof WriteNewButtonComponent
+    WriteNewButton: typeof WriteNewButton
   }
 }

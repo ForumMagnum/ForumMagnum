@@ -102,7 +102,7 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
   };
 }
 
-const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomeLatestPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
@@ -235,10 +235,10 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
+export const HomeLatestPosts = registerComponent('HomeLatestPosts', HomeLatestPostsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    HomeLatestPosts: typeof HomeLatestPostsComponent
+    HomeLatestPosts: typeof HomeLatestPosts
   }
 }

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
+const EditorTypeSelectInner = ({value, setValue, isCollaborative, classes}: {
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
   isCollaborative?: boolean,
@@ -56,10 +56,10 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   </>
 }
 
-const EditorTypeSelectComponent = registerComponent("EditorTypeSelect", EditorTypeSelect, {styles});
+export const EditorTypeSelect = registerComponent("EditorTypeSelect", EditorTypeSelectInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditorTypeSelect: typeof EditorTypeSelectComponent
+    EditorTypeSelect: typeof EditorTypeSelect
   }
 }

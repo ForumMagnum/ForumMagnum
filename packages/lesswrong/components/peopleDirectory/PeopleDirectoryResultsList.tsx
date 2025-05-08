@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryResultsList = ({classes}: {
+const PeopleDirectoryResultsListInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results, resultsLoading, columns, loadMore} = usePeopleDirectory();
@@ -121,14 +121,14 @@ const PeopleDirectoryResultsList = ({classes}: {
   );
 }
 
-const PeopleDirectoryResultsListComponent = registerComponent(
+export const PeopleDirectoryResultsList = registerComponent(
   "PeopleDirectoryResultsList",
-  PeopleDirectoryResultsList,
+  PeopleDirectoryResultsListInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryResultsList: typeof PeopleDirectoryResultsListComponent
+    PeopleDirectoryResultsList: typeof PeopleDirectoryResultsList
   }
 }

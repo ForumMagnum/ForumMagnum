@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShortformPage = ({classes}: {
+const ShortformPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
@@ -24,10 +24,10 @@ const ShortformPage = ({classes}: {
   )
 }
 
-const ShortformPageComponent = registerComponent('ShortformPage', ShortformPage, {styles});
+export const ShortformPage = registerComponent('ShortformPage', ShortformPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ShortformPage: typeof ShortformPageComponent
+    ShortformPage: typeof ShortformPage
   }
 }

@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
  * Section that displays a list of the core topics that the user has read more 
  * relative to the avg
  */
-const WrappedRelativeMostReadTopicsSection = ({classes}: {
+const WrappedRelativeMostReadTopicsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {relativeMostReadCoreTopics}} = useForumWrappedContext();
@@ -105,14 +105,14 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   );
 }
 
-const WrappedRelativeMostReadTopicsSectionComponent = registerComponent(
+export const WrappedRelativeMostReadTopicsSection = registerComponent(
   "WrappedRelativeMostReadTopicsSection",
-  WrappedRelativeMostReadTopicsSection,
+  WrappedRelativeMostReadTopicsSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedRelativeMostReadTopicsSection: typeof WrappedRelativeMostReadTopicsSectionComponent
+    WrappedRelativeMostReadTopicsSection: typeof WrappedRelativeMostReadTopicsSection
   }
 }

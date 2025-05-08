@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PostReadCheckbox = ({classes, post, width=12}: {
+export const PostReadCheckboxInner = ({classes, post, width=12}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   width?: number
@@ -66,11 +66,11 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
   }
 }
 
-const PostReadCheckboxComponent = registerComponent('PostReadCheckbox', PostReadCheckbox, {styles});
+export const PostReadCheckbox = registerComponent('PostReadCheckbox', PostReadCheckboxInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostReadCheckbox: typeof PostReadCheckboxComponent
+    PostReadCheckbox: typeof PostReadCheckbox
   }
 }
 

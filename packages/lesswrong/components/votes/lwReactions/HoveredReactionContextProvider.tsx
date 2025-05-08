@@ -43,7 +43,7 @@ function hoveredReactionsReducer(hoveredReactions: HoveredReaction[], change: Ho
   }
 }
 
-export const HoveredReactionContextProvider = ({voteProps, children}: {
+export const HoveredReactionContextProviderInner = ({voteProps, children}: {
   voteProps: VotingProps<VoteableTypeClient>
   children: React.ReactNode,
 }) => {
@@ -58,11 +58,11 @@ export const HoveredReactionContextProvider = ({voteProps, children}: {
   </HoveredReactionListContext.Provider>
 }
 
-const HoveredReactionContextProviderComponent = registerComponent('HoveredReactionContextProvider', HoveredReactionContextProvider);
+export const HoveredReactionContextProvider = registerComponent('HoveredReactionContextProvider', HoveredReactionContextProviderInner);
 
 declare global {
   interface ComponentTypes {
-    HoveredReactionContextProvider: typeof HoveredReactionContextProviderComponent
+    HoveredReactionContextProvider: typeof HoveredReactionContextProvider
   }
 }
 

@@ -199,7 +199,7 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
   }} />
 };
 
-const PostsHighlight = ({post, ...rest}: {
+const PostsHighlightInner = ({post, ...rest}: {
   post: PostsList,
   maxLengthWords: number,
   forceSeeMore?: boolean,
@@ -209,10 +209,10 @@ const PostsHighlight = ({post, ...rest}: {
   ? <ForeignPostsHighlight post={post} {...rest} />
   : <LocalPostsHighlight post={post} {...rest} />;
 
-const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});
+export const PostsHighlight = registerComponent('PostsHighlight', PostsHighlightInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsHighlight: typeof PostsHighlightComponent
+    PostsHighlight: typeof PostsHighlight
   }
 }

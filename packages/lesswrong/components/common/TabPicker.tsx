@@ -178,7 +178,7 @@ export interface TabRecord {
 /**
  * A horizontal bar of clickable tabs as alternative to a dropdown
  */
-const TabPicker = <T extends TabRecord[]>(
+const TabPickerInner = <T extends TabRecord[]>(
   {
     classes,
     sortedTabs,
@@ -332,10 +332,10 @@ const TabPicker = <T extends TabRecord[]>(
   );
 }
 
-const TabPickerComponent = registerComponent('TabPicker', TabPicker, {styles})
+export const TabPicker = registerComponent('TabPicker', TabPickerInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    TabPicker: typeof TabPickerComponent
+    TabPicker: typeof TabPicker
   }
 }

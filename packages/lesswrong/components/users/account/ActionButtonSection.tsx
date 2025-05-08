@@ -20,7 +20,7 @@ type ActionButtonSectionProps = {
   classes: ClassesType<typeof styles>;
 };
 
-const ActionButtonSection = ({
+const ActionButtonSectionInner = ({
   buttonText,
   buttonProps,
   description,
@@ -40,12 +40,12 @@ const ActionButtonSection = ({
   );
 };
 
-const ActionButtonSectionComponent = registerComponent('ActionButtonSection', ActionButtonSection, {styles});
+export const ActionButtonSection = registerComponent('ActionButtonSection', ActionButtonSectionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ActionButtonSection: typeof ActionButtonSectionComponent
+    ActionButtonSection: typeof ActionButtonSection
   }
 }
 
-export default ActionButtonSectionComponent;
+

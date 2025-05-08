@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 
-const CurrentOpenThreadPage = () => {
+const CurrentOpenThreadPageInner = () => {
   const {PermanentRedirect, SingleColumnSection, Loading} = Components;
   
   const {results, loading} = useMulti({
@@ -27,10 +27,10 @@ const CurrentOpenThreadPage = () => {
   return <PermanentRedirect status={302} url={postGetPageUrl(post)} />
 }
 
-const CurrentOpenThreadPageComponent = registerComponent('CurrentOpenThreadPage', CurrentOpenThreadPage);
+export const CurrentOpenThreadPage = registerComponent('CurrentOpenThreadPage', CurrentOpenThreadPageInner);
 
 declare global {
   interface ComponentTypes {
-    CurrentOpenThreadPage: typeof CurrentOpenThreadPageComponent
+    CurrentOpenThreadPage: typeof CurrentOpenThreadPage
   }
 }

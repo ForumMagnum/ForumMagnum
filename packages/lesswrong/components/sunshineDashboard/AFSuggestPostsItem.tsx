@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const AFSuggestPostsItem = ({post, classes}: {
+const AFSuggestPostsItemInner = ({post, classes}: {
   post: SuggestAlignmentPost,
   classes: ClassesType<typeof styles>
 }) => {
@@ -134,13 +134,13 @@ const AFSuggestPostsItem = ({post, classes}: {
   );
 }
 
-const AFSuggestPostsItemComponent = registerComponent('AFSuggestPostsItem', AFSuggestPostsItem, {
+export const AFSuggestPostsItem = registerComponent('AFSuggestPostsItem', AFSuggestPostsItemInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    AFSuggestPostsItem: typeof AFSuggestPostsItemComponent
+    AFSuggestPostsItem: typeof AFSuggestPostsItem
   }
 }

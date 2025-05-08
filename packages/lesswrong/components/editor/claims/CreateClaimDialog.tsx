@@ -26,7 +26,7 @@ const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   },
 }))
 
-const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateClaimDialogProps & {
+const CreateClaimDialogInner = ({initialTitle, onSubmit, onCancel, onClose}: CreateClaimDialogProps & {
   onClose: () => void,
 }) => {
   const classes = useStyles(styles);
@@ -80,12 +80,12 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
   </LWDialog>
 }
 
-const CreateClaimDialogComponent = registerComponent('CreateClaimDialog', CreateClaimDialog);
-export default CreateClaimDialogComponent;
+export const CreateClaimDialog = registerComponent('CreateClaimDialog', CreateClaimDialogInner);
+
 
 declare global {
   interface ComponentTypes {
-    CreateClaimDialog: typeof CreateClaimDialogComponent
+    CreateClaimDialog: typeof CreateClaimDialog
   }
 }
 

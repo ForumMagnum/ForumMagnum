@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps, classes}: {
+const ReactionHoverTopRowInner = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps, classes}: {
   reactionName: EmojiReactName
   userReactions: UserReactInfo[],
   showNonInlineVoteButtons: boolean,
@@ -79,11 +79,11 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
   </div>
 }
 
-const ReactionHoverTopRowComponent = registerComponent('ReactionHoverTopRow', ReactionHoverTopRow, {styles});
+export const ReactionHoverTopRow = registerComponent('ReactionHoverTopRow', ReactionHoverTopRowInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReactionHoverTopRow: typeof ReactionHoverTopRowComponent
+    ReactionHoverTopRow: typeof ReactionHoverTopRow
   }
 }
 

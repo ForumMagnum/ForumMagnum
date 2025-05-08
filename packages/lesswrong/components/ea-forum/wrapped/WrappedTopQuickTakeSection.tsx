@@ -22,7 +22,7 @@ const styles = (_theme: ThemeType) => ({
  * Section that displays the user's highest-karma quick take (shortform) plus
  * other data on their quick takes
  */
-const WrappedTopQuickTakeSection = ({classes}: {
+const WrappedTopQuickTakeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
@@ -47,14 +47,14 @@ const WrappedTopQuickTakeSection = ({classes}: {
   );
 }
 
-const WrappedTopQuickTakeSectionComponent = registerComponent(
+export const WrappedTopQuickTakeSection = registerComponent(
   "WrappedTopQuickTakeSection",
-  WrappedTopQuickTakeSection,
+  WrappedTopQuickTakeSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedTopQuickTakeSection: typeof WrappedTopQuickTakeSectionComponent
+    WrappedTopQuickTakeSection: typeof WrappedTopQuickTakeSection
   }
 }

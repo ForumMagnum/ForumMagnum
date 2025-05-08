@@ -75,7 +75,7 @@ const featureInputToFeatures = (
   return result;
 }
 
-const RecommendationsSamplePage = ({classes}: {
+const RecommendationsSamplePageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -244,14 +244,14 @@ const RecommendationsSamplePage = ({classes}: {
   );
 }
 
-const RecommendationsSamplePageComponent = registerComponent(
+export const RecommendationsSamplePage = registerComponent(
   "RecommendationsSamplePage",
-  RecommendationsSamplePage,
+  RecommendationsSamplePageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    RecommendationsSamplePage: typeof RecommendationsSamplePageComponent,
+    RecommendationsSamplePage: typeof RecommendationsSamplePage,
   }
 }

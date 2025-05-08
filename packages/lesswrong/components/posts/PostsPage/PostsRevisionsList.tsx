@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsRevisionsList = ({post, classes}: {
+const PostsRevisionsListInner = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -39,12 +39,12 @@ const PostsRevisionsList = ({post, classes}: {
   </React.Fragment>
 }
 
-const PostsRevisionsListComponent = registerComponent(
-  'PostsRevisionsList', PostsRevisionsList, {styles}
+export const PostsRevisionsList = registerComponent(
+  'PostsRevisionsList', PostsRevisionsListInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    PostsRevisionsList: typeof PostsRevisionsListComponent
+    PostsRevisionsList: typeof PostsRevisionsList
   }
 }

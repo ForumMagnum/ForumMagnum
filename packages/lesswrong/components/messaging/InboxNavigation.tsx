@@ -11,7 +11,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({
+const InboxNavigationInner = ({
   terms,
   currentUser,
   title=preferredHeadingCase("Your Conversations"),
@@ -77,10 +77,10 @@ const InboxNavigation = ({
   )
 }
 
-const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation);
+export const InboxNavigation = registerComponent('InboxNavigation', InboxNavigationInner);
 
 declare global {
   interface ComponentTypes {
-    InboxNavigation: typeof InboxNavigationComponent
+    InboxNavigation: typeof InboxNavigation
   }
 }

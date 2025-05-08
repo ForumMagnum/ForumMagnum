@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ReportUserButton = ({user, classes}: {
+const ReportUserButtonInner = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -58,10 +58,10 @@ const ReportUserButton = ({user, classes}: {
   }
 }
 
-const ReportUserButtonComponent = registerComponent('ReportUserButton', ReportUserButton, {styles});
+export const ReportUserButton = registerComponent('ReportUserButton', ReportUserButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReportUserButton: typeof ReportUserButtonComponent
+    ReportUserButton: typeof ReportUserButton
   }
 }

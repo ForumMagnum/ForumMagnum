@@ -5,7 +5,7 @@ import { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType) => ({})
 
-const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
+const PostsDialogItemNewCommentsListInner = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   post: PostsList & { debate: true },
@@ -63,14 +63,14 @@ const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-const PostsDialogItemNewCommentsListComponent = registerComponent(
-  'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsList, {
+export const PostsDialogItemNewCommentsList = registerComponent(
+  'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsListInner, {
     styles,
   }
 );
 
 declare global {
   interface ComponentTypes {
-    PostsDialogItemNewCommentsList: typeof PostsDialogItemNewCommentsListComponent
+    PostsDialogItemNewCommentsList: typeof PostsDialogItemNewCommentsList
   }
 }

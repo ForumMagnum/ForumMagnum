@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 }); 
 
-const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
+const CoreTagsChecklistInner = ({onTagSelected, classes, existingTagIds=[] }: {
   onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>) => void,
   classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
@@ -53,10 +53,10 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
 }
 
 
-const CoreTagsChecklistComponent = registerComponent("CoreTagsChecklist", CoreTagsChecklist, {styles});
+export const CoreTagsChecklist = registerComponent("CoreTagsChecklist", CoreTagsChecklistInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CoreTagsChecklist: typeof CoreTagsChecklistComponent
+    CoreTagsChecklist: typeof CoreTagsChecklist
   }
 }

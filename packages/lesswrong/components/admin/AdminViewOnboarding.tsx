@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
  * This page lets admins on the EA Forum view the onboarding flow,
  * so that we don't have to keep making new users to test it.
  */
-const AdminViewOnboarding = ({classes}: {
+const AdminViewOnboardingInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -39,12 +39,12 @@ const AdminViewOnboarding = ({classes}: {
   </SingleColumnSection>
 }
 
-const AdminViewOnboardingComponent = registerComponent(
-  "AdminViewOnboarding", AdminViewOnboarding, {styles}
+export const AdminViewOnboarding = registerComponent(
+  "AdminViewOnboarding", AdminViewOnboardingInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    AdminViewOnboarding: typeof AdminViewOnboardingComponent
+    AdminViewOnboarding: typeof AdminViewOnboarding
   }
 }

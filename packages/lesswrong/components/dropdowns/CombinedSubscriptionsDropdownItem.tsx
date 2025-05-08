@@ -16,7 +16,7 @@ const styles = (_theme: ThemeType) => ({
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const CombinedSubscriptionsDropdownItem = ({notifyMeItems, classes}: {
+export const CombinedSubscriptionsDropdownItemInner = ({notifyMeItems, classes}: {
   notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemPropsExternal>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -63,14 +63,14 @@ export const CombinedSubscriptionsDropdownItem = ({notifyMeItems, classes}: {
     );
 }
 
-const CombinedSubscriptionsDropdownItemComponent = registerComponent(
+export const CombinedSubscriptionsDropdownItem = registerComponent(
   "CombinedSubscriptionsDropdownItem",
-  CombinedSubscriptionsDropdownItem,
+  CombinedSubscriptionsDropdownItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    CombinedSubscriptionsDropdownItem: typeof CombinedSubscriptionsDropdownItemComponent
+    CombinedSubscriptionsDropdownItem: typeof CombinedSubscriptionsDropdownItem
   }
 }

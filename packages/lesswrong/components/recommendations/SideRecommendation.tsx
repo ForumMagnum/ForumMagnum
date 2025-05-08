@@ -47,7 +47,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SideRecommendation = ({post, classes}: {
+const SideRecommendationInner = ({post, classes}: {
   post: PostsListWithVotesAndSequence,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -80,14 +80,14 @@ const SideRecommendation = ({post, classes}: {
   );
 }
 
-const SideRecommendationComponent = registerComponent(
+export const SideRecommendation = registerComponent(
   "SideRecommendation",
-  SideRecommendation,
+  SideRecommendationInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    SideRecommendation: typeof SideRecommendationComponent
+    SideRecommendation: typeof SideRecommendation
   }
 }

@@ -27,7 +27,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesNavigationLink = ({ post, direction, classes }: {
+const SequencesNavigationLinkInner = ({ post, direction, classes }: {
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
   classes: ClassesType<typeof styles>,
@@ -60,11 +60,11 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   }
 };
 
-const SequencesNavigationLinkComponent = registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
+export const SequencesNavigationLink = registerComponent('SequencesNavigationLink', SequencesNavigationLinkInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesNavigationLink: typeof SequencesNavigationLinkComponent
+    SequencesNavigationLink: typeof SequencesNavigationLink
   }
 }
 

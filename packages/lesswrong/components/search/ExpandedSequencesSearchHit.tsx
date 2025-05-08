@@ -69,7 +69,7 @@ const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
 const greyBackground = requireCssVar("palette", "grey", 0);
 
-const ExpandedSequencesSearchHit = ({hit, classes}: {
+const ExpandedSequencesSearchHitInner = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -105,11 +105,11 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedSequencesSearchHitComponent = registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHit, {styles});
+export const ExpandedSequencesSearchHit = registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ExpandedSequencesSearchHit: typeof ExpandedSequencesSearchHitComponent
+    ExpandedSequencesSearchHit: typeof ExpandedSequencesSearchHit
   }
 }
 

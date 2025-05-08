@@ -281,7 +281,7 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
   return rowCount;
 }
 
-export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
+export const GlossaryEditFormInner = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
   document: EditablePost,
   showTitle?: boolean,
@@ -585,11 +585,11 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>;
 }
 
-const GlossaryEditFormComponent = registerComponent('GlossaryEditForm', GlossaryEditForm, {styles});
+export const GlossaryEditForm = registerComponent('GlossaryEditForm', GlossaryEditFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    GlossaryEditForm: typeof GlossaryEditFormComponent
+    GlossaryEditForm: typeof GlossaryEditForm
   }
 }
 

@@ -54,7 +54,7 @@ export const getDisplayConfig = ({
   };
 }
 
-export const NotificationsPageNotification = ({
+export const NotificationsPageNotificationInner = ({
   notification,
   hideCommentPreviews,
   classes,
@@ -195,14 +195,14 @@ export const NotificationsPageNotification = ({
   );
 }
 
-const NotificationsPageNotificationComponent = registerComponent(
+export const NotificationsPageNotification = registerComponent(
   "NotificationsPageNotification",
-  NotificationsPageNotification,
+  NotificationsPageNotificationInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageNotification: typeof NotificationsPageNotificationComponent
+    NotificationsPageNotification: typeof NotificationsPageNotification
   }
 }

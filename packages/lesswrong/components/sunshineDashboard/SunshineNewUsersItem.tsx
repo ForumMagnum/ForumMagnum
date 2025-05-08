@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
-const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersItemInner = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   refetch: () => void,
@@ -65,7 +65,7 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   )
 }
 
-const SunshineNewUsersItemComponent = registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, {
+export const SunshineNewUsersItem = registerComponent('SunshineNewUsersItem', SunshineNewUsersItemInner, {
   styles,
   hocs: [
     withErrorBoundary,
@@ -74,7 +74,7 @@ const SunshineNewUsersItemComponent = registerComponent('SunshineNewUsersItem', 
 
 declare global {
   interface ComponentTypes {
-    SunshineNewUsersItem: typeof SunshineNewUsersItemComponent
+    SunshineNewUsersItem: typeof SunshineNewUsersItem
   }
 }
 

@@ -74,7 +74,7 @@ const styles = (theme: ThemeType) => ({
 
 });
 
-const TagProgressBar = ({ classes }: {
+const TagProgressBarInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
 
@@ -153,11 +153,11 @@ const TagProgressBar = ({ classes }: {
   </div>
 }
 
-const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
+export const TagProgressBar = registerComponent("TagProgressBar", TagProgressBarInner, { styles, hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {
-    TagProgressBar: typeof TagProgressBarComponent
+    TagProgressBar: typeof TagProgressBar
   }
 }
 

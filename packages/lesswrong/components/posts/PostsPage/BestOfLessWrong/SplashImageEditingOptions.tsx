@@ -32,7 +32,7 @@ const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => (
   },
 }));
 
-export const SplashImageEditingOptions = ({ post }: {
+export const SplashImageEditingOptionsInner = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
 }) => {
   const { Loading } = Components;
@@ -57,10 +57,10 @@ export const SplashImageEditingOptions = ({ post }: {
   );
 };
 
-const SplashImageEditingOptionsComponent = registerComponent('SplashImageEditingOptions', SplashImageEditingOptions);
+export const SplashImageEditingOptions = registerComponent('SplashImageEditingOptions', SplashImageEditingOptionsInner);
 
 declare global {
   interface ComponentTypes {
-    SplashImageEditingOptions: typeof SplashImageEditingOptionsComponent
+    SplashImageEditingOptions: typeof SplashImageEditingOptions
   }
 }

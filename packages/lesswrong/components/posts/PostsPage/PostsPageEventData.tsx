@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsPageEventData = ({classes, post}: {
+const PostsPageEventDataInner = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
@@ -235,10 +235,10 @@ const PostsPageEventData = ({classes, post}: {
   </Components.Typography>
 }
 
-const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {styles});
+export const PostsPageEventData = registerComponent('PostsPageEventData', PostsPageEventDataInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsPageEventData: typeof PostsPageEventDataComponent
+    PostsPageEventData: typeof PostsPageEventData
   }
 }

@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LastEditedInWarning = ({initialType, currentType, defaultType, value, setValue, classes}: {
+const LastEditedInWarningInner = ({initialType, currentType, defaultType, value, setValue, classes}: {
   initialType: EditorTypeString,
   currentType: EditorTypeString,
   defaultType: EditorTypeString,
@@ -49,10 +49,10 @@ const LastEditedInWarning = ({initialType, currentType, defaultType, value, setV
   </div>
 }
 
-export const LastEditedInWarningComponent = registerComponent('LastEditedInWarning', LastEditedInWarning, {styles});
+export const LastEditedInWarning = registerComponent('LastEditedInWarning', LastEditedInWarningInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LastEditedInWarning: typeof LastEditedInWarningComponent
+    LastEditedInWarning: typeof LastEditedInWarning
   }
 }

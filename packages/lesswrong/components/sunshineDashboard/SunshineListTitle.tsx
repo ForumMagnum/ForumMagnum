@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListTitle = ({children, classes}: {
+const SunshineListTitleInner = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -21,11 +21,11 @@ const SunshineListTitle = ({children, classes}: {
   </Components.Typography>
 };
 
-const SunshineListTitleComponent = registerComponent('SunshineListTitle', SunshineListTitle, {styles});
+export const SunshineListTitle = registerComponent('SunshineListTitle', SunshineListTitleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineListTitle: typeof SunshineListTitleComponent
+    SunshineListTitle: typeof SunshineListTitle
   }
 }
 

@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
+const SuggestAlignmentCommentDropdownItemInner = ({ comment, post, classes }: {
   comment: CommentsList,
   post?: PostsDetails,
   classes: ClassesType<typeof styles>,
@@ -87,12 +87,12 @@ const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   );
 }
 
-const SuggestAlignmentCommentDropdownItemComponent = registerComponent(
-  'SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItem, {styles}
+export const SuggestAlignmentCommentDropdownItem = registerComponent(
+  'SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItemInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    SuggestAlignmentCommentDropdownItem: typeof SuggestAlignmentCommentDropdownItemComponent
+    SuggestAlignmentCommentDropdownItem: typeof SuggestAlignmentCommentDropdownItem
   }
 }

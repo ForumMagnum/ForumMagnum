@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SidebarActionMenu = ({children, classes}: {
+const SidebarActionMenuInner = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -24,11 +24,11 @@ const SidebarActionMenu = ({children, classes}: {
   </div>
 };
 
-const SidebarActionMenuComponent = registerComponent('SidebarActionMenu', SidebarActionMenu, {styles});
+export const SidebarActionMenu = registerComponent('SidebarActionMenu', SidebarActionMenuInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SidebarActionMenu: typeof SidebarActionMenuComponent
+    SidebarActionMenu: typeof SidebarActionMenu
   }
 }
 

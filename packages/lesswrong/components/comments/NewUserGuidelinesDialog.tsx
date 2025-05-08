@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
+const NewUserGuidelinesDialogInner = ({classes, onClose, post, user}: {
   classes: ClassesType<typeof styles>,
   onClose: () => void,
   post: PostsMinimumInfo,
@@ -81,10 +81,10 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   )
 };
 
-const NewUserGuidelinesDialogComponent = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
+export const NewUserGuidelinesDialog = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialogInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    NewUserGuidelinesDialog: typeof NewUserGuidelinesDialogComponent
+    NewUserGuidelinesDialog: typeof NewUserGuidelinesDialog
   }
 }

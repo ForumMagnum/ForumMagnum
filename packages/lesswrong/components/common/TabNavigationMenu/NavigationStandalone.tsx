@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NavigationStandalone = ({
+const NavigationStandaloneInner = ({
   sidebarHidden,
   unspacedGridLayout,
   noTopMargin,
@@ -81,12 +81,12 @@ const NavigationStandalone = ({
   </>
 }
 
-const NavigationStandaloneComponent = registerComponent(
-  'NavigationStandalone', NavigationStandalone, {styles}
+export const NavigationStandalone = registerComponent(
+  'NavigationStandalone', NavigationStandaloneInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    NavigationStandalone: typeof NavigationStandaloneComponent
+    NavigationStandalone: typeof NavigationStandalone
   }
 }

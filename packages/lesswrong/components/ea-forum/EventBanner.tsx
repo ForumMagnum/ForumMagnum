@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const EventBanner = ({ classes }: {
+const EventBannerInner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
   const { SingleColumnSection } = Components
@@ -52,12 +52,12 @@ const EventBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-const EventBannerComponent = registerComponent(
-  'EventBanner', EventBanner, {styles},
+export const EventBanner = registerComponent(
+  'EventBanner', EventBannerInner, {styles},
 )
 
 declare global {
   interface ComponentTypes {
-    EventBanner: typeof EventBannerComponent
+    EventBanner: typeof EventBanner
   }
 }

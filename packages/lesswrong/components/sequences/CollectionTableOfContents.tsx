@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CollectionTableOfContents = ({classes, collection}: {
+export const CollectionTableOfContentsInner = ({classes, collection}: {
   classes: ClassesType<typeof styles>,
   collection: CollectionsPageFragment
 }) => {
@@ -61,11 +61,11 @@ export const CollectionTableOfContents = ({classes, collection}: {
   />
 }
 
-const CollectionTableOfContentsComponent = registerComponent('CollectionTableOfContents', CollectionTableOfContents, {styles});
+export const CollectionTableOfContents = registerComponent('CollectionTableOfContents', CollectionTableOfContentsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CollectionTableOfContents: typeof CollectionTableOfContentsComponent
+    CollectionTableOfContents: typeof CollectionTableOfContents
   }
 }
 

@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedWelcomeSection = ({classes}: {
+const WrappedWelcomeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, currentUser, goToNextSection} = useForumWrappedContext();
@@ -46,14 +46,14 @@ const WrappedWelcomeSection = ({classes}: {
   );
 }
 
-const WrappedWelcomeSectionComponent = registerComponent(
+export const WrappedWelcomeSection = registerComponent(
   "WrappedWelcomeSection",
-  WrappedWelcomeSection,
+  WrappedWelcomeSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedWelcomeSection: typeof WrappedWelcomeSectionComponent
+    WrappedWelcomeSection: typeof WrappedWelcomeSection
   }
 }

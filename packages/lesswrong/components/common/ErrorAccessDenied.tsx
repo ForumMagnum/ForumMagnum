@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
  * However, for pages that are normally meant to be publicly accessible (like the post page),
  * we skip the login prompt and just display the "you don't have access" message.
  */
-const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
+const ErrorAccessDeniedInner = ({explanation, skipLoginPrompt, classes}: {
   explanation?: string,
   skipLoginPrompt?: boolean,
   classes: ClassesType<typeof styles>,
@@ -52,14 +52,14 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
   }
 }
 
-const ErrorAccessDeniedComponent = registerComponent(
+export const ErrorAccessDenied = registerComponent(
   "ErrorAccessDenied",
-  ErrorAccessDenied,
+  ErrorAccessDeniedInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ErrorAccessDenied: typeof ErrorAccessDeniedComponent
+    ErrorAccessDenied: typeof ErrorAccessDenied
   }
 }

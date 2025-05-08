@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ShortformListItem = ({comment, hideTag, classes}: {
+const ShortformListItemInner = ({comment, hideTag, classes}: {
   comment: ShortformComments,
   hideTag?: boolean,
   classes: ClassesType<typeof styles>,
@@ -191,9 +191,9 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   );
 }
 
-const ShortformListItemComponent = registerComponent(
+export const ShortformListItem = registerComponent(
   "ShortformListItem",
-  ShortformListItem, {
+  ShortformListItemInner, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {
@@ -204,6 +204,6 @@ const ShortformListItemComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    ShortformListItem: typeof ShortformListItemComponent,
+    ShortformListItem: typeof ShortformListItem,
   }
 }

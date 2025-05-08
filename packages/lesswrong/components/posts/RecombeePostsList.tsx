@@ -119,7 +119,7 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+export const RecombeePostsListInner = ({ algorithm, settings, limit = 15, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
@@ -235,10 +235,10 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   </div>;
 }
 
-const RecombeePostsListComponent = registerComponent('RecombeePostsList', RecombeePostsList, {styles});
+export const RecombeePostsList = registerComponent('RecombeePostsList', RecombeePostsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecombeePostsList: typeof RecombeePostsListComponent
+    RecombeePostsList: typeof RecombeePostsList
   }
 }

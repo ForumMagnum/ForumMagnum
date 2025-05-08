@@ -22,7 +22,7 @@ const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, categ
   return categoryReviewWinners[index];
 };
 
-export const RotatingReviewWinnerSpotlight = () => {
+export const RotatingReviewWinnerSpotlightInner = () => {
   const { SpotlightItem } = Components
   const category = "ai safety"
   const { data } = useQuery(
@@ -52,10 +52,10 @@ export const RotatingReviewWinnerSpotlight = () => {
   </AnalyticsContext>
 }
 
-const RotatingReviewWinnerSpotlightComponent = registerComponent('RotatingReviewWinnerSpotlight', RotatingReviewWinnerSpotlight);
+export const RotatingReviewWinnerSpotlight = registerComponent('RotatingReviewWinnerSpotlight', RotatingReviewWinnerSpotlightInner);
 
 declare global {
   interface ComponentTypes {
-    RotatingReviewWinnerSpotlight: typeof RotatingReviewWinnerSpotlightComponent
+    RotatingReviewWinnerSpotlight: typeof RotatingReviewWinnerSpotlight
   }
 }

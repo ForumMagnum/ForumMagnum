@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const DropdownDivider = ({className, classes}: {
+const DropdownDividerInner = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -19,14 +19,14 @@ const DropdownDivider = ({className, classes}: {
   );
 }
 
-const DropdownDividerComponent = registerComponent(
+export const DropdownDivider = registerComponent(
   "DropdownDivider",
-  DropdownDivider,
+  DropdownDividerInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    DropdownDivider: typeof DropdownDividerComponent
+    DropdownDivider: typeof DropdownDivider
   }
 }

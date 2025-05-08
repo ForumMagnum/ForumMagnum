@@ -16,7 +16,7 @@ const styles = defineStyles("TagRevisionItem", (theme: ThemeType) => ({
   }
 }));
 
-const TagRevisionItem = ({
+const TagRevisionItemInner = ({
   tag,
   collapsed=false,
   headingStyle,
@@ -82,10 +82,10 @@ const TagRevisionItem = ({
       </Components.SingleLineFeedEvent>
 }
 
-const TagRevisionItemComponent = registerComponent("TagRevisionItem", TagRevisionItem, {hocs: [withErrorBoundary]});
+export const TagRevisionItem = registerComponent("TagRevisionItem", TagRevisionItemInner, {hocs: [withErrorBoundary]});
 
 declare global {
   interface ComponentTypes {
-    TagRevisionItem: typeof TagRevisionItemComponent
+    TagRevisionItem: typeof TagRevisionItem
   }
 }

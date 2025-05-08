@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
 
 const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
 
-const PopupLanguageModelChat = ({onClose, classes}: {
+const PopupLanguageModelChatInner = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
@@ -125,10 +125,10 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   </Card>
 }
 
-const PopupLanguageModelChatComponent = registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
+export const PopupLanguageModelChat = registerComponent('PopupLanguageModelChat', PopupLanguageModelChatInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PopupLanguageModelChat: typeof PopupLanguageModelChatComponent
+    PopupLanguageModelChat: typeof PopupLanguageModelChat
   }
 }

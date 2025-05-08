@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const NewUserDMSummary = ({classes, user}: {
+export const NewUserDMSummaryInner = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
 }) => {
@@ -29,10 +29,10 @@ export const NewUserDMSummary = ({classes, user}: {
   </div>
 }
 
-const NewUserDMSummaryComponent = registerComponent('NewUserDMSummary', NewUserDMSummary, {styles});
+export const NewUserDMSummary = registerComponent('NewUserDMSummary', NewUserDMSummaryInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewUserDMSummary: typeof NewUserDMSummaryComponent
+    NewUserDMSummary: typeof NewUserDMSummary
   }
 }

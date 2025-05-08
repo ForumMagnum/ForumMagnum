@@ -87,7 +87,7 @@ export const formatStat = (value?: number): string => {
     : String(value);
 }
 
-const EAUserTooltipContent = ({user, classes}: {
+const EAUserTooltipContentInner = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -145,14 +145,14 @@ const EAUserTooltipContent = ({user, classes}: {
   );
 }
 
-const EAUserTooltipContentComponent = registerComponent(
+export const EAUserTooltipContent = registerComponent(
   "EAUserTooltipContent",
-  EAUserTooltipContent,
+  EAUserTooltipContentInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAUserTooltipContent: typeof EAUserTooltipContentComponent
+    EAUserTooltipContent: typeof EAUserTooltipContent
   }
 }

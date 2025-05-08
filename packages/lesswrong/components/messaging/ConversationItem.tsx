@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
+const ConversationItemInner = ({conversation, updateConversation, currentUser, classes, expanded}: {
   conversation: ConversationsList,
   updateConversation: any,
   currentUser: UsersCurrent,
@@ -84,11 +84,11 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   )
 }
 
-const ConversationItemComponent = registerComponent('ConversationItem', ConversationItem, {styles});
+export const ConversationItem = registerComponent('ConversationItem', ConversationItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ConversationItem: typeof ConversationItemComponent
+    ConversationItem: typeof ConversationItem
   }
 }
 

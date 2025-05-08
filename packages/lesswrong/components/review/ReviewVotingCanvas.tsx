@@ -280,7 +280,7 @@ const Heart: FC<{
   );
 }
 
-const ReviewVotingCanvas = ({
+const ReviewVotingCanvasInner = ({
   classes,
 }: {
   classes: ClassesType<typeof styles>,
@@ -489,14 +489,14 @@ const ReviewVotingCanvas = ({
   );
 }
 
-const ReviewVotingCanvasComponent = registerComponent(
+export const ReviewVotingCanvas = registerComponent(
   "ReviewVotingCanvas",
-  ReviewVotingCanvas,
+  ReviewVotingCanvasInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingCanvas: typeof ReviewVotingCanvasComponent
+    ReviewVotingCanvas: typeof ReviewVotingCanvas
   }
 }

@@ -319,7 +319,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FundraisingThermometer: React.FC<
+const FundraisingThermometerInner: React.FC<
   FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
   // First, second, and third goal amounts
@@ -503,16 +503,16 @@ const FundraisingThermometer: React.FC<
   );
 };
 
-const FundraisingThermometerComponent = registerComponent(
+export const FundraisingThermometer = registerComponent(
   'FundraisingThermometer',
-  FundraisingThermometer,
+  FundraisingThermometerInner,
   { styles }
 );
 
-export default FundraisingThermometerComponent;
+
 
 declare global {
   interface ComponentTypes {
-    FundraisingThermometer: typeof FundraisingThermometerComponent;
+    FundraisingThermometer: typeof FundraisingThermometer;
   }
 }

@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const UsersSearchInput = ({ inputProps, classes }: {
+const UsersSearchInputInner = ({ inputProps, classes }: {
   inputProps: InputBaseComponentProps;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -28,11 +28,11 @@ const UsersSearchInput = ({ inputProps, classes }: {
   />
 };
 
-const UsersSearchInputComponent = registerComponent("UsersSearchInput", UsersSearchInput, {styles});
+export const UsersSearchInput = registerComponent("UsersSearchInput", UsersSearchInputInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersSearchInput: typeof UsersSearchInputComponent
+    UsersSearchInput: typeof UsersSearchInput
   }
 }
 

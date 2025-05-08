@@ -379,7 +379,7 @@ const postEditorToolbarConfig = {
   },
 };
 
-const CKPostEditor = ({
+const CKPostEditorInner = ({
   data,
   collectionName,
   fieldName,
@@ -736,9 +736,9 @@ const CKPostEditor = ({
   </div>
 }
 
-const CKPostEditorComponent = registerComponent("CKPostEditor", CKPostEditor, {styles});
+export const CKPostEditor = registerComponent("CKPostEditor", CKPostEditorInner, {styles});
 declare global {
   interface ComponentTypes {
-    CKPostEditor: typeof CKPostEditorComponent
+    CKPostEditor: typeof CKPostEditor
   }
 }

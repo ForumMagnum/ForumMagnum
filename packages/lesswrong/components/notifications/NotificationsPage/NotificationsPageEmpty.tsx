@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NotificationsPageEmpty = ({tabName, classes}: {
+const NotificationsPageEmptyInner = ({tabName, classes}: {
   tabName: NotificationsPageTabName,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -64,14 +64,14 @@ const NotificationsPageEmpty = ({tabName, classes}: {
   }
 }
 
-const NotificationsPageEmptyComponent = registerComponent(
+export const NotificationsPageEmpty = registerComponent(
   "NotificationsPageEmpty",
-  NotificationsPageEmpty,
+  NotificationsPageEmptyInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageEmpty: typeof NotificationsPageEmptyComponent,
+    NotificationsPageEmpty: typeof NotificationsPageEmpty,
   }
 }

@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AprilFools2022 = ({classes}: {
+export const AprilFools2022Inner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
@@ -136,7 +136,7 @@ export const AprilFools2022 = ({classes}: {
   </SingleColumnSection>;
 }
 
-const AprilFools2022Component = registerComponent('AprilFools2022', AprilFools2022, {styles});
+const AprilFools2022Component = registerComponent('AprilFools2022', AprilFools2022Inner, {styles});
 
 declare global {
   interface ComponentTypes {

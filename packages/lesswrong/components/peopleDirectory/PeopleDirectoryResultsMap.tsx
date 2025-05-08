@@ -8,7 +8,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryResultsMap = ({classes}: {
+const PeopleDirectoryResultsMapInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = usePeopleDirectory();
@@ -22,14 +22,14 @@ const PeopleDirectoryResultsMap = ({classes}: {
   );
 }
 
-const PeopleDirectoryResultsMapComponent = registerComponent(
+export const PeopleDirectoryResultsMap = registerComponent(
   "PeopleDirectoryResultsMap",
-  PeopleDirectoryResultsMap,
+  PeopleDirectoryResultsMapInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryResultsMap: typeof PeopleDirectoryResultsMapComponent
+    PeopleDirectoryResultsMap: typeof PeopleDirectoryResultsMap
   }
 }

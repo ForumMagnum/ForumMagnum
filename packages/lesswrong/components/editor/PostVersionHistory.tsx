@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostVersionHistoryButton = ({post, postId, classes}: {
+const PostVersionHistoryButtonInner = ({post, postId, classes}: {
   post: PostsBase,
   postId: string,
   classes: ClassesType<typeof styles>
@@ -129,7 +129,7 @@ const LIVE_REVISION_TOOLTIP = "This version is currently live"
 const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
-const PostVersionHistory = ({post, postId, onClose, classes}: {
+const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
   post: PostsBase,
   postId: string,
   onClose: () => void,
@@ -295,12 +295,12 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   );
 }
 
-const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
-const PostVersionHistoryComponent = registerComponent("PostVersionHistory", PostVersionHistory, {styles});
+const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
+export const PostVersionHistory = registerComponent("PostVersionHistory", PostVersionHistoryInner, {styles});
 
 declare global {
   interface ComponentTypes {
     PostVersionHistoryButton: typeof PostVersionHistoryEAButton
-    PostVersionHistory: typeof PostVersionHistoryComponent
+    PostVersionHistory: typeof PostVersionHistory
   }
 }

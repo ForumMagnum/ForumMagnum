@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
+const OnboardingFlowInner = ({stages, viewAsAdmin, classes}: {
   stages: Record<string, ReactNode>,
   // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
   viewAsAdmin?: boolean,
@@ -44,14 +44,14 @@ const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
   )
 }
 
-const OnboardingFlowComponent = registerComponent(
+export const OnboardingFlow = registerComponent(
   'OnboardingFlow',
-  OnboardingFlow,
+  OnboardingFlowInner,
   {styles},
 )
 
 declare global {
   interface ComponentTypes {
-    OnboardingFlow: typeof OnboardingFlowComponent
+    OnboardingFlow: typeof OnboardingFlow
   }
 }

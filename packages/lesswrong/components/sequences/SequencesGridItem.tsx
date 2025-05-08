@@ -123,7 +123,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
+const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
   classes: ClassesType<typeof styles>,
@@ -172,11 +172,11 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   </div>
 }
 
-const SequencesGridItemComponent = registerComponent('SequencesGridItem', SequencesGridItem, {styles});
+export const SequencesGridItem = registerComponent('SequencesGridItem', SequencesGridItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesGridItem: typeof SequencesGridItemComponent
+    SequencesGridItem: typeof SequencesGridItem
   }
 }
 

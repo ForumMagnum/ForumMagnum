@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CollectionsCardContainer = ({ classes, children }: {
+const CollectionsCardContainerInner = ({ classes, children }: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
@@ -24,11 +24,11 @@ const CollectionsCardContainer = ({ classes, children }: {
   </div>
 }
 
-const CollectionsCardContainerComponent = registerComponent(
-  "CollectionsCardContainer", CollectionsCardContainer, { styles });
+export const CollectionsCardContainer = registerComponent(
+  "CollectionsCardContainer", CollectionsCardContainerInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    CollectionsCardContainer: typeof CollectionsCardContainerComponent
+    CollectionsCardContainer: typeof CollectionsCardContainer
   }
 }

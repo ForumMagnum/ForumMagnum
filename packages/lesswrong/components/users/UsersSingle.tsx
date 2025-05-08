@@ -45,7 +45,7 @@ export const getUserStructuredData = (user: UsersProfile) => {
 };
 
 
-const UsersSingle = () => {
+const UsersSingleInner = () => {
   const { params, pathname } = useLocation();
   
   const slug = slugify(params.slug);
@@ -62,10 +62,10 @@ const UsersSingle = () => {
   }
 };
 
-const UsersSingleComponent = registerComponent('UsersSingle', UsersSingle);
+export const UsersSingle = registerComponent('UsersSingle', UsersSingleInner);
 
 declare global {
   interface ComponentTypes {
-    UsersSingle: typeof UsersSingleComponent
+    UsersSingle: typeof UsersSingle
   }
 }

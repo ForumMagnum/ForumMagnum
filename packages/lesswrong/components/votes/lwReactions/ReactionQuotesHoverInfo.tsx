@@ -6,7 +6,7 @@ import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
-import { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner } from '../../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,11 +61,11 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}: {
+const ReactionQuotesHoverInfoInner = ({react, quote, voteProps, commentBodyRef, classes}: {
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
   classes: ClassesType<typeof styles>
 }) => {
   const { ReactOrAntireactVote, UsersWhoReacted } = Components;
@@ -113,11 +113,11 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
 }
 
 
-const ReactionQuotesHoverInfoComponent = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});
+export const ReactionQuotesHoverInfo = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReactionQuotesHoverInfo: typeof ReactionQuotesHoverInfoComponent
+    ReactionQuotesHoverInfo: typeof ReactionQuotesHoverInfo
   }
 }
 

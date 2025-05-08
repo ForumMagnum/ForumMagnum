@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 
 const styles = (theme: ThemeType) => ({
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const CommentBody = ({
+const CommentBodyInner = ({
   comment,
   commentBodyRef,
   collapsed,
@@ -48,7 +48,7 @@ const CommentBody = ({
   classes,
 }: {
   comment: CommentsList,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
@@ -108,11 +108,11 @@ const CommentBody = ({
   }
 }
 
-const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {styles});
+export const CommentBody = registerComponent('CommentBody', CommentBodyInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentBody: typeof CommentBodyComponent,
+    CommentBody: typeof CommentBody,
   }
 }
 

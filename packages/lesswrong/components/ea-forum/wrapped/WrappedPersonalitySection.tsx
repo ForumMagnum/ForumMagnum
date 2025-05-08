@@ -92,7 +92,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedPersonalitySection = ({classes}: {
+const WrappedPersonalitySectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -250,14 +250,14 @@ const WrappedPersonalitySection = ({classes}: {
   );
 }
 
-const WrappedPersonalitySectionComponent = registerComponent(
+export const WrappedPersonalitySection = registerComponent(
   "WrappedPersonalitySection",
-  WrappedPersonalitySection,
+  WrappedPersonalitySectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedPersonalitySection: typeof WrappedPersonalitySectionComponent
+    WrappedPersonalitySection: typeof WrappedPersonalitySection
   }
 }

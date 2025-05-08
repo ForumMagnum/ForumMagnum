@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
+const QuickTakesCollapsedListItemInner = ({quickTake, setExpanded, classes}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -226,14 +226,14 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   );
 }
 
-const QuickTakesCollapsedListItemComponent = registerComponent(
+export const QuickTakesCollapsedListItem = registerComponent(
   "QuickTakesCollapsedListItem",
-  QuickTakesCollapsedListItem,
+  QuickTakesCollapsedListItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    QuickTakesCollapsedListItem: typeof QuickTakesCollapsedListItemComponent
+    QuickTakesCollapsedListItem: typeof QuickTakesCollapsedListItem
   }
 }

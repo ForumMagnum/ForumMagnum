@@ -137,7 +137,7 @@ interface DraftJSEditorProps {
   className: string
 }
 
-class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
+class DraftJSEditorInner extends Component<DraftJSEditorProps,{}> {
   plugins: any
   _ref: any
   
@@ -191,11 +191,11 @@ const blockRenderMap = Map({
   }
 });
 
-const DraftJSEditorComponent = registerComponent("DraftJSEditor", DraftJSEditor, {
+export const DraftJSEditor = registerComponent("DraftJSEditor", DraftJSEditorInner, {
   hocs: [withTheme()]
 });
 declare global {
   interface ComponentTypes {
-    DraftJSEditor: typeof DraftJSEditorComponent
+    DraftJSEditor: typeof DraftJSEditor
   }
 }

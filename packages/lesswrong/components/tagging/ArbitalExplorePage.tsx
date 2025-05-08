@@ -37,7 +37,7 @@ const styles = defineStyles("ArbitalExplorePage", (theme: ThemeType) => ({
   },
 }));
 
-const ArbitalExplorePage = () => {
+const ArbitalExplorePageInner = () => {
   const classes = useStyles(styles);
   const { WikiTagNestedList, Loading, InlineSelect } = Components;
   const [defaultCollapseAfterLevel, setDefaultCollapseAfterLevel] = useState<number>(0);
@@ -137,12 +137,12 @@ const ArbitalExplorePage = () => {
   // );
 };
 
-const ArbitalExplorePageComponent = registerComponent('ArbitalExplorePage', ArbitalExplorePage);
+export const ArbitalExplorePage = registerComponent('ArbitalExplorePage', ArbitalExplorePageInner);
 
-export default ArbitalExplorePageComponent;
+
 
 declare global {
   interface ComponentTypes {
-    ArbitalExplorePage: typeof ArbitalExplorePageComponent;
+    ArbitalExplorePage: typeof ArbitalExplorePage;
   }
 }

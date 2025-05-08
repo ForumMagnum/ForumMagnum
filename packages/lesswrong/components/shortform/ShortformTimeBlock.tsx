@@ -37,7 +37,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
+const ShortformTimeBlockInner  = ({reportEmpty, before, after, terms, classes}: {
   reportEmpty: () => void,
   before: string
   after: string
@@ -91,11 +91,11 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   </div>
 }
 
-const ShortformTimeBlockComponent = registerComponent('ShortformTimeBlock', ShortformTimeBlock, {styles});
+export const ShortformTimeBlock = registerComponent('ShortformTimeBlock', ShortformTimeBlockInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ShortformTimeBlock: typeof ShortformTimeBlockComponent
+    ShortformTimeBlock: typeof ShortformTimeBlock
   }
 }
 

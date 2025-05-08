@@ -25,7 +25,7 @@ export interface VoteArrowIconProps extends BaseVoteArrowIconProps {
   solidArrow?: boolean,
 }
 
-const VoteArrowIcon = (props: VoteArrowIconProps) => {
+const VoteArrowIconInner = (props: VoteArrowIconProps) => {
   const { solidArrow } = props;
 
   const { VoteArrowIconSolid, VoteArrowIconHollow } = Components;
@@ -37,10 +37,10 @@ const VoteArrowIcon = (props: VoteArrowIconProps) => {
   }
 };
 
-const VoteArrowIconComponent = registerComponent('VoteArrowIcon', VoteArrowIcon);
+export const VoteArrowIcon = registerComponent('VoteArrowIcon', VoteArrowIconInner);
 
 declare global {
   interface ComponentTypes {
-    VoteArrowIcon: typeof VoteArrowIconComponent;
+    VoteArrowIcon: typeof VoteArrowIcon;
   }
 }

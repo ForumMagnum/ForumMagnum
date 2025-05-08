@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import type { Placement as PopperPlacementType } from "popper.js"
 
-export const SequencesTooltip = ({
+export const SequencesTooltipInner = ({
   sequence,
   showAuthor = true,
   allowOverflow,
@@ -37,13 +37,13 @@ export const SequencesTooltip = ({
   );
 }
 
-const SequencesTooltipComponent = registerComponent(
+export const SequencesTooltip = registerComponent(
   "SequencesTooltip",
-  SequencesTooltip,
+  SequencesTooltipInner,
 );
 
 declare global {
   interface ComponentTypes {
-    SequencesTooltip: typeof SequencesTooltipComponent
+    SequencesTooltip: typeof SequencesTooltip
   }
 }

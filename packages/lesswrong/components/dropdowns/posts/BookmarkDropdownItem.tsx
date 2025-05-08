@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useBookmarkPost } from "../../hooks/useBookmarkPost";
 
-const BookmarkDropdownItem = ({post}: {post: PostsBase}) => {
+const BookmarkDropdownItemInner = ({post}: {post: PostsBase}) => {
   const {icon, labelText, toggleBookmark} = useBookmarkPost(post);
   const {DropdownItem} = Components;
   return (
@@ -14,13 +14,13 @@ const BookmarkDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const BookmarkDropdownItemComponent = registerComponent(
+export const BookmarkDropdownItem = registerComponent(
   "BookmarkDropdownItem",
-  BookmarkDropdownItem,
+  BookmarkDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    BookmarkDropdownItem: typeof BookmarkDropdownItemComponent
+    BookmarkDropdownItem: typeof BookmarkDropdownItem
   }
 }

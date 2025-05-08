@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagDiscussionPage = ({classes}: {
+const TagDiscussionPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation();
@@ -42,11 +42,11 @@ const TagDiscussionPage = ({classes}: {
   );
 }
 
-const TagDiscussionPageComponent = registerComponent("TagDiscussionPage", TagDiscussionPage, {styles});
+export const TagDiscussionPage = registerComponent("TagDiscussionPage", TagDiscussionPageInner, {styles});
 
 
 declare global {
   interface ComponentTypes {
-    TagDiscussionPage: typeof TagDiscussionPageComponent
+    TagDiscussionPage: typeof TagDiscussionPage
   }
 }

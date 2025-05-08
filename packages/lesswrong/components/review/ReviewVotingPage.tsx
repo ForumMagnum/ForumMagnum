@@ -96,7 +96,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   return result;
 }
 
-const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: {
+const ReviewVotingPageInner = ({classes, reviewYear, expandedPost, setExpandedPost}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   expandedPost: PostsReviewVotingList|null,
@@ -442,10 +442,10 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   );
 }
 
-const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
+export const ReviewVotingPage = registerComponent('ReviewVotingPage', ReviewVotingPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingPage: typeof ReviewVotingPageComponent
+    ReviewVotingPage: typeof ReviewVotingPage
   }
 }

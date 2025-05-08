@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
+const PostsEditBotTipsInner = ({handleDismiss, postId, className, classes}: {
   handleDismiss: () => void,
   postId?: string,
   className?: string,
@@ -132,10 +132,10 @@ const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
   </aside>
 }
 
-const PostsEditBotTipsComponent = registerComponent("PostsEditBotTips", PostsEditBotTips, {styles, stylePriority: -1});
+export const PostsEditBotTips = registerComponent("PostsEditBotTips", PostsEditBotTipsInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    PostsEditBotTips: typeof PostsEditBotTipsComponent
+    PostsEditBotTips: typeof PostsEditBotTips
   }
 }

@@ -18,7 +18,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
+const PostActionsInner = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   includeBookmark?: boolean,
@@ -79,10 +79,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   );
 }
 
-const PostActionsComponent = registerComponent('PostActions', PostActions, {styles});
+export const PostActions = registerComponent('PostActions', PostActionsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostActions: typeof PostActionsComponent
+    PostActions: typeof PostActions
   }
 }

@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const SpotlightsPage = ({classes}: {
+export const SpotlightsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
@@ -119,11 +119,11 @@ export const SpotlightsPage = ({classes}: {
   </ToCColumn>
 }
 
-const SpotlightsPageComponent = registerComponent('SpotlightsPage', SpotlightsPage, {styles});
+export const SpotlightsPage = registerComponent('SpotlightsPage', SpotlightsPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SpotlightsPage: typeof SpotlightsPageComponent
+    SpotlightsPage: typeof SpotlightsPage
   }
 }
 

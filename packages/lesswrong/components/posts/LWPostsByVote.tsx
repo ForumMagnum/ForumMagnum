@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+const LWPostsByVoteInner = ({classes, postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   classes: ClassesType<typeof styles>,
   postIds: Array<string>,
   year: number | '≤2020',
@@ -64,10 +64,10 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   </ErrorBoundary>
 }
 
-const LWPostsByVoteComponent = registerComponent("LWPostsByVote", LWPostsByVote, {styles});
+export const LWPostsByVote = registerComponent("LWPostsByVote", LWPostsByVoteInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWPostsByVote: typeof LWPostsByVoteComponent
+    LWPostsByVote: typeof LWPostsByVote
   }
 }

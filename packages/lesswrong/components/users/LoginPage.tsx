@@ -13,7 +13,7 @@ const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
   },
 }));
 
-const LoginPage = () => {
+const LoginPageInner = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
@@ -37,10 +37,10 @@ const LoginPage = () => {
   }
 }
 
-const LoginPageComponent = registerComponent('LoginPage', LoginPage);
+export const LoginPage = registerComponent('LoginPage', LoginPageInner);
 
 declare global {
   interface ComponentTypes {
-    LoginPage: typeof LoginPageComponent
+    LoginPage: typeof LoginPage
   }
 }

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
+const SortButtonInner = ({classes, className, onClick, showIcon=true, label=""}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
@@ -40,10 +40,10 @@ const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
   return <SwapVert className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SortButtonComponent = registerComponent('SortButton', SortButton, {styles});
+export const SortButton = registerComponent('SortButton', SortButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SortButton: typeof SortButtonComponent
+    SortButton: typeof SortButton
   }
 }

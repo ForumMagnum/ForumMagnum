@@ -18,7 +18,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedTopCommentSection = ({classes}: {
+const WrappedTopCommentSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
@@ -43,14 +43,14 @@ const WrappedTopCommentSection = ({classes}: {
   );
 }
 
-const WrappedTopCommentSectionComponent = registerComponent(
+export const WrappedTopCommentSection = registerComponent(
   "WrappedTopCommentSection",
-  WrappedTopCommentSection,
+  WrappedTopCommentSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedTopCommentSection: typeof WrappedTopCommentSectionComponent
+    WrappedTopCommentSection: typeof WrappedTopCommentSection
   }
 }

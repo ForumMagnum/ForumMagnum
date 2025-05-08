@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CommentsListMeta = ({classes, children}: {
+const CommentsListMetaInner = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
@@ -24,10 +24,10 @@ const CommentsListMeta = ({classes, children}: {
   </div>
 }
 
-const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});
+export const CommentsListMeta = registerComponent('CommentsListMeta', CommentsListMetaInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentsListMeta: typeof CommentsListMetaComponent,
+    CommentsListMeta: typeof CommentsListMeta,
   }
 }

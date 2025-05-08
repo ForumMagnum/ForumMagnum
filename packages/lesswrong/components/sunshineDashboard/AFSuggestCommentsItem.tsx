@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AFSuggestCommentsItem = ({comment, classes}: {
+const AFSuggestCommentsItemInner = ({comment, classes}: {
   comment: SuggestAlignmentComment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -102,14 +102,14 @@ const AFSuggestCommentsItem = ({comment, classes}: {
   );
 }
 
-const AFSuggestCommentsItemComponent = registerComponent('AFSuggestCommentsItem', AFSuggestCommentsItem, {
+export const AFSuggestCommentsItem = registerComponent('AFSuggestCommentsItem', AFSuggestCommentsItemInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    AFSuggestCommentsItem: typeof AFSuggestCommentsItemComponent
+    AFSuggestCommentsItem: typeof AFSuggestCommentsItem
   }
 }
 

@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CrosspostLoginPage = ({classes}: {
+const CrosspostLoginPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [connectCrossposter, loading] = useMutation(gql`
@@ -101,10 +101,10 @@ const CrosspostLoginPage = ({classes}: {
   );
 }
 
-const CrosspostLoginPageComponent = registerComponent("CrosspostLoginPage", CrosspostLoginPage, {styles});
+export const CrosspostLoginPage = registerComponent("CrosspostLoginPage", CrosspostLoginPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CrosspostLoginPage: typeof CrosspostLoginPageComponent,
+    CrosspostLoginPage: typeof CrosspostLoginPage,
   }
 }

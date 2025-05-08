@@ -8,7 +8,7 @@ import { useApolloClient } from '@apollo/client/react/hooks';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const MoveToAnswersDropdownItem = ({comment, post}: {
+const MoveToAnswersDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
   post?: PostsBase,
 }) => {
@@ -69,12 +69,12 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
   );
 }
 
-const MoveToAnswersDropdownItemComponent = registerComponent(
-  'MoveToAnswersDropdownItem', MoveToAnswersDropdownItem,
+export const MoveToAnswersDropdownItem = registerComponent(
+  'MoveToAnswersDropdownItem', MoveToAnswersDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    MoveToAnswersDropdownItem: typeof MoveToAnswersDropdownItemComponent
+    MoveToAnswersDropdownItem: typeof MoveToAnswersDropdownItem
   }
 }

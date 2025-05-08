@@ -23,7 +23,7 @@ interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType<typeof styles>,
 }
 
-const EAEmojisVoteOnComment = ({
+const EAEmojisVoteOnCommentInner = ({
   document,
   hideKarma = false,
   collectionName,
@@ -55,14 +55,14 @@ const EAEmojisVoteOnComment = ({
   );
 }
 
-const EAEmojisVoteOnCommentComponent = registerComponent(
+export const EAEmojisVoteOnComment = registerComponent(
   "EAEmojisVoteOnComment",
-  EAEmojisVoteOnComment,
+  EAEmojisVoteOnCommentInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAEmojisVoteOnComment: typeof EAEmojisVoteOnCommentComponent
+    EAEmojisVoteOnComment: typeof EAEmojisVoteOnComment
   }
 }

@@ -7,7 +7,7 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 
-const WelcomePostItem = () => {
+const WelcomePostItemInner = () => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const welcomePostId = aboutPostIdSetting.get();
@@ -39,10 +39,10 @@ const WelcomePostItem = () => {
   return <Components.PostsItem post={post} />
 }
 
-const WelcomePostItemComponent = registerComponent("WelcomePostItem", WelcomePostItem, {});
+export const WelcomePostItem = registerComponent("WelcomePostItem", WelcomePostItemInner, {});
 
 declare global {
   interface ComponentTypes {
-    WelcomePostItem: typeof WelcomePostItemComponent
+    WelcomePostItem: typeof WelcomePostItem
   }
 }

@@ -3,7 +3,7 @@ import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-const PostsSingle = () => {
+const PostsSingleInner = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
@@ -15,11 +15,11 @@ const PostsSingle = () => {
   return <Components.PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
-const PostsSingleComponent = registerComponent('PostsSingle', PostsSingle);
+export const PostsSingle = registerComponent('PostsSingle', PostsSingleInner);
 
 declare global {
   interface ComponentTypes {
-    PostsSingle: typeof PostsSingleComponent
+    PostsSingle: typeof PostsSingle
   }
 }
 

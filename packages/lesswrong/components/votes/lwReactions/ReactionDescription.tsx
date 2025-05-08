@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { NamesAttachedReactionType } from '../../../lib/voting/reactions';
 
-const ReactionDescription = ({reaction, contentType="comment", className}: {
+const ReactionDescriptionInner = ({reaction, contentType="comment", className}: {
   reaction: NamesAttachedReactionType,
   contentType?: string
   className?: string,
@@ -18,11 +18,11 @@ const ReactionDescription = ({reaction, contentType="comment", className}: {
   }
 }
 
-const ReactionDescriptionComponent = registerComponent('ReactionDescription', ReactionDescription);
+export const ReactionDescription = registerComponent('ReactionDescription', ReactionDescriptionInner);
 
 declare global {
   interface ComponentTypes {
-    ReactionDescription: typeof ReactionDescriptionComponent
+    ReactionDescription: typeof ReactionDescription
   }
 }
 

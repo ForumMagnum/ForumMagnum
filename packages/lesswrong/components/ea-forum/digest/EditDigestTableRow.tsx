@@ -159,7 +159,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 }
 
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
+const EditDigestTableRowInner = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
   postStatus: Partial<DigestPost>,
   statusIconsDisabled: boolean,
@@ -287,10 +287,10 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   </tr>
 }
 
-const EditDigestTableRowComponent = registerComponent('EditDigestTableRow', EditDigestTableRow, {styles});
+export const EditDigestTableRow = registerComponent('EditDigestTableRow', EditDigestTableRowInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditDigestTableRow: typeof EditDigestTableRowComponent
+    EditDigestTableRow: typeof EditDigestTableRow
   }
 }

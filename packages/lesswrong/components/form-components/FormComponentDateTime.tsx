@@ -247,7 +247,7 @@ const styles = (theme: ThemeType) => ({
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const DatePicker = ({label, name, value, below, onChange, classes}: {
+const DatePickerInner = ({label, name, value, below, onChange, classes}: {
   label?: string,
   name?: string,
   value?: Date,
@@ -329,11 +329,11 @@ export const FormComponentDatePicker = ({ field, label, name, below }: {
   </>);
 }
 
-const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});
+export const DatePicker = registerComponent("DatePicker", DatePickerInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    DatePicker: typeof DatePickerComponent
+    DatePicker: typeof DatePicker
   }
 }
 

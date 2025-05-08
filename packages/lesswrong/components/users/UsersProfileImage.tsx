@@ -109,7 +109,7 @@ export type UserWithProfileImage = {
   profileImageId?: string | null,
 }
 
-const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
+const UsersProfileImageInner = ({user, size, fallback="initials", className, classes}: {
   user?: UserWithProfileImage|null,
   size: number,
   fallback?: ProfileImageFallback,
@@ -164,14 +164,14 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   return null;
 }
 
-const UsersProfileImageComponent = registerComponent(
+export const UsersProfileImage = registerComponent(
   "UsersProfileImage",
-  UsersProfileImage,
+  UsersProfileImageInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    UsersProfileImage: typeof UsersProfileImageComponent
+    UsersProfileImage: typeof UsersProfileImage
   }
 }

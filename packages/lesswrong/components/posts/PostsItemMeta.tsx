@@ -30,7 +30,7 @@ export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
-const PostsItemMeta = ({post, read, hideTags, classes}: {
+const PostsItemMetaInner = ({post, read, hideTags, classes}: {
   post: PostsList,
   read?: boolean,
   hideTags?: boolean,
@@ -96,10 +96,10 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
     </span>
 };
 
-const PostsItemMetaComponent = registerComponent('PostsItemMeta', PostsItemMeta, {styles});
+export const PostsItemMeta = registerComponent('PostsItemMeta', PostsItemMetaInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemMeta: typeof PostsItemMetaComponent
+    PostsItemMeta: typeof PostsItemMeta
   }
 }

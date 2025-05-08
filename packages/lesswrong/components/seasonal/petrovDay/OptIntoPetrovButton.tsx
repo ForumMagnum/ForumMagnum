@@ -136,7 +136,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const OptIntoPetrovButton = ({classes }: {
+const OptIntoPetrovButtonInner = ({classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
@@ -263,11 +263,11 @@ const OptIntoPetrovButton = ({classes }: {
       </div>
 }
 
-const OptIntoPetrovButtonComponent = registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
+export const OptIntoPetrovButton = registerComponent('OptIntoPetrovButton', OptIntoPetrovButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    OptIntoPetrovButton: typeof OptIntoPetrovButtonComponent
+    OptIntoPetrovButton: typeof OptIntoPetrovButton
   }
 }
 

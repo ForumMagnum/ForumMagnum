@@ -9,7 +9,7 @@ import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 
 
-const DeleteCommentDropdownItem = ({comment, post, tag}: {
+const DeleteCommentDropdownItemInner = ({comment, post, tag}: {
   comment: CommentsList,
   post?: PostsBase,
   tag?: TagBasicInfo,
@@ -79,12 +79,12 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   }
 }
 
-const DeleteCommentDropdownItemComponent = registerComponent(
-  'DeleteCommentDropdownItem', DeleteCommentDropdownItem,
+export const DeleteCommentDropdownItem = registerComponent(
+  'DeleteCommentDropdownItem', DeleteCommentDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    DeleteCommentDropdownItem: typeof DeleteCommentDropdownItemComponent
+    DeleteCommentDropdownItem: typeof DeleteCommentDropdownItem
   }
 }

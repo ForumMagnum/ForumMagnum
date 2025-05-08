@@ -134,7 +134,7 @@ export const MessageContextProvider = ({children}: {
   </MessageFunctionsContext.Provider>
 }
 
-const FlashMessages = () => {
+const FlashMessagesInner = () => {
   const messagesState = useContext(MessagesStateContext);
   const messagesFunctions = useContext(MessageFunctionsContext);
   const clear = messagesFunctions?.clear;
@@ -182,10 +182,10 @@ const FlashMessages = () => {
   );
 }
 
-const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages);
+export const FlashMessages = registerComponent('FlashMessages', FlashMessagesInner);
 
 declare global {
   interface ComponentTypes {
-    FlashMessages: typeof FlashMessagesComponent
+    FlashMessages: typeof FlashMessages
   }
 }

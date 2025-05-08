@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays some recommended posts to the user
  */
-const WrappedRecommendationsSection = ({classes}: {
+const WrappedRecommendationsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {recommendations} = useForumWrappedContext();
@@ -67,14 +67,14 @@ const WrappedRecommendationsSection = ({classes}: {
   );
 }
 
-const WrappedRecommendationsSectionComponent = registerComponent(
+export const WrappedRecommendationsSection = registerComponent(
   "WrappedRecommendationsSection",
-  WrappedRecommendationsSection,
+  WrappedRecommendationsSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedRecommendationsSection: typeof WrappedRecommendationsSectionComponent
+    WrappedRecommendationsSection: typeof WrappedRecommendationsSection
   }
 }

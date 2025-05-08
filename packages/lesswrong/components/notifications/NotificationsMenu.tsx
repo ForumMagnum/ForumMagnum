@@ -69,7 +69,7 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   },
 }));
 
-const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
+const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
@@ -166,13 +166,13 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   )
 };
 
-const NotificationsMenuComponent = registerComponent('NotificationsMenu', NotificationsMenu, {
+export const NotificationsMenu = registerComponent('NotificationsMenu', NotificationsMenuInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    NotificationsMenu: typeof NotificationsMenuComponent
+    NotificationsMenu: typeof NotificationsMenu
   }
 }
 

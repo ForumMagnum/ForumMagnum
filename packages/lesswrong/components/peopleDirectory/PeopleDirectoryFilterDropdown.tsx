@@ -78,7 +78,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryFilterDropdown = ({
+const PeopleDirectoryFilterDropdownInner = ({
   title,
   active,
   primary,
@@ -167,14 +167,14 @@ const PeopleDirectoryFilterDropdown = ({
   );
 }
 
-const PeopleDirectoryFilterDropdownComponent = registerComponent(
+export const PeopleDirectoryFilterDropdown = registerComponent(
   "PeopleDirectoryFilterDropdown",
-  PeopleDirectoryFilterDropdown,
+  PeopleDirectoryFilterDropdownInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryFilterDropdown: typeof PeopleDirectoryFilterDropdownComponent
+    PeopleDirectoryFilterDropdown: typeof PeopleDirectoryFilterDropdown
   }
 }

@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
+const ImageUpload2Inner = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
   value: string | null | undefined,
   updateValue: (value: string) => void,
@@ -112,7 +112,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   );
 };
 
-const ImageUpload2Component = registerComponent("ImageUpload2", ImageUpload2, {styles});
+const ImageUpload2Component = registerComponent("ImageUpload2", ImageUpload2Inner, {styles});
 
 declare global {
   interface ComponentTypes {

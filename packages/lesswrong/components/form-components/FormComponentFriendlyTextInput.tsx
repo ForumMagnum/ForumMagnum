@@ -71,14 +71,3 @@ export const FormComponentFriendlyTextInput = ({
     </div>
   );
 }
-
-const FormComponentFriendlyTextInputComponent = registerComponent(
-  "FormComponentFriendlyTextInput",
-  FormComponentFriendlyTextInput,
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentFriendlyTextInput: typeof FormComponentFriendlyTextInputComponent
-  }
-}

@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+const SunshineNewTagsListInner = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const { results, totalCount, loadMoreProps } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
     collectionName: "Tags",
@@ -40,10 +40,10 @@ const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>})
   }
 }
 
-const SunshineNewTagsListComponent = registerComponent('SunshineNewTagsList', SunshineNewTagsList, {styles});
+export const SunshineNewTagsList = registerComponent('SunshineNewTagsList', SunshineNewTagsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineNewTagsList: typeof SunshineNewTagsListComponent
+    SunshineNewTagsList: typeof SunshineNewTagsList
   }
 }

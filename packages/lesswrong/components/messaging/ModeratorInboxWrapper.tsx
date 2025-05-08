@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const ModeratorInboxWrapper = () => {
+const ModeratorInboxWrapperInner = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
@@ -35,10 +35,10 @@ const ModeratorInboxWrapper = () => {
   );
 }
 
-const ModeratorInboxWrapperComponent = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);
+export const ModeratorInboxWrapper = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    ModeratorInboxWrapper: typeof ModeratorInboxWrapperComponent
+    ModeratorInboxWrapper: typeof ModeratorInboxWrapper
   }
 }

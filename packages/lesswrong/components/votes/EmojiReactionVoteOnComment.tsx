@@ -152,7 +152,7 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
   </span>
 }
 
-const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
+const EmojiReactionVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem)
   
   const { OverallVoteAxis } = Components
@@ -168,11 +168,11 @@ const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, 
 }
 
 
-const EmojiReactionVoteOnCommentComponent = registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnComment, {styles});
+export const EmojiReactionVoteOnComment = registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnCommentInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EmojiReactionVoteOnComment: typeof EmojiReactionVoteOnCommentComponent
+    EmojiReactionVoteOnComment: typeof EmojiReactionVoteOnComment
   }
 }
 

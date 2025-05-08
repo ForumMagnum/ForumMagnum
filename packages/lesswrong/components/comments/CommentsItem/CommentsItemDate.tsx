@@ -68,7 +68,7 @@ type CommentsItemDateProps = UseCommentLinkProps & {
   className?: string,
 };
 
-const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDateInner = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, LWTooltip } = Components
   const classes = useStyles(styles);
   
@@ -131,11 +131,11 @@ const CommentDateTooltip = ({comment}: {
   }
 }
 
-const CommentsItemDateComponent = registerComponent('CommentsItemDate', CommentsItemDate);
+export const CommentsItemDate = registerComponent('CommentsItemDate', CommentsItemDateInner);
 
 declare global {
   interface ComponentTypes {
-    CommentsItemDate: typeof CommentsItemDateComponent,
+    CommentsItemDate: typeof CommentsItemDate,
   }
 }
 

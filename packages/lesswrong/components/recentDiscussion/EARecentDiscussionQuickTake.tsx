@@ -76,7 +76,7 @@ const splitByTopLevelComment = (nodes: NestedComments[]): NestedComments[][] => 
   return Object.values(result);
 }
 
-const EARecentDiscussionQuickTake = ({
+const EARecentDiscussionQuickTakeInner = ({
   post,
   comments,
   refetch,
@@ -158,14 +158,14 @@ const EARecentDiscussionQuickTake = ({
   );
 }
 
-const EARecentDiscussionQuickTakeComponent = registerComponent(
+export const EARecentDiscussionQuickTake = registerComponent(
   "EARecentDiscussionQuickTake",
-  EARecentDiscussionQuickTake,
+  EARecentDiscussionQuickTakeInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EARecentDiscussionQuickTake: typeof EARecentDiscussionQuickTakeComponent,
+    EARecentDiscussionQuickTake: typeof EARecentDiscussionQuickTake,
   }
 }

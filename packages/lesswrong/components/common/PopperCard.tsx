@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import type { Placement as PopperPlacementType } from "popper.js"
 
-const PopperCard = ({
+const PopperCardInner = ({
   children,
   placement="bottom-start",
   open,
@@ -29,10 +29,10 @@ const PopperCard = ({
   </Components.LWPopper>
 }
 
-const PopperCardComponent = registerComponent("PopperCard", PopperCard, {stylePriority: -1});
+export const PopperCard = registerComponent("PopperCard", PopperCardInner, {stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    PopperCard: typeof PopperCardComponent
+    PopperCard: typeof PopperCard
   }
 }

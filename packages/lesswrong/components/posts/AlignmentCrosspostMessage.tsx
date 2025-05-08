@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // This is deprecated, but we're keeping it around for now until we're sure we're not using it
-const AlignmentCrosspostMessage = ({post, classes}: {
+const AlignmentCrosspostMessageInner = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -25,10 +25,10 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   }
 }
 
-const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
+export const AlignmentCrosspostMessage = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AlignmentCrosspostMessage: typeof AlignmentCrosspostMessageComponent
+    AlignmentCrosspostMessage: typeof AlignmentCrosspostMessage
   }
 }

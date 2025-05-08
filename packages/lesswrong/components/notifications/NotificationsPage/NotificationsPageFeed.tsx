@@ -76,7 +76,7 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
   realtime: "Karma changes are shown in realtime",
 };
 
-export const NotificationsPageFeed = ({karmaChanges, classes}: {
+export const NotificationsPageFeedInner = ({karmaChanges, classes}: {
   karmaChanges?: KarmaChanges,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -182,14 +182,14 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
   );
 }
 
-const NotificationsPageFeedComponent = registerComponent(
+export const NotificationsPageFeed = registerComponent(
   "NotificationsPageFeed",
-  NotificationsPageFeed,
+  NotificationsPageFeedInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageFeed: typeof NotificationsPageFeedComponent
+    NotificationsPageFeed: typeof NotificationsPageFeed
   }
 }

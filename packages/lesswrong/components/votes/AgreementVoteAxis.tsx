@@ -31,7 +31,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   },
 }));
 
-const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScoreClassName, }: {
+const AgreementVoteAxisInner = ({ document, hideKarma=false, voteProps, agreementScoreClassName, }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -124,12 +124,12 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
 }
 
 
-const AgreementVoteAxisComponent = registerComponent('AgreementVoteAxis', AgreementVoteAxis);
+export const AgreementVoteAxis = registerComponent('AgreementVoteAxis', AgreementVoteAxisInner);
 
-export default AgreementVoteAxisComponent;
+
 
 declare global {
   interface ComponentTypes {
-    AgreementVoteAxis: typeof AgreementVoteAxisComponent
+    AgreementVoteAxis: typeof AgreementVoteAxis
   }
 }

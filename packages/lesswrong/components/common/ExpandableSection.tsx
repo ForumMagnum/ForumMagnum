@@ -50,7 +50,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   children: React.ReactNode,
 }
 
-const ExpandableSection = ({
+const ExpandableSectionInner = ({
   pageSectionContext,
   expanded,
   toggleExpanded,
@@ -105,14 +105,14 @@ const ExpandableSection = ({
   );
 }
 
-const ExpandableSectionComponent = registerComponent(
+export const ExpandableSection = registerComponent(
   "ExpandableSection",
-  ExpandableSection,
+  ExpandableSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ExpandableSection: typeof ExpandableSectionComponent
+    ExpandableSection: typeof ExpandableSection
   }
 }

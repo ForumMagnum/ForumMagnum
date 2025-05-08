@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
  * multiple different types of reactions here, if different users reacted
  * differently.
  */
-const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
+const InlineReactHoverInfoInner = ({quote, reactions, voteProps, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -40,11 +40,11 @@ const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
   </Card>
 }
 
-const InlineReactHoverInfoComponent = registerComponent('InlineReactHoverInfo', InlineReactHoverInfo, {styles});
+export const InlineReactHoverInfo = registerComponent('InlineReactHoverInfo', InlineReactHoverInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    InlineReactHoverInfo: typeof InlineReactHoverInfoComponent
+    InlineReactHoverInfo: typeof InlineReactHoverInfo
   }
 }
 

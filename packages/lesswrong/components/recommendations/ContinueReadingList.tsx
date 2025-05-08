@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import { ContinueReading } from './withContinueReading';
 
 
-const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
+const ContinueReadingListInner = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
   continueReading: ContinueReading[],
   continueReadingLoading?: boolean,
   limit?: number,
@@ -83,11 +83,11 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
   </div>
 }
 
-const ContinueReadingListComponent = registerComponent('ContinueReadingList', ContinueReadingList);
+export const ContinueReadingList = registerComponent('ContinueReadingList', ContinueReadingListInner);
 
 declare global {
   interface ComponentTypes {
-    ContinueReadingList: typeof ContinueReadingListComponent
+    ContinueReadingList: typeof ContinueReadingList
   }
 }
 

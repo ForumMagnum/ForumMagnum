@@ -107,7 +107,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForumDropdownMultiselect = ({
+const ForumDropdownMultiselectInner = ({
   values,
   options,
   queryParam,
@@ -187,14 +187,14 @@ const ForumDropdownMultiselect = ({
   );
 }
 
-const ForumDropdownMultiselectComponent = registerComponent(
+export const ForumDropdownMultiselect = registerComponent(
   'ForumDropdownMultiselect',
-  ForumDropdownMultiselect,
+  ForumDropdownMultiselectInner,
   {styles, stylePriority: -2},
 );
 
 declare global {
   interface ComponentTypes {
-    ForumDropdownMultiselect: typeof ForumDropdownMultiselectComponent
+    ForumDropdownMultiselect: typeof ForumDropdownMultiselect
   }
 }

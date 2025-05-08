@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const UsersAutoCompleteHit = ({document, classes}: {
+const UsersAutoCompleteHitInner = ({document, classes}: {
   document: SearchUser
   classes: ClassesType<typeof styles>
 }) => {
@@ -28,11 +28,11 @@ const UsersAutoCompleteHit = ({document, classes}: {
   }
 };
 
-const UsersAutoCompleteHitComponent = registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
+export const UsersAutoCompleteHit = registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersAutoCompleteHit: typeof UsersAutoCompleteHitComponent
+    UsersAutoCompleteHit: typeof UsersAutoCompleteHit
   }
 }
 

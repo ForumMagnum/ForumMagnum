@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 
 const TARGET_REVIEWS_NUM = 2
 
-export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
+export const ReviewProgressNominationsInner = ({classes, reviewYear = REVIEW_YEAR}: {
     classes: ClassesType<typeof styles>,
     reviewYear: ReviewYear
   }) => {
@@ -76,10 +76,10 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
       </LWTooltip>
 }
 
-const ReviewProgressNominationsComponent = registerComponent('ReviewProgressNominations', ReviewProgressNominations, {styles});
+export const ReviewProgressNominations = registerComponent('ReviewProgressNominations', ReviewProgressNominationsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewProgressNominations: typeof ReviewProgressNominationsComponent
+    ReviewProgressNominations: typeof ReviewProgressNominations
   }
 }

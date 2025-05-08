@@ -26,7 +26,7 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   }
 }))
 
-function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList}) {
+function PostPageReviewButtonInner({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList}) {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -44,10 +44,10 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   )
 }
 
-const PostPageReviewButtonComponent = registerComponent('PostPageReviewButton', PostPageReviewButton);
+export const PostPageReviewButton = registerComponent('PostPageReviewButton', PostPageReviewButtonInner);
 
 declare global {
   interface ComponentTypes {
-    PostPageReviewButton: typeof PostPageReviewButtonComponent
+    PostPageReviewButton: typeof PostPageReviewButton
   }
 }

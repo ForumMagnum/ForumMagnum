@@ -7,7 +7,7 @@ import moment from '../../lib/moment-timezone';
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const PetrovDayWrapper = () => {
+const PetrovDayWrapperInner = () => {
   
   const { data: internalData } = useQuery(gql`
     query petrovDayLaunchResolvers {
@@ -30,10 +30,10 @@ const PetrovDayWrapper = () => {
   }
 }
 
-const PetrovDayWrapperComponent = registerComponent('PetrovDayWrapper', PetrovDayWrapper);
+export const PetrovDayWrapper = registerComponent('PetrovDayWrapper', PetrovDayWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    PetrovDayWrapper: typeof PetrovDayWrapperComponent
+    PetrovDayWrapper: typeof PetrovDayWrapper
   }
 }

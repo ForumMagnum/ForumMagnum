@@ -19,7 +19,7 @@ const styles = defineStyles('TagCompareRevisions', (theme) => ({
   description: {},
 }));
 
-const TagCompareRevisions = () => {
+const TagCompareRevisionsInner = () => {
   const classes = useStyles(styles);
   const { params, query } = useLocation();
   const { slug } = params;
@@ -71,11 +71,11 @@ const TagCompareRevisions = () => {
   </SingleColumnSection>
 }
 
-const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions);
+export const TagCompareRevisions = registerComponent("TagCompareRevisions", TagCompareRevisionsInner);
 
 
 declare global {
   interface ComponentTypes {
-    TagCompareRevisions: typeof TagCompareRevisionsComponent
+    TagCompareRevisions: typeof TagCompareRevisions
   }
 }

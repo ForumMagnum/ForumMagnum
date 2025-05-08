@@ -99,7 +99,7 @@ const BadgeWrapper = ({commentCount, classes, children}: {
   }
 }
 
-const SideCommentIcon = ({commentIds, post, classes}: {
+const SideCommentIconInner = ({commentIds, post, classes}: {
   commentIds: string[]
   post: PostsList
   classes: ClassesType<typeof styles>
@@ -112,7 +112,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   }
 }
 
-const SideCommentDialog = ({ commentIds, post, onClose, classes }: {
+const SideCommentDialogInner = ({ commentIds, post, onClose, classes }: {
   commentIds: string[]
   post: PostsList,
   onClose: () => void,
@@ -227,7 +227,7 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
+const SideCommentHoverInner = ({commentIds, post, closeDialog, classes}: {
   commentIds: string[],
   post: PostsList,
   closeDialog?: () => void,
@@ -252,7 +252,7 @@ const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
   </div>
 }
 
-const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
+const SideCommentSingleInner = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
   commentId: string,
   post: PostsList,
   dontTruncateRoot?: boolean,
@@ -341,16 +341,16 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
   </div>
 }
 
-const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon, {styles});
-const SideCommentDialogComponent = registerComponent('SideCommentDialog', SideCommentDialog, { styles: dialogStyles });
-const SideCommentHoverComponent = registerComponent('SideCommentHover', SideCommentHover, {styles});
-const SideCommentSingleComponent = registerComponent('SideCommentSingle', SideCommentSingle, {styles});
+export const SideCommentIcon = registerComponent('SideCommentIcon', SideCommentIconInner, {styles});
+export const SideCommentDialog = registerComponent('SideCommentDialog', SideCommentDialogInner, { styles: dialogStyles });
+export const SideCommentHover = registerComponent('SideCommentHover', SideCommentHoverInner, {styles});
+export const SideCommentSingle = registerComponent('SideCommentSingle', SideCommentSingleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SideCommentIcon: typeof SideCommentIconComponent
-    SideCommentDialog: typeof SideCommentDialogComponent
-    SideCommentHover: typeof SideCommentHoverComponent
-    SideCommentSingle: typeof SideCommentSingleComponent
+    SideCommentIcon: typeof SideCommentIcon
+    SideCommentDialog: typeof SideCommentDialog
+    SideCommentHover: typeof SideCommentHover
+    SideCommentSingle: typeof SideCommentSingle
   }
 }

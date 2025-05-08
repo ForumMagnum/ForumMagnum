@@ -135,7 +135,7 @@ export type CommentsNewFormProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const CommentsNewForm = ({
+const CommentsNewFormInner = ({
   prefilledProps={},
   post,
   tag,
@@ -389,14 +389,14 @@ const CommentsNewForm = ({
   );
 };
 
-const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, {
+export const CommentsNewForm = registerComponent('CommentsNewForm', CommentsNewFormInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    CommentsNewForm: typeof CommentsNewFormComponent,
+    CommentsNewForm: typeof CommentsNewForm,
   }
 }
 

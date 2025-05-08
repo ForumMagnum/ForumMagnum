@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CookieTable = ({
+const CookieTableInner = ({
   type,
   thirdPartyName,
   className,
@@ -94,10 +94,10 @@ const CookieTable = ({
   );
 };
 
-const CookieTableComponent = registerComponent("CookieTable", CookieTable, { styles });
+export const CookieTable = registerComponent("CookieTable", CookieTableInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    CookieTable: typeof CookieTableComponent;
+    CookieTable: typeof CookieTable;
   }
 }

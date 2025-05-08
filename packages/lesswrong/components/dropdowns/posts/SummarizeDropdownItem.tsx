@@ -4,7 +4,7 @@ import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
 
-const SummarizeDropdownItem = ({post, closeMenu}: {
+const SummarizeDropdownItemInner = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
   closeMenu?: () => void,
 }) => {
@@ -34,13 +34,13 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
   );
 }
 
-const SummarizeDropdownItemComponent = registerComponent(
+export const SummarizeDropdownItem = registerComponent(
   "SummarizeDropdownItem",
-  SummarizeDropdownItem,
+  SummarizeDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    SummarizeDropdownItem: typeof SummarizeDropdownItemComponent
+    SummarizeDropdownItem: typeof SummarizeDropdownItem
   }
 }

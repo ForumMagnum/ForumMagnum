@@ -6,19 +6,19 @@ type CommentOnPostWithRepliesProps = CommentWithRepliesProps & {
   post: PostsBase;
 }
 
-const CommentOnPostWithReplies = ({post, ...otherProps}: CommentOnPostWithRepliesProps) => {
+const CommentOnPostWithRepliesInner = ({post, ...otherProps}: CommentOnPostWithRepliesProps) => {
 
   const {CommentWithReplies} = Components;
 
   return <CommentWithReplies post={post} {...otherProps} />
 };
 
-const CommentOnPostWithRepliesComponent = registerComponent(
-  'CommentOnPostWithReplies', CommentOnPostWithReplies
+export const CommentOnPostWithReplies = registerComponent(
+  'CommentOnPostWithReplies', CommentOnPostWithRepliesInner
 );
 
 declare global {
   interface ComponentTypes {
-    CommentOnPostWithReplies: typeof CommentOnPostWithRepliesComponent;
+    CommentOnPostWithReplies: typeof CommentOnPostWithReplies;
   }
 }

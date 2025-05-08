@@ -93,7 +93,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; version?: string; classes: ClassesType<typeof styles> }) => {
+const GoogleDocImportButtonInner = ({ postId, version, classes }: { postId?: string; version?: string; classes: ClassesType<typeof styles> }) => {
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)
@@ -322,10 +322,10 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   );
 };
 
-const GoogleDocImportButtonComponent = registerComponent("GoogleDocImportButton", GoogleDocImportButton, { styles });
+export const GoogleDocImportButton = registerComponent("GoogleDocImportButton", GoogleDocImportButtonInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    GoogleDocImportButton: typeof GoogleDocImportButtonComponent;
+    GoogleDocImportButton: typeof GoogleDocImportButton;
   }
 }

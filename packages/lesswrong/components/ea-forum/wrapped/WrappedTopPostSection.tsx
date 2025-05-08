@@ -33,7 +33,7 @@ const styles = (_theme: ThemeType) => ({
 /**
  * Section that displays the user's highest-karma post plus other data on their posts
  */
-const WrappedTopPostSection = ({classes}: {
+const WrappedTopPostSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
@@ -70,14 +70,14 @@ const WrappedTopPostSection = ({classes}: {
   );
 }
 
-const WrappedTopPostSectionComponent = registerComponent(
+export const WrappedTopPostSection = registerComponent(
   "WrappedTopPostSection",
-  WrappedTopPostSection,
+  WrappedTopPostSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedTopPostSection: typeof WrappedTopPostSectionComponent
+    WrappedTopPostSection: typeof WrappedTopPostSection
   }
 }

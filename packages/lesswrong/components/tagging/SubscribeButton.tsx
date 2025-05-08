@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
 
 export const taggedPostWording = taggingNameIsSet.get() ? `posts on this ${taggingNameSetting.get()}` : "posts with this tag"
 
-const SubscribeButton = ({
+const SubscribeButtonInner = ({
   tag,
   subscribeMessage,
   unsubscribeMessage,
@@ -243,10 +243,10 @@ const SubscribeButton = ({
   );
 }
 
-const SubscribeButtonComponent = registerComponent('SubscribeButton', SubscribeButton, {styles});
+export const SubscribeButton = registerComponent('SubscribeButton', SubscribeButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SubscribeButton: typeof SubscribeButtonComponent
+    SubscribeButton: typeof SubscribeButton
   }
 }

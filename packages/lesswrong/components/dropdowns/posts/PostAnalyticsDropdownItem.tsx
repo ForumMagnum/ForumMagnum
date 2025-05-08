@@ -5,7 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { isEAForum } from "../../../lib/instanceSettings";
 import qs from "qs";
 
-const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
+const PostAnalyticsDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   if (!isEAForum || !isEditor) {
@@ -24,13 +24,13 @@ const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const PostAnalyticsDropdownItemComponent = registerComponent(
+export const PostAnalyticsDropdownItem = registerComponent(
   "PostAnalyticsDropdownItem",
-  PostAnalyticsDropdownItem,
+  PostAnalyticsDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PostAnalyticsDropdownItem: typeof PostAnalyticsDropdownItemComponent
+    PostAnalyticsDropdownItem: typeof PostAnalyticsDropdownItem
   }
 }

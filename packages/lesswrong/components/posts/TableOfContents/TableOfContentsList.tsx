@@ -35,7 +35,7 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
+const TableOfContentsListInner = ({tocSections, title, onClickSection, displayOptions}: {
   tocSections: ToCSection[],
   title: string|null,
   onClickSection?: () => void,
@@ -249,14 +249,14 @@ export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDi
   }
 }
 
-const TableOfContentsListComponent = registerComponent(
-  "TableOfContentsList", TableOfContentsList, {
+export const TableOfContentsList = registerComponent(
+  "TableOfContentsList", TableOfContentsListInner, {
     hocs: [withErrorBoundary]
   }
 );
 
 declare global {
   interface ComponentTypes {
-    TableOfContentsList: typeof TableOfContentsListComponent
+    TableOfContentsList: typeof TableOfContentsList
   }
 }

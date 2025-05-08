@@ -8,7 +8,7 @@ const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 });
 
-const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
+const PostsCoauthorInner = ({ post, coauthor, pageSectionContext, classes }: {
   post: PostsList,
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
@@ -36,14 +36,14 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   );
 }
 
-const PostsCoauthorComponent = registerComponent(
+export const PostsCoauthor = registerComponent(
   'PostsCoauthor',
-  PostsCoauthor,
+  PostsCoauthorInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsCoauthor: typeof PostsCoauthorComponent
+    PostsCoauthor: typeof PostsCoauthor
   }
 }

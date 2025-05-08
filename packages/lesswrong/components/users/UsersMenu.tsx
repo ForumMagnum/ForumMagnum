@@ -93,7 +93,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersMenu = ({classes}: {
+const UsersMenuInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -429,10 +429,10 @@ const UsersMenu = ({classes}: {
   );
 }
 
-const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {styles});
+export const UsersMenu = registerComponent('UsersMenu', UsersMenuInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersMenu: typeof UsersMenuComponent
+    UsersMenu: typeof UsersMenu
   }
 }

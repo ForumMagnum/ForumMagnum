@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewPostForm = ({classes, post, onClose}: {
+const ReviewPostFormInner = ({classes, post, onClose}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   onClose: () => void,
@@ -72,10 +72,10 @@ const ReviewPostForm = ({classes, post, onClose}: {
   />
 }
 
-const ReviewPostFormComponent = registerComponent('ReviewPostForm', ReviewPostForm, {styles});
+export const ReviewPostForm = registerComponent('ReviewPostForm', ReviewPostFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewPostForm: typeof ReviewPostFormComponent
+    ReviewPostForm: typeof ReviewPostForm
   }
 }

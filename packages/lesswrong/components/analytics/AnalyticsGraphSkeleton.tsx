@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
+export const AnalyticsGraphSkeletonInner = ({dateOptionDropdown, classes}: {
   dateOptionDropdown?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -80,14 +80,14 @@ export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   );
 }
 
-const AnalyticsGraphSkeletonComponent = registerComponent(
+export const AnalyticsGraphSkeleton = registerComponent(
   "AnalyticsGraphSkeleton",
-  AnalyticsGraphSkeleton,
+  AnalyticsGraphSkeletonInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    AnalyticsGraphSkeleton: typeof AnalyticsGraphSkeletonComponent
+    AnalyticsGraphSkeleton: typeof AnalyticsGraphSkeleton
   }
 }

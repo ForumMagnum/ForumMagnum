@@ -154,7 +154,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SequencesPage = ({ documentId, classes }: {
+const SequencesPageInner = ({ documentId, classes }: {
   documentId: string,
   classes: ClassesType<typeof styles>
 }) => {
@@ -331,10 +331,10 @@ const SequencesPage = ({ documentId, classes }: {
   </AnalyticsContext>
 }
 
-const SequencesPageComponent = registerComponent('SequencesPage', SequencesPage, {styles});
+export const SequencesPage = registerComponent('SequencesPage', SequencesPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesPage: typeof SequencesPageComponent
+    SequencesPage: typeof SequencesPage
   }
 }

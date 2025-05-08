@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
+export const ModeratorActionItemInner = ({classes, user, moderatorAction, comments, posts }: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
   moderatorAction: ModeratorActionDisplay,
@@ -148,11 +148,11 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
   </div>;
 }
 
-const ModeratorActionItemComponent = registerComponent('ModeratorActionItem', ModeratorActionItem, {styles});
+export const ModeratorActionItem = registerComponent('ModeratorActionItem', ModeratorActionItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModeratorActionItem: typeof ModeratorActionItemComponent
+    ModeratorActionItem: typeof ModeratorActionItem
   }
 }
 

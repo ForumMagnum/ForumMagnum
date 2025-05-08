@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }, 
 })
 
-const PasswordResetPage = ({classes}: {
+const PasswordResetPageInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
@@ -57,10 +57,10 @@ const PasswordResetPage = ({classes}: {
   </SingleColumnSection>
 }
 
-const PasswordResetPageComponent = registerComponent("PasswordResetPage", PasswordResetPage, { styles });
+export const PasswordResetPage = registerComponent("PasswordResetPage", PasswordResetPageInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    PasswordResetPage: typeof PasswordResetPageComponent
+    PasswordResetPage: typeof PasswordResetPage
   }
 }

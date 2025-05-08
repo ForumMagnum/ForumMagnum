@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const DeleteDraftDropdownItem = ({ post }: {
+const DeleteDraftDropdownItemInner = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
@@ -37,13 +37,13 @@ const DeleteDraftDropdownItem = ({ post }: {
   }
 }
 
-const DeleteDraftDropdownItemComponent = registerComponent(
+export const DeleteDraftDropdownItem = registerComponent(
   'DeleteDraftDropdownItem',
-  DeleteDraftDropdownItem,
+  DeleteDraftDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    DeleteDraftDropdownItem: typeof DeleteDraftDropdownItemComponent
+    DeleteDraftDropdownItem: typeof DeleteDraftDropdownItem
   }
 }

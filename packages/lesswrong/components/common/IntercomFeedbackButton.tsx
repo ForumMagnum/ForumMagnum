@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const IntercomFeedbackButton = ({
+const IntercomFeedbackButtonInner = ({
   title = "Give feedback",
   eventName,
   className,
@@ -49,14 +49,14 @@ const IntercomFeedbackButton = ({
   );
 }
 
-const IntercomFeedbackButtonComponent = registerComponent(
+export const IntercomFeedbackButton = registerComponent(
   "IntercomFeedbackButton",
-  IntercomFeedbackButton,
+  IntercomFeedbackButtonInner,
   {styles, stylePriority: -5},
 );
 
 declare global {
   interface ComponentTypes {
-    IntercomFeedbackButton: typeof IntercomFeedbackButtonComponent
+    IntercomFeedbackButton: typeof IntercomFeedbackButton
   }
 }

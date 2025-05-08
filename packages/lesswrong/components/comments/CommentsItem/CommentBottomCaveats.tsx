@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentBottomCaveats = ({comment, classes}: {
+const CommentBottomCaveatsInner = ({comment, classes}: {
   comment: CommentsList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -46,10 +46,10 @@ const CommentBottomCaveats = ({comment, classes}: {
   </>
 }
 
-const CommentBottomCaveatsComponent = registerComponent("CommentBottomCaveats", CommentBottomCaveats, {styles});
+export const CommentBottomCaveats = registerComponent("CommentBottomCaveats", CommentBottomCaveatsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentBottomCaveats: typeof CommentBottomCaveatsComponent
+    CommentBottomCaveats: typeof CommentBottomCaveats
   }
 }

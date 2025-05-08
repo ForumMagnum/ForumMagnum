@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+const RecentDiscussionTagInner = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
@@ -144,8 +144,8 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   </div>
 }
 
-const RecentDiscussionTagComponent = registerComponent(
-  'RecentDiscussionTag', RecentDiscussionTag, {
+export const RecentDiscussionTag = registerComponent(
+  'RecentDiscussionTag', RecentDiscussionTagInner, {
     styles,
     hocs: [withErrorBoundary],
   }
@@ -153,6 +153,6 @@ const RecentDiscussionTagComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionTag: typeof RecentDiscussionTagComponent,
+    RecentDiscussionTag: typeof RecentDiscussionTag,
   }
 }

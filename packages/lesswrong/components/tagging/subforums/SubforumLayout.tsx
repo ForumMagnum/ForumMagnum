@@ -117,7 +117,7 @@ export const styles = (theme: ThemeType) => ({
   gap2: { gridArea: 'gap2' }
 });
 
-export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
+export const SubforumLayoutInner = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
   titleComponent: React.ReactNode,
   bannerImageId: string,
   headerComponent: React.ReactNode,
@@ -203,10 +203,10 @@ export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, 
   );
 }
 
-const SubforumLayoutComponent = registerComponent("SubforumLayout", SubforumLayout, {styles});
+export const SubforumLayout = registerComponent("SubforumLayout", SubforumLayoutInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SubforumLayout: typeof SubforumLayoutComponent
+    SubforumLayout: typeof SubforumLayout
   }
 }

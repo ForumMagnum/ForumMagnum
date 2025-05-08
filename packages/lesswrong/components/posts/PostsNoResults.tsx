@@ -9,18 +9,18 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsNoResults = ({classes}: {
+const PostsNoResultsInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) =>
   <Components.Typography variant="body2" className={classes.root}>
     No posts to display.
   </Components.Typography>;
 
-const PostsNoResultsComponent = registerComponent('PostsNoResults', PostsNoResults, {styles});
+export const PostsNoResults = registerComponent('PostsNoResults', PostsNoResultsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsNoResults: typeof PostsNoResultsComponent
+    PostsNoResults: typeof PostsNoResults
   }
 }
 

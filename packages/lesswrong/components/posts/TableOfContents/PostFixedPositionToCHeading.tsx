@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
 
 
 
-const PostFixedPositionToCHeading = ({post, classes}: {
+const PostFixedPositionToCHeadingInner = ({post, classes}: {
   post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,11 +28,11 @@ const PostFixedPositionToCHeading = ({post, classes}: {
   </LWTooltip>
 }
 
-const FixedPositionToCHeadingComponent = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
+export const FixedPositionToCHeading = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeadingInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostFixedPositionToCHeading: typeof FixedPositionToCHeadingComponent
+    PostFixedPositionToCHeading: typeof FixedPositionToCHeading
   }
 }
 

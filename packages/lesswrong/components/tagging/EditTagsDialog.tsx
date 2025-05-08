@@ -4,7 +4,7 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const EditTagsDialog = ({post, onClose }: {
+const EditTagsDialogInner = ({post, onClose }: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void
 }) => {
@@ -19,10 +19,10 @@ const EditTagsDialog = ({post, onClose }: {
   </LWDialog>
 }
 
-const EditTagsDialogComponent = registerComponent('EditTagsDialog', EditTagsDialog);
+export const EditTagsDialog = registerComponent('EditTagsDialog', EditTagsDialogInner);
 
 declare global {
   interface ComponentTypes {
-    EditTagsDialog: typeof EditTagsDialogComponent
+    EditTagsDialog: typeof EditTagsDialog
   }
 }

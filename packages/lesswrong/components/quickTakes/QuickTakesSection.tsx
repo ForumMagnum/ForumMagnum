@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const QuickTakesSection = ({classes}: {
+const QuickTakesSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -151,13 +151,13 @@ const QuickTakesSection = ({classes}: {
   );
 }
 
-const QuickTakesSectionComponent = registerComponent("QuickTakesSection", QuickTakesSection, {
+export const QuickTakesSection = registerComponent("QuickTakesSection", QuickTakesSectionInner, {
   styles,
   areEqual: "auto"
 });
 
 declare global {
   interface ComponentTypes {
-    QuickTakesSection: typeof QuickTakesSectionComponent
+    QuickTakesSection: typeof QuickTakesSection
   }
 }

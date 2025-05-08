@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListCount = ({ count, classes }: {
+const SunshineListCountInner = ({ count, classes }: {
   count: number|undefined,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -19,11 +19,11 @@ const SunshineListCount = ({ count, classes }: {
   }
 }
 
-const SunshineListCountComponent = registerComponent('SunshineListCount', SunshineListCount, {styles});
+export const SunshineListCount = registerComponent('SunshineListCount', SunshineListCountInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineListCount: typeof SunshineListCountComponent
+    SunshineListCount: typeof SunshineListCount
   }
 }
 

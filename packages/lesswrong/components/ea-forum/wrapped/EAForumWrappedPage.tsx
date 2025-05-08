@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAForumWrappedPageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {params} = useLocation();
   const currentUser = useCurrentUser();
 
@@ -113,14 +113,14 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   )
 }
 
-const EAForumWrappedPageComponent = registerComponent(
+export const EAForumWrappedPage = registerComponent(
   "EAForumWrappedPage",
-  EAForumWrappedPage,
+  EAForumWrappedPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAForumWrappedPage: typeof EAForumWrappedPageComponent
+    EAForumWrappedPage: typeof EAForumWrappedPage
   }
 }

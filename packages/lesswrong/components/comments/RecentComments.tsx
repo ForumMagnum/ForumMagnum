@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) =>  ({
   },
 })
 
-const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
+const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
@@ -60,11 +60,11 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   </div>
 }
 
-const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {styles});
+export const RecentComments = registerComponent('RecentComments', RecentCommentsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecentComments: typeof RecentCommentsComponent,
+    RecentComments: typeof RecentComments,
   }
 }
 

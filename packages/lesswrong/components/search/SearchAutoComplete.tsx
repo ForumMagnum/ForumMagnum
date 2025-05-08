@@ -32,7 +32,7 @@ export const formatFacetFilters = (
     ? [Object.keys(facetFilters).map((key) => `${key}:${facetFilters[key]}`)]
     : undefined;
 
-const SearchAutoComplete = ({
+const SearchAutoCompleteInner = ({
   clickAction,
   placeholder,
   noSearchPlaceholder,
@@ -117,11 +117,11 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-const SearchAutoCompleteComponent = registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
+export const SearchAutoComplete = registerComponent("SearchAutoComplete", SearchAutoCompleteInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SearchAutoComplete: typeof SearchAutoCompleteComponent
+    SearchAutoComplete: typeof SearchAutoComplete
   }
 }
 

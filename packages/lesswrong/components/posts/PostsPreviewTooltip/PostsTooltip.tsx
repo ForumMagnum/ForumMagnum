@@ -9,7 +9,7 @@ import {
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
 
-const PostsTooltip = ({
+const PostsTooltipInner = ({
   post,
   postId,
   comment,
@@ -118,13 +118,13 @@ const PostsTooltip = ({
   );
 }
 
-const PostsTooltipComponent = registerComponent(
+export const PostsTooltip = registerComponent(
   "PostsTooltip",
-  PostsTooltip,
+  PostsTooltipInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PostsTooltip: typeof PostsTooltipComponent
+    PostsTooltip: typeof PostsTooltip
   }
 }

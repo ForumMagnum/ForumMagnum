@@ -9,7 +9,7 @@ const styles = defineStyles("TemplateComponent", (theme: ThemeType) => ({
   }
 }));
 
-const TemplateComponent = () => {
+const TemplateComponentInner = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking(); // use this for non-link buttons (eventTypes should be pastTenseVerbs, e.g linkClicked)
 
@@ -23,12 +23,12 @@ const TemplateComponent = () => {
   )
 }
 
-const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent);
+export const TemplateComponent = registerComponent('TemplateComponent', TemplateComponentInner);
 
 declare global {
   interface ComponentTypes {
-    TemplateComponent: typeof TemplateComponentComponent
+    TemplateComponent: typeof TemplateComponent
   }
 }
 
-export default TemplateComponent;
+export default TemplateComponentInner;

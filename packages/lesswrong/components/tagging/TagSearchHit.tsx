@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
+const TagSearchHitInner = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
   hit: any,
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
@@ -72,11 +72,11 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   );
 }
 
-const TagSearchHitComponent = registerComponent("TagSearchHit", TagSearchHit, {styles});
+export const TagSearchHit = registerComponent("TagSearchHit", TagSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagSearchHit: typeof TagSearchHitComponent
+    TagSearchHit: typeof TagSearchHit
   }
 }
 

@@ -20,7 +20,7 @@ export const getTagDescriptionHtml = (tag: ExcerptableTag) => {
   return tag.description.htmlHighlightStartingAtHash;
 }
 
-const TagExcerpt = ({
+const TagExcerptInner = ({
   tag,
   ...commonExcerptProps
 }: CommonExcerptProps & {
@@ -42,13 +42,13 @@ const TagExcerpt = ({
   );
 }
 
-const TagExcerptComponent = registerComponent(
+export const TagExcerpt = registerComponent(
   "TagExcerpt",
-  TagExcerpt,
+  TagExcerptInner,
 );
 
 declare global {
   interface ComponentTypes {
-    TagExcerpt: typeof TagExcerptComponent,
+    TagExcerpt: typeof TagExcerpt,
   }
 }

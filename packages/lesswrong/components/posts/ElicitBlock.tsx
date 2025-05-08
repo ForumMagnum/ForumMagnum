@@ -175,7 +175,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
+const ElicitBlockInner = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType<typeof styles>,
   questionId: String
 }) => {
@@ -294,14 +294,14 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   </ContentStyles>
 }
 
-const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, {
+export const ElicitBlock = registerComponent('ElicitBlock', ElicitBlockInner, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    ElicitBlock: typeof ElicitBlockComponent
+    ElicitBlock: typeof ElicitBlock
   }
 }
 

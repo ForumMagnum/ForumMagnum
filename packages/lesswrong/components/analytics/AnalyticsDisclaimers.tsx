@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     : {},
 });
 
-const AnalyticsDisclaimers = ({earliestDate, classes}: {
+const AnalyticsDisclaimersInner = ({earliestDate, classes}: {
   earliestDate: Date,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -54,14 +54,14 @@ const AnalyticsDisclaimers = ({earliestDate, classes}: {
   );
 };
 
-const AnalyticsDisclaimersComponent = registerComponent(
+export const AnalyticsDisclaimers = registerComponent(
   "AnalyticsDisclaimers",
-  AnalyticsDisclaimers,
+  AnalyticsDisclaimersInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    AnalyticsDisclaimers: typeof AnalyticsDisclaimersComponent;
+    AnalyticsDisclaimers: typeof AnalyticsDisclaimers;
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 
-const ErrorPage = ({error}: {
+const ErrorPageInner = ({error}: {
   error: any
 }) => {
   const { SingleColumnSection, ErrorMessage } = Components;
@@ -13,11 +13,11 @@ const ErrorPage = ({error}: {
   </SingleColumnSection>
 }
 
-const ErrorPageComponent = registerComponent('ErrorPage', ErrorPage);
+export const ErrorPage = registerComponent('ErrorPage', ErrorPageInner);
 
 declare global {
   interface ComponentTypes {
-    ErrorPage: typeof ErrorPageComponent
+    ErrorPage: typeof ErrorPage
   }
 }
 

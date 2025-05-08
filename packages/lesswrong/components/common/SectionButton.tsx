@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionButton = ({children, classes, className, onClick}: {
+const SectionButtonInner = ({children, classes, className, onClick}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -38,10 +38,10 @@ const SectionButton = ({children, classes, className, onClick}: {
   </Components.Typography>
 }
 
-const SectionButtonComponent = registerComponent('SectionButton', SectionButton, {styles})
+export const SectionButton = registerComponent('SectionButton', SectionButtonInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SectionButton: typeof SectionButtonComponent
+    SectionButton: typeof SectionButton
   }
 }

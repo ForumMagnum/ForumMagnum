@@ -77,7 +77,7 @@ const Month: FC<{
  * Section that displays the calendar of days that the user visited the forum,
  * visualized as 12 rows of dots, with the visited days' dots being white
  */
-const WrappedDaysVisitedSection = ({classes}: {
+const WrappedDaysVisitedSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {daysVisited}} = useForumWrappedContext();
@@ -97,14 +97,14 @@ const WrappedDaysVisitedSection = ({classes}: {
   );
 }
 
-const WrappedDaysVisitedSectionComponent = registerComponent(
+export const WrappedDaysVisitedSection = registerComponent(
   "WrappedDaysVisitedSection",
-  WrappedDaysVisitedSection,
+  WrappedDaysVisitedSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedDaysVisitedSection: typeof WrappedDaysVisitedSectionComponent
+    WrappedDaysVisitedSection: typeof WrappedDaysVisitedSection
   }
 }

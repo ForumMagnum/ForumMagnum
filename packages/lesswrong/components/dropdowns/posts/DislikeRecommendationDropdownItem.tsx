@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
+const DislikeRecommendationDropdownItemInner = ({post}: {post: PostsBase}) => {
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog()
@@ -61,9 +61,9 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const DislikeRecommendationDropdownItemComponent = registerComponent(
+export const DislikeRecommendationDropdownItem = registerComponent(
   'DislikeRecommendationDropdownItem',
-  DislikeRecommendationDropdownItem,
+  DislikeRecommendationDropdownItemInner,
   {
     styles,
     hocs: [withErrorBoundary],
@@ -72,6 +72,6 @@ const DislikeRecommendationDropdownItemComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    DislikeRecommendationDropdownItem: typeof DislikeRecommendationDropdownItemComponent
+    DislikeRecommendationDropdownItem: typeof DislikeRecommendationDropdownItem
   }
 }

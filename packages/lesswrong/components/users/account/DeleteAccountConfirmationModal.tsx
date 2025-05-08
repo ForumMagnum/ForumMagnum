@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
+const DeleteAccountConfirmationModalInner = ({onClose, confirmAction, classes}: {
   onClose: () => void,
   confirmAction: () => Promise<void>,
   classes: ClassesType<typeof styles>,
@@ -99,14 +99,14 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
   );
 }
 
-const DeleteAccountConfirmationModalComponent = registerComponent(
+export const DeleteAccountConfirmationModal = registerComponent(
   'DeleteAccountConfirmationModal',
-  DeleteAccountConfirmationModal,
+  DeleteAccountConfirmationModalInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    DeleteAccountConfirmationModal: typeof DeleteAccountConfirmationModalComponent
+    DeleteAccountConfirmationModal: typeof DeleteAccountConfirmationModal
   }
 }

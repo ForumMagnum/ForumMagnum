@@ -5,7 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { styles } from '../common/HeaderSubtitle';
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const ReviewHeaderTitle = ({classes}: {
+export const ReviewHeaderTitleInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation()
@@ -15,11 +15,11 @@ export const ReviewHeaderTitle = ({classes}: {
   </div>;
 }
 
-const ReviewHeaderTitleComponent = registerComponent('ReviewHeaderTitle', ReviewHeaderTitle, {styles});
+export const ReviewHeaderTitle = registerComponent('ReviewHeaderTitle', ReviewHeaderTitleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewHeaderTitle: typeof ReviewHeaderTitleComponent
+    ReviewHeaderTitle: typeof ReviewHeaderTitle
   }
 }
 

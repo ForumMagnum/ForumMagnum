@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const EAAllTagsPage = ({classes}: {
+const EAAllTagsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog()
@@ -131,10 +131,10 @@ const EAAllTagsPage = ({classes}: {
   );
 }
 
-const EAAllTagsPageComponent = registerComponent("EAAllTagsPage", EAAllTagsPage, {styles});
+export const EAAllTagsPage = registerComponent("EAAllTagsPage", EAAllTagsPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAAllTagsPage: typeof EAAllTagsPageComponent
+    EAAllTagsPage: typeof EAAllTagsPage
   }
 }

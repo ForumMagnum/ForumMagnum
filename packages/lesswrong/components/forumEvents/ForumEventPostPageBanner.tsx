@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ForumEventPostPageBanner = ({classes}: {
+export const ForumEventPostPageBannerInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
@@ -100,14 +100,14 @@ export const ForumEventPostPageBanner = ({classes}: {
   );
 }
 
-const ForumEventPostPageBannerComponent = registerComponent(
+export const ForumEventPostPageBanner = registerComponent(
   "ForumEventPostPageBanner",
-  ForumEventPostPageBanner,
+  ForumEventPostPageBannerInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventPostPageBanner: typeof ForumEventPostPageBannerComponent
+    ForumEventPostPageBanner: typeof ForumEventPostPageBanner
   }
 }

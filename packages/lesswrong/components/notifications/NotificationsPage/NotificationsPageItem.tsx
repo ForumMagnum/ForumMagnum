@@ -95,7 +95,7 @@ const styles = (theme: ThemeType) => ({
 
 export type IconVariant = "primary" | "grey" | "yellow" | "clear" | "wrapped";
 
-export const NotificationsPageItem = ({
+export const NotificationsPageItemInner = ({
   Icon,
   iconVariant,
   iconTooltip,
@@ -193,14 +193,14 @@ export const NotificationsPageItem = ({
   );
 }
 
-const NotificationsPageItemComponent = registerComponent(
+export const NotificationsPageItem = registerComponent(
   "NotificationsPageItem",
-  NotificationsPageItem,
+  NotificationsPageItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageItem: typeof NotificationsPageItemComponent
+    NotificationsPageItem: typeof NotificationsPageItem
   }
 }

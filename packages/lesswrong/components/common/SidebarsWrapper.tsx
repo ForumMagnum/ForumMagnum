@@ -21,7 +21,7 @@ type SidebarsContextType = {
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
 
-const SidebarsWrapper = ({children}: {
+const SidebarsWrapperInner = ({children}: {
   children: React.ReactNode
 }) => {
   const [tocVisible, setTocVisibleState] = useState(true);
@@ -50,10 +50,10 @@ const SidebarsWrapper = ({children}: {
   </SidebarsContext.Provider>
 }
 
-const SidebarsWrapperComponent = registerComponent("SidebarsWrapper", SidebarsWrapper);
+export const SidebarsWrapper = registerComponent("SidebarsWrapper", SidebarsWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    SidebarsWrapper: typeof SidebarsWrapperComponent
+    SidebarsWrapper: typeof SidebarsWrapper
   }
 }

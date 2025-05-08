@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
+const PostsTimeframeListInner = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
   after: Date|string,
   before: Date|string,
   timeframe: TimeframeType,
@@ -155,10 +155,10 @@ export const getTimeBlockTitle = (
   return result;
 }
 
-const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
+export const PostsTimeframeList = registerComponent('PostsTimeframeList', PostsTimeframeListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsTimeframeList: typeof PostsTimeframeListComponent
+    PostsTimeframeList: typeof PostsTimeframeList
   }
 }

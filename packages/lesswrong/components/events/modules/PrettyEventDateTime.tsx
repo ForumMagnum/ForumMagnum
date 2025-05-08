@@ -12,7 +12,7 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
  * @param {string} [dense] - (Optional) Exclude the day of the week.
  * @returns {string} The formatted event datetimes.
  */
-export const PrettyEventDateTime = ({
+export const PrettyEventDateTimeInner = ({
   post,
   timezone,
   dense = false,
@@ -91,10 +91,10 @@ export const PrettyEventDateTime = ({
   );
 };
 
-const PrettyEventDateTimeComponent = registerComponent("PrettyEventDateTime", PrettyEventDateTime);
+export const PrettyEventDateTime = registerComponent("PrettyEventDateTime", PrettyEventDateTimeInner);
 
 declare global {
   interface ComponentTypes {
-    PrettyEventDateTime: typeof PrettyEventDateTimeComponent;
+    PrettyEventDateTime: typeof PrettyEventDateTime;
   }
 }

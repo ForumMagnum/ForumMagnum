@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
  * This banner is now disabled but the code is left here in case we want to
  * do something similar again in the future.
  */
-const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EASurveyBannerInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
@@ -117,14 +117,14 @@ const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const EASurveyBannerComponent = registerComponent(
+export const EASurveyBanner = registerComponent(
   "EASurveyBanner",
-  EASurveyBanner,
+  EASurveyBannerInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EASurveyBanner: typeof EASurveyBannerComponent
+    EASurveyBanner: typeof EASurveyBanner
   }
 }

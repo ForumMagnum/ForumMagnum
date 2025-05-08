@@ -356,7 +356,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   )
 }
 
-const Book2018Landing = ({classes}: {
+const Book2018LandingInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {BookAnimation, BookCheckout, HeadTags} = Components;
@@ -526,7 +526,7 @@ const Book2018Landing = ({classes}: {
   )
 }
 
-const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {
+const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018LandingInner, {
   styles,
   
   // (Manually checked that there are no horrible contrast problems in dark mode.

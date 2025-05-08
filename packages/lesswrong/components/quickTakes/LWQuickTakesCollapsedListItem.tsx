@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
+const LWQuickTakesCollapsedListItemInner = ({ quickTake, setExpanded, classes }: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -187,14 +187,14 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   );
 }
 
-const LWQuickTakesCollapsedListItemComponent = registerComponent(
+export const LWQuickTakesCollapsedListItem = registerComponent(
   "LWQuickTakesCollapsedListItem",
-  LWQuickTakesCollapsedListItem,
+  LWQuickTakesCollapsedListItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    LWQuickTakesCollapsedListItem: typeof LWQuickTakesCollapsedListItemComponent
+    LWQuickTakesCollapsedListItem: typeof LWQuickTakesCollapsedListItem
   }
 }

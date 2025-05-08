@@ -6,7 +6,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
 
 
-const GroupFormLink = ({documentId, isOnline}: {
+const GroupFormLinkInner = ({documentId, isOnline}: {
   documentId?: string
   isOnline?: boolean
 }) => {
@@ -36,10 +36,10 @@ const GroupFormLink = ({documentId, isOnline}: {
   }
 }
 
-const GroupFormLinkComponent = registerComponent('GroupFormLink', GroupFormLink);
+export const GroupFormLink = registerComponent('GroupFormLink', GroupFormLinkInner);
 
 declare global {
   interface ComponentTypes {
-    GroupFormLink: typeof GroupFormLinkComponent
+    GroupFormLink: typeof GroupFormLink
   }
 }

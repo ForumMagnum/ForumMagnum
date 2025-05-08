@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userGetAnalyticsUrl } from '../../lib/collections/users/helpers';
 
-const MyAnalyticsPage = () => {
+const MyAnalyticsPageInner = () => {
   const {PermanentRedirect, SingleColumnSection, LoginForm} = Components;
   const currentUser = useCurrentUser();
 
@@ -18,10 +18,10 @@ const MyAnalyticsPage = () => {
   return <PermanentRedirect status={302} url={userGetAnalyticsUrl(currentUser)}/>
 }
 
-const MyAnalyticsPageComponent = registerComponent('MyAnalyticsPage', MyAnalyticsPage);
+export const MyAnalyticsPage = registerComponent('MyAnalyticsPage', MyAnalyticsPageInner);
 
 declare global {
   interface ComponentTypes {
-    MyAnalyticsPage: typeof MyAnalyticsPageComponent
+    MyAnalyticsPage: typeof MyAnalyticsPage
   }
 }

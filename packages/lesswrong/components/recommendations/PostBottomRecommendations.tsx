@@ -63,7 +63,7 @@ const WrapperComponent = ({hasTableOfContents, children}: {
   }
 };
 
-const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
+const PostBottomRecommendationsInner = ({post, hasTableOfContents, ssr = false, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
   ssr?: boolean,
@@ -188,14 +188,14 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
   );
 }
 
-const PostBottomRecommendationsComponent = registerComponent(
+export const PostBottomRecommendations = registerComponent(
   "PostBottomRecommendations",
-  PostBottomRecommendations,
+  PostBottomRecommendationsInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostBottomRecommendations: typeof PostBottomRecommendationsComponent
+    PostBottomRecommendations: typeof PostBottomRecommendations
   }
 }

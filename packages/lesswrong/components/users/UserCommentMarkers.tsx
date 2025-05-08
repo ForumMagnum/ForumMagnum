@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UserCommentMarkers = ({
+const UserCommentMarkersInner = ({
   user,
   isPostAuthor,
   className,
@@ -68,14 +68,14 @@ const UserCommentMarkers = ({
   );
 }
 
-const UserCommentMarkersComponent = registerComponent(
+export const UserCommentMarkers = registerComponent(
   "UserCommentMarkers",
-  UserCommentMarkers,
+  UserCommentMarkersInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    UserCommentMarkers: typeof UserCommentMarkersComponent
+    UserCommentMarkers: typeof UserCommentMarkers
   }
 }

@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) =>  ({
   }
 })
 
-const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection, SectionTitle, Loading } = Components
 
   const { params } = useLocation();
@@ -66,10 +66,10 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> 
   )
 };
 
-const UserCommentsRepliesComponent = registerComponent('UserCommentsReplies', UserCommentsReplies, { styles });
+export const UserCommentsReplies = registerComponent('UserCommentsReplies', UserCommentsRepliesInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    UserCommentsReplies: typeof UserCommentsRepliesComponent,
+    UserCommentsReplies: typeof UserCommentsReplies,
   }
 }

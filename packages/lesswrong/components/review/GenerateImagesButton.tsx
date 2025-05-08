@@ -44,7 +44,7 @@ const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
 
 export const artPrompt = ", aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture";
 
-const GenerateImagesButton = ({
+const GenerateImagesButtonInner = ({
   postId,
   prompt,
   allowCustomPrompt = false,
@@ -113,12 +113,12 @@ const GenerateImagesButton = ({
   );
 };
 
-const GenerateImagesButtonComponent = registerComponent('GenerateImagesButton', GenerateImagesButton);
+export const GenerateImagesButton = registerComponent('GenerateImagesButton', GenerateImagesButtonInner);
 
 declare global {
   interface ComponentTypes {
-    GenerateImagesButton: typeof GenerateImagesButtonComponent
+    GenerateImagesButton: typeof GenerateImagesButton
   }
 }
 
-export default GenerateImagesButton;
+export default GenerateImagesButtonInner;

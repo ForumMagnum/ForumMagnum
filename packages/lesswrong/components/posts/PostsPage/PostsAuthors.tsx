@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   authorMarkers: AUTHOR_MARKER_STYLES,
 })
 
-const PostsAuthors = ({classes, post, pageSectionContext}: {
+const PostsAuthorsInner = ({classes, post, pageSectionContext}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   pageSectionContext?: string,
@@ -43,10 +43,10 @@ const PostsAuthors = ({classes, post, pageSectionContext}: {
   </Typography>
 }
 
-const PostsAuthorsComponent = registerComponent('PostsAuthors', PostsAuthors, {styles});
+export const PostsAuthors = registerComponent('PostsAuthors', PostsAuthorsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsAuthors: typeof PostsAuthorsComponent
+    PostsAuthors: typeof PostsAuthors
   }
 }

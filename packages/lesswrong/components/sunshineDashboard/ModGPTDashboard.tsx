@@ -95,7 +95,7 @@ const columns: Column[] = [
 ]
 
 
-const ModGPTDashboard = ({classes}: {
+const ModGPTDashboardInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
@@ -119,10 +119,10 @@ const ModGPTDashboard = ({classes}: {
   )
 }
 
-const ModGPTDashboardComponent = registerComponent('ModGPTDashboard', ModGPTDashboard, {styles});
+export const ModGPTDashboard = registerComponent('ModGPTDashboard', ModGPTDashboardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModGPTDashboard: typeof ModGPTDashboardComponent
+    ModGPTDashboard: typeof ModGPTDashboard
   }
 }

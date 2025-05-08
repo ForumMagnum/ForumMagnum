@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TabNavigationEventsList = ({ terms, onClick, classes }: {
+const TabNavigationEventsListInner = ({ terms, onClick, classes }: {
   terms: PostsViewTerms,
   onClick: () => void,
   classes: ClassesType<typeof styles>,
@@ -236,10 +236,10 @@ const EventSidebarTooltip = ({event, classes}: {
   </div>
 }
 
-const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList, {styles});
+export const TabNavigationEventsList = registerComponent('TabNavigationEventsList', TabNavigationEventsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TabNavigationEventsList: typeof TabNavigationEventsListComponent
+    TabNavigationEventsList: typeof TabNavigationEventsList
   }
 }

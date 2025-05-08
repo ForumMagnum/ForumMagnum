@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CollabEditorPermissionsNotices = ({post, classes}: {
+const CollabEditorPermissionsNoticesInner = ({post, classes}: {
   post: PostsPage,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -43,10 +43,10 @@ const CollabEditorPermissionsNotices = ({post, classes}: {
   </div>;
 }
 
-const CollabEditorPermissionsNoticesComponent = registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNotices, {styles});
+export const CollabEditorPermissionsNotices = registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNoticesInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CollabEditorPermissionsNotices: typeof CollabEditorPermissionsNoticesComponent
+    CollabEditorPermissionsNotices: typeof CollabEditorPermissionsNotices
   }
 }

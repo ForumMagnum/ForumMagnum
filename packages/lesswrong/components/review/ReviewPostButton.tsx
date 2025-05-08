@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
+const ReviewPostButtonInner = ({classes, post, reviewMessage="Review", year}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   reviewMessage?: any,
@@ -55,11 +55,11 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   )
 }
 
-const ReviewPostButtonComponent = registerComponent('ReviewPostButton', ReviewPostButton, {styles});
+export const ReviewPostButton = registerComponent('ReviewPostButton', ReviewPostButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewPostButton: typeof ReviewPostButtonComponent
+    ReviewPostButton: typeof ReviewPostButton
   }
 }
 

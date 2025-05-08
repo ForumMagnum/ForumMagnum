@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
+export const LWUserTooltipContentInner = ({hideFollowButton=false, classes, user}: {
   hideFollowButton?: boolean,
   classes: ClassesType<typeof styles>,
   user: UsersMinimumInfo,
@@ -111,14 +111,14 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
 );
 }
 
-const LWUserTooltipContentComponent = registerComponent(
+export const LWUserTooltipContent = registerComponent(
   'LWUserTooltipContent',
-  LWUserTooltipContent,
+  LWUserTooltipContentInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    LWUserTooltipContent: typeof LWUserTooltipContentComponent
+    LWUserTooltipContent: typeof LWUserTooltipContent
   }
 }

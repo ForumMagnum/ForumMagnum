@@ -135,7 +135,7 @@ const styles = (theme: ThemeType) => ({
     }
 });
 
-export const CommentsItemMeta = ({
+export const CommentsItemMetaInner = ({
   treeOptions,
   comment,
   showCommentTitle,
@@ -357,14 +357,14 @@ export const CommentsItemMeta = ({
   );
 }
 
-const CommentsItemMetaComponent = registerComponent(
+export const CommentsItemMeta = registerComponent(
   "CommentsItemMeta",
-  CommentsItemMeta,
+  CommentsItemMetaInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    CommentsItemMeta: typeof CommentsItemMetaComponent,
+    CommentsItemMeta: typeof CommentsItemMeta,
   }
 }

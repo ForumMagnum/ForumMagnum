@@ -17,7 +17,7 @@ const styles = (_theme: ThemeType) => ({
 /**
  * Section that displays a list of the user's most-read topics
  */
-const WrappedMostReadTopicsSection = ({classes}: {
+const WrappedMostReadTopicsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {mostReadTopics}} = useForumWrappedContext();
@@ -65,14 +65,14 @@ const WrappedMostReadTopicsSection = ({classes}: {
   );
 }
 
-const WrappedMostReadTopicsSectionComponent = registerComponent(
+export const WrappedMostReadTopicsSection = registerComponent(
   "WrappedMostReadTopicsSection",
-  WrappedMostReadTopicsSection,
+  WrappedMostReadTopicsSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedMostReadTopicsSection: typeof WrappedMostReadTopicsSectionComponent
+    WrappedMostReadTopicsSection: typeof WrappedMostReadTopicsSection
   }
 }

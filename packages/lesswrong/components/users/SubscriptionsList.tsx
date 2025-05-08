@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SubscriptionsList = ({
+const SubscriptionsListInner = ({
   collectionName,
   fragmentName,
   subscriptionType,
@@ -90,14 +90,14 @@ const SubscriptionsList = ({
   );
 }
 
-const SubscriptionsListComponent = registerComponent(
+export const SubscriptionsList = registerComponent(
   "SubscriptionsList",
-  SubscriptionsList,
+  SubscriptionsListInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    SubscriptionsList: typeof SubscriptionsListComponent
+    SubscriptionsList: typeof SubscriptionsList
   }
 }

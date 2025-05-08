@@ -135,7 +135,7 @@ const initializeHighlightStatuses = (
   return result;
 };
 
-const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItemInner = ({thread, index, settings = DEFAULT_SETTINGS}: {
   thread: DisplayFeedCommentThread,
   index: number,
   settings?: UltraFeedSettingsType,
@@ -239,15 +239,15 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   );
 }
 
-const UltraFeedThreadItemComponent = registerComponent(
+export const UltraFeedThreadItem = registerComponent(
   "UltraFeedThreadItem",
-  UltraFeedThreadItem,
+  UltraFeedThreadItemInner,
 );
 
-export default UltraFeedThreadItemComponent;
+
 
 declare global {
   interface ComponentTypes {
-    UltraFeedThreadItem: typeof UltraFeedThreadItemComponent
+    UltraFeedThreadItem: typeof UltraFeedThreadItem
   }
 }

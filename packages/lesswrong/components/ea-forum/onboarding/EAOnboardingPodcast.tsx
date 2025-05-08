@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingPodcast = ({podcast, classes}: {
+export const EAOnboardingPodcastInner = ({podcast, classes}: {
   podcast?: PodcastData,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -64,14 +64,14 @@ export const EAOnboardingPodcast = ({podcast, classes}: {
   );
 }
 
-const EAOnboardingPodcastComponent = registerComponent(
+export const EAOnboardingPodcast = registerComponent(
   "EAOnboardingPodcast",
-  EAOnboardingPodcast,
+  EAOnboardingPodcastInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingPodcast: typeof EAOnboardingPodcastComponent
+    EAOnboardingPodcast: typeof EAOnboardingPodcast
   }
 }

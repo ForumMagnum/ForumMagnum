@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
+export const ContentSummaryRowsInner = ({classes, comments, posts, user, loading}: {
   classes: ClassesType<typeof styles>,
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
@@ -129,10 +129,10 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   </div>;
 }
 
-const ContentSummaryRowsComponent = registerComponent('ContentSummaryRows', ContentSummaryRows, {styles});
+export const ContentSummaryRows = registerComponent('ContentSummaryRows', ContentSummaryRowsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ContentSummaryRows: typeof ContentSummaryRowsComponent
+    ContentSummaryRows: typeof ContentSummaryRows
   }
 }

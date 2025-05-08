@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecentDiscussionMeetupsPoke = ({classes}: {
+const RecentDiscussionMeetupsPokeInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [mapsLoaded, googleMaps] = useGoogleMaps()
@@ -210,8 +210,8 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
   </div>
 }
 
-const RecentDiscussionMeetupsPokeComponent = registerComponent(
-  'RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPoke, {
+export const RecentDiscussionMeetupsPoke = registerComponent(
+  'RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPokeInner, {
     styles,
     hocs: [withErrorBoundary],
   }
@@ -219,6 +219,6 @@ const RecentDiscussionMeetupsPokeComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionMeetupsPoke: typeof RecentDiscussionMeetupsPokeComponent,
+    RecentDiscussionMeetupsPoke: typeof RecentDiscussionMeetupsPoke,
   }
 }

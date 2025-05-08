@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
+const CoreTagIconInner = ({tag, fallbackNode, className, classes}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
   className?: string,
@@ -64,10 +64,10 @@ const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
 }
 
-const CoreTagIconComponent = registerComponent("CoreTagIcon", CoreTagIcon, {styles});
+export const CoreTagIcon = registerComponent("CoreTagIcon", CoreTagIconInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CoreTagIcon: typeof CoreTagIconComponent
+    CoreTagIcon: typeof CoreTagIcon
   }
 }

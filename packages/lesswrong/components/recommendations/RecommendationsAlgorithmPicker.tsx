@@ -72,7 +72,7 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
 }
 const includeExtra = forumSelect(forumIncludeExtra)
 
-const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
+const RecommendationsAlgorithmPickerInner = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
@@ -225,10 +225,10 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   </div>;
 }
 
-const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
+export const RecommendationsAlgorithmPicker = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPickerInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPickerComponent
+    RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPicker
   }
 }

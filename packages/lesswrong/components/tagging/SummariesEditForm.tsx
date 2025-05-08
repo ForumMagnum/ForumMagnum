@@ -252,7 +252,7 @@ interface SummariesEditFormProps {
   collectionName: 'Tags' | 'MultiDocuments',
 }
 
-const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
+const SummariesEditFormInner = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
   const { Loading, ForumIcon, LWTooltip } = Components;
 
   const classes = useStyles(styles);
@@ -343,12 +343,12 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
   </span>;
 };
 
-const SummariesEditFormComponent = registerComponent("SummariesEditForm", SummariesEditForm);
+export const SummariesEditForm = registerComponent("SummariesEditForm", SummariesEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    SummariesEditForm: typeof SummariesEditFormComponent
+    SummariesEditForm: typeof SummariesEditForm
   }
 }
 
-export default SummariesEditForm;
+export default SummariesEditFormInner;

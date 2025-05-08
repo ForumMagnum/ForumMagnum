@@ -88,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedReceivedReactsSection = ({classes}: {
+const WrappedReceivedReactsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -137,14 +137,14 @@ const WrappedReceivedReactsSection = ({classes}: {
   );
 }
 
-const WrappedReceivedReactsSectionComponent = registerComponent(
+export const WrappedReceivedReactsSection = registerComponent(
   "WrappedReceivedReactsSection",
-  WrappedReceivedReactsSection,
+  WrappedReceivedReactsSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedReceivedReactsSection: typeof WrappedReceivedReactsSectionComponent
+    WrappedReceivedReactsSection: typeof WrappedReceivedReactsSection
   }
 }

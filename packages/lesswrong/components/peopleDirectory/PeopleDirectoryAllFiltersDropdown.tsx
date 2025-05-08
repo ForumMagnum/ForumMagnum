@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryAllFiltersDropdown = ({classes}: {
+const PeopleDirectoryAllFiltersDropdownInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {filters} = usePeopleDirectory();
@@ -161,14 +161,14 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
   );
 }
 
-const PeopleDirectoryAllFiltersDropdownComponent = registerComponent(
+export const PeopleDirectoryAllFiltersDropdown = registerComponent(
   "PeopleDirectoryAllFiltersDropdown",
-  PeopleDirectoryAllFiltersDropdown,
+  PeopleDirectoryAllFiltersDropdownInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryAllFiltersDropdown: typeof PeopleDirectoryAllFiltersDropdownComponent
+    PeopleDirectoryAllFiltersDropdown: typeof PeopleDirectoryAllFiltersDropdown
   }
 }

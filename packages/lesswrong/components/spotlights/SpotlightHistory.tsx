@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
-export const SpotlightHistory = () => {
+export const SpotlightHistoryInner = () => {
   const { SingleColumnSection, SectionTitle, SpotlightItem, LoadMore } = Components
 
   const currentUser = useCurrentUser()
@@ -31,11 +31,11 @@ export const SpotlightHistory = () => {
   </SingleColumnSection>;
 }
 
-const SpotlightHistoryComponent = registerComponent('SpotlightHistory', SpotlightHistory);
+export const SpotlightHistory = registerComponent('SpotlightHistory', SpotlightHistoryInner);
 
 declare global {
   interface ComponentTypes {
-    SpotlightHistory: typeof SpotlightHistoryComponent
+    SpotlightHistory: typeof SpotlightHistory
   }
 }
 

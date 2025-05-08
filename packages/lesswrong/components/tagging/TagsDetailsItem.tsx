@@ -80,7 +80,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
+const TagsDetailsItemInner = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
   tag: TagFragment | TagWithFlagsFragment,
   classes: ClassesType<typeof styles>,
   showFlags?: boolean,
@@ -168,10 +168,10 @@ const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = f
   </div>
 }
 
-const TagsDetailsItemComponent = registerComponent("TagsDetailsItem", TagsDetailsItem, { styles });
+export const TagsDetailsItem = registerComponent("TagsDetailsItem", TagsDetailsItemInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    TagsDetailsItem: typeof TagsDetailsItemComponent
+    TagsDetailsItem: typeof TagsDetailsItem
   }
 }

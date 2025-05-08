@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import startCase from "lodash/startCase";
 
-const LoginToTrack = ({className, children = "Log in to save where you left off"}: {
+const LoginToTrackInner = ({className, children = "Log in to save where you left off"}: {
   className?: string,
   children?: ReactNode,
 }) => {
@@ -14,10 +14,10 @@ const LoginToTrack = ({className, children = "Log in to save where you left off"
   );
 }
 
-const LoginToTrackComponent = registerComponent("LoginToTrack", LoginToTrack, {})
+export const LoginToTrack = registerComponent("LoginToTrack", LoginToTrackInner, {})
 
 declare global {
   interface ComponentTypes {
-    LoginToTrack: typeof LoginToTrackComponent
+    LoginToTrack: typeof LoginToTrack
   }
 }

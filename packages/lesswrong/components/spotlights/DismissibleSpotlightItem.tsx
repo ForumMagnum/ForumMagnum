@@ -6,7 +6,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
 
-export const DismissibleSpotlightItem = ({
+export const DismissibleSpotlightItemInner = ({
   current,
   spotlight,
   standaloneSection,
@@ -66,10 +66,10 @@ export const DismissibleSpotlightItem = ({
   return null
 }
 
-const DismissibleSpotlightItemComponent = registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItem);
+export const DismissibleSpotlightItem = registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItemInner);
 
 declare global {
   interface ComponentTypes {
-    DismissibleSpotlightItem: typeof DismissibleSpotlightItemComponent
+    DismissibleSpotlightItem: typeof DismissibleSpotlightItem
   }
 }

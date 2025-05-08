@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ChaptersItem = ({ chapter, canEdit, classes }: {
+const ChaptersItemInner = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
   classes: ClassesType<typeof styles>,
@@ -87,10 +87,10 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   )
 }
 
-const ChaptersItemComponent = registerComponent('ChaptersItem', ChaptersItem, {styles});
+export const ChaptersItem = registerComponent('ChaptersItem', ChaptersItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ChaptersItem: typeof ChaptersItemComponent
+    ChaptersItem: typeof ChaptersItem
   }
 }

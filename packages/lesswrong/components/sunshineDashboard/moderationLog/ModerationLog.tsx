@@ -189,7 +189,7 @@ const usersBannedFromUsersColumns: Column[] = [
   },
 ]
 
-const ModerationLog = ({classes}: {
+const ModerationLogInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
@@ -304,10 +304,10 @@ const ModerationLog = ({classes}: {
   )
 }
 
-const ModerationLogComponent = registerComponent('ModerationLog', ModerationLog, {styles});
+export const ModerationLog = registerComponent('ModerationLog', ModerationLogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModerationLog: typeof ModerationLogComponent
+    ModerationLog: typeof ModerationLog
   }
 }

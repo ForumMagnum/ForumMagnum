@@ -52,7 +52,7 @@ const reformatAuthorPlaceholder = (
   );
 }
 
-const TruncatedAuthorsList = ({
+const TruncatedAuthorsListInner = ({
   post,
   expandContainer,
   className,
@@ -124,14 +124,14 @@ const TruncatedAuthorsList = ({
     );
 }
 
-const TruncatedAuthorsListComponent = registerComponent(
+export const TruncatedAuthorsList = registerComponent(
   "TruncatedAuthorsList",
-  TruncatedAuthorsList,
+  TruncatedAuthorsListInner,
   {styles, stylePriority: -2},
 );
 
 declare global {
   interface ComponentTypes {
-    TruncatedAuthorsList: typeof TruncatedAuthorsListComponent
+    TruncatedAuthorsList: typeof TruncatedAuthorsList
   }
 }

@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SingleTagItem = ({documentId, onDelete, className, classes}: {
+const SingleTagItemInner = ({documentId, onDelete, className, classes}: {
   documentId: string,
   onDelete: (id: string) => void,
   className?: string,
@@ -58,14 +58,14 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   return null
 };
 
-const SingleTagItemComponent = registerComponent(
+export const SingleTagItem = registerComponent(
   'SingleTagItem',
-  SingleTagItem,
+  SingleTagItemInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    SingleTagItem: typeof SingleTagItemComponent
+    SingleTagItem: typeof SingleTagItem
   }
 }

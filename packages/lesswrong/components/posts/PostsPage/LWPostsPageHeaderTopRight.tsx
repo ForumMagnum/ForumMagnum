@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
+export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
@@ -82,10 +82,10 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   </div>;
 }
 
-const LWPostsPageHeaderTopRightComponent = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
+export const LWPostsPageHeaderTopRight = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRightInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWPostsPageHeaderTopRight: typeof LWPostsPageHeaderTopRightComponent
+    LWPostsPageHeaderTopRight: typeof LWPostsPageHeaderTopRight
   }
 }

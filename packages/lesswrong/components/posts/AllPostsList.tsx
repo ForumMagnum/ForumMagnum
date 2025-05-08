@@ -35,7 +35,7 @@ const timeframeToNumTimeBlocks = {
   yearly: forumAllPostsNumYearsSetting.get(),
 }
 
-const AllPostsList = ({
+const AllPostsListInner = ({
   currentTimeframe,
   currentSorting,
   currentFilter,
@@ -162,10 +162,10 @@ const AllPostsList = ({
   );
 }
 
-const AllPostsListComponent = registerComponent("AllPostsList", AllPostsList);
+export const AllPostsList = registerComponent("AllPostsList", AllPostsListInner);
 
 declare global {
   interface ComponentTypes {
-    AllPostsList: typeof AllPostsListComponent
+    AllPostsList: typeof AllPostsList
   }
 }

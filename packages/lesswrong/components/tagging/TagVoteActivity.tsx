@@ -96,7 +96,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   );
 }
 
-const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
+const TagVoteActivityInner = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean,
   showNewTags?: boolean,
@@ -135,10 +135,10 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
 }
 
 
-const TagVoteActivityComponent = registerComponent("TagVoteActivity", TagVoteActivity, {styles});
+export const TagVoteActivity = registerComponent("TagVoteActivity", TagVoteActivityInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagVoteActivity: typeof TagVoteActivityComponent
+    TagVoteActivity: typeof TagVoteActivity
   }
 }

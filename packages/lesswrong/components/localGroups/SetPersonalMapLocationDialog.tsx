@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   ...sharedStyles(theme),
 });
 
-const SetPersonalMapLocationDialog = ({ onClose, classes }: {
+const SetPersonalMapLocationDialogInner = ({ onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -106,11 +106,11 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   )
 }
 
-const SetPersonalMapLocationDialogComponent = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
+export const SetPersonalMapLocationDialog = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SetPersonalMapLocationDialog: typeof SetPersonalMapLocationDialogComponent
+    SetPersonalMapLocationDialog: typeof SetPersonalMapLocationDialog
   }
 }
 

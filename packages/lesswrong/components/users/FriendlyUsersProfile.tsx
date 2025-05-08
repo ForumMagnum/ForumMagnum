@@ -178,7 +178,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FriendlyUsersProfile = ({terms, slug, classes}: {
+const FriendlyUsersProfileInner = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
   classes: ClassesType<typeof styles>,
@@ -565,12 +565,12 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   </div>
 }
 
-const FriendlyUsersProfileComponent = registerComponent(
-  'FriendlyUsersProfile', FriendlyUsersProfile, {styles}
+export const FriendlyUsersProfile = registerComponent(
+  'FriendlyUsersProfile', FriendlyUsersProfileInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    FriendlyUsersProfile: typeof FriendlyUsersProfileComponent
+    FriendlyUsersProfile: typeof FriendlyUsersProfile
   }
 }

@@ -6,7 +6,7 @@ import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 
-const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
+const MoveToFrontpageDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
@@ -71,13 +71,13 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   return null;
 }
 
-const MoveToFrontpageDropdownItemComponent = registerComponent(
+export const MoveToFrontpageDropdownItem = registerComponent(
   "MoveToFrontpageDropdownItem",
-  MoveToFrontpageDropdownItem,
+  MoveToFrontpageDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    MoveToFrontpageDropdownItem: typeof MoveToFrontpageDropdownItemComponent
+    MoveToFrontpageDropdownItem: typeof MoveToFrontpageDropdownItem
   }
 }

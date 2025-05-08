@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { forumTypeSetting } from "../../lib/instanceSettings";
 
-const KarmaDisplay = ({document, placement="left", linkItem}: {
+const KarmaDisplayInner = ({document, placement="left", linkItem}: {
   document: VoteableType,
   placement?: PopperPlacementType,
   linkItem?: React.ReactNode,
@@ -36,10 +36,10 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
   );
 };
 
-const KarmaDisplayComponent = registerComponent("KarmaDisplay", KarmaDisplay);
+export const KarmaDisplay = registerComponent("KarmaDisplay", KarmaDisplayInner);
 
 declare global {
   interface ComponentTypes {
-    KarmaDisplay: typeof KarmaDisplayComponent,
+    KarmaDisplay: typeof KarmaDisplay,
   }
 }

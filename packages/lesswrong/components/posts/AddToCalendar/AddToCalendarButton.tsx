@@ -52,7 +52,7 @@ const AddToCalendarIcon = ({className=''}) => {
   </svg>
 }
 
-const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
+const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
   post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision,
   label?: string,
   hideTooltip?: boolean,
@@ -157,10 +157,10 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   )
 };
 
-const AddToCalendarButtonComponent = registerComponent('AddToCalendarButton', AddToCalendarButton, {styles});
+export const AddToCalendarButton = registerComponent('AddToCalendarButton', AddToCalendarButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AddToCalendarButton: typeof AddToCalendarButtonComponent,
+    AddToCalendarButton: typeof AddToCalendarButton,
   }
 }

@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType<typeof styles>}) => {
+const SunshineNewUsersProfileInfoInner = ({userId, classes}: {userId: string, classes: ClassesType<typeof styles>}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
 
@@ -44,10 +44,10 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
   </div>
 }
 
-const SunshineNewUsersProfileInfoComponent = registerComponent('SunshineNewUsersProfileInfo', SunshineNewUsersProfileInfo, {styles});
+export const SunshineNewUsersProfileInfo = registerComponent('SunshineNewUsersProfileInfo', SunshineNewUsersProfileInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfoComponent
+    SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfo
   }
 }

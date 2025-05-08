@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
+const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   sequenceId: string,
   canEdit: boolean,
   nextSuggestedNumberRef: React.MutableRefObject<number>,
@@ -36,10 +36,10 @@ const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   </div>
 }
 
-const ChaptersListComponent = registerComponent('ChaptersList', ChaptersList)
+export const ChaptersList = registerComponent('ChaptersList', ChaptersListInner)
 
 declare global {
   interface ComponentTypes {
-    ChaptersList: typeof ChaptersListComponent
+    ChaptersList: typeof ChaptersList
   }
 }

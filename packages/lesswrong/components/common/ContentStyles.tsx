@@ -128,7 +128,7 @@ export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPo
 // so some things want to inherit all of the comment styles *except* for that.
 // (This hack exists to support spoiler blocks and we should probably clean it
 // up.)
-const ContentStyles = ({contentType, className, style, children}: {
+const ContentStylesInner = ({contentType, className, style, children}: {
   contentType: ContentStyleType,
   className?: string,
   style?: CSSProperties,
@@ -152,12 +152,12 @@ const ContentStyles = ({contentType, className, style, children}: {
   </div>;
 }
 
-const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles);
+export const ContentStyles = registerComponent('ContentStyles', ContentStylesInner);
 
-export default ContentStylesComponent;
+
 
 declare global {
   interface ComponentTypes {
-    ContentStyles: typeof ContentStylesComponent
+    ContentStyles: typeof ContentStyles
   }
 }

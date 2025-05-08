@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryNoResults = ({classes}: {
+const PeopleDirectoryNoResultsInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {clearSearch} = usePeopleDirectory();
@@ -38,14 +38,14 @@ const PeopleDirectoryNoResults = ({classes}: {
   );
 }
 
-const PeopleDirectoryNoResultsComponent = registerComponent(
+export const PeopleDirectoryNoResults = registerComponent(
   "PeopleDirectoryNoResults",
-  PeopleDirectoryNoResults,
+  PeopleDirectoryNoResultsInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryNoResults: typeof PeopleDirectoryNoResultsComponent
+    PeopleDirectoryNoResults: typeof PeopleDirectoryNoResults
   }
 }

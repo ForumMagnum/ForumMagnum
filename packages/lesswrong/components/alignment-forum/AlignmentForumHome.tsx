@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AlignmentForumHome = ({classes}: {
+const AlignmentForumHomeInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
@@ -58,12 +58,12 @@ const AlignmentForumHome = ({classes}: {
   )
 };
 
-const AlignmentForumHomeComponent = registerComponent(
-  'AlignmentForumHome', AlignmentForumHome, {styles}
+export const AlignmentForumHome = registerComponent(
+  'AlignmentForumHome', AlignmentForumHomeInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    AlignmentForumHome: typeof AlignmentForumHomeComponent
+    AlignmentForumHome: typeof AlignmentForumHome
   }
 }

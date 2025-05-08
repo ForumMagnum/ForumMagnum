@@ -101,7 +101,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const HighlightedEventCard = ({event, loading, classes}: {
+const HighlightedEventCardInner = ({event, loading, classes}: {
   event?: PostsList,
   loading: boolean,
   classes: ClassesType<typeof styles>,
@@ -180,10 +180,10 @@ const HighlightedEventCard = ({event, loading, classes}: {
   )
 }
 
-const HighlightedEventCardComponent = registerComponent('HighlightedEventCard', HighlightedEventCard, {styles});
+export const HighlightedEventCard = registerComponent('HighlightedEventCard', HighlightedEventCardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    HighlightedEventCard: typeof HighlightedEventCardComponent
+    HighlightedEventCard: typeof HighlightedEventCard
   }
 }

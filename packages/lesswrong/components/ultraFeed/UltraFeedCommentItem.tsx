@@ -120,7 +120,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
-const UltraFeedCompressedCommentsItem = ({
+const UltraFeedCompressedCommentsItemInner = ({
   numComments, 
   setExpanded,
   isFirstComment = false,
@@ -153,7 +153,7 @@ const UltraFeedCompressedCommentsItem = ({
   );
 };
 
-const UltraFeedCompressedCommentsItemComponent = registerComponent("UltraFeedCompressedCommentsItem", UltraFeedCompressedCommentsItem);
+export const UltraFeedCompressedCommentsItem = registerComponent("UltraFeedCompressedCommentsItem", UltraFeedCompressedCommentsItemInner);
 
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
@@ -167,7 +167,7 @@ export interface UltraFeedCommentItemProps {
   settings?: UltraFeedSettingsType;
 }
 
-const UltraFeedCommentItem = ({
+const UltraFeedCommentItemInner = ({
   comment,
   metaInfo,
   onChangeDisplayStatus,
@@ -329,13 +329,12 @@ const UltraFeedCommentItem = ({
   );
 };
 
-const UltraFeedCommentItemComponent = registerComponent("UltraFeedCommentItem", UltraFeedCommentItem);
+export const UltraFeedCommentItem = registerComponent("UltraFeedCommentItem", UltraFeedCommentItemInner);
 
-export default UltraFeedCommentItemComponent;
 
 declare global {
   interface ComponentTypes {
-    UltraFeedCommentItem: typeof UltraFeedCommentItemComponent
-    UltraFeedCompressedCommentsItem: typeof UltraFeedCompressedCommentsItemComponent
+    UltraFeedCommentItem: typeof UltraFeedCommentItem
+    UltraFeedCompressedCommentsItem: typeof UltraFeedCompressedCommentsItem
   }
 }

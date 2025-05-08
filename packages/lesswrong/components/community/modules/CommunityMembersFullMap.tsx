@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommunityMembersFullMap = ({classes}: {
+const CommunityMembersFullMapInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SearchResultsMap } = Components
@@ -28,11 +28,11 @@ const CommunityMembersFullMap = ({classes}: {
   </InstantSearch>
 }
 
-const CommunityMembersFullMapComponent = registerComponent('CommunityMembersFullMap', CommunityMembersFullMap, {styles});
+export const CommunityMembersFullMap = registerComponent('CommunityMembersFullMap', CommunityMembersFullMapInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommunityMembersFullMap: typeof CommunityMembersFullMapComponent
+    CommunityMembersFullMap: typeof CommunityMembersFullMap
   }
 }
 

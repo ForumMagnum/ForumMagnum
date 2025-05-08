@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType<typeof styles>, postId: string, vote: any, votes: SyntheticReviewVote[], reaction: string, freeEntry: boolean}) => {
+const ReactionsButtonInner = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType<typeof styles>, postId: string, vote: any, votes: SyntheticReviewVote[], reaction: string, freeEntry: boolean}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   // TODO: This component is unused, except in ReviewVotingPage2019. Cast to any
   // here is a way to make a minimally invasive fix.
@@ -102,10 +102,10 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
   </span>
 }
 
-const ReactionsButtonComponent = registerComponent("ReactionsButton", ReactionsButton, {styles});
+export const ReactionsButton = registerComponent("ReactionsButton", ReactionsButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReactionsButton: typeof ReactionsButtonComponent
+    ReactionsButton: typeof ReactionsButton
   }
 }

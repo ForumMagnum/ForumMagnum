@@ -97,7 +97,7 @@ const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes
   );
 }
 
-const AdminSynonymsPage = ({classes}: {
+const AdminSynonymsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -106,14 +106,14 @@ const AdminSynonymsPage = ({classes}: {
     : <Components.Error404 />;
 }
 
-const AdminSynonymsPageComponent = registerComponent(
+export const AdminSynonymsPage = registerComponent(
   "AdminSynonymsPage",
-  AdminSynonymsPage,
+  AdminSynonymsPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    AdminSynonymsPage: typeof AdminSynonymsPageComponent
+    AdminSynonymsPage: typeof AdminSynonymsPage
   }
 }

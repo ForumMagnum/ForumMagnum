@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 //a page for creating and viewing moderation templates
-export const ModerationTemplatesPage = ({classes}: {
+export const ModerationTemplatesPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
@@ -116,11 +116,11 @@ export const ModerationTemplatesPage = ({classes}: {
 }
   
 
-const ModerationTemplatesPageComponent = registerComponent('ModerationTemplatesPage', ModerationTemplatesPage, {styles});
+export const ModerationTemplatesPage = registerComponent('ModerationTemplatesPage', ModerationTemplatesPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModerationTemplatesPage: typeof ModerationTemplatesPageComponent
+    ModerationTemplatesPage: typeof ModerationTemplatesPage
   }
 }
 

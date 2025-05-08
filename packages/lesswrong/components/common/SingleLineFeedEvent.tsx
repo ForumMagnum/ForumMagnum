@@ -58,7 +58,7 @@ const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
 }));
 
 
-const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
+const SingleLineFeedEventInner = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
   expands?: boolean,
   expanded?: boolean,
   setExpanded?: (expanded: boolean) => void,
@@ -98,10 +98,10 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   }
 }
 
-const SingleLineFeedEventComponent = registerComponent("SingleLineFeedEvent", SingleLineFeedEvent);
+export const SingleLineFeedEvent = registerComponent("SingleLineFeedEvent", SingleLineFeedEventInner);
 
 declare global {
   interface ComponentTypes {
-    SingleLineFeedEvent: typeof SingleLineFeedEventComponent
+    SingleLineFeedEvent: typeof SingleLineFeedEvent
   }
 }

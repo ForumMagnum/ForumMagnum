@@ -17,7 +17,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const NewShortformDialog = ({onClose, classes}: {
+const NewShortformDialogInner = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -52,14 +52,14 @@ const NewShortformDialog = ({onClose, classes}: {
   );
 }
 
-const NewShortformDialogComponent = registerComponent(
+export const NewShortformDialog = registerComponent(
   'NewShortformDialog',
-  NewShortformDialog,
+  NewShortformDialogInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NewShortformDialog: typeof NewShortformDialogComponent
+    NewShortformDialog: typeof NewShortformDialog
   }
 }

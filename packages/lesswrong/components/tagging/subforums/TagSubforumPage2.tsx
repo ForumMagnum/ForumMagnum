@@ -111,7 +111,7 @@ const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
-const TagSubforumPage2 = ({classes}: {
+const TagSubforumPage2Inner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const {
@@ -373,7 +373,7 @@ const TagSubforumPage2 = ({classes}: {
   );
 }
 
-const TagSubforumPage2Component = registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
+const TagSubforumPage2Component = registerComponent("TagSubforumPage2", TagSubforumPage2Inner, {styles});
 
 declare global {
   interface ComponentTypes {

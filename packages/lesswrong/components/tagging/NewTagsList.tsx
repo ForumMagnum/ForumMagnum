@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewTagsList = ({classes, showHeaders = true}: {
+const NewTagsListInner = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
@@ -69,11 +69,11 @@ const NewTagsList = ({classes, showHeaders = true}: {
   </div>
 }
 
-const NewTagsListComponent = registerComponent("NewTagsList", NewTagsList, {styles});
+export const NewTagsList = registerComponent("NewTagsList", NewTagsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewTagsList: typeof NewTagsListComponent
+    NewTagsList: typeof NewTagsList
   }
 }
 

@@ -78,7 +78,7 @@ const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   },
 }));
 
-const PostsPageTitle = ({post, className}: {
+const PostsPageTitleInner = ({post, className}: {
   post: PostsDetails|PostsList,
   className?: string
 }) => {
@@ -128,11 +128,11 @@ const PostsPageTitle = ({post, className}: {
   )
 }
 
-const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle);
-export default PostsPageTitleComponent;
+export const PostsPageTitle = registerComponent('PostsPageTitle', PostsPageTitleInner);
+
 
 declare global {
   interface ComponentTypes {
-    PostsPageTitle: typeof PostsPageTitleComponent
+    PostsPageTitle: typeof PostsPageTitle
   }
 }

@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RejectContentDialog = ({classes, rejectContent}: {
+const RejectContentDialogInner = ({classes, rejectContent}: {
   classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
@@ -147,10 +147,10 @@ const RejectContentDialog = ({classes, rejectContent}: {
   )
 };
 
-const RejectContentDialogComponent = registerComponent('RejectContentDialog', RejectContentDialog, { styles });
+export const RejectContentDialog = registerComponent('RejectContentDialog', RejectContentDialogInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    RejectContentDialog: typeof RejectContentDialogComponent
+    RejectContentDialog: typeof RejectContentDialog
   }
 }

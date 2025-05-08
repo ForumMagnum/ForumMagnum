@@ -227,7 +227,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupPage = ({ classes, documentId: groupId }: {
+const LocalGroupPageInner = ({ classes, documentId: groupId }: {
   classes: ClassesType<typeof styles>,
   documentId: string,
   groupId?: string,
@@ -562,10 +562,10 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   )
 }
 
-const LocalGroupPageComponent = registerComponent('LocalGroupPage', LocalGroupPage, {styles});
+export const LocalGroupPage = registerComponent('LocalGroupPage', LocalGroupPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalGroupPage: typeof LocalGroupPageComponent
+    LocalGroupPage: typeof LocalGroupPage
   }
 }

@@ -89,7 +89,7 @@ const formatNotificationType = (type: string): string => {
   }
 }
 
-const NotificationsPopoverNotification = ({notification, refetch, classes}: {
+const NotificationsPopoverNotificationInner = ({notification, refetch, classes}: {
   notification: NotificationDisplay,
   refetch?: () => void,
   classes: ClassesType<typeof styles>,
@@ -171,14 +171,14 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
   );
 }
 
-const NotificationsPopoverNotificationComponent = registerComponent(
+export const NotificationsPopoverNotification = registerComponent(
   "NotificationsPopoverNotification",
-  NotificationsPopoverNotification,
+  NotificationsPopoverNotificationInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPopoverNotification: typeof NotificationsPopoverNotificationComponent
+    NotificationsPopoverNotification: typeof NotificationsPopoverNotification
   }
 }

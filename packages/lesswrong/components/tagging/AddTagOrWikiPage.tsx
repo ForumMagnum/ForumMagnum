@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
+const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
   onlyTags: boolean,
@@ -138,10 +138,10 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   </div>
 }
 
-const AddTagOrWikiPageComponent = registerComponent("AddTagOrWikiPage", AddTagOrWikiPage, {styles});
+export const AddTagOrWikiPage = registerComponent("AddTagOrWikiPage", AddTagOrWikiPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AddTagOrWikiPage: typeof AddTagOrWikiPageComponent
+    AddTagOrWikiPage: typeof AddTagOrWikiPage
   }
 }

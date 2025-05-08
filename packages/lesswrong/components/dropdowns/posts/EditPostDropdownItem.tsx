@@ -6,7 +6,7 @@ import { userIsSharedOn } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 
-const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
+const EditPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   const isPodcaster = userIsPodcaster(currentUser);
@@ -29,13 +29,13 @@ const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const EditPostDropdownItemComponent = registerComponent(
+export const EditPostDropdownItem = registerComponent(
   "EditPostDropdownItem",
-  EditPostDropdownItem,
+  EditPostDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    EditPostDropdownItem: typeof EditPostDropdownItemComponent
+    EditPostDropdownItem: typeof EditPostDropdownItem
   }
 }

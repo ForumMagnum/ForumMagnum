@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsPreviewLoading = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PostsPreviewLoadingInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {Loading} = Components;
   return (
     <div className={classes.loading}>
@@ -27,14 +27,14 @@ const PostsPreviewLoading = ({classes}: {classes: ClassesType<typeof styles>}) =
   );
 }
 
-const PostsPreviewLoadingComponent = registerComponent(
+export const PostsPreviewLoading = registerComponent(
   'PostsPreviewLoading',
-  PostsPreviewLoading,
+  PostsPreviewLoadingInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsPreviewLoading: typeof PostsPreviewLoadingComponent
+    PostsPreviewLoading: typeof PostsPreviewLoading
   }
 }

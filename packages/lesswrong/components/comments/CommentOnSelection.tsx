@@ -55,7 +55,7 @@ type SelectedTextToolbarState =
  * If there's no space in the right margin (eg on mobile), adding the button
  * might introduce horizontal scrolling.
  */
-const CommentOnSelectionPageWrapper = ({children}: {
+const CommentOnSelectionPageWrapperInner = ({children}: {
   children: React.ReactNode
 }) => {
   const { SelectedTextToolbar } = Components;
@@ -152,7 +152,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
  * x, y: In the page coordinate system, ie, relative to the top-left corner when
  *   the page is scrolled to the top.
  */
-const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
+const SelectedTextToolbarInner = ({onClickComment, x, y, classes}: {
   onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
   classes: ClassesType<typeof selectedTextToolbarStyles>,
@@ -183,7 +183,7 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
  *
  * See CommentOnSelectionPageWrapper for notes on implementation details.
  */
-const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
+const CommentOnSelectionContentWrapperInner = ({onClickComment, children}: {
   onClickComment: (html: string) => void,
   children: React.ReactNode,
 }) => {
@@ -263,17 +263,17 @@ function selectionToBlockquoteHTML(selection: Selection|null): string {
 }
 
 
-const CommentOnSelectionPageWrapperComponent = registerComponent('CommentOnSelectionPageWrapper', CommentOnSelectionPageWrapper);
-const SelectedTextToolbarComponent = registerComponent(
-  'SelectedTextToolbar', SelectedTextToolbar,
+export const CommentOnSelectionPageWrapper = registerComponent('CommentOnSelectionPageWrapper', CommentOnSelectionPageWrapperInner);
+export const SelectedTextToolbar = registerComponent(
+  'SelectedTextToolbar', SelectedTextToolbarInner,
   {styles: selectedTextToolbarStyles}
 );
-const CommentOnSelectionContentWrapperComponent = registerComponent("CommentOnSelectionContentWrapper", CommentOnSelectionContentWrapper);
+export const CommentOnSelectionContentWrapper = registerComponent("CommentOnSelectionContentWrapper", CommentOnSelectionContentWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    CommentOnSelectionPageWrapper: typeof CommentOnSelectionPageWrapperComponent
-    SelectedTextToolbar: typeof SelectedTextToolbarComponent
-    CommentOnSelectionContentWrapper: typeof CommentOnSelectionContentWrapperComponent,
+    CommentOnSelectionPageWrapper: typeof CommentOnSelectionPageWrapper
+    SelectedTextToolbar: typeof SelectedTextToolbar
+    CommentOnSelectionContentWrapper: typeof CommentOnSelectionContentWrapper,
   }
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
 
-const PostsSingleSlug = () => {
+const PostsSingleSlugInner = () => {
   const { params, query } = useLocation();
   const version = query?.revision
   const slug = params.slug;
@@ -16,10 +16,10 @@ const PostsSingleSlug = () => {
   }
 };
 
-const PostsSingleSlugComponent = registerComponent('PostsSingleSlug', PostsSingleSlug);
+export const PostsSingleSlug = registerComponent('PostsSingleSlug', PostsSingleSlugInner);
 
 declare global {
   interface ComponentTypes {
-    PostsSingleSlug: typeof PostsSingleSlugComponent
+    PostsSingleSlug: typeof PostsSingleSlug
   }
 }

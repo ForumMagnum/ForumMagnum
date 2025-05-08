@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const DeleteAccountSection = ({
+const DeleteAccountSectionInner = ({
   user,
   classes,
 }: {
@@ -98,12 +98,12 @@ const DeleteAccountSection = ({
   );
 };
 
-const DeleteAccountSectionComponent = registerComponent('DeleteAccountSection', DeleteAccountSection, { styles });
+export const DeleteAccountSection = registerComponent('DeleteAccountSection', DeleteAccountSectionInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    DeleteAccountSection: typeof DeleteAccountSectionComponent
+    DeleteAccountSection: typeof DeleteAccountSection
   }
 }
 
-export default DeleteAccountSectionComponent;
+

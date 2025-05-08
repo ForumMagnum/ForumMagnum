@@ -12,7 +12,7 @@ const styles = defineStyles("TagAudioPlayerWrapper", (theme: ThemeType) => ({
   },
 }));
 
-export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
+export const TagAudioPlayerWrapperInner = ({tag, showEmbeddedPlayer}: {
   tag: TagPageFragment,
   showEmbeddedPlayer: boolean,
 }) => {
@@ -31,10 +31,10 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
   );
 }
 
-const TagAudioPlayerWrapperComponent = registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapper);
+export const TagAudioPlayerWrapper = registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    TagAudioPlayerWrapper: typeof TagAudioPlayerWrapperComponent
+    TagAudioPlayerWrapper: typeof TagAudioPlayerWrapper
   }
 } 

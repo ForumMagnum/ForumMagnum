@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AdminForumEventsPage = ({classes}: {
+export const AdminForumEventsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -41,14 +41,14 @@ export const AdminForumEventsPage = ({classes}: {
   );
 }
 
-const AdminForumEventsPageComponent = registerComponent(
+export const AdminForumEventsPage = registerComponent(
   "AdminForumEventsPage",
-  AdminForumEventsPage,
+  AdminForumEventsPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    AdminForumEventsPage: typeof AdminForumEventsPageComponent
+    AdminForumEventsPage: typeof AdminForumEventsPage
   }
 }

@@ -93,7 +93,7 @@ export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   pageSubSectionContext?: string,
 }
 
-const EARecentDiscussionItem = ({
+const EARecentDiscussionItemInner = ({
   icon,
   iconVariant,
   user,
@@ -164,14 +164,14 @@ const EARecentDiscussionItem = ({
   );
 }
 
-const EARecentDiscussionItemComponent = registerComponent(
+export const EARecentDiscussionItem = registerComponent(
   "EARecentDiscussionItem",
-  EARecentDiscussionItem,
+  EARecentDiscussionItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EARecentDiscussionItem: typeof EARecentDiscussionItemComponent,
+    EARecentDiscussionItem: typeof EARecentDiscussionItem,
   }
 }

@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
+export const ReviewsPageInner = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
   const { SingleColumnSection, ReviewsList } = Components
 
   const { params } = useLocation()
@@ -49,11 +49,11 @@ export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof 
   </SingleColumnSection>;
 }
 
-const ReviewsPageComponent = registerComponent('ReviewsPage', ReviewsPage, {styles});
+export const ReviewsPage = registerComponent('ReviewsPage', ReviewsPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewsPage: typeof ReviewsPageComponent
+    ReviewsPage: typeof ReviewsPage
   }
 }
 

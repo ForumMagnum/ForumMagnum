@@ -31,7 +31,7 @@ interface ExternalProps {
    * methods. (Doing so is handled by React, not by anything inside of this
    * using the ref prop)
    */
-  ref?: React.RefObject<ContentItemBody>
+  ref?: React.RefObject<ContentItemBodyInner>
 
   // className: Name of an additional CSS class to apply to this element.
   className?: string;
@@ -109,7 +109,7 @@ interface ContentItemBodyState {
 //    dangerouslySetInnerHTML: Follows the same convention as
 //      dangerouslySetInnerHTML on a div, ie, you set the HTML content of this
 //      by passing dangerouslySetInnerHTML={{__html: "<p>foo</p>"}}.
-export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyState> {
+export class ContentItemBodyInner extends Component<ContentItemBodyProps,ContentItemBodyState> {
   private bodyRef: React.RefObject<HTMLDivElement>
 
   private replacedElements: Array<{
@@ -663,7 +663,7 @@ const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
+const ContentItemBody = registerComponent<ExternalProps>("ContentItemBody", ContentItemBodyInner, {
   hocs: [withTracking],
   
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
@@ -681,7 +681,7 @@ const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBo
 
 declare global {
   interface ComponentTypes {
-    ContentItemBody: typeof ContentItemBodyComponent
+    ContentItemBody: typeof ContentItemBody
   }
 }
 

@@ -6,7 +6,7 @@ import type { Placement as PopperPlacementType } from "popper.js"
  * This is mostly deprecated - you should probably just use `PostsTooltip`
  * directly instead
  */
-const PostsItemTooltipWrapper = ({
+const PostsItemTooltipWrapperInner = ({
   children,
   post,
   placement="bottom-end",
@@ -38,12 +38,12 @@ const PostsItemTooltipWrapper = ({
   );
 }
 
-const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper
+export const PostsItemTooltipWrapper = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapperInner
 )
 
 declare global {
   interface ComponentTypes {
-    PostsItemTooltipWrapper: typeof PostsItemTooltipWrapperComponent
+    PostsItemTooltipWrapper: typeof PostsItemTooltipWrapper
   }
 }
 

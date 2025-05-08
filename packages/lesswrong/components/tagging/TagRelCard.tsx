@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagRelCard = ({tagRel, classes}: {
+const TagRelCardInner = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -130,10 +130,10 @@ const TagRelCard = ({tagRel, classes}: {
   </div>
 }
 
-const TagRelCardComponent = registerComponent("TagRelCard", TagRelCard, {styles});
+export const TagRelCard = registerComponent("TagRelCard", TagRelCardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagRelCard: typeof TagRelCardComponent
+    TagRelCard: typeof TagRelCard
   }
 }

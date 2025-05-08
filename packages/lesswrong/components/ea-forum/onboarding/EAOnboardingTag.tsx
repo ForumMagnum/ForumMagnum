@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
+export const EAOnboardingTagInner = ({tag, onSubscribed, classes}: {
   tag: UserOnboardingTag,
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -117,14 +117,14 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   );
 }
 
-const EAOnboardingTagComponent = registerComponent(
+export const EAOnboardingTag = registerComponent(
   "EAOnboardingTag",
-  EAOnboardingTag,
+  EAOnboardingTagInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingTag: typeof EAOnboardingTagComponent
+    EAOnboardingTag: typeof EAOnboardingTag
   }
 }

@@ -68,7 +68,7 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
 
 const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
 
-const OverallVoteAxis = ({
+const OverallVoteAxisInner = ({
   document,
   hideKarma = false,
   voteProps,
@@ -242,12 +242,12 @@ const OverallVoteAxis = ({
   </TooltipIfDisabled>
 }
 
-const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis);
+export const OverallVoteAxis = registerComponent('OverallVoteAxis', OverallVoteAxisInner);
 
-export default OverallVoteAxisComponent;
+
 
 declare global {
   interface ComponentTypes {
-    OverallVoteAxis: typeof OverallVoteAxisComponent
+    OverallVoteAxis: typeof OverallVoteAxis
   }
 }

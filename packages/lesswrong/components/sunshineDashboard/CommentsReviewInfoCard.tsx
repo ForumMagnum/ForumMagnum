@@ -114,7 +114,7 @@ export interface CommentWithModeratorActions {
   actions: Omit<CommentModeratorActionDisplay, 'comment'>[];
 }
 
-export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
+export const CommentsReviewInfoCardInner = ({ commentModeratorAction, classes }: {
   commentModeratorAction: CommentWithModeratorActions,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -208,11 +208,11 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   </div>;
 }
 
-const CommentsReviewInfoCardComponent = registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCard, {styles});
+export const CommentsReviewInfoCard = registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentsReviewInfoCard: typeof CommentsReviewInfoCardComponent
+    CommentsReviewInfoCard: typeof CommentsReviewInfoCard
   }
 }
 

@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectorySelectOption = ({state, className, classes}: {
+const PeopleDirectorySelectOptionInner = ({state, className, classes}: {
   state: MultiSelectState,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -72,14 +72,14 @@ const PeopleDirectorySelectOption = ({state, className, classes}: {
   );
 }
 
-const PeopleDirectorySelectOptionComponent = registerComponent(
+export const PeopleDirectorySelectOption = registerComponent(
   "PeopleDirectorySelectOption",
-  PeopleDirectorySelectOption,
+  PeopleDirectorySelectOptionInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectorySelectOption: typeof PeopleDirectorySelectOptionComponent
+    PeopleDirectorySelectOption: typeof PeopleDirectorySelectOption
   }
 }

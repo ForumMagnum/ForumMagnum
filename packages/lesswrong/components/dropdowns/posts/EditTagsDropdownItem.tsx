@@ -5,7 +5,7 @@ import { useDialog } from "../../common/withDialog";
 import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 
-const EditTagsDropdownItem = ({post, closeMenu}: {
+const EditTagsDropdownItemInner = ({post, closeMenu}: {
   post: PostsList | SunshinePostsList,
   closeMenu?: () => void,
 }) => {
@@ -29,13 +29,13 @@ const EditTagsDropdownItem = ({post, closeMenu}: {
   );
 }
 
-const EditTagsDropdownItemComponent = registerComponent(
+export const EditTagsDropdownItem = registerComponent(
   "EditTagsDropdownItem",
-  EditTagsDropdownItem,
+  EditTagsDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    EditTagsDropdownItem: typeof EditTagsDropdownItemComponent
+    EditTagsDropdownItem: typeof EditTagsDropdownItem
   }
 }

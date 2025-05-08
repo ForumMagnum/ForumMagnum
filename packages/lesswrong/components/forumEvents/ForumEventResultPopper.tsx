@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ForumEventResultPopper = ({
+const ForumEventResultPopperInner = ({
   anchorEl,
   user,
   comment,
@@ -217,14 +217,14 @@ const ForumEventResultPopper = ({
   );
 };
 
-const ForumEventResultPopperComponent = registerComponent(
+export const ForumEventResultPopper = registerComponent(
   'ForumEventResultPopper',
-  ForumEventResultPopper,
+  ForumEventResultPopperInner,
   { styles, stylePriority: -1 }
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventResultPopper: typeof ForumEventResultPopperComponent;
+    ForumEventResultPopper: typeof ForumEventResultPopper;
   }
 }

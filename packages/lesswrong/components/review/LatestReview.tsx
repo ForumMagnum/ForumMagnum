@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
+const LatestReviewInner = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
     collectionName: "Comments",
@@ -74,10 +74,10 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
   );
 }
 
-const LatestReviewComponent = registerComponent('LatestReview', LatestReview, {styles});
+export const LatestReview = registerComponent('LatestReview', LatestReviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LatestReview: typeof LatestReviewComponent
+    LatestReview: typeof LatestReview
   }
 }

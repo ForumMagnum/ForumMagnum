@@ -289,7 +289,7 @@ const SurveyEditor = ({classes}: {
   );
 }
 
-const SurveyEditPage = ({classes}: {
+const SurveyEditPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -298,14 +298,14 @@ const SurveyEditPage = ({classes}: {
     : <Components.Error404 />;
 }
 
-const SurveyEditPageComponent = registerComponent(
+export const SurveyEditPage = registerComponent(
   "SurveyEditPage",
-  SurveyEditPage,
+  SurveyEditPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    SurveyEditPage: typeof SurveyEditPageComponent
+    SurveyEditPage: typeof SurveyEditPage
   }
 }

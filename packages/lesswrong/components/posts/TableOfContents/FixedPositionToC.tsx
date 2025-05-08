@@ -235,7 +235,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionTocInner = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
@@ -466,8 +466,8 @@ function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
   });
 }
 
-const FixedPositionTocComponent = registerComponent(
-  "FixedPositionToC", FixedPositionToc, {
+export const FixedPositionToc = registerComponent(
+  "FixedPositionToC", FixedPositionTocInner, {
     hocs: [withErrorBoundary],
     styles
   }
@@ -475,6 +475,6 @@ const FixedPositionTocComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    FixedPositionToC: typeof FixedPositionTocComponent
+    FixedPositionToC: typeof FixedPositionToc
   }
 }

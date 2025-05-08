@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarInfo = ({children, classes, className}: {
+const SidebarInfoInner = ({children, classes, className}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -26,11 +26,11 @@ const SidebarInfo = ({children, classes, className}: {
   </Components.Typography>
 }
 
-const SidebarInfoComponent = registerComponent('SidebarInfo', SidebarInfo, {styles});
+export const SidebarInfo = registerComponent('SidebarInfo', SidebarInfoInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SidebarInfo: typeof SidebarInfoComponent
+    SidebarInfo: typeof SidebarInfo
   }
 }
 

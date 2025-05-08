@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CollectionsTooltip = ({collection, children, classes}: {
+const CollectionsTooltipInner = ({collection, children, classes}: {
   collection: CollectionsBestOfFragment,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
@@ -74,14 +74,14 @@ const CollectionsTooltip = ({collection, children, classes}: {
   );
 }
 
-const CollectionsTooltipComponent = registerComponent(
+export const CollectionsTooltip = registerComponent(
   "CollectionsTooltip",
-  CollectionsTooltip,
+  CollectionsTooltipInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    CollectionsTooltip: typeof CollectionsTooltipComponent;
+    CollectionsTooltip: typeof CollectionsTooltip;
   }
 }

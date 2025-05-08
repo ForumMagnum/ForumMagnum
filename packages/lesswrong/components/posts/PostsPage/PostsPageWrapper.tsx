@@ -12,7 +12,7 @@ import { useApolloClient } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
 
-const PostsPageWrapper = ({ sequenceId, version, documentId }: {
+const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,
@@ -102,10 +102,10 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   );
 }
 
-const PostsPageWrapperComponent = registerComponent("PostsPageWrapper", PostsPageWrapper);
+export const PostsPageWrapper = registerComponent("PostsPageWrapper", PostsPageWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    PostsPageWrapper: typeof PostsPageWrapperComponent
+    PostsPageWrapper: typeof PostsPageWrapper
   }
 }

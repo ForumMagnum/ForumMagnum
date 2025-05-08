@@ -229,7 +229,7 @@ const StickyWrapper: FC<{
     )
     : <>{children}</>;
 
-const Layout = ({currentUser, children, classes}: {
+const LayoutInner = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
@@ -523,10 +523,10 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   return isWrapped ? null : <IntercomWrapper />
 }
 
-const LayoutComponent = registerComponent('Layout', Layout, {styles});
+export const Layout = registerComponent('Layout', LayoutInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    Layout: typeof LayoutComponent
+    Layout: typeof Layout
   }
 }

@@ -72,7 +72,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
+const HorizScrollBlockInner = ({children, className, contentsClassName, classes}: {
   children: ReactNode
   className?: string,
   contentsClassName?: string,
@@ -130,15 +130,15 @@ const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   </div>
 }
 
-const HorizScrollBlockComponent = registerComponent(
+export const HorizScrollBlock = registerComponent(
   'HorizScrollBlock',
-  HorizScrollBlock,
+  HorizScrollBlockInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    HorizScrollBlock: typeof HorizScrollBlockComponent
+    HorizScrollBlock: typeof HorizScrollBlock
   }
 }
 

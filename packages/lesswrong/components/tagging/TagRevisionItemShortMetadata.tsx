@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
+const TagRevisionItemShortMetadataInner = ({tag, url, itemDescription, revision, classes}: {
   tag: TagBasicInfo,
   url: string,
   itemDescription?: React.ReactNode,
@@ -94,10 +94,10 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
   </>;
 }
 
-const TagRevisionItemShortMetadataComponent = registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadata, {styles});
+export const TagRevisionItemShortMetadata = registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadataInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagRevisionItemShortMetadata: typeof TagRevisionItemShortMetadataComponent
+    TagRevisionItemShortMetadata: typeof TagRevisionItemShortMetadata
   }
 }

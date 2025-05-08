@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
 
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
-const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
+const ContentItemTruncatedInner = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
   classes: ClassesType<typeof styles>,
   maxLengthWords: number,
   graceWords?: number,
@@ -77,10 +77,10 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   </>
 }
 
-const ContentItemTruncatedComponent = registerComponent('ContentItemTruncated', ContentItemTruncated, {styles});
+export const ContentItemTruncated = registerComponent('ContentItemTruncated', ContentItemTruncatedInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ContentItemTruncated: typeof ContentItemTruncatedComponent
+    ContentItemTruncated: typeof ContentItemTruncated
   }
 }

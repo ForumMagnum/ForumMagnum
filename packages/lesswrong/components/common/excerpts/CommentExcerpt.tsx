@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import type { CommonExcerptProps } from "./ContentExcerpt";
 
-const CommentExcerpt = ({
+const CommentExcerptInner = ({
   comment,
   ...commonExcerptProps
 }: CommonExcerptProps & {
@@ -30,13 +30,13 @@ const CommentExcerpt = ({
   );
 }
 
-const CommentExcerptComponent = registerComponent(
+export const CommentExcerpt = registerComponent(
   "CommentExcerpt",
-  CommentExcerpt,
+  CommentExcerptInner,
 );
 
 declare global {
   interface ComponentTypes {
-    CommentExcerpt: typeof CommentExcerptComponent,
+    CommentExcerpt: typeof CommentExcerpt,
   }
 }

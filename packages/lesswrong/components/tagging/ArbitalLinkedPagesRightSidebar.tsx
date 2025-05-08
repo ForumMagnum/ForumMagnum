@@ -150,7 +150,7 @@ interface ArbitalLinkedPage {
   slug: string,
 }
 
-const LWTagPageRightColumn = ({tag, selectedLens}: {
+const LWTagPageRightColumnInner = ({tag, selectedLens}: {
   tag: TagPageFragment
   selectedLens: TagLens|undefined,
 }) => {
@@ -163,7 +163,7 @@ const LWTagPageRightColumn = ({tag, selectedLens}: {
   </div>
 }
 
-const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
+const ArbitalLinkedPagesRightSidebarInner = ({ tag, selectedLens, arbitalLinkedPages }: {
   tag: TagPageFragment,
   selectedLens?: TagLens,
   arbitalLinkedPages?: ArbitalLinkedPagesFragment,
@@ -246,7 +246,7 @@ const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPa
   </div>
 }
 
-const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}: {
+const ArbitalRelationshipsSmallScreenInner = ({arbitalLinkedPages, selectedLens, tag}: {
   arbitalLinkedPages?: ArbitalLinkedPagesFragment
   selectedLens?: TagLens,
   tag: TagPageFragment,
@@ -297,7 +297,7 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}
   );
 }
 
-const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
+const ParentsAndChildrenSmallScreenInner: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
   const classes = useStyles(styles);
   const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
   const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
@@ -347,17 +347,17 @@ function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] 
 }
 
 
-const LWTagPageRightColumnComponent = registerComponent('LWTagPageRightColumn', LWTagPageRightColumn);
-const ArbitalLinkedPagesRightSidebarComponent = registerComponent('ArbitalLinkedPagesRightSidebar', ArbitalLinkedPagesRightSidebar);
-const ArbitalRelationshipsSmallScreenComponent = registerComponent('ArbitalRelationshipsSmallScreen', ArbitalRelationshipsSmallScreen);
-const ParentsAndChildrenSmallScreenComponent = registerComponent('ParentsAndChildrenSmallScreen', ParentsAndChildrenSmallScreen);
+export const LWTagPageRightColumn = registerComponent('LWTagPageRightColumn', LWTagPageRightColumnInner);
+export const ArbitalLinkedPagesRightSidebar = registerComponent('ArbitalLinkedPagesRightSidebar', ArbitalLinkedPagesRightSidebarInner);
+export const ArbitalRelationshipsSmallScreen = registerComponent('ArbitalRelationshipsSmallScreen', ArbitalRelationshipsSmallScreenInner);
+export const ParentsAndChildrenSmallScreen = registerComponent('ParentsAndChildrenSmallScreen', ParentsAndChildrenSmallScreenInner);
 
 declare global {
   interface ComponentTypes {
-    LWTagPageRightColumn: typeof LWTagPageRightColumnComponent
-    ArbitalLinkedPagesRightSidebar: typeof ArbitalLinkedPagesRightSidebarComponent
-    ArbitalRelationshipsSmallScreen: typeof ArbitalRelationshipsSmallScreenComponent
-    ParentsAndChildrenSmallScreen: typeof ParentsAndChildrenSmallScreenComponent
+    LWTagPageRightColumn: typeof LWTagPageRightColumn
+    ArbitalLinkedPagesRightSidebar: typeof ArbitalLinkedPagesRightSidebar
+    ArbitalRelationshipsSmallScreen: typeof ArbitalRelationshipsSmallScreen
+    ParentsAndChildrenSmallScreen: typeof ParentsAndChildrenSmallScreen
   }
 }
 

@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const WrappedMostValuablePostsSection = ({classes}: {
+const WrappedMostValuablePostsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -92,14 +92,14 @@ const WrappedMostValuablePostsSection = ({classes}: {
   );
 }
 
-const WrappedMostValuablePostsSectionComponent = registerComponent(
+export const WrappedMostValuablePostsSection = registerComponent(
   "WrappedMostValuablePostsSection",
-  WrappedMostValuablePostsSection,
+  WrappedMostValuablePostsSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedMostValuablePostsSection: typeof WrappedMostValuablePostsSectionComponent
+    WrappedMostValuablePostsSection: typeof WrappedMostValuablePostsSection
   }
 }

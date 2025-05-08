@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
 type PostsList2Props = PostsListConfig & {classes: ClassesType<typeof styles>};
 
 /** A list of posts, defined by a query that returns them. */
-const PostsList2 = ({classes, ...props}: PostsList2Props) => {
+const PostsList2Inner = ({classes, ...props}: PostsList2Props) => {
   const {
     children,
     showNoResults,
@@ -121,7 +121,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   )
 }
 
-const PostsList2Component = registerComponent('PostsList2', PostsList2, {
+const PostsList2Component = registerComponent('PostsList2', PostsList2Inner, {
   styles,
   areEqual: {
     terms: "deep",

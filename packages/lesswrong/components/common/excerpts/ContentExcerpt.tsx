@@ -89,7 +89,7 @@ export type CommonExcerptProps = {
   className?: string,
 }
 
-const ContentExcerpt = ({
+const ContentExcerptInner = ({
   contentHtml,
   moreLink,
   hideMoreLink,
@@ -166,14 +166,14 @@ const ContentExcerpt = ({
   );
 }
 
-const ContentExcerptComponent = registerComponent(
+export const ContentExcerpt = registerComponent(
   "ContentExcerpt",
-  ContentExcerpt,
+  ContentExcerptInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    ContentExcerpt: typeof ContentExcerptComponent,
+    ContentExcerpt: typeof ContentExcerpt,
   }
 }

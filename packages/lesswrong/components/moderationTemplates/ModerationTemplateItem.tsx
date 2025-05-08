@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModerationTemplateItem = ({classes, template}: {
+export const ModerationTemplateItemInner = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
@@ -55,11 +55,11 @@ export const ModerationTemplateItem = ({classes, template}: {
   </div></DeferRender>
 }
 
-const ModerationTemplateItemComponent = registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});
+export const ModerationTemplateItem = registerComponent('ModerationTemplateItem', ModerationTemplateItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ModerationTemplateItem: typeof ModerationTemplateItemComponent
+    ModerationTemplateItem: typeof ModerationTemplateItem
   }
 }
 

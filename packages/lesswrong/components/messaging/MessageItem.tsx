@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, classes}: {
+const MessageItemInner = ({message, classes}: {
   message: messageListFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -118,13 +118,13 @@ const MessageItem = ({message, classes}: {
 }
 
 
-const MessageItemComponent = registerComponent('MessageItem', MessageItem, {
+export const MessageItem = registerComponent('MessageItem', MessageItemInner, {
   styles, hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    MessageItem: typeof MessageItemComponent
+    MessageItem: typeof MessageItem
   }
 }
 

@@ -4,7 +4,7 @@ import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';
 
-const PostsLoading = ({
+const PostsLoadingInner = ({
   placeholderCount,
   showFinalBottomBorder,
   viewType = "list",
@@ -36,10 +36,10 @@ const PostsLoading = ({
   }
 };
 
-const PostsLoadingComponent = registerComponent('PostsLoading', PostsLoading);
+export const PostsLoading = registerComponent('PostsLoading', PostsLoadingInner);
 
 declare global {
   interface ComponentTypes {
-    PostsLoading: typeof PostsLoadingComponent
+    PostsLoading: typeof PostsLoading
   }
 }

@@ -9,7 +9,7 @@ import { Redirect } from '../../lib/reactRouterWrapper';
  * 301). The URL may be relative or absolute. If there is more than one
  * PermanentRedirect component in the component tree, behavior is undefined.
  */
-const PermanentRedirect = ({url, status}: {
+const PermanentRedirectInner = ({url, status}: {
   url: string,
   status?: number
 }) => {
@@ -46,10 +46,10 @@ function urlIsAbsolute(url: string): boolean {
   return (url.startsWith('http://') || url.startsWith('https://'));
 }
 
-const PermanentRedirectComponent = registerComponent('PermanentRedirect', PermanentRedirect);
+export const PermanentRedirect = registerComponent('PermanentRedirect', PermanentRedirectInner);
 
 declare global {
   interface ComponentTypes {
-    PermanentRedirect: typeof PermanentRedirectComponent
+    PermanentRedirect: typeof PermanentRedirect
   }
 }

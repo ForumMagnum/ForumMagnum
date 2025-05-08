@@ -47,7 +47,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewPostsItem = ({post, refetch, classes}: {
+const SunshineNewPostsItemInner = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
   classes: ClassesType<typeof styles>
@@ -212,12 +212,12 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   )
 }
 
-const SunshineNewPostsItemComponent = registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
+export const SunshineNewPostsItem = registerComponent('SunshineNewPostsItem', SunshineNewPostsItemInner, {styles, 
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineNewPostsItem: typeof SunshineNewPostsItemComponent
+    SunshineNewPostsItem: typeof SunshineNewPostsItem
   }
 }

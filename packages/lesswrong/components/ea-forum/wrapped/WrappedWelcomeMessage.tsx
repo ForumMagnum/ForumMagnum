@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
  *  2. When the application is loading and we don't have access to a
  *     ForumWrappedContext
  */
-const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
+const WrappedWelcomeMessageInner = ({currentUser, year, children, classes}: {
   currentUser: UsersCurrent,
   year: WrappedYear,
   children?: ReactNode,
@@ -57,14 +57,14 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
   );
 }
 
-const WrappedWelcomeMessageComponent = registerComponent(
+export const WrappedWelcomeMessage = registerComponent(
   "WrappedWelcomeMessage",
-  WrappedWelcomeMessage,
+  WrappedWelcomeMessageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedWelcomeMessage: typeof WrappedWelcomeMessageComponent
+    WrappedWelcomeMessage: typeof WrappedWelcomeMessage
   }
 }

@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
+const SequencesSmallPostLinkInner = ({classes, post, sequenceId, large, placement="left-start"}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   sequenceId: string,
@@ -66,10 +66,10 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   </div>
 }
 
-const SequencesSmallPostLinkComponent = registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
+export const SequencesSmallPostLink = registerComponent("SequencesSmallPostLink", SequencesSmallPostLinkInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesSmallPostLink: typeof SequencesSmallPostLinkComponent
+    SequencesSmallPostLink: typeof SequencesSmallPostLink
   }
 }

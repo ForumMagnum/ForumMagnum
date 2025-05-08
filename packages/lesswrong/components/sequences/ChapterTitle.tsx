@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ChapterTitle = ({classes, title, large}: {
+const ChapterTitleInner = ({classes, title, large}: {
   classes: ClassesType<typeof styles>,
   title: string,
   large?: boolean
@@ -19,10 +19,10 @@ const ChapterTitle = ({classes, title, large}: {
   return  <div className={classNames(classes.root, {[classes.large]:large})}>{title}</div>
 }
 
-const ChapterTitleComponent = registerComponent("ChapterTitle", ChapterTitle, {styles});
+export const ChapterTitle = registerComponent("ChapterTitle", ChapterTitleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ChapterTitle: typeof ChapterTitleComponent
+    ChapterTitle: typeof ChapterTitle
   }
 }

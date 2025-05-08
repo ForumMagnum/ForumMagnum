@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-const StickiedPosts = ({
+const StickiedPostsInner = ({
   classes,
 }: {
   classes: ClassesType<typeof styles>,
@@ -37,10 +37,10 @@ const StickiedPosts = ({
   </SingleColumnSection>
 }
 
-const StickiedPostsComponent = registerComponent("StickiedPosts", StickiedPosts, {styles});
+export const StickiedPosts = registerComponent("StickiedPosts", StickiedPostsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    StickiedPosts: typeof StickiedPostsComponent
+    StickiedPosts: typeof StickiedPosts
   }
 }

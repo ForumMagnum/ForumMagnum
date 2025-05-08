@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { isLW } from '../../lib/instanceSettings';
 
-const RecommendationsPage = () => {
+const RecommendationsPageInner = () => {
   const { ConfigurableRecommendationsList, RecommendationsPageCuratedList, SpotlightHistory  } = Components;
 
   return (
@@ -15,11 +15,11 @@ const RecommendationsPage = () => {
   )
 };
 
-const RecommendationsPageComponent = registerComponent('RecommendationsPage', RecommendationsPage);
+export const RecommendationsPage = registerComponent('RecommendationsPage', RecommendationsPageInner);
 
 declare global {
   interface ComponentTypes {
-    RecommendationsPage: typeof RecommendationsPageComponent
+    RecommendationsPage: typeof RecommendationsPage
   }
 }
 

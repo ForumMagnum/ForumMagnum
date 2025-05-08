@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ShortformSubmitForm = ({
+const ShortformSubmitFormInner = ({
   successCallback,
   cancelCallback,
   className,
@@ -80,10 +80,10 @@ const ShortformSubmitForm = ({
   );
 }
 
-const ShortformSubmitFormComponent = registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});
+export const ShortformSubmitForm = registerComponent('ShortformSubmitForm', ShortformSubmitFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ShortformSubmitForm: typeof ShortformSubmitFormComponent
+    ShortformSubmitForm: typeof ShortformSubmitForm
   }
 }

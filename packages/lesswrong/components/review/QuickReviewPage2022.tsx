@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const QuickReviewPage2022 = ({classes}: {
+export const QuickReviewPage2022Inner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const reviewYear = REVIEW_YEAR
@@ -169,7 +169,7 @@ export const QuickReviewPage2022 = ({classes}: {
   </div>;
 }
 
-const QuickReviewPage2022Component = registerComponent('QuickReviewPage2022', QuickReviewPage2022, {styles});
+const QuickReviewPage2022Component = registerComponent('QuickReviewPage2022', QuickReviewPage2022Inner, {styles});
 
 declare global {
   interface ComponentTypes {

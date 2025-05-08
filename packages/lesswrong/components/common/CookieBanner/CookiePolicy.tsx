@@ -66,7 +66,7 @@ const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children 
   </a>
 );
 
-const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookiePolicyInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { Typography, CookieTable } = Components;
   const { openDialog } = useDialog();
 
@@ -217,10 +217,10 @@ const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const CookiePolicyComponent = registerComponent("CookiePolicy", CookiePolicy, { styles });
+export const CookiePolicy = registerComponent("CookiePolicy", CookiePolicyInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    CookiePolicy: typeof CookiePolicyComponent;
+    CookiePolicy: typeof CookiePolicy;
   }
 }

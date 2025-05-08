@@ -91,7 +91,7 @@ const styles = (theme: ThemeType) => ({
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TwitterAdminInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const {
@@ -274,10 +274,10 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const TwitterAdminComponent = registerComponent('TwitterAdmin', TwitterAdmin, { styles });
+export const TwitterAdmin = registerComponent('TwitterAdmin', TwitterAdminInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    TwitterAdmin: typeof TwitterAdminComponent;
+    TwitterAdmin: typeof TwitterAdmin;
   }
 }

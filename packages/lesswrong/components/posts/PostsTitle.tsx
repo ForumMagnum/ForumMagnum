@@ -168,7 +168,7 @@ const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) =>
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({
+const PostsTitleInner = ({
   post, 
   postLink, 
   sticky, 
@@ -292,10 +292,10 @@ const PostsTitle = ({
   )
 }
 
-const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
+export const PostsTitle = registerComponent('PostsTitle', PostsTitleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsTitle: typeof PostsTitleComponent
+    PostsTitle: typeof PostsTitle
   }
 }

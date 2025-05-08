@@ -117,7 +117,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltipInner = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   term: string,
   definitionHTML: string,
   approved: boolean,
@@ -201,10 +201,10 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   </AnalyticsContext>;
 }
 
-const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip);
+export const JargonTooltip = registerComponent('JargonTooltip', JargonTooltipInner);
 
 declare global {
   interface ComponentTypes {
-    JargonTooltip: typeof JargonTooltipComponent
+    JargonTooltip: typeof JargonTooltip
   }
 }

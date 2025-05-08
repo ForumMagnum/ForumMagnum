@@ -32,7 +32,7 @@ const onlyStyleEditors = ['pkJTc4xXhsCbNqkZM']
  * This component's only job is to filter out tag edits that shouldn't be shown.
  * Otherwise it's just a wrapper around TagRevisionItem.
  */
-function RecentDiscussionTagRevisionItem({
+function RecentDiscussionTagRevisionItemInner({
   tag,
   collapsed=false,
   headingStyle,
@@ -76,12 +76,12 @@ function RecentDiscussionTagRevisionItem({
   </div>
 }
 
-const RecentDiscussionTagRevisionItemComponent = registerComponent(
-  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
+export const RecentDiscussionTagRevisionItem = registerComponent(
+  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItemInner
 )
 
 declare global {
   interface ComponentTypes {
-    RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItemComponent,
+    RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItem,
   }
 }

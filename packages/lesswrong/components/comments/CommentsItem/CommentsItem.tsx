@@ -16,7 +16,7 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner } from '../../common/ContentItemBody';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -155,7 +155,7 @@ const styles = (theme: ThemeType) => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({
+export const CommentsItemInner = ({
   treeOptions,
   comment,
   nestingLevel=1,
@@ -196,7 +196,7 @@ export const CommentsItem = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBodyInner|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
@@ -417,8 +417,8 @@ export const CommentsItem = ({
   )
 }
 
-const CommentsItemComponent = registerComponent(
-  'CommentsItem', CommentsItem, {
+export const CommentsItem = registerComponent(
+  'CommentsItem', CommentsItemInner, {
     styles,
     stylePriority: -1,
     hocs: [withErrorBoundary],
@@ -438,6 +438,6 @@ function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): co
 
 declare global {
   interface ComponentTypes {
-    CommentsItem: typeof CommentsItemComponent,
+    CommentsItem: typeof CommentsItem,
   }
 }

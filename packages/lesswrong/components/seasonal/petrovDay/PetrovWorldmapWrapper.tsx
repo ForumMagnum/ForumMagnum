@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PetrovWorldmapWrapper = ({classes, children}: {
+export const PetrovWorldmapWrapperInner = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
@@ -62,10 +62,10 @@ export const PetrovWorldmapWrapper = ({classes, children}: {
   </div>;
 }
 
-const PetrovWorldmapWrapperComponent = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
+export const PetrovWorldmapWrapper = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapperInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PetrovWorldmapWrapper: typeof PetrovWorldmapWrapperComponent
+    PetrovWorldmapWrapper: typeof PetrovWorldmapWrapper
   }
 }

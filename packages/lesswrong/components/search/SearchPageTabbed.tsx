@@ -231,7 +231,7 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbed = ({classes}: {
+const SearchPageTabbedInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
@@ -454,10 +454,10 @@ const SearchPageTabbed = ({classes}: {
   </div>
 }
 
-const SearchPageTabbedComponent = registerComponent("SearchPageTabbed", SearchPageTabbed, {styles})
+export const SearchPageTabbed = registerComponent("SearchPageTabbed", SearchPageTabbedInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SearchPageTabbed: typeof SearchPageTabbedComponent
+    SearchPageTabbed: typeof SearchPageTabbed
   }
 }

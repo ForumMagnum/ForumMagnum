@@ -49,7 +49,7 @@ const usePostsUserCommentedOn = ({currentUser, limit, filter, sort}: {
   return {data, loading, fetchMore, networkStatus}
 }
 
-const PostsListUserCommentedOn = ({classes, filter, sort}: {
+const PostsListUserCommentedOnInner = ({classes, filter, sort}: {
   classes: ClassesType<typeof styles>,
   filter?: FilterPostsForReview,
   sort?: {
@@ -106,10 +106,10 @@ const PostsListUserCommentedOn = ({classes, filter, sort}: {
   </AnalyticsContext>
 }
 
-const PostsListUserCommentedOnComponent = registerComponent('PostsListUserCommentedOn', PostsListUserCommentedOn, {styles})
+export const PostsListUserCommentedOn = registerComponent('PostsListUserCommentedOn', PostsListUserCommentedOnInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    PostsListUserCommentedOn: typeof PostsListUserCommentedOnComponent
+    PostsListUserCommentedOn: typeof PostsListUserCommentedOn
   }
 }

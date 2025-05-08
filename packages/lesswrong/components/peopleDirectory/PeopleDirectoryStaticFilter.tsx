@@ -13,7 +13,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryStaticFilter = ({
+const PeopleDirectoryStaticFilterInner = ({
   filter: {state, selectedValues, clear, summary},
   justContent,
   classes,
@@ -54,14 +54,14 @@ const PeopleDirectoryStaticFilter = ({
   );
 }
 
-const PeopleDirectoryStaticFilterComponent = registerComponent(
+export const PeopleDirectoryStaticFilter = registerComponent(
   "PeopleDirectoryStaticFilter",
-  PeopleDirectoryStaticFilter,
+  PeopleDirectoryStaticFilterInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryStaticFilter: typeof PeopleDirectoryStaticFilterComponent
+    PeopleDirectoryStaticFilter: typeof PeopleDirectoryStaticFilter
   }
 }

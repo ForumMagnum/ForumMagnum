@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CollectionsItem = ({classes, showCloseIcon, collection}: {
+export const CollectionsItemInner = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
   classes: ClassesType<typeof styles>,
@@ -158,11 +158,11 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   </div>
 }
 
-const CollectionsItemComponent = registerComponent('CollectionsItem', CollectionsItem, {styles});
+export const CollectionsItem = registerComponent('CollectionsItem', CollectionsItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CollectionsItem: typeof CollectionsItemComponent
+    CollectionsItem: typeof CollectionsItem
   }
 }
 

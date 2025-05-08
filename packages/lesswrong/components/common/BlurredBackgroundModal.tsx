@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const BlurredBackgroundModal = ({
+export const BlurredBackgroundModalInner = ({
   open,
   onClose,
   children,
@@ -66,14 +66,14 @@ export const BlurredBackgroundModal = ({
   );
 }
 
-const BlurredBackgroundModalComponent = registerComponent(
+export const BlurredBackgroundModal = registerComponent(
   "BlurredBackgroundModal",
-  BlurredBackgroundModal,
+  BlurredBackgroundModalInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    BlurredBackgroundModal: typeof BlurredBackgroundModalComponent
+    BlurredBackgroundModal: typeof BlurredBackgroundModal
   }
 }

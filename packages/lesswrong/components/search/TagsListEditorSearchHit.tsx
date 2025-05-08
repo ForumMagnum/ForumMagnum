@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsListEditorSearchHit = ({hit, classes}: {
+const TagsListEditorSearchHitInner = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -27,11 +27,11 @@ const TagsListEditorSearchHit = ({hit, classes}: {
 }
 
 
-const TagsListEditorSearchHitComponent = registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHit, {styles});
+export const TagsListEditorSearchHit = registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHitInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagsListEditorSearchHit: typeof TagsListEditorSearchHitComponent
+    TagsListEditorSearchHit: typeof TagsListEditorSearchHit
   }
 }
 

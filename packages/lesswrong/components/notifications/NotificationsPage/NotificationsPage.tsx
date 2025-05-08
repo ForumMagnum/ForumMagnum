@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const NotificationsPage = ({classes}: {
+export const NotificationsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -73,14 +73,14 @@ export const NotificationsPage = ({classes}: {
   );
 }
 
-const NotificationsPageComponent = registerComponent(
+export const NotificationsPage = registerComponent(
   "NotificationsPage",
-  NotificationsPage,
+  NotificationsPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPage: typeof NotificationsPageComponent
+    NotificationsPage: typeof NotificationsPage
   }
 }

@@ -38,7 +38,7 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
+const AllPostsPageInner = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
@@ -122,15 +122,15 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   );
 }
 
-const AllPostsPageComponent = registerComponent(
+export const AllPostsPage = registerComponent(
   "AllPostsPage",
-  AllPostsPage,
+  AllPostsPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    AllPostsPage: typeof AllPostsPageComponent
+    AllPostsPage: typeof AllPostsPage
   }
 }
 

@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVote }: {
+const TagRelevanceButtonInner = ({document, voteType, vote, label, classes, cancelVote }: {
   document: TagRelMinimumFragment,
   voteType: string,
   vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent}) => void,
@@ -59,11 +59,11 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   </a>
 }
 
-const TagRelevanceButtonComponent = registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
+export const TagRelevanceButton = registerComponent('TagRelevanceButton', TagRelevanceButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagRelevanceButton: typeof TagRelevanceButtonComponent
+    TagRelevanceButton: typeof TagRelevanceButton
   }
 }
 

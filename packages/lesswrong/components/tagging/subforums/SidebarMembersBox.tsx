@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SidebarMembersBox = ({tag, className, classes}: {
+const SidebarMembersBoxInner = ({tag, className, classes}: {
   tag: TagSubforumFragment,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -109,10 +109,10 @@ const SidebarMembersBox = ({tag, className, classes}: {
   )
 }
 
-const SidebarMembersBoxComponent = registerComponent('SidebarMembersBox', SidebarMembersBox, { styles })
+export const SidebarMembersBox = registerComponent('SidebarMembersBox', SidebarMembersBoxInner, { styles })
 
 declare global {
   interface ComponentTypes {
-    SidebarMembersBox: typeof SidebarMembersBoxComponent
+    SidebarMembersBox: typeof SidebarMembersBox
   }
 }

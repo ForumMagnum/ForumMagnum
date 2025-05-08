@@ -83,7 +83,7 @@ const getChannelLabel = (channel: NotificationChannel): string => {
   }
 }
 
-const NotificationTypeSettingsWidget = ({
+const NotificationTypeSettingsWidgetInner = ({
   field,
   label,
   classes
@@ -163,13 +163,13 @@ const NotificationTypeSettingsWidget = ({
   );
 }
 
-const NotificationTypeSettingsWidgetComponent = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
+export const NotificationTypeSettingsWidget = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidgetInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidgetComponent
+    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidget
   }
 }

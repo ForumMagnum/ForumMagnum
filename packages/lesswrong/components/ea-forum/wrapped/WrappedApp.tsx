@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedApp = ({classes}: {
+const WrappedAppInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -153,14 +153,14 @@ const WrappedApp = ({classes}: {
   );
 }
 
-const WrappedAppComponent = registerComponent(
+export const WrappedApp = registerComponent(
   "WrappedApp",
-  WrappedApp,
+  WrappedAppInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedApp: typeof WrappedAppComponent
+    WrappedApp: typeof WrappedApp
   }
 }

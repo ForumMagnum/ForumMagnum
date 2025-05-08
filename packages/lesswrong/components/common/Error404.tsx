@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const Error404Inner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection } = Components;
   const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) serverRequestStatus.status = 404
@@ -22,7 +22,7 @@ const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 };
 
-const Error404Component = registerComponent('Error404', Error404, {styles});
+const Error404Component = registerComponent('Error404', Error404Inner, {styles});
 
 declare global {
   interface ComponentTypes {

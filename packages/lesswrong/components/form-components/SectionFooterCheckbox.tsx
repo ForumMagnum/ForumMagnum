@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
+const SectionFooterCheckboxInner = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
   classes: ClassesType<typeof styles>,
   label: string|React.ReactNode,
   onClick: (ev: React.MouseEvent) => void,
@@ -65,10 +65,10 @@ const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, toolt
   }
 }
 
-const SectionFooterCheckboxComponent = registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
+export const SectionFooterCheckbox = registerComponent("SectionFooterCheckbox", SectionFooterCheckboxInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SectionFooterCheckbox: typeof SectionFooterCheckboxComponent
+    SectionFooterCheckbox: typeof SectionFooterCheckbox
   }
 }

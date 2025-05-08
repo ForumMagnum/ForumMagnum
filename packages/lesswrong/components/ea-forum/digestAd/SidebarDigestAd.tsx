@@ -93,7 +93,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
  */
-const SidebarDigestAd = ({className, classes}: {
+const SidebarDigestAdInner = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -154,10 +154,10 @@ const SidebarDigestAd = ({className, classes}: {
   </AnalyticsContext>
 }
 
-const SidebarDigestAdComponent = registerComponent("SidebarDigestAd", SidebarDigestAd, {styles, stylePriority: -1});
+export const SidebarDigestAd = registerComponent("SidebarDigestAd", SidebarDigestAdInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    SidebarDigestAd: typeof SidebarDigestAdComponent
+    SidebarDigestAd: typeof SidebarDigestAd
   }
 }

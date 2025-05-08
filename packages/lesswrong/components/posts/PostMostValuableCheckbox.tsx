@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
  * This is used by the EA Forum Wrapped page, to let users indicate which posts
  * they found particularly valuable.
  */
-export const PostMostValuableCheckbox = ({post, classes}: {
+export const PostMostValuableCheckboxInner = ({post, classes}: {
   post: Pick<PostsBase, "_id">,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -86,11 +86,11 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   />
 }
 
-const PostMostValuableCheckboxComponent = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
+export const PostMostValuableCheckbox = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckboxInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostMostValuableCheckbox: typeof PostMostValuableCheckboxComponent
+    PostMostValuableCheckbox: typeof PostMostValuableCheckbox
   }
 }
 

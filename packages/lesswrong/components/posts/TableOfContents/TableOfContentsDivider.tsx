@@ -14,18 +14,18 @@ const styles = defineStyles("TableOfContentsDivider", (theme: ThemeType) => ({
 }))
 export type TableOfContentsDividerStyles = typeof styles;
 
-const TableOfContentsDivider = ({ scaleStyling }: {
+const TableOfContentsDividerInner = ({ scaleStyling }: {
   scaleStyling?: CSSProperties
 }) => {
   const classes = useStyles(styles);
   return <div className={classes.divider} style={scaleStyling}/>
 }
 
-const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider);
+export const TableOfContentsDivider = registerComponent('TableOfContentsDivider', TableOfContentsDividerInner);
 
 declare global {
   interface ComponentTypes {
-    TableOfContentsDivider: typeof TableOfContentsDividerComponent
+    TableOfContentsDivider: typeof TableOfContentsDivider
   }
 }
 

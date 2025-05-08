@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
 
 export const TARGET_REVIEW_VOTING_NUM = 6
 
-export const ReviewProgressVoting = ({classes, reviewYear}: {
+export const ReviewProgressVotingInner = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
@@ -72,11 +72,11 @@ export const ReviewProgressVoting = ({classes, reviewYear}: {
 </LWTooltip></div>
 }
 
-const ReviewProgressVotingComponent = registerComponent('ReviewProgressVoting', ReviewProgressVoting, {styles});
+export const ReviewProgressVoting = registerComponent('ReviewProgressVoting', ReviewProgressVotingInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewProgressVoting: typeof ReviewProgressVotingComponent
+    ReviewProgressVoting: typeof ReviewProgressVoting
   }
 }
 

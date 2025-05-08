@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 
-const PostsVote = ({post, useHorizontalLayout, isFooter}: {
+const PostsVoteInner = ({post, useHorizontalLayout, isFooter}: {
   post: PostsWithVotes,
   /** if true, display the vote arrows to the left & right of the score */
   useHorizontalLayout?: boolean,
@@ -31,10 +31,10 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
     );
 }
 
-const PostsVoteComponent = registerComponent('PostsVote', PostsVote);
+export const PostsVote = registerComponent('PostsVote', PostsVoteInner);
 
 declare global {
   interface ComponentTypes {
-    PostsVote: typeof PostsVoteComponent
+    PostsVote: typeof PostsVote
   }
 }

@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const FeedPostCardMeta = ({post, className, classes}: {
+const FeedPostCardMetaInner = ({post, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   className?: string,
@@ -159,14 +159,14 @@ const FeedPostCardMeta = ({post, className, classes}: {
   );
 }
 
-const FeedPostCardMetaComponent = registerComponent(
+export const FeedPostCardMeta = registerComponent(
   "FeedPostCardMeta",
-  FeedPostCardMeta,
+  FeedPostCardMetaInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    FeedPostCardMeta: typeof FeedPostCardMetaComponent,
+    FeedPostCardMeta: typeof FeedPostCardMeta,
   }
 }

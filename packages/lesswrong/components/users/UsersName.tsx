@@ -8,7 +8,7 @@ import React from 'react';
  * with deleted accounts, where the user object that comes back in a query is
  * null for non-admins).
  */
-const UsersName = ({
+const UsersNameInner = ({
   user,
   documentId,
   nofollow=false,
@@ -43,10 +43,10 @@ const UsersName = ({
   }
 }
 
-const UsersNameComponent = registerComponent('UsersName', UsersName);
+export const UsersName = registerComponent('UsersName', UsersNameInner);
 
 declare global {
   interface ComponentTypes {
-    UsersName: typeof UsersNameComponent
+    UsersName: typeof UsersName
   }
 }

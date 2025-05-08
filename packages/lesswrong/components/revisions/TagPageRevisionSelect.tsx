@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 const styles = (theme: ThemeType) => ({
 });
 
-const TagPageRevisionSelect = ({ classes }: {
+const TagPageRevisionSelectInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
@@ -72,10 +72,10 @@ const TagPageRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-const TagPageRevisionSelectComponent = registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
+export const TagPageRevisionSelect = registerComponent("TagPageRevisionSelect", TagPageRevisionSelectInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagPageRevisionSelect: typeof TagPageRevisionSelectComponent
+    TagPageRevisionSelect: typeof TagPageRevisionSelect
   }
 }

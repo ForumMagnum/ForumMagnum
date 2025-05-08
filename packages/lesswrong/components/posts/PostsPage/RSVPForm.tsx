@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
+const RSVPFormInner = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: () => void,
@@ -115,10 +115,10 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   )
 }
 
-const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm, {styles});
+export const RSVPForm = registerComponent('RSVPForm', RSVPFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RSVPForm: typeof RSVPFormComponent
+    RSVPForm: typeof RSVPForm
   }
 }

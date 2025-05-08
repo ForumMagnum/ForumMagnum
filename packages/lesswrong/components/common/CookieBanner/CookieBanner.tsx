@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookieBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { openDialog } = useDialog();
   const { updateCookiePreferences } = useCookiePreferences();
   
@@ -111,12 +111,12 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const CookieBannerComponent = registerComponent("CookieBanner", CookieBanner, {
+export const CookieBanner = registerComponent("CookieBanner", CookieBannerInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    CookieBanner: typeof CookieBannerComponent;
+    CookieBanner: typeof CookieBanner;
   }
 }

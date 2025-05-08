@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
-const EAHomeHandbook = ({ classes, documentId }: {
+const EAHomeHandbookInner = ({ classes, documentId }: {
   classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
@@ -177,12 +177,12 @@ const EAHomeHandbook = ({ classes, documentId }: {
   </React.Fragment>
 }
 
-const EAHomeHandbookComponent = registerComponent(
-  'EAHomeHandbook', EAHomeHandbook, {styles},
+export const EAHomeHandbook = registerComponent(
+  'EAHomeHandbook', EAHomeHandbookInner, {styles},
 )
 
 declare global {
   interface ComponentTypes {
-    EAHomeHandbook: typeof EAHomeHandbookComponent
+    EAHomeHandbook: typeof EAHomeHandbook
   }
 }

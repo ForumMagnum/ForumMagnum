@@ -16,7 +16,7 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-const SmallMapPreview = ({post, group, zoom, classes}: {
+const SmallMapPreviewInner = ({post, group, zoom, classes}: {
   post: PostsList,
   group?: AnyBecauseTodo,
   zoom?: number,
@@ -84,10 +84,10 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
   );
 }
 
-const SmallMapPreviewComponent = registerComponent("SmallMapPreview", SmallMapPreview, {styles});
+export const SmallMapPreview = registerComponent("SmallMapPreview", SmallMapPreviewInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SmallMapPreview: typeof SmallMapPreviewComponent
+    SmallMapPreview: typeof SmallMapPreview
   }
 }

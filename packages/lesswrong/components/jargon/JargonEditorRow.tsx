@@ -153,7 +153,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 // Jargon editor row
-export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
+export const JargonEditorRowInner = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
@@ -242,10 +242,10 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
   </div>
 }
 
-const JargonEditorRowComponent = registerComponent('JargonEditorRow', JargonEditorRow, {styles});
+export const JargonEditorRow = registerComponent('JargonEditorRow', JargonEditorRowInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    JargonEditorRow: typeof JargonEditorRowComponent
+    JargonEditorRow: typeof JargonEditorRow
   }
 }

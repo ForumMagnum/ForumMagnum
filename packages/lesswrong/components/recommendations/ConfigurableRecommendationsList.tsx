@@ -6,7 +6,7 @@ import { getRecommendationSettings, archiveRecommendationsName } from './Recomme
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isLW } from '../../lib/instanceSettings';
 
-const ConfigurableRecommendationsList = ({configName}: {
+const ConfigurableRecommendationsListInner = ({configName}: {
   configName: string
 }) => {
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -49,10 +49,10 @@ const ConfigurableRecommendationsList = ({configName}: {
   </SingleColumnSection>
 }
 
-const ConfigurableRecommendationsListComponent = registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList);
+export const ConfigurableRecommendationsList = registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsListInner);
 
 declare global {
   interface ComponentTypes {
-    ConfigurableRecommendationsList: typeof ConfigurableRecommendationsListComponent
+    ConfigurableRecommendationsList: typeof ConfigurableRecommendationsList
   }
 }

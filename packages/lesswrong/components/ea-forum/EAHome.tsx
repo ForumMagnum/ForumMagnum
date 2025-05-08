@@ -77,7 +77,7 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 };
 
-const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAHomeInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderSmallpox = showSmallpoxSetting.get()
   // Only show the maintenance banner if the the current time is before the maintenance time (plus 5 minutes leeway),
@@ -109,10 +109,10 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const EAHomeComponent = registerComponent('EAHome', EAHome, {styles});
+export const EAHome = registerComponent('EAHome', EAHomeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAHome: typeof EAHomeComponent
+    EAHome: typeof EAHome
   }
 }

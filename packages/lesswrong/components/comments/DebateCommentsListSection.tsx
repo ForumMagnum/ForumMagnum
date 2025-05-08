@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   debateCommentsList: {}
 })
 
-const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
+const DebateCommentsListSectionInner = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
   post: PostsDetails,
   totalComments: number,
   comments: CommentsList[],
@@ -118,11 +118,11 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   );
 }
 
-const DebateCommentsListSectionComponent = registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
+export const DebateCommentsListSection = registerComponent("DebateCommentsListSection", DebateCommentsListSectionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    DebateCommentsListSection: typeof DebateCommentsListSectionComponent,
+    DebateCommentsListSection: typeof DebateCommentsListSection,
   }
 }
 

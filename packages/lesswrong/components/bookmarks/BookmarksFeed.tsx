@@ -8,7 +8,7 @@ import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const BookmarksFeed = () => {
+const BookmarksFeedInner = () => {
   const { SingleColumnSection, SectionTitle, Loading, FeedItemWrapper, UltraFeedPostItem, UltraFeedThreadItem } = Components;
   const currentUser = useCurrentUser();
 
@@ -105,12 +105,12 @@ const BookmarksFeed = () => {
   );
 };
 
-const BookmarksFeedComponent = registerComponent('BookmarksFeed', BookmarksFeed);
+export const BookmarksFeed = registerComponent('BookmarksFeed', BookmarksFeedInner);
 
-export default BookmarksFeed;
+export default BookmarksFeedInner;
 
 declare global {
   interface ComponentTypes {
-    BookmarksFeed: typeof BookmarksFeedComponent
+    BookmarksFeed: typeof BookmarksFeed
   }
 } 

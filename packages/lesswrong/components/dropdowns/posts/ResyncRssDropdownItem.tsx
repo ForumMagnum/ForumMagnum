@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
+const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   classes: ClassesType<typeof styles>,
@@ -66,7 +66,7 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   />
 }
 
-const ResyncRssDialog = ({onClose, post, classes}: {
+const ResyncRssDialogInner = ({onClose, post, classes}: {
   onClose: () => void,
   post: PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
@@ -165,13 +165,13 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   </LWDialog>
 }
 
-const ResyncRssDropdownItemComponent = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItem, {styles});
-const ResyncRssDialogComponent = registerComponent('ResyncRssDialog', ResyncRssDialog, {styles});
+export const ResyncRssDropdownItem = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItemInner, {styles});
+export const ResyncRssDialog = registerComponent('ResyncRssDialog', ResyncRssDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ResyncRssDropdownItem: typeof ResyncRssDropdownItemComponent
-    ResyncRssDialog: typeof ResyncRssDialogComponent
+    ResyncRssDropdownItem: typeof ResyncRssDropdownItem
+    ResyncRssDialog: typeof ResyncRssDialog
   }
 }
 

@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EditForumEventPage = ({classes}: {
+export const EditForumEventPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params: {documentId}} = useLocation();
@@ -29,14 +29,14 @@ export const EditForumEventPage = ({classes}: {
   );
 }
 
-const EditForumEventPageComponent = registerComponent(
+export const EditForumEventPage = registerComponent(
   "EditForumEventPage",
-  EditForumEventPage,
+  EditForumEventPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EditForumEventPage: typeof EditForumEventPageComponent
+    EditForumEventPage: typeof EditForumEventPage
   }
 }

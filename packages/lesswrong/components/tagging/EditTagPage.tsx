@@ -25,7 +25,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   </ContentStyles>
 }
 
-const EditTagPage = () => {
+const EditTagPageInner = () => {
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading } = useTagBySlug(slug, "TagEditFragment");
@@ -51,10 +51,10 @@ const EditTagPage = () => {
   );
 }
 
-const EditTagPageComponent = registerComponent('EditTagPage', EditTagPage);
+export const EditTagPage = registerComponent('EditTagPage', EditTagPageInner);
 
 declare global {
   interface ComponentTypes {
-    EditTagPage: typeof EditTagPageComponent
+    EditTagPage: typeof EditTagPage
   }
 }

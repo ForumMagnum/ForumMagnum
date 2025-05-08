@@ -12,7 +12,7 @@ export interface TemplateQueryStrings {
 }
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({
+const NewConversationButtonInner = ({
   user,
   currentUser,
   children,
@@ -87,10 +87,10 @@ const NewConversationButton = ({
   )
 }
 
-const NewConversationButtonComponent = registerComponent('NewConversationButton', NewConversationButton);
+export const NewConversationButton = registerComponent('NewConversationButton', NewConversationButtonInner);
 
 declare global {
   interface ComponentTypes {
-    NewConversationButton: typeof NewConversationButtonComponent
+    NewConversationButton: typeof NewConversationButton
   }
 }

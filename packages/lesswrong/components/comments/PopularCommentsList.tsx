@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PopularCommentsListInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
     resolverName: "PopularComments",
@@ -42,14 +42,14 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
   );
 }
 
-const PopularCommentsListComponent = registerComponent(
+export const PopularCommentsList = registerComponent(
   "PopularCommentsList",
-  PopularCommentsList,
+  PopularCommentsListInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PopularCommentsList: typeof PopularCommentsListComponent
+    PopularCommentsList: typeof PopularCommentsList
   }
 }

@@ -109,7 +109,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
 }));
 export type TableOfContentsRowStyles = typeof styles;
 
-const TableOfContentsRow = ({
+const TableOfContentsRowInner = ({
   indentLevel=0, highlighted=false, href, onClick, children, title, divider, answer, dense, scale, fullHeight, commentToC
 }: {
   indentLevel?: number,
@@ -164,10 +164,10 @@ const TableOfContentsRow = ({
   </div>
 }
 
-const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow);
+export const TableOfContentsRow = registerComponent("TableOfContentsRow", TableOfContentsRowInner);
 
 declare global {
   interface ComponentTypes {
-    TableOfContentsRow: typeof TableOfContentsRowComponent
+    TableOfContentsRow: typeof TableOfContentsRow
   }
 }

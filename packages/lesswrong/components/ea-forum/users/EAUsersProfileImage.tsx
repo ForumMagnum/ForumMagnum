@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersProfileImage = ({user, classes}: {
+const EAUsersProfileImageInner = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -71,14 +71,14 @@ const EAUsersProfileImage = ({user, classes}: {
   );
 }
 
-const EAUsersProfileImageComponent = registerComponent(
+export const EAUsersProfileImage = registerComponent(
   "EAUsersProfileImage",
-  EAUsersProfileImage,
+  EAUsersProfileImageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAUsersProfileImage: typeof EAUsersProfileImageComponent
+    EAUsersProfileImage: typeof EAUsersProfileImage
   }
 }

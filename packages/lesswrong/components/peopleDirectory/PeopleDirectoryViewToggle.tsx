@@ -4,7 +4,7 @@ import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";
 
-const PeopleDirectoryViewToggle = ({classes}: {
+const PeopleDirectoryViewToggleInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {view, setView} = usePeopleDirectory();
@@ -26,14 +26,14 @@ const PeopleDirectoryViewToggle = ({classes}: {
   );
 }
 
-const PeopleDirectoryViewToggleComponent = registerComponent(
+export const PeopleDirectoryViewToggle = registerComponent(
   "PeopleDirectoryViewToggle",
-  PeopleDirectoryViewToggle,
+  PeopleDirectoryViewToggleInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryViewToggle: typeof PeopleDirectoryViewToggleComponent
+    PeopleDirectoryViewToggle: typeof PeopleDirectoryViewToggle
   }
 }

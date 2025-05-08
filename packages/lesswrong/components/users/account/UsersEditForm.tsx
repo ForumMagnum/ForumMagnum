@@ -1288,7 +1288,7 @@ const UsersForm = ({
   );
 };
 
-const UsersEditForm = ({ terms }: {
+const UsersEditFormInner = ({ terms }: {
   terms: { slug: string },
 }) => {
   const classes = useStyles(styles);
@@ -1369,10 +1369,10 @@ const UsersEditForm = ({ terms }: {
 };
 
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm);
+export const UsersEditForm = registerComponent('UsersEditForm', UsersEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    UsersEditForm: typeof UsersEditFormComponent
+    UsersEditForm: typeof UsersEditForm
   }
 }

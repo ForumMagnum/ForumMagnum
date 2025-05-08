@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShowParentComment = ({ comment, active, onClick, classes }: {
+const ShowParentCommentInner = ({ comment, active, onClick, classes }: {
   comment: CommentsList,
   active?: boolean,
   onClick?: any,
@@ -58,11 +58,11 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   )
 };
 
-const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, {styles});
+export const ShowParentComment = registerComponent('ShowParentComment', ShowParentCommentInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ShowParentComment: typeof ShowParentCommentComponent,
+    ShowParentComment: typeof ShowParentComment,
   }
 }
 

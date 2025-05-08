@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForeignCrosspostEditForm = ({post, classes}: {
+const ForeignCrosspostEditFormInner = ({post, classes}: {
   post: PostsPage,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -50,10 +50,10 @@ const ForeignCrosspostEditForm = ({post, classes}: {
   );
 }
 
-const ForeignCrosspostEditFormComponent = registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditForm, {styles});
+export const ForeignCrosspostEditForm = registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ForeignCrosspostEditForm: typeof ForeignCrosspostEditFormComponent
+    ForeignCrosspostEditForm: typeof ForeignCrosspostEditForm
   }
 }

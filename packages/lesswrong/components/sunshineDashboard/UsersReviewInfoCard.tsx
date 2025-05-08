@@ -158,7 +158,7 @@ const styles = (theme: ThemeType) => ({
 export const DEFAULT_BIO_WORDCOUNT = 250
 export const MAX_BIO_WORDCOUNT = 10000
 
-const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
+const UsersReviewInfoCardInner = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
@@ -263,7 +263,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   )
 }
 
-const UsersReviewInfoCardComponent = registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
+export const UsersReviewInfoCard = registerComponent('UsersReviewInfoCard', UsersReviewInfoCardInner, {
   styles,
   hocs: [
     withErrorBoundary,
@@ -272,6 +272,6 @@ const UsersReviewInfoCardComponent = registerComponent('UsersReviewInfoCard', Us
 
 declare global {
   interface ComponentTypes {
-    UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
+    UsersReviewInfoCard: typeof UsersReviewInfoCard
   }
 }

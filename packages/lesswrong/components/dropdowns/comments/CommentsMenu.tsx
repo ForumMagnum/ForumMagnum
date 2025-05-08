@@ -20,7 +20,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
+const CommentsMenuInner = ({classes, className, comment, post, tag, showEdit, icon}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
@@ -73,11 +73,11 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   )
 }
 
-const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, {styles});
+export const CommentsMenu = registerComponent('CommentsMenu', CommentsMenuInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentsMenu: typeof CommentsMenuComponent,
+    CommentsMenu: typeof CommentsMenu,
   }
 }
 

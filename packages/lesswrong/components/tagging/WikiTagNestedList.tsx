@@ -36,7 +36,7 @@ interface WikiTagNestedListProps {
   showArbitalIcons?: boolean;
 }
 
-const WikiTagNestedList = ({
+const WikiTagNestedListInner = ({
   pages,
   nestingLevel = 0,
   maxInitialShow = 40,
@@ -66,12 +66,12 @@ const WikiTagNestedList = ({
   );
 }
 
-const WikiTagNestedListComponent = registerComponent('WikiTagNestedList', WikiTagNestedList);
+export const WikiTagNestedList = registerComponent('WikiTagNestedList', WikiTagNestedListInner);
 
-export default WikiTagNestedListComponent;
+
 
 declare global {
   interface ComponentTypes {
-    WikiTagNestedList: typeof WikiTagNestedListComponent
+    WikiTagNestedList: typeof WikiTagNestedList
   }
 }

@@ -5,7 +5,7 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
-export default function ScrollToTop() {
+export default function ScrollToTopInner() {
   const location = useSubscribedLocation();
   const { pathname, query, currentRoute } = location;
   const isNotFirstMountRef = useRef(false)
@@ -37,10 +37,10 @@ export default function ScrollToTop() {
   return null;
 }
 
-const ScrollToTopComponent = registerComponent('ScrollToTop', ScrollToTop);
+export const ScrollToTop = registerComponent('ScrollToTop', ScrollToTopInner);
 
 declare global {
   interface ComponentTypes {
-    ScrollToTop: typeof ScrollToTopComponent
+    ScrollToTop: typeof ScrollToTop
   }
 }

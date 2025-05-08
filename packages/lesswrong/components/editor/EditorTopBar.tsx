@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
-const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
+const EditorTopBarInner = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode) => void,
@@ -114,10 +114,10 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   </div>
 }
 
-const EditorTopBarComponent = registerComponent("EditorTopBar", EditorTopBar, {styles});
+export const EditorTopBar = registerComponent("EditorTopBar", EditorTopBarInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditorTopBar: typeof EditorTopBarComponent
+    EditorTopBar: typeof EditorTopBar
   }
 }

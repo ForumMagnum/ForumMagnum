@@ -54,7 +54,7 @@ type EAPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
 
-const EAPostsPreviewTooltip = ({
+const EAPostsPreviewTooltipInner = ({
   post,
   postsList,
   hash,
@@ -128,14 +128,14 @@ const EAPostsPreviewTooltip = ({
   );
 }
 
-const EAPostsPreviewTooltipComponent = registerComponent(
+export const EAPostsPreviewTooltip = registerComponent(
   "EAPostsPreviewTooltip",
-  EAPostsPreviewTooltip,
+  EAPostsPreviewTooltipInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAPostsPreviewTooltip: typeof EAPostsPreviewTooltipComponent
+    EAPostsPreviewTooltip: typeof EAPostsPreviewTooltip
   }
 }

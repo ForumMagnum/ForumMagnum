@@ -5,7 +5,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
+const RetractCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
@@ -50,12 +50,12 @@ const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 }
 
-const RetractCommentDropdownItemComponent = registerComponent(
-  'RetractCommentDropdownItem', RetractCommentDropdownItem,
+export const RetractCommentDropdownItem = registerComponent(
+  'RetractCommentDropdownItem', RetractCommentDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    RetractCommentDropdownItem: typeof RetractCommentDropdownItemComponent
+    RetractCommentDropdownItem: typeof RetractCommentDropdownItem
   }
 }

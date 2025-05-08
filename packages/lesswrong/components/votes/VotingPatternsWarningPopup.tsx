@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const VotingPatternsWarningPopup = ({onClose, classes}: {
+const VotingPatternsWarningPopupInner = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>
 }) => {
@@ -29,10 +29,10 @@ const VotingPatternsWarningPopup = ({onClose, classes}: {
   </LWDialog>
 }
 
-const VotingPatternsWarningPopupComponent = registerComponent('VotingPatternsWarningPopup', VotingPatternsWarningPopup, {styles});
+export const VotingPatternsWarningPopup = registerComponent('VotingPatternsWarningPopup', VotingPatternsWarningPopupInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    VotingPatternsWarningPopup: typeof VotingPatternsWarningPopupComponent
+    VotingPatternsWarningPopup: typeof VotingPatternsWarningPopup
   }
 }

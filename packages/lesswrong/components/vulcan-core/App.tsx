@@ -25,7 +25,7 @@ interface ExternalProps {
   serverRequestStatus?: ServerRequestStatusContextType,
 }
 
-const App = ({serverRequestStatus}: ExternalProps) => {
+const AppInner = ({serverRequestStatus}: ExternalProps) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
   const history = useHistory();
@@ -116,12 +116,12 @@ const App = ({serverRequestStatus}: ExternalProps) => {
   );
 }
 
-const AppComponent = registerComponent<ExternalProps>('App', App);
+const App = registerComponent('App', AppInner);
 
 declare global {
   interface ComponentTypes {
-    App: typeof AppComponent
+    App: typeof App
   }
 }
 
-export default App;
+export default AppInner;

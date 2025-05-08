@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PetrovAdminConsole = ({classes, currentUser}: {
+export const PetrovAdminConsoleInner = ({classes, currentUser}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent
 }) => {
@@ -61,10 +61,10 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
   </PetrovWorldmapWrapper>
 }
 
-const PetrovAdminConsoleComponent = registerComponent('PetrovAdminConsole', PetrovAdminConsole, {styles});
+export const PetrovAdminConsole = registerComponent('PetrovAdminConsole', PetrovAdminConsoleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PetrovAdminConsole: typeof PetrovAdminConsoleComponent
+    PetrovAdminConsole: typeof PetrovAdminConsole
   }
 }

@@ -11,7 +11,7 @@ const bannerTypes: Record<string, BannerType> = {
   "posts.single": "postpage",
 };
 
-export const ForumEventBanner = () => {
+export const ForumEventBannerInner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
   const {ForumEventFrontpageBanner, ForumEventPostPageBanner} = Components;
@@ -46,13 +46,13 @@ export const ForumEventBanner = () => {
   }
 }
 
-const ForumEventBannerComponent = registerComponent(
+export const ForumEventBanner = registerComponent(
   "ForumEventBanner",
-  ForumEventBanner,
+  ForumEventBannerInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventBanner: typeof ForumEventBannerComponent
+    ForumEventBanner: typeof ForumEventBanner
   }
 }

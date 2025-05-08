@@ -135,7 +135,7 @@ export interface FeedContentBodyProps {
   resetSignal?: number;
 }
 
-const FeedContentBody = ({
+const FeedContentBodyInner = ({
   html,
   breakpoints = [],
   initialExpansionLevel = 0,
@@ -315,12 +315,12 @@ const FeedContentBody = ({
   );
 };
 
-const FeedContentBodyComponent = registerComponent('FeedContentBody', FeedContentBody);
+export const FeedContentBody = registerComponent('FeedContentBody', FeedContentBodyInner);
 
-export default FeedContentBodyComponent;
+
 
 declare global {
   interface ComponentTypes {
-    FeedContentBody: typeof FeedContentBodyComponent
+    FeedContentBody: typeof FeedContentBody
   }
 }

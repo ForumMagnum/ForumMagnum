@@ -16,7 +16,7 @@ const styles = () => ({
   },
 });
 
-export const EditUserJargonSettings = ({classes}: {
+export const EditUserJargonSettingsInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -48,10 +48,10 @@ export const EditUserJargonSettings = ({classes}: {
   </>;
 }
 
-const EditUserJargonSettingsComponent = registerComponent('EditUserJargonSettings', EditUserJargonSettings, {styles});
+export const EditUserJargonSettings = registerComponent('EditUserJargonSettings', EditUserJargonSettingsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditUserJargonSettings: typeof EditUserJargonSettingsComponent
+    EditUserJargonSettings: typeof EditUserJargonSettings
   }
 }

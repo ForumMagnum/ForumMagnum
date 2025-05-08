@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, classes}: {
+const PostsItemTagRelevanceInner = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -95,10 +95,10 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   </PostsItem2MetaInfo>
 }
 
-const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
+export const PostsItemTagRelevance = registerComponent("PostsItemTagRelevance", PostsItemTagRelevanceInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemTagRelevance: typeof PostsItemTagRelevanceComponent
+    PostsItemTagRelevance: typeof PostsItemTagRelevance
   }
 }

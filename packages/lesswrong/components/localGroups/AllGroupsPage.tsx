@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const AllGroupsPage = () => {
+const AllGroupsPageInner = () => {
   const { SingleColumnSection, SectionTitle } = Components
 
   return (
@@ -14,11 +14,11 @@ const AllGroupsPage = () => {
   )
 }
 
-const AllGroupsPageComponent = registerComponent('AllGroupsPage', AllGroupsPage);
+export const AllGroupsPage = registerComponent('AllGroupsPage', AllGroupsPageInner);
 
 declare global {
   interface ComponentTypes {
-    AllGroupsPage: typeof AllGroupsPageComponent
+    AllGroupsPage: typeof AllGroupsPage
   }
 }
 

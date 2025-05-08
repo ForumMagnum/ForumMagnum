@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
  * This component is for a standalone route that displays a map of all groups.
  * Use the "zoom", "lat" and "lng" query params to set the initial map view.
  */
-const GroupsMap = () => {
+const GroupsMapInner = () => {
   const { query } = useLocation()
   
   let center = {}
@@ -24,10 +24,10 @@ const GroupsMap = () => {
   />
 }
 
-const GroupsMapComponent = registerComponent('GroupsMap', GroupsMap);
+export const GroupsMap = registerComponent('GroupsMap', GroupsMapInner);
 
 declare global {
   interface ComponentTypes {
-    GroupsMap: typeof GroupsMapComponent
+    GroupsMap: typeof GroupsMap
   }
 }

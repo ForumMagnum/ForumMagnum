@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShortformThreadList = ({ classes }: {
+const ShortformThreadListInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -52,10 +52,10 @@ const ShortformThreadList = ({ classes }: {
   )
 }
 
-const ShortformThreadListComponent = registerComponent('ShortformThreadList', ShortformThreadList, {styles});
+export const ShortformThreadList = registerComponent('ShortformThreadList', ShortformThreadListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ShortformThreadList: typeof ShortformThreadListComponent
+    ShortformThreadList: typeof ShortformThreadList
   }
 }

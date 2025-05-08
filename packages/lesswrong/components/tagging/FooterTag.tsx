@@ -130,7 +130,7 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
  * hover-previews of posts, and they will initially open into a loading state
  * where we have tags' names but don't have their descriptions.
  */
-const FooterTag = ({
+const FooterTagInner = ({
   tagRel,
   tag,
   hideScore=false,
@@ -211,10 +211,10 @@ const FooterTag = ({
   );
 }
 
-const FooterTagComponent = registerComponent("FooterTag", FooterTag);
+export const FooterTag = registerComponent("FooterTag", FooterTagInner);
 
 declare global {
   interface ComponentTypes {
-    FooterTag: typeof FooterTagComponent
+    FooterTag: typeof FooterTag
   }
 }

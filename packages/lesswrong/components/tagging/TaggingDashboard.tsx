@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TaggingDashboard = ({classes}: {
+const TaggingDashboardInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
@@ -204,10 +204,10 @@ const TaggingDashboard = ({classes}: {
 }
 
 
-const TaggingDashboardComponent = registerComponent("TaggingDashboard", TaggingDashboard, { styles });
+export const TaggingDashboard = registerComponent("TaggingDashboard", TaggingDashboardInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    TaggingDashboard: typeof TaggingDashboardComponent
+    TaggingDashboard: typeof TaggingDashboard
   }
 }

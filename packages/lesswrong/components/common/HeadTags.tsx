@@ -6,7 +6,7 @@ import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } 
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 
-const HeadTags = ({
+const HeadTagsInner = ({
   ogUrl: ogUrlProp,
   canonicalUrl: canonicalUrlProp,
   description: descriptionProp,
@@ -87,10 +87,10 @@ const HeadTags = ({
     );
 }
 
-const HeadTagsComponent = registerComponent('HeadTags', HeadTags);
+export const HeadTags = registerComponent('HeadTags', HeadTagsInner);
 
 declare global {
   interface ComponentTypes {
-    HeadTags: typeof HeadTagsComponent
+    HeadTags: typeof HeadTags
   }
 }

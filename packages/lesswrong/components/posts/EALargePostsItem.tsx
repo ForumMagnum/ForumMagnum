@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EALargePostsItem = ({
+const EALargePostsItemInner = ({
   post,
   isNarrow,
   noImagePlaceholder,
@@ -205,14 +205,14 @@ const EALargePostsItem = ({
   );
 };
 
-const EALargePostsItemComponent = registerComponent(
+export const EALargePostsItem = registerComponent(
   "EALargePostsItem",
-  EALargePostsItem,
+  EALargePostsItemInner,
   {styles, stylePriority: -1,},
 );
 
 declare global {
   interface ComponentTypes {
-    EALargePostsItem: typeof EALargePostsItemComponent;
+    EALargePostsItem: typeof EALargePostsItem;
   }
 }

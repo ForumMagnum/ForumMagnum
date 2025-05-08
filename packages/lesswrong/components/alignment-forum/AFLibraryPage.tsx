@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AFLibraryPage = ({classes}: {
+export const AFLibraryPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, SequencesGridWrapper, Typography } = Components
@@ -54,11 +54,11 @@ export const AFLibraryPage = ({classes}: {
   </div>;
 }
 
-const AFLibraryPageComponent = registerComponent('AFLibraryPage', AFLibraryPage, {styles});
+export const AFLibraryPage = registerComponent('AFLibraryPage', AFLibraryPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AFLibraryPage: typeof AFLibraryPageComponent
+    AFLibraryPage: typeof AFLibraryPage
   }
 }
 

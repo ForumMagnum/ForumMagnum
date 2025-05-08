@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsTopSequencesNav = ({post, classes, blackText}: {
+const PostsTopSequencesNavInner = ({post, classes, blackText}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
   blackText?: boolean
@@ -109,8 +109,8 @@ const PostsTopSequencesNav = ({post, classes, blackText}: {
   )
 }
 
-const PostsTopSequencesNavComponent = registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNav, {
+export const PostsTopSequencesNav = registerComponent(
+  'PostsTopSequencesNav', PostsTopSequencesNavInner, {
     styles,
     hocs: [withErrorBoundary]
   }
@@ -118,6 +118,6 @@ const PostsTopSequencesNavComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    PostsTopSequencesNav: typeof PostsTopSequencesNavComponent
+    PostsTopSequencesNav: typeof PostsTopSequencesNav
   }
 }

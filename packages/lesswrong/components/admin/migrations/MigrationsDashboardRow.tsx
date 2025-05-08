@@ -25,7 +25,7 @@ export const rowStyles = {
 };
 const styles = (_theme: ThemeType) => rowStyles;
 
-const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}: {
+const MigrationsDashboardRowInner = ({migration: {name, dateWritten, runs, lastRun}, classes}: {
   migration: any,
   classes: ClassesType<typeof styles>
 }) => {
@@ -64,14 +64,14 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
   </div>
 }
 
-const MigrationsDashboardRowComponent = registerComponent(
-  "MigrationsDashboardRow", MigrationsDashboardRow, {
+export const MigrationsDashboardRow = registerComponent(
+  "MigrationsDashboardRow", MigrationsDashboardRowInner, {
     styles
   }
 );
 
 declare global {
   interface ComponentTypes {
-    MigrationsDashboardRow: typeof MigrationsDashboardRowComponent
+    MigrationsDashboardRow: typeof MigrationsDashboardRow
   }
 }

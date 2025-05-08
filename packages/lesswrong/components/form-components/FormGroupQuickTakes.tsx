@@ -16,7 +16,7 @@ const styles = (_theme: ThemeType) => ({
  * the form entries (the tag picker), so we do that with a little CSS hack in
  * this layout component.
  */
-const FormGroupQuickTakes = ({
+const FormGroupQuickTakesInner = ({
   children,
   classes,
 }: FormGroupLayoutProps & {classes: ClassesType<typeof styles>}) => {
@@ -27,14 +27,14 @@ const FormGroupQuickTakes = ({
   );
 }
 
-const FormGroupQuickTakesComponent = registerComponent(
+export const FormGroupQuickTakes = registerComponent(
   'FormGroupQuickTakes',
-  FormGroupQuickTakes,
+  FormGroupQuickTakesInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    FormGroupQuickTakes: typeof FormGroupQuickTakesComponent
+    FormGroupQuickTakes: typeof FormGroupQuickTakes
   }
 }

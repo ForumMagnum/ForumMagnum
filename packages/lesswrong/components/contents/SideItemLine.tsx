@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SideItemLine = ({colorClass, classes}: {
+const SideItemLineInner = ({colorClass, classes}: {
   colorClass: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,11 +28,11 @@ const SideItemLine = ({colorClass, classes}: {
   </span>
 }
 
-const SideItemLineComponent = registerComponent('SideItemLine', SideItemLine, {styles});
+export const SideItemLine = registerComponent('SideItemLine', SideItemLineInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SideItemLine: typeof SideItemLineComponent
+    SideItemLine: typeof SideItemLine
   }
 }
 

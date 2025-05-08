@@ -29,7 +29,7 @@ const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) 
  * Form for editing the title of a private messages conversation and also for
  * adding additional participants.
  */
-const ConversationTitleEditForm = ({ onClose, conversation }: {
+const ConversationTitleEditFormInner = ({ onClose, conversation }: {
   onClose?: () => void,
   conversation: UpdateConversationDataInput & { _id: string },
 }) => {
@@ -139,10 +139,10 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   </Components.LWDialog>
 }
 
-const ConversationTitleEditFormComponent = registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
+export const ConversationTitleEditForm = registerComponent('ConversationTitleEditForm', ConversationTitleEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    ConversationTitleEditForm: typeof ConversationTitleEditFormComponent
+    ConversationTitleEditForm: typeof ConversationTitleEditForm
   }
 }

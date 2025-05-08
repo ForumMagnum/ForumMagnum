@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const FollowUserButton = ({user, classes}: {
+export const FollowUserButtonInner = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -70,10 +70,10 @@ export const FollowUserButton = ({user, classes}: {
   </div>;
 }
 
-const FollowUserButtonComponent = registerComponent('FollowUserButton', FollowUserButton, {styles});
+export const FollowUserButton = registerComponent('FollowUserButton', FollowUserButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FollowUserButton: typeof FollowUserButtonComponent
+    FollowUserButton: typeof FollowUserButton
   }
 }

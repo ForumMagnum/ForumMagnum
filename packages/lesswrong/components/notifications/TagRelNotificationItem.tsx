@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const TagRelNotificationItem = ({classes, tagRelId}: {
+export const TagRelNotificationItemInner = ({classes, tagRelId}: {
   classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
@@ -35,11 +35,11 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   </div>;
 }
 
-const TagRelNotificationItemComponent = registerComponent('TagRelNotificationItem', TagRelNotificationItem, {styles});
+export const TagRelNotificationItem = registerComponent('TagRelNotificationItem', TagRelNotificationItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagRelNotificationItem: typeof TagRelNotificationItemComponent
+    TagRelNotificationItem: typeof TagRelNotificationItem
   }
 }
 

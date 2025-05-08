@@ -115,7 +115,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const Book2019FrontpageWidget = ({ classes }: {
+const Book2019FrontpageWidgetInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { BookCheckout, Book2019Animation, ContentStyles } = Components
@@ -205,7 +205,7 @@ const Book2019FrontpageWidget = ({ classes }: {
 }
 
 
-const Book2019FrontpageWidgetComponent = registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidget, { styles });
+const Book2019FrontpageWidgetComponent = registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidgetInner, { styles });
 
 declare global {
   interface ComponentTypes {

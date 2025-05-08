@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AllReactedCommentsPage = ({classes}: {
+export const AllReactedCommentsPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const defaultLimit = 50;
@@ -44,10 +44,10 @@ export const AllReactedCommentsPage = ({classes}: {
   )
 }
 
-const AllReactedCommentsPageComponent = registerComponent('AllReactedCommentsPage', AllReactedCommentsPage, {styles});
+export const AllReactedCommentsPage = registerComponent('AllReactedCommentsPage', AllReactedCommentsPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AllReactedCommentsPage: typeof AllReactedCommentsPageComponent
+    AllReactedCommentsPage: typeof AllReactedCommentsPage
   }
 }

@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWCommentCount = ({classes, answerCount, commentCount, label=true}: {
+export const LWCommentCountInner = ({classes, answerCount, commentCount, label=true}: {
   classes: ClassesType<typeof styles>,
   answerCount?: number,
   commentCount?: number,
@@ -68,10 +68,10 @@ export const LWCommentCount = ({classes, answerCount, commentCount, label=true}:
       </div>
 }
 
-const LWCommentCountComponent = registerComponent('LWCommentCount', LWCommentCount, {styles});
+export const LWCommentCount = registerComponent('LWCommentCount', LWCommentCountInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWCommentCount: typeof LWCommentCountComponent
+    LWCommentCount: typeof LWCommentCount
   }
 }

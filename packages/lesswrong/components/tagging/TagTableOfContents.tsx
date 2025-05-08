@@ -23,7 +23,7 @@ export const styles = (theme: ThemeType) => ({
 });
 
 
-const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
+const TagTableOfContentsInner = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
   tag: TagPageFragment|AllTagsPageFragment
   expandAll?: () => void,
   showContributors: boolean,
@@ -57,10 +57,10 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   );
 }
 
-const TagTableOfContentsComponent = registerComponent("TagTableOfContents", TagTableOfContents, {styles});
+export const TagTableOfContents = registerComponent("TagTableOfContents", TagTableOfContentsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagTableOfContents: typeof TagTableOfContentsComponent
+    TagTableOfContents: typeof TagTableOfContents
   }
 }

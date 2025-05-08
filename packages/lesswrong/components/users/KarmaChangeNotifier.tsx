@@ -200,7 +200,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   );
 }
 
-const KarmaChangeNotifier = ({currentUser, className, classes}: {
+const KarmaChangeNotifierInner = ({currentUser, className, classes}: {
   currentUser: UsersCurrent, //component can only be used if logged in
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -345,12 +345,12 @@ const NewReactions = ({reactionChanges, classes}: {
   </span>
 }
 
-const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
+export const KarmaChangeNotifier = registerComponent('KarmaChangeNotifier', KarmaChangeNotifierInner, {
   styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    KarmaChangeNotifier: typeof KarmaChangeNotifierComponent
+    KarmaChangeNotifier: typeof KarmaChangeNotifier
   }
 }

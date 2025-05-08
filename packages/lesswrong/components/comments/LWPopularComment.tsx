@@ -172,7 +172,7 @@ const PopularCommentPostLink = ({ post, classes }: {
   );
 };
 
-const LWPopularComment = ({comment, classes}: {
+const LWPopularCommentInner = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -248,14 +248,14 @@ const LWPopularComment = ({comment, classes}: {
   );
 }
 
-const LWPopularCommentComponent = registerComponent(
+export const LWPopularComment = registerComponent(
   "LWPopularComment",
-  LWPopularComment,
+  LWPopularCommentInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    LWPopularComment: typeof LWPopularCommentComponent
+    LWPopularComment: typeof LWPopularComment
   }
 }

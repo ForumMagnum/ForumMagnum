@@ -4,7 +4,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentForm } from './CommentForm';
 import { useSingle } from '@/lib/crud/withSingle';
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
+const CommentsEditFormInner = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
@@ -37,11 +37,11 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
   )
 }
 
-const CommentsEditFormComponent = registerComponent('CommentsEditForm', CommentsEditForm);
+export const CommentsEditForm = registerComponent('CommentsEditForm', CommentsEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    CommentsEditForm: typeof CommentsEditFormComponent,
+    CommentsEditForm: typeof CommentsEditForm,
   }
 }
 

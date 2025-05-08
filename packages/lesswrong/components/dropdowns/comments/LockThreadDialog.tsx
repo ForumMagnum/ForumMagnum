@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LockThreadDialog = ({commentId, onClose, classes}: {
+const LockThreadDialogInner = ({commentId, onClose, classes}: {
   commentId: string,
   onClose: () => void,
   classes: ClassesType<typeof styles>,
@@ -66,12 +66,12 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
   );
 }
 
-const LockThreadDialogComponent = registerComponent(
-  'LockThreadDialog', LockThreadDialog, {styles},
+export const LockThreadDialog = registerComponent(
+  'LockThreadDialog', LockThreadDialogInner, {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    LockThreadDialog: typeof LockThreadDialogComponent
+    LockThreadDialog: typeof LockThreadDialog
   }
 }

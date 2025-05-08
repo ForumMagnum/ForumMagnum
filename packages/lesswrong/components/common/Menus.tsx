@@ -66,7 +66,7 @@ export const styles = defineStyles("MenuItem", theme => ({
 }),  {stylePriority: -1});
 
 
-const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, children}: {
+const MenuItemInner = ({value, disabled, disableRipple, dense, onClick, className, children}: {
   value?: string|number,
   disabled?: boolean,
   disableRipple?: boolean,
@@ -97,7 +97,7 @@ const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, ch
   </ButtonBase>;
 }
 
-const MenuItemLink = ({to, className, disabled, disableTouchRipple, children}: {
+const MenuItemLinkInner = ({to, className, disabled, disableTouchRipple, children}: {
   to: string,
   className?: string,
   disabled?: boolean,
@@ -124,12 +124,12 @@ const MenuItemLink = ({to, className, disabled, disableTouchRipple, children}: {
   </ButtonBaseUntyped>;
 }
 
-const MenuItemComponent = registerComponent("MenuItem", MenuItem);
-const MenuItemLinkComponent = registerComponent("MenuItemLink", MenuItemLink);
+export const MenuItem = registerComponent("MenuItem", MenuItemInner);
+export const MenuItemLink = registerComponent("MenuItemLink", MenuItemLinkInner);
 
 declare global {
   interface ComponentTypes {
-    MenuItem: typeof MenuItemComponent
-    MenuItemLink: typeof MenuItemLinkComponent
+    MenuItem: typeof MenuItem
+    MenuItemLink: typeof MenuItemLink
   }
 }

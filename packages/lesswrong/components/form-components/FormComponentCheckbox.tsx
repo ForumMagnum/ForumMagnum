@@ -31,7 +31,7 @@ export interface FormComponentCheckboxProps {
   className?: string;
 }
 
-const FormComponentCheckbox = ({
+const FormComponentCheckboxInner = ({
   field,
   label,
   disabled = false,
@@ -64,10 +64,10 @@ const FormComponentCheckbox = ({
   );
 }
 
-const FormComponentCheckboxComponent = registerComponent('FormComponentCheckbox', FormComponentCheckbox);
+export const FormComponentCheckbox = registerComponent('FormComponentCheckbox', FormComponentCheckboxInner);
 
 declare global {
   interface ComponentTypes {
-    FormComponentCheckbox: typeof FormComponentCheckboxComponent
+    FormComponentCheckbox: typeof FormComponentCheckbox
   }
 }

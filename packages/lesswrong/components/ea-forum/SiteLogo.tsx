@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SiteLogo = ({eaContrast, classes}: {
+const SiteLogoInner = ({eaContrast, classes}: {
   eaContrast?: boolean,
   classes: ClassesType<typeof styles>;
 }) => {
@@ -43,13 +43,13 @@ const SiteLogo = ({eaContrast, classes}: {
   />
 }
 
-SiteLogo.displayName = "SiteLogo";
-const SiteLogoComponent = registerComponent(
-  'SiteLogo', SiteLogo, {styles}
+SiteLogoInner.displayName = "SiteLogo";
+export const SiteLogo = registerComponent(
+  'SiteLogo', SiteLogoInner, {styles}
 )
 
 declare global {
   interface ComponentTypes {
-    SiteLogo: typeof SiteLogoComponent
+    SiteLogo: typeof SiteLogo
   }
 }

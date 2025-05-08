@@ -153,7 +153,7 @@ type TagUsage = {
 }
 
 
-const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EditDigestInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {params} = useLocation()
   const {flash} = useMessages()
   const currentUser = useCurrentUser()
@@ -570,10 +570,10 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const EditDigestComponent = registerComponent('EditDigest', EditDigest, {styles});
+export const EditDigest = registerComponent('EditDigest', EditDigestInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditDigest: typeof EditDigestComponent
+    EditDigest: typeof EditDigest
   }
 }

@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAcceptTos = ({currentUser, classes}: {
+const PostsAcceptTosInner = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -83,10 +83,10 @@ const PostsAcceptTos = ({currentUser, classes}: {
   );
 }
 
-const PostsAcceptTosComponent = registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
+export const PostsAcceptTos = registerComponent("PostsAcceptTos", PostsAcceptTosInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsAcceptTos: typeof PostsAcceptTosComponent
+    PostsAcceptTos: typeof PostsAcceptTos
   }
 }

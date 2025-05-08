@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const NewTagItem = ({tag, classes}: {
+const NewTagItemInner = ({tag, classes}: {
   tag: TagCreationHistoryFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -91,10 +91,10 @@ const NewTagItem = ({tag, classes}: {
   </div>;
 }
 
-const NewTagItemComponent = registerComponent("NewTagItem", NewTagItem, {styles});
+export const NewTagItem = registerComponent("NewTagItem", NewTagItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewTagItem: typeof NewTagItemComponent
+    NewTagItem: typeof NewTagItem
   }
 }

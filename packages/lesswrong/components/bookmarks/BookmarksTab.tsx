@@ -4,7 +4,7 @@ import { useContinueReading } from '../recommendations/withContinueReading';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 
-export const BookmarksTab = () => {
+export const BookmarksTabInner = () => {
   const {SectionTitle, BookmarksList, ContinueReadingList, BookmarksFeed} = Components
   const {continueReading} = useContinueReading()
   
@@ -22,11 +22,11 @@ export const BookmarksTab = () => {
   </AnalyticsContext>
 }
 
-const BookmarksTabComponent = registerComponent('BookmarksTab', BookmarksTab);
+export const BookmarksTab = registerComponent('BookmarksTab', BookmarksTabInner);
 
 declare global {
   interface ComponentTypes {
-    BookmarksTab: typeof BookmarksTabComponent
+    BookmarksTab: typeof BookmarksTab
   }
 }
 

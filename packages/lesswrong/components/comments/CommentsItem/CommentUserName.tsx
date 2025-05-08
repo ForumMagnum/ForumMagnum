@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentUserName = ({
+const CommentUserNameInner = ({
   comment,
   classes,
   simple = false,
@@ -137,13 +137,13 @@ const CommentUserName = ({
   );
 }
 
-const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName, {
+export const CommentUserName = registerComponent('CommentUserName', CommentUserNameInner, {
   styles,
   stylePriority: 100, //Higher than UsersName, which gets a className from us
 });
 
 declare global {
   interface ComponentTypes {
-    CommentUserName: typeof CommentUserNameComponent
+    CommentUserName: typeof CommentUserName
   }
 }

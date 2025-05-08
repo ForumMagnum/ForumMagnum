@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CommentsReviewTab = ({commentsWithActions, classes}: {
+export const CommentsReviewTabInner = ({commentsWithActions, classes}: {
   commentsWithActions: CommentWithModeratorActions[],
   classes: ClassesType<typeof styles>,
 }) => {
@@ -24,10 +24,10 @@ export const CommentsReviewTab = ({commentsWithActions, classes}: {
   </div>;
 }
 
-const CommentsReviewTabComponent = registerComponent('CommentsReviewTab', CommentsReviewTab, {styles});
+export const CommentsReviewTab = registerComponent('CommentsReviewTab', CommentsReviewTabInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentsReviewTab: typeof CommentsReviewTabComponent
+    CommentsReviewTab: typeof CommentsReviewTab
   }
 }

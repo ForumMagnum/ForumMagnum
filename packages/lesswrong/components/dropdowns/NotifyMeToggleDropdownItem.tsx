@@ -71,7 +71,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
   );
 }
 
-export const NotifyMeToggleDropdownItem = (
+export const NotifyMeToggleDropdownItemInner = (
   props: NotifyMeToggleDropdownItemProps,
 ) => {
   if (!(props.enabled ?? true) || !props.document) {
@@ -84,14 +84,14 @@ export const NotifyMeToggleDropdownItem = (
   );
 }
 
-const NotifyMeToggleDropdownItemComponent = registerComponent(
+export const NotifyMeToggleDropdownItem = registerComponent(
   "NotifyMeToggleDropdownItem",
-  NotifyMeToggleDropdownItem,
+  NotifyMeToggleDropdownItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotifyMeToggleDropdownItem: typeof NotifyMeToggleDropdownItemComponent
+    NotifyMeToggleDropdownItem: typeof NotifyMeToggleDropdownItem
   }
 }

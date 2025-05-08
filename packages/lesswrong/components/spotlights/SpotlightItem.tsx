@@ -409,7 +409,7 @@ function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
   return [];
 }
 
-export const SpotlightItem = ({
+export const SpotlightItemInner = ({
   spotlight,
   showAdminInfo,
   hideBanner,
@@ -643,13 +643,13 @@ export const SpotlightItem = ({
   </AnalyticsContext>
 }
 
-const SpotlightItemComponent = registerComponent('SpotlightItem', SpotlightItem, {
+export const SpotlightItem = registerComponent('SpotlightItem', SpotlightItemInner, {
   styles,
   stylePriority: -1,
 });
 
 declare global {
   interface ComponentTypes {
-    SpotlightItem: typeof SpotlightItemComponent
+    SpotlightItem: typeof SpotlightItem
   }
 }

@@ -50,7 +50,7 @@ const useCurrentEvent = (): CurrentEvent | null => {
   };
 }
 
-const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HeaderEventSubtitleInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentEvent = useCurrentEvent();
   return currentEvent
     ? (
@@ -65,14 +65,14 @@ const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) =
     : null;
 }
 
-const HeaderEventSubtitleComponent = registerComponent(
+export const HeaderEventSubtitle = registerComponent(
   "HeaderEventSubtitle",
-  HeaderEventSubtitle,
+  HeaderEventSubtitleInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    HeaderEventSubtitle: typeof HeaderEventSubtitleComponent
+    HeaderEventSubtitle: typeof HeaderEventSubtitle
   }
 }

@@ -102,7 +102,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   },
 }));
 
-export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
+export const LessOnline2025BannerInner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
   const classes = useStyles(styles);
   const { CloudinaryImage2 } = Components
 
@@ -135,7 +135,7 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
   );
 }
 
-const LessOnline2025BannerComponent = registerComponent('LessOnline2025Banner', LessOnline2025Banner);
+const LessOnline2025BannerComponent = registerComponent('LessOnline2025Banner', LessOnline2025BannerInner);
 
 declare global {
   interface ComponentTypes {
@@ -143,4 +143,4 @@ declare global {
   }
 }
 
-export default LessOnline2025Banner;
+export default LessOnline2025BannerInner;

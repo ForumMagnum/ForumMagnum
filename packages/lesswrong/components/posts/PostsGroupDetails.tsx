@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
+const PostsGroupDetailsInner = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
   inRecentDiscussion?: Boolean,
@@ -61,12 +61,12 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   </div>
 }
 
-const PostsGroupDetailsComponent = registerComponent(
-  'PostsGroupDetails', PostsGroupDetails, { styles }
+export const PostsGroupDetails = registerComponent(
+  'PostsGroupDetails', PostsGroupDetailsInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    PostsGroupDetails: typeof PostsGroupDetailsComponent
+    PostsGroupDetails: typeof PostsGroupDetails
   }
 }

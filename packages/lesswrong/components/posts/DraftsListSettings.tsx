@@ -46,7 +46,7 @@ const USER_SETTING_NAMES = {
   showShared: 'draftsListShowShared'
 }
 
-const DraftsListSettings = ({
+const DraftsListSettingsInner = ({
   persistentSettings, 
   hidden, 
   currentSorting, 
@@ -122,12 +122,12 @@ const DraftsListSettings = ({
   );
 };
 
-const DraftsListSettingsComponent = registerComponent(
-  'DraftsListSettings', DraftsListSettings, { styles }
+export const DraftsListSettings = registerComponent(
+  'DraftsListSettings', DraftsListSettingsInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    DraftsListSettings: typeof DraftsListSettingsComponent
+    DraftsListSettings: typeof DraftsListSettings
   }
 }

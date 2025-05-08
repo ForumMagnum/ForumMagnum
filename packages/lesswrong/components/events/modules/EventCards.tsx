@@ -117,7 +117,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
+const EventCardsInner = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
   events: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
@@ -210,10 +210,10 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   </>
 }
 
-const EventCardsComponent = registerComponent('EventCards', EventCards, {styles});
+export const EventCards = registerComponent('EventCards', EventCardsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EventCards: typeof EventCardsComponent
+    EventCards: typeof EventCards
   }
 }

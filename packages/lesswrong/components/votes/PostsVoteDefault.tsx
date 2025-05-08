@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsVoteDefault = ({
+const PostsVoteDefaultInner = ({
   post,
   useHorizontalLayout,
   votingSystem,
@@ -190,14 +190,14 @@ const PostsVoteDefault = ({
   );
 }
 
-const PostsVoteDefaultComponent = registerComponent(
+export const PostsVoteDefault = registerComponent(
   "PostsVoteDefault",
-  PostsVoteDefault,
+  PostsVoteDefaultInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsVoteDefault: typeof PostsVoteDefaultComponent
+    PostsVoteDefault: typeof PostsVoteDefault
   }
 }

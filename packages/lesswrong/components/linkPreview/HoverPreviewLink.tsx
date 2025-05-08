@@ -47,7 +47,7 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, children }: {
+const HoverPreviewLinkInner = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, children }: {
   href: string,
   contentSourceDescription?: string,
   id?: string,
@@ -171,10 +171,10 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 
 }
 
-const HoverPreviewLinkComponent = registerComponent('HoverPreviewLink', HoverPreviewLink, { hocs: [withErrorBoundary] });
+export const HoverPreviewLink = registerComponent('HoverPreviewLink', HoverPreviewLinkInner, { hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {
-    HoverPreviewLink: typeof HoverPreviewLinkComponent
+    HoverPreviewLink: typeof HoverPreviewLink
   }
 }

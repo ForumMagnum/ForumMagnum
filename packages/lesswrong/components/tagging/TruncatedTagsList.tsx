@@ -40,7 +40,7 @@ const reformatTagPlaceholder = (
   );
 }
 
-const TruncatedTagsList = ({post, expandContainer, className, classes}: {
+const TruncatedTagsListInner = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   className?: string,
@@ -86,14 +86,14 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   );
 }
 
-const TruncatedTagsListComponent = registerComponent(
+export const TruncatedTagsList = registerComponent(
   "TruncatedTagsList",
-  TruncatedTagsList,
+  TruncatedTagsListInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    TruncatedTagsList: typeof TruncatedTagsListComponent
+    TruncatedTagsList: typeof TruncatedTagsList
   }
 }

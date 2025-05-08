@@ -74,7 +74,7 @@ const styles = (theme: ThemeType) => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
+const CommunityMapInner = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
@@ -201,7 +201,7 @@ const personalMapMarkerStyles = (theme: ThemeType) => ({
     opacity: 0.8
   }
 })
-const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}: {
+const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openWindows, classes}: {
   users: Array<UsersMapEntry>,
   handleClick: (userId: string) => void,
   handleClose: (userId: string) => void,
@@ -253,7 +253,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
     })}
   </React.Fragment>
 }
-const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkers, {
+const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkersInner, {
   styles: personalMapMarkerStyles
 });
 
@@ -297,11 +297,11 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 
 
-const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles });
+export const CommunityMap = registerComponent("CommunityMap", CommunityMapInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    CommunityMap: typeof CommunityMapComponent
+    CommunityMap: typeof CommunityMap
     PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersTypes
   }
 }

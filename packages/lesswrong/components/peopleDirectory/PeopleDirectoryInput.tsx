@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryInput = ({
+const PeopleDirectoryInputInner = ({
   value,
   setValue,
   icon,
@@ -64,14 +64,14 @@ const PeopleDirectoryInput = ({
   );
 }
 
-const PeopleDirectoryInputComponent = registerComponent(
+export const PeopleDirectoryInput = registerComponent(
   "PeopleDirectoryInput",
-  PeopleDirectoryInput,
+  PeopleDirectoryInputInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryInput: typeof PeopleDirectoryInputComponent
+    PeopleDirectoryInput: typeof PeopleDirectoryInput
   }
 }

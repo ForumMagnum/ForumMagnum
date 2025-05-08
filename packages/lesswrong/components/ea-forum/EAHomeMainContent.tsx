@@ -54,7 +54,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContent = ({FrontpageNode, classes}: {
+const EAHomeMainContentInner = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
   classes: ClassesType<typeof styles>
 }) => {
@@ -122,10 +122,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
   )
 }
 
-const EAHomeMainContentComponent = registerComponent('EAHomeMainContent', EAHomeMainContent, {styles});
+export const EAHomeMainContent = registerComponent('EAHomeMainContent', EAHomeMainContentInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAHomeMainContent: typeof EAHomeMainContentComponent
+    EAHomeMainContent: typeof EAHomeMainContent
   }
 }

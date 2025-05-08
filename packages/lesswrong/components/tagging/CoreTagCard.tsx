@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CoreTagCard = ({tag, classes}: {
+const CoreTagCardInner = ({tag, classes}: {
   tag: TagDetailsFragment
   classes: ClassesType<typeof styles>,
 }) => {
@@ -89,10 +89,10 @@ const CoreTagCard = ({tag, classes}: {
   );
 }
 
-const CoreTagCardComponent = registerComponent("CoreTagCard", CoreTagCard, {styles});
+export const CoreTagCard = registerComponent("CoreTagCard", CoreTagCardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CoreTagCard: typeof CoreTagCardComponent
+    CoreTagCard: typeof CoreTagCard
   }
 }

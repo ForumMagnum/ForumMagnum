@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
+const CommentsTableOfContentsInner = ({commentTree, answersTree, post, highlightDate, classes}: {
   commentTree?: CommentTreeNode<CommentsList>[],
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
@@ -236,10 +236,10 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 }
 
 
-const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
+export const CommentsTableOfContents = registerComponent('CommentsTableOfContents', CommentsTableOfContentsInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    CommentsTableOfContents: typeof CommentsTableOfContentsComponent
+    CommentsTableOfContents: typeof CommentsTableOfContents
   }
 }

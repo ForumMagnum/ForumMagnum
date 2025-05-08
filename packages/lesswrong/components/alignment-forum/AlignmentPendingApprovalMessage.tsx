@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const AlignmentPendingApprovalMessage = ({post, classes}: {
+const AlignmentPendingApprovalMessageInner = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -39,10 +39,10 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   }
 }
 
-const AlignmentPendingApprovalMessageComponent = registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
+export const AlignmentPendingApprovalMessage = registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AlignmentPendingApprovalMessage: typeof AlignmentPendingApprovalMessageComponent
+    AlignmentPendingApprovalMessage: typeof AlignmentPendingApprovalMessage
   }
 }

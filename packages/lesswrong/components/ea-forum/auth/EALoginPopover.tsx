@@ -236,7 +236,7 @@ const links = {
 
 const FACEBOOK_DEFAULT_ENABLED = auth0FacebookLoginEnabled.get()
 
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
+export const EALoginPopoverInner = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
@@ -563,14 +563,14 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   );
 }
 
-const EALoginPopoverComponent = registerComponent(
+export const EALoginPopover = registerComponent(
   "EALoginPopover",
-  EALoginPopover,
+  EALoginPopoverInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EALoginPopover: typeof EALoginPopoverComponent
+    EALoginPopover: typeof EALoginPopover
   }
 }

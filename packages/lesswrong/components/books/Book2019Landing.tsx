@@ -258,7 +258,7 @@ const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const Book2019Landing = ({classes}: {
+const Book2019LandingInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {Book2019Animation, HeadTags, LWTooltip, ContentStyles} = Components;
@@ -340,7 +340,7 @@ const Book2019Landing = ({classes}: {
   )
 }
 
-const Book2019LandingComponent = registerComponent('Book2019Landing', Book2019Landing, {styles});
+const Book2019LandingComponent = registerComponent('Book2019Landing', Book2019LandingInner, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -22,7 +22,7 @@ const getColumnName = (column: Column) => (
     : column.label || column.name
 );
 
-export const Datatable = <
+export const DatatableInner = <
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
 >({columns, collectionName, fragmentName, limit, terms}: {
@@ -255,10 +255,10 @@ const DatatableDefaultCell = ({ column, document }: {
 }
 
 
-const DatatableComponent = registerComponent('Datatable', Datatable);
+export const Datatable = registerComponent('Datatable', DatatableInner);
 
 declare global {
   interface ComponentTypes {
-    Datatable: typeof DatatableComponent,
+    Datatable: typeof Datatable,
   }
 }

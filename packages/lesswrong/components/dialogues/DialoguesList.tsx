@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
  
-const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
+const DialoguesListInner = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
   const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, Typography } = Components
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
@@ -171,13 +171,13 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   </AnalyticsContext>
 }
 
-const DialoguesListComponent = registerComponent('DialoguesList', DialoguesList, {
+export const DialoguesList = registerComponent('DialoguesList', DialoguesListInner, {
   hocs: [withErrorBoundary],
   styles
 });
 
 declare global {
   interface ComponentTypes {
-    DialoguesList: typeof DialoguesListComponent
+    DialoguesList: typeof DialoguesList
   }
 }

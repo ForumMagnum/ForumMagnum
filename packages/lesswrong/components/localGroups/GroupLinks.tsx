@@ -137,7 +137,7 @@ const tooltips: Partial<Record<string,string>> = {
   'MIRIx': "This is a MIRIx group"
 }
 
-const GroupLinks = ({ document, noMargin, classes }: {
+const GroupLinksInner = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
   noMargin?: Boolean,
   classes: ClassesType<typeof styles>,
@@ -210,10 +210,10 @@ const GroupLinks = ({ document, noMargin, classes }: {
   )
 }
 
-const GroupLinksComponent = registerComponent("GroupLinks", GroupLinks, {styles});
+export const GroupLinks = registerComponent("GroupLinks", GroupLinksInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    GroupLinks: typeof GroupLinksComponent
+    GroupLinks: typeof GroupLinks
   }
 }

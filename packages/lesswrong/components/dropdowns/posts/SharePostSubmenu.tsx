@@ -8,7 +8,7 @@ import { isMobile } from '@/lib/utils/isMobile';
 const styles = (theme: ThemeType) => ({
 })
 
-const SharePostSubmenu = ({post, closeMenu, classes}: {
+const SharePostSubmenuInner = ({post, closeMenu, classes}: {
   post: PostsListBase,
   closeMenu?: () => void,
   classes: ClassesType<typeof styles>,
@@ -56,9 +56,9 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
     </MaybeWrapWithSubmenu>
   </div>
 }
-const SharePostSubmenuComponent = registerComponent('SharePostSubmenu', SharePostSubmenu, {styles});
+export const SharePostSubmenu = registerComponent('SharePostSubmenu', SharePostSubmenuInner, {styles});
 declare global {
   interface ComponentTypes {
-    SharePostSubmenu: typeof SharePostSubmenuComponent
+    SharePostSubmenu: typeof SharePostSubmenu
   }
 }

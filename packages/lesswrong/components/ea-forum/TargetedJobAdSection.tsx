@@ -25,7 +25,7 @@ type UserCoreTagReads = {
 /**
  * Section of a page that might display a job ad to the current user.
  */
-const TargetedJobAdSection = () => {
+const TargetedJobAdSectionInner = () => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
@@ -261,10 +261,10 @@ const TargetedJobAdSection = () => {
   </div>
 }
 
-const TargetedJobAdSectionComponent = registerComponent("TargetedJobAdSection", TargetedJobAdSection);
+export const TargetedJobAdSection = registerComponent("TargetedJobAdSection", TargetedJobAdSectionInner);
 
 declare global {
   interface ComponentTypes {
-    TargetedJobAdSection: typeof TargetedJobAdSectionComponent
+    TargetedJobAdSection: typeof TargetedJobAdSection
   }
 }

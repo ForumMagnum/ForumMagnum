@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
+const TagDiscussionButtonInner = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabel?: boolean,
@@ -93,10 +93,10 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
   </Link>
 }
 
-const TagDiscussionButtonComponent = registerComponent("TagDiscussionButton", TagDiscussionButton, {styles});
+export const TagDiscussionButton = registerComponent("TagDiscussionButton", TagDiscussionButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagDiscussionButton: typeof TagDiscussionButtonComponent
+    TagDiscussionButton: typeof TagDiscussionButton
   }
 }

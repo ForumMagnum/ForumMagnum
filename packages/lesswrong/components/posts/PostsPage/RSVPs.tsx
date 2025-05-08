@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-const RSVPs = ({post, classes}: {
+const RSVPsInner = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
@@ -200,7 +200,7 @@ const responseIconStyles = (theme: ThemeType) => ({
   },
 });
 
-export function ResponseIcon({response, classes}: {
+export function ResponseIconInner({response, classes}: {
   response: RsvpResponse
   classes: ClassesType<typeof responseIconStyles>
 }) {
@@ -216,12 +216,12 @@ export function ResponseIcon({response, classes}: {
   }
 }
 
-const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});
-const ResponseIconComponent = registerComponent('ResponseIcon', ResponseIcon, {styles: responseIconStyles});
+export const RSVPs = registerComponent('RSVPs', RSVPsInner, {styles});
+export const ResponseIcon = registerComponent('ResponseIcon', ResponseIconInner, {styles: responseIconStyles});
 
 declare global {
   interface ComponentTypes {
-    RSVPs: typeof RSVPsComponent
-    ResponseIcon: typeof ResponseIconComponent
+    RSVPs: typeof RSVPs
+    ResponseIcon: typeof ResponseIcon
   }
 }

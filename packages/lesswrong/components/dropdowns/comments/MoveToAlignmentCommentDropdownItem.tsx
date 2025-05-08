@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
+const MoveToAlignmentCommentDropdownItemInner = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsBase,
   classes: ClassesType<typeof styles>,
@@ -105,12 +105,12 @@ const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   );
 }
 
-const MoveToAlignmentCommentDropdownItemComponent = registerComponent(
-  'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItem, {styles}
+export const MoveToAlignmentCommentDropdownItem = registerComponent(
+  'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItemInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    MoveToAlignmentCommentDropdownItem: typeof MoveToAlignmentCommentDropdownItemComponent
+    MoveToAlignmentCommentDropdownItem: typeof MoveToAlignmentCommentDropdownItem
   }
 }

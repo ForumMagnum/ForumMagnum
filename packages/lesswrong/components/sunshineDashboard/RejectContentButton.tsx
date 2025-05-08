@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectContentButton = ({contentWrapper, classes}: {
+export const RejectContentButtonInner = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -63,11 +63,11 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   </span>
 }
 
-const RejectContentButtonComponent = registerComponent('RejectContentButton', RejectContentButton, {styles});
+export const RejectContentButton = registerComponent('RejectContentButton', RejectContentButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RejectContentButton: typeof RejectContentButtonComponent
+    RejectContentButton: typeof RejectContentButton
   }
 }
 

@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FormGroupFriendlyUserProfile = ({label, children, classes}: {
+const FormGroupFriendlyUserProfileInner = ({label, children, classes}: {
   classes: ClassesType<typeof styles>,
 } & Pick<FormGroupLayoutProps, "label" | "children">) => {
   return (
@@ -47,14 +47,14 @@ const FormGroupFriendlyUserProfile = ({label, children, classes}: {
   );
 }
 
-const FormGroupFriendlyUserProfileComponent = registerComponent(
+export const FormGroupFriendlyUserProfile = registerComponent(
   "FormGroupFriendlyUserProfile",
-  FormGroupFriendlyUserProfile,
+  FormGroupFriendlyUserProfileInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    FormGroupFriendlyUserProfile: typeof FormGroupFriendlyUserProfileComponent
+    FormGroupFriendlyUserProfile: typeof FormGroupFriendlyUserProfile
   }
 }

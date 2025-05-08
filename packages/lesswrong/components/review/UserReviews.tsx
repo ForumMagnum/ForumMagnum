@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 
-const UserReviews = () => {
+const UserReviewsInner = () => {
   const { params: { slug, year } } = useLocation();
   const { results, loading } = useMulti({
     collectionName: "Users",
@@ -65,11 +65,11 @@ const UserReviews = () => {
 
 };
 
-const UserReviewsComponent = registerComponent('UserReviews', UserReviews);
+export const UserReviews = registerComponent('UserReviews', UserReviewsInner);
 
 declare global {
   interface ComponentTypes {
-    UserReviews: typeof UserReviewsComponent
+    UserReviews: typeof UserReviews
   }
 }
 

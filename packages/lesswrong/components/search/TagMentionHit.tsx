@@ -19,7 +19,7 @@ const styles = () => ({
   },
 });
 
-const TagMentionHit = ({hit, classes}: {
+const TagMentionHitInner = ({hit, classes}: {
   hit: SearchTag,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -33,14 +33,14 @@ const TagMentionHit = ({hit, classes}: {
   );
 }
 
-const TagMentionHitComponent = registerComponent(
+export const TagMentionHit = registerComponent(
   "TagMentionHit",
-  TagMentionHit,
+  TagMentionHitInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    TagMentionHit: typeof TagMentionHitComponent
+    TagMentionHit: typeof TagMentionHit
   }
 }

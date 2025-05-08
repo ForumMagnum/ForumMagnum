@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-export const ActiveDialogues = ({classes}: {
+export const ActiveDialoguesInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { PostsTooltip, Typography, UsersName } = Components
@@ -162,10 +162,10 @@ export const ActiveDialogues = ({classes}: {
   );
 }
 
-const ActiveDialoguesComponent = registerComponent('ActiveDialogues', ActiveDialogues, {styles});
+export const ActiveDialogues = registerComponent('ActiveDialogues', ActiveDialoguesInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ActiveDialogues: typeof ActiveDialoguesComponent
+    ActiveDialogues: typeof ActiveDialogues
   }
 }

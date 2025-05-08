@@ -1,15 +1,15 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const SequencesHighlightsCollection = () => {
+const SequencesHighlightsCollectionInner = () => {
   return <Components.CollectionsPage documentId={'62bf5f5dc581cd211cc67d49'} />
 };
 
-const SequencesHighlightsCollectionComponent = registerComponent('SequencesHighlightsCollection', SequencesHighlightsCollection);
+export const SequencesHighlightsCollection = registerComponent('SequencesHighlightsCollection', SequencesHighlightsCollectionInner);
 
 declare global {
   interface ComponentTypes {
-    SequencesHighlightsCollection: typeof SequencesHighlightsCollectionComponent
+    SequencesHighlightsCollection: typeof SequencesHighlightsCollection
   }
 }
 

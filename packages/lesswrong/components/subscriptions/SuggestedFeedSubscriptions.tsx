@@ -353,7 +353,7 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existingSubscriptions, classes }: {
+export const SuggestedFeedSubscriptionsInner = ({ refetchFeed, settingsButton, existingSubscriptions, classes }: {
   refetchFeed: () => void,
   settingsButton: React.ReactNode,
   existingSubscriptions?: SubscriptionState[],
@@ -448,10 +448,10 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
   </div>;
 }
 
-const SuggestedFeedSubscriptionsComponent = registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptions, {styles});
+export const SuggestedFeedSubscriptions = registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptionsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SuggestedFeedSubscriptions: typeof SuggestedFeedSubscriptionsComponent
+    SuggestedFeedSubscriptions: typeof SuggestedFeedSubscriptions
   }
 }

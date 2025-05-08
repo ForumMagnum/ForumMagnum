@@ -36,7 +36,7 @@ const useBlockIsVisible = (options: ConditionalVisibilitySettings) => {
   }
 }
 
-const ConditionalVisibilityBlockDisplay = ({options, children}: {
+const ConditionalVisibilityBlockDisplayInner = ({options, children}: {
   options: ConditionalVisibilitySettings,
   children: React.ReactNode,
 }) => {
@@ -71,11 +71,11 @@ export const RevealHiddenBlocks = ({children}: {
   </RevealHiddenBlocksContext.Provider>
 }
 
-const ConditionalVisibilityBlockDisplayComponent = registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplay);
+export const ConditionalVisibilityBlockDisplay = registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplayInner);
 
 declare global {
   interface ComponentTypes {
-    ConditionalVisibilityBlockDisplay: typeof ConditionalVisibilityBlockDisplayComponent
+    ConditionalVisibilityBlockDisplay: typeof ConditionalVisibilityBlockDisplay
   }
 }
 

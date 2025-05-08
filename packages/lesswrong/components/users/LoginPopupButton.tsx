@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LoginPopupButton = ({classes, children, title, className}: {
+const LoginPopupButtonInner = ({classes, children, title, className}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
   title?: string,
@@ -43,10 +43,10 @@ const LoginPopupButton = ({classes, children, title, className}: {
   )
 }
 
-const LoginPopupButtonComponent = registerComponent('LoginPopupButton', LoginPopupButton, {styles});
+export const LoginPopupButton = registerComponent('LoginPopupButton', LoginPopupButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LoginPopupButton: typeof LoginPopupButtonComponent
+    LoginPopupButton: typeof LoginPopupButton
   }
 }

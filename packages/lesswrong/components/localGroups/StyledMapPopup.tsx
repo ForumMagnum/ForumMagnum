@@ -44,7 +44,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const StyledMapPopup = ({
+const StyledMapPopupInner = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
   onClose, offsetTop=-20, offsetLeft, hideBottomLinks
@@ -85,11 +85,11 @@ const StyledMapPopup = ({
   </Popup>
 }
 
-const StyledMapPopupComponent = registerComponent("StyledMapPopup", StyledMapPopup, {styles});
+export const StyledMapPopup = registerComponent("StyledMapPopup", StyledMapPopupInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    StyledMapPopup: typeof StyledMapPopupComponent
+    StyledMapPopup: typeof StyledMapPopup
   }
 }
 

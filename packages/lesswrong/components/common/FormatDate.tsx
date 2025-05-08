@@ -14,7 +14,7 @@ export const ExpandedDate = ({date}: {date: Date | string}) => {
  * A relative time/date, like "4d". If tooltip is true (default), hover over
  * for the actual (non-relative) date/time.
  */
-const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="datetime", className}: {
+const FormatDateInner = ({date, format, includeAgo, tooltip=true, granularity="datetime", className}: {
   date: Date | string,
   format?: string,
   includeAgo?: boolean,
@@ -61,10 +61,10 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   }
 };
 
-const FormatDateComponent = registerComponent('FormatDate', FormatDate);
+export const FormatDate = registerComponent('FormatDate', FormatDateInner);
 
 declare global {
   interface ComponentTypes {
-    FormatDate: typeof FormatDateComponent
+    FormatDate: typeof FormatDate
   }
 }

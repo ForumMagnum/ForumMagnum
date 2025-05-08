@@ -103,7 +103,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 }
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
-const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
+const SearchFiltersInner = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
   classes: ClassesType<typeof styles>
   tab: SearchIndexCollectionName
   tagsFilter: Array<string>
@@ -190,10 +190,10 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
 }
 
 
-const SearchFiltersComponent = registerComponent("SearchFilters", SearchFilters, {styles})
+export const SearchFilters = registerComponent("SearchFilters", SearchFiltersInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SearchFilters: typeof SearchFiltersComponent
+    SearchFilters: typeof SearchFilters
   }
 }

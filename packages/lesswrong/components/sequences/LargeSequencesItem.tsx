@@ -142,7 +142,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
+export const LargeSequencesItemInner = ({sequence, showAuthor=false, showChapters=false, classes}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   showChapters?: boolean,
@@ -229,11 +229,11 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   </div>
 }
 
-const LargeSequencesItemComponent = registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
+export const LargeSequencesItem = registerComponent('LargeSequencesItem', LargeSequencesItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LargeSequencesItem: typeof LargeSequencesItemComponent
+    LargeSequencesItem: typeof LargeSequencesItem
   }
 }
 

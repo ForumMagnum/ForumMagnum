@@ -325,7 +325,7 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
         {children}
     </Components.Typography>;
 
-const ContentType = ({classes, className, type, label}: {
+const ContentTypeInner = ({classes, className, type, label}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   type: ContentTypeString,
@@ -365,10 +365,10 @@ const ContentType = ({classes, className, type, label}: {
   );
 }
 
-const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles});
+export const ContentType = registerComponent('ContentType', ContentTypeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ContentType: typeof ContentTypeComponent
+    ContentType: typeof ContentType
   }
 }

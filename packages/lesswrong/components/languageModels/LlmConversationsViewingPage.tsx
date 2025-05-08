@@ -255,7 +255,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
 }
 
 
-export const LlmConversationsViewingPage = ({classes}: {
+export const LlmConversationsViewingPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -282,10 +282,10 @@ export const LlmConversationsViewingPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const LlmConversationsViewingPageComponent = registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
+export const LlmConversationsViewingPage = registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LlmConversationsViewingPage: typeof LlmConversationsViewingPageComponent
+    LlmConversationsViewingPage: typeof LlmConversationsViewingPage
   }
 }

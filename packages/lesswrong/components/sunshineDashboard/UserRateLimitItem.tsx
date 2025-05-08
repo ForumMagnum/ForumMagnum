@@ -323,7 +323,7 @@ export const UserRateLimitsForm = ({
   );
 };
 
-export const UserRateLimitItem = ({ userId, classes }: {
+export const UserRateLimitItemInner = ({ userId, classes }: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -430,11 +430,11 @@ export const UserRateLimitItem = ({ userId, classes }: {
   </div>;
 }
 
-const UserRateLimitItemComponent = registerComponent('UserRateLimitItem', UserRateLimitItem, { styles });
+export const UserRateLimitItem = registerComponent('UserRateLimitItem', UserRateLimitItemInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    UserRateLimitItem: typeof UserRateLimitItemComponent
+    UserRateLimitItem: typeof UserRateLimitItem
   }
 }
 

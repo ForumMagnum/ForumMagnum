@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
  * from the return value of `useMulti` and spread it into this component's
  * props.
  */
-const LoadMore = ({
+const LoadMoreInner = ({
   loadMore,
   count,
   totalCount,
@@ -129,10 +129,10 @@ const LoadMore = ({
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
+export const LoadMore = registerComponent('LoadMore', LoadMoreInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    LoadMore: typeof LoadMoreComponent
+    LoadMore: typeof LoadMore
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { Components } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
@@ -139,10 +139,3 @@ export const DialogueSubmit = ({
   );
 }
 
-const DialogueSubmitComponent = registerComponent('DialogueSubmit', DialogueSubmit);
-
-declare global {
-  interface ComponentTypes {
-    DialogueSubmit: typeof DialogueSubmitComponent
-  }
-}

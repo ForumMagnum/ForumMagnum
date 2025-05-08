@@ -16,7 +16,7 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedPage = () => {
+const UltraFeedPageInner = () => {
   const classes = useStyles(styles);
   const { UltraFeed } = Components;
 
@@ -37,12 +37,12 @@ const UltraFeedPage = () => {
   );
 };
 
-const UltraFeedPageComponent = registerComponent('UltraFeedPage', UltraFeedPage);
+export const UltraFeedPage = registerComponent('UltraFeedPage', UltraFeedPageInner);
 
-export default UltraFeedPage;
+export default UltraFeedPageInner;
 
 declare global {
   interface ComponentTypes {
-    UltraFeedPage: typeof UltraFeedPageComponent
+    UltraFeedPage: typeof UltraFeedPage
   }
 } 

@@ -62,7 +62,7 @@ const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-
  * and allow users to update their vote to show that the post changed their minds.
  * This uses the theme name to set the root element's colors so you should NoSSR it.
  */
-export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ...divProps}: {
+export const ForumEventPostPagePollSectionInner = ({postId, forumEventId, classes, ...divProps}: {
   postId?: string,
   forumEventId?: string,
   classes: ClassesType<typeof styles>,
@@ -151,14 +151,14 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   );
 }
 
-const ForumEventPostPagePollSectionComponent = registerComponent(
+export const ForumEventPostPagePollSection = registerComponent(
   "ForumEventPostPagePollSection",
-  ForumEventPostPagePollSection,
+  ForumEventPostPagePollSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventPostPagePollSection: typeof ForumEventPostPagePollSectionComponent
+    ForumEventPostPagePollSection: typeof ForumEventPostPagePollSection
   }
 }

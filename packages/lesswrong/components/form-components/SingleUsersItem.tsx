@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SingleUsersItem = ({userId, removeItem, classes }: {
+const SingleUsersItemInner = ({userId, removeItem, classes }: {
   userId: string,
   removeItem: (id: string) => void,
   classes: ClassesType<typeof styles>
@@ -40,10 +40,10 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
   }
 };
 
-const SingleUsersItemComponent = registerComponent('SingleUsersItem', SingleUsersItem, {styles});
+export const SingleUsersItem = registerComponent('SingleUsersItem', SingleUsersItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SingleUsersItem: typeof SingleUsersItemComponent
+    SingleUsersItem: typeof SingleUsersItem
   }
 }

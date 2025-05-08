@@ -5,7 +5,7 @@ import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
-import type { ContentItemBody } from '../common/ContentItemBody';
+import type { ContentItemBodyInner } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -82,7 +82,7 @@ const getParticipantBorderStyle = (
   participantIndex: number
 ) => (classes as AnyBecauseTodo)[`border${participantIndex}`] ?? classes.border0;
 
-export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
+export const DebateResponseInner = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
   classes: ClassesType<typeof styles>,
   comment: CommentsList,
   replies: CommentsList[],
@@ -100,7 +100,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const votingSystemName = comment.votingSystem || "default";
     const votingSystem = getVotingSystemByName(votingSystemName);
     const voteProps = useVote(comment, "Comments", votingSystem);
-    const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+    const commentBodyRef = useRef<ContentItemBodyInner|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
 
     const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
@@ -193,10 +193,10 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   }
 
 
-const DebateResponseComponent = registerComponent('DebateResponse', DebateResponse, {styles});
+export const DebateResponse = registerComponent('DebateResponse', DebateResponseInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    DebateResponse: typeof DebateResponseComponent
+    DebateResponse: typeof DebateResponse
   }
 }

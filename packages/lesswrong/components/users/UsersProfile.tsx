@@ -118,7 +118,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFn = ({terms, slug, classes}: {
+const UsersProfileFnInner = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
   classes: ClassesType<typeof styles>,
@@ -449,12 +449,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
   return render();
 }
 
-const UsersProfileComponent = registerComponent(
-  'UsersProfile', UsersProfileFn, {styles}
+export const UsersProfile = registerComponent(
+  'UsersProfile', UsersProfileFnInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    UsersProfile: typeof UsersProfileComponent
+    UsersProfile: typeof UsersProfile
   }
 }

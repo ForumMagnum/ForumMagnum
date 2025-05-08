@@ -24,7 +24,7 @@ export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   largeArrow?: boolean
 }
 
-const OverallVoteButton = <T extends VoteableTypeClient>({
+const OverallVoteButtonInner = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
   color = "secondary",
   orientation = "up",
@@ -75,10 +75,10 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   />
 }
 
-const OverallVoteButtonComponent = registerComponent('OverallVoteButton', OverallVoteButton);
+export const OverallVoteButton = registerComponent('OverallVoteButton', OverallVoteButtonInner);
 
 declare global {
   interface ComponentTypes {
-    OverallVoteButton: typeof OverallVoteButtonComponent
+    OverallVoteButton: typeof OverallVoteButton
   }
 }

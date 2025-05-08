@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryPage = ({classes}: {
+const PeopleDirectoryPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -66,14 +66,14 @@ const PeopleDirectoryPage = ({classes}: {
   );
 }
 
-const PeopleDirectoryPageComponent = registerComponent(
+export const PeopleDirectoryPage = registerComponent(
   "PeopleDirectoryPage",
-  PeopleDirectoryPage,
+  PeopleDirectoryPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryPage: typeof PeopleDirectoryPageComponent
+    PeopleDirectoryPage: typeof PeopleDirectoryPage
   }
 }

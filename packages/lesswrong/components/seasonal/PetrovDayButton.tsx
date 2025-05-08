@@ -140,7 +140,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PetrovDayButton = ({classes, alreadyLaunched }: {
+const PetrovDayButtonInner = ({classes, alreadyLaunched }: {
   classes: ClassesType<typeof styles>,
   refetch?: any,
   alreadyLaunched?: boolean,
@@ -277,11 +277,11 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   )
 }
 
-const PetrovDayButtonComponent = registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+export const PetrovDayButton = registerComponent('PetrovDayButton', PetrovDayButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PetrovDayButton: typeof PetrovDayButtonComponent
+    PetrovDayButton: typeof PetrovDayButton
   }
 }
 

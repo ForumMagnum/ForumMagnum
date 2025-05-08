@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WarningBanner = ({message, classes}: {
+const WarningBannerInner = ({message, classes}: {
   message: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -39,10 +39,10 @@ const WarningBanner = ({message, classes}: {
   </div>
 }
 
-const WarningBannerComponent = registerComponent('WarningBanner', WarningBanner, {styles});
+export const WarningBanner = registerComponent('WarningBanner', WarningBannerInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    WarningBanner: typeof WarningBannerComponent
+    WarningBanner: typeof WarningBanner
   }
 }

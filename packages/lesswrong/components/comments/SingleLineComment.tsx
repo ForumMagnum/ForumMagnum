@@ -150,7 +150,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, classes }: {
+const SingleLineCommentInner = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
@@ -249,7 +249,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   )
 };
 
-const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, {
+export const SingleLineComment = registerComponent('SingleLineComment', SingleLineCommentInner, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: {
@@ -259,6 +259,6 @@ const SingleLineCommentComponent = registerComponent('SingleLineComment', Single
 
 declare global {
   interface ComponentTypes {
-    SingleLineComment: typeof SingleLineCommentComponent,
+    SingleLineComment: typeof SingleLineComment,
   }
 }

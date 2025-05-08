@@ -48,7 +48,7 @@ const interactionLabels = {
 const isInteractionKey = (value: string | null): value is keyof typeof interactionLabels => 
   !!value && value in interactionLabels;
 
-export const PostInteractionStripe = ({classes, post}: {
+export const PostInteractionStripeInner = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsListWithVotes
 }) => {
@@ -62,11 +62,11 @@ export const PostInteractionStripe = ({classes, post}: {
   </LWTooltip>
 }
 
-const PostInteractionStripeComponent = registerComponent('PostInteractionStripe', PostInteractionStripe, {styles});
+export const PostInteractionStripe = registerComponent('PostInteractionStripe', PostInteractionStripeInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostInteractionStripe: typeof PostInteractionStripeComponent
+    PostInteractionStripe: typeof PostInteractionStripe
   }
 }
 

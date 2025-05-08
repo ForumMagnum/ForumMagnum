@@ -89,7 +89,7 @@ interface TagsChecklistItem {
   selected: boolean,
 }
 
-const TagsChecklist = ({
+const TagsChecklistInner = ({
   onTagSelected = () => {},
   onTagRemoved = () => {},
   classes,
@@ -208,10 +208,10 @@ const TagsChecklist = ({
 };
 
 
-const TagsChecklistComponent = registerComponent("TagsChecklist", TagsChecklist, {styles});
+export const TagsChecklist = registerComponent("TagsChecklist", TagsChecklistInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagsChecklist: typeof TagsChecklistComponent
+    TagsChecklist: typeof TagsChecklist
   }
 }

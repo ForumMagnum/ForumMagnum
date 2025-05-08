@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const VoteArrowIconHollow = ({
+const VoteArrowIconHollowInner = ({
   orientation,
   enabled = true,
   color,
@@ -112,14 +112,14 @@ const VoteArrowIconHollow = ({
   );
 };
 
-const VoteArrowIconHollowComponent = registerComponent(
+export const VoteArrowIconHollow = registerComponent(
   'VoteArrowIconHollow',
-  VoteArrowIconHollow,
+  VoteArrowIconHollowInner,
   { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    VoteArrowIconHollow: typeof VoteArrowIconHollowComponent;
+    VoteArrowIconHollow: typeof VoteArrowIconHollow;
   }
 }

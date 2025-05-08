@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
+const PostsPodcastPlayerInner = ({ podcastEpisode, postId, hideIconList = false, classes }: {
   podcastEpisode: PostsDetails_podcastEpisode,
   postId: string,
   hideIconList?: boolean,
@@ -72,10 +72,10 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   </>;
 };
 
-const PostsPodcastPlayerComponent = registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
+export const PostsPodcastPlayer = registerComponent('PostsPodcastPlayer', PostsPodcastPlayerInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    PostsPodcastPlayer: typeof PostsPodcastPlayerComponent,
+    PostsPodcastPlayer: typeof PostsPodcastPlayer,
   }
 }

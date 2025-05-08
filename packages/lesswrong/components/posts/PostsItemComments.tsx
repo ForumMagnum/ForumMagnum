@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemCommentsInner = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
   commentCount: number,
   small: boolean,
   onClick?: () => void,
@@ -80,11 +80,11 @@ const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPr
   )
 }
 
-const PostsItemCommentsComponent = registerComponent('PostsItemComments', PostsItemComments, {styles});
+export const PostsItemComments = registerComponent('PostsItemComments', PostsItemCommentsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemComments: typeof PostsItemCommentsComponent
+    PostsItemComments: typeof PostsItemComments
   }
 }
 

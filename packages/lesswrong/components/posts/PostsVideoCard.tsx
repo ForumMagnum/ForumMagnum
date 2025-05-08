@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsVideoCard = ({post, classes}: {
+const PostsVideoCardInner = ({post, classes}: {
   post: PostsBestOfList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -88,14 +88,14 @@ const PostsVideoCard = ({post, classes}: {
   );
 }
 
-const PostsVideoCardComponent = registerComponent(
+export const PostsVideoCard = registerComponent(
   "PostsVideoCard",
-  PostsVideoCard,
+  PostsVideoCardInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostsVideoCard: typeof PostsVideoCardComponent;
+    PostsVideoCard: typeof PostsVideoCard;
   }
 }

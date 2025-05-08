@@ -15,7 +15,7 @@ const styles = (_: ThemeType) => ({
   },
 });
 
-const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
+const TagEditsTimeBlockInner = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
   reportEmpty: () => void,
@@ -106,12 +106,12 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   </div>
 }
 
-const TagEditsTimeBlockComponent = registerComponent('TagEditsTimeBlock', TagEditsTimeBlock, {
+export const TagEditsTimeBlock = registerComponent('TagEditsTimeBlock', TagEditsTimeBlockInner, {
   styles, hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    TagEditsTimeBlock: typeof TagEditsTimeBlockComponent
+    TagEditsTimeBlock: typeof TagEditsTimeBlock
   }
 }

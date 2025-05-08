@@ -56,7 +56,7 @@ const styles = defineStyles("ForumEventEmojiPicker", (theme: ThemeType) => ({
   },
 }));
 
-const ForumEventEmojiPicker: FC<{ onSelect: (value: string) => void }> = ({ onSelect }) => {
+const ForumEventEmojiPickerInner: FC<{ onSelect: (value: string) => void }> = ({ onSelect }) => {
   const classes = useStyles(styles);
 
   const [emoji, setEmoji] = useState<string | null>(null);
@@ -138,12 +138,11 @@ const ForumEventEmojiPicker: FC<{ onSelect: (value: string) => void }> = ({ onSe
   );
 };
 
-const ForumEventEmojiPickerComponent = registerComponent('ForumEventEmojiPicker', ForumEventEmojiPicker)
+export const ForumEventEmojiPicker = registerComponent('ForumEventEmojiPicker', ForumEventEmojiPickerInner)
 
 declare global {
   interface ComponentTypes {
-    ForumEventEmojiPicker: typeof ForumEventEmojiPickerComponent
+    ForumEventEmojiPicker: typeof ForumEventEmojiPicker
   }
 }
 
-export default ForumEventEmojiPickerComponent

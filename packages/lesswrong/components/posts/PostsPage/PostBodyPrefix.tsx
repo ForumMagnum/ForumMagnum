@@ -55,7 +55,7 @@ const forumNewUserProcessingTime = forumSelect({
   default: 24
 })
 
-const PostBodyPrefix = ({post, query, classes}: {
+const PostBodyPrefixInner = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
   classes: ClassesType<typeof styles>,
@@ -102,10 +102,10 @@ const PostBodyPrefix = ({post, query, classes}: {
   </>;
 }
 
-const PostBodyPrefixComponent = registerComponent('PostBodyPrefix', PostBodyPrefix, {styles});
+export const PostBodyPrefix = registerComponent('PostBodyPrefix', PostBodyPrefixInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostBodyPrefix: typeof PostBodyPrefixComponent
+    PostBodyPrefix: typeof PostBodyPrefix
   }
 }

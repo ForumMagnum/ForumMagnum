@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReactionIcon = ({react, inverted=false, size=18, classes}: {
+const ReactionIconInner = ({react, inverted=false, size=18, classes}: {
   react: string,
   inverted?: boolean,
   size?: number,
@@ -53,11 +53,11 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
 }
 
 
-const ReactionIconComponent = registerComponent('ReactionIcon', ReactionIcon, {styles});
+export const ReactionIcon = registerComponent('ReactionIcon', ReactionIconInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReactionIcon: typeof ReactionIconComponent
+    ReactionIcon: typeof ReactionIcon
   }
 }
 

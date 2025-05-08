@@ -88,7 +88,7 @@ function usePathInfo(tag: TagPageFragment|TagPageWithRevisionFragment|null, lens
   return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
-const PathInfo = ({tag, lens}: {
+const PathInfoInner = ({tag, lens}: {
   tag: TagPageFragment
   lens: TagLens|null
 }) => {
@@ -133,11 +133,11 @@ const PathInfo = ({tag, lens}: {
   </div>
 }
 
-const PathInfoComponent = registerComponent('PathInfo', PathInfo);
+export const PathInfo = registerComponent('PathInfo', PathInfoInner);
 
 declare global {
   interface ComponentTypes {
-    PathInfo: typeof PathInfoComponent
+    PathInfo: typeof PathInfo
   }
 }
 

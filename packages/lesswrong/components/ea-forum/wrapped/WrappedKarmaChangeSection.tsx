@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays the user's overall karma change and accompanying chart
  */
-const WrappedKarmaChangeSection = ({classes}: {
+const WrappedKarmaChangeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -108,14 +108,14 @@ const WrappedKarmaChangeSection = ({classes}: {
   );
 }
 
-const WrappedKarmaChangeSectionComponent = registerComponent(
+export const WrappedKarmaChangeSection = registerComponent(
   "WrappedKarmaChangeSection",
-  WrappedKarmaChangeSection,
+  WrappedKarmaChangeSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedKarmaChangeSection: typeof WrappedKarmaChangeSectionComponent
+    WrappedKarmaChangeSection: typeof WrappedKarmaChangeSection
   }
 }

@@ -4,7 +4,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import type { FriendlyHoverOverProps } from "./FriendlyHoverOver";
 import type { LWTooltipProps } from "./LWTooltip";
 
-const HoverOver = (props: LWTooltipProps & FriendlyHoverOverProps) => {
+const HoverOverInner = (props: LWTooltipProps & FriendlyHoverOverProps) => {
   const {LWTooltip, FriendlyHoverOver} = Components;
   const Tooltip = isFriendlyUI ? FriendlyHoverOver : LWTooltip;
   return (
@@ -12,13 +12,13 @@ const HoverOver = (props: LWTooltipProps & FriendlyHoverOverProps) => {
   );
 }
 
-const HoverOverComponent = registerComponent(
+export const HoverOver = registerComponent(
   "HoverOver",
-  HoverOver,
+  HoverOverInner,
 );
 
 declare global {
   interface ComponentTypes {
-    HoverOver: typeof HoverOverComponent
+    HoverOver: typeof HoverOver
   }
 }

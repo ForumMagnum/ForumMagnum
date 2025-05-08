@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ForumEventStickers: FC<{
+const ForumEventStickersInner: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
   const { ForumEventCommentForm, ForumEventSticker } = Components;
@@ -321,10 +321,10 @@ const ForumEventStickers: FC<{
   );
 };
 
-const ForumEventStickersComponent = registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
+export const ForumEventStickers = registerComponent( 'ForumEventStickers', ForumEventStickersInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ForumEventStickers: typeof ForumEventStickersComponent;
+    ForumEventStickers: typeof ForumEventStickers;
   }
 }

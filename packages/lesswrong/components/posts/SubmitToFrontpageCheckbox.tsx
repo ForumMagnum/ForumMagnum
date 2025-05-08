@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
@@ -113,12 +112,3 @@ export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
     </TooltipSpan>
   </div>
 };
-
-
-const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox);
-
-declare global {
-  interface ComponentTypes {
-    SubmitToFrontpageCheckbox: typeof SubmitToFrontpageCheckboxComponent
-  }
-}

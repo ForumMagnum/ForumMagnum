@@ -41,7 +41,7 @@ type TabNavigationCompressedItemProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
+const TabNavigationCompressedItemInner = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
   const { LWTooltip, MenuItemLink } = Components
   
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
@@ -60,12 +60,12 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompr
   </LWTooltip>;
 }
 
-const TabNavigationCompressedItemComponent = registerComponent(
-  'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
+export const TabNavigationCompressedItem = registerComponent(
+  'TabNavigationCompressedItem', TabNavigationCompressedItemInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    TabNavigationCompressedItem: typeof TabNavigationCompressedItemComponent
+    TabNavigationCompressedItem: typeof TabNavigationCompressedItem
   }
 }

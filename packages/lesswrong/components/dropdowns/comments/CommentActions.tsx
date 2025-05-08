@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
 
-const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
+const CommentActionsInner = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
   comment: CommentsList,
   post?: PostsMinimumInfo,
@@ -66,10 +66,10 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   );
 }
 
-const CommentActionsComponent = registerComponent("CommentActions", CommentActions);
+export const CommentActions = registerComponent("CommentActions", CommentActionsInner);
 
 declare global {
   interface ComponentTypes {
-    CommentActions: typeof CommentActionsComponent,
+    CommentActions: typeof CommentActions,
   }
 }

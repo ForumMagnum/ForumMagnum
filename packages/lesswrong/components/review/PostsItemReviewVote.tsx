@@ -75,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
+const PostsItemReviewVoteInner = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
@@ -117,10 +117,10 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: Classe
   </div>
 }
 
-const PostsItemReviewVoteComponent = registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
+export const PostsItemReviewVote = registerComponent('PostsItemReviewVote', PostsItemReviewVoteInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemReviewVote: typeof PostsItemReviewVoteComponent
+    PostsItemReviewVote: typeof PostsItemReviewVote
   }
 }

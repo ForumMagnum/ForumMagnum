@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SubforumMembersDialog = ({classes, onClose, tag}: {
+const SubforumMembersDialogInner = ({classes, onClose, tag}: {
   classes: ClassesType<typeof styles>,
   onClose: () => void,
   tag: TagSubforumFragment,
@@ -77,10 +77,10 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
   )
 }
 
-const SubforumMembersDialogComponent = registerComponent('SubforumMembersDialog', SubforumMembersDialog, { styles })
+export const SubforumMembersDialog = registerComponent('SubforumMembersDialog', SubforumMembersDialogInner, { styles })
 
 declare global {
   interface ComponentTypes {
-    SubforumMembersDialog: typeof SubforumMembersDialogComponent
+    SubforumMembersDialog: typeof SubforumMembersDialog
   }
 }

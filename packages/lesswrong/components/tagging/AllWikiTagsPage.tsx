@@ -239,7 +239,7 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   );
 }
 
-const AllWikiTagsPage = () => {
+const AllWikiTagsPageInner = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
@@ -352,12 +352,12 @@ const AllWikiTagsPage = () => {
   );
 };
 
-const AllWikiTagsPageComponent = registerComponent("AllWikiTagsPage", AllWikiTagsPage);
+export const AllWikiTagsPage = registerComponent("AllWikiTagsPage", AllWikiTagsPageInner);
 
-export default AllWikiTagsPageComponent;
+
 
 declare global {
   interface ComponentTypes {
-    AllWikiTagsPage: typeof AllWikiTagsPageComponent
+    AllWikiTagsPage: typeof AllWikiTagsPage
   }
 }

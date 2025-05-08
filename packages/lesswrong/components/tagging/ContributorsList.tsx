@@ -52,7 +52,7 @@ export function useDisplayedContributors(contributorsInfo: DocumentContributorsI
   return { topContributors, smallContributors };
 }
 
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
+const ContributorsListInner = ({ contributors, onHoverContributor, endWithComma }: {
   contributors: NonnullDocumentContributorWithStats[],
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
@@ -66,7 +66,7 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   </span>))}</>;
 }
 
-function ToCContributorsList({
+function ToCContributorsListInner({
   contributors,
   onHoverContributor,
 }: {
@@ -105,7 +105,7 @@ function ToCContributorsList({
   );
 }
 
-const HeadingContributorsList = ({topContributors, smallContributors, onHoverContributor}: {
+const HeadingContributorsListInner = ({topContributors, smallContributors, onHoverContributor}: {
   topContributors: NonnullDocumentContributorWithStats[]
   smallContributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string|null) => void
@@ -115,13 +115,13 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
 
   return <span className={classes.contributorNameWrapper}>
     <span>Written by </span>
-    <ContributorsList
+    <ContributorsListInner
       contributors={topContributors}
       onHoverContributor={onHoverContributor}
       endWithComma={smallContributors.length > 0}
     />
     {smallContributors.length > 0 && <LWTooltip
-      title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />}
+      title={<ContributorsListInner contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />}
       clickable
       placement="top"
     >
@@ -130,15 +130,15 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
   </span>
 }
 
-const ContributorsListComponent = registerComponent('ContributorsList', ContributorsList);
-const ToCContributorsListComponent = registerComponent('ToCContributorsList', ToCContributorsList);
-const HeadingContributorsListComponent = registerComponent('HeadingContributorsList', HeadingContributorsList);
+export const ContributorsList = registerComponent('ContributorsList', ContributorsListInner);
+export const ToCContributorsList = registerComponent('ToCContributorsList', ToCContributorsListInner);
+export const HeadingContributorsList = registerComponent('HeadingContributorsList', HeadingContributorsListInner);
 
 declare global {
   interface ComponentTypes {
-    ContributorsList: typeof ContributorsListComponent
-    ToCContributorsList: typeof ToCContributorsListComponent
-    HeadingContributorsList: typeof HeadingContributorsListComponent
+    ContributorsList: typeof ContributorsList
+    ToCContributorsList: typeof ToCContributorsList
+    HeadingContributorsList: typeof HeadingContributorsList
   }
 }
 

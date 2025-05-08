@@ -107,7 +107,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
+const SearchBarInner = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
   classes: ClassesType<typeof styles>
@@ -211,7 +211,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   </div>
 }
 
-const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
+export const SearchBar = registerComponent("SearchBar", SearchBarInner, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: "auto",
@@ -219,6 +219,6 @@ const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
 
 declare global {
   interface ComponentTypes {
-    SearchBar: typeof SearchBarComponent
+    SearchBar: typeof SearchBar
   }
 }

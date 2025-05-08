@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
 
 const inlineReactHoverableHighlightStyles = defineStyles('InlineReactHoverableHighlight', styles);
 
-export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children}: {
+export const InlineReactHoverableHighlightInner = ({quote, reactions, isSplitContinuation=false, children}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   isSplitContinuation?: boolean
@@ -161,11 +161,11 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
   return false;
 }
 
-const InlineReactHoverableHighlightComponent = registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlight);
+export const InlineReactHoverableHighlight = registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlightInner);
 
 declare global {
   interface ComponentTypes {
-    InlineReactHoverableHighlight: typeof InlineReactHoverableHighlightComponent
+    InlineReactHoverableHighlight: typeof InlineReactHoverableHighlight
   }
 }
 

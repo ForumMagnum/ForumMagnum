@@ -105,7 +105,7 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 };
 
 
-const ModerationDashboard = ({ classes }: {
+const ModerationDashboardInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { UsersReviewInfoCard, LoadMore, Loading, FirstContentIcons } = Components;
@@ -217,10 +217,10 @@ const ModerationDashboard = ({ classes }: {
   );
 };
 
-const ModerationDashboardComponent = registerComponent('ModerationDashboard', ModerationDashboard, { styles });
+export const ModerationDashboard = registerComponent('ModerationDashboard', ModerationDashboardInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    ModerationDashboard: typeof ModerationDashboardComponent
+    ModerationDashboard: typeof ModerationDashboard
   }
 }

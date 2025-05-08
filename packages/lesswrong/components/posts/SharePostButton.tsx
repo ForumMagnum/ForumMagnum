@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SharePostButton = ({
+const SharePostButtonInner = ({
   post,
   className,
   classes,
@@ -75,13 +75,13 @@ const SharePostButton = ({
   </div>
 }
 
-const SharePostButtonComponent = registerComponent('SharePostButton', SharePostButton, {
+export const SharePostButton = registerComponent('SharePostButton', SharePostButtonInner, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    SharePostButton: typeof SharePostButtonComponent
+    SharePostButton: typeof SharePostButton
   }
 }

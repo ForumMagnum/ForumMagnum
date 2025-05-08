@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, classes}: {
+const AnswerCommentsListInner = ({post, parentAnswer, commentTree, treeOptions, classes}: {
   post: PostsList,
   commentTree: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
@@ -68,11 +68,11 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, class
   </div>
 }
 
-const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
+export const AnswerCommentsList = registerComponent('AnswerCommentsList', AnswerCommentsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AnswerCommentsList: typeof AnswerCommentsListComponent
+    AnswerCommentsList: typeof AnswerCommentsList
   }
 }
 

@@ -24,7 +24,7 @@ const headerStyles = (theme: ThemeType) => ({
   },
 });
 
-const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
+const FormGroupHeaderInner = ({ toggle, collapsed, label, classes }: {
   toggle: () => void
   collapsed: boolean
   label?: string
@@ -44,11 +44,11 @@ const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
   </div>
 );
 
-const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader, {
+export const FormGroupHeader = registerComponent('FormGroupHeader', FormGroupHeaderInner, {
   styles: headerStyles
 });
 
-const IconRight = ({ width = 24, height = 24 }) => (
+const IconRightInner = ({ width = 24, height = 24 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -68,9 +68,9 @@ const IconRight = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-const IconRightComponent = registerComponent('IconRight', IconRight);
+export const IconRight = registerComponent('IconRight', IconRightInner);
 
-const IconDown = ({ width = 24, height = 24 }) => (
+const IconDownInner = ({ width = 24, height = 24 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -90,12 +90,12 @@ const IconDown = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-const IconDownComponent = registerComponent('IconDown', IconDown);
+export const IconDown = registerComponent('IconDown', IconDownInner);
 
 declare global {
   interface ComponentTypes {
-    FormGroupHeader: typeof FormGroupHeaderComponent
-    IconRight: typeof IconRightComponent
-    IconDown: typeof IconDownComponent
+    FormGroupHeader: typeof FormGroupHeader
+    IconRight: typeof IconRight
+    IconDown: typeof IconDown
   }
 }

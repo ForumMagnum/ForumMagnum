@@ -102,7 +102,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const VirtualProgramCard = ({program, classes}: {
+const VirtualProgramCardInner = ({program, classes}: {
   program: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -194,7 +194,7 @@ const VirtualProgramCard = ({program, classes}: {
   return null
 }
 
-const VirtualProgramCardComponent = registerComponent('VirtualProgramCard', VirtualProgramCard, {
+export const VirtualProgramCard = registerComponent('VirtualProgramCard', VirtualProgramCardInner, {
   styles,
   
   // This is based around an image, which doesn't get inverted in dark mode
@@ -203,6 +203,6 @@ const VirtualProgramCardComponent = registerComponent('VirtualProgramCard', Virt
 
 declare global {
   interface ComponentTypes {
-    VirtualProgramCard: typeof VirtualProgramCardComponent
+    VirtualProgramCard: typeof VirtualProgramCard
   }
 }

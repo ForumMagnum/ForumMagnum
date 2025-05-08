@@ -88,7 +88,7 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
+const LocalStorageCheckInner = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
   getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
   classes: ClassesType<typeof styles>,
@@ -142,10 +142,10 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewP
   </div>
 }
 
-const LocalStorageCheckComponent = registerComponent('LocalStorageCheck', LocalStorageCheck, {styles});
+export const LocalStorageCheck = registerComponent('LocalStorageCheck', LocalStorageCheckInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalStorageCheck: typeof LocalStorageCheckComponent
+    LocalStorageCheck: typeof LocalStorageCheck
   }
 }

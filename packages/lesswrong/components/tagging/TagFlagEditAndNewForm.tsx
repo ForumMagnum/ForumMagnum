@@ -24,7 +24,7 @@ const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   submitButton: submitButtonStyles(theme),
 }));
 
-const TagFlagEditAndNewForm = ({ initialData, onClose }: {
+const TagFlagEditAndNewFormInner = ({ initialData, onClose }: {
   initialData?: UpdateTagFlagDataInput & { _id: string };
   onClose?: () => void,
 }) => {
@@ -201,10 +201,10 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
   )
 }
 
-const TagFlagEditAndNewFormComponent = registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewForm);
+export const TagFlagEditAndNewForm = registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewFormInner);
 
 declare global {
   interface ComponentTypes {
-    TagFlagEditAndNewForm: typeof TagFlagEditAndNewFormComponent
+    TagFlagEditAndNewForm: typeof TagFlagEditAndNewForm
   }
 }

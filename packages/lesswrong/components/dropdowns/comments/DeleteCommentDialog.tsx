@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const DeleteCommentDialog = ({comment, onClose, classes}: {
+const DeleteCommentDialogInner = ({comment, onClose, classes}: {
   comment: CommentsList,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -100,12 +100,12 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   return render();
 }
 
-const DeleteCommentDialogComponent = registerComponent(
-  'DeleteCommentDialog', DeleteCommentDialog, {styles}
+export const DeleteCommentDialog = registerComponent(
+  'DeleteCommentDialog', DeleteCommentDialogInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    DeleteCommentDialog: typeof DeleteCommentDialogComponent
+    DeleteCommentDialog: typeof DeleteCommentDialog
   }
 }

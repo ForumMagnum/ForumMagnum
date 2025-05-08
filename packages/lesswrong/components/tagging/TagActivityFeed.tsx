@@ -2,7 +2,7 @@ import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const TagActivityFeed = ({pageSize = 50}: {
+const TagActivityFeedInner = ({pageSize = 50}: {
   pageSize?: number
 }) => {
   const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;
@@ -48,10 +48,10 @@ const TagActivityFeed = ({pageSize = 50}: {
   </SingleColumnSection>
 }
 
-const TagActivityFeedComponent = registerComponent("TagActivityFeed", TagActivityFeed);
+export const TagActivityFeed = registerComponent("TagActivityFeed", TagActivityFeedInner);
 
 declare global {
   interface ComponentTypes {
-    TagActivityFeed: typeof TagActivityFeedComponent
+    TagActivityFeed: typeof TagActivityFeed
   }
 }

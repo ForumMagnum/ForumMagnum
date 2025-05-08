@@ -171,7 +171,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
   )
 }
 
-const UltraFeedCommentsItemMeta = ({
+const UltraFeedCommentsItemMetaInner = ({
   comment,
   setShowEdit,
   hideDate,
@@ -240,15 +240,15 @@ const UltraFeedCommentsItemMeta = ({
   );
 };
 
-const UltraFeedCommentsItemMetaComponent = registerComponent(
+export const UltraFeedCommentsItemMeta = registerComponent(
   "UltraFeedCommentsItemMeta",
-  UltraFeedCommentsItemMeta
+  UltraFeedCommentsItemMetaInner
 );
 
-export default UltraFeedCommentsItemMetaComponent;
+
 
 declare global {
   interface ComponentTypes {
-    UltraFeedCommentsItemMeta: typeof UltraFeedCommentsItemMetaComponent
+    UltraFeedCommentsItemMeta: typeof UltraFeedCommentsItemMeta
   }
 } 

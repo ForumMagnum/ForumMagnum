@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
 
-const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
+const AxisVoteButtonInner = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
   vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent}) => void,
   document: T,
@@ -51,10 +51,10 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   />
 }
 
-const AxisVoteButtonComponent = registerComponent('AxisVoteButton', AxisVoteButton);
+export const AxisVoteButton = registerComponent('AxisVoteButton', AxisVoteButtonInner);
 
 declare global {
   interface ComponentTypes {
-    AxisVoteButton: typeof AxisVoteButtonComponent
+    AxisVoteButton: typeof AxisVoteButton
   }
 }

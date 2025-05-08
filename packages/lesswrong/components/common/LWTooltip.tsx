@@ -42,7 +42,7 @@ export type LWTooltipProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const LWTooltip = ({
+const LWTooltipInner = ({
   title,
   placement="bottom-start",
   tooltip=true,
@@ -141,13 +141,13 @@ const LWTooltip = ({
   </As>
 }
 
-const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, {
+export const LWTooltip = registerComponent("LWTooltip", LWTooltipInner, {
   styles,
   stylePriority: -1,
 });
 
 declare global {
   interface ComponentTypes {
-    LWTooltip: typeof LWTooltipComponent
+    LWTooltip: typeof LWTooltip
   }
 }

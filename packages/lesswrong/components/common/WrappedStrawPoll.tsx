@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const WrappedStrawPoll = ({ id, src, classes }: {
+const WrappedStrawPollInner = ({ id, src, classes }: {
   id: string|null
   src: string
   classes: ClassesType<typeof styles>
@@ -50,10 +50,10 @@ const WrappedStrawPoll = ({ id, src, classes }: {
   }
 }
 
-const WrappedStrawPollComponent = registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles})
+export const WrappedStrawPoll = registerComponent("WrappedStrawPoll", WrappedStrawPollInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    WrappedStrawPoll: typeof WrappedStrawPollComponent
+    WrappedStrawPoll: typeof WrappedStrawPoll
   }
 }

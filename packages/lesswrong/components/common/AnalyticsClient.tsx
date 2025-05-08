@@ -8,7 +8,7 @@ import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-export const AnalyticsClient = () => {
+export const AnalyticsClientInner = () => {
   const currentUser = useCurrentUser();
   const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
@@ -27,12 +27,12 @@ export const AnalyticsClient = () => {
   return <div/>;
 }
 
-const AnalyticsClientComponent = registerComponent("AnalyticsClient", AnalyticsClient, {
+export const AnalyticsClient = registerComponent("AnalyticsClient", AnalyticsClientInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    AnalyticsClient: typeof AnalyticsClientComponent
+    AnalyticsClient: typeof AnalyticsClient
   }
 }

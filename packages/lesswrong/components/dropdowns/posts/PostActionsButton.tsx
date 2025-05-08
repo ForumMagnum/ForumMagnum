@@ -25,7 +25,7 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
 }));
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
+const PostActionsButtonInner = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -88,11 +88,11 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 }
 
 
-const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton);
-export default PostActionsButtonComponent;
+export const PostActionsButton = registerComponent('PostActionsButton', PostActionsButtonInner);
+
 
 declare global {
   interface ComponentTypes {
-    PostActionsButton: typeof PostActionsButtonComponent
+    PostActionsButton: typeof PostActionsButton
   }
 }

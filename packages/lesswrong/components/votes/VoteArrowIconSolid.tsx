@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const VoteArrowIconSolid = ({
+const VoteArrowIconSolidInner = ({
   orientation,
   enabled = true,
   color,
@@ -167,13 +167,13 @@ const VoteArrowIconSolid = ({
   );
 };
 
-const VoteArrowIconSolidComponent = registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolid, {styles});
+export const VoteArrowIconSolid = registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolidInner, {styles});
 
-export default VoteArrowIconSolidComponent;
+
 
 declare global {
   interface ComponentTypes {
-    VoteArrowIconSolid: typeof VoteArrowIconSolidComponent;
+    VoteArrowIconSolid: typeof VoteArrowIconSolid;
   }
 }
 

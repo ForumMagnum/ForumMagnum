@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
     padding: theme.spacing.unit
   }
 })
-const EventsPast = ({ classes }: {
+const EventsPastInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
@@ -42,11 +42,11 @@ const EventsPast = ({ classes }: {
   )
 }
 
-const EventsPastComponent = registerComponent('EventsPast', EventsPast, {styles});
+export const EventsPast = registerComponent('EventsPast', EventsPastInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EventsPast: typeof EventsPastComponent
+    EventsPast: typeof EventsPast
   }
 }
 

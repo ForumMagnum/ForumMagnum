@@ -9,7 +9,7 @@ import type { CommonExcerptProps } from "./ContentExcerpt";
 const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
   "user" in post;
 
-const PostExcerpt = ({
+const PostExcerptInner = ({
   post,
   useCustomHighlight=true,
   hash,
@@ -76,13 +76,13 @@ const PostExcerpt = ({
   );
 }
 
-const PostExcerptComponent = registerComponent(
+export const PostExcerpt = registerComponent(
   "PostExcerpt",
-  PostExcerpt,
+  PostExcerptInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PostExcerpt: typeof PostExcerptComponent,
+    PostExcerpt: typeof PostExcerpt,
   }
 }

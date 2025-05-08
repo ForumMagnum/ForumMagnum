@@ -13,7 +13,7 @@ const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   },
 }));
 
-const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false, showIcon = false}: {
+const LensRevisionItemInner = ({tag, collapsed, lens, revision, noContainer = false, showIcon = false}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
   lens: MultiDocumentContentDisplay | TagLens,
@@ -66,13 +66,13 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false, 
   );
 }
 
-const LensRevisionItemComponent = registerComponent('LensRevisionItem', LensRevisionItem, {
+export const LensRevisionItem = registerComponent('LensRevisionItem', LensRevisionItemInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    LensRevisionItem: typeof LensRevisionItemComponent
+    LensRevisionItem: typeof LensRevisionItem
   }
 }
 

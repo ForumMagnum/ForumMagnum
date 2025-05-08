@@ -4,7 +4,7 @@ import { DialogTitle } from '../widgets/DialogTitle';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 // Dialog group, with trigger-button and dialog-instance
-const DialogGroup = ({title, trigger, actions, children}: {
+const DialogGroupInner = ({title, trigger, actions, children}: {
   title?: string,
   trigger: React.ReactNode,
   actions: any[],
@@ -35,10 +35,10 @@ const DialogGroup = ({title, trigger, actions, children}: {
   );
 }
 
-const DialogGroupComponent = registerComponent('DialogGroup', DialogGroup);
+export const DialogGroup = registerComponent('DialogGroup', DialogGroupInner);
 
 declare global {
   interface ComponentTypes {
-    DialogGroup: typeof DialogGroupComponent
+    DialogGroup: typeof DialogGroup
   }
 }

@@ -159,7 +159,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EADigestPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { params } = useLocation()
@@ -317,14 +317,14 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const EADigestPageComponent = registerComponent(
+export const EADigestPage = registerComponent(
   "EADigestPage",
-  EADigestPage,
+  EADigestPageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EADigestPage: typeof EADigestPageComponent;
+    EADigestPage: typeof EADigestPage;
   }
 }

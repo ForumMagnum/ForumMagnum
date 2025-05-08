@@ -9,7 +9,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { EventsList } from './EventsList';
+import { EventsListInner } from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => {
   }
 }
 
-const TabNavigationMenu = ({
+const TabNavigationMenuInner = ({
   onClickSection,
   transparentBackground,
   noTopMargin,
@@ -90,7 +90,7 @@ const TabNavigationMenu = ({
             if ('customComponentName' in tab) {
               switch (tab.customComponentName) {
                 case 'EventsList':
-                  return <EventsList
+                  return <EventsListInner
                     key={tab.id}
                     onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                     currentUser={currentUser}
@@ -112,12 +112,12 @@ const TabNavigationMenu = ({
     </AnalyticsContext>  )
 };
 
-const TabNavigationMenuComponent = registerComponent(
-  'TabNavigationMenu', TabNavigationMenu, {styles}
+export const TabNavigationMenu = registerComponent(
+  'TabNavigationMenu', TabNavigationMenuInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    TabNavigationMenu: typeof TabNavigationMenuComponent
+    TabNavigationMenu: typeof TabNavigationMenu
   }
 }

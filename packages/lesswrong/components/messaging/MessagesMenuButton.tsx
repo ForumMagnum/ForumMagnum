@@ -7,7 +7,7 @@ import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
-const MessagesMenuButton = ({className, classes}: {
+const MessagesMenuButtonInner = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -49,14 +49,14 @@ const MessagesMenuButton = ({className, classes}: {
   );
 }
 
-const MessagesMenuButtonComponent = registerComponent(
+export const MessagesMenuButton = registerComponent(
   "MessagesMenuButton",
-  MessagesMenuButton,
+  MessagesMenuButtonInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    MessagesMenuButton: typeof MessagesMenuButtonComponent
+    MessagesMenuButton: typeof MessagesMenuButton
   }
 }

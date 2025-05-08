@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsRevisionSelector = ({ post, format, classes }: {
+const PostsRevisionSelectorInner = ({ post, format, classes }: {
   post: PostsBase,
   format: string,
   classes: ClassesType<typeof styles>,
@@ -58,10 +58,10 @@ const PostsRevisionSelector = ({ post, format, classes }: {
   </React.Fragment>
 }
 
-const PostsRevisionSelectorComponent = registerComponent('PostsRevisionSelector', PostsRevisionSelector, {styles});
+export const PostsRevisionSelector = registerComponent('PostsRevisionSelector', PostsRevisionSelectorInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsRevisionSelector: typeof PostsRevisionSelectorComponent
+    PostsRevisionSelector: typeof PostsRevisionSelector
   }
 }

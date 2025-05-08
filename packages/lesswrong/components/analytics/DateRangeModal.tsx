@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const DateRangeModal = ({
+const DateRangeModalInner = ({
   onClose,
   startDate,
   endDate,
@@ -77,10 +77,10 @@ const DateRangeModal = ({
   );
 };
 
-const DateRangeModalComponent = registerComponent("DateRangeModal", DateRangeModal, { styles });
+export const DateRangeModal = registerComponent("DateRangeModal", DateRangeModalInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    DateRangeModal: typeof DateRangeModalComponent;
+    DateRangeModal: typeof DateRangeModal;
   }
 }

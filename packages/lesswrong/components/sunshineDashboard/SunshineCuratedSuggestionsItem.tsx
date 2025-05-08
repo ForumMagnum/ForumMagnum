@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
+const SunshineCuratedSuggestionsItemInner = ({classes, post, setCurationPost, timeForCuration}: {
   classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
@@ -157,12 +157,12 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   )
 }
 
-const SunshineCuratedSuggestionsItemComponent = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
+export const SunshineCuratedSuggestionsItem = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItemInner, {styles, 
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineCuratedSuggestionsItem: typeof SunshineCuratedSuggestionsItemComponent
+    SunshineCuratedSuggestionsItem: typeof SunshineCuratedSuggestionsItem
   }
 }

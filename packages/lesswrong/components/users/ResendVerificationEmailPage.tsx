@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ResendVerificationEmailPage = ({classes}: {
+const ResendVerificationEmailPageInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
@@ -28,10 +28,10 @@ const ResendVerificationEmailPage = ({classes}: {
   }
 }
 
-const ResendVerificationEmailPageComponent = registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPage, {styles});
+export const ResendVerificationEmailPage = registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ResendVerificationEmailPage: typeof ResendVerificationEmailPageComponent
+    ResendVerificationEmailPage: typeof ResendVerificationEmailPage
   }
 }

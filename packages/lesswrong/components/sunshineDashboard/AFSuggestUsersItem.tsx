@@ -10,7 +10,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import { useUpdate } from '../../lib/crud/withUpdate';
 
-const AFSuggestUsersItem = ({user}: {
+const AFSuggestUsersItemInner = ({user}: {
   user: SuggestAlignmentUser,
 }) => {
   const currentUser = useCurrentUser();
@@ -93,13 +93,13 @@ const AFSuggestUsersItem = ({user}: {
   }
 }
 
-const AFSuggestUsersItemComponent = registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, {
+export const AFSuggestUsersItem = registerComponent('AFSuggestUsersItem', AFSuggestUsersItemInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    AFSuggestUsersItem: typeof AFSuggestUsersItemComponent
+    AFSuggestUsersItem: typeof AFSuggestUsersItem
   }
 }
 

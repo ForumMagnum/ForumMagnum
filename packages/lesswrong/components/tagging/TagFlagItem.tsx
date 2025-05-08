@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
-const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
+const TagFlagItemInner = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
   documentId?: string,
   itemType?: ItemTypeName,
   showNumber?: boolean,
@@ -109,10 +109,10 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   </span>
 }
 
-const TagFlagItemComponent = registerComponent('TagFlagItem', TagFlagItem, { styles } );
+export const TagFlagItem = registerComponent('TagFlagItem', TagFlagItemInner, { styles } );
 
 declare global {
   interface ComponentTypes {
-    TagFlagItem: typeof TagFlagItemComponent
+    TagFlagItem: typeof TagFlagItem
   }
 }

@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, classes}: {
+const EAPostMetaInner = ({post, useEventStyles, useCuratedDate=true, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   useCuratedDate?: boolean,
@@ -106,14 +106,14 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
   );
 }
 
-const EAPostMetaComponent = registerComponent(
+export const EAPostMeta = registerComponent(
   "EAPostMeta",
-  EAPostMeta,
+  EAPostMetaInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EAPostMeta: typeof EAPostMetaComponent,
+    EAPostMeta: typeof EAPostMeta,
   }
 }

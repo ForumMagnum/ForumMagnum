@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const MaintenanceBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const MaintenanceBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const maintenanceTimeValue = maintenanceTime.get();
   if (!maintenanceTimeValue) return <></>;
   const isUrgent = new Date(maintenanceTimeValue).getTime() - Date.now() < urgentCutoff;
@@ -57,10 +57,10 @@ const MaintenanceBanner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-const MaintenanceBannerComponent = registerComponent("MaintenanceBanner", MaintenanceBanner, { styles });
+export const MaintenanceBanner = registerComponent("MaintenanceBanner", MaintenanceBannerInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    MaintenanceBanner: typeof MaintenanceBannerComponent;
+    MaintenanceBanner: typeof MaintenanceBanner;
   }
 }

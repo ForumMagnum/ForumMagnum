@@ -2,7 +2,7 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+const PostsByVoteInner = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   postIds: Array<string>,
   year: number | '≤2020',
   limit?: number,
@@ -49,10 +49,10 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   </ErrorBoundary>
 }
 
-const PostsByVoteComponent = registerComponent("PostsByVote", PostsByVote);
+export const PostsByVote = registerComponent("PostsByVote", PostsByVoteInner);
 
 declare global {
   interface ComponentTypes {
-    PostsByVote: typeof PostsByVoteComponent
+    PostsByVote: typeof PostsByVote
   }
 }

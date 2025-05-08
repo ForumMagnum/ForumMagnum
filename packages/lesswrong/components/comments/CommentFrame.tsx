@@ -132,7 +132,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentFrame = ({
+const CommentFrameInner = ({
   comment,
   treeOptions,
   onClick,
@@ -222,10 +222,10 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof s
 }
 
 
-const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
+export const CommentFrame = registerComponent('CommentFrame', CommentFrameInner, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
-    CommentFrame: typeof CommentFrameComponent,
+    CommentFrame: typeof CommentFrame,
   }
 }

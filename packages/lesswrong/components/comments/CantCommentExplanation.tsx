@@ -47,7 +47,7 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: Posts
   return <>You cannot comment at this time</>
 }
 
-const CantCommentExplanation = ({post, classes}: {
+const CantCommentExplanationInner = ({post, classes}: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -67,12 +67,12 @@ const CantCommentExplanation = ({post, classes}: {
   );
 }
 
-const CantCommentExplanationComponent = registerComponent(
-  'CantCommentExplanation', CantCommentExplanation, {styles}
+export const CantCommentExplanation = registerComponent(
+  'CantCommentExplanation', CantCommentExplanationInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    CantCommentExplanation: typeof CantCommentExplanationComponent,
+    CantCommentExplanation: typeof CantCommentExplanation,
   }
 }

@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
+const AFNonMemberSuccessPopupInner = ({_id, postId, onClose, classes}: {
   _id: string,
   postId?: string,
   onClose?: () => void,
@@ -77,10 +77,10 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   );
 }
 
-const AFNonMemberSuccessPopupComponent = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopup, {styles});
+export const AFNonMemberSuccessPopup = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopupInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AFNonMemberSuccessPopup: typeof AFNonMemberSuccessPopupComponent
+    AFNonMemberSuccessPopup: typeof AFNonMemberSuccessPopup
   }
 }

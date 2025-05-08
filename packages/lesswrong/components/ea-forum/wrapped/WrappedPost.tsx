@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
+const WrappedPostInner = ({post, showMostValuableCheckbox, classes}: {
   post: WrappedTopPost | PostsListWithVotes,
   showMostValuableCheckbox?: boolean,
   classes: ClassesType<typeof styles>,
@@ -145,14 +145,14 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
   );
 }
 
-const WrappedPostComponent = registerComponent(
+export const WrappedPost = registerComponent(
   "WrappedPost",
-  WrappedPost,
+  WrappedPostInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    WrappedPost: typeof WrappedPostComponent
+    WrappedPost: typeof WrappedPost
   }
 }

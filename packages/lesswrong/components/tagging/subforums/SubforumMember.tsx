@@ -133,7 +133,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const SubforumMember = ({user, isOrganizer, classes}: {
+const SubforumMemberInner = ({user, isOrganizer, classes}: {
   user: UsersProfile,
   isOrganizer?: boolean,
   classes: ClassesType<typeof styles>,
@@ -224,12 +224,12 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </div>
 }
 
-const SubforumMemberComponent = registerComponent(
-  'SubforumMember', SubforumMember, {styles}
+export const SubforumMember = registerComponent(
+  'SubforumMember', SubforumMemberInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    SubforumMember: typeof SubforumMemberComponent
+    SubforumMember: typeof SubforumMember
   }
 }

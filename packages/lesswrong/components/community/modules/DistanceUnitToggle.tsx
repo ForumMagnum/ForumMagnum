@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, classes}: {
+const DistanceUnitToggleInner = ({distanceUnit='km', onChange, skipDefaultEffect, classes}: {
   distanceUnit: "km"|"mi",
   onChange: Function,
   skipDefaultEffect?: boolean,
@@ -70,10 +70,10 @@ const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, cla
   </div>
 }
 
-const DistanceUnitToggleComponent = registerComponent('DistanceUnitToggle', DistanceUnitToggle, {styles});
+export const DistanceUnitToggle = registerComponent('DistanceUnitToggle', DistanceUnitToggleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    DistanceUnitToggle: typeof DistanceUnitToggleComponent
+    DistanceUnitToggle: typeof DistanceUnitToggle
   }
 }

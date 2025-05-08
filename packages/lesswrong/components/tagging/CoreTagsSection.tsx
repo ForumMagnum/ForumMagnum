@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
 
 const INITIAL_LIMIT = 8;
 
-const CoreTagsSection = ({classes}: {
+const CoreTagsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results } = useMulti({
@@ -60,10 +60,10 @@ const CoreTagsSection = ({classes}: {
   );
 }
 
-const CoreTagsSectionComponent = registerComponent("CoreTagsSection", CoreTagsSection, {styles});
+export const CoreTagsSection = registerComponent("CoreTagsSection", CoreTagsSectionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CoreTagsSection: typeof CoreTagsSectionComponent
+    CoreTagsSection: typeof CoreTagsSection
   }
 }

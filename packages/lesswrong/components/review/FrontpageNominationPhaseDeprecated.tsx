@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FrontpageNominationPhase = ({classes, settings}: {
+const FrontpageNominationPhaseInner = ({classes, settings}: {
   classes: ClassesType<typeof styles>,
   settings: DefaultRecommendationsAlgorithm,
 }) => {
@@ -87,11 +87,11 @@ const FrontpageNominationPhase = ({classes, settings}: {
   )
 }
 
-const FrontpageNominationPhaseComponent = registerComponent('FrontpageNominationPhase', FrontpageNominationPhase, {styles});
+export const FrontpageNominationPhase = registerComponent('FrontpageNominationPhase', FrontpageNominationPhaseInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FrontpageNominationPhase: typeof FrontpageNominationPhaseComponent
+    FrontpageNominationPhase: typeof FrontpageNominationPhase
   }
 }
 

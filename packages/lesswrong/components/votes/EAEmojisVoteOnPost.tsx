@@ -38,7 +38,7 @@ interface EAEmojisVoteOnPostProps extends PostVotingComponentProps {
   classes: ClassesType<typeof styles>,
 }
 
-const EAEmojisVoteOnPost = ({
+const EAEmojisVoteOnPostInner = ({
   document,
   votingSystem,
   isFooter,
@@ -75,14 +75,14 @@ const EAEmojisVoteOnPost = ({
   );
 }
 
-const EAEmojisVoteOnPostComponent = registerComponent(
+export const EAEmojisVoteOnPost = registerComponent(
   "EAEmojisVoteOnPost",
-  EAEmojisVoteOnPost,
+  EAEmojisVoteOnPostInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAEmojisVoteOnPost: typeof EAEmojisVoteOnPostComponent
+    EAEmojisVoteOnPost: typeof EAEmojisVoteOnPost
   }
 }

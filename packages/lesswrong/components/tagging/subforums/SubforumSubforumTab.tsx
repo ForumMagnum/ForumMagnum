@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SubforumSubforumTab = ({
+const SubforumSubforumTabInner = ({
   tag,
   userTagRel,
   layout,
@@ -280,12 +280,12 @@ const SubforumSubforumTab = ({
   );
 }
 
-const SubforumSubforumTabComponent = registerComponent(
-  'SubforumSubforumTab', SubforumSubforumTab, {styles}
+export const SubforumSubforumTab = registerComponent(
+  'SubforumSubforumTab', SubforumSubforumTabInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    SubforumSubforumTab: typeof SubforumSubforumTabComponent
+    SubforumSubforumTab: typeof SubforumSubforumTab
   }
 }

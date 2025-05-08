@@ -9,7 +9,7 @@ import type { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
-const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
+const CommentsViewsInner = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,10 +50,10 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
 
 };
 
-const CommentsViewsComponent = registerComponent('CommentsViews', CommentsViews);
+export const CommentsViews = registerComponent('CommentsViews', CommentsViewsInner);
 
 declare global {
   interface ComponentTypes {
-    CommentsViews: typeof CommentsViewsComponent,
+    CommentsViews: typeof CommentsViews,
   }
 }

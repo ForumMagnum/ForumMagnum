@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const LocalGroupSubscribers = ({groupId, classes}: {
+const LocalGroupSubscribersInner = ({groupId, classes}: {
   groupId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -48,11 +48,11 @@ const LocalGroupSubscribers = ({groupId, classes}: {
   </div>
 }
 
-const LocalGroupSubscribersComponent = registerComponent('LocalGroupSubscribers', LocalGroupSubscribers, {styles});
+export const LocalGroupSubscribers = registerComponent('LocalGroupSubscribers', LocalGroupSubscribersInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LocalGroupSubscribers: typeof LocalGroupSubscribersComponent
+    LocalGroupSubscribers: typeof LocalGroupSubscribers
   }
 }
 

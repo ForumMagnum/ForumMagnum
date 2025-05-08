@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
 })
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
+const ChaptersEditFormInner = ({classes, chapter, successCallback, cancelCallback}: {
   classes: ClassesType<typeof styles>,
   chapter: ChaptersEdit,
   successCallback: any,
@@ -73,11 +73,11 @@ const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
   )
 }
 
-const ChaptersEditFormComponent = registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
+export const ChaptersEditForm = registerComponent('ChaptersEditForm', ChaptersEditFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ChaptersEditForm: typeof ChaptersEditFormComponent
+    ChaptersEditForm: typeof ChaptersEditForm
   }
 }
 

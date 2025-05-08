@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const Footer = ({classes}: {
+const FooterInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -15,10 +15,10 @@ const Footer = ({classes}: {
   )
 }
 
-const FooterComponent = registerComponent('Footer', Footer, {styles});
+export const Footer = registerComponent('Footer', FooterInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    Footer: typeof FooterComponent
+    Footer: typeof Footer
   }
 }

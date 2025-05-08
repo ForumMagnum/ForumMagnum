@@ -13,7 +13,7 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-const Pingback = ({classes, post}: {
+const PingbackInner = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
@@ -30,11 +30,11 @@ const Pingback = ({classes, post}: {
   );
 }
 
-const PingbackComponent = registerComponent("Pingback", Pingback, {styles});
+export const Pingback = registerComponent("Pingback", PingbackInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    Pingback: typeof PingbackComponent
+    Pingback: typeof Pingback
   }
 }
 

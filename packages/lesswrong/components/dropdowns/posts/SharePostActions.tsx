@@ -15,7 +15,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const SharePostActions = ({post, onClick, classes}: {
+const SharePostActionsInner = ({post, onClick, classes}: {
   post: PostsBase,
   onClick?: () => void,
   classes: ClassesType<typeof styles>,
@@ -83,10 +83,10 @@ const SharePostActions = ({post, onClick, classes}: {
   </Paper></div>
 }
 
-const SharePostActionsComponent = registerComponent('SharePostActions', SharePostActions, {styles});
+export const SharePostActions = registerComponent('SharePostActions', SharePostActionsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SharePostActions: typeof SharePostActionsComponent
+    SharePostActions: typeof SharePostActions
   }
 }

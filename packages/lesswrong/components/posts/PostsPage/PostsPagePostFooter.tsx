@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPagePostFooter = ({post, sequenceId, classes}: {
+const PostsPagePostFooterInner = ({post, sequenceId, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
@@ -136,10 +136,10 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   </>
 }
 
-const PostsPagePostFooterComponent = registerComponent("PostsPagePostFooter", PostsPagePostFooter, {styles});
+export const PostsPagePostFooter = registerComponent("PostsPagePostFooter", PostsPagePostFooterInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsPagePostFooter: typeof PostsPagePostFooterComponent
+    PostsPagePostFooter: typeof PostsPagePostFooter
   }
 }

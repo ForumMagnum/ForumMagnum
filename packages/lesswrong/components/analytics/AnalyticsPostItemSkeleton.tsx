@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsPostItemSkeleton = ({className, classes}: {
+export const AnalyticsPostItemSkeletonInner = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -40,14 +40,14 @@ export const AnalyticsPostItemSkeleton = ({className, classes}: {
   );
 }
 
-const AnalyticsPostItemSkeletonComponent = registerComponent(
+export const AnalyticsPostItemSkeleton = registerComponent(
   "AnalyticsPostItemSkeleton",
-  AnalyticsPostItemSkeleton,
+  AnalyticsPostItemSkeletonInner,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    AnalyticsPostItemSkeleton: typeof AnalyticsPostItemSkeletonComponent
+    AnalyticsPostItemSkeleton: typeof AnalyticsPostItemSkeleton
   }
 }

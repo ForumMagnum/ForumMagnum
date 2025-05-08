@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
+export const ReviewDashboardButtonsInner = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
@@ -92,11 +92,11 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
   </div>;
 }
 
-const ReviewDashboardButtonsComponent = registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
+export const ReviewDashboardButtons = registerComponent('ReviewDashboardButtons', ReviewDashboardButtonsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewDashboardButtons: typeof ReviewDashboardButtonsComponent
+    ReviewDashboardButtons: typeof ReviewDashboardButtons
   }
 }
 

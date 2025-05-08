@@ -79,7 +79,7 @@ const PaletteSection: FC<{
   );
 }
 
-const EAEmojiPalette = ({onSelectEmoji, classes}: {
+const EAEmojiPaletteInner = ({onSelectEmoji, classes}: {
   onSelectEmoji: (emojiOption: EmojiOption) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -102,14 +102,14 @@ const EAEmojiPalette = ({onSelectEmoji, classes}: {
   );
 }
 
-const EAEmojiPaletteComponent = registerComponent(
+export const EAEmojiPalette = registerComponent(
   "EAEmojiPalette",
-  EAEmojiPalette,
+  EAEmojiPaletteInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAEmojiPalette: typeof EAEmojiPaletteComponent
+    EAEmojiPalette: typeof EAEmojiPalette
   }
 }

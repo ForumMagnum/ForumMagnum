@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RandomUserPage = ({classes}: {
+const RandomUserPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -101,12 +101,12 @@ const RandomUserPage = ({classes}: {
   </SingleColumnSection>
 }
 
-const RandomUserPageComponent = registerComponent(
-  "RandomUserPage", RandomUserPage, {styles}
+export const RandomUserPage = registerComponent(
+  "RandomUserPage", RandomUserPageInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    RandomUserPage: typeof RandomUserPageComponent
+    RandomUserPage: typeof RandomUserPage
   }
 }

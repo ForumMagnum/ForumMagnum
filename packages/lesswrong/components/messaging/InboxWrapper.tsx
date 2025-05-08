@@ -11,7 +11,7 @@ export type InboxComponentProps = {
   isModInbox?: boolean;
 };
 
-const InboxWrapper = () => {
+const InboxWrapperInner = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
@@ -38,10 +38,10 @@ const InboxWrapper = () => {
   return <InboxComponent terms={terms} currentUser={currentUser}/>
 }
 
-const InboxWrapperComponent = registerComponent('InboxWrapper', InboxWrapper);
+export const InboxWrapper = registerComponent('InboxWrapper', InboxWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    InboxWrapper: typeof InboxWrapperComponent
+    InboxWrapper: typeof InboxWrapper
   }
 }

@@ -5,7 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { isLWorAF } from "../../../lib/instanceSettings";
 
-const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
+const MoveToAlignmentPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
 
@@ -46,13 +46,13 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
     );
 }
 
-const MoveToAlignmentPostDropdownItemComponent = registerComponent(
+export const MoveToAlignmentPostDropdownItem = registerComponent(
   "MoveToAlignmentPostDropdownItem",
-  MoveToAlignmentPostDropdownItem,
+  MoveToAlignmentPostDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    MoveToAlignmentPostDropdownItem: typeof MoveToAlignmentPostDropdownItemComponent
+    MoveToAlignmentPostDropdownItem: typeof MoveToAlignmentPostDropdownItem
   }
 }

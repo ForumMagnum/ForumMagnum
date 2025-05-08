@@ -166,7 +166,7 @@ const RSSFeedsForm = ({
 //
 // Button used to add a new feed to a user profile
 //
-const NewFeedButton = ({classes, user, closeModal}: {
+const NewFeedButtonInner = ({classes, user, closeModal}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile,
   closeModal?: any
@@ -204,10 +204,10 @@ const NewFeedButton = ({classes, user, closeModal}: {
   }
 }
 
-const NewFeedButtonComponent = registerComponent('NewFeedButton', NewFeedButton, {styles});
+export const NewFeedButton = registerComponent('NewFeedButton', NewFeedButtonInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewFeedButton: typeof NewFeedButtonComponent
+    NewFeedButton: typeof NewFeedButton
   }
 }

@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
  *   specifying what post the comment is on, and prefilling props.
  * onClose: Called when the window is closed.
  */
-const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
+const PopupCommentEditorInner = ({title, guidelines, commentFormProps, onClose, classes}: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
@@ -94,10 +94,10 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
   </Card>
 }
 
-const PopupCommentEditorComponent = registerComponent('PopupCommentEditor', PopupCommentEditor, {styles});
+export const PopupCommentEditor = registerComponent('PopupCommentEditor', PopupCommentEditorInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PopupCommentEditor: typeof PopupCommentEditorComponent
+    PopupCommentEditor: typeof PopupCommentEditor
   }
 }

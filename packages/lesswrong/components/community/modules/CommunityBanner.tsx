@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommunityBanner = ({classes}: {
+const CommunityBannerInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   // quote is from this post, with permission from the author:
@@ -71,7 +71,7 @@ const CommunityBanner = ({classes}: {
   </div>
 }
 
-const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityBanner, {
+export const CommunityBanner = registerComponent('CommunityBanner', CommunityBannerInner, {
   styles,
   
   // This is based around an image, so it doesn't get inverted in dark mdoe
@@ -80,6 +80,6 @@ const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityB
 
 declare global {
   interface ComponentTypes {
-    CommunityBanner: typeof CommunityBannerComponent
+    CommunityBanner: typeof CommunityBanner
   }
 }

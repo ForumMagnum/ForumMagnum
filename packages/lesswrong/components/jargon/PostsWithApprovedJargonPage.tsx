@@ -61,7 +61,7 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
   </div>
 };
 
-export const PostsWithApprovedJargonPage = ({classes}: {
+export const PostsWithApprovedJargonPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, ContentStyles, LoadMore, Loading, ErrorAccessDenied } = Components;
@@ -157,10 +157,10 @@ export const PostsWithApprovedJargonPage = ({classes}: {
   </div>;
 }
 
-const PostsWithApprovedJargonPageComponent = registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPage, {styles});
+export const PostsWithApprovedJargonPage = registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPageInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsWithApprovedJargonPage: typeof PostsWithApprovedJargonPageComponent
+    PostsWithApprovedJargonPage: typeof PostsWithApprovedJargonPage
   }
 }

@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
+const CommentPollVoteInner = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
@@ -86,12 +86,12 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   );
 };
 
-const CommentPollVoteComponent = registerComponent("CommentPollVote", CommentPollVote, {
+export const CommentPollVote = registerComponent("CommentPollVote", CommentPollVoteInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    CommentPollVote: typeof CommentPollVoteComponent;
+    CommentPollVote: typeof CommentPollVote;
   }
 }

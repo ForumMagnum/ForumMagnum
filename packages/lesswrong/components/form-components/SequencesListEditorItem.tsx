@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesListEditorItem = ({documentId, removeItem, classes}: {
+const SequencesListEditorItemInner = ({documentId, removeItem, classes}: {
   documentId: string;
   removeItem: (itemId: string) => void;
   classes: ClassesType<typeof styles>;
@@ -81,10 +81,10 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   }
 };
 
-const SequencesListEditorItemComponent = registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
+export const SequencesListEditorItem = registerComponent('SequencesListEditorItem', SequencesListEditorItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesListEditorItem: typeof SequencesListEditorItemComponent
+    SequencesListEditorItem: typeof SequencesListEditorItem
   }
 }

@@ -111,7 +111,7 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-const PostsEditForm = ({ documentId, version }: {
+const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
@@ -246,10 +246,10 @@ const PostsEditForm = ({ documentId, version }: {
   );
 }
 
-const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm);
+export const PostsEditForm = registerComponent('PostsEditForm', PostsEditFormInner);
 
 declare global {
   interface ComponentTypes {
-    PostsEditForm: typeof PostsEditFormComponent
+    PostsEditForm: typeof PostsEditForm
   }
 }

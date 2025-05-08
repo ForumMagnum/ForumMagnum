@@ -418,7 +418,7 @@ const InnerForumEventForm = ({
   );
 };
 
-export const ForumEventForm = ({ documentId }: {
+export const ForumEventFormInner = ({ documentId }: {
   documentId?: string,
 }) => {
   const classes = useStyles(styles);
@@ -459,13 +459,13 @@ export const ForumEventForm = ({ documentId }: {
   );
 }
 
-const ForumEventFormComponent = registerComponent(
+export const ForumEventForm = registerComponent(
   "ForumEventForm",
-  ForumEventForm,
+  ForumEventFormInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventForm: typeof ForumEventFormComponent
+    ForumEventForm: typeof ForumEventForm
   }
 }

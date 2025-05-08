@@ -7,7 +7,7 @@ import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
 
-const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
+const BanUserFromAllPersonalPostsDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
   post?: PostsBase,
 }) => {
@@ -48,13 +48,13 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
   );
 }
 
-const BanUserFromAllPersonalPostsDropdownItemComponent = registerComponent(
-  'BanUserFromAllPersonalPostsDropdownItem', BanUserFromAllPersonalPostsDropdownItem,
+export const BanUserFromAllPersonalPostsDropdownItem = registerComponent(
+  'BanUserFromAllPersonalPostsDropdownItem', BanUserFromAllPersonalPostsDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    BanUserFromAllPersonalPostsDropdownItem: typeof BanUserFromAllPersonalPostsDropdownItemComponent,
+    BanUserFromAllPersonalPostsDropdownItem: typeof BanUserFromAllPersonalPostsDropdownItem,
   }
 }
 

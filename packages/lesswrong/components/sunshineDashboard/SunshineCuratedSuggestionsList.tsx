@@ -51,7 +51,7 @@ const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): bo
   return results.some(post => post.curationNotices && post.curationNotices.length > 0);
 }
 
-const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationPost, setHasDrafts }: {
+const SunshineCuratedSuggestionsListInner = ({ terms, atBottom, classes, setCurationPost, setHasDrafts }: {
   terms: PostsViewTerms,
   atBottom?: boolean,
   classes: ClassesType<typeof styles>,
@@ -137,10 +137,10 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
   )
 }
 
-const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles})
+export const SunshineCuratedSuggestionsList = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsListInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SunshineCuratedSuggestionsList: typeof SunshineCuratedSuggestionsListComponent
+    SunshineCuratedSuggestionsList: typeof SunshineCuratedSuggestionsList
   }
 }

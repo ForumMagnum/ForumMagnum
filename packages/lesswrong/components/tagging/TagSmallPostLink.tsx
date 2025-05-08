@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
+const TagSmallPostLinkInner = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   hideMeta?: boolean,
@@ -96,10 +96,10 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   );
 }
 
-const TagSmallPostLinkComponent = registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
+export const TagSmallPostLink = registerComponent("TagSmallPostLink", TagSmallPostLinkInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagSmallPostLink: typeof TagSmallPostLinkComponent
+    TagSmallPostLink: typeof TagSmallPostLink
   }
 }

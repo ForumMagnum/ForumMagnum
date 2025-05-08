@@ -107,7 +107,7 @@ function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
 }
 
 
-const AnalyticsPageInitializer = () => {
+const AnalyticsPageInitializerInner = () => {
     useBeforeUnloadTracking()
     const { pageIsVisible } = usePageVisibility()
     const { userIsIdle } = useIdlenessDetection(60)
@@ -120,10 +120,10 @@ const AnalyticsPageInitializer = () => {
   return <span/>
 };
 
-const AnalyticsPageInitializerComponent = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
+export const AnalyticsPageInitializer = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializerInner)
 
 declare global {
   interface ComponentTypes {
-    AnalyticsPageInitializer: typeof AnalyticsPageInitializerComponent
+    AnalyticsPageInitializer: typeof AnalyticsPageInitializer
   }
 }

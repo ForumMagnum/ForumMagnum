@@ -176,7 +176,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FriendlyInbox = ({
+const FriendlyInboxInner = ({
   currentUser,
   terms,
   conversationId,
@@ -336,10 +336,10 @@ const FriendlyInbox = ({
   );
 };
 
-const FriendlyInboxComponent = registerComponent("FriendlyInbox", FriendlyInbox, { styles });
+export const FriendlyInbox = registerComponent("FriendlyInbox", FriendlyInboxInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    FriendlyInbox: typeof FriendlyInboxComponent;
+    FriendlyInbox: typeof FriendlyInbox;
   }
 }

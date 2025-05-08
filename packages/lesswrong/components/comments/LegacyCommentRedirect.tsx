@@ -7,7 +7,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 
-const LegacyCommentRedirect = () => {
+const LegacyCommentRedirectInner = () => {
   const { params } = useLocation();
   const legacyPostId = params.id;
   const legacyCommentId = params.commentId;
@@ -28,11 +28,11 @@ const LegacyCommentRedirect = () => {
   }
 };
 
-const LegacyCommentRedirectComponent = registerComponent('LegacyCommentRedirect', LegacyCommentRedirect);
+export const LegacyCommentRedirect = registerComponent('LegacyCommentRedirect', LegacyCommentRedirectInner);
 
 declare global {
   interface ComponentTypes {
-    LegacyCommentRedirect: typeof LegacyCommentRedirectComponent,
+    LegacyCommentRedirect: typeof LegacyCommentRedirect,
   }
 }
 

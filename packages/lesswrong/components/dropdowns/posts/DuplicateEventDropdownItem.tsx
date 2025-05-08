@@ -6,7 +6,7 @@ import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 
-const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
+const DuplicateEventDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   if (!isEditor || !post.isEvent) {
@@ -25,13 +25,13 @@ const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const DuplicateEventDropdownItemComponent = registerComponent(
+export const DuplicateEventDropdownItem = registerComponent(
   "DuplicateEventDropdownItem",
-  DuplicateEventDropdownItem,
+  DuplicateEventDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    DuplicateEventDropdownItem: typeof DuplicateEventDropdownItemComponent
+    DuplicateEventDropdownItem: typeof DuplicateEventDropdownItem
   }
 }

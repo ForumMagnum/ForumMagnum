@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersMetaInfo = ({user, classes}: {
+const EAUsersMetaInfoInner = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -127,14 +127,14 @@ const EAUsersMetaInfo = ({user, classes}: {
   );
 }
 
-const EAUsersMetaInfoComponent = registerComponent(
+export const EAUsersMetaInfo = registerComponent(
   "EAUsersMetaInfo",
-  EAUsersMetaInfo,
+  EAUsersMetaInfoInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAUsersMetaInfo: typeof EAUsersMetaInfoComponent
+    EAUsersMetaInfo: typeof EAUsersMetaInfo
   }
 }

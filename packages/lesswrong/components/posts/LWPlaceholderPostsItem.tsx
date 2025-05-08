@@ -3,7 +3,7 @@ import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { styles } from './LWPostsItem';
 
-const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
+const LWPlaceholderPostsItemInner = ({showBottomBorder, classes}: {
   showBottomBorder?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -21,10 +21,10 @@ const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
   </div>
 }
 
-const LWPlaceholderPostsItemComponent = registerComponent('LWPlaceholderPostsItem', LWPlaceholderPostsItem, {styles});
+export const LWPlaceholderPostsItem = registerComponent('LWPlaceholderPostsItem', LWPlaceholderPostsItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWPlaceholderPostsItem: typeof LWPlaceholderPostsItemComponent
+    LWPlaceholderPostsItem: typeof LWPlaceholderPostsItem
   }
 }

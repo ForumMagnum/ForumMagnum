@@ -9,7 +9,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 const styles = (theme: ThemeType) => ({
 });
 
-const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
+const TableOfContentsInner = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
   sectionData: ToCData,
   title: string,
   heading?: React.ReactNode,
@@ -61,8 +61,8 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   );
 }
 
-const TableOfContentsComponent = registerComponent(
-  "TableOfContents", TableOfContents, {
+export const TableOfContents = registerComponent(
+  "TableOfContents", TableOfContentsInner, {
     styles,
     hocs: [withErrorBoundary]
   }
@@ -70,6 +70,6 @@ const TableOfContentsComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    TableOfContents: typeof TableOfContentsComponent
+    TableOfContents: typeof TableOfContents
   }
 }

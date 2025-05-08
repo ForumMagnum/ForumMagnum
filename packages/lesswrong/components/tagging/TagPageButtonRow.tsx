@@ -131,7 +131,7 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
-const TagPageButtonRow = ({
+const TagPageButtonRowInner = ({
   tag,
   selectedLens,
   editing,
@@ -323,10 +323,10 @@ const TagPageButtonRow = ({
   </AnalyticsContext>
 }
 
-const TagPageButtonRowComponent = registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
+export const TagPageButtonRow = registerComponent("TagPageButtonRow", TagPageButtonRowInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    TagPageButtonRow: typeof TagPageButtonRowComponent
+    TagPageButtonRow: typeof TagPageButtonRow
   }
 }

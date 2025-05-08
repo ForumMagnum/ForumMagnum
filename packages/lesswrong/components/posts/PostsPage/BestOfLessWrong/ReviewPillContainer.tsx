@@ -83,7 +83,7 @@ const ReviewPreview = ({review}: {review: CommentsList}) => {
   </div>
 }
 
-const ReviewPillContainer = ({postId}: {postId: string}) => {
+const ReviewPillContainerInner = ({postId}: {postId: string}) => {
   const classes = useStyles(styles);
 
   const { results: reviews } = useMulti({
@@ -118,12 +118,12 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
   </AnalyticsContext>
 }
 
-const ReviewPillContainerComponent = registerComponent('ReviewPillContainer', ReviewPillContainer);
+export const ReviewPillContainer = registerComponent('ReviewPillContainer', ReviewPillContainerInner);
 
 declare global {
   interface ComponentTypes {
-    ReviewPillContainer: typeof ReviewPillContainerComponent
+    ReviewPillContainer: typeof ReviewPillContainer
   }
 }
 
-export default ReviewPillContainer;
+export default ReviewPillContainerInner;

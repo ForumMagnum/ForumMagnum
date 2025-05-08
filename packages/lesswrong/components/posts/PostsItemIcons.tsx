@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CuratedIcon = ({hasColor, classes}: {
+export const CuratedIconInner = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -97,7 +97,7 @@ export const CuratedIcon = ({hasColor, classes}: {
     </span>
 }
 
-const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
+export const CuratedIcon = registerComponent('CuratedIcon', CuratedIconInner, {styles});
 
 
 const RecommendedPostIcon = ({post, hover, classes}: {
@@ -134,7 +134,7 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 }
 
 
-const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
+const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   hover?: boolean,
   hideCuratedIcon?: boolean,
@@ -189,11 +189,11 @@ const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon
   </span>
 }
 
-const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, {styles});
+export const PostsItemIcons = registerComponent('PostsItemIcons', PostsItemIconsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsItemIcons: typeof PostsItemIconsComponent
-    CuratedIcon: typeof CuratedIconComponent
+    PostsItemIcons: typeof PostsItemIcons
+    CuratedIcon: typeof CuratedIcon
   }
 }

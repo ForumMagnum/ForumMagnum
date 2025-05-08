@@ -6,7 +6,7 @@ import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { slugify } from "@/lib/utils/slugify";
 
-const EASequenceCard = ({sequence, className}: {
+const EASequenceCardInner = ({sequence, className}: {
   sequence: SequencesPageFragment,
   className?: string,
 }) => {
@@ -59,13 +59,13 @@ const EASequenceCard = ({sequence, className}: {
   );
 };
 
-const EASequenceCardComponent = registerComponent(
+export const EASequenceCard = registerComponent(
   "EASequenceCard",
-  EASequenceCard,
+  EASequenceCardInner,
 );
 
 declare global {
   interface ComponentTypes {
-    EASequenceCard: typeof EASequenceCardComponent;
+    EASequenceCard: typeof EASequenceCard;
   }
 }

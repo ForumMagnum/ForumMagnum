@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SubSection = ({children, classes, className}: {
+const SubSectionInner = ({children, classes, className}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -18,10 +18,10 @@ const SubSection = ({children, classes, className}: {
   </div>
 }
 
-const SubSectionComponent = registerComponent('SubSection', SubSection, {styles});
+export const SubSection = registerComponent('SubSection', SubSectionInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SubSection: typeof SubSectionComponent
+    SubSection: typeof SubSection
   }
 }

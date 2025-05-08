@@ -240,7 +240,7 @@ const ColoredCheckbox: React.FC<ColoredCheckboxProps> = ({ fillColor, classes, .
   );
 };
 
-export const AnalyticsGraph = ({
+export const AnalyticsGraphInner = ({
   userId,
   postIds,
   initialDisplayFields = ["views", "reads"],
@@ -432,14 +432,14 @@ export const AnalyticsGraph = ({
   );
 };
 
-const AnalyticsGraphComponent = registerComponent(
+export const AnalyticsGraph = registerComponent(
   "AnalyticsGraph",
-  AnalyticsGraph,
+  AnalyticsGraphInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    AnalyticsGraph: typeof AnalyticsGraphComponent;
+    AnalyticsGraph: typeof AnalyticsGraph;
   }
 }

@@ -377,7 +377,7 @@ interface UltraFeedCommentFooterProps {
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooterInner = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
     return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} />;
   } else if (collectionName === "Comments") {
@@ -387,12 +387,12 @@ const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: 
 };
 
 
-const UltraFeedItemFooterComponent = registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
+export const UltraFeedItemFooter = registerComponent("UltraFeedItemFooter", UltraFeedItemFooterInner);
 
-export default UltraFeedItemFooterComponent; 
+ 
 
 declare global {
   interface ComponentTypes {
-    UltraFeedItemFooter: typeof UltraFeedItemFooterComponent
+    UltraFeedItemFooter: typeof UltraFeedItemFooter
   }
 } 

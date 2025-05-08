@@ -18,7 +18,7 @@ const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   submitButton: submitButtonStyles(theme),
 }));
 
-const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
+const ReportFormInner = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   userId: string,
   postId?: string,
   commentId?: string,
@@ -111,11 +111,11 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   )
 }
 
-const ReportFormComponent = registerComponent('ReportForm', ReportForm);
+export const ReportForm = registerComponent('ReportForm', ReportFormInner);
 
 declare global {
   interface ComponentTypes {
-    ReportForm: typeof ReportFormComponent
+    ReportForm: typeof ReportForm
   }
 }
 

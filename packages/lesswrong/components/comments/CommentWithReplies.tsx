@@ -27,7 +27,7 @@ export interface CommentWithRepliesProps {
   classes: ClassesType<typeof styles>;
 }
 
-const CommentWithReplies = ({
+const CommentWithRepliesInner = ({
   comment,
   post,
   lastRead,
@@ -89,8 +89,8 @@ const CommentWithReplies = ({
   );
 };
 
-const CommentWithRepliesComponent = registerComponent(
-  'CommentWithReplies', CommentWithReplies, {
+export const CommentWithReplies = registerComponent(
+  'CommentWithReplies', CommentWithRepliesInner, {
     styles,
     hocs: [withErrorBoundary]
   }
@@ -98,6 +98,6 @@ const CommentWithRepliesComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    CommentWithReplies: typeof CommentWithRepliesComponent;
+    CommentWithReplies: typeof CommentWithReplies;
   }
 }

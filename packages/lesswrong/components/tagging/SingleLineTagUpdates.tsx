@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
   tagRevision: {},
 });
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
+const SingleLineTagUpdatesInner = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
   tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
@@ -206,10 +206,10 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   </div>
 }
 
-const SingleLineTagUpdatesComponent = registerComponent('SingleLineTagUpdates', SingleLineTagUpdates, {styles});
+export const SingleLineTagUpdates = registerComponent('SingleLineTagUpdates', SingleLineTagUpdatesInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SingleLineTagUpdates: typeof SingleLineTagUpdatesComponent
+    SingleLineTagUpdates: typeof SingleLineTagUpdates
   }
 }

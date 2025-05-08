@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
-const PeopleDirectoryMainSearch = () => {
+const PeopleDirectoryMainSearchInner = () => {
   const {query, setQuery} = usePeopleDirectory();
   const {PeopleDirectoryInput} = Components;
   return (
@@ -15,13 +15,13 @@ const PeopleDirectoryMainSearch = () => {
   );
 }
 
-const PeopleDirectoryMainSearchComponent = registerComponent(
+export const PeopleDirectoryMainSearch = registerComponent(
   "PeopleDirectoryMainSearch",
-  PeopleDirectoryMainSearch,
+  PeopleDirectoryMainSearchInner,
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryMainSearch: typeof PeopleDirectoryMainSearchComponent
+    PeopleDirectoryMainSearch: typeof PeopleDirectoryMainSearch
   }
 }

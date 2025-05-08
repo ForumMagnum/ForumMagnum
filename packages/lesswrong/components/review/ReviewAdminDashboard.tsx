@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const ReviewAdminDashboardInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()
@@ -167,10 +167,10 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
   </div>
 }
 
-const ReviewAdminDashboardComponent = registerComponent('ReviewAdminDashboard', ReviewAdminDashboard, {styles});
+export const ReviewAdminDashboard = registerComponent('ReviewAdminDashboard', ReviewAdminDashboardInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewAdminDashboard: typeof ReviewAdminDashboardComponent
+    ReviewAdminDashboard: typeof ReviewAdminDashboard
   }
 }

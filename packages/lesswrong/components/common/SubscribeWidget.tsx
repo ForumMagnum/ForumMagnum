@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -44,10 +44,3 @@ export const SubscribeWidget = () => {
   )
 }
 
-const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget);
-
-declare global {
-  interface ComponentTypes {
-    SubscribeWidget: typeof SubscribeWidgetComponent
-  }
-}

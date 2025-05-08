@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
+const PeopleDirectoryCheckOptionInner = ({label, selected, onSelect, classes}: {
   label: string,
   selected: boolean,
   onSelect?: () => void,
@@ -46,14 +46,14 @@ const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
   );
 }
 
-const PeopleDirectoryCheckOptionComponent = registerComponent(
+export const PeopleDirectoryCheckOption = registerComponent(
   "PeopleDirectoryCheckOption",
-  PeopleDirectoryCheckOption,
+  PeopleDirectoryCheckOptionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PeopleDirectoryCheckOption: typeof PeopleDirectoryCheckOptionComponent
+    PeopleDirectoryCheckOption: typeof PeopleDirectoryCheckOption
   }
 }

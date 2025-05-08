@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TagDiscussion = ({classes, tag}: {
+const TagDiscussionInner = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
@@ -70,11 +70,11 @@ const TagDiscussion = ({classes, tag}: {
   </div>
 }
 
-const TagDiscussionComponent = registerComponent("TagDiscussion", TagDiscussion, {styles})
+export const TagDiscussion = registerComponent("TagDiscussion", TagDiscussionInner, {styles})
 
 
 declare global {
   interface ComponentTypes {
-    TagDiscussion: typeof TagDiscussionComponent
+    TagDiscussion: typeof TagDiscussion
   }
 }

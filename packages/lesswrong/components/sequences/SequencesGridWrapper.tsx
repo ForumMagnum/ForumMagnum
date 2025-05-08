@@ -6,7 +6,7 @@ import classNames from 'classnames';
 // Share styles with SequencesGrid
 import { styles } from './SequencesGrid';
 
-const SequencesGridWrapper = ({
+const SequencesGridWrapperInner = ({
   terms,
   className,
   classes,
@@ -49,7 +49,7 @@ const SequencesGridWrapper = ({
   }
 };
 
-const SequencesGridWrapperComponent = registerComponent('SequencesGridWrapper', SequencesGridWrapper, {
+export const SequencesGridWrapper = registerComponent('SequencesGridWrapper', SequencesGridWrapperInner, {
   styles,
   areEqual: {
     terms: "deep"
@@ -58,7 +58,7 @@ const SequencesGridWrapperComponent = registerComponent('SequencesGridWrapper', 
 
 declare global {
   interface ComponentTypes {
-    SequencesGridWrapper: typeof SequencesGridWrapperComponent
+    SequencesGridWrapper: typeof SequencesGridWrapper
   }
 }
 

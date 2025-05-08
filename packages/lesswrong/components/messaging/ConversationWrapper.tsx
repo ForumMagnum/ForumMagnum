@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 /**
  * A page with a private mesage conversation, with URL parameter parsing.
  */
-const ConversationWrapper = () => {
+const ConversationWrapperInner = () => {
   const currentUser = useCurrentUser()
   const { params } = useLocation();
   
@@ -15,11 +15,11 @@ const ConversationWrapper = () => {
   return <Components.ConversationPage conversationId={params._id} currentUser={currentUser} />
 }
 
-const ConversationWrapperComponent = registerComponent('ConversationWrapper', ConversationWrapper);
+export const ConversationWrapper = registerComponent('ConversationWrapper', ConversationWrapperInner);
 
 declare global {
   interface ComponentTypes {
-    ConversationWrapper: typeof ConversationWrapperComponent
+    ConversationWrapper: typeof ConversationWrapper
   }
 }
 

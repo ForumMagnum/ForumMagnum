@@ -263,7 +263,7 @@ function transformSingleComponentRegistration(info: RegisterComponentInfo, sourc
 }
 
 // Processes a single source file, orchestrating transformations
-function processSingleSourceFile(sourceFile: SourceFile): { status: string, error?: string } {
+function processSingleSourceFile(sourceFile: SourceFile): { status: 'modified' | 'no_changes_needed' | 'not_applicable' | 'error', error?: string } {
   const currentFilePath = sourceFile.getFilePath();
   let madeChangesInFile = false;
   let wasEverCandidate = false;

@@ -175,7 +175,8 @@ export function registerComponent<PropType>(
   // ones required to be passed in by parent components. It doesn't work for
   // hocs that share prop names that overlap with actually passed-in props, like
   // `location`.
-  return (null as any as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>);
+  // return (null as any as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>);
+  return composeComponent({ name, rawComponent, hocs, options });
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until
@@ -227,10 +228,14 @@ const getComponent = (name: string): any => {
     throw new Error(`Component ${name} not registered.`);
   }
   
+  return composeComponent(componentMeta);
+};
+
+const composeComponent = (componentMeta: ComponentsTableEntry) => {
   const componentWithMemo = componentMeta.options?.areEqual
-    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, name, !!componentMeta.options.debugRerenders)
+    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, componentMeta.name, !!componentMeta.options.debugRerenders)
     : componentMeta.rawComponent;
-  
+
   if (componentMeta.hocs && componentMeta.hocs.length) {
     const hocs = componentMeta.hocs.map(hoc => {
       if (!Array.isArray(hoc)) {

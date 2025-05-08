@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentOnYourDraftNotificationHover = ({notification, classes}: {
+const CommentOnYourDraftNotificationHoverInner = ({notification, classes}: {
   notification: NotificationsList,
   classes: ClassesType<typeof styles>
 }) => {
@@ -45,10 +45,10 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   </div>
 }
 
-const CommentOnYourDraftNotificationHoverComponent = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
+export const CommentOnYourDraftNotificationHover = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHoverInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHoverComponent
+    CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHover
   }
 }

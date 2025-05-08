@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
+const RevisionSelectInner = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
@@ -129,12 +129,12 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   </React.Fragment>
 }
 
-const RevisionSelectComponent = registerComponent(
-  'RevisionSelect', RevisionSelect, {styles}
+export const RevisionSelect = registerComponent(
+  'RevisionSelect', RevisionSelectInner, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-   RevisionSelect: typeof RevisionSelectComponent
+    RevisionSelect: typeof RevisionSelect
   }
 }

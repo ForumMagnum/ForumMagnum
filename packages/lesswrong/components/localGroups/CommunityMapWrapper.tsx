@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, mapOptions, terms, keywordSearch, showHideMap, hideLegend, showUsersByDefault, showGroupsByDefault=true, petrovButton}: {
+const CommunityMapWrapperInner = ({className, groupQueryTerms, currentUserLocation, mapOptions, terms, keywordSearch, showHideMap, hideLegend, showUsersByDefault, showGroupsByDefault=true, petrovButton}: {
   className?: string,
   groupQueryTerms?: LocalgroupsViewTerms,
   currentUserLocation?: any,
@@ -33,13 +33,13 @@ const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, m
   )
 }
 
-const CommunityMapWrapperComponent = registerComponent("CommunityMapWrapper", CommunityMapWrapper, {
+export const CommunityMapWrapper = registerComponent("CommunityMapWrapper", CommunityMapWrapperInner, {
   hocs: [withErrorBoundary]
 })
 
 declare global {
   interface ComponentTypes {
-    CommunityMapWrapper: typeof CommunityMapWrapperComponent
+    CommunityMapWrapper: typeof CommunityMapWrapper
   }
 }
 

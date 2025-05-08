@@ -31,7 +31,7 @@ export const inWarningWindow = (currentMinute: number) => {
   return currentMinute >= STARTING_MINUTE || currentMinute < 17
 }
 
-export const PetrovWarningConsole = ({classes, currentUser, side}: {
+export const PetrovWarningConsoleInner = ({classes, currentUser, side}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   side: 'east' | 'west'
@@ -124,10 +124,10 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   }
 }
 
-const PetrovWarningConsoleComponent = registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
+export const PetrovWarningConsole = registerComponent('PetrovWarningConsole', PetrovWarningConsoleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    PetrovWarningConsole: typeof PetrovWarningConsoleComponent
+    PetrovWarningConsole: typeof PetrovWarningConsole
   }
 }

@@ -83,7 +83,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
+const CollectionsCardInner = ({ collection, url, mergeTitle=false, classes }: {
   collection: CoreReadingCollection,
   url: string,
   mergeTitle?: boolean,
@@ -119,12 +119,12 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   </LinkCard>
 }
 
-const CollectionsCardComponent = registerComponent(
-  "CollectionsCard", CollectionsCard, { styles }
+export const CollectionsCard = registerComponent(
+  "CollectionsCard", CollectionsCardInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    CollectionsCard: typeof CollectionsCardComponent
+    CollectionsCard: typeof CollectionsCard
   }
 }

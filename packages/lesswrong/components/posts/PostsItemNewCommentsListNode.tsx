@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, reverseOrder, post, treeOptions, classes }: {
+const PostsItemNewCommentsListNodeInner = ({ commentsList, loadingState, title, reverseOrder, post, treeOptions, classes }: {
   commentsList?: CommentsList[],
   loadingState: boolean,
   title?: string,
@@ -47,14 +47,14 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   );
 };
 
-const PostsItemNewCommentsListNodeComponent = registerComponent(
-  'PostsItemNewCommentsListNode', PostsItemNewCommentsListNode, {
+export const PostsItemNewCommentsListNode = registerComponent(
+  'PostsItemNewCommentsListNode', PostsItemNewCommentsListNodeInner, {
     styles,
   }
 );
 
 declare global {
   interface ComponentTypes {
-    PostsItemNewCommentsListNode: typeof PostsItemNewCommentsListNodeComponent
+    PostsItemNewCommentsListNode: typeof PostsItemNewCommentsListNode
   }
 }

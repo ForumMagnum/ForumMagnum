@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
+const LocalEventWrapperPopUpInner = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
@@ -80,7 +80,7 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
     <div dangerouslySetInnerHTML={htmlBody} />
   </StyledMapPopup>
 }
-const LocalEventWrapperPopUpComponent = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUp);
+export const LocalEventWrapperPopUp = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUpInner);
 
 
 const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
@@ -100,7 +100,7 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
     opacity: 1
   }
 })
-const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
+const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
@@ -141,12 +141,12 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
     })}
   </React.Fragment>
 }
-const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappers, {
+export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner, {
   styles: localEventMapMarkerWrappersStyles
 });
 
 
-export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
+export const HomepageCommunityMapInner = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -191,13 +191,13 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   </div>;
 }
 
-const HomepageCommunityMapComponent = registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
+export const HomepageCommunityMap = registerComponent('HomepageCommunityMap', HomepageCommunityMapInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    HomepageCommunityMap: typeof HomepageCommunityMapComponent
-    LocalEventMapMarkerWrappers: typeof LocalEventMapMarkerWrappersComponent
-    LocalEventWrapperPopUp: typeof LocalEventWrapperPopUpComponent
+    HomepageCommunityMap: typeof HomepageCommunityMap
+    LocalEventMapMarkerWrappers: typeof LocalEventMapMarkerWrappers
+    LocalEventWrapperPopUp: typeof LocalEventWrapperPopUp
   }
 }
 

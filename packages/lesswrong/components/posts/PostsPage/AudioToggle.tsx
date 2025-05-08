@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
+const AudioToggleInner = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
@@ -49,10 +49,10 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   </LWTooltip>
 }
 
-const AudioToggleComponent = registerComponent('AudioToggle', AudioToggle, {styles});
+export const AudioToggle = registerComponent('AudioToggle', AudioToggleInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    AudioToggle: typeof AudioToggleComponent
+    AudioToggle: typeof AudioToggle
   }
 }

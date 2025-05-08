@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const UsersAccountInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
 
@@ -58,11 +58,11 @@ const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount, { styles });
+export const UsersAccount = registerComponent('UsersAccount', UsersAccountInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    UsersAccount: typeof UsersAccountComponent
+    UsersAccount: typeof UsersAccount
   }
 }
 

@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
+const ReviewPostCommentsInner = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   title?: string,
@@ -94,10 +94,10 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   );
 };
 
-const ReviewPostCommentsComponent = registerComponent('ReviewPostComments', ReviewPostComments, {styles});
+export const ReviewPostComments = registerComponent('ReviewPostComments', ReviewPostCommentsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewPostComments: typeof ReviewPostCommentsComponent
+    ReviewPostComments: typeof ReviewPostComments
   }
 }

@@ -821,6 +821,6 @@ export const EditorComponent = registerComponent('Editor', Editor, {
 
 declare global {
   interface ComponentTypes {
-    Editor: typeof EditorComponent
+    Editor: typeof Editor
   }
 }

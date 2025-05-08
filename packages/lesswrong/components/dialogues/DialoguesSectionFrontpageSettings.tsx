@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
+const DialoguesSectionFrontpageSettingsInner = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
@@ -87,12 +87,12 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   );
 };
 
-const DialoguesSectionFrontpageSettingsComponent = registerComponent(
-  'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles }
+export const DialoguesSectionFrontpageSettings = registerComponent(
+  'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettingsInner, { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    DialoguesSectionFrontpageSettings: typeof DialoguesSectionFrontpageSettingsComponent
+    DialoguesSectionFrontpageSettings: typeof DialoguesSectionFrontpageSettings
   }
 }

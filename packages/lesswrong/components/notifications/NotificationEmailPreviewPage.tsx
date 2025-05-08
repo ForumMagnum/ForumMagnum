@@ -10,7 +10,7 @@ const parseIds = (urlStr: string): Array<string> => {
   return urlStr.split(",");
 }
 
-const NotificationEmailPreviewPage = () => {
+const NotificationEmailPreviewPageInner = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const notificationIds = parseIds(query?.notificationIds);
@@ -55,11 +55,11 @@ const NotificationEmailPreviewPage = () => {
   );
 }
 
-const NotificationEmailPreviewPageComponent = registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
+export const NotificationEmailPreviewPage = registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPageInner);
 
 declare global {
   interface ComponentTypes {
-    NotificationEmailPreviewPage: typeof NotificationEmailPreviewPageComponent
+    NotificationEmailPreviewPage: typeof NotificationEmailPreviewPage
   }
 }
 

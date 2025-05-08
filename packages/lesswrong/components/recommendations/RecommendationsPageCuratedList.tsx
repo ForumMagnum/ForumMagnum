@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RecommendationsPageCuratedList = ({classes}: {
+const RecommendationsPageCuratedListInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
@@ -45,10 +45,10 @@ const RecommendationsPageCuratedList = ({classes}: {
   )
 };
 
-const RecommendationsPageCuratedListComponent = registerComponent('RecommendationsPageCuratedList', RecommendationsPageCuratedList, {styles});
+export const RecommendationsPageCuratedList = registerComponent('RecommendationsPageCuratedList', RecommendationsPageCuratedListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationsPageCuratedList: typeof RecommendationsPageCuratedListComponent
+    RecommendationsPageCuratedList: typeof RecommendationsPageCuratedList
   }
 }

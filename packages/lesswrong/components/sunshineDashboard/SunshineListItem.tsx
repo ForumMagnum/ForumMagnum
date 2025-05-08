@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListItem = ({children, classes, hover=false}: {
+const SunshineListItemInner = ({children, classes, hover=false}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
@@ -35,11 +35,11 @@ const SunshineListItem = ({children, classes, hover=false}: {
   </div>
 };
 
-const SunshineListItemComponent = registerComponent('SunshineListItem', SunshineListItem, {styles});
+export const SunshineListItem = registerComponent('SunshineListItem', SunshineListItemInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    SunshineListItem: typeof SunshineListItemComponent
+    SunshineListItem: typeof SunshineListItem
   }
 }
 

@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionFooter = ({ children, className, classes }: {
+const SectionFooterInner = ({ children, className, classes }: {
   children: React.ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -53,10 +53,10 @@ const SectionFooter = ({ children, className, classes }: {
     </Components.Typography>
   )
 }
-const SectionFooterComponent = registerComponent('SectionFooter', SectionFooter, {styles})
+export const SectionFooter = registerComponent('SectionFooter', SectionFooterInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SectionFooter: typeof SectionFooterComponent
+    SectionFooter: typeof SectionFooter
   }
 }

@@ -6,7 +6,7 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
+const ToggleIsModeratorCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
@@ -56,12 +56,12 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
   );
 }
 
-const ToggleIsModeratorCommentDropdownItemComponent = registerComponent(
-  "ToggleIsModeratorCommentDropdownItem", ToggleIsModeratorCommentDropdownItem,
+export const ToggleIsModeratorCommentDropdownItem = registerComponent(
+  "ToggleIsModeratorCommentDropdownItem", ToggleIsModeratorCommentDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    ToggleIsModeratorCommentDropdownItem: typeof ToggleIsModeratorCommentDropdownItemComponent
+    ToggleIsModeratorCommentDropdownItem: typeof ToggleIsModeratorCommentDropdownItem
   }
 }

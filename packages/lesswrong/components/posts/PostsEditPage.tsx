@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil'
 
-const PostsEditPage = () => {
+const PostsEditPageInner = () => {
   const { query } = useLocation();
   const postId = query.postId;
   const version = query.version;
@@ -12,11 +12,11 @@ const PostsEditPage = () => {
   </div>
 }
 
-const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage);
+export const PostsEditPage = registerComponent('PostsEditPage', PostsEditPageInner);
 
 declare global {
   interface ComponentTypes {
-    PostsEditPage: typeof PostsEditPageComponent
+    PostsEditPage: typeof PostsEditPage
   }
 }
 

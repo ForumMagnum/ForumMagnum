@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionSubtitle = ({children, classes, className}: {
+const SectionSubtitleInner = ({children, classes, className}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -24,10 +24,10 @@ const SectionSubtitle = ({children, classes, className}: {
   </Components.Typography>
 }
 
-const SectionSubtitleComponent = registerComponent('SectionSubtitle', SectionSubtitle, {styles})
+export const SectionSubtitle = registerComponent('SectionSubtitle', SectionSubtitleInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    SectionSubtitle: typeof SectionSubtitleComponent
+    SectionSubtitle: typeof SectionSubtitle
   }
 }

@@ -57,7 +57,7 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const CommentSubscriptionsDropdownItem = ({comment, post}: {
+export const CommentSubscriptionsDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
 }) => {
@@ -80,13 +80,13 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
-const CommentSubscriptionsDropdownItemComponent = registerComponent(
+export const CommentSubscriptionsDropdownItem = registerComponent(
   "CommentSubscriptionsDropdownItem",
-  CommentSubscriptionsDropdownItem,
+  CommentSubscriptionsDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    CommentSubscriptionsDropdownItem: typeof CommentSubscriptionsDropdownItemComponent
+    CommentSubscriptionsDropdownItem: typeof CommentSubscriptionsDropdownItem
   }
 }

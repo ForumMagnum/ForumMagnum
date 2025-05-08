@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const GlossaryEditFormNewPost = ({classes}: {
+export const GlossaryEditFormNewPostInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components
@@ -36,10 +36,10 @@ export const GlossaryEditFormNewPost = ({classes}: {
   </div>;
 }
 
-const GlossaryEditFormNewPostComponent = registerComponent('GlossaryEditFormNewPost', GlossaryEditFormNewPost, {styles});
+export const GlossaryEditFormNewPost = registerComponent('GlossaryEditFormNewPost', GlossaryEditFormNewPostInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    GlossaryEditFormNewPost: typeof GlossaryEditFormNewPostComponent
+    GlossaryEditFormNewPost: typeof GlossaryEditFormNewPost
   }
 }

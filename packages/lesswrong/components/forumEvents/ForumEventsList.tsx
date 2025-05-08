@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ForumEventsList = ({title, view, classes}: {
+export const ForumEventsListInner = ({title, view, classes}: {
   title: string,
   view: ForumEventsViewName,
   classes: ClassesType<typeof styles>,
@@ -47,14 +47,14 @@ export const ForumEventsList = ({title, view, classes}: {
   );
 }
 
-const ForumEventsListComponent = registerComponent(
+export const ForumEventsList = registerComponent(
   "ForumEventsList",
-  ForumEventsList,
+  ForumEventsListInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventsList: typeof ForumEventsListComponent
+    ForumEventsList: typeof ForumEventsList
   }
 }

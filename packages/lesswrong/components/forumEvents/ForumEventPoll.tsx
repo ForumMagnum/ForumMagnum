@@ -472,7 +472,7 @@ function footnotesToTooltips({
  * If a postId is provided (because we are on the post page), we record the postId as part of the vote,
  * currently this isn't used for anything directly.
  */
-export const ForumEventPoll = ({
+export const ForumEventPollInner = ({
   postId,
   hideViewResults,
   classes,
@@ -957,14 +957,14 @@ export const ForumEventPoll = ({
   );
 }
 
-const ForumEventPollComponent = registerComponent(
+export const ForumEventPoll = registerComponent(
   "ForumEventPoll",
-  ForumEventPoll,
+  ForumEventPollInner,
   {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventPoll: typeof ForumEventPollComponent
+    ForumEventPoll: typeof ForumEventPoll
   }
 }

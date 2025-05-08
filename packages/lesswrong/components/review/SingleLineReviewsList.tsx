@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const SingleLineReviewsList = () => {
+const SingleLineReviewsListInner = () => {
   const { results } = useMulti({
     terms: { view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
     collectionName: "Comments",
@@ -31,10 +31,10 @@ const SingleLineReviewsList = () => {
   </div>
 }
 
-const SingleLineReviewsListComponent = registerComponent('SingleLineReviewsList', SingleLineReviewsList);
+export const SingleLineReviewsList = registerComponent('SingleLineReviewsList', SingleLineReviewsListInner);
 
 declare global {
   interface ComponentTypes {
-    SingleLineReviewsList: typeof SingleLineReviewsListComponent
+    SingleLineReviewsList: typeof SingleLineReviewsList
   }
 }

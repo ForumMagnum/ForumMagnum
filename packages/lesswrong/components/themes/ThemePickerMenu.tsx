@@ -28,7 +28,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const ThemePickerMenu = ({children, classes}: {
+const ThemePickerMenuInner = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -145,10 +145,10 @@ const ThemePickerMenu = ({children, classes}: {
 }
 
 
-const ThemePickerMenuComponent = registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
+export const ThemePickerMenu = registerComponent('ThemePickerMenu', ThemePickerMenuInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThemePickerMenu: typeof ThemePickerMenuComponent
+    ThemePickerMenu: typeof ThemePickerMenu
   }
 }

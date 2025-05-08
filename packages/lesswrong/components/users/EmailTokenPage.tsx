@@ -5,7 +5,7 @@ import { useLocation } from '../../lib/routeUtil';
 import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
 
-const EmailTokenPage = () => {
+const EmailTokenPageInner = () => {
   const { Loading, SingleColumnSection } = Components
   const [useTokenResult, setUseTokenResult] = useState<UseEmailTokenResult | null>(null)
   const { params: { token } } = useLocation()
@@ -25,10 +25,10 @@ const EmailTokenPage = () => {
   </SingleColumnSection>
 }
 
-const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage);
+export const EmailTokenPage = registerComponent("EmailTokenPage", EmailTokenPageInner);
 
 declare global {
   interface ComponentTypes {
-    EmailTokenPage: typeof EmailTokenPageComponent
+    EmailTokenPage: typeof EmailTokenPage
   }
 }

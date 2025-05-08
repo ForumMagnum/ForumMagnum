@@ -225,7 +225,7 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+const FrontpageReviewWidgetInner = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations } = Components
   const currentUser = useCurrentUser();
 
@@ -456,10 +456,10 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
   return result.toFixed(2)
 }
 
-const FrontpageReviewWidgetComponent = registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
+export const FrontpageReviewWidget = registerComponent('FrontpageReviewWidget', FrontpageReviewWidgetInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FrontpageReviewWidget: typeof FrontpageReviewWidgetComponent
+    FrontpageReviewWidget: typeof FrontpageReviewWidget
   }
 }

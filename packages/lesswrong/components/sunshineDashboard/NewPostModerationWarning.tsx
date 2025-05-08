@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const NewPostModerationWarning = ({classes}: {
+export const NewPostModerationWarningInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles, ContentItemBody, Loading } = Components
@@ -38,11 +38,11 @@ export const NewPostModerationWarning = ({classes}: {
   </div>;
 }
 
-const NewPostModerationWarningComponent = registerComponent('NewPostModerationWarning', NewPostModerationWarning, {styles});
+export const NewPostModerationWarning = registerComponent('NewPostModerationWarning', NewPostModerationWarningInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewPostModerationWarning: typeof NewPostModerationWarningComponent
+    NewPostModerationWarning: typeof NewPostModerationWarning
   }
 }
 

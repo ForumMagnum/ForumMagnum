@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
+const SunshineSendMessageWithDefaultsInner = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType<typeof styles>,
@@ -111,12 +111,12 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   )
 }
 
-const SunshineSendMessageWithDefaultsComponent = registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaults, {
+export const SunshineSendMessageWithDefaults = registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaultsInner, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineSendMessageWithDefaults: typeof SunshineSendMessageWithDefaultsComponent
+    SunshineSendMessageWithDefaults: typeof SunshineSendMessageWithDefaults
   }
 }

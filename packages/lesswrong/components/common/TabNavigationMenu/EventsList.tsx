@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
 
-export const EventsList = ({currentUser, onClick}: {
+export const EventsListInner = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
   onClick: (e?: React.BaseSyntheticEvent) => void
 }) => {
@@ -43,10 +43,10 @@ export const EventsList = ({currentUser, onClick}: {
   </span>
 }
 
-const EventsListComponent = registerComponent("EventsList", EventsList);
+export const EventsList = registerComponent("EventsList", EventsListInner);
 
 declare global {
   interface ComponentTypes {
-    EventsList: typeof EventsListComponent
+    EventsList: typeof EventsList
   }
 }

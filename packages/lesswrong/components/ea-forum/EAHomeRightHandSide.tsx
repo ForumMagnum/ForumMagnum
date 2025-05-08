@@ -179,7 +179,7 @@ const UpcomingEventsSection = ({classes}: {
 /**
  * This is the primary EA Forum home page right-hand side component.
  */
-export const EAHomeRightHandSide = ({classes}: {
+export const EAHomeRightHandSideInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -311,10 +311,10 @@ export const EAHomeRightHandSide = ({classes}: {
   </AnalyticsContext>
 }
 
-const EAHomeRightHandSideComponent = registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
+export const EAHomeRightHandSide = registerComponent('EAHomeRightHandSide', EAHomeRightHandSideInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAHomeRightHandSide: typeof EAHomeRightHandSideComponent
+    EAHomeRightHandSide: typeof EAHomeRightHandSide
   }
 }

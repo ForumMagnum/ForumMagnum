@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const DebateBody = ({ debateResponses, post, classes }: {
+export const DebateBodyInner = ({ debateResponses, post, classes }: {
   debateResponses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>,
@@ -67,10 +67,10 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   </DeferRender>);
 }
 
-const DebateBodyComponent = registerComponent('DebateBody', DebateBody, {styles});
+export const DebateBody = registerComponent('DebateBody', DebateBodyInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    DebateBody: typeof DebateBodyComponent
+    DebateBody: typeof DebateBody
   }
 }

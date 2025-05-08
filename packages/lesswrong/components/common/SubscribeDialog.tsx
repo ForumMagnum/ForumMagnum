@@ -129,7 +129,7 @@ type EventWithSelectTarget = {
   }
 };
 
-const SubscribeDialog = (props: {
+const SubscribeDialogInner = (props: {
   method: any,
   view: keyof typeof viewNames,
   onClose: any,
@@ -332,10 +332,10 @@ const SubscribeDialog = (props: {
   );
 }
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog);
+export const SubscribeDialog = registerComponent("SubscribeDialog", SubscribeDialogInner);
 
 declare global {
   interface ComponentTypes {
-    SubscribeDialog: typeof SubscribeDialogComponent
+    SubscribeDialog: typeof SubscribeDialog
   }
 }

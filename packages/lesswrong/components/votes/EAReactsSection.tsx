@@ -221,7 +221,7 @@ type EAReactsSectionOptions = {
   voteProps: VotingProps<VoteableTypeClient>,
 };
 
-const EAReactsSection: FC<{
+const EAReactsSectionInner: FC<{
   large?: boolean,
   classes: ClassesType<typeof styles>,
 } & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly, classes}) => {
@@ -359,14 +359,14 @@ const EAReactsSection: FC<{
   );
 }
 
-const EAReactsSectionComponent = registerComponent(
+export const EAReactsSection = registerComponent(
   "EAReactsSection",
-  EAReactsSection,
+  EAReactsSectionInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAReactsSection: typeof EAReactsSectionComponent
+    EAReactsSection: typeof EAReactsSection
   }
 }

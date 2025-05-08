@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
+const HideFrontpagePostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
@@ -61,9 +61,9 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const HideFrontPageButtonComponent = registerComponent(
+export const HideFrontPageButton = registerComponent(
   'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItem,
+  HideFrontpagePostDropdownItemInner,
   {
     styles,
     hocs: [withErrorBoundary],
@@ -72,6 +72,6 @@ const HideFrontPageButtonComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    HideFrontpagePostDropdownItem: typeof HideFrontPageButtonComponent
+    HideFrontpagePostDropdownItem: typeof HideFrontPageButton
   }
 }

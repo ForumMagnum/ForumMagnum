@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-export const SpotlightStartOrContinueReading = ({classes, spotlight, className}: {
+export const SpotlightStartOrContinueReadingInner = ({classes, spotlight, className}: {
   spotlight: SpotlightDisplay,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -90,14 +90,14 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
   }
 }
 
-const SpotlightStartOrContinueReadingComponent = registerComponent(
+export const SpotlightStartOrContinueReading = registerComponent(
   'SpotlightStartOrContinueReading',
-  SpotlightStartOrContinueReading,
+  SpotlightStartOrContinueReadingInner,
   {styles, stylePriority: -2}
 );
 
 declare global {
   interface ComponentTypes {
-    SpotlightStartOrContinueReading: typeof SpotlightStartOrContinueReadingComponent
+    SpotlightStartOrContinueReading: typeof SpotlightStartOrContinueReading
   }
 }

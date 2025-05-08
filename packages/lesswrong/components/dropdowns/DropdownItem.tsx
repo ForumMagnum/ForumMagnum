@@ -90,7 +90,7 @@ const RawLink: FC<PropsWithChildren<{
   </a>
 );
 
-const DropdownItem = ({
+const DropdownItemInner = ({
   title,
   sideMessage,
   onClick,
@@ -145,14 +145,14 @@ const DropdownItem = ({
   );
 }
 
-const DropdownItemComponent = registerComponent(
+export const DropdownItem = registerComponent(
   "DropdownItem",
-  DropdownItem,
+  DropdownItemInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    DropdownItem: typeof DropdownItemComponent
+    DropdownItem: typeof DropdownItem
   }
 }

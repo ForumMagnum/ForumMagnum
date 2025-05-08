@@ -91,7 +91,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const VoteAgreementIcon = ({
+const VoteAgreementIconInner = ({
   orientation,
   enabled = true,
   color,
@@ -181,11 +181,11 @@ const VoteAgreementIcon = ({
   )
 }
 
-const VoteAgreementIconComponent = registerComponent('VoteAgreementIcon', VoteAgreementIcon, {styles});
+export const VoteAgreementIcon = registerComponent('VoteAgreementIcon', VoteAgreementIconInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    VoteAgreementIcon: typeof VoteAgreementIconComponent
+    VoteAgreementIcon: typeof VoteAgreementIcon
   }
 }
 

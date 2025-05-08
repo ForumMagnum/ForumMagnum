@@ -37,7 +37,7 @@ const getCardDetails = ({
   };
 }
 
-const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
+const EACollectionCardInner = ({collection}: {collection: CollectionsBestOfFragment}) => {
   const {eventHandlers} = useHover({
     eventProps: {
       pageElementContext: "collectionCard",
@@ -75,13 +75,13 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
   );
 }
 
-const EACollectionCardComponent = registerComponent(
+export const EACollectionCard = registerComponent(
   "EACollectionCard",
-  EACollectionCard,
+  EACollectionCardInner,
 );
 
 declare global {
   interface ComponentTypes {
-    EACollectionCard: typeof EACollectionCardComponent;
+    EACollectionCard: typeof EACollectionCard;
   }
 }

@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const BottomNavigation = ({post, classes}: {
+const BottomNavigationInner = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -101,14 +101,14 @@ const BottomNavigation = ({post, classes}: {
 };
 
 
-const BottomNavigationComponent = registerComponent('BottomNavigation', BottomNavigation, {
+export const BottomNavigation = registerComponent('BottomNavigation', BottomNavigationInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    BottomNavigation: typeof BottomNavigationComponent
+    BottomNavigation: typeof BottomNavigation
   }
 }
 

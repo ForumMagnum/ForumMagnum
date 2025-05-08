@@ -34,7 +34,7 @@ const editSet = (currentSet: string[], value: string, add: boolean) => {
   return Array.from(values);
 }
 
-export const EAOnboardingSubscribeStage = ({classes}: {
+export const EAOnboardingSubscribeStageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -98,14 +98,14 @@ export const EAOnboardingSubscribeStage = ({classes}: {
   );
 }
 
-const EAOnboardingSubscribeStageComponent = registerComponent(
+export const EAOnboardingSubscribeStage = registerComponent(
   "EAOnboardingSubscribeStage",
-  EAOnboardingSubscribeStage,
+  EAOnboardingSubscribeStageInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingSubscribeStage: typeof EAOnboardingSubscribeStageComponent
+    EAOnboardingSubscribeStage: typeof EAOnboardingSubscribeStage
   }
 }

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
 const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
-export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
+export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
   classes: ClassesType<typeof styles>,
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
@@ -77,10 +77,10 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
   </div>;
 }
 
-const ReviewsListComponent = registerComponent('ReviewsList', ReviewsList, {styles});
+export const ReviewsList = registerComponent('ReviewsList', ReviewsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewsList: typeof ReviewsListComponent
+    ReviewsList: typeof ReviewsList
   }
 }

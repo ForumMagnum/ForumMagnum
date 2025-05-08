@@ -43,7 +43,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
   },
 }));
 
-const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
+const SplashImageEditingInner = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
   const { SplashImageEditingOptions, ImageCropPreview, LWPopper } = Components;
 
@@ -74,12 +74,12 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
   </div>
 }
 
-const SplashImageEditingComponent = registerComponent('SplashImageEditing', SplashImageEditing);
+export const SplashImageEditing = registerComponent('SplashImageEditing', SplashImageEditingInner);
 
 declare global {
   interface ComponentTypes {
-    SplashImageEditing: typeof SplashImageEditingComponent
+    SplashImageEditing: typeof SplashImageEditing
   }
 }
 
-export default SplashImageEditing;
+export default SplashImageEditingInner;

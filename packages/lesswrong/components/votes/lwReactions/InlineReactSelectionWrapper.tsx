@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
 
 export const hideSelectorClassName = "hidden-selector";
@@ -22,8 +22,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, classes}: {
-  contentRef?: React.RefObject<ContentItemBody>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+export const InlineReactSelectionWrapperInner = ({contentRef, voteProps, styling, children, classes}: {
+  contentRef?: React.RefObject<ContentItemBodyInner>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post"|"tag",
   children: React.ReactNode,
@@ -127,10 +127,10 @@ function countStringsInString(haystack: string, needle: string): number {
   return count;
 }
 
-const InlineReactSelectionWrapperComponent = registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapper, {styles});
+export const InlineReactSelectionWrapper = registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapperInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    InlineReactSelectionWrapper: typeof InlineReactSelectionWrapperComponent
+    InlineReactSelectionWrapper: typeof InlineReactSelectionWrapper
   }
 }

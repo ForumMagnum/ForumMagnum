@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
 type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
 
 
-const RecentlyActiveUsers = ({ classes }: {
+const RecentlyActiveUsersInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay, SectionFooterCheckbox, Row } = Components;
@@ -331,10 +331,10 @@ const RecentlyActiveUsers = ({ classes }: {
   );
 };
 
-const RecentlyActiveUsersComponent = registerComponent('RecentlyActiveUsers', RecentlyActiveUsers, { styles });
+export const RecentlyActiveUsers = registerComponent('RecentlyActiveUsers', RecentlyActiveUsersInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    RecentlyActiveUsers: typeof RecentlyActiveUsersComponent
+    RecentlyActiveUsers: typeof RecentlyActiveUsers
   }
 }

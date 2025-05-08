@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const NewLongformReviewForm = ({classes}: {
+export const NewLongformReviewFormInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { PostsNewForm, SingleColumnSection, Row } = Components
@@ -49,11 +49,11 @@ export const NewLongformReviewForm = ({classes}: {
   </div>;
 }
 
-const NewLongformReviewFormComponent = registerComponent('NewLongformReviewForm', NewLongformReviewForm, {styles});
+export const NewLongformReviewForm = registerComponent('NewLongformReviewForm', NewLongformReviewFormInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewLongformReviewForm: typeof NewLongformReviewFormComponent
+    NewLongformReviewForm: typeof NewLongformReviewForm
   }
 }
 

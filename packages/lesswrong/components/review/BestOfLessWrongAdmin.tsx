@@ -116,7 +116,7 @@ making it easier to quickly make a call for each post.
 date rather than ReviewYear, i.e. 2 years after a ReviewYear)
 
 */
-export const BestOfLessWrongAdmin = () => { 
+export const BestOfLessWrongAdminInner = () => { 
   const classes = useStyles(styles);
   const { Loading } = Components;
   
@@ -177,10 +177,10 @@ export const BestOfLessWrongAdmin = () => {
   </div>
 }
 
-const BestOfLessWrongAdminComponent = registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdmin);
+export const BestOfLessWrongAdmin = registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdminInner);
 
 declare global {
   interface ComponentTypes {
-    BestOfLessWrongAdmin: typeof BestOfLessWrongAdminComponent
+    BestOfLessWrongAdmin: typeof BestOfLessWrongAdmin
   }
 }

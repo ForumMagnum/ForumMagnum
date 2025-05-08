@@ -6,7 +6,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -172,12 +172,4 @@ export const PostSubmit = ({
       </div>
     </React.Fragment>
   );
-}
-
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit);
-
-declare global {
-  interface ComponentTypes {
-    PostSubmit: typeof PostSubmitComponent
-  }
 }

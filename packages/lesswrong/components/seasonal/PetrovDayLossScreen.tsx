@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PetrovDayLossScreen = ({classes}: {
+const PetrovDayLossScreenInner = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   return (
@@ -45,7 +45,7 @@ const PetrovDayLossScreen = ({classes}: {
   )
 }
 
-const PetrovDayLossScreenComponent = registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {
+export const PetrovDayLossScreen = registerComponent('PetrovDayLossScreen', PetrovDayLossScreenInner, {
   styles,
   // This is text overlayed on an image, which doesn't get inverted for dark mode
   allowNonThemeColors: true,
@@ -53,7 +53,7 @@ const PetrovDayLossScreenComponent = registerComponent('PetrovDayLossScreen', Pe
 
 declare global {
   interface ComponentTypes {
-    PetrovDayLossScreen: typeof PetrovDayLossScreenComponent
+    PetrovDayLossScreen: typeof PetrovDayLossScreen
   }
 }
 

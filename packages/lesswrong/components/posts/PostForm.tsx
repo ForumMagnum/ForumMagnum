@@ -99,7 +99,7 @@ const STICKY_PRIORITIES = {
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
-const PostForm = ({
+const PostFormInner = ({
   initialData,
   onSuccess,
 }: {
@@ -1194,10 +1194,10 @@ const PostForm = ({
   );
 };
 
-const PostFormComponent = registerComponent("PostForm", PostForm);
+export const PostForm = registerComponent("PostForm", PostFormInner);
 
 declare global {
   interface ComponentTypes {
-    PostForm: typeof PostFormComponent
+    PostForm: typeof PostForm
   }
 }

@@ -11,7 +11,7 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-const SunshineNewCommentsItem = ({comment}: {
+const SunshineNewCommentsItemInner = ({comment}: {
   comment: CommentsListWithParentMetadata
 }) => {
   const currentUser = useCurrentUser();
@@ -68,12 +68,12 @@ const SunshineNewCommentsItem = ({comment}: {
   )
 }
 
-const SunshineNewCommentsItemComponent = registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, {
+export const SunshineNewCommentsItem = registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItemInner, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    SunshineNewCommentsItem: typeof SunshineNewCommentsItemComponent
+    SunshineNewCommentsItem: typeof SunshineNewCommentsItem
   }
 }

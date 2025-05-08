@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NotificationsList = ({ terms, currentUser, classes }: {
+const NotificationsListInner = ({ terms, currentUser, classes }: {
   terms: NotificationsViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -83,10 +83,10 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   }
 }
 
-const NotificationsListComponent = registerComponent('NotificationsList', NotificationsList, {styles});
+export const NotificationsList = registerComponent('NotificationsList', NotificationsListInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    NotificationsList: typeof NotificationsListComponent
+    NotificationsList: typeof NotificationsList
   }
 }

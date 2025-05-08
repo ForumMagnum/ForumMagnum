@@ -19,7 +19,7 @@ const styles = () => ({
   },
 });
 
-const PostMentionHit = ({hit, classes}: {
+const PostMentionHitInner = ({hit, classes}: {
   hit: SearchPost,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -33,14 +33,14 @@ const PostMentionHit = ({hit, classes}: {
   );
 }
 
-const PostMentionHitComponent = registerComponent(
+export const PostMentionHit = registerComponent(
   "PostMentionHit",
-  PostMentionHit,
+  PostMentionHitInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PostMentionHit: typeof PostMentionHitComponent
+    PostMentionHit: typeof PostMentionHit
   }
 }

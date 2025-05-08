@@ -8,7 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyInner } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
@@ -30,13 +30,13 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
+const CommentBottomInner = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo|undefined,
   treeOptions: CommentTreeOptions,
   votingSystem: VotingSystem
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -84,11 +84,11 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   );
 }
 
-const CommentBottomComponent = registerComponent('CommentBottom', CommentBottom, {styles});
+export const CommentBottom = registerComponent('CommentBottom', CommentBottomInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    CommentBottom: typeof CommentBottomComponent
+    CommentBottom: typeof CommentBottom
   }
 }
 

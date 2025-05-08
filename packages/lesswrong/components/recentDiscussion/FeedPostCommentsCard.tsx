@@ -162,7 +162,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   </div>
 };
 
-const FeedPostCommentsCard = ({
+const FeedPostCommentsCardInner = ({
   post,
   comments,
   refetch,
@@ -238,7 +238,7 @@ const FeedPostCommentsCard = ({
   )
 };
 
-const FeedPostCommentsCardComponent = registerComponent('FeedPostCommentsCard', FeedPostCommentsCard, {
+export const FeedPostCommentsCard = registerComponent('FeedPostCommentsCard', FeedPostCommentsCardInner, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {
@@ -250,6 +250,6 @@ const FeedPostCommentsCardComponent = registerComponent('FeedPostCommentsCard', 
 
 declare global {
   interface ComponentTypes {
-    FeedPostCommentsCard: typeof FeedPostCommentsCardComponent,
+    FeedPostCommentsCard: typeof FeedPostCommentsCard,
   }
 }

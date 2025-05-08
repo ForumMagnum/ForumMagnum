@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
+const FootnoteDialogInner = ({ footnoteHTML, onClose, classes }: {
   footnoteHTML: string,
   onClose: () => void,
   classes: ClassesType<typeof styles>
@@ -35,11 +35,11 @@ const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
 }
 
 
-const FootnoteDialogComponent = registerComponent('FootnoteDialog', FootnoteDialog, {styles});
+export const FootnoteDialog = registerComponent('FootnoteDialog', FootnoteDialogInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    FootnoteDialog: typeof FootnoteDialogComponent
+    FootnoteDialog: typeof FootnoteDialog
   }
 }
 

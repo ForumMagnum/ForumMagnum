@@ -475,7 +475,7 @@ const UserProfileForm = ({
   );
 };
 
-const EditProfileForm = () => {
+const EditProfileFormInner = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const navigate = useNavigate();
@@ -585,10 +585,10 @@ const EditProfileForm = () => {
 }
 
 
-const EditProfileFormComponent = registerComponent('EditProfileForm', EditProfileForm);
+export const EditProfileForm = registerComponent('EditProfileForm', EditProfileFormInner);
 
 declare global {
   interface ComponentTypes {
-    EditProfileForm: typeof EditProfileFormComponent
+    EditProfileForm: typeof EditProfileForm
   }
 }

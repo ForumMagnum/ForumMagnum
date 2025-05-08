@@ -275,7 +275,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const Header = ({
+const HeaderInner = ({
   standaloneNavigationPresent,
   sidebarHidden,
   toggleStandaloneNavigation,
@@ -554,13 +554,13 @@ const Header = ({
   )
 }
 
-const HeaderComponent = registerComponent('Header', Header, {
+export const Header = registerComponent('Header', HeaderInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    Header: typeof HeaderComponent
+    Header: typeof Header
   }
 }

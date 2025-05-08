@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
 // TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
-const QuickTakesEntry = ({
+const QuickTakesEntryInner = ({
   currentUser,
   defaultExpanded = false,
   defaultFocus = false,
@@ -184,14 +184,14 @@ const QuickTakesEntry = ({
   </div>
 }
 
-const QuickTakesEntryComponent = registerComponent(
+export const QuickTakesEntry = registerComponent(
   "QuickTakesEntry",
-  QuickTakesEntry,
+  QuickTakesEntryInner,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    QuickTakesEntry: typeof QuickTakesEntryComponent
+    QuickTakesEntry: typeof QuickTakesEntry
   }
 }

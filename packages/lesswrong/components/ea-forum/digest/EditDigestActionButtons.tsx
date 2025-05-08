@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const EditDigestActionButtons = ({digest, classes}: {
+const EditDigestActionButtonsInner = ({digest, classes}: {
   digest: DigestsMinimumInfo,
   classes: ClassesType<typeof styles>
 }) => {
@@ -99,10 +99,10 @@ const EditDigestActionButtons = ({digest, classes}: {
   </>
 }
 
-const EditDigestActionButtonsComponent = registerComponent('EditDigestActionButtons', EditDigestActionButtons, {styles});
+export const EditDigestActionButtons = registerComponent('EditDigestActionButtons', EditDigestActionButtonsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditDigestActionButtons: typeof EditDigestActionButtonsComponent
+    EditDigestActionButtons: typeof EditDigestActionButtons
   }
 }

@@ -8,7 +8,7 @@ import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 
-const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
+const SuggestCuratedDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
@@ -74,13 +74,13 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const SuggestCuratedDropdownItemComponent = registerComponent(
+export const SuggestCuratedDropdownItem = registerComponent(
   'SuggestCuratedDropdownItem',
-  SuggestCuratedDropdownItem,
+  SuggestCuratedDropdownItemInner,
 );
 
 declare global {
   interface ComponentTypes {
-    SuggestCuratedDropdownItem: typeof SuggestCuratedDropdownItemComponent
+    SuggestCuratedDropdownItem: typeof SuggestCuratedDropdownItem
   }
 }

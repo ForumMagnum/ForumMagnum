@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const BottomNavigationItem = ({direction, post, sequence, classes}: {
+const BottomNavigationItemInner = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
   sequence: HasIdType|null,
@@ -93,11 +93,11 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   )
 };
 
-const BottomNavigationItemComponent = registerComponent('BottomNavigationItem', BottomNavigationItem, {styles})
+export const BottomNavigationItem = registerComponent('BottomNavigationItem', BottomNavigationItemInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    BottomNavigationItem: typeof BottomNavigationItemComponent
+    BottomNavigationItem: typeof BottomNavigationItem
   }
 }
 

@@ -62,7 +62,7 @@ interface LatLng {
   lng: number;
 }
 
-const SearchResultsMap = ({
+const SearchResultsMapInner = ({
   center = defaultCenter,
   zoom = 2,
   from = "community_members_tab",
@@ -177,13 +177,13 @@ type SearchResultsMapProps = {
   hits?: Array<Hit<SearchUser>>,
   className?: string
 }
-const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
-const SearchResultsMapComponent = registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
-const RawSearchResultsMapComponent = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
+const ConnectedSearchResultsMapInner: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMapInner)
+export const SearchResultsMap = registerComponent("SearchResultsMap", ConnectedSearchResultsMapInner, { styles });
+export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMapInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    SearchResultsMap: typeof SearchResultsMapComponent
-    RawSearchResultsMap: typeof RawSearchResultsMapComponent
+    SearchResultsMap: typeof SearchResultsMap
+    RawSearchResultsMap: typeof RawSearchResultsMap
   }
 }

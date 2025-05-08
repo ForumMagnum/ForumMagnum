@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const RelatedQuestionsList = ({ post, classes }: {
+const RelatedQuestionsListInner = ({ post, classes }: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -90,14 +90,14 @@ const RelatedQuestionsList = ({ post, classes }: {
   )
 }
 
-const RelatedQuestionsListComponent = registerComponent('RelatedQuestionsList', RelatedQuestionsList, {
+export const RelatedQuestionsList = registerComponent('RelatedQuestionsList', RelatedQuestionsListInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    RelatedQuestionsList: typeof RelatedQuestionsListComponent
+    RelatedQuestionsList: typeof RelatedQuestionsList
   }
 }
 

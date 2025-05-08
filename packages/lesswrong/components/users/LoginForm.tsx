@@ -101,7 +101,7 @@ type LoginFormProps = {
   classes: ClassesType<typeof styles>
 }
 
-const LoginForm = (props: LoginFormProps) => {
+const LoginFormInner = (props: LoginFormProps) => {
   if (isFriendlyUI) {
     return <LoginFormEA {...props} />
   }
@@ -267,10 +267,10 @@ const LoginFormEA = ({
   );
 }
 
-const LoginFormComponent = registerComponent('LoginForm', LoginForm, { styles });
+export const LoginForm = registerComponent('LoginForm', LoginFormInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    LoginForm: typeof LoginFormComponent
+    LoginForm: typeof LoginForm
   }
 }

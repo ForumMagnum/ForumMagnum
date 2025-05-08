@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAHomeCommunityPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",
@@ -75,10 +75,10 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
   );
 }
 
-const EAHomeCommunityPostsComponent = registerComponent('EAHomeCommunityPosts', EAHomeCommunityPosts, {styles});
+export const EAHomeCommunityPosts = registerComponent('EAHomeCommunityPosts', EAHomeCommunityPostsInner, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAHomeCommunityPosts: typeof EAHomeCommunityPostsComponent
+    EAHomeCommunityPosts: typeof EAHomeCommunityPosts
   }
 }

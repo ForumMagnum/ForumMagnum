@@ -153,7 +153,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AuthorAnalyticsPage = ({ classes }: {
+const AuthorAnalyticsPageInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { params, query, location } = useLocation();
@@ -345,10 +345,10 @@ const AuthorAnalyticsPage = ({ classes }: {
   );
 };
 
-const AuthorAnalyticsPageComponent = registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
+export const AuthorAnalyticsPage = registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPageInner, { styles });
 
 declare global {
   interface ComponentTypes {
-    AuthorAnalyticsPage: typeof AuthorAnalyticsPageComponent;
+    AuthorAnalyticsPage: typeof AuthorAnalyticsPage;
   }
 }
