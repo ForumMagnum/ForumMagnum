@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib/components';
-import { wrapWithMuiTheme } from './themeProvider';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
@@ -13,6 +12,7 @@ import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abT
 import type { AbstractThemeOptions } from '../themes/themeNames';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '../lib/utils/timeUtil';
+import { ThemeContextProvider } from '@/components/themes/useTheme';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
@@ -24,10 +24,11 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
 }) => {
-  const app = (
+  return (
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         <CookiesProvider>
+          <ThemeContextProvider options={themeOptions}>
           <BrowserRouter>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>
@@ -39,11 +40,11 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
               </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>
           </BrowserRouter>
+          </ThemeContextProvider>
         </CookiesProvider>
       </ForeignApolloClientProvider>
     </ApolloProvider>
   );
-  return wrapWithMuiTheme(app, themeOptions);
 };
 
 const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
