@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
@@ -61,23 +61,25 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <DismissibleSpotlightItem current/> 
+            <Suspense>
+              <DismissibleSpotlightItem current/> 
+            </Suspense>
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
           >
             <LWHomePosts>
-              <QuickTakesSection />
-              <EAPopularCommentsSection />
-              <UltraFeed />
-              {!ultraFeedEnabled && ( 
-                <RecentDiscussionFeed
+              <Suspense>
+                <QuickTakesSection />
+                <EAPopularCommentsSection />
+                <UltraFeed />
+                {!ultraFeedEnabled && <RecentDiscussionFeed
                   af={false}
                   commentsLimit={4}
                   maxAgeHours={18}
-                />
-              )}
+                />}
+              </Suspense>
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>

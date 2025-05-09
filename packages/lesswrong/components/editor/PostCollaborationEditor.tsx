@@ -7,7 +7,8 @@ import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType) => ({

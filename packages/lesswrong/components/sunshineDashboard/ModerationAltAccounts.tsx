@@ -4,7 +4,8 @@ import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 

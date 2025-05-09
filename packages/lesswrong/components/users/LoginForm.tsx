@@ -6,7 +6,7 @@ import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
-import type { GraphQLError } from 'graphql';
+import type { GraphQLFormattedError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType) => ({
@@ -147,7 +147,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const [displayedError, setDisplayedError] = useState<string|null>(null);
   const clientId = useClientId();
 
-  const showErrors = (errors: readonly GraphQLError[]) => {
+  const showErrors = (errors: readonly GraphQLFormattedError[]) => {
     setDisplayedError(errors.map(err => err.message).join('.\n'));
   }
   

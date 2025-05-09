@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { NetworkStatus, gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";

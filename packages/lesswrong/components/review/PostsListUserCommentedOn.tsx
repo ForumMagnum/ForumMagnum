@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import {AnalyticsContext} from '../../lib/analyticsEvents.tsx'
 import {useCurrentUser} from '../common/withUser.tsx'
-import {gql, NetworkStatus, useQuery} from '@apollo/client'
+import {gql, NetworkStatus} from '@apollo/client'
+import { useQuery } from "@/lib/crud/useQuery";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
