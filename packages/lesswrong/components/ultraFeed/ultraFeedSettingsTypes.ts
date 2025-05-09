@@ -88,13 +88,13 @@ export interface ThreadInterestModelSettings {
 }
 
 const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
-  commentCoeff: 0.05,
-  voteCoeff: 0.02,
-  viewCoeff: 0.01,
+  commentCoeff: 5,
+  voteCoeff: 2,
+  viewCoeff: 1,
   onReadPostFactor: 1.1,
-  logImpactFactor: 0.15,
+  logImpactFactor: 0.5,
   minOverallMultiplier: 0.5,
-  maxOverallMultiplier: 2.0,
+  maxOverallMultiplier: 20.0,
 };
 
 // Now define the constant using this explicit type

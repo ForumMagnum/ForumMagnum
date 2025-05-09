@@ -840,31 +840,31 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
       key: 'commentCoeff' as const,
       label: "Comment Coefficient",
       description: "How much each comment you have in a thread contributes to further activity in that thread being shown.",
-      min: 0, max: 0.5, step: 0.01, defaultVal: defaultThreadInterestModelSettings.commentCoeff,
+      min: 0, max: 10, step: 0.5, defaultVal: defaultThreadInterestModelSettings.commentCoeff,
     },
     {
       key: 'voteCoeff' as const,
       label: "Vote Coefficient",
       description: "How much each vote you have in a thread contributes to further activity in that thread being shown.",
-      min: 0, max: 0.2, step: 0.005, defaultVal: defaultThreadInterestModelSettings.voteCoeff,
+      min: 0, max: 5, step: 0.25, defaultVal: defaultThreadInterestModelSettings.voteCoeff,
     },
     {
       key: 'viewCoeff' as const,
       label: "View Coefficient",
       description: "How much viewing (and especially expanding) an item contributes to further activity in a thread being shown.",
-      min: 0, max: 0.1, step: 0.005, defaultVal: defaultThreadInterestModelSettings.viewCoeff,
+      min: 0, max: 2, step: 0.25, defaultVal: defaultThreadInterestModelSettings.viewCoeff,
     },
     {
       key: 'onReadPostFactor' as const,
       label: "Read Post Factor",
       description: "Multiplier if the thread is on a post a user has read.",
-      min: 0.5, max: 2.0, step: 0.05, defaultVal: defaultThreadInterestModelSettings.onReadPostFactor,
+      min: 0.5, max: 2.0, step: 0.5, defaultVal: defaultThreadInterestModelSettings.onReadPostFactor,
     },
     {
       key: 'logImpactFactor' as const,
       label: "Log Impact Factor",
       description: "Scales the effect of the combined log-of-factors on the final multiplier (Multiplier = 1 + LogOfFactors * Impact).",
-      min: 0.01, max: 1.0, step: 0.01, defaultVal: defaultThreadInterestModelSettings.logImpactFactor,
+      min: 0, max: 3, step: 0.5, defaultVal: defaultThreadInterestModelSettings.logImpactFactor,
     },
     {
       key: 'minOverallMultiplier' as const,
@@ -875,8 +875,8 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
     {
       key: 'maxOverallMultiplier' as const,
       label: "Max Overall Multiplier",
-      description: "The maximum final multiplier applied to the thread's base score (e.g., 2.0 for max 100% boost).",
-      min: 1.0, max: 20.0, step: 0.1, defaultVal: defaultThreadInterestModelSettings.maxOverallMultiplier,
+      description: "The maximum final multiplier applied to the thread's base score (e.g., 20 for max 20× boost).",
+      min: 1.0, max: 20.0, step: 0.5, defaultVal: defaultThreadInterestModelSettings.maxOverallMultiplier,
     },
   ];
 
