@@ -2207,7 +2207,6 @@ interface DbUser extends DbObject {
   programParticipation: Array<string> | null
   reactPaletteStyle: "listView" | "gridView"
   recommendationSettings: RecommendationSettingsInput | null
-  reenableDraftJs: boolean | null
   revealChecksToAdmins: boolean
   reviewForAlignmentForumUserId: string | null
   reviewVotesQuadratic: boolean | null
