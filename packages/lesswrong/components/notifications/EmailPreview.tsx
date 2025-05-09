@@ -48,9 +48,5 @@ export const EmailPreviewInner = ({email, sentDate, classes}: {
 
 export const EmailPreview = registerComponent('EmailPreview', EmailPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EmailPreview: typeof EmailPreview
-  }
-}
+
 

@@ -41,8 +41,4 @@ const SectionButtonInner = ({children, classes, className, onClick}: {
 
 export const SectionButton = registerComponent('SectionButton', SectionButtonInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SectionButton: typeof SectionButton
-  }
-}
+

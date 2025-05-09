@@ -127,9 +127,4 @@ const MenuItemLinkInner = ({to, className, disabled, disableTouchRipple, childre
 export const MenuItem = registerComponent("MenuItem", MenuItemInner);
 export const MenuItemLink = registerComponent("MenuItemLink", MenuItemLinkInner);
 
-declare global {
-  interface ComponentTypes {
-    MenuItem: typeof MenuItem
-    MenuItemLink: typeof MenuItemLink
-  }
-}
+

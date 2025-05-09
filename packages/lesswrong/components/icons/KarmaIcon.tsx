@@ -39,8 +39,4 @@ const KarmaIconInner = ({classes, className}: {
 
 export const KarmaIcon = registerComponent('KarmaIcon', KarmaIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    KarmaIcon: typeof KarmaIcon
-  }
-}
+

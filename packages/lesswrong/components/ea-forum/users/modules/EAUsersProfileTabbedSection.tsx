@@ -166,8 +166,4 @@ export const EAUsersProfileTabbedSection = registerComponent(
   'EAUsersProfileTabbedSection', EAUsersProfileTabbedSectionInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersProfileTabbedSection: typeof EAUsersProfileTabbedSection
-  }
-}
+

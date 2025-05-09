@@ -59,8 +59,4 @@ export const NewShortformDialog = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NewShortformDialog: typeof NewShortformDialog
-  }
-}
+

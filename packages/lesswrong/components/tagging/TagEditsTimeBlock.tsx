@@ -112,8 +112,4 @@ export const TagEditsTimeBlock = registerComponent('TagEditsTimeBlock', TagEdits
   styles, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    TagEditsTimeBlock: typeof TagEditsTimeBlock
-  }
-}
+

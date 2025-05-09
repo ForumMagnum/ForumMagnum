@@ -66,8 +66,4 @@ export const SingleTagItem = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    SingleTagItem: typeof SingleTagItem
-  }
-}
+

@@ -63,8 +63,4 @@ export const WrappedWelcomeMessage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedWelcomeMessage: typeof WrappedWelcomeMessage
-  }
-}
+

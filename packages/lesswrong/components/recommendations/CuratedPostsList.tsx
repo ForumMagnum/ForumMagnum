@@ -35,8 +35,4 @@ const CuratedPostsListInner = ({overrideLimit}: {overrideLimit?: number}) => {
 
 export const CuratedPostsList = registerComponent("CuratedPostsList", CuratedPostsListInner, {});
 
-declare global {
-  interface ComponentTypes {
-    CuratedPostsList: typeof CuratedPostsList
-  }
-}
+

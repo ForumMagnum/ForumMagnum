@@ -311,9 +311,5 @@ const CommunityMembersInner = ({currentUser, userLocation, distanceUnit='km', lo
 
 export const CommunityMembers = registerComponent('CommunityMembers', CommunityMembersInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommunityMembers: typeof CommunityMembers
-  }
-}
+
 

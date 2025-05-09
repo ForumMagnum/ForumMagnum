@@ -72,8 +72,4 @@ export const PeopleDirectoryPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryPage: typeof PeopleDirectoryPage
-  }
-}
+

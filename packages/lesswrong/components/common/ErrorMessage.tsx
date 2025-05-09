@@ -31,8 +31,4 @@ const ErrorMessageInner = ({message, classes}: {
 
 export const ErrorMessage = registerComponent("ErrorMessage", ErrorMessageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ErrorMessage: typeof ErrorMessage
-  }
-}
+

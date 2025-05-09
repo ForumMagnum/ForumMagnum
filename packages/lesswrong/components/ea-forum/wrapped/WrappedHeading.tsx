@@ -39,8 +39,4 @@ export const WrappedHeading = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedHeading: typeof WrappedHeading
-  }
-}
+

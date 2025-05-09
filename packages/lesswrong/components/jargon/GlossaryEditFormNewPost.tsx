@@ -37,8 +37,4 @@ export const GlossaryEditFormNewPostInner = ({classes}: {
 
 export const GlossaryEditFormNewPost = registerComponent('GlossaryEditFormNewPost', GlossaryEditFormNewPostInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossaryEditFormNewPost: typeof GlossaryEditFormNewPost
-  }
-}
+

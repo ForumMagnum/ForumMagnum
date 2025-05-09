@@ -103,8 +103,4 @@ export const BigCollectionsCard = registerComponent(
   "BigCollectionsCard", BigCollectionsCardInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    BigCollectionsCard: typeof BigCollectionsCard
-  }
-}
+

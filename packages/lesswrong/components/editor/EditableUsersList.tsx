@@ -56,8 +56,4 @@ export function EditableUsersListInner({value, setValue, label, classes}: {
 
 export const EditableUsersList = registerComponent('EditableUsersList', EditableUsersListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditableUsersList: typeof EditableUsersList
-  }
-}
+

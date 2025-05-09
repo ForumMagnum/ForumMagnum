@@ -44,9 +44,5 @@ const RepliesToCommentListInner = ({ post, parentCommentId, directReplies = fals
 
 export const RepliesToCommentList = registerComponent('RepliesToCommentList', RepliesToCommentListInner)
 
-declare global {
-  interface ComponentTypes {
-    RepliesToCommentList: typeof RepliesToCommentList
-  }
-}
+
 

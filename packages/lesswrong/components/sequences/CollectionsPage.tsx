@@ -192,9 +192,5 @@ const CollectionsPageInner = ({ documentId, classes }: {
 
 export const CollectionsPage = registerComponent('CollectionsPage', CollectionsPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionsPage: typeof CollectionsPage
-  }
-}
+
 

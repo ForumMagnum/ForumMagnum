@@ -54,8 +54,4 @@ export const EventBanner = registerComponent(
   'EventBanner', EventBannerInner, {styles},
 )
 
-declare global {
-  interface ComponentTypes {
-    EventBanner: typeof EventBanner
-  }
-}
+

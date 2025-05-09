@@ -97,8 +97,4 @@ const EATermsOfUsePageInner = ({classes}: {classes: ClassesType<typeof styles>})
 
 export const EATermsOfUsePage = registerComponent('EATermsOfUsePage', EATermsOfUsePageInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    EATermsOfUsePage: typeof EATermsOfUsePage
-  }
-}
+

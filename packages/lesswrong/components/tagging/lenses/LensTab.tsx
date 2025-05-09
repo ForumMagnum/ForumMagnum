@@ -302,11 +302,5 @@ export const LensTabBar = registerComponent('LensTabBar', LensTabBarInner);
 export const LensTab = registerComponent('LensTab', LensTabInner);
 export const TagOrLensLikeButton = registerComponent('TagOrLensLikeButton', TagOrLensLikeButtonInner);
 
-declare global {
-  interface ComponentTypes {
-    LensTabBar: typeof LensTabBar
-    LensTab: typeof LensTab
-    TagOrLensLikeButton: typeof TagOrLensLikeButton
-  }
-}
+
 

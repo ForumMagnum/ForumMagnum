@@ -31,8 +31,4 @@ export const AnalyticsClient = registerComponent("AnalyticsClient", AnalyticsCli
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsClient: typeof AnalyticsClient
-  }
-}
+

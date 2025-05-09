@@ -52,8 +52,4 @@ export const DebateResponseBlockInner = ({ responses, post, orderedParticipantLi
 
 export const DebateResponseBlock = registerComponent('DebateResponseBlock', DebateResponseBlockInner, {styles, stylePriority: 200});
 
-declare global {
-  interface ComponentTypes {
-    DebateResponseBlock: typeof DebateResponseBlock
-  }
-}
+

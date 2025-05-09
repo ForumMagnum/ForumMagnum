@@ -130,8 +130,4 @@ const LoadMoreInner = ({
 
 export const LoadMore = registerComponent('LoadMore', LoadMoreInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    LoadMore: typeof LoadMore
-  }
-}
+

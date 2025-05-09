@@ -115,8 +115,4 @@ export const NewWikiTagButton = registerComponent("NewWikiTagButton", NewWikiTag
 
 
 
-declare global {
-  interface ComponentTypes {
-    NewWikiTagButton: typeof NewWikiTagButton;
-  }
-} 
+ 

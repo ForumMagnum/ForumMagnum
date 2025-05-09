@@ -60,9 +60,5 @@ export const ModerationTemplateItemInner = ({classes, template}: {
 
 export const ModerationTemplateItem = registerComponent('ModerationTemplateItem', ModerationTemplateItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationTemplateItem: typeof ModerationTemplateItem
-  }
-}
+
 

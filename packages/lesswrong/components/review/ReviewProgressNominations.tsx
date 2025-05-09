@@ -76,8 +76,4 @@ export const ReviewProgressNominationsInner = ({classes, reviewYear = REVIEW_YEA
 
 export const ReviewProgressNominations = registerComponent('ReviewProgressNominations', ReviewProgressNominationsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewProgressNominations: typeof ReviewProgressNominations
-  }
-}
+

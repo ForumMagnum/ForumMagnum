@@ -34,8 +34,4 @@ const PetrovDayWrapperInner = () => {
 
 export const PetrovDayWrapper = registerComponent('PetrovDayWrapper', PetrovDayWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayWrapper: typeof PetrovDayWrapper
-  }
-}
+

@@ -173,8 +173,4 @@ export const RecentDiscussionFeed = registerComponent('RecentDiscussionFeed', Re
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionFeed: typeof RecentDiscussionFeed,
-  }
-}
+

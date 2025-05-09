@@ -202,8 +202,4 @@ export const NotificationsPageNotification = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageNotification: typeof NotificationsPageNotification
-  }
-}
+

@@ -43,8 +43,4 @@ export const NewWikiTagMenu = registerComponent("NewWikiTagMenu", NewWikiTagMenu
 
  
 
-declare global {
-  interface ComponentTypes {
-    NewWikiTagMenu: typeof NewWikiTagMenu;
-  }
-} 
+ 

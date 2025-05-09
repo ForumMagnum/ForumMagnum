@@ -8,9 +8,5 @@ const CoreSequencesInner = () => {
 
 export const CoreSequences = registerComponent('CoreSequences', CoreSequencesInner);
 
-declare global {
-  interface ComponentTypes {
-    CoreSequences: typeof CoreSequences
-  }
-}
+
 

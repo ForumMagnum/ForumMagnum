@@ -44,8 +44,4 @@ export const SpotlightEditorStylesInner = ({classes, children}: {
 
 export const SpotlightEditorStyles = registerComponent('SpotlightEditorStyles', SpotlightEditorStylesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SpotlightEditorStyles: typeof SpotlightEditorStyles
-  }
-}
+

@@ -59,8 +59,4 @@ const SharePostSubmenuInner = ({post, closeMenu, classes}: {
   </div>
 }
 export const SharePostSubmenu = registerComponent('SharePostSubmenu', SharePostSubmenuInner, {styles});
-declare global {
-  interface ComponentTypes {
-    SharePostSubmenu: typeof SharePostSubmenu
-  }
-}
+

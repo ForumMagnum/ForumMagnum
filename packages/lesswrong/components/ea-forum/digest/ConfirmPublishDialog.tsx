@@ -70,8 +70,4 @@ const ConfirmPublishDialogInner = ({ digest, onClose, classes }: {
 
 export const ConfirmPublishDialog = registerComponent('ConfirmPublishDialog', ConfirmPublishDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConfirmPublishDialog: typeof ConfirmPublishDialog
-  }
-}
+

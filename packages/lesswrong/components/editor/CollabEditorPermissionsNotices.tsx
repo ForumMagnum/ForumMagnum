@@ -44,8 +44,4 @@ const CollabEditorPermissionsNoticesInner = ({post, classes}: {
 
 export const CollabEditorPermissionsNotices = registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNoticesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollabEditorPermissionsNotices: typeof CollabEditorPermissionsNotices
-  }
-}
+

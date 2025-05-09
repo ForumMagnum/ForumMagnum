@@ -156,8 +156,4 @@ const SidebarDigestAdInner = ({className, classes}: {
 
 export const SidebarDigestAd = registerComponent("SidebarDigestAd", SidebarDigestAdInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SidebarDigestAd: typeof SidebarDigestAd
-  }
-}
+

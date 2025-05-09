@@ -122,8 +122,4 @@ export const TabNavigationFooterItem = registerComponent(
   'TabNavigationFooterItem', TabNavigationFooterItemInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationFooterItem: typeof TabNavigationFooterItem
-  }
-}
+

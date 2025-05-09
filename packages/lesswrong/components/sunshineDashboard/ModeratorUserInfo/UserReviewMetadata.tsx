@@ -35,9 +35,5 @@ export const UserReviewMetadataInner = ({classes, user}: {
 
 export const UserReviewMetadata = registerComponent('UserReviewMetadata', UserReviewMetadataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserReviewMetadata: typeof UserReviewMetadata
-  }
-}
+
 

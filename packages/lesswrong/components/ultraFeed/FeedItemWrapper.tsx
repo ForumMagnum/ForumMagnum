@@ -28,8 +28,4 @@ export const FeedItemWrapper = registerComponent('FeedItemWrapper', FeedItemWrap
 
 
 
-declare global {
-  interface ComponentTypes {
-    FeedItemWrapper: typeof FeedItemWrapper
-  }
-} 
+ 

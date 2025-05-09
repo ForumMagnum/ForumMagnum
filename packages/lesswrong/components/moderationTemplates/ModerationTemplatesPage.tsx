@@ -124,9 +124,5 @@ export const ModerationTemplatesPageInner = ({classes}: {
 
 export const ModerationTemplatesPage = registerComponent('ModerationTemplatesPage', ModerationTemplatesPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationTemplatesPage: typeof ModerationTemplatesPage
-  }
-}
+
 

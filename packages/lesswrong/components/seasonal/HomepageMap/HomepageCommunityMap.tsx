@@ -192,11 +192,5 @@ export const HomepageCommunityMapInner = ({dontAskUserLocation = false, classes}
 
 export const HomepageCommunityMap = registerComponent('HomepageCommunityMap', HomepageCommunityMapInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomepageCommunityMap: typeof HomepageCommunityMap
-    LocalEventMapMarkerWrappers: typeof LocalEventMapMarkerWrappers
-    LocalEventWrapperPopUp: typeof LocalEventWrapperPopUp
-  }
-}
+
 

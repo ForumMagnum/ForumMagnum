@@ -42,10 +42,6 @@ const ActionButtonSectionInner = ({
 
 export const ActionButtonSection = registerComponent('ActionButtonSection', ActionButtonSectionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ActionButtonSection: typeof ActionButtonSection
-  }
-}
+
 
 

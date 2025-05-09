@@ -407,8 +407,4 @@ export const SurveyPostsItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyPostsItem: typeof SurveyPostsItem
-  }
-}
+

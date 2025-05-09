@@ -5,7 +5,7 @@ import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
 import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
-import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
+import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
@@ -393,8 +393,4 @@ export const UltraFeedItemFooter = registerComponent("UltraFeedItemFooter", Ultr
 
  
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedItemFooter: typeof UltraFeedItemFooter
-  }
-} 
+ 

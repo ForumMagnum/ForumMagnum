@@ -142,8 +142,4 @@ const PostsPagePostFooterInner = ({post, sequenceId, classes}: {
 
 export const PostsPagePostFooter = registerComponent("PostsPagePostFooter", PostsPagePostFooterInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPagePostFooter: typeof PostsPagePostFooter
-  }
-}
+

@@ -169,8 +169,4 @@ const RevisionsMenuActions = ({revision}: {
 
 export const CompareRevisions = registerComponent("CompareRevisions", CompareRevisionsInner);
 
-declare global {
-  interface ComponentTypes {
-    CompareRevisions: typeof CompareRevisions
-  }
-}
+

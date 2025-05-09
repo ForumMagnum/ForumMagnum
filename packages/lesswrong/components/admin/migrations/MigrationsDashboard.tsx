@@ -58,8 +58,4 @@ export const MigrationsDashboard = registerComponent(
   "MigrationsDashboard", MigrationsDashboardInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    MigrationsDashboard: typeof MigrationsDashboard
-  }
-}
+

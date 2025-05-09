@@ -112,8 +112,4 @@ export const EAPostMeta = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostMeta: typeof EAPostMeta,
-  }
-}
+

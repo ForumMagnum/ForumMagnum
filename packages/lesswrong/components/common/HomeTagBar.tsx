@@ -388,8 +388,4 @@ const HomeTagBarInner = (
 
 export const HomeTagBar = registerComponent('HomeTagBar', HomeTagBarInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    HomeTagBar: typeof HomeTagBar
-  }
-}
+

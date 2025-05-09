@@ -71,8 +71,4 @@ const AttributionInViewTrackerInner = ({eventProps, observerProps, children}: {
 
 export const AttributionInViewTracker = registerComponent('AttributionInViewTracker', AttributionInViewTrackerInner)
 
-declare global {
-  interface ComponentTypes {
-    AttributionInViewTracker: typeof AttributionInViewTracker
-  }
-}
+

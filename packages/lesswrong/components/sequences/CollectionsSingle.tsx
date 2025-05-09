@@ -10,9 +10,5 @@ const CollectionsSingleInner = () => {
 
 export const CollectionsSingle = registerComponent('CollectionsSingle', CollectionsSingleInner);
 
-declare global {
-  interface ComponentTypes {
-    CollectionsSingle: typeof CollectionsSingle
-  }
-}
+
 

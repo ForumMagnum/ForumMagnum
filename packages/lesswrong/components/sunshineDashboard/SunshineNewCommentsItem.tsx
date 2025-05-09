@@ -79,8 +79,4 @@ export const SunshineNewCommentsItem = registerComponent('SunshineNewCommentsIte
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewCommentsItem: typeof SunshineNewCommentsItem
-  }
-}
+

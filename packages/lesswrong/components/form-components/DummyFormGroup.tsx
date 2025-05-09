@@ -58,8 +58,4 @@ const DummyFormGroupInner = ({
 
 export const DummyFormGroup = registerComponent('DummyFormGroup', DummyFormGroupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DummyFormGroup: typeof DummyFormGroup
-  }
-}
+

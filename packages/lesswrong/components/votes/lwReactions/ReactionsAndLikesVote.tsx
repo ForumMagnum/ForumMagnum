@@ -160,11 +160,5 @@ export const ReactionsAndLikesVote = registerComponent('ReactionsAndLikesVote', 
 export const ReactionsAndLikesVoteOnComment = registerComponent('ReactionsAndLikesVoteOnComment', ReactionsAndLikesVoteOnCommentInner);
 export const ReactionsAndLikesCommentBottom = registerComponent('ReactionsAndLikesCommentBottom', ReactionsAndLikesCommentBottomInner);
 
-declare global {
-  interface ComponentTypes {
-    ReactionsAndLikesVote: typeof ReactionsAndLikesVote
-    ReactionsAndLikesVoteOnComment: typeof ReactionsAndLikesVoteOnComment
-    ReactionsAndLikesCommentBottom: typeof ReactionsAndLikesCommentBottom
-  }
-}
+
 

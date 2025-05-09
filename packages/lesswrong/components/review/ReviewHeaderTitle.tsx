@@ -17,9 +17,5 @@ export const ReviewHeaderTitleInner = ({classes}: {
 
 export const ReviewHeaderTitle = registerComponent('ReviewHeaderTitle', ReviewHeaderTitleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewHeaderTitle: typeof ReviewHeaderTitle
-  }
-}
+
 

@@ -356,8 +356,4 @@ export const TagPreview = registerComponent("TagPreview", TagPreviewInner);
 
 
 
-declare global {
-  interface ComponentTypes {
-    TagPreview: typeof TagPreview
-  }
-}
+

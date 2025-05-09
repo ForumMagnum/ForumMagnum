@@ -29,9 +29,5 @@ const CommunityMembersFullMapInner = ({classes}: {
 
 export const CommunityMembersFullMap = registerComponent('CommunityMembersFullMap', CommunityMembersFullMapInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommunityMembersFullMap: typeof CommunityMembersFullMap
-  }
-}
+
 

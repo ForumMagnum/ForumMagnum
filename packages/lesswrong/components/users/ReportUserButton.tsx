@@ -59,8 +59,4 @@ const ReportUserButtonInner = ({user, classes}: {
 
 export const ReportUserButton = registerComponent('ReportUserButton', ReportUserButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReportUserButton: typeof ReportUserButton
-  }
-}
+

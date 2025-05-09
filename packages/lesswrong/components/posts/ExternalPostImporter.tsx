@@ -416,8 +416,4 @@ export const ExternalPostImporter = registerComponent('ExternalPostImporter', Ex
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    ExternalPostImporter: typeof ExternalPostImporter;
-  }
-}
+

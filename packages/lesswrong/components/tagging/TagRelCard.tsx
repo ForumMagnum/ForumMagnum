@@ -133,8 +133,4 @@ const TagRelCardInner = ({tagRel, classes}: {
 
 export const TagRelCard = registerComponent("TagRelCard", TagRelCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelCard: typeof TagRelCard
-  }
-}
+

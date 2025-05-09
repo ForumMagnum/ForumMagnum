@@ -60,9 +60,5 @@ export const AFLibraryPageInner = ({classes}: {
 
 export const AFLibraryPage = registerComponent('AFLibraryPage', AFLibraryPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFLibraryPage: typeof AFLibraryPage
-  }
-}
+
 

@@ -339,8 +339,4 @@ const RecentlyActiveUsersInner = ({ classes }: {
 
 export const RecentlyActiveUsers = registerComponent('RecentlyActiveUsers', RecentlyActiveUsersInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    RecentlyActiveUsers: typeof RecentlyActiveUsers
-  }
-}
+

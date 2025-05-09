@@ -62,9 +62,5 @@ const SequencesNavigationLinkInner = ({ post, direction, classes }: {
 
 export const SequencesNavigationLink = registerComponent('SequencesNavigationLink', SequencesNavigationLinkInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNavigationLink: typeof SequencesNavigationLink
-  }
-}
+
 

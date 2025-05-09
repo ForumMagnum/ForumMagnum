@@ -48,8 +48,4 @@ export const PopularCommentsList = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PopularCommentsList: typeof PopularCommentsList
-  }
-}
+

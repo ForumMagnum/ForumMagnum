@@ -44,8 +44,4 @@ const SunshineNewTagsListInner = ({ classes }: {classes: ClassesType<typeof styl
 
 export const SunshineNewTagsList = registerComponent('SunshineNewTagsList', SunshineNewTagsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewTagsList: typeof SunshineNewTagsList
-  }
-}
+

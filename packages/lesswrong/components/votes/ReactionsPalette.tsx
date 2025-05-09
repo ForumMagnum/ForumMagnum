@@ -376,9 +376,5 @@ export const ReactionsPalette = registerComponent('ReactionsPalette', ReactionsP
 
 
 
-declare global {
-  interface ComponentTypes {
-    ReactionsPalette: typeof ReactionsPalette
-  }
-}
+
 

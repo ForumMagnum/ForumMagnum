@@ -69,8 +69,4 @@ const LinkCardInner = ({children, to, tooltip, className, classes, onClick, clic
 
 export const LinkCard = registerComponent("LinkCard", LinkCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LinkCard: typeof LinkCard
-  }
-}
+

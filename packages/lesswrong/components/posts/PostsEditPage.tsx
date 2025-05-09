@@ -15,9 +15,5 @@ const PostsEditPageInner = () => {
 
 export const PostsEditPage = registerComponent('PostsEditPage', PostsEditPageInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsEditPage: typeof PostsEditPage
-  }
-}
+
 

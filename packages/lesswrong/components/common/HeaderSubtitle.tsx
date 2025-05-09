@@ -47,8 +47,4 @@ export const HeaderSubtitle = registerComponent("HeaderSubtitle", HeaderSubtitle
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    HeaderSubtitle: typeof HeaderSubtitle
-  }
-}
+

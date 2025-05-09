@@ -44,8 +44,4 @@ export const ExcludeFromRecommendationsDropdownItem = registerComponent(
   ExcludeFromRecommendationsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ExcludeFromRecommendationsDropdownItem: typeof ExcludeFromRecommendationsDropdownItem
-  }
-}
+

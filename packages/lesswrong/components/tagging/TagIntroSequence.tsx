@@ -65,8 +65,4 @@ const TagIntroSequenceInner = ({tag, classes}: {
 
 export const TagIntroSequence = registerComponent("TagIntroSequence", TagIntroSequenceInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    TagIntroSequence: typeof TagIntroSequence
-  }
-}
+

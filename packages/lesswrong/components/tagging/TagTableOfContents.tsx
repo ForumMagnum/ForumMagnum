@@ -60,8 +60,4 @@ const TagTableOfContentsInner = ({tag, expandAll, showContributors, onHoverContr
 
 export const TagTableOfContents = registerComponent("TagTableOfContents", TagTableOfContentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagTableOfContents: typeof TagTableOfContents
-  }
-}
+

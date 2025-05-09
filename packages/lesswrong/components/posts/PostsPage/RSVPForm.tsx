@@ -117,8 +117,4 @@ const RSVPFormInner = ({ post, onClose, initialResponse = "yes", classes }: {
 
 export const RSVPForm = registerComponent('RSVPForm', RSVPFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RSVPForm: typeof RSVPForm
-  }
-}
+

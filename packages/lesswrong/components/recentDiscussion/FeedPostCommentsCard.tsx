@@ -247,8 +247,4 @@ export const FeedPostCommentsCard = registerComponent('FeedPostCommentsCard', Fe
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    FeedPostCommentsCard: typeof FeedPostCommentsCard,
-  }
-}
+

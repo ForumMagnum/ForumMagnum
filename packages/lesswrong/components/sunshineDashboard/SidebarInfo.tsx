@@ -29,9 +29,5 @@ const SidebarInfoInner = ({children, classes, className}: {
 
 export const SidebarInfo = registerComponent('SidebarInfo', SidebarInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarInfo: typeof SidebarInfo
-  }
-}
+
 

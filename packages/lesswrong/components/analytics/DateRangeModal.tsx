@@ -80,8 +80,4 @@ const DateRangeModalInner = ({
 
 export const DateRangeModal = registerComponent("DateRangeModal", DateRangeModalInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    DateRangeModal: typeof DateRangeModal;
-  }
-}
+

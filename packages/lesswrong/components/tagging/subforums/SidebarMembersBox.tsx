@@ -111,8 +111,4 @@ const SidebarMembersBoxInner = ({tag, className, classes}: {
 
 export const SidebarMembersBox = registerComponent('SidebarMembersBox', SidebarMembersBoxInner, { styles })
 
-declare global {
-  interface ComponentTypes {
-    SidebarMembersBox: typeof SidebarMembersBox
-  }
-}
+

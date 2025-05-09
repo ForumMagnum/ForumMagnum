@@ -48,8 +48,4 @@ const CommentOnYourDraftNotificationHoverInner = ({notification, classes}: {
 
 export const CommentOnYourDraftNotificationHover = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHoverInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHover
-  }
-}
+

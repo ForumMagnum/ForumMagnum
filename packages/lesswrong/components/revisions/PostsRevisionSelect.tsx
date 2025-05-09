@@ -62,8 +62,4 @@ const PostsRevisionSelectInner = ({ classes }: {
 
 export const PostsRevisionSelect = registerComponent("PostsRevisionSelect", PostsRevisionSelectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionSelect: typeof PostsRevisionSelect
-  }
-}
+

@@ -29,9 +29,5 @@ export const BasicFormStylesInner = ({classes, children}: {
 
 export const BasicFormStyles = registerComponent('BasicFormStyles', BasicFormStylesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BasicFormStyles: typeof BasicFormStyles
-  }
-}
+
 

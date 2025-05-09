@@ -59,8 +59,4 @@ const EditorTypeSelectInner = ({value, setValue, isCollaborative, classes}: {
 
 export const EditorTypeSelect = registerComponent("EditorTypeSelect", EditorTypeSelectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditorTypeSelect: typeof EditorTypeSelect
-  }
-}
+

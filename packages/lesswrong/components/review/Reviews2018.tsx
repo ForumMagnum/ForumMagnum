@@ -112,9 +112,5 @@ const Reviews2018Inner = ({classes}: {
 
 export const Reviews2018 = registerComponent('Reviews2018', Reviews2018Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Reviews2018: typeof Reviews2018Component
-  }
-}
+
 

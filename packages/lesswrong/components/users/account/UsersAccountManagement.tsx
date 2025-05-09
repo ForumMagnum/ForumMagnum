@@ -46,8 +46,4 @@ const UsersAccountManagementInner = ({terms: { slug }, classes}: {
 
 export const UsersAccountManagement = registerComponent('UsersAccountManagement', UsersAccountManagementInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersAccountManagement: typeof UsersAccountManagement
-  }
-}
+

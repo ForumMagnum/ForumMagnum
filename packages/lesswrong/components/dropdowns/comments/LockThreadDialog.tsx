@@ -70,8 +70,4 @@ export const LockThreadDialog = registerComponent(
   'LockThreadDialog', LockThreadDialogInner, {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LockThreadDialog: typeof LockThreadDialog
-  }
-}
+

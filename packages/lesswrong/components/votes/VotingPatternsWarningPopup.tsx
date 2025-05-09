@@ -30,8 +30,4 @@ const VotingPatternsWarningPopupInner = ({onClose, classes}: {
 
 export const VotingPatternsWarningPopup = registerComponent('VotingPatternsWarningPopup', VotingPatternsWarningPopupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    VotingPatternsWarningPopup: typeof VotingPatternsWarningPopup
-  }
-}
+

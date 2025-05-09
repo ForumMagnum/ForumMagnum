@@ -52,9 +52,5 @@ export const PetrovDayLossScreen = registerComponent('PetrovDayLossScreen', Petr
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayLossScreen: typeof PetrovDayLossScreen
-  }
-}
+
 

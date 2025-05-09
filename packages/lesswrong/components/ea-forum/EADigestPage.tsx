@@ -326,8 +326,4 @@ export const EADigestPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EADigestPage: typeof EADigestPage;
-  }
-}
+

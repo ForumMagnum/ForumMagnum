@@ -26,9 +26,5 @@ const SidebarActionMenuInner = ({children, classes}: {
 
 export const SidebarActionMenu = registerComponent('SidebarActionMenu', SidebarActionMenuInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarActionMenu: typeof SidebarActionMenu
-  }
-}
+
 

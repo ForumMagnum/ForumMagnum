@@ -68,8 +68,4 @@ export const PostsDialogItemNewCommentsList = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsDialogItemNewCommentsList: typeof PostsDialogItemNewCommentsList
-  }
-}
+

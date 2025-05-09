@@ -71,8 +71,4 @@ export const FollowUserButtonInner = ({user, classes}: {
 
 export const FollowUserButton = registerComponent('FollowUserButton', FollowUserButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FollowUserButton: typeof FollowUserButton
-  }
-}
+

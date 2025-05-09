@@ -70,8 +70,4 @@ export const HideFrontPageButton = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    HideFrontpagePostDropdownItem: typeof HideFrontPageButton
-  }
-}
+

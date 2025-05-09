@@ -206,8 +206,4 @@ const StickyDigestAdInner = ({className, classes}: {
 
 export const StickyDigestAd = registerComponent("StickyDigestAd", StickyDigestAdInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    StickyDigestAd: typeof StickyDigestAd
-  }
-}
+

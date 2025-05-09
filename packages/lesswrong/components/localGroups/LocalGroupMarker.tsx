@@ -73,9 +73,5 @@ const LocalGroupMarkerInner = ({ group, handleMarkerClick, handleInfoWindowClose
 
 export const LocalGroupMarker = registerComponent("LocalGroupMarker", LocalGroupMarkerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupMarker: typeof LocalGroupMarker
-  }
-}
+
 

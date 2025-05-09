@@ -118,8 +118,4 @@ const UserNotifyDropdownInner = ({
 
 export const UserNotifyDropdown = registerComponent('UserNotifyDropdown', UserNotifyDropdownInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserNotifyDropdown: typeof UserNotifyDropdown
-  }
-}
+

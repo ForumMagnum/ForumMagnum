@@ -81,8 +81,4 @@ const AFNonMemberSuccessPopupInner = ({_id, postId, onClose, classes}: {
 
 export const AFNonMemberSuccessPopup = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFNonMemberSuccessPopup: typeof AFNonMemberSuccessPopup
-  }
-}
+

@@ -235,8 +235,4 @@ export const QuickTakesCollapsedListItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesCollapsedListItem: typeof QuickTakesCollapsedListItem
-  }
-}
+

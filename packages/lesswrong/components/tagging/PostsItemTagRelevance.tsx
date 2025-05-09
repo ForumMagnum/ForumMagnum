@@ -98,8 +98,4 @@ const PostsItemTagRelevanceInner = ({tagRel, classes}: {
 
 export const PostsItemTagRelevance = registerComponent("PostsItemTagRelevance", PostsItemTagRelevanceInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemTagRelevance: typeof PostsItemTagRelevance
-  }
-}
+

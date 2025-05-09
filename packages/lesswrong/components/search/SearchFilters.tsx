@@ -12,7 +12,7 @@ import {
   formatElasticSorting,
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
-import { communityPath } from '../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { TagMultiselect } from "../form-components/TagMultiselect";
 import { Typography } from "../common/Typography";
@@ -194,8 +194,4 @@ const SearchFiltersInner = ({classes, tab, tagsFilter, handleUpdateTagsFilter, o
 
 export const SearchFilters = registerComponent("SearchFilters", SearchFiltersInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SearchFilters: typeof SearchFilters
-  }
-}
+

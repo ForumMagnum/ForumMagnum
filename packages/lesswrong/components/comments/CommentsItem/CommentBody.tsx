@@ -111,9 +111,5 @@ const CommentBodyInner = ({
 
 export const CommentBody = registerComponent('CommentBody', CommentBodyInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBody: typeof CommentBody,
-  }
-}
+
 

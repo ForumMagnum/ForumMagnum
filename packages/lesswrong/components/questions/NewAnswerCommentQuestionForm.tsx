@@ -126,8 +126,4 @@ const NewAnswerCommentQuestionFormInner = ({post, classes}: {
 
 export const NewAnswerCommentQuestionForm = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionForm
-  }
-}
+

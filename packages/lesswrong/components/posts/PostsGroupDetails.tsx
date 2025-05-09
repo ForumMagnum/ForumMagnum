@@ -65,8 +65,4 @@ export const PostsGroupDetails = registerComponent(
   'PostsGroupDetails', PostsGroupDetailsInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsGroupDetails: typeof PostsGroupDetails
-  }
-}
+

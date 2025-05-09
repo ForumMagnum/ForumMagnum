@@ -46,8 +46,4 @@ export const TabNavigationMenuCompressed = registerComponent(
   'TabNavigationMenuCompressed', TabNavigationMenuCompressedInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenuCompressed: typeof TabNavigationMenuCompressed
-  }
-}
+

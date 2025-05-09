@@ -245,9 +245,5 @@ const MultiToCLayoutInner = ({segments, classes, tocRowMap = [], showSplashPageH
 
 export const MultiToCLayout = registerComponent('MultiToCLayout', MultiToCLayoutInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MultiToCLayout: typeof MultiToCLayout
-  }
-}
+
 

@@ -69,9 +69,5 @@ export const RejectContentButtonInner = ({contentWrapper, classes}: {
 
 export const RejectContentButton = registerComponent('RejectContentButton', RejectContentButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectContentButton: typeof RejectContentButton
-  }
-}
+
 

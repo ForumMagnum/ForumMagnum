@@ -27,8 +27,4 @@ const CollectionsCardContainerInner = ({ classes, children }: {
 export const CollectionsCardContainer = registerComponent(
   "CollectionsCardContainer", CollectionsCardContainerInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CollectionsCardContainer: typeof CollectionsCardContainer
-  }
-}
+

@@ -122,8 +122,4 @@ export const EASurveyBanner = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EASurveyBanner: typeof EASurveyBanner
-  }
-}
+

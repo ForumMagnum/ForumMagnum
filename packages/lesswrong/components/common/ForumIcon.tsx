@@ -660,8 +660,4 @@ export const ForumIcon = registerComponent("ForumIcon", ForumIconInner, {
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    ForumIcon: typeof ForumIcon
-  }
-}
+

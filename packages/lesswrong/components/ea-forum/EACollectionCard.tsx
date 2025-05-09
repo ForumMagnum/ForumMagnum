@@ -79,8 +79,4 @@ export const EACollectionCard = registerComponent(
   EACollectionCardInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EACollectionCard: typeof EACollectionCard;
-  }
-}
+

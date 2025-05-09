@@ -39,9 +39,5 @@ export const CommentDiscussionIcon = registerComponent(
   'CommentDiscussionIcon', CommentDiscussionIconInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentDiscussionIcon: typeof CommentDiscussionIcon,
-  }
-}
+
 

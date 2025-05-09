@@ -214,8 +214,4 @@ export const EALargePostsItem = registerComponent(
   {styles, stylePriority: -1,},
 );
 
-declare global {
-  interface ComponentTypes {
-    EALargePostsItem: typeof EALargePostsItem;
-  }
-}
+

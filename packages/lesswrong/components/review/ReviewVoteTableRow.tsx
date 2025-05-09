@@ -381,8 +381,4 @@ export const ReviewVoteTableRow = registerComponent("ReviewVoteTableRow", Review
   //areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    ReviewVoteTableRow: typeof ReviewVoteTableRow
-  }
-}
+

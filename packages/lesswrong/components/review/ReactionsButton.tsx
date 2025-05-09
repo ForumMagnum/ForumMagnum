@@ -104,8 +104,4 @@ const ReactionsButtonInner = ({classes, postId, vote, votes, reaction, freeEntry
 
 export const ReactionsButton = registerComponent("ReactionsButton", ReactionsButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionsButton: typeof ReactionsButton
-  }
-}
+

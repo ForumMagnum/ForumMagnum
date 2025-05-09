@@ -75,8 +75,4 @@ export const NewTagInfoBox = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NewTagInfoBox: typeof NewTagInfoBox
-  }
-}
+

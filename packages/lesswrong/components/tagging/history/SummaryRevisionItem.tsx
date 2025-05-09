@@ -67,9 +67,5 @@ const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
 
 export const SummaryRevisionItem = registerComponent('SummaryRevisionItem', SummaryRevisionItemInner);
 
-declare global {
-  interface ComponentTypes {
-    SummaryRevisionItem: typeof SummaryRevisionItem
-  }
-}
+
 

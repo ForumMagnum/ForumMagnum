@@ -45,8 +45,4 @@ export const UsersNamePending = registerComponent(
   'UsersNamePending', UsersNamePendingInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersNamePending: typeof UsersNamePending
-  }
-}
+

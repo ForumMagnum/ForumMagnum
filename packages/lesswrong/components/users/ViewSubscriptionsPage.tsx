@@ -199,8 +199,4 @@ export const ViewSubscriptionsPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ViewSubscriptionsPage: typeof ViewSubscriptionsPage,
-  }
-}
+

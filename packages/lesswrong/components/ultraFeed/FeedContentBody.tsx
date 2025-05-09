@@ -321,8 +321,4 @@ export const FeedContentBody = registerComponent('FeedContentBody', FeedContentB
 
 
 
-declare global {
-  interface ComponentTypes {
-    FeedContentBody: typeof FeedContentBody
-  }
-}
+

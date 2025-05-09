@@ -183,8 +183,4 @@ const FlashMessagesInner = () => {
 
 export const FlashMessages = registerComponent('FlashMessages', FlashMessagesInner);
 
-declare global {
-  interface ComponentTypes {
-    FlashMessages: typeof FlashMessages
-  }
-}
+

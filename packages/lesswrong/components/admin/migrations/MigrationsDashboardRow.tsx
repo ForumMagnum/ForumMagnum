@@ -70,8 +70,4 @@ export const MigrationsDashboardRow = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    MigrationsDashboardRow: typeof MigrationsDashboardRow
-  }
-}
+

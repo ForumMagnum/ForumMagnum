@@ -434,9 +434,5 @@ export const UserRateLimitItemInner = ({ userId, classes }: {
 
 export const UserRateLimitItem = registerComponent('UserRateLimitItem', UserRateLimitItemInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    UserRateLimitItem: typeof UserRateLimitItem
-  }
-}
+
 

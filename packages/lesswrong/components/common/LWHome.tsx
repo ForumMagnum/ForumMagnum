@@ -104,8 +104,4 @@ const UpdateLastVisitCookie = () => {
 
 export const LWHome = registerComponent('LWHome', LWHomeInner);
 
-declare global {
-  interface ComponentTypes {
-    LWHome: typeof LWHome
-  }
-}
+

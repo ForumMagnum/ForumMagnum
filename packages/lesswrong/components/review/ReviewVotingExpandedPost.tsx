@@ -119,8 +119,4 @@ const ReviewVotingExpandedPostInner = ({classes, post, setExpandedPost}: {
 
 export const ReviewVotingExpandedPost = registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPostInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingExpandedPost: typeof ReviewVotingExpandedPost
-  }
-}
+

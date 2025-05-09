@@ -12,9 +12,5 @@ export const CuratedSequencesInner = () => {
 
 export const CuratedSequences = registerComponent('CuratedSequences', CuratedSequencesInner);
 
-declare global {
-  interface ComponentTypes {
-    CuratedSequences: typeof CuratedSequences
-  }
-}
+
 

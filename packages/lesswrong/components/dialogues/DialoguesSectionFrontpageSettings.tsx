@@ -91,8 +91,4 @@ export const DialoguesSectionFrontpageSettings = registerComponent(
   'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettingsInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    DialoguesSectionFrontpageSettings: typeof DialoguesSectionFrontpageSettings
-  }
-}
+

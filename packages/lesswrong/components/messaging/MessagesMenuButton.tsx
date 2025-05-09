@@ -56,8 +56,4 @@ export const MessagesMenuButton = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    MessagesMenuButton: typeof MessagesMenuButton
-  }
-}
+

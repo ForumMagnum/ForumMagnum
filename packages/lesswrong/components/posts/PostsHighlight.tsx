@@ -215,8 +215,4 @@ const PostsHighlightInner = ({post, ...rest}: {
 
 export const PostsHighlight = registerComponent('PostsHighlight', PostsHighlightInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsHighlight: typeof PostsHighlight
-  }
-}
+

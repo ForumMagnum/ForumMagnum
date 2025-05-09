@@ -116,8 +116,4 @@ export const SunshineSendMessageWithDefaults = registerComponent('SunshineSendMe
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineSendMessageWithDefaults: typeof SunshineSendMessageWithDefaults
-  }
-}
+

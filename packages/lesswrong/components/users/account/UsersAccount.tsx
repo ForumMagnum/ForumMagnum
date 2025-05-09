@@ -61,10 +61,6 @@ const UsersAccountInner = ({ classes }: { classes: ClassesType<typeof styles> })
 
 export const UsersAccount = registerComponent('UsersAccount', UsersAccountInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    UsersAccount: typeof UsersAccount
-  }
-}
+
 
 

@@ -10,9 +10,5 @@ const SequencesSingleInner = () => {
 
 export const SequencesSingle = registerComponent('SequencesSingle', SequencesSingleInner);
 
-declare global {
-  interface ComponentTypes {
-    SequencesSingle: typeof SequencesSingle
-  }
-}
+
 

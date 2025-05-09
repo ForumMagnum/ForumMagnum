@@ -131,8 +131,4 @@ export const NoNotificationsPlaceholder = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NoNotificationsPlaceholder: typeof NoNotificationsPlaceholder
-  }
-}
+

@@ -132,8 +132,4 @@ const PostsEditBotTipsInner = ({handleDismiss, postId, className, classes}: {
 
 export const PostsEditBotTips = registerComponent("PostsEditBotTips", PostsEditBotTipsInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    PostsEditBotTips: typeof PostsEditBotTips
-  }
-}
+

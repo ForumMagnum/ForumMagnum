@@ -26,9 +26,5 @@ export const BookmarksTabInner = () => {
 
 export const BookmarksTab = registerComponent('BookmarksTab', BookmarksTabInner);
 
-declare global {
-  interface ComponentTypes {
-    BookmarksTab: typeof BookmarksTab
-  }
-}
+
 

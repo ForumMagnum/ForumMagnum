@@ -83,9 +83,5 @@ const EventTimeInner = ({post, dense=false}: {
 
 export const EventTime = registerComponent('EventTime', EventTimeInner);
 
-declare global {
-  interface ComponentTypes {
-    EventTime: typeof EventTime
-  }
-}
+
 

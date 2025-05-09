@@ -37,8 +37,4 @@ const GroupFormLinkInner = ({documentId, isOnline}: {
 
 export const GroupFormLink = registerComponent('GroupFormLink', GroupFormLinkInner);
 
-declare global {
-  interface ComponentTypes {
-    GroupFormLink: typeof GroupFormLink
-  }
-}
+

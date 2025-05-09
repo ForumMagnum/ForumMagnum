@@ -199,8 +199,4 @@ export const ModerationGuidelinesEditFormInner = ({ commentType = "post", docume
 
 export const ModerationGuidelinesEditForm = registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    ModerationGuidelinesEditForm: typeof ModerationGuidelinesEditForm
-  }
-}
+

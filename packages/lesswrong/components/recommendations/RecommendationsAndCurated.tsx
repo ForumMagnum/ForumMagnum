@@ -325,8 +325,4 @@ const RecommendationsAndCuratedInner = ({
 
 export const RecommendationsAndCurated = registerComponent("RecommendationsAndCurated", RecommendationsAndCuratedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsAndCurated: typeof RecommendationsAndCurated
-  }
-}
+

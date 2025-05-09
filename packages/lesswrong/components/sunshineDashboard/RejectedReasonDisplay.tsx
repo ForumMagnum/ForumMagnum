@@ -54,9 +54,5 @@ export const RejectedReasonDisplayInner = ({classes, reason}: {
 
 export const RejectedReasonDisplay = registerComponent('RejectedReasonDisplay', RejectedReasonDisplayInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectedReasonDisplay: typeof RejectedReasonDisplay
-  }
-}
+
 

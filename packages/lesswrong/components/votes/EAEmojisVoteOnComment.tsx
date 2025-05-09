@@ -1,6 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
+import type { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
 import { isEAReactableDocument, EAReactsSection } from "./EAReactsSection";
 import { OverallVoteAxis } from "./OverallVoteAxis";
@@ -61,8 +61,4 @@ export const EAEmojisVoteOnComment = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAEmojisVoteOnComment: typeof EAEmojisVoteOnComment
-  }
-}
+

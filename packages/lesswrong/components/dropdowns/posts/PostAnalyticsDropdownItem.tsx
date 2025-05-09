@@ -28,8 +28,4 @@ export const PostAnalyticsDropdownItem = registerComponent(
   PostAnalyticsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostAnalyticsDropdownItem: typeof PostAnalyticsDropdownItem
-  }
-}
+

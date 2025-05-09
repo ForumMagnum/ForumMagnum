@@ -133,8 +133,4 @@ const PostCollaborationEditorInner = ({ classes }: {
 
 export const PostCollaborationEditor = registerComponent('PostCollaborationEditor', PostCollaborationEditorInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostCollaborationEditor: typeof PostCollaborationEditor
-  }
-}
+

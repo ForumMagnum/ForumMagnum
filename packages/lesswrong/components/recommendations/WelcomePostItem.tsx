@@ -42,8 +42,4 @@ const WelcomePostItemInner = () => {
 
 export const WelcomePostItem = registerComponent("WelcomePostItem", WelcomePostItemInner, {});
 
-declare global {
-  interface ComponentTypes {
-    WelcomePostItem: typeof WelcomePostItem
-  }
-}
+

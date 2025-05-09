@@ -130,8 +130,4 @@ export const AgreementVoteAxis = registerComponent('AgreementVoteAxis', Agreemen
 
 
 
-declare global {
-  interface ComponentTypes {
-    AgreementVoteAxis: typeof AgreementVoteAxis
-  }
-}
+

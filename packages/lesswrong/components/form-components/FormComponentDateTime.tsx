@@ -331,9 +331,5 @@ export const FormComponentDatePicker = ({ field, label, name, below }: {
 
 export const DatePicker = registerComponent("DatePicker", DatePickerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DatePicker: typeof DatePicker
-  }
-}
+
 

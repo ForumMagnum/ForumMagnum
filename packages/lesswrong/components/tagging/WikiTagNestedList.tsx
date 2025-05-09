@@ -70,8 +70,4 @@ export const WikiTagNestedList = registerComponent('WikiTagNestedList', WikiTagN
 
 
 
-declare global {
-  interface ComponentTypes {
-    WikiTagNestedList: typeof WikiTagNestedList
-  }
-}
+

@@ -112,8 +112,4 @@ const SearchBarResultsInner = ({closeSearch, currentQuery, classes}: {
 
 export const SearchBarResults = registerComponent("SearchBarResults", SearchBarResultsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchBarResults: typeof SearchBarResults
-  }
-}
+

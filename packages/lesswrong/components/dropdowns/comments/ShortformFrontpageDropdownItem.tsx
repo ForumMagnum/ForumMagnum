@@ -47,8 +47,4 @@ export const ShortformFrontpageDropdownItem = registerComponent(
   "ShortformFrontpageDropdownItem", ShortformFrontpageDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ShortformFrontpageDropdownItem: typeof ShortformFrontpageDropdownItem;
-  }
-}
+

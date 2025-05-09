@@ -19,8 +19,4 @@ export const BookmarkDropdownItem = registerComponent(
   BookmarkDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    BookmarkDropdownItem: typeof BookmarkDropdownItem
-  }
-}
+

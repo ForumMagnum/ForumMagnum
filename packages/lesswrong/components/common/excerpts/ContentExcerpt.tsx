@@ -171,8 +171,4 @@ export const ContentExcerpt = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ContentExcerpt: typeof ContentExcerpt,
-  }
-}
+

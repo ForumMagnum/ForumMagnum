@@ -45,8 +45,4 @@ export const ApproveNewUserDropdownItem = registerComponent(
   ApproveNewUserDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ApproveNewUserDropdownItem: typeof ApproveNewUserDropdownItem
-  }
-}
+

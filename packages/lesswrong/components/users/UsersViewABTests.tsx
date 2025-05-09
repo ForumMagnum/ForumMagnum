@@ -100,8 +100,4 @@ const UsersViewABTestsInner = ({classes}: {
 
 export const UsersViewABTests = registerComponent("UsersViewABTests", UsersViewABTestsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersViewABTests: typeof UsersViewABTests
-  }
-}
+

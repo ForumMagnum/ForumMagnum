@@ -89,9 +89,5 @@ const ConversationItemInner = ({conversation, updateConversation, currentUser, c
 
 export const ConversationItem = registerComponent('ConversationItem', ConversationItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConversationItem: typeof ConversationItem
-  }
-}
+
 

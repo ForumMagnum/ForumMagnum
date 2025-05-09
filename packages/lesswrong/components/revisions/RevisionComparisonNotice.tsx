@@ -15,8 +15,4 @@ const RevisionComparisonNoticeInner = ({before, after, classes}: {
 
 export const RevisionComparisonNotice = registerComponent("RevisionComparisonNotice", RevisionComparisonNoticeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RevisionComparisonNotice: typeof RevisionComparisonNotice
-  }
-}
+

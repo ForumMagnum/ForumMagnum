@@ -342,8 +342,4 @@ const FriendlyInboxInner = ({
 
 export const FriendlyInbox = registerComponent("FriendlyInbox", FriendlyInboxInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    FriendlyInbox: typeof FriendlyInbox;
-  }
-}
+

@@ -54,8 +54,4 @@ export const DialogueEditorFeedbackInner = ({ classes, post }: {
 
 export const DialogueEditorFeedback = registerComponent('DialogueEditorFeedback', DialogueEditorFeedbackInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    DialogueEditorFeedback: typeof DialogueEditorFeedback
-  }
-}
+

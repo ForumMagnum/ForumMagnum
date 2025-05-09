@@ -228,8 +228,4 @@ export const SubforumMember = registerComponent(
   'SubforumMember', SubforumMemberInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SubforumMember: typeof SubforumMember
-  }
-}
+

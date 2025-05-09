@@ -151,8 +151,4 @@ export const EAUserTooltipContent = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUserTooltipContent: typeof EAUserTooltipContent
-  }
-}
+

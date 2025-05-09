@@ -147,8 +147,4 @@ export const EASequenceOrCollectionCard = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EASequenceOrCollectionCard: typeof EASequenceOrCollectionCard;
-  }
-}
+

@@ -67,9 +67,5 @@ const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, tru
 
 export const ModeratorComments = registerComponent('ModeratorComments', ModeratorCommentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorComments: typeof ModeratorComments,
-  }
-}
+
 

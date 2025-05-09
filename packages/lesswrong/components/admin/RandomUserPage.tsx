@@ -107,8 +107,4 @@ export const RandomUserPage = registerComponent(
   "RandomUserPage", RandomUserPageInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    RandomUserPage: typeof RandomUserPage
-  }
-}
+

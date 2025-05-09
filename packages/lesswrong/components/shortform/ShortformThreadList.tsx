@@ -54,8 +54,4 @@ const ShortformThreadListInner = ({ classes }: {
 
 export const ShortformThreadList = registerComponent('ShortformThreadList', ShortformThreadListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformThreadList: typeof ShortformThreadList
-  }
-}
+

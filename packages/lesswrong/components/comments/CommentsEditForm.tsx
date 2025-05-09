@@ -38,9 +38,5 @@ const CommentsEditFormInner = ({ comment, successCallback, cancelCallback, class
 
 export const CommentsEditForm = registerComponent('CommentsEditForm', CommentsEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentsEditForm: typeof CommentsEditForm,
-  }
-}
+
 

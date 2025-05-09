@@ -172,8 +172,4 @@ export const EARecentDiscussionItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionItem: typeof EARecentDiscussionItem,
-  }
-}
+

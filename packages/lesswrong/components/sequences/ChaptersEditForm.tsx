@@ -76,9 +76,5 @@ const ChaptersEditFormInner = ({classes, chapter, successCallback, cancelCallbac
 
 export const ChaptersEditForm = registerComponent('ChaptersEditForm', ChaptersEditFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChaptersEditForm: typeof ChaptersEditForm
-  }
-}
+
 

@@ -109,9 +109,5 @@ const SetPersonalMapLocationDialogInner = ({ onClose, classes }: {
 
 export const SetPersonalMapLocationDialog = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SetPersonalMapLocationDialog: typeof SetPersonalMapLocationDialog
-  }
-}
+
 

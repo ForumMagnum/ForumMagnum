@@ -57,9 +57,5 @@ const LastVisitListInner = ({ postId, currentUser, clickCallback }: {
 
 export const LastVisitList = registerComponent("LastVisitList", LastVisitListInner);
 
-declare global {
-  interface ComponentTypes {
-    LastVisitList: typeof LastVisitList,
-  }
-}
+
 

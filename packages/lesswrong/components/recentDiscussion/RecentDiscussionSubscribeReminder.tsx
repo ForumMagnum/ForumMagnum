@@ -434,8 +434,4 @@ export const RecentDiscussionSubscribeReminder = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionSubscribeReminder: typeof RecentDiscussionSubscribeReminder,
-  }
-}
+

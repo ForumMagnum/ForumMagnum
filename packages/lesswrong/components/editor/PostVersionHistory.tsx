@@ -301,9 +301,4 @@ const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
 export const PostVersionHistoryButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
 export const PostVersionHistory = registerComponent("PostVersionHistory", PostVersionHistoryInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostVersionHistoryButton: typeof PostVersionHistoryButton
-    PostVersionHistory: typeof PostVersionHistory
-  }
-}
+

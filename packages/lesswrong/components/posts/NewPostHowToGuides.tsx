@@ -110,8 +110,4 @@ export const NewPostHowToGuides = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NewPostHowToGuides: typeof NewPostHowToGuides
-  }
-}
+

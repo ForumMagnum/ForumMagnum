@@ -59,9 +59,5 @@ export const ResolverPostsListInner = ({resolverName, skip, limit=13, showLoadMo
 
 export const ResolverPostsList = registerComponent('ResolverPostsList', ResolverPostsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ResolverPostsList: typeof ResolverPostsList
-  }
-}
+
 

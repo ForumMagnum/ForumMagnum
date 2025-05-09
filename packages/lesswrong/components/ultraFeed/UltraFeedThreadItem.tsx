@@ -245,8 +245,4 @@ export const UltraFeedThreadItem = registerComponent(
 
 
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedThreadItem: typeof UltraFeedThreadItem
-  }
-}
+

@@ -344,8 +344,4 @@ const Book2019LandingInner = ({classes}: {
 
 export const Book2019Landing = registerComponent('Book2019Landing', Book2019LandingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Book2019Landing: typeof Book2019LandingComponent
-  }
-}
+

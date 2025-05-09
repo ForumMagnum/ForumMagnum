@@ -37,8 +37,4 @@ const SingleColumnSectionInner = ({classes, className, children}: {
 
 export const SingleColumnSection = registerComponent('SingleColumnSection', SingleColumnSectionInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SingleColumnSection: typeof SingleColumnSection
-  }
-}
+

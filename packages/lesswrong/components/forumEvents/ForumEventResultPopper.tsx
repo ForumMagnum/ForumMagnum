@@ -220,8 +220,4 @@ export const ForumEventResultPopper = registerComponent(
   { styles, stylePriority: -1 }
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventResultPopper: typeof ForumEventResultPopper;
-  }
-}
+

@@ -35,9 +35,5 @@ const PingbackInner = ({classes, post}: {
 
 export const Pingback = registerComponent("Pingback", PingbackInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Pingback: typeof Pingback
-  }
-}
+
 

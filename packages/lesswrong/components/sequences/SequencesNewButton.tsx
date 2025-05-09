@@ -23,9 +23,5 @@ export const SequencesNewButtonInner = ({ classes }: {
 
 export const SequencesNewButton = registerComponent('SequencesNewButton', SequencesNewButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNewButton: typeof SequencesNewButton
-  }
-}
+
 

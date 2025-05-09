@@ -71,8 +71,4 @@ export const MoveToAnswersDropdownItem = registerComponent(
   'MoveToAnswersDropdownItem', MoveToAnswersDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToAnswersDropdownItem: typeof MoveToAnswersDropdownItem
-  }
-}
+

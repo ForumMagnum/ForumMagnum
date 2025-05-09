@@ -161,9 +161,5 @@ export const CollectionsItemInner = ({classes, showCloseIcon, collection}: {
 
 export const CollectionsItem = registerComponent('CollectionsItem', CollectionsItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionsItem: typeof CollectionsItem
-  }
-}
+
 

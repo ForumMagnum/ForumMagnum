@@ -78,7 +78,7 @@ import { CommentsTableOfContents } from "../../comments/CommentsTableOfContents"
 import { StickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
 import { AttributionInViewTracker } from "../../common/AttributionInViewTracker";
 import { ForumEventPostPagePollSection } from "../../forumEvents/ForumEventPostPagePollSection";
-import { SubscribeTo } from "../../notifications/NotifyMeButton";
+import { NotifyMeButton } from "../../notifications/NotifyMeButton";
 import { LWTooltip } from "../../common/LWTooltip";
 import { PostsPageDate } from "./PostsPageDate";
 import { SingleColumnSection } from "../../common/SingleColumnSection";
@@ -949,7 +949,7 @@ const PostsPageInner = ({fullPost, postPreload, eagerPostComments, refetch, clas
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
-                <SubscribeTo
+                <NotifyMeButton
                     showIcon
                     document={post.group}
                     subscribeMessage="Subscribe to group"
@@ -1096,8 +1096,4 @@ export const PostsPage = registerComponent('PostsPage', PostsPageInner, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",
 });
-declare global {
-  interface ComponentTypes {
-    PostsPage: typeof PostsPage
-  }
-}
+

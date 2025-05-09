@@ -87,8 +87,4 @@ const NotificationsListInner = ({ terms, currentUser, classes }: {
 
 export const NotificationsList = registerComponent('NotificationsList', NotificationsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NotificationsList: typeof NotificationsList
-  }
-}
+

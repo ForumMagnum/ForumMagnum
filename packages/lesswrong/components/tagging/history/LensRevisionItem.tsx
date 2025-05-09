@@ -74,9 +74,5 @@ export const LensRevisionItem = registerComponent('LensRevisionItem', LensRevisi
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    LensRevisionItem: typeof LensRevisionItem
-  }
-}
+
 

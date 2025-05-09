@@ -63,8 +63,4 @@ function InlineSelectInner({
 
 export const InlineSelect = registerComponent("InlineSelect", InlineSelectInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    InlineSelect: typeof InlineSelect;
-  }
-}
+

@@ -45,8 +45,4 @@ export const DraftsPage = registerComponent('DraftsPage', DraftsPageInner, {
   hocs: [withErrorBoundary], styles
 });
 
-declare global {
-  interface ComponentTypes {
-    DraftsPage: typeof DraftsPage
-  }
-}
+

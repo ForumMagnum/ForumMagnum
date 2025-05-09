@@ -509,8 +509,4 @@ export const FundraisingThermometer = registerComponent(
 
 
 
-declare global {
-  interface ComponentTypes {
-    FundraisingThermometer: typeof FundraisingThermometer;
-  }
-}
+

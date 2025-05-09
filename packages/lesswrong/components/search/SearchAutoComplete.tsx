@@ -119,9 +119,5 @@ const AutocompleteTextbox = connectAutoComplete(
 
 export const SearchAutoComplete = registerComponent("SearchAutoComplete", SearchAutoCompleteInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchAutoComplete: typeof SearchAutoComplete
-  }
-}
+
 

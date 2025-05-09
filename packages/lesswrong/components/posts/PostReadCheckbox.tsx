@@ -68,9 +68,5 @@ export const PostReadCheckboxInner = ({classes, post, width=12}: {
 
 export const PostReadCheckbox = registerComponent('PostReadCheckbox', PostReadCheckboxInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostReadCheckbox: typeof PostReadCheckbox
-  }
-}
+
 

@@ -289,8 +289,4 @@ const EditDigestTableRowInner = ({post, postStatus, statusIconsDisabled, handleC
 
 export const EditDigestTableRow = registerComponent('EditDigestTableRow', EditDigestTableRowInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestTableRow: typeof EditDigestTableRow
-  }
-}
+

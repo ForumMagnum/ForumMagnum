@@ -68,8 +68,4 @@ export const EAEmojisVoteOnPostSecondary = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAEmojisVoteOnPostSecondary: typeof EAEmojisVoteOnPostSecondary
-  }
-}
+

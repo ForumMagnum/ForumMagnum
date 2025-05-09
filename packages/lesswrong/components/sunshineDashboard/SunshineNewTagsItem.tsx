@@ -134,8 +134,4 @@ export const SunshineNewTagsItem = registerComponent('SunshineNewTagsItem', Suns
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewTagsItem: typeof SunshineNewTagsItem
-  }
-}
+

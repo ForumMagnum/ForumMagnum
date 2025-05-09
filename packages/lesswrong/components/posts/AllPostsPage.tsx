@@ -129,9 +129,5 @@ export const AllPostsPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPage: typeof AllPostsPage
-  }
-}
+
 

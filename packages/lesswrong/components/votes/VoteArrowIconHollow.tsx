@@ -118,8 +118,4 @@ export const VoteArrowIconHollow = registerComponent(
   { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    VoteArrowIconHollow: typeof VoteArrowIconHollow;
-  }
-}
+

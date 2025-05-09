@@ -66,9 +66,5 @@ const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfi
 
 export const RecentComments = registerComponent('RecentComments', RecentCommentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecentComments: typeof RecentComments,
-  }
-}
+
 

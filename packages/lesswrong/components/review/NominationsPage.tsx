@@ -184,8 +184,4 @@ export const NominationsPage = registerComponent("NominationsPage", NominationsP
   styles
 });
 
-declare global {
-  interface ComponentTypes {
-    NominationsPage: typeof NominationsPage
-  }
-}
+

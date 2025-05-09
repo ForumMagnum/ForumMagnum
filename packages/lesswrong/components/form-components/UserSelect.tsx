@@ -61,8 +61,4 @@ export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
 
 export const UserSelect = registerComponent("UserSelect", UserSelectInner);
 
-declare global {
-  interface ComponentTypes {
-    UserSelect: typeof UserSelect
-  }
-}
+

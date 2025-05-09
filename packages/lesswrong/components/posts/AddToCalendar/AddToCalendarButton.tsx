@@ -158,8 +158,4 @@ const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClass
 
 export const AddToCalendarButton = registerComponent('AddToCalendarButton', AddToCalendarButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddToCalendarButton: typeof AddToCalendarButton,
-  }
-}
+

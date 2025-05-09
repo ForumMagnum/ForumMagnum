@@ -258,9 +258,5 @@ const ReactBallotVoteOnCommentInner = ({document, hideKarma=false, collectionNam
 
 export const ReactBallotVoteOnComment = registerComponent('ReactBallotVoteOnComment', ReactBallotVoteOnCommentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactBallotVoteOnComment: typeof ReactBallotVoteOnComment
-  }
-}
+
 

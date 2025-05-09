@@ -126,8 +126,4 @@ export const DraftsListSettings = registerComponent(
   'DraftsListSettings', DraftsListSettingsInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    DraftsListSettings: typeof DraftsListSettings
-  }
-}
+

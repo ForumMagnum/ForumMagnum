@@ -40,8 +40,4 @@ const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
 
 export const ChaptersList = registerComponent('ChaptersList', ChaptersListInner)
 
-declare global {
-  interface ComponentTypes {
-    ChaptersList: typeof ChaptersList
-  }
-}
+

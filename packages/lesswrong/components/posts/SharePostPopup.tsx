@@ -336,8 +336,4 @@ export default SharePostPopupInner;
 
 export const SharePostPopup = registerComponent("SharePostPopup", SharePostPopupInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SharePostPopup: typeof SharePostPopup;
-  }
-}
+

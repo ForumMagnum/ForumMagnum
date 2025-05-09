@@ -72,9 +72,5 @@ export const AltAccountInfoInner = ({classes, user}: {
 
 export const AltAccountInfo = registerComponent('AltAccountInfo', AltAccountInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AltAccountInfo: typeof AltAccountInfo
-  }
-}
+
 

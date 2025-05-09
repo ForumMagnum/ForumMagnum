@@ -72,9 +72,5 @@ export const ReviewProgressVotingInner = ({classes, reviewYear}: {
 
 export const ReviewProgressVoting = registerComponent('ReviewProgressVoting', ReviewProgressVotingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewProgressVoting: typeof ReviewProgressVoting
-  }
-}
+
 

@@ -30,8 +30,4 @@ export const PostSummaryDialog = registerComponent(
   PostSummaryDialogInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostSummaryDialog: typeof PostSummaryDialog
-  }
-}
+

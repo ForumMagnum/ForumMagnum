@@ -77,8 +77,4 @@ export const BookmarkButton = registerComponent('BookmarkButton', BookmarkButton
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarkButton: typeof BookmarkButton
-  }
-}
+

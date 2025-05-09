@@ -282,8 +282,4 @@ export const MessagesNewFormInner = ({
 
 export const MessagesNewForm = registerComponent("MessagesNewForm", MessagesNewFormInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    MessagesNewForm: typeof MessagesNewForm;
-  }
-}
+

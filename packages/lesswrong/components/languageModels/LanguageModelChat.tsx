@@ -489,9 +489,4 @@ export const LanguageModelChat = registerComponent('LanguageModelChat', Language
 
 export const LlmChatMessage = registerComponent('LlmChatMessage', LLMChatMessageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LanguageModelChat: typeof LanguageModelChat
-    LlmChatMessage: typeof LlmChatMessage
-  }
-}
+

@@ -228,8 +228,4 @@ export const EditDigestHeaderInner = ({digest, classes}: {
 
 export const EditDigestHeader = registerComponent('EditDigestHeader', EditDigestHeaderInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestHeader: typeof EditDigestHeader
-  }
-}
+

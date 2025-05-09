@@ -215,8 +215,4 @@ const BookFrontpageWidgetInner = ({ classes }: {
 
 export const BookFrontpageWidget = registerComponent('BookFrontpageWidget', BookFrontpageWidgetInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    BookFrontpageWidget: typeof BookFrontpageWidget
-  }
-}
+

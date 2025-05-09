@@ -84,9 +84,5 @@ const ReactionHoverTopRowInner = ({reactionName, userReactions, showNonInlineVot
 
 export const ReactionHoverTopRow = registerComponent('ReactionHoverTopRow', ReactionHoverTopRowInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionHoverTopRow: typeof ReactionHoverTopRow
-  }
-}
+
 

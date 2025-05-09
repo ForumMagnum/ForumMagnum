@@ -437,8 +437,4 @@ const UsersMenuInner = ({classes}: {
 
 export const UsersMenu = registerComponent('UsersMenu', UsersMenuInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersMenu: typeof UsersMenu
-  }
-}
+

@@ -273,8 +273,4 @@ const TwitterAdminInner = ({ classes }: { classes: ClassesType<typeof styles> })
 
 export const TwitterAdmin = registerComponent('TwitterAdmin', TwitterAdminInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TwitterAdmin: typeof TwitterAdmin;
-  }
-}
+

@@ -54,8 +54,4 @@ export const PastWarningsInner = ({classes, petrovDayActions, side, general}: {
 
 export const PastWarnings = registerComponent('PastWarnings', PastWarningsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PastWarnings: typeof PastWarnings
-  }
-}
+

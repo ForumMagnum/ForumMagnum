@@ -171,10 +171,5 @@ const ResyncRssDialogInner = ({onClose, post, classes}: {
 export const ResyncRssDropdownItem = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItemInner, {styles});
 export const ResyncRssDialog = registerComponent('ResyncRssDialog', ResyncRssDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ResyncRssDropdownItem: typeof ResyncRssDropdownItem
-    ResyncRssDialog: typeof ResyncRssDialog
-  }
-}
+
 

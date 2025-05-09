@@ -227,8 +227,4 @@ const OnlineGroupsInner = ({keywordSearch, includeInactive, toggleIncludeInactiv
 
 export const OnlineGroups = registerComponent('OnlineGroups', OnlineGroupsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OnlineGroups: typeof OnlineGroups
-  }
-}
+

@@ -71,8 +71,4 @@ export const HeaderEventSubtitle = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    HeaderEventSubtitle: typeof HeaderEventSubtitle
-  }
-}
+

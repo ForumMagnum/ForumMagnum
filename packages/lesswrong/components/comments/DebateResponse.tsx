@@ -200,8 +200,4 @@ export const DebateResponseInner = ({classes, comment, replies, idx, responseCou
 
 export const DebateResponse = registerComponent('DebateResponse', DebateResponseInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateResponse: typeof DebateResponse
-  }
-}
+

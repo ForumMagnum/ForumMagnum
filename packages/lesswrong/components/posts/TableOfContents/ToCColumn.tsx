@@ -231,8 +231,4 @@ export const ToCColumnInner = ({
 
 export const ToCColumn = registerComponent("ToCColumn", ToCColumnInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ToCColumn: typeof ToCColumn
-  }
-}
+

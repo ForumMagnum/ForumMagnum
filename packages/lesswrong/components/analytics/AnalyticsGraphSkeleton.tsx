@@ -86,8 +86,4 @@ export const AnalyticsGraphSkeleton = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsGraphSkeleton: typeof AnalyticsGraphSkeleton
-  }
-}
+

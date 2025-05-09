@@ -464,8 +464,4 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
 
 export const FrontpageReviewWidget = registerComponent('FrontpageReviewWidget', FrontpageReviewWidgetInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FrontpageReviewWidget: typeof FrontpageReviewWidget
-  }
-}
+

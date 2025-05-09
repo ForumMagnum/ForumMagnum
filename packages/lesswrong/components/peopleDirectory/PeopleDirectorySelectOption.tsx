@@ -77,8 +77,4 @@ export const PeopleDirectorySelectOption = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectorySelectOption: typeof PeopleDirectorySelectOption
-  }
-}
+

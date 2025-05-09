@@ -35,9 +35,5 @@ export const SpotlightHistoryInner = () => {
 
 export const SpotlightHistory = registerComponent('SpotlightHistory', SpotlightHistoryInner);
 
-declare global {
-  interface ComponentTypes {
-    SpotlightHistory: typeof SpotlightHistory
-  }
-}
+
 

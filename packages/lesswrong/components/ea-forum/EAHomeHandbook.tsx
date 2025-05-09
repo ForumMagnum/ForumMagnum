@@ -183,8 +183,4 @@ export const EAHomeHandbook = registerComponent(
   'EAHomeHandbook', EAHomeHandbookInner, {styles},
 )
 
-declare global {
-  interface ComponentTypes {
-    EAHomeHandbook: typeof EAHomeHandbook
-  }
-}
+

@@ -63,9 +63,5 @@ const Nominations2019Inner = ({classes}: {
 
 export const Nominations2019 = registerComponent('Nominations2019', Nominations2019Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Nominations2019: typeof Nominations2019Component
-  }
-}
+
 

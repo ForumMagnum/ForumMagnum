@@ -174,8 +174,4 @@ const HoverPreviewLinkInner = ({ href, contentSourceDescription, id, rel, noPref
 
 export const HoverPreviewLink = registerComponent('HoverPreviewLink', HoverPreviewLinkInner, { hocs: [withErrorBoundary] });
 
-declare global {
-  interface ComponentTypes {
-    HoverPreviewLink: typeof HoverPreviewLink
-  }
-}
+

@@ -23,8 +23,4 @@ const LWPlaceholderPostsItemInner = ({showBottomBorder, classes}: {
 
 export const LWPlaceholderPostsItem = registerComponent('LWPlaceholderPostsItem', LWPlaceholderPostsItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPlaceholderPostsItem: typeof LWPlaceholderPostsItem
-  }
-}
+

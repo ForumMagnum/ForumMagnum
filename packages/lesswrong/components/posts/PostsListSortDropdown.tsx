@@ -29,8 +29,4 @@ const PostsListSortDropdownInner = ({value, options=defaultOptions, sortingParam
 
 export const PostsListSortDropdown = registerComponent('PostsListSortDropdown', PostsListSortDropdownInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListSortDropdown: typeof PostsListSortDropdown
-  }
-}
+

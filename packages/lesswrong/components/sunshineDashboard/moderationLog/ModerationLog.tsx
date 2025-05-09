@@ -312,8 +312,4 @@ const ModerationLogInner = ({classes}: {
 
 export const ModerationLog = registerComponent('ModerationLog', ModerationLogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationLog: typeof ModerationLog
-  }
-}
+

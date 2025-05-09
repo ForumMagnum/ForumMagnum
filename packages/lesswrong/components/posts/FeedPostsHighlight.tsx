@@ -164,9 +164,5 @@ const FeedPostsHighlightInner = ({post, ...rest}: {
 
 export const FeedPostsHighlight = registerComponent('FeedPostsHighlight', FeedPostsHighlightInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FeedPostsHighlight: typeof FeedPostsHighlight
-  }
-}
+
 

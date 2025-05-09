@@ -75,8 +75,4 @@ const TagCompareRevisionsInner = () => {
 export const TagCompareRevisions = registerComponent("TagCompareRevisions", TagCompareRevisionsInner);
 
 
-declare global {
-  interface ComponentTypes {
-    TagCompareRevisions: typeof TagCompareRevisions
-  }
-}
+

@@ -16,8 +16,4 @@ export const PeopleDirectoryResults = registerComponent(
   PeopleDirectoryResultsInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryResults: typeof PeopleDirectoryResults
-  }
-}
+

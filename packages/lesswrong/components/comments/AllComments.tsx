@@ -97,9 +97,5 @@ const AllCommentsInner = () => {
 
 export const AllComments = registerComponent('AllComments', AllCommentsInner);
 
-declare global {
-  interface ComponentTypes {
-    AllComments: typeof AllComments,
-  }
-}
+
 

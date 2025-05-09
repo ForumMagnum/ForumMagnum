@@ -332,8 +332,4 @@ const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTerm
 
 export const GlossarySidebar = registerComponent('GlossarySidebar', GlossarySidebarInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossarySidebar: typeof GlossarySidebar
-  }
-}
+

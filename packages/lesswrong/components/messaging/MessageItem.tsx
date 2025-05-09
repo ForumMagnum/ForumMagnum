@@ -127,9 +127,5 @@ export const MessageItem = registerComponent('MessageItem', MessageItemInner, {
   styles, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    MessageItem: typeof MessageItem
-  }
-}
+
 

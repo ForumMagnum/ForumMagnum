@@ -77,9 +77,5 @@ const UsersWhoReactedInner = ({reactions, wrap=false, showTooltip=true, classes}
 
 export const UsersWhoReacted = registerComponent('UsersWhoReacted', UsersWhoReactedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersWhoReacted: typeof UsersWhoReacted
-  }
-}
+
 

@@ -19,8 +19,4 @@ const PostsItemNewDialogueResponsesInner = ({postId, unreadCount}: {postId: stri
 
 export const PostsItemNewDialogueResponses = registerComponent('PostsItemNewDialogueResponses', PostsItemNewDialogueResponsesInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsItemNewDialogueResponses: typeof PostsItemNewDialogueResponses
-  }
-}
+

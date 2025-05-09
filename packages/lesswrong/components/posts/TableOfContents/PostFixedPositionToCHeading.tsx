@@ -30,9 +30,5 @@ const PostFixedPositionToCHeadingInner = ({post, classes}: {
 
 export const FixedPositionToCHeading = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeadingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostFixedPositionToCHeading: typeof FixedPositionToCHeading
-  }
-}
+
 

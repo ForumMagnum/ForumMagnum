@@ -273,8 +273,4 @@ const TagsTooltipInner = ({
 
 export const TagsTooltip = registerComponent("TagsTooltip", TagsTooltipInner);
 
-declare global {
-  interface ComponentTypes {
-    TagsTooltip: typeof TagsTooltip
-  }
-}
+

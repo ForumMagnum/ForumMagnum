@@ -103,8 +103,4 @@ export const RecentDiscussionThreadsList = registerComponent('RecentDiscussionTh
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionThreadsList: typeof RecentDiscussionThreadsList,
-  }
-}
+

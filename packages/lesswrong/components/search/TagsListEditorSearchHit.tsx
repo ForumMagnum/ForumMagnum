@@ -30,9 +30,5 @@ const TagsListEditorSearchHitInner = ({hit, classes}: {
 
 export const TagsListEditorSearchHit = registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagsListEditorSearchHit: typeof TagsListEditorSearchHit
-  }
-}
+
 

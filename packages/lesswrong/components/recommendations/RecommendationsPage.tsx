@@ -18,9 +18,5 @@ const RecommendationsPageInner = () => {
 
 export const RecommendationsPage = registerComponent('RecommendationsPage', RecommendationsPageInner);
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsPage: typeof RecommendationsPage
-  }
-}
+
 

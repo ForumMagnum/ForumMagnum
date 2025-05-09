@@ -279,8 +279,4 @@ const CommunityHomeInner = ({classes}: {
 
 export const CommunityHome = registerComponent('CommunityHome', CommunityHomeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommunityHome: typeof CommunityHome
-  }
-}
+

@@ -133,9 +133,5 @@ const PathInfoInner = ({tag, lens}: {
 
 export const PathInfo = registerComponent('PathInfo', PathInfoInner);
 
-declare global {
-  interface ComponentTypes {
-    PathInfo: typeof PathInfo
-  }
-}
+
 

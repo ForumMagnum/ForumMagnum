@@ -35,8 +35,4 @@ const TwoAxisVoteOnCommentInner = ({document, hideKarma=false, collectionName, v
 
 export const TwoAxisVoteOnComment = registerComponent('TwoAxisVoteOnComment', TwoAxisVoteOnCommentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TwoAxisVoteOnComment: typeof TwoAxisVoteOnComment
-  }
-}
+

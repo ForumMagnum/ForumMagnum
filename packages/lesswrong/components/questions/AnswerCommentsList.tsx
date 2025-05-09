@@ -68,9 +68,5 @@ const AnswerCommentsListInner = ({post, parentAnswer, commentTree, treeOptions, 
 
 export const AnswerCommentsList = registerComponent('AnswerCommentsList', AnswerCommentsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AnswerCommentsList: typeof AnswerCommentsList
-  }
-}
+
 

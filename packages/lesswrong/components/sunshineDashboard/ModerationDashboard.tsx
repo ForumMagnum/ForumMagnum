@@ -221,8 +221,4 @@ const ModerationDashboardInner = ({ classes }: {
 
 export const ModerationDashboard = registerComponent('ModerationDashboard', ModerationDashboardInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    ModerationDashboard: typeof ModerationDashboard
-  }
-}
+

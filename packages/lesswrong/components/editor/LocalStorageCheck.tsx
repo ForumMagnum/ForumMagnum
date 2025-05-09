@@ -145,8 +145,4 @@ const LocalStorageCheckInner = ({getLocalStorageHandlers, onRestore, classes, ge
 
 export const LocalStorageCheck = registerComponent('LocalStorageCheck', LocalStorageCheckInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalStorageCheck: typeof LocalStorageCheck
-  }
-}
+

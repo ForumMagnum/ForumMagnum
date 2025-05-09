@@ -269,10 +269,4 @@ export const SelectedTextToolbar = registerComponent(
 );
 export const CommentOnSelectionContentWrapper = registerComponent("CommentOnSelectionContentWrapper", CommentOnSelectionContentWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentOnSelectionPageWrapper: typeof CommentOnSelectionPageWrapper
-    SelectedTextToolbar: typeof SelectedTextToolbar
-    CommentOnSelectionContentWrapper: typeof CommentOnSelectionContentWrapper,
-  }
-}
+

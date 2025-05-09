@@ -101,8 +101,4 @@ const ReviewVotingButtonsInner = ({classes, post, dispatch, currentUserVote, cos
 
 export const ReviewVotingButtons = registerComponent("ReviewVotingButtons", ReviewVotingButtonsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingButtons: typeof ReviewVotingButtons
-  }
-}
+

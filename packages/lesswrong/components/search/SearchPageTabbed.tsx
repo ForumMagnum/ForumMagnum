@@ -459,8 +459,4 @@ const SearchPageTabbedInner = ({classes}: {
 
 export const SearchPageTabbed = registerComponent("SearchPageTabbed", SearchPageTabbedInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SearchPageTabbed: typeof SearchPageTabbed
-  }
-}
+

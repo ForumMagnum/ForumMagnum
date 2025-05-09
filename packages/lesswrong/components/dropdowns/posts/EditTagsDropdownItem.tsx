@@ -34,8 +34,4 @@ export const EditTagsDropdownItem = registerComponent(
   EditTagsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EditTagsDropdownItem: typeof EditTagsDropdownItem
-  }
-}
+

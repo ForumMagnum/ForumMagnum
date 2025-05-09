@@ -149,8 +149,4 @@ const ThemePickerMenuInner = ({children, classes}: {
 
 export const ThemePickerMenu = registerComponent('ThemePickerMenu', ThemePickerMenuInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ThemePickerMenu: typeof ThemePickerMenu
-  }
-}
+

@@ -217,8 +217,4 @@ export const RecentDiscussionMeetupsPoke = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionMeetupsPoke: typeof RecentDiscussionMeetupsPoke,
-  }
-}
+

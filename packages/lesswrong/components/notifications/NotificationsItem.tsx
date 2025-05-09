@@ -264,8 +264,4 @@ export const NotificationsItem = registerComponent('NotificationsItem', Notifica
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationsItem: typeof NotificationsItem
-  }
-}
+

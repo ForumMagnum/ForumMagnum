@@ -167,9 +167,5 @@ const EmojiReactionVoteOnCommentInner = ({document, hideKarma=false, collectionN
 
 export const EmojiReactionVoteOnComment = registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnCommentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EmojiReactionVoteOnComment: typeof EmojiReactionVoteOnComment
-  }
-}
+
 

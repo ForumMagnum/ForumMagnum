@@ -136,9 +136,5 @@ export const LessOnline2025BannerInner = ({priceIncreaseDate}: {priceIncreaseDat
 
 export const LessOnline2025Banner = registerComponent('LessOnline2025Banner', LessOnline2025BannerInner);
 
-declare global {
-  interface ComponentTypes {
-    LessOnline2025Banner: typeof LessOnline2025BannerComponent
-  }
-}
+
 

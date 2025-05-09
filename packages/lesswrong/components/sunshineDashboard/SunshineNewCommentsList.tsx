@@ -41,9 +41,5 @@ const SunshineNewCommentsListInner = ({ terms, classes }: {
 
 export const SunshineNewCommentsList = registerComponent('SunshineNewCommentsList', SunshineNewCommentsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewCommentsList: typeof SunshineNewCommentsList
-  }
-}
+
 

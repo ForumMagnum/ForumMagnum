@@ -122,8 +122,4 @@ const AnalyticsPageInitializerInner = () => {
 
 export const AnalyticsPageInitializer = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializerInner)
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPageInitializer: typeof AnalyticsPageInitializer
-  }
-}
+

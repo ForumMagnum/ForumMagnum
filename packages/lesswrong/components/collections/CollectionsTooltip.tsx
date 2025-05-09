@@ -83,8 +83,4 @@ export const CollectionsTooltip = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CollectionsTooltip: typeof CollectionsTooltip;
-  }
-}
+

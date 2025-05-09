@@ -258,8 +258,4 @@ export const NotificationsPageKarmaChange = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageKarmaChange: typeof NotificationsPageKarmaChange
-  }
-}
+

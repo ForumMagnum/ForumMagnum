@@ -111,8 +111,4 @@ export const WrappedRelativeMostReadTopicsSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedRelativeMostReadTopicsSection: typeof WrappedRelativeMostReadTopicsSection
-  }
-}
+

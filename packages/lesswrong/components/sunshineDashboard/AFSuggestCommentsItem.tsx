@@ -117,9 +117,5 @@ export const AFSuggestCommentsItem = registerComponent('AFSuggestCommentsItem', 
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    AFSuggestCommentsItem: typeof AFSuggestCommentsItem
-  }
-}
+
 

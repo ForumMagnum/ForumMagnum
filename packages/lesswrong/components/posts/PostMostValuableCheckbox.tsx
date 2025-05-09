@@ -89,9 +89,5 @@ export const PostMostValuableCheckboxInner = ({post, classes}: {
 
 export const PostMostValuableCheckbox = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckboxInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostMostValuableCheckbox: typeof PostMostValuableCheckbox
-  }
-}
+
 

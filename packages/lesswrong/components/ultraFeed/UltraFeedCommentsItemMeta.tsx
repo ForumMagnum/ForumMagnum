@@ -248,8 +248,4 @@ export const UltraFeedCommentsItemMeta = registerComponent(
 
 
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedCommentsItemMeta: typeof UltraFeedCommentsItemMeta
-  }
-} 
+ 

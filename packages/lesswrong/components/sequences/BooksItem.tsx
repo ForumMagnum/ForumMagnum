@@ -102,9 +102,5 @@ const BooksItemInner = ({ book, canEdit, classes }: {
 
 export const BooksItem = registerComponent('BooksItem', BooksItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BooksItem: typeof BooksItem
-  }
-}
+
 

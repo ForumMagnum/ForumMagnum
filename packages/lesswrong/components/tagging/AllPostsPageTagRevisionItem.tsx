@@ -57,9 +57,5 @@ const AllPostsPageTagRevisionItemInner = ({tag, revisionId, documentId, classes}
 
 export const AllPostsPageTagRevisionItem = registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPageTagRevisionItem: typeof AllPostsPageTagRevisionItem
-  }
-}
+
 

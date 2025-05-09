@@ -477,8 +477,4 @@ export const UsersProfile = registerComponent(
   'UsersProfile', UsersProfileFnInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersProfile: typeof UsersProfile
-  }
-}
+

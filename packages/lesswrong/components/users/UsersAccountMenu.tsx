@@ -107,8 +107,4 @@ export const UsersAccountMenu = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersAccountMenu: typeof UsersAccountMenu
-  }
-}
+

@@ -72,8 +72,4 @@ export const BlurredBackgroundModal = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    BlurredBackgroundModal: typeof BlurredBackgroundModal
-  }
-}
+

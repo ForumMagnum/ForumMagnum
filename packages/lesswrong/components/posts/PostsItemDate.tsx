@@ -149,9 +149,5 @@ const PostsItemDateInner = ({post, noStyles, includeAgo, useCuratedDate, emphasi
 
 export const PostsItemDate = registerComponent("PostsItemDate", PostsItemDateInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemDate: typeof PostsItemDate
-  }
-}
+
 

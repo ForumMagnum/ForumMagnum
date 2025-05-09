@@ -70,9 +70,5 @@ const UserReviewsInner = () => {
 
 export const UserReviews = registerComponent('UserReviews', UserReviewsInner);
 
-declare global {
-  interface ComponentTypes {
-    UserReviews: typeof UserReviews
-  }
-}
+
 

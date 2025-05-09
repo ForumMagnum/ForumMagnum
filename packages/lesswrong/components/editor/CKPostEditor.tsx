@@ -739,8 +739,4 @@ const CKPostEditorInner = ({
 }
 
 export const CKPostEditor = registerComponent("CKPostEditor", CKPostEditorInner, {styles});
-declare global {
-  interface ComponentTypes {
-    CKPostEditor: typeof CKPostEditor
-  }
-}
+

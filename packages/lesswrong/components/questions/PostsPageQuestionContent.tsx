@@ -33,9 +33,5 @@ export const PostsPageQuestionContent = registerComponent('PostsPageQuestionCont
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsPageQuestionContent: typeof PostsPageQuestionContent
-  }
-}
+
 

@@ -11,7 +11,7 @@ import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSettin
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { getAllTagsPath } from '../../../lib/routes';
+import { getAllTagsPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import { LWTooltip } from "../../common/LWTooltip";
@@ -368,8 +368,4 @@ const ContentTypeInner = ({classes, className, type, label}: {
 
 export const ContentType = registerComponent('ContentType', ContentTypeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ContentType: typeof ContentType
-  }
-}
+

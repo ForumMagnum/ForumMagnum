@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { FooterTagList } from "../../tagging/FooterTagList";
-import { PostsSplashPageHeaderVote } from "../../votes/LWPostsPageTopHeaderVote";
+import { LWPostsPageTopHeaderVote } from "../../votes/LWPostsPageTopHeaderVote";
 import { AudioToggle } from "./AudioToggle";
 import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
 
@@ -78,7 +78,7 @@ export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPla
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
-        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
+        <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>}
       <PostActionsButton post={post} className={classNames(classes.postActionsButton, post.shortform && classes.postActionsButtonShortform)} flip />
   </div>;
@@ -86,8 +86,4 @@ export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPla
 
 export const LWPostsPageHeaderTopRight = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRightInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPageHeaderTopRight: typeof LWPostsPageHeaderTopRight
-  }
-}
+

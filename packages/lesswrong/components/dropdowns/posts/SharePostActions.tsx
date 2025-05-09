@@ -88,8 +88,4 @@ const SharePostActionsInner = ({post, onClick, classes}: {
 
 export const SharePostActions = registerComponent('SharePostActions', SharePostActionsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SharePostActions: typeof SharePostActions
-  }
-}
+

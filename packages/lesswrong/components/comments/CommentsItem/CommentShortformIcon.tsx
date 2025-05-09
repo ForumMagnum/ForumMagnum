@@ -57,9 +57,5 @@ export const CommentShortformIcon = registerComponent(
 
 
 
-declare global {
-  interface ComponentTypes {
-    CommentShortformIcon: typeof CommentShortformIcon,
-  }
-}
+
 

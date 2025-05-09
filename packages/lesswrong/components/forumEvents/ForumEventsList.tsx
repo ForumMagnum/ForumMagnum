@@ -54,8 +54,4 @@ export const ForumEventsList = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventsList: typeof ForumEventsList
-  }
-}
+

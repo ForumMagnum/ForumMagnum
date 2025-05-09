@@ -69,8 +69,4 @@ export const DebateBodyInner = ({ debateResponses, post, classes }: {
 
 export const DebateBody = registerComponent('DebateBody', DebateBodyInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateBody: typeof DebateBody
-  }
-}
+

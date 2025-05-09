@@ -82,9 +82,5 @@ const PostsItemCommentsInner = ({ commentCount, small, onClick, unreadComments, 
 
 export const PostsItemComments = registerComponent('PostsItemComments', PostsItemCommentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemComments: typeof PostsItemComments
-  }
-}
+
 

@@ -90,8 +90,4 @@ const NewConversationButtonInner = ({
 
 export const NewConversationButton = registerComponent('NewConversationButton', NewConversationButtonInner);
 
-declare global {
-  interface ComponentTypes {
-    NewConversationButton: typeof NewConversationButton
-  }
-}
+

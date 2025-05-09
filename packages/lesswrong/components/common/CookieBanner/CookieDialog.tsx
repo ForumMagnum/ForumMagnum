@@ -234,8 +234,4 @@ export const CookieDialog = registerComponent("CookieDialog", CookieDialogInner,
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CookieDialog: typeof CookieDialog;
-  }
-}
+

@@ -118,8 +118,4 @@ const EditorTopBarInner = ({accessLevel, collaborationMode, setCollaborationMode
 
 export const EditorTopBar = registerComponent("EditorTopBar", EditorTopBarInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditorTopBar: typeof EditorTopBar
-  }
-}
+

@@ -13,9 +13,5 @@ const SequencesPostInner = () => {
 
 export const SequencesPost = registerComponent('SequencesPost', SequencesPostInner);
 
-declare global {
-  interface ComponentTypes {
-    SequencesPost: typeof SequencesPost
-  }
-}
+
 

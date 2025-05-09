@@ -80,8 +80,4 @@ const OverallVoteButtonInner = <T extends VoteableTypeClient>({
 
 export const OverallVoteButton = registerComponent('OverallVoteButton', OverallVoteButtonInner);
 
-declare global {
-  interface ComponentTypes {
-    OverallVoteButton: typeof OverallVoteButton
-  }
-}
+

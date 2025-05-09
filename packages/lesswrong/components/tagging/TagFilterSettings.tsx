@@ -131,8 +131,4 @@ const TagFilterSettingsInner = ({
 
 export const TagFilterSettings = registerComponent("TagFilterSettings", TagFilterSettingsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagFilterSettings: typeof TagFilterSettings
-  }
-}
+

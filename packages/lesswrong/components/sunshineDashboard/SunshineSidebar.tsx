@@ -101,8 +101,4 @@ export const SunshineSidebar = registerComponent("SunshineSidebar", SunshineSide
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineSidebar: typeof SunshineSidebar
-  }
-}
+

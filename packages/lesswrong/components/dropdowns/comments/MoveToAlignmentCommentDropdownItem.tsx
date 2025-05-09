@@ -109,8 +109,4 @@ export const MoveToAlignmentCommentDropdownItem = registerComponent(
   'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItemInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToAlignmentCommentDropdownItem: typeof MoveToAlignmentCommentDropdownItem
-  }
-}
+

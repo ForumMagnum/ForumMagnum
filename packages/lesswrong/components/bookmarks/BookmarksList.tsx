@@ -68,8 +68,4 @@ export const BookmarksList = registerComponent('BookmarksList', BookmarksListInn
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarksList: typeof BookmarksList
-  }
-}
+

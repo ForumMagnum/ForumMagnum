@@ -257,8 +257,4 @@ export const TabNavigationItem = registerComponent(
   'TabNavigationItem', TabNavigationItemInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationItem: typeof TabNavigationItem
-  }
-}
+

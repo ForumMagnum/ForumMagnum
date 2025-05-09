@@ -20,8 +20,4 @@ const SubSectionInner = ({children, classes, className}: {
 
 export const SubSection = registerComponent('SubSection', SubSectionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubSection: typeof SubSection
-  }
-}
+

@@ -151,8 +151,4 @@ const RejectContentDialogInner = ({classes, rejectContent}: {
 
 export const RejectContentDialog = registerComponent('RejectContentDialog', RejectContentDialogInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    RejectContentDialog: typeof RejectContentDialog
-  }
-}
+

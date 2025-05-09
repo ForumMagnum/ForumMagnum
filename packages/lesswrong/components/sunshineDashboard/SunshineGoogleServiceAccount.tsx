@@ -55,8 +55,4 @@ const SunshineGoogleServiceAccountInner = ({ classes }: {
 
 export const SunshineGoogleServiceAccount = registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccountInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SunshineGoogleServiceAccount: typeof SunshineGoogleServiceAccount
-  }
-}
+

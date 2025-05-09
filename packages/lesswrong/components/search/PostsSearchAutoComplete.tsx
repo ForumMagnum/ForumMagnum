@@ -19,9 +19,5 @@ const PostsSearchAutoCompleteInner = ({clickAction, placeholder='Search for post
 
 export const PostsSearchAutoComplete = registerComponent("PostsSearchAutoComplete", PostsSearchAutoCompleteInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsSearchAutoComplete: typeof PostsSearchAutoComplete
-  }
-}
+
 

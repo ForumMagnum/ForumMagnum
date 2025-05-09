@@ -115,10 +115,6 @@ const GenerateImagesButtonInner = ({
 
 export const GenerateImagesButton = registerComponent('GenerateImagesButton', GenerateImagesButtonInner);
 
-declare global {
-  interface ComponentTypes {
-    GenerateImagesButton: typeof GenerateImagesButton
-  }
-}
+
 
 export default GenerateImagesButtonInner;

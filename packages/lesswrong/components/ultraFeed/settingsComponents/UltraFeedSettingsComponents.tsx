@@ -15,8 +15,7 @@ import {
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { useTracking } from '@/lib/analyticsEvents';
-import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { ZodFormattedError } from 'zod';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
@@ -637,12 +636,4 @@ const MiscSettingsInner: React.FC<MiscSettingsProps> = ({ formValues, onBooleanC
 
 export const MiscSettings = registerComponent('MiscSettings', MiscSettingsInner);
 
-declare global {
-  interface ComponentTypes {
-    SourceWeightsSettings: typeof SourceWeightsSettings
-    TruncationGridSettings: typeof TruncationGridSettings
-    AdvancedTruncationSettings: typeof AdvancedTruncationSettings
-    MultipliersSettings: typeof MultipliersSettings
-    MiscSettings: typeof MiscSettings
-  }
-}
+

@@ -39,8 +39,4 @@ const InboxWrapperInner = () => {
 
 export const InboxWrapper = registerComponent('InboxWrapper', InboxWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    InboxWrapper: typeof InboxWrapper
-  }
-}
+

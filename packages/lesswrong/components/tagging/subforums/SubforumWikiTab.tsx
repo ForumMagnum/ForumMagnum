@@ -155,8 +155,4 @@ export const SubforumWikiTab = registerComponent(
   'SubforumWikiTab', SubforumWikiTabInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SubforumWikiTab: typeof SubforumWikiTab
-  }
-}
+

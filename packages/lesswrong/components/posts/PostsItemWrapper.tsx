@@ -101,9 +101,5 @@ const PostsItemWrapperInner = ({documentId, classes, addItem, removeItem, disabl
 
 export const PostsItemWrapper = registerComponent('PostsItemWrapper', PostsItemWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemWrapper: typeof PostsItemWrapper
-  }
-}
+
 

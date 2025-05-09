@@ -78,8 +78,4 @@ export const WrappedTimeSpentSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedTimeSpentSection: typeof WrappedTimeSpentSection
-  }
-}
+

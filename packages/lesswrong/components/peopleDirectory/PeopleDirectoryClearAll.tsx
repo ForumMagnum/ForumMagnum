@@ -30,8 +30,4 @@ export const PeopleDirectoryClearAll = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryClearAll: typeof PeopleDirectoryClearAll
-  }
-}
+

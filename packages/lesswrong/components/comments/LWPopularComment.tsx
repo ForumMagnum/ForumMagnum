@@ -256,8 +256,4 @@ export const LWPopularComment = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWPopularComment: typeof LWPopularComment
-  }
-}
+

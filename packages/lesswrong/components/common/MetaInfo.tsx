@@ -40,8 +40,4 @@ const MetaInfoInner = ({children, classes, button, className}: {
 
 export const MetaInfo = registerComponent('MetaInfo', MetaInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MetaInfo: typeof MetaInfo
-  }
-}
+

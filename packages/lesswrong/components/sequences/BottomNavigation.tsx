@@ -107,9 +107,5 @@ export const BottomNavigation = registerComponent('BottomNavigation', BottomNavi
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    BottomNavigation: typeof BottomNavigation
-  }
-}
+
 

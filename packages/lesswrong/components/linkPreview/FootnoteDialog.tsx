@@ -37,9 +37,5 @@ const FootnoteDialogInner = ({ footnoteHTML, onClose, classes }: {
 
 export const FootnoteDialog = registerComponent('FootnoteDialog', FootnoteDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FootnoteDialog: typeof FootnoteDialog
-  }
-}
+
 

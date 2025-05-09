@@ -205,8 +205,4 @@ const TagFlagEditAndNewFormInner = ({ initialData, onClose }: {
 
 export const TagFlagEditAndNewForm = registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewFormInner);
 
-declare global {
-  interface ComponentTypes {
-    TagFlagEditAndNewForm: typeof TagFlagEditAndNewForm
-  }
-}
+

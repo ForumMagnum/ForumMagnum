@@ -69,8 +69,4 @@ const AllTagsAlphabeticalInner = ({classes}: {
 
 export const AllTagsAlphabetical = registerComponent("AllTagsAlphabetical", AllTagsAlphabeticalInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AllTagsAlphabetical: typeof AllTagsAlphabetical
-  }
-}
+

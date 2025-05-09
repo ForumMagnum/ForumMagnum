@@ -149,9 +149,5 @@ export const ModeratorActionItemInner = ({classes, user, moderatorAction, commen
 
 export const ModeratorActionItem = registerComponent('ModeratorActionItem', ModeratorActionItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorActionItem: typeof ModeratorActionItem
-  }
-}
+
 

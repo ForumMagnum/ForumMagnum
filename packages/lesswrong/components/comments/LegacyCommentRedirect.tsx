@@ -32,9 +32,5 @@ const LegacyCommentRedirectInner = () => {
 
 export const LegacyCommentRedirect = registerComponent('LegacyCommentRedirect', LegacyCommentRedirectInner);
 
-declare global {
-  interface ComponentTypes {
-    LegacyCommentRedirect: typeof LegacyCommentRedirect,
-  }
-}
+
 

@@ -102,8 +102,4 @@ const SectionTitleInner = ({
 
 export const SectionTitle = registerComponent('SectionTitle', SectionTitleInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SectionTitle: typeof SectionTitle
-  }
-}
+

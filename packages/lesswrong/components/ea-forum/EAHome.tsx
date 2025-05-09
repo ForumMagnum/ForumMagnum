@@ -113,8 +113,4 @@ const EAHomeInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
 export const EAHome = registerComponent('EAHome', EAHomeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHome: typeof EAHome
-  }
-}
+

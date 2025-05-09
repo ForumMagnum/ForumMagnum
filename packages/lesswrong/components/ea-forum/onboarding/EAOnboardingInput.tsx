@@ -69,8 +69,4 @@ export const EAOnboardingInput = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingInput: typeof EAOnboardingInput
-  }
-}
+

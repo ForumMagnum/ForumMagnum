@@ -20,8 +20,4 @@ export const PeopleDirectoryMainSearch = registerComponent(
   PeopleDirectoryMainSearchInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryMainSearch: typeof PeopleDirectoryMainSearch
-  }
-}
+

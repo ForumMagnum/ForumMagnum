@@ -16,8 +16,4 @@ const TimeTagInner = ({dateTime, children, className}: {
 
 export const TimeTag = registerComponent('TimeTag', TimeTagInner);
 
-declare global {
-  interface ComponentTypes {
-    TimeTag: typeof TimeTag
-  }
-}
+

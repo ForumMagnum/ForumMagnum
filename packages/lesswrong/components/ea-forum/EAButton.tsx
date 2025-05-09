@@ -96,8 +96,4 @@ export const EAButton = registerComponent(
   'EAButton', EAButtonInner, {styles, stylePriority: -2}
 )
 
-declare global {
-  interface ComponentTypes {
-    EAButton: typeof EAButton
-  }
-}
+

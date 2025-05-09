@@ -48,9 +48,5 @@ const FormComponentRadioGroupInner = ({ path, value, options, name, label, updat
 
 export const FormComponentRadioGroup = registerComponent("FormComponentRadioGroup", FormComponentRadioGroupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FormComponentRadioGroup: typeof FormComponentRadioGroup
-  }
-}
+
 

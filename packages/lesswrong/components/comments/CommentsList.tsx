@@ -121,9 +121,5 @@ export const CommentsList = registerComponent('CommentsList', CommentsListFnInne
   styles, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsList: typeof CommentsList,
-  }
-}
+
 

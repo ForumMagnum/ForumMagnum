@@ -76,8 +76,4 @@ const LatestReviewInner = ({classes}: { classes: ClassesType<typeof styles> }) =
 
 export const LatestReview = registerComponent('LatestReview', LatestReviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LatestReview: typeof LatestReview
-  }
-}
+

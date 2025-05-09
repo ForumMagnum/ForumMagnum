@@ -444,8 +444,4 @@ function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): co
   return !!(comment as CommentsListWithParentMetadata).tag
 }
 
-declare global {
-  interface ComponentTypes {
-    CommentsItem: typeof CommentsItem,
-  }
-}
+

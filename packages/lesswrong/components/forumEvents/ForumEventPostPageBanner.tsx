@@ -107,8 +107,4 @@ export const ForumEventPostPageBanner = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPostPageBanner: typeof ForumEventPostPageBanner
-  }
-}
+

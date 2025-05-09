@@ -121,8 +121,4 @@ export const PostSideRecommendations = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostSideRecommendations: typeof PostSideRecommendations
-  }
-}
+

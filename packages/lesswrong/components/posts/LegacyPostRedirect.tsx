@@ -22,9 +22,5 @@ const LegacyPostRedirectInner = () => {
 
 export const LegacyPostRedirect = registerComponent('LegacyPostRedirect', LegacyPostRedirectInner);
 
-declare global {
-  interface ComponentTypes {
-    LegacyPostRedirect: typeof LegacyPostRedirect
-  }
-}
+
 

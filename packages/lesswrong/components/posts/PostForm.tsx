@@ -1200,8 +1200,4 @@ const PostFormInner = ({
 
 export const PostForm = registerComponent("PostForm", PostFormInner);
 
-declare global {
-  interface ComponentTypes {
-    PostForm: typeof PostForm
-  }
-}
+

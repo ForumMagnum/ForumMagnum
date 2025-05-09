@@ -112,9 +112,5 @@ export const AdminToggleInner = ({classes}: {
 
 export const AdminToggle = registerComponent('AdminToggle', AdminToggleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AdminToggle: typeof AdminToggle
-  }
-}
+
 

@@ -53,8 +53,4 @@ const DividerInner = ({ classes, wings=true, margin=24 }: {
 }
 export const Divider = registerComponent('Divider', DividerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Divider: typeof Divider
-  }
-}
+

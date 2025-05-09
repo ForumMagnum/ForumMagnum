@@ -62,9 +62,5 @@ const QuestionsPageInner = () => {
 
 export const QuestionsPage = registerComponent('QuestionsPage', QuestionsPageInner);
 
-declare global {
-  interface ComponentTypes {
-    QuestionsPage: typeof QuestionsPage
-  }
-}
+
 

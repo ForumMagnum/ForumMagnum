@@ -142,14 +142,10 @@ const NotifyMeButtonInner = ({
     : maybeToolipButton;
 }
 
-export const SubscribeTo = registerComponent(
+export const NotifyMeButton = registerComponent(
   'NotifyMeButton',
   NotifyMeButtonInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SubscribeTo: typeof SubscribeTo
-  }
-}
+

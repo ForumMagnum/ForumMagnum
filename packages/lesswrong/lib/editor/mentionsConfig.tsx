@@ -5,8 +5,10 @@ import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
 import {tagUrlBaseSetting} from '@/lib/instanceSettings'
 import { filterNonnull } from '../utils/typeGuardUtils'
-import { Components } from "../vulcan-lib/components";
 import { getSiteUrl } from "../vulcan-lib/utils";
+import { UserMentionHit } from '@/components/search/UserMentionHit'
+import { PostMentionHit } from '@/components/search/PostMentionHit'
+import { TagMentionHit } from '@/components/search/TagMentionHit'
 
 const MARKER = "@";
 
@@ -91,13 +93,13 @@ const itemRenderer = (item: MentionItem) => {
   const root = createRoot(itemElement);
   switch (item.type) {
     case "Users":
-      root.render(<Components.UserMentionHit hit={item.hit} />);
+      root.render(<UserMentionHit hit={item.hit} />);
       break;
     case "Posts":
-      root.render(<Components.PostMentionHit hit={item.hit} />);
+      root.render(<PostMentionHit hit={item.hit} />);
       break;
     case "Tags":
-      root.render(<Components.TagMentionHit hit={item.hit} />);
+      root.render(<TagMentionHit hit={item.hit} />);
       break;
   }
   return itemElement;

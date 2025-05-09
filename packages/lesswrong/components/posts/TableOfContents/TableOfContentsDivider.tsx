@@ -23,9 +23,5 @@ const TableOfContentsDividerInner = ({ scaleStyling }: {
 
 export const TableOfContentsDivider = registerComponent('TableOfContentsDivider', TableOfContentsDividerInner);
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsDivider: typeof TableOfContentsDivider
-  }
-}
+
 

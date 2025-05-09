@@ -37,9 +37,5 @@ const AdminMetadataInner = ({ classes }: { classes: ClassesType<typeof styles> }
 
 export const AdminMetadata = registerComponent('AdminMetadata', AdminMetadataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AdminMetadata: typeof AdminMetadata
-  }
-}
+
 

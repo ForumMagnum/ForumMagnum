@@ -156,9 +156,5 @@ const RedlinkTagPageInner = ({tag, slug}: {
 
 export const RedlinkTagPage = registerComponent('RedlinkTagPage', RedlinkTagPageInner);
 
-declare global {
-  interface ComponentTypes {
-    RedlinkTagPage: typeof RedlinkTagPage
-  }
-}
+
 

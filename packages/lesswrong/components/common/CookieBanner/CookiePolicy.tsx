@@ -221,8 +221,4 @@ const CookiePolicyInner = ({ classes }: { classes: ClassesType<typeof styles> })
 
 export const CookiePolicy = registerComponent("CookiePolicy", CookiePolicyInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CookiePolicy: typeof CookiePolicy;
-  }
-}
+

@@ -175,8 +175,4 @@ export const PeopleDirectoryCard = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryCard: typeof PeopleDirectoryCard
-  }
-}
+

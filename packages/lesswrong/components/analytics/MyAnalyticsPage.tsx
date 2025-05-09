@@ -22,8 +22,4 @@ const MyAnalyticsPageInner = () => {
 
 export const MyAnalyticsPage = registerComponent('MyAnalyticsPage', MyAnalyticsPageInner);
 
-declare global {
-  interface ComponentTypes {
-    MyAnalyticsPage: typeof MyAnalyticsPage
-  }
-}
+

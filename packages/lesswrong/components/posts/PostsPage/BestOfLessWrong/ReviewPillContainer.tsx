@@ -120,10 +120,6 @@ const ReviewPillContainerInner = ({postId}: {postId: string}) => {
 
 export const ReviewPillContainer = registerComponent('ReviewPillContainer', ReviewPillContainerInner);
 
-declare global {
-  interface ComponentTypes {
-    ReviewPillContainer: typeof ReviewPillContainer
-  }
-}
+
 
 export default ReviewPillContainerInner;

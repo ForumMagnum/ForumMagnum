@@ -67,8 +67,4 @@ const ReviewVotingWidgetInner = ({classes, post, setNewVote, showTitle=true}: {c
 
 export const ReviewVotingWidget = registerComponent('ReviewVotingWidget', ReviewVotingWidgetInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingWidget: typeof ReviewVotingWidget
-  }
-}
+

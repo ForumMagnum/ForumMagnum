@@ -38,8 +38,4 @@ export const MarkAsReadDropdownItem = registerComponent(
   MarkAsReadDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    MarkAsReadDropdownItem: typeof MarkAsReadDropdownItem
-  }
-}
+

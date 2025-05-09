@@ -48,9 +48,5 @@ export const CommentDeletedMetadata = registerComponent(
   'CommentDeletedMetadata', CommentDeletedMetadataInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentDeletedMetadata: typeof CommentDeletedMetadata,
-  }
-}
+
 

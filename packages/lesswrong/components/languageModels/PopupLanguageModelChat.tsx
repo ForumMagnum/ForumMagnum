@@ -128,8 +128,4 @@ const PopupLanguageModelChatInner = ({onClose, classes}: {
 
 export const PopupLanguageModelChat = registerComponent('PopupLanguageModelChat', PopupLanguageModelChatInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PopupLanguageModelChat: typeof PopupLanguageModelChat
-  }
-}
+

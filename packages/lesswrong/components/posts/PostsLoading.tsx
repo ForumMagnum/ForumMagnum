@@ -41,8 +41,4 @@ const PostsLoadingInner = ({
 
 export const PostsLoading = registerComponent('PostsLoading', PostsLoadingInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsLoading: typeof PostsLoading
-  }
-}
+

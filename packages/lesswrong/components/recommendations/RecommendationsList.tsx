@@ -60,8 +60,4 @@ export const RecommendationsList = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsList: typeof RecommendationsList
-  }
-}
+

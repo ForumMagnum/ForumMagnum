@@ -164,8 +164,4 @@ const AllPostsListInner = ({
 
 export const AllPostsList = registerComponent("AllPostsList", AllPostsListInner);
 
-declare global {
-  interface ComponentTypes {
-    AllPostsList: typeof AllPostsList
-  }
-}
+

@@ -43,9 +43,5 @@ const InlineReactHoverInfoInner = ({quote, reactions, voteProps, classes}: {
 
 export const InlineReactHoverInfo = registerComponent('InlineReactHoverInfo', InlineReactHoverInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    InlineReactHoverInfo: typeof InlineReactHoverInfo
-  }
-}
+
 

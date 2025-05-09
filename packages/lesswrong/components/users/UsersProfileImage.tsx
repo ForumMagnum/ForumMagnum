@@ -171,8 +171,4 @@ export const UsersProfileImage = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersProfileImage: typeof UsersProfileImage
-  }
-}
+

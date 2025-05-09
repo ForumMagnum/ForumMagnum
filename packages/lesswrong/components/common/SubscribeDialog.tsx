@@ -333,8 +333,4 @@ const SubscribeDialogInner = (props: {
 
 export const SubscribeDialog = registerComponent("SubscribeDialog", SubscribeDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    SubscribeDialog: typeof SubscribeDialog
-  }
-}
+

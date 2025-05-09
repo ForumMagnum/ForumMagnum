@@ -84,8 +84,4 @@ const SequencesListEditorItemInner = ({documentId, removeItem, classes}: {
 
 export const SequencesListEditorItem = registerComponent('SequencesListEditorItem', SequencesListEditorItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesListEditorItem: typeof SequencesListEditorItem
-  }
-}
+

@@ -63,8 +63,4 @@ const PostsListEditorSearchHitInner = ({hit, classes}: {
 
 export const PostsListEditorSearchHit = registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListEditorSearchHit: typeof PostsListEditorSearchHit
-  }
-}
+

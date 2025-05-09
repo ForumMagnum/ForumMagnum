@@ -121,8 +121,4 @@ export const EAForumWrappedPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAForumWrappedPage: typeof EAForumWrappedPage
-  }
-}
+

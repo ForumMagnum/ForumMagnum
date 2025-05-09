@@ -30,8 +30,4 @@ const PostsItem2MetaInfoInner = ({children, className, classes}: {
 
 export const PostsItem2MetaInfo = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfoInner, {styles});
   
-declare global {
-  interface ComponentTypes {
-    PostsItem2MetaInfo: typeof PostsItem2MetaInfoComponent
-  }
-}
+

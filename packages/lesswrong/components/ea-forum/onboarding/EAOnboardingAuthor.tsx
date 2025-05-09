@@ -106,8 +106,4 @@ export const EAOnboardingAuthor = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingAuthor: typeof EAOnboardingAuthor
-  }
-}
+

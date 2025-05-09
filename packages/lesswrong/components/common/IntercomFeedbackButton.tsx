@@ -55,8 +55,4 @@ export const IntercomFeedbackButton = registerComponent(
   {styles, stylePriority: -5},
 );
 
-declare global {
-  interface ComponentTypes {
-    IntercomFeedbackButton: typeof IntercomFeedbackButton
-  }
-}
+

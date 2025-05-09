@@ -89,8 +89,4 @@ export const CommentPollVote = registerComponent("CommentPollVote", CommentPollV
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentPollVote: typeof CommentPollVote;
-  }
-}
+

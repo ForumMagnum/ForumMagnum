@@ -147,8 +147,4 @@ export const PetrovLaunchConsoleInner = ({classes, side, currentUser}: {
 
 export const PetrovLaunchConsole = registerComponent('PetrovLaunchConsole', PetrovLaunchConsoleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovLaunchConsole: typeof PetrovLaunchConsole
-  }
-}
+

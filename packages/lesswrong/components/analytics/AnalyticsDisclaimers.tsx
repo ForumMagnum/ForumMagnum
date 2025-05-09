@@ -60,8 +60,4 @@ export const AnalyticsDisclaimers = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsDisclaimers: typeof AnalyticsDisclaimers;
-  }
-}
+

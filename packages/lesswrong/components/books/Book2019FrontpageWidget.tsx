@@ -210,8 +210,4 @@ const Book2019FrontpageWidgetInner = ({ classes }: {
 
 export const Book2019FrontpageWidget = registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidgetInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    Book2019FrontpageWidget: typeof Book2019FrontpageWidgetComponent
-  }
-}
+

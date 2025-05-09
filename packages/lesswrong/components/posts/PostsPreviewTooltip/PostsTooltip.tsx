@@ -122,8 +122,4 @@ export const PostsTooltip = registerComponent(
   PostsTooltipInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsTooltip: typeof PostsTooltip
-  }
-}
+

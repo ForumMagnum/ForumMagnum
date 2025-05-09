@@ -49,8 +49,4 @@ const PostsAuthorsInner = ({classes, post, pageSectionContext}: {
 
 export const PostsAuthors = registerComponent('PostsAuthors', PostsAuthorsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAuthors: typeof PostsAuthors
-  }
-}
+

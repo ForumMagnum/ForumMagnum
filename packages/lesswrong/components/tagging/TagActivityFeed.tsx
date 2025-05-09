@@ -54,8 +54,4 @@ const TagActivityFeedInner = ({pageSize = 50}: {
 
 export const TagActivityFeed = registerComponent("TagActivityFeed", TagActivityFeedInner);
 
-declare global {
-  interface ComponentTypes {
-    TagActivityFeed: typeof TagActivityFeed
-  }
-}
+

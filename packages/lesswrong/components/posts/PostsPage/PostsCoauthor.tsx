@@ -43,8 +43,4 @@ export const PostsCoauthor = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsCoauthor: typeof PostsCoauthor
-  }
-}
+

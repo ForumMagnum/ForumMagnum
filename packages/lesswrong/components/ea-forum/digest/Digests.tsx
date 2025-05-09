@@ -73,8 +73,4 @@ const DigestsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
 export const Digests = registerComponent('Digests', DigestsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Digests: typeof Digests
-  }
-}
+

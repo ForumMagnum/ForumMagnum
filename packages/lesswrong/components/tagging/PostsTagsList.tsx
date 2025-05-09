@@ -99,9 +99,5 @@ export const PostsTagsListInner = (
 
 export const PostsTagsList = registerComponent('PostsTagsList', PostsTagsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTagsList: typeof PostsTagsList
-  }
-}
+
 

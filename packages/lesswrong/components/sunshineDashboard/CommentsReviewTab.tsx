@@ -24,8 +24,4 @@ export const CommentsReviewTabInner = ({commentsWithActions, classes}: {
 
 export const CommentsReviewTab = registerComponent('CommentsReviewTab', CommentsReviewTabInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsReviewTab: typeof CommentsReviewTab
-  }
-}
+

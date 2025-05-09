@@ -575,8 +575,4 @@ const LlmChatWrapperInner = ({children}: {
 
 export const LlmChatWrapper = registerComponent("LlmChatWrapper", LlmChatWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    LlmChatWrapper: typeof LlmChatWrapper
-  }
-}
+

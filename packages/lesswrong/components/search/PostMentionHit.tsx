@@ -40,8 +40,4 @@ export const PostMentionHit = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostMentionHit: typeof PostMentionHit
-  }
-}
+

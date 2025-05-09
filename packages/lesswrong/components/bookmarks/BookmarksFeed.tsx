@@ -114,8 +114,4 @@ export const BookmarksFeed = registerComponent('BookmarksFeed', BookmarksFeedInn
 
 export default BookmarksFeedInner;
 
-declare global {
-  interface ComponentTypes {
-    BookmarksFeed: typeof BookmarksFeed
-  }
-} 
+ 

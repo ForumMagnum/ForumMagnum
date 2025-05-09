@@ -171,9 +171,5 @@ export const VoteArrowIconSolid = registerComponent( 'VoteArrowIconSolid', VoteA
 
 
 
-declare global {
-  interface ComponentTypes {
-    VoteArrowIconSolid: typeof VoteArrowIconSolid;
-  }
-}
+
 

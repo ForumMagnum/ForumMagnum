@@ -91,9 +91,5 @@ const ExpandedPostsSearchHitInner = ({hit, classes}: {
 
 export const ExpandedPostsSearchHit = registerComponent("ExpandedPostsSearchHit", ExpandedPostsSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedPostsSearchHit: typeof ExpandedPostsSearchHit
-  }
-}
+
 

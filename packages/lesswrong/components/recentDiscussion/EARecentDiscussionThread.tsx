@@ -180,8 +180,4 @@ export const EARecentDiscussionThread = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionThread: typeof EARecentDiscussionThread,
-  }
-}
+

@@ -130,8 +130,4 @@ export const RecombeePostsListSettingsInner = ({ settings, updateSettings, class
  
 export const RecombeePostsListSettings = registerComponent('RecombeePostsListSettings', RecombeePostsListSettingsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecombeePostsListSettings: typeof RecombeePostsListSettings
-  }
-}
+

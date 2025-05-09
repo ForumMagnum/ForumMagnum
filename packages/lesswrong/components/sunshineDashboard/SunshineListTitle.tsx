@@ -24,9 +24,5 @@ const SunshineListTitleInner = ({children, classes}: {
 
 export const SunshineListTitle = registerComponent('SunshineListTitle', SunshineListTitleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineListTitle: typeof SunshineListTitle
-  }
-}
+
 

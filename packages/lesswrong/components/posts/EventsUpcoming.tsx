@@ -18,8 +18,4 @@ const EventsUpcomingInner = () => {
 
 export const EventsUpcoming = registerComponent('EventsUpcoming', EventsUpcomingInner);
 
-declare global {
-  interface ComponentTypes {
-    EventsUpcoming: typeof EventsUpcoming
-  }
-}
+

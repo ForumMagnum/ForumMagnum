@@ -107,9 +107,5 @@ export const ReviewPhaseInformationInner = ({classes, reviewYear, reviewPhase}: 
 
 export const ReviewPhaseInformation = registerComponent('ReviewPhaseInformation', ReviewPhaseInformationInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPhaseInformation: typeof ReviewPhaseInformation
-  }
-}
+
 

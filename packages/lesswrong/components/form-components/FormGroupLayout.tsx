@@ -94,8 +94,4 @@ const FormGroupLayoutInner = ({
 
 export const FormGroupLayout = registerComponent('FormGroupLayout', FormGroupLayoutInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FormGroupLayout: typeof FormGroupLayout
-  }
-}
+

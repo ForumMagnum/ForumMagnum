@@ -149,8 +149,4 @@ const TagMultiselectInner = ({
 
 export const TagMultiselect = registerComponent('TagMultiselect', TagMultiselectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagMultiselect: typeof TagMultiselect
-  }
-}
+

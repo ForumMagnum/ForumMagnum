@@ -33,8 +33,4 @@ const PostsVoteInner = ({post, useHorizontalLayout, isFooter}: {
 
 export const PostsVote = registerComponent('PostsVote', PostsVoteInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsVote: typeof PostsVote
-  }
-}
+

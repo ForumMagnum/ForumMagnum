@@ -547,8 +547,4 @@ const CommunityInner = ({classes}: {
 
 export const Community = registerComponent('Community', CommunityInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Community: typeof Community
-  }
-}
+

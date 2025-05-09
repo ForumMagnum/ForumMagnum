@@ -167,8 +167,4 @@ const TableOfContentsRowInner = ({
 
 export const TableOfContentsRow = registerComponent("TableOfContentsRow", TableOfContentsRowInner);
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsRow: typeof TableOfContentsRow
-  }
-}
+

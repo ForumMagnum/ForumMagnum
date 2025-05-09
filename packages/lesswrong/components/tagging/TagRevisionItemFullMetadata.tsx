@@ -105,8 +105,4 @@ const TagRevisionItemFullMetadataInner = ({tag, revision, classes}: {
 
 export const TagRevisionItemFullMetadata = registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRevisionItemFullMetadata: typeof TagRevisionItemFullMetadata
-  }
-}
+

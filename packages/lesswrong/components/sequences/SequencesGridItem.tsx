@@ -176,9 +176,5 @@ const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemS
 
 export const SequencesGridItem = registerComponent('SequencesGridItem', SequencesGridItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesGridItem: typeof SequencesGridItem
-  }
-}
+
 

@@ -111,8 +111,4 @@ const PostBodyPrefixInner = ({post, query, classes}: {
 
 export const PostBodyPrefix = registerComponent('PostBodyPrefix', PostBodyPrefixInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostBodyPrefix: typeof PostBodyPrefix
-  }
-}
+

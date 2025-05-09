@@ -108,8 +108,4 @@ export default function BookCheckoutInner({classes, ignoreMessages = false, text
 
 export const BookCheckout = registerComponent('BookCheckout', BookCheckoutInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BookCheckout: typeof BookCheckout
-  }
-}
+

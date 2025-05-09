@@ -34,8 +34,4 @@ export const PostsAudioPlayerWrapperInner = ({post, showEmbeddedPlayer, classes}
 
 export const PostsAudioPlayerWrapper = registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAudioPlayerWrapper: typeof PostsAudioPlayerWrapper
-  }
-}
+

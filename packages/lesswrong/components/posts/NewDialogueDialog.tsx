@@ -142,8 +142,4 @@ const NewDialogueDialogInner = ({initialParticipantIds, onClose, classes}: {
 
 export const NewDialogueDialog = registerComponent('NewDialogueDialog', NewDialogueDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewDialogueDialog: typeof NewDialogueDialog
-  }
-}
+

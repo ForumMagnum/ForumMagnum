@@ -20,9 +20,5 @@ const ReactionDescriptionInner = ({reaction, contentType="comment", className}: 
 
 export const ReactionDescription = registerComponent('ReactionDescription', ReactionDescriptionInner);
 
-declare global {
-  interface ComponentTypes {
-    ReactionDescription: typeof ReactionDescription
-  }
-}
+
 

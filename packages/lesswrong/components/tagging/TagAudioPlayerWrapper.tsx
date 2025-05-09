@@ -33,8 +33,4 @@ export const TagAudioPlayerWrapperInner = ({tag, showEmbeddedPlayer}: {
 
 export const TagAudioPlayerWrapper = registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    TagAudioPlayerWrapper: typeof TagAudioPlayerWrapper
-  }
-} 
+ 

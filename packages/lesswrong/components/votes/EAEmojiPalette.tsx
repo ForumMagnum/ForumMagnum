@@ -108,8 +108,4 @@ export const EAEmojiPalette = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAEmojiPalette: typeof EAEmojiPalette
-  }
-}
+

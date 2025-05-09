@@ -21,9 +21,5 @@ const SunshineListCountInner = ({ count, classes }: {
 
 export const SunshineListCount = registerComponent('SunshineListCount', SunshineListCountInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineListCount: typeof SunshineListCount
-  }
-}
+
 

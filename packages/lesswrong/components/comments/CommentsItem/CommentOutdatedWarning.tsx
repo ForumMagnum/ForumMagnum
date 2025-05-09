@@ -59,9 +59,5 @@ export const CommentOutdatedWarning = registerComponent(
   'CommentOutdatedWarning', CommentOutdatedWarningInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentOutdatedWarning: typeof CommentOutdatedWarning,
-  }
-}
+
 

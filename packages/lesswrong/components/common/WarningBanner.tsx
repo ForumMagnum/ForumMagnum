@@ -42,8 +42,4 @@ const WarningBannerInner = ({message, classes}: {
 
 export const WarningBanner = registerComponent('WarningBanner', WarningBannerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WarningBanner: typeof WarningBanner
-  }
-}
+

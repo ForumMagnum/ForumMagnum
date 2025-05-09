@@ -82,8 +82,4 @@ const ShortformSubmitFormInner = ({
 
 export const ShortformSubmitForm = registerComponent('ShortformSubmitForm', ShortformSubmitFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformSubmitForm: typeof ShortformSubmitForm
-  }
-}
+

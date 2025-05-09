@@ -103,8 +103,4 @@ const PostsItemMetaInner = ({post, read, hideTags, classes}: {
 
 export const PostsItemMeta = registerComponent('PostsItemMeta', PostsItemMetaInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemMeta: typeof PostsItemMeta
-  }
-}
+

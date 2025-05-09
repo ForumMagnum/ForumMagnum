@@ -128,9 +128,5 @@ const HomepageMapFilterInner = ({classes}: {classes: ClassesType<typeof styles>}
 
 export const HomepageMapFilter = registerComponent('HomepageMapFilter', HomepageMapFilterInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomepageMapFilter: typeof HomepageMapFilter
-  }
-}
+
 

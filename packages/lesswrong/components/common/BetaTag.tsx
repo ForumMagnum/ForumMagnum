@@ -19,8 +19,4 @@ const BetaTagInner = ({classes}: {
 
 export const BetaTag = registerComponent('BetaTag', BetaTagInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BetaTag: typeof BetaTag
-  }
-}
+

@@ -128,8 +128,4 @@ export const QuickReviewPageInner = ({classes, reviewYear}: {
 
 export const QuickReviewPage = registerComponent('QuickReviewPage', QuickReviewPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    QuickReviewPage: typeof QuickReviewPage
-  }
-}
+

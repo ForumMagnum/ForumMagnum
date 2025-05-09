@@ -440,8 +440,4 @@ const ReviewVotingPageInner = ({classes, reviewYear, expandedPost, setExpandedPo
 
 export const ReviewVotingPage = registerComponent('ReviewVotingPage', ReviewVotingPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingPage: typeof ReviewVotingPage
-  }
-}
+

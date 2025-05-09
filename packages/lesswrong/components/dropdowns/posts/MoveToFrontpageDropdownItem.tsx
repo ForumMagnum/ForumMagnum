@@ -74,8 +74,4 @@ export const MoveToFrontpageDropdownItem = registerComponent(
   MoveToFrontpageDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToFrontpageDropdownItem: typeof MoveToFrontpageDropdownItem
-  }
-}
+

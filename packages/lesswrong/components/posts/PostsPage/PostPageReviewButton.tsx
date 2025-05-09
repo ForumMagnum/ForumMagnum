@@ -46,8 +46,4 @@ function PostPageReviewButtonInner({post}: {post: PostsWithNavigation|PostsWithN
 
 export const PostPageReviewButton = registerComponent('PostPageReviewButton', PostPageReviewButtonInner);
 
-declare global {
-  interface ComponentTypes {
-    PostPageReviewButton: typeof PostPageReviewButton
-  }
-}
+

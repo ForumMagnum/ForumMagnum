@@ -108,8 +108,4 @@ export const TagContributorsList = registerComponent("TagContributorsList", TagC
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    TagContributorsList: typeof TagContributorsList
-  }
-}
+

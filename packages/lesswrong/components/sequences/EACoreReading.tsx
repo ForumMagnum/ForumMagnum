@@ -71,8 +71,4 @@ const EACoreReadingInner = ({minimal=false, classes}: {
 
 export const EACoreReading = registerComponent("EACoreReading", EACoreReadingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EACoreReading: typeof EACoreReading
-  }
-}
+

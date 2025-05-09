@@ -963,8 +963,4 @@ export const ForumEventPoll = registerComponent(
   {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPoll: typeof ForumEventPoll
-  }
-}
+

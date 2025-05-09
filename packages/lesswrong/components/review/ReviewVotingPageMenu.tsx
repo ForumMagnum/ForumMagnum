@@ -288,8 +288,4 @@ export const ReviewVotingPageMenuInner = ({classes, reviewPhase, loading, sorted
 
 export const ReviewVotingPageMenu = registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenuInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingPageMenu: typeof ReviewVotingPageMenu
-  }
-}
+

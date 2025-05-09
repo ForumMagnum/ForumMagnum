@@ -1,5 +1,6 @@
 import React from 'react';
-import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
+import { EmojiReactName, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
+import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
@@ -116,9 +117,5 @@ const ReactionQuotesHoverInfoInner = ({react, quote, voteProps, commentBodyRef, 
 
 export const ReactionQuotesHoverInfo = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionQuotesHoverInfo: typeof ReactionQuotesHoverInfo
-  }
-}
+
 

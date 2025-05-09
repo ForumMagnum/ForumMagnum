@@ -64,9 +64,5 @@ export const PostInteractionStripeInner = ({classes, post}: {
 
 export const PostInteractionStripe = registerComponent('PostInteractionStripe', PostInteractionStripeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostInteractionStripe: typeof PostInteractionStripe
-  }
-}
+
 

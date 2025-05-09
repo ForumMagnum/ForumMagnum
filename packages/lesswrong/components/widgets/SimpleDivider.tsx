@@ -27,9 +27,5 @@ export const SimpleDividerInner = ({className}: {
 
 export const SimpleDivider = registerComponent('SimpleDivider', SimpleDividerInner);
 
-declare global {
-  interface ComponentTypes {
-    SimpleDivider: typeof SimpleDivider
-  }
-}
+
 

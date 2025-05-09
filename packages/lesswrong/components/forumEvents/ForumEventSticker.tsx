@@ -131,8 +131,4 @@ const ForumEventStickerInner = ({ x, y, theta, user, comment, emoji, icon = "Add
 
 export const ForumEventSticker = registerComponent( 'ForumEventSticker', ForumEventStickerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ForumEventSticker: typeof ForumEventSticker;
-  }
-}
+

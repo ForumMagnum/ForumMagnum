@@ -35,8 +35,4 @@ export const PostsItemNewCommentsWrapper = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsItemNewCommentsWrapper: typeof PostsItemNewCommentsWrapper
-  }
-}
+

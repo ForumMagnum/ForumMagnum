@@ -472,8 +472,4 @@ export const FixedPositionToc = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    FixedPositionToC: typeof FixedPositionToc
-  }
-}
+

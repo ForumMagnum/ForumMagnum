@@ -59,8 +59,4 @@ export const PinToProfileDropdownItem = registerComponent(
 );
 
 
-declare global {
-  interface ComponentTypes {
-    PinToProfileDropdownItem: typeof PinToProfileDropdownItem
-  }
-}
+

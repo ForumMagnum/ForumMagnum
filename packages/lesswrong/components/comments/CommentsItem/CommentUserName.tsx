@@ -145,8 +145,4 @@ export const CommentUserName = registerComponent('CommentUserName', CommentUserN
   stylePriority: 100, //Higher than UsersName, which gets a className from us
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentUserName: typeof CommentUserName
-  }
-}
+

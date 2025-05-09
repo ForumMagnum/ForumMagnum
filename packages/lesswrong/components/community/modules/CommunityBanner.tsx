@@ -78,8 +78,4 @@ export const CommunityBanner = registerComponent('CommunityBanner', CommunityBan
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    CommunityBanner: typeof CommunityBanner
-  }
-}
+

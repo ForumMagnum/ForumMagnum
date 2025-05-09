@@ -57,8 +57,4 @@ const PostsByVoteWrapperInner = ({voteType, year, limit, showMostValuableCheckbo
 
 export const PostsByVoteWrapper = registerComponent("PostsByVoteWrapper", PostsByVoteWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsByVoteWrapper: typeof PostsByVoteWrapper
-  }
-}
+

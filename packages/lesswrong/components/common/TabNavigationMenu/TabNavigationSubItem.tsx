@@ -43,8 +43,4 @@ const TabNavigationSubItemInner = ({children, classes, className}: {
 
 export const TabNavigationSubItem = registerComponent('TabNavigationSubItem', TabNavigationSubItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationSubItem: typeof TabNavigationSubItem
-  }
-}
+

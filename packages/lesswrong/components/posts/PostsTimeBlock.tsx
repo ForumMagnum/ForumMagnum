@@ -270,8 +270,4 @@ export const PostsTimeBlock = registerComponent('PostsTimeBlock', PostsTimeBlock
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsTimeBlock: typeof PostsTimeBlock
-  }
-}
+

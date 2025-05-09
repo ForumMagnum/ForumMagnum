@@ -254,8 +254,4 @@ const LWRecommendationsInner = ({
 
 export const LWRecommendations = registerComponent("LWRecommendations", LWRecommendationsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWRecommendations: typeof LWRecommendations
-  }
-}
+

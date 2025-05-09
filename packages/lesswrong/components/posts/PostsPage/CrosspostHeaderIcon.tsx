@@ -52,8 +52,4 @@ export const CrosspostHeaderIcon = registerComponent(
   "CrosspostHeaderIcon", CrosspostHeaderIconInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CrosspostHeaderIcon: typeof CrosspostHeaderIcon,
-  }
-}
+

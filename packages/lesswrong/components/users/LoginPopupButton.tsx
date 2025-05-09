@@ -45,8 +45,4 @@ const LoginPopupButtonInner = ({classes, children, title, className}: {
 
 export const LoginPopupButton = registerComponent('LoginPopupButton', LoginPopupButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LoginPopupButton: typeof LoginPopupButton
-  }
-}
+

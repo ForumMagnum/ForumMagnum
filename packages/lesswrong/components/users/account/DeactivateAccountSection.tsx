@@ -35,10 +35,6 @@ const DeactivateAccountSectionInner = ({
 
 export const DeactivateAccountSection = registerComponent('DeactivateAccountSection', DeactivateAccountSectionInner);
 
-declare global {
-  interface ComponentTypes {
-    DeactivateAccountSection: typeof DeactivateAccountSection
-  }
-}
+
 
 

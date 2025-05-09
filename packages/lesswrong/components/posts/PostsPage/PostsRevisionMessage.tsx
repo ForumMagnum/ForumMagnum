@@ -33,8 +33,4 @@ const PostsRevisionMessageInner = ({post, classes}: {
 
 export const PostsRevisionMessage = registerComponent('PostsRevisionMessage', PostsRevisionMessageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionMessage: typeof PostsRevisionMessage
-  }
-}
+

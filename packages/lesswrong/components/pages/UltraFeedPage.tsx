@@ -40,8 +40,4 @@ export const UltraFeedPage = registerComponent('UltraFeedPage', UltraFeedPageInn
 
 export default UltraFeedPageInner;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPage: typeof UltraFeedPage
-  }
-} 
+ 

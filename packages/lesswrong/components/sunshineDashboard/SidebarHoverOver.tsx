@@ -33,9 +33,5 @@ const SidebarHoverOverInner = ({children, classes, hover, anchorEl, width=500}: 
 
 export const SidebarHoverOver = registerComponent('SidebarHoverOver', SidebarHoverOverInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarHoverOver: typeof SidebarHoverOver
-  }
-}
+
 

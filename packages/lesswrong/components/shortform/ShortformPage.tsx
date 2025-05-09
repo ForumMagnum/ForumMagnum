@@ -27,8 +27,4 @@ const ShortformPageInner = ({classes}: {
 
 export const ShortformPage = registerComponent('ShortformPage', ShortformPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformPage: typeof ShortformPage
-  }
-}
+

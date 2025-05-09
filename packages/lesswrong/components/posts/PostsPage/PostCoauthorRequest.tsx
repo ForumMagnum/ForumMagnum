@@ -112,8 +112,4 @@ export const PostCoauthorRequest = registerComponent(
   'PostCoauthorRequest', PostCoauthorRequestInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostCoauthorRequest: typeof PostCoauthorRequest,
-  }
-}
+

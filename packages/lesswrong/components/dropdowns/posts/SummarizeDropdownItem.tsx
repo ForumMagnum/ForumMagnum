@@ -39,8 +39,4 @@ export const SummarizeDropdownItem = registerComponent(
   SummarizeDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    SummarizeDropdownItem: typeof SummarizeDropdownItem
-  }
-}
+

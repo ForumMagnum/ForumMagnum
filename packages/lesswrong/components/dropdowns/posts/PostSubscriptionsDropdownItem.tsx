@@ -80,8 +80,4 @@ export const PostSubscriptionsDropdownItem = registerComponent(
   PostSubscriptionsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostSubscriptionsDropdownItem: typeof PostSubscriptionsDropdownItem
-  }
-}
+

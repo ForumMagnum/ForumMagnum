@@ -184,8 +184,4 @@ export const DialoguesList = registerComponent('DialoguesList', DialoguesListInn
   styles
 });
 
-declare global {
-  interface ComponentTypes {
-    DialoguesList: typeof DialoguesList
-  }
-}
+

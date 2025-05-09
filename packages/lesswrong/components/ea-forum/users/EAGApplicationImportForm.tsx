@@ -751,9 +751,4 @@ const EAGApplicationImportFormInner = ({currentUser, classes}: {
 export const EAGApplicationImportFormWrapper = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapperInner);
 export const EAGApplicationImportForm = registerComponent('EAGApplicationImportForm', EAGApplicationImportFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapper
-    EAGApplicationImportForm: typeof EAGApplicationImportForm
-  }
-}
+

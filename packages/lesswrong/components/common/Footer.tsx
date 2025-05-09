@@ -17,8 +17,4 @@ const FooterInner = ({classes}: {
 
 export const Footer = registerComponent('Footer', FooterInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Footer: typeof Footer
-  }
-}
+

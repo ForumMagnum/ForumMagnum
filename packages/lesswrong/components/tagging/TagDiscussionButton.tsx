@@ -95,8 +95,4 @@ const TagDiscussionButtonInner = ({tag, text = "Discussion", hideLabel = false, 
 
 export const TagDiscussionButton = registerComponent("TagDiscussionButton", TagDiscussionButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagDiscussionButton: typeof TagDiscussionButton
-  }
-}
+

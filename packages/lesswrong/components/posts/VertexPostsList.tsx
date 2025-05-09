@@ -118,8 +118,4 @@ export const VertexPostsListInner = ({ limit = 100, classes }: {
 
 export const VertexPostsList = registerComponent('VertexPostsList', VertexPostsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    VertexPostsList: typeof VertexPostsList
-  }
-}
+

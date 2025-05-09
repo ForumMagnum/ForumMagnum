@@ -18,8 +18,4 @@ const CalendarDateInner = ({date}: {
 
 export const CalendarDate = registerComponent('CalendarDate', CalendarDateInner);
 
-declare global {
-  interface ComponentTypes {
-    CalendarDate: typeof CalendarDate
-  }
-}
+

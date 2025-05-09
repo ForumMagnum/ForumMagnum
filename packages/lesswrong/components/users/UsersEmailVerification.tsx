@@ -65,8 +65,4 @@ export const UsersEmailVerification = registerComponent('UsersEmailVerification'
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    UsersEmailVerification: typeof UsersEmailVerification
-  }
-}
+

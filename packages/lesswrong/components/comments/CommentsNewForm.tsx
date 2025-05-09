@@ -99,7 +99,7 @@ export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<ComponentTypes['NewUserGuidelinesDialog']>, "onClose" | "classes"> => {
+): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose" | "classes"> => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
@@ -397,9 +397,5 @@ export const CommentsNewForm = registerComponent('CommentsNewForm', CommentsNewF
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsNewForm: typeof CommentsNewForm,
-  }
-}
+
 

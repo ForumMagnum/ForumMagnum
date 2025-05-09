@@ -105,8 +105,4 @@ const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
 
 export const PostsPageWrapper = registerComponent("PostsPageWrapper", PostsPageWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsPageWrapper: typeof PostsPageWrapper
-  }
-}
+

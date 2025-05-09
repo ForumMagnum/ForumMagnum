@@ -225,8 +225,4 @@ export const EAOnboardingThankYouStage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingThankYouStage: typeof EAOnboardingThankYouStage
-  }
-}
+

@@ -51,9 +51,5 @@ const LocalGroupSubscribersInner = ({groupId, classes}: {
 
 export const LocalGroupSubscribers = registerComponent('LocalGroupSubscribers', LocalGroupSubscribersInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupSubscribers: typeof LocalGroupSubscribers
-  }
-}
+
 

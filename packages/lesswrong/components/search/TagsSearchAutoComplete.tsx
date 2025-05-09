@@ -29,9 +29,5 @@ const TagsSearchAutoCompleteInner = ({
 
 export const TagsSearchAutoComplete = registerComponent("TagsSearchAutoComplete", TagsSearchAutoCompleteInner);
 
-declare global {
-  interface ComponentTypes {
-    TagsSearchAutoComplete: typeof TagsSearchAutoComplete
-  }
-}
+
 

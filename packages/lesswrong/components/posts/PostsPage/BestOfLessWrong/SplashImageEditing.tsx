@@ -77,10 +77,6 @@ const SplashImageEditingInner = ({ imgRef, imageFlipped, setImageFlipped, post }
 
 export const SplashImageEditing = registerComponent('SplashImageEditing', SplashImageEditingInner);
 
-declare global {
-  interface ComponentTypes {
-    SplashImageEditing: typeof SplashImageEditing
-  }
-}
+
 
 export default SplashImageEditingInner;

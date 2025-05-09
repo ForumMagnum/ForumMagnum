@@ -109,8 +109,4 @@ const PostsListUserCommentedOnInner = ({classes, filter, sort}: {
 
 export const PostsListUserCommentedOn = registerComponent('PostsListUserCommentedOn', PostsListUserCommentedOnInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    PostsListUserCommentedOn: typeof PostsListUserCommentedOn
-  }
-}
+

@@ -1,7 +1,8 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
-import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
+import type { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
+import type { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
+import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
@@ -595,11 +596,5 @@ export const NamesAttachedReactionsCommentBottom = registerComponent('NamesAttac
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnComment
-    NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottom
-    AddReactionButton: typeof AddReactionButton
-  }
-}
+
 

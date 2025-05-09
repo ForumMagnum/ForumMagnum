@@ -205,8 +205,4 @@ export const JargonTooltipInner = ({term, definitionHTML, approved, deleted, hum
 
 export const JargonTooltip = registerComponent('JargonTooltip', JargonTooltipInner);
 
-declare global {
-  interface ComponentTypes {
-    JargonTooltip: typeof JargonTooltip
-  }
-}
+

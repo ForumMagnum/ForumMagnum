@@ -78,8 +78,4 @@ export const SuggestCuratedDropdownItem = registerComponent(
   SuggestCuratedDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    SuggestCuratedDropdownItem: typeof SuggestCuratedDropdownItem
-  }
-}
+

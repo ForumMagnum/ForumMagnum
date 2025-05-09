@@ -330,8 +330,4 @@ export const WrappedSummarySection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedSummarySection: typeof WrappedSummarySection
-  }
-}
+

@@ -272,8 +272,4 @@ const LocalGroupsInner = ({keywordSearch, userLocation, distanceUnit='km', inclu
 
 export const LocalGroups = registerComponent('LocalGroups', LocalGroupsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroups: typeof LocalGroups
-  }
-}
+

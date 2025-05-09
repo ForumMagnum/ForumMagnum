@@ -224,8 +224,4 @@ const PostsAnalyticsPageInner = ({ classes }: { classes: ClassesType<typeof styl
 
 export const PostsAnalyticsPage = registerComponent("PostsAnalyticsPage", PostsAnalyticsPageInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsAnalyticsPage: typeof PostsAnalyticsPage;
-  }
-}
+

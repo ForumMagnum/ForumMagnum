@@ -37,8 +37,4 @@ const KarmaDisplayInner = ({document, placement="left", linkItem}: {
 
 export const KarmaDisplay = registerComponent("KarmaDisplay", KarmaDisplayInner);
 
-declare global {
-  interface ComponentTypes {
-    KarmaDisplay: typeof KarmaDisplay,
-  }
-}
+

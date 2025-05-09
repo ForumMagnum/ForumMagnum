@@ -431,8 +431,4 @@ export const CommunityMapFilter = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CommunityMapFilter: typeof CommunityMapFilter
-  }
-}
+

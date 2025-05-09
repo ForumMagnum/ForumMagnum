@@ -326,8 +326,4 @@ const GoogleDocImportButtonInner = ({ postId, version, classes }: { postId?: str
 
 export const GoogleDocImportButton = registerComponent("GoogleDocImportButton", GoogleDocImportButtonInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    GoogleDocImportButton: typeof GoogleDocImportButton;
-  }
-}
+

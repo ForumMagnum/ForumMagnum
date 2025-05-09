@@ -535,8 +535,4 @@ export const Book2018Landing = registerComponent('Book2018Landing', Book2018Land
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Book2018Landing: typeof Book2018LandingComponent
-  }
-}
+

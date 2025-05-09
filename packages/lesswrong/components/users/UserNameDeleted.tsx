@@ -54,8 +54,4 @@ const UserNameDeletedWithAdminHover = ({user}: {
 
 export const UserNameDeleted = registerComponent('UserNameDeleted', UserNameDeletedInner);
 
-declare global {
-  interface ComponentTypes {
-    UserNameDeleted: typeof UserNameDeleted
-  }
-}
+

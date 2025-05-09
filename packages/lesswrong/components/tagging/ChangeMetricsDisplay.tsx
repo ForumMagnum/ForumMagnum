@@ -40,8 +40,4 @@ export const ChangeMetricsDisplay = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ChangeMetricsDisplay: typeof ChangeMetricsDisplay
-  }
-}
+

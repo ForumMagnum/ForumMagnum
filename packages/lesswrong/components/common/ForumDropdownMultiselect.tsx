@@ -192,8 +192,4 @@ export const ForumDropdownMultiselect = registerComponent(
   {styles, stylePriority: -2},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumDropdownMultiselect: typeof ForumDropdownMultiselect
-  }
-}
+

@@ -28,8 +28,4 @@ const EmailTokenPageInner = () => {
 
 export const EmailTokenPage = registerComponent("EmailTokenPage", EmailTokenPageInner);
 
-declare global {
-  interface ComponentTypes {
-    EmailTokenPage: typeof EmailTokenPage
-  }
-}
+

@@ -55,9 +55,5 @@ const ReactionIconInner = ({react, inverted=false, size=18, classes}: {
 
 export const ReactionIcon = registerComponent('ReactionIcon', ReactionIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionIcon: typeof ReactionIcon
-  }
-}
+
 

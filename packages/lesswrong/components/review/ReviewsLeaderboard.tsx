@@ -139,9 +139,5 @@ export const ReviewsLeaderboardInner = ({classes, reviews, reviewYear}: {
 
 export const ReviewsLeaderboard = registerComponent('ReviewsLeaderboard', ReviewsLeaderboardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewsLeaderboard: typeof ReviewsLeaderboard
-  }
-}
+
 

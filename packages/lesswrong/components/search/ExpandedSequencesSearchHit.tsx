@@ -108,9 +108,5 @@ const ExpandedSequencesSearchHitInner = ({hit, classes}: {
 
 export const ExpandedSequencesSearchHit = registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedSequencesSearchHit: typeof ExpandedSequencesSearchHit
-  }
-}
+
 

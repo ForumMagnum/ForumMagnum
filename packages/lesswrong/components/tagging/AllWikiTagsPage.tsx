@@ -353,8 +353,4 @@ export const AllWikiTagsPage = registerComponent("AllWikiTagsPage", AllWikiTagsP
 
 
 
-declare global {
-  interface ComponentTypes {
-    AllWikiTagsPage: typeof AllWikiTagsPage
-  }
-}
+

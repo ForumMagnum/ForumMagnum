@@ -94,8 +94,4 @@ export const PostsVideoCard = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsVideoCard: typeof PostsVideoCard;
-  }
-}
+

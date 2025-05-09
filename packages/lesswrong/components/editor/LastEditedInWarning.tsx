@@ -52,8 +52,4 @@ const LastEditedInWarningInner = ({initialType, currentType, defaultType, value,
 
 export const LastEditedInWarning = registerComponent('LastEditedInWarning', LastEditedInWarningInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LastEditedInWarning: typeof LastEditedInWarning
-  }
-}
+

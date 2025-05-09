@@ -140,8 +140,4 @@ const FriendlyPlaceholderPostsItemInner = ({viewType = "list", classes}: {
 
 export const FriendlyPlaceholderPostsItem = registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FriendlyPlaceholderPostsItem: typeof FriendlyPlaceholderPostsItem
-  }
-}
+

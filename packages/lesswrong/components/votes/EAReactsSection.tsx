@@ -367,8 +367,4 @@ export const EAReactsSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAReactsSection: typeof EAReactsSection
-  }
-}
+

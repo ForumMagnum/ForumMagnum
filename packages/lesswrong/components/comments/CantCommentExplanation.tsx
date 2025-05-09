@@ -72,8 +72,4 @@ export const CantCommentExplanation = registerComponent(
   'CantCommentExplanation', CantCommentExplanationInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CantCommentExplanation: typeof CantCommentExplanation,
-  }
-}
+

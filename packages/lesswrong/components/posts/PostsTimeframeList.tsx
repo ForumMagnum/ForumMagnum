@@ -155,8 +155,4 @@ export const getTimeBlockTitle = (
 
 export const PostsTimeframeList = registerComponent('PostsTimeframeList', PostsTimeframeListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTimeframeList: typeof PostsTimeframeList
-  }
-}
+

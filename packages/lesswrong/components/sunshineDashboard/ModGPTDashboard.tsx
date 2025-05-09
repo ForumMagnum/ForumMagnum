@@ -2,7 +2,7 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
-import type { Column, Datatable } from '../vulcan-core/Datatable';
+import { Column, Datatable } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
@@ -125,8 +125,4 @@ const ModGPTDashboardInner = ({classes}: {
 
 export const ModGPTDashboard = registerComponent('ModGPTDashboard', ModGPTDashboardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModGPTDashboard: typeof ModGPTDashboard
-  }
-}
+

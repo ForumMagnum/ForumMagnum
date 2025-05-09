@@ -143,8 +143,4 @@ const TagVoteActivityInner = ({classes, showHeaders = true, showNewTags = true, 
 
 export const TagVoteActivity = registerComponent("TagVoteActivity", TagVoteActivityInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagVoteActivity: typeof TagVoteActivity
-  }
-}
+

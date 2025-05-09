@@ -59,9 +59,5 @@ export const SequencesGridWrapper = registerComponent('SequencesGridWrapper', Se
   }
 });
 
-declare global {
-  interface ComponentTypes {
-    SequencesGridWrapper: typeof SequencesGridWrapper
-  }
-}
+
 

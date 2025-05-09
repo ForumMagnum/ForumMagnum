@@ -36,8 +36,4 @@ const ReplyCommentDialogInner = ({post, initialHtml, onClose}: {
 
 export const ReplyCommentDialog = registerComponent('ReplyCommentDialog', ReplyCommentDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    ReplyCommentDialog: typeof ReplyCommentDialog
-  }
-}
+

@@ -87,8 +87,4 @@ const AddTagButtonInner = ({onTagSelected, menuPlacement="bottom-start", isVotin
 
 export const AddTagButton = registerComponent("AddTagButton", AddTagButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddTagButton: typeof AddTagButton
-  }
-}
+

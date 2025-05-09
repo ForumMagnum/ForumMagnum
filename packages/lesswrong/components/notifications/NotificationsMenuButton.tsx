@@ -270,8 +270,4 @@ export const NotificationsMenuButton = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsMenuButton: typeof NotificationsMenuButton
-  }
-}
+

@@ -212,9 +212,5 @@ export const CommentsReviewInfoCardInner = ({ commentModeratorAction, classes }:
 
 export const CommentsReviewInfoCard = registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsReviewInfoCard: typeof CommentsReviewInfoCard
-  }
-}
+
 

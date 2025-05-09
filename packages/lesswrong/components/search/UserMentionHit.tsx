@@ -57,8 +57,4 @@ export const UserMentionHit = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    UserMentionHit: typeof UserMentionHit
-  }
-}
+

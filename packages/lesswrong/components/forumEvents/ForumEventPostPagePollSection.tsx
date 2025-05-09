@@ -154,8 +154,4 @@ export const ForumEventPostPagePollSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPostPagePollSection: typeof ForumEventPostPagePollSection
-  }
-}
+

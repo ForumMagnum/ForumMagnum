@@ -91,8 +91,4 @@ export const TruncatedTagsList = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    TruncatedTagsList: typeof TruncatedTagsList
-  }
-}
+

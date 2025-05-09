@@ -70,8 +70,4 @@ export const LWCommentCountInner = ({classes, answerCount, commentCount, label=t
 
 export const LWCommentCount = registerComponent('LWCommentCount', LWCommentCountInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWCommentCount: typeof LWCommentCount
-  }
-}
+

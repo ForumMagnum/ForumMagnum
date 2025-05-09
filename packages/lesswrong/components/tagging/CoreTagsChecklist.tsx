@@ -53,8 +53,4 @@ const CoreTagsChecklistInner = ({onTagSelected, classes, existingTagIds=[] }: {
 
 export const CoreTagsChecklist = registerComponent("CoreTagsChecklist", CoreTagsChecklistInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagsChecklist: typeof CoreTagsChecklist
-  }
-}
+

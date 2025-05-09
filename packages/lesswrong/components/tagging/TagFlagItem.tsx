@@ -113,8 +113,4 @@ const TagFlagItemInner = ({documentId, itemType = "tagFlagId", showNumber = true
 
 export const TagFlagItem = registerComponent('TagFlagItem', TagFlagItemInner, { styles } );
 
-declare global {
-  interface ComponentTypes {
-    TagFlagItem: typeof TagFlagItem
-  }
-}
+

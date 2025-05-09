@@ -194,8 +194,4 @@ const blockRenderMap = Map({
 export const DraftJSEditor = registerComponent("DraftJSEditor", DraftJSEditorInner, {
   hocs: [withTheme()]
 });
-declare global {
-  interface ComponentTypes {
-    DraftJSEditor: typeof DraftJSEditor
-  }
-}
+

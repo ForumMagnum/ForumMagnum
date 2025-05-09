@@ -55,8 +55,4 @@ export const WrappedTopQuickTakeSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedTopQuickTakeSection: typeof WrappedTopQuickTakeSection
-  }
-}
+

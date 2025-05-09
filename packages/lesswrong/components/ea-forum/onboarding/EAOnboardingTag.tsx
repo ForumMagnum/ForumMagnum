@@ -124,8 +124,4 @@ export const EAOnboardingTag = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingTag: typeof EAOnboardingTag
-  }
-}
+

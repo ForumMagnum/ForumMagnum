@@ -19,9 +19,5 @@ const SequencesSearchAutoCompleteInner = ({clickAction}: {
 
 export const SequencesSearchAutoComplete = registerComponent("SequencesSearchAutoComplete", SequencesSearchAutoCompleteInner);
 
-declare global {
-  interface ComponentTypes {
-    SequencesSearchAutoComplete: typeof SequencesSearchAutoComplete
-  }
-}
+
 

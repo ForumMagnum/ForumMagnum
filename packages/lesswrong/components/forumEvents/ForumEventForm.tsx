@@ -464,8 +464,4 @@ export const ForumEventForm = registerComponent(
   ForumEventFormInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventForm: typeof ForumEventForm
-  }
-}
+

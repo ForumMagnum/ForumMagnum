@@ -38,9 +38,5 @@ const ArbitalImportRevisionDetailsInner = ({onClose, revision}: {
 
 export const ArbitalImportRevisionDetails = registerComponent('ArbitalImportRevisionDetails', ArbitalImportRevisionDetailsInner);
 
-declare global {
-  interface ComponentTypes {
-    ArbitalImportRevisionDetails: typeof ArbitalImportRevisionDetails
-  }
-}
+
 

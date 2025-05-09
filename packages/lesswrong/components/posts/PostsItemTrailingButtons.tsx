@@ -109,8 +109,4 @@ const PostsItemTrailingButtonsInner = ({
 
 export const PostsItemTrailingButtons = registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtonsInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsItemTrailingButtons: typeof PostsItemTrailingButtons
-  }
-}
+

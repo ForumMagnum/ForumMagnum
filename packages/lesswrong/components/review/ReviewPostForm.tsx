@@ -74,8 +74,4 @@ const ReviewPostFormInner = ({classes, post, onClose}: {
 
 export const ReviewPostForm = registerComponent('ReviewPostForm', ReviewPostFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPostForm: typeof ReviewPostForm
-  }
-}
+

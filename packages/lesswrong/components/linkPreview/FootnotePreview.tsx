@@ -383,8 +383,4 @@ export const FootnotePreview = registerComponent('FootnotePreview', FootnotePrev
   styles: footnotePreviewStyles,
 });
 
-declare global {
-  interface ComponentTypes {
-    FootnotePreview: typeof FootnotePreview
-  }
-}
+

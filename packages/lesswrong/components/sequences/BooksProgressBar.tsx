@@ -104,9 +104,5 @@ const BooksProgressBarInner = ({ book, classes }: {
 
 export const BooksProgressBar = registerComponent('BooksProgressBar', BooksProgressBarInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    BooksProgressBar: typeof BooksProgressBar
-  }
-}
+
 

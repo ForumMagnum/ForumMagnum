@@ -16,8 +16,4 @@ const SeparatorBulletInner = ({classes}: {
 
 export const SeparatorBullet = registerComponent("SeparatorBullet", SeparatorBulletInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SeparatorBullet: typeof SeparatorBullet
-  }
-}
+

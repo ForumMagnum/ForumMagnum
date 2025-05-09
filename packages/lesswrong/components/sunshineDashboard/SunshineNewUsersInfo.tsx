@@ -177,8 +177,4 @@ export const SunshineNewUsersInfo = registerComponent('SunshineNewUsersInfo', Su
   ]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersInfo: typeof SunshineNewUsersInfo
-  }
-}
+

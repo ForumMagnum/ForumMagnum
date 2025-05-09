@@ -260,8 +260,4 @@ const TargetedJobAdSectionInner = () => {
 
 export const TargetedJobAdSection = registerComponent("TargetedJobAdSection", TargetedJobAdSectionInner);
 
-declare global {
-  interface ComponentTypes {
-    TargetedJobAdSection: typeof TargetedJobAdSection
-  }
-}
+

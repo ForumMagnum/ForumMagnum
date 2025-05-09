@@ -143,8 +143,4 @@ export const ArbitalExplorePage = registerComponent('ArbitalExplorePage', Arbita
 
 
 
-declare global {
-  interface ComponentTypes {
-    ArbitalExplorePage: typeof ArbitalExplorePage;
-  }
-}
+

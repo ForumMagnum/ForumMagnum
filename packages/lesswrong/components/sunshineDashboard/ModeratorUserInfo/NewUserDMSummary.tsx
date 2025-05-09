@@ -30,8 +30,4 @@ export const NewUserDMSummaryInner = ({classes, user}: {
 
 export const NewUserDMSummary = registerComponent('NewUserDMSummary', NewUserDMSummaryInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewUserDMSummary: typeof NewUserDMSummary
-  }
-}
+

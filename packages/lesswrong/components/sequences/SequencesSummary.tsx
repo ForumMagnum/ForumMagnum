@@ -191,8 +191,4 @@ export const SequencesSummaryInner = ({classes, sequence, showAuthor=true, maxPo
 
 export const SequencesSummary = registerComponent('SequencesSummary', SequencesSummaryInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesSummary: typeof SequencesSummary
-  }
-}
+

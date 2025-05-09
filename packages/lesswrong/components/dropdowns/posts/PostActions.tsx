@@ -94,8 +94,4 @@ const PostActionsInner = ({post, closeMenu, includeBookmark=true, classes}: {
 
 export const PostActions = registerComponent('PostActions', PostActionsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostActions: typeof PostActions
-  }
-}
+

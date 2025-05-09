@@ -48,8 +48,4 @@ export const DialogueEditorGuidelinesInner = ({classes}: {
 
 export const DialogueEditorGuidelines = registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelinesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DialogueEditorGuidelines: typeof DialogueEditorGuidelines
-  }
-}
+

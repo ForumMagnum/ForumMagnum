@@ -66,8 +66,4 @@ const SignupSubscribeToCuratedInner = ({ defaultValue, onChange, classes }: {
 
 export const SignupSubscribeToCurated = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCuratedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SignupSubscribeToCurated: typeof SignupSubscribeToCurated
-  }
-}
+

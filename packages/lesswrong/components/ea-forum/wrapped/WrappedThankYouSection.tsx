@@ -48,8 +48,4 @@ export const WrappedThankYouSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedThankYouSection: typeof WrappedThankYouSection
-  }
-}
+

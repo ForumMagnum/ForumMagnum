@@ -576,8 +576,4 @@ const EditDigestInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
 export const EditDigest = registerComponent('EditDigest', EditDigestInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigest: typeof EditDigest
-  }
-}
+

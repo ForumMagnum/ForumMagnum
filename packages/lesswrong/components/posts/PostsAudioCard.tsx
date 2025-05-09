@@ -34,8 +34,4 @@ export const PostsAudioCard = registerComponent(
   PostsAudioCardInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsAudioCard: typeof PostsAudioCard;
-  }
-}
+

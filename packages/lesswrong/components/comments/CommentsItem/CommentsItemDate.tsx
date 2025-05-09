@@ -133,9 +133,5 @@ const CommentDateTooltip = ({comment}: {
 
 export const CommentsItemDate = registerComponent('CommentsItemDate', CommentsItemDateInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentsItemDate: typeof CommentsItemDate,
-  }
-}
+
 

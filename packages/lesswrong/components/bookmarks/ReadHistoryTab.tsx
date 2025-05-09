@@ -139,8 +139,4 @@ const ReadHistoryTabInner = ({classes, groupByDate = true, filter, sort}: {
 
 export const ReadHistoryTab = registerComponent('ReadHistoryTab', ReadHistoryTabInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    ReadHistoryTab: typeof ReadHistoryTab
-  }
-}
+

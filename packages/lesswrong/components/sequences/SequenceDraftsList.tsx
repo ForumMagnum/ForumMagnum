@@ -88,8 +88,4 @@ export const SequenceDraftsList = registerComponent(
   'SequenceDraftsList', SequenceDraftsListInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SequenceDraftsList: typeof SequenceDraftsList
-  }
-}
+

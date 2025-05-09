@@ -186,9 +186,4 @@ const TagVersionHistoryInner = ({tagId, onClose, classes}: {
 export const TagVersionHistoryButton = registerComponent("TagVersionHistoryButton", TagVersionHistoryButtonInner, {styles});
 export const TagVersionHistory = registerComponent("TagVersionHistory", TagVersionHistoryInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagVersionHistoryButton: typeof TagVersionHistoryButton
-    TagVersionHistory: typeof TagVersionHistory
-  }
-}
+

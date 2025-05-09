@@ -102,8 +102,4 @@ const SubforumSubscribeSectionInner = ({
 
 export const SubforumSubscribeSection = registerComponent('SubforumSubscribeSection', SubforumSubscribeSectionInner, {styles, stylePriority: 1});
 
-declare global {
-  interface ComponentTypes {
-    SubforumSubscribeSection: typeof SubforumSubscribeSection
-  }
-}
+

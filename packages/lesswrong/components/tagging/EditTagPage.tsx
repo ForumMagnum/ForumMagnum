@@ -57,8 +57,4 @@ const EditTagPageInner = () => {
 
 export const EditTagPage = registerComponent('EditTagPage', EditTagPageInner);
 
-declare global {
-  interface ComponentTypes {
-    EditTagPage: typeof EditTagPage
-  }
-}
+

@@ -174,8 +174,4 @@ const TagsDetailsItemInner = ({ tag, classes, showFlags = false, flagId, collaps
 
 export const TagsDetailsItem = registerComponent("TagsDetailsItem", TagsDetailsItemInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TagsDetailsItem: typeof TagsDetailsItem
-  }
-}
+

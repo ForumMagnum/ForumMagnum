@@ -99,8 +99,4 @@ const ReviewPostCommentsInner = ({ terms, classes, title, post, singleLine, plac
 
 export const ReviewPostComments = registerComponent('ReviewPostComments', ReviewPostCommentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPostComments: typeof ReviewPostComments
-  }
-}
+

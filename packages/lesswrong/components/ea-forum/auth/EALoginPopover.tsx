@@ -571,8 +571,4 @@ export const EALoginPopover = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EALoginPopover: typeof EALoginPopover
-  }
-}
+

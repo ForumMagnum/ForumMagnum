@@ -159,8 +159,4 @@ export const QuickTakesSection = registerComponent("QuickTakesSection", QuickTak
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesSection: typeof QuickTakesSection
-  }
-}
+

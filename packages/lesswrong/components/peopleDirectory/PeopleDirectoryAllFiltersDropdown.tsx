@@ -165,8 +165,4 @@ export const PeopleDirectoryAllFiltersDropdown = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryAllFiltersDropdown: typeof PeopleDirectoryAllFiltersDropdown
-  }
-}
+

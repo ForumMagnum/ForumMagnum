@@ -43,8 +43,4 @@ const SingleUsersItemInner = ({userId, removeItem, classes }: {
 
 export const SingleUsersItem = registerComponent('SingleUsersItem', SingleUsersItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SingleUsersItem: typeof SingleUsersItem
-  }
-}
+

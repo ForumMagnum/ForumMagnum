@@ -75,9 +75,5 @@ export const SunshineNewUsersItem = registerComponent('SunshineNewUsersItem', Su
   ]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersItem: typeof SunshineNewUsersItem
-  }
-}
+
 

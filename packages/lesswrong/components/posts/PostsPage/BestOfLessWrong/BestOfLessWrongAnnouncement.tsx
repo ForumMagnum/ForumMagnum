@@ -327,10 +327,6 @@ const BestOfLessWrongAnnouncementInner = () => {
 
 export const BestOfLessWrongAnnouncement = registerComponent('BestOfLessWrongAnnouncement', BestOfLessWrongAnnouncementInner);
 
-declare global {
-  interface ComponentTypes {
-    BestOfLessWrongAnnouncement: typeof BestOfLessWrongAnnouncement
-  }
-}
+
 
 export default BestOfLessWrongAnnouncementInner;

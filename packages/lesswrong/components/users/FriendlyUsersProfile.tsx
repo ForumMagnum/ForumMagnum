@@ -588,8 +588,4 @@ export const FriendlyUsersProfile = registerComponent(
   'FriendlyUsersProfile', FriendlyUsersProfileInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    FriendlyUsersProfile: typeof FriendlyUsersProfile
-  }
-}
+

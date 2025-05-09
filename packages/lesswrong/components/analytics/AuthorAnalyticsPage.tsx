@@ -349,8 +349,4 @@ const AuthorAnalyticsPageInner = ({ classes }: {
 
 export const AuthorAnalyticsPage = registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPageInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    AuthorAnalyticsPage: typeof AuthorAnalyticsPage;
-  }
-}
+

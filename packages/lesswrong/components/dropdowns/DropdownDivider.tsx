@@ -25,8 +25,4 @@ export const DropdownDivider = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownDivider: typeof DropdownDivider
-  }
-}
+

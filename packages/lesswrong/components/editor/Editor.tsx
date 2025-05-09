@@ -825,8 +825,4 @@ export const EditorComponent = registerComponent('Editor', Editor, {
   allowRef: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Editor: typeof Editor
-  }
-}
+

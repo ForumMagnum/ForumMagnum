@@ -180,9 +180,4 @@ const ConnectedSearchResultsMapInner: React.ComponentClass<SearchResultsMapProps
 export const SearchResultsMap = registerComponent("SearchResultsMap", ConnectedSearchResultsMapInner, { styles });
 export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMapInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SearchResultsMap: typeof SearchResultsMap
-    RawSearchResultsMap: typeof RawSearchResultsMap
-  }
-}
+

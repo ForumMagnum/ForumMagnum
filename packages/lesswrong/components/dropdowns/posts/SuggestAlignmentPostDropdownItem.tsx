@@ -46,8 +46,4 @@ export const SuggestAlignmentPostDropdownItem = registerComponent(
   SuggestAlignmentPostDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    SuggestAlignmentPostDropdownItem: typeof SuggestAlignmentPostDropdownItem
-  }
-}
+

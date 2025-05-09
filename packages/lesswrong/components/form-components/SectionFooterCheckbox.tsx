@@ -67,8 +67,4 @@ const SectionFooterCheckboxInner = ({ classes, label, onClick, value, disabled, 
 
 export const SectionFooterCheckbox = registerComponent("SectionFooterCheckbox", SectionFooterCheckboxInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SectionFooterCheckbox: typeof SectionFooterCheckbox
-  }
-}
+

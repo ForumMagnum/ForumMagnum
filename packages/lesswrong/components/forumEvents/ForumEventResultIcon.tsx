@@ -123,8 +123,4 @@ export const ForumEventResultIcon = registerComponent(
   { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventResultIcon: typeof ForumEventResultIcon;
-  }
-}
+

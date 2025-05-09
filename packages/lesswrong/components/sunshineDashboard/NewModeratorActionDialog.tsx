@@ -141,8 +141,4 @@ const NewModeratorActionDialogInner = ({ onClose, userId }: {
 
 export const NewModeratorActionDialog = registerComponent('NewModeratorActionDialog', NewModeratorActionDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    NewModeratorActionDialog: typeof NewModeratorActionDialog
-  }
-}
+

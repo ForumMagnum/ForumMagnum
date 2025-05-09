@@ -93,8 +93,4 @@ const ChaptersItemInner = ({ chapter, canEdit, classes }: {
 
 export const ChaptersItem = registerComponent('ChaptersItem', ChaptersItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChaptersItem: typeof ChaptersItem
-  }
-}
+

@@ -93,9 +93,5 @@ const FrontpageNominationPhaseInner = ({classes, settings}: {
 
 export const FrontpageNominationPhase = registerComponent('FrontpageNominationPhase', FrontpageNominationPhaseInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FrontpageNominationPhase: typeof FrontpageNominationPhase
-  }
-}
+
 

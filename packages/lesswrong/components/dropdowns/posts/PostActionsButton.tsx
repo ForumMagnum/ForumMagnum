@@ -92,8 +92,4 @@ const PostActionsButtonInner = ({post, vertical, popperGap, autoPlace, flip, inc
 export const PostActionsButton = registerComponent('PostActionsButton', PostActionsButtonInner);
 
 
-declare global {
-  interface ComponentTypes {
-    PostActionsButton: typeof PostActionsButton
-  }
-}
+

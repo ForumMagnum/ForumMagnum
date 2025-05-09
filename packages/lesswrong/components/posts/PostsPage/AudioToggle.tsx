@@ -51,8 +51,4 @@ const AudioToggleInner = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlay
 
 export const AudioToggle = registerComponent('AudioToggle', AudioToggleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AudioToggle: typeof AudioToggle
-  }
-}
+

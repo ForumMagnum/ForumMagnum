@@ -92,8 +92,4 @@ const NavigationDrawerInner = ({open, handleClose, toc}: {
 
 export const NavigationDrawer = registerComponent('NavigationDrawer', NavigationDrawerInner);
 
-declare global {
-  interface ComponentTypes {
-    NavigationDrawer: typeof NavigationDrawer
-  }
-}
+

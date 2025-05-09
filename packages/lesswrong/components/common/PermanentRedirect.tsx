@@ -48,8 +48,4 @@ function urlIsAbsolute(url: string): boolean {
 
 export const PermanentRedirect = registerComponent('PermanentRedirect', PermanentRedirectInner);
 
-declare global {
-  interface ComponentTypes {
-    PermanentRedirect: typeof PermanentRedirect
-  }
-}
+

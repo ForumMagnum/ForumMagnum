@@ -62,8 +62,4 @@ const LocalGroupsListInner = ({terms, children, classes, showNoResults=true, hea
 
 export const LocalGroupsList = registerComponent('LocalGroupsList', LocalGroupsListInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupsList: typeof LocalGroupsList
-  }
-}
+

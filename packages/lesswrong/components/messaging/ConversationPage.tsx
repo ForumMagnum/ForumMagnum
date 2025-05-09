@@ -80,9 +80,5 @@ export const ConversationPage = registerComponent('ConversationPage', Conversati
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    ConversationPage: typeof ConversationPage
-  }
-}
+
 

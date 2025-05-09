@@ -87,8 +87,4 @@ export const FriendlyHoverOver = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    FriendlyHoverOver: typeof FriendlyHoverOver
-  }
-}
+

@@ -51,8 +51,4 @@ export const WrappedTopCommentSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedTopCommentSection: typeof WrappedTopCommentSection
-  }
-}
+

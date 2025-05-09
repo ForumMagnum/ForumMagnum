@@ -20,8 +20,4 @@ const NoContentInner = ({children, classes}: {
 
 export const NoContent = registerComponent('NoContent', NoContentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NoContent: typeof NoContent
-  }
-}
+

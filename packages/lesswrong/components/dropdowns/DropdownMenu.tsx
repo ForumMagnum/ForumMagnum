@@ -32,8 +32,4 @@ export const DropdownMenu = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownMenu: typeof DropdownMenu
-  }
-}
+

@@ -81,8 +81,4 @@ export const GlossaryEditorPageInner = ({classes}: {
 
 export const GlossaryEditorPage = registerComponent('GlossaryEditorPage', GlossaryEditorPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossaryEditorPage: typeof GlossaryEditorPage
-  }
-}
+

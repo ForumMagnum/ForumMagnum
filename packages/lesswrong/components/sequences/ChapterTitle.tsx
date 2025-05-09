@@ -21,8 +21,4 @@ const ChapterTitleInner = ({classes, title, large}: {
 
 export const ChapterTitle = registerComponent("ChapterTitle", ChapterTitleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChapterTitle: typeof ChapterTitle
-  }
-}
+

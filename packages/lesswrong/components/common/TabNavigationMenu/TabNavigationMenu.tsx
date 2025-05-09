@@ -114,8 +114,4 @@ export const TabNavigationMenu = registerComponent(
   'TabNavigationMenu', TabNavigationMenuInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenu: typeof TabNavigationMenu
-  }
-}
+

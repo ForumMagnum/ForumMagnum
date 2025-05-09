@@ -150,8 +150,4 @@ const CommentPermalinkInner = ({
 export const CommentPermalink = registerComponent("CommentPermalink", CommentPermalinkInner, { styles });
 
 
-declare global {
-  interface ComponentTypes {
-    CommentPermalink: typeof CommentPermalink,
-  }
-}
+

@@ -181,11 +181,7 @@ const VoteAgreementIconInner = ({
 
 export const VoteAgreementIcon = registerComponent('VoteAgreementIcon', VoteAgreementIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    VoteAgreementIcon: typeof VoteAgreementIcon
-  }
-}
+
 
 
 

@@ -88,8 +88,4 @@ export const SideRecommendation = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SideRecommendation: typeof SideRecommendation
-  }
-}
+

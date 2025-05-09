@@ -60,8 +60,4 @@ export const ErrorAccessDenied = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ErrorAccessDenied: typeof ErrorAccessDenied
-  }
-}
+

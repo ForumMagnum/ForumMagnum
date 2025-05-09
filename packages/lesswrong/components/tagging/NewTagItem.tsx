@@ -98,8 +98,4 @@ const NewTagItemInner = ({tag, classes}: {
 
 export const NewTagItem = registerComponent("NewTagItem", NewTagItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagItem: typeof NewTagItem
-  }
-}
+

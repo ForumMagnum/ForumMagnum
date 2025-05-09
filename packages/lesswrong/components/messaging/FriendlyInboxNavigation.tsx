@@ -55,8 +55,4 @@ const FriendlyInboxNavigationInner = ({
 
 export const FriendlyInboxNavigation = registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigationInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FriendlyInboxNavigation: typeof FriendlyInboxNavigation;
-  }
-}
+

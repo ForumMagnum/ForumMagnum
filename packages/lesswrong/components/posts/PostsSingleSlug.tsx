@@ -21,8 +21,4 @@ const PostsSingleSlugInner = () => {
 
 export const PostsSingleSlug = registerComponent('PostsSingleSlug', PostsSingleSlugInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsSingleSlug: typeof PostsSingleSlug
-  }
-}
+

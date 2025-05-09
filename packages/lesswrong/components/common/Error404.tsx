@@ -24,8 +24,4 @@ const Error404Inner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
 export const Error404 = registerComponent('Error404', Error404Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Error404: typeof Error404Component
-  }
-}
+

@@ -44,8 +44,4 @@ const ReportCommentDropdownItemInner = ({comment, post}: {
 
 export const ReportCommentDropdownItem = registerComponent('ReportCommentDropdownItem', ReportCommentDropdownItemInner);
 
-declare global {
-  interface ComponentTypes {
-    ReportCommentDropdownItem: typeof ReportCommentDropdownItem
-  }
-}
+

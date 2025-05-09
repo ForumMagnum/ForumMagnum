@@ -18,8 +18,4 @@ export const PetrovDayPollInner = () => {
 
 export const PetrovDayPoll = registerComponent('PetrovDayPoll', PetrovDayPollInner);
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayPoll: typeof PetrovDayPoll
-  }
-}
+

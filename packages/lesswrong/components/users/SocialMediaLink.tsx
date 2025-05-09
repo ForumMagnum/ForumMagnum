@@ -33,8 +33,4 @@ export const SocialMediaLink = registerComponent(
   SocialMediaLinkInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    SocialMediaLink: typeof SocialMediaLink
-  }
-}
+

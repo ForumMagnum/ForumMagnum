@@ -37,9 +37,5 @@ const SunshineListItemInner = ({children, classes, hover=false}: {
 
 export const SunshineListItem = registerComponent('SunshineListItem', SunshineListItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineListItem: typeof SunshineListItem
-  }
-}
+
 

@@ -52,8 +52,4 @@ export const RetractCommentDropdownItem = registerComponent(
   'RetractCommentDropdownItem', RetractCommentDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    RetractCommentDropdownItem: typeof RetractCommentDropdownItem
-  }
-}
+

@@ -27,8 +27,4 @@ const SectionSubtitleInner = ({children, classes, className}: {
 
 export const SectionSubtitle = registerComponent('SectionSubtitle', SectionSubtitleInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SectionSubtitle: typeof SectionSubtitle
-  }
-}
+

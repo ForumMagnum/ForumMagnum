@@ -173,9 +173,5 @@ export const NotificationsMenu = registerComponent('NotificationsMenu', Notifica
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationsMenu: typeof NotificationsMenu
-  }
-}
+
 

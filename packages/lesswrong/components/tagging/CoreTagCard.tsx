@@ -91,8 +91,4 @@ const CoreTagCardInner = ({tag, classes}: {
 
 export const CoreTagCard = registerComponent("CoreTagCard", CoreTagCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagCard: typeof CoreTagCard
-  }
-}
+

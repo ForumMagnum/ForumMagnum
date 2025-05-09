@@ -666,8 +666,4 @@ export const LWPostsItem = registerComponent('LWPostsItem', LWPostsItemInner, {
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    LWPostsItem: typeof LWPostsItem
-  }
-}
+

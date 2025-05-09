@@ -103,8 +103,4 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
 
 export const PresenceList = registerComponent('PresenceList', PresenceListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PresenceList: typeof PresenceList
-  }
-}
+

@@ -241,8 +241,4 @@ const HomeLatestPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) 
 
 export const HomeLatestPosts = registerComponent('HomeLatestPosts', HomeLatestPostsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomeLatestPosts: typeof HomeLatestPosts
-  }
-}
+

@@ -231,9 +231,5 @@ const CollectionsEditFormInner = ({ initialData, successCallback, cancelCallback
 
 export const CollectionsEditForm = registerComponent('CollectionsEditForm', CollectionsEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    CollectionsEditForm: typeof CollectionsEditForm
-  }
-}
+
 

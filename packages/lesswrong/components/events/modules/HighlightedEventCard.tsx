@@ -182,8 +182,4 @@ const HighlightedEventCardInner = ({event, loading, classes}: {
 
 export const HighlightedEventCard = registerComponent('HighlightedEventCard', HighlightedEventCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HighlightedEventCard: typeof HighlightedEventCard
-  }
-}
+

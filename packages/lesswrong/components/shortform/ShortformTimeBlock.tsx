@@ -95,9 +95,5 @@ const ShortformTimeBlockInner  = ({reportEmpty, before, after, terms, classes}: 
 
 export const ShortformTimeBlock = registerComponent('ShortformTimeBlock', ShortformTimeBlockInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformTimeBlock: typeof ShortformTimeBlock
-  }
-}
+
 

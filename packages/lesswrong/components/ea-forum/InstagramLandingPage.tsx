@@ -88,8 +88,4 @@ export const InstagramLandingPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    InstagramLandingPage: typeof InstagramLandingPage;
-  }
-}
+

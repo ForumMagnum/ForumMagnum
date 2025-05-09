@@ -10,9 +10,5 @@ const LocalGroupSingleInner = () => {
 
 export const LocalGroupSingle = registerComponent('LocalGroupSingle', LocalGroupSingleInner);
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupSingle: typeof LocalGroupSingle
-  }
-}
+
 

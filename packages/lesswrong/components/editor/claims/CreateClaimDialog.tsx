@@ -84,9 +84,5 @@ const CreateClaimDialogInner = ({initialTitle, onSubmit, onCancel, onClose}: Cre
 export const CreateClaimDialog = registerComponent('CreateClaimDialog', CreateClaimDialogInner);
 
 
-declare global {
-  interface ComponentTypes {
-    CreateClaimDialog: typeof CreateClaimDialog
-  }
-}
+
 

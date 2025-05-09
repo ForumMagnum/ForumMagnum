@@ -141,8 +141,4 @@ const ConversationTitleEditFormInner = ({ onClose, conversation }: {
 
 export const ConversationTitleEditForm = registerComponent('ConversationTitleEditForm', ConversationTitleEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    ConversationTitleEditForm: typeof ConversationTitleEditForm
-  }
-}
+

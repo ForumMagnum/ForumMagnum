@@ -36,9 +36,5 @@ export const TagRelNotificationItemInner = ({classes, tagRelId}: {
 
 export const TagRelNotificationItem = registerComponent('TagRelNotificationItem', TagRelNotificationItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelNotificationItem: typeof TagRelNotificationItem
-  }
-}
+
 

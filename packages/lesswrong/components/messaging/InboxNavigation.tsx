@@ -84,8 +84,4 @@ const InboxNavigationInner = ({
 
 export const InboxNavigation = registerComponent('InboxNavigation', InboxNavigationInner);
 
-declare global {
-  interface ComponentTypes {
-    InboxNavigation: typeof InboxNavigation
-  }
-}
+

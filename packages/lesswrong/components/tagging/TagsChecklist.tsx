@@ -212,8 +212,4 @@ const TagsChecklistInner = ({
 
 export const TagsChecklist = registerComponent("TagsChecklist", TagsChecklistInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagsChecklist: typeof TagsChecklist
-  }
-}
+

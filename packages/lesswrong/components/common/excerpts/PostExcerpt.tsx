@@ -80,8 +80,4 @@ export const PostExcerpt = registerComponent(
   PostExcerptInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostExcerpt: typeof PostExcerpt,
-  }
-}
+

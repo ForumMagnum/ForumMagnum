@@ -100,8 +100,4 @@ export const EAUsersProfileLinks = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersProfileLinks: typeof EAUsersProfileLinks
-  }
-}
+

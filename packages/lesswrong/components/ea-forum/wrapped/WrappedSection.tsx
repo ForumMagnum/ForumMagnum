@@ -96,8 +96,4 @@ export const WrappedSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedSection: typeof WrappedSection
-  }
-}
+

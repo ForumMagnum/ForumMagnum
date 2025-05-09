@@ -84,8 +84,4 @@ export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
 
 export const ReviewsList = registerComponent('ReviewsList', ReviewsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewsList: typeof ReviewsList
-  }
-}
+

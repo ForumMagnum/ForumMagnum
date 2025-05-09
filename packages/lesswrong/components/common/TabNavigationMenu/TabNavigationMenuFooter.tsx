@@ -57,8 +57,4 @@ export const TabNavigationMenuFooter = registerComponent(
   'TabNavigationMenuFooter', TabNavigationMenuFooterInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenuFooter: typeof TabNavigationMenuFooter
-  }
-}
+

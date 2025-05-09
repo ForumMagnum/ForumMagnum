@@ -8,9 +8,5 @@ const CodexInner = () => {
 
 export const Codex = registerComponent('Codex', CodexInner);
 
-declare global {
-  interface ComponentTypes {
-    Codex: typeof Codex
-  }
-}
+
 

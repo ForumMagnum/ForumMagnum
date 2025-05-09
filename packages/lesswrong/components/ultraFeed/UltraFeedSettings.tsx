@@ -502,8 +502,4 @@ export const UltraFeedSettings = registerComponent('UltraFeedSettings', UltraFee
 
 export default UltraFeedSettingsInner;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedSettings: typeof UltraFeedSettings
-  }
-} 
+ 

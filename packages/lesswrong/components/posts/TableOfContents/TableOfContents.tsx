@@ -69,8 +69,4 @@ export const TableOfContents = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    TableOfContents: typeof TableOfContents
-  }
-}
+

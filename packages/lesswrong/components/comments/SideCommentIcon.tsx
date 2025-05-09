@@ -342,11 +342,4 @@ export const SideCommentDialog = registerComponent('SideCommentDialog', SideComm
 export const SideCommentHover = registerComponent('SideCommentHover', SideCommentHoverInner, {styles});
 export const SideCommentSingle = registerComponent('SideCommentSingle', SideCommentSingleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SideCommentIcon: typeof SideCommentIcon
-    SideCommentDialog: typeof SideCommentDialog
-    SideCommentHover: typeof SideCommentHover
-    SideCommentSingle: typeof SideCommentSingle
-  }
-}
+

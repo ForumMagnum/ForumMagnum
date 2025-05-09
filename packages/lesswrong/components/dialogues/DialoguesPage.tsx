@@ -90,8 +90,4 @@ export const DialoguesPage = registerComponent('DialoguesPage', DialoguesPageInn
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    DialoguesPage: typeof DialoguesPage
-  }
-}
+

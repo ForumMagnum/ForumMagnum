@@ -347,12 +347,5 @@ export const ArbitalLinkedPagesRightSidebar = registerComponent('ArbitalLinkedPa
 export const ArbitalRelationshipsSmallScreen = registerComponent('ArbitalRelationshipsSmallScreen', ArbitalRelationshipsSmallScreenInner);
 export const ParentsAndChildrenSmallScreen = registerComponent('ParentsAndChildrenSmallScreen', ParentsAndChildrenSmallScreenInner);
 
-declare global {
-  interface ComponentTypes {
-    LWTagPageRightColumn: typeof LWTagPageRightColumn
-    ArbitalLinkedPagesRightSidebar: typeof ArbitalLinkedPagesRightSidebar
-    ArbitalRelationshipsSmallScreen: typeof ArbitalRelationshipsSmallScreen
-    ParentsAndChildrenSmallScreen: typeof ParentsAndChildrenSmallScreen
-  }
-}
+
 

@@ -78,8 +78,4 @@ const EAHomeCommunityPostsInner = ({classes}: {classes: ClassesType<typeof style
 
 export const EAHomeCommunityPosts = registerComponent('EAHomeCommunityPosts', EAHomeCommunityPostsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeCommunityPosts: typeof EAHomeCommunityPosts
-  }
-}
+

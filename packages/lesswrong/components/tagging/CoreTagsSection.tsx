@@ -60,8 +60,4 @@ const CoreTagsSectionInner = ({classes}: {
 
 export const CoreTagsSection = registerComponent("CoreTagsSection", CoreTagsSectionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagsSection: typeof CoreTagsSection
-  }
-}
+

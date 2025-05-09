@@ -33,8 +33,4 @@ export const CommentExcerpt = registerComponent(
   CommentExcerptInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentExcerpt: typeof CommentExcerpt,
-  }
-}
+

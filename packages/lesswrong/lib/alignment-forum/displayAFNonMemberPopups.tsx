@@ -3,7 +3,8 @@ import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {commentSuggestForAlignment} from "./comments/helpers";
 import {postSuggestForAlignment} from "./posts/helpers";
 import {OpenDialogContextType} from "../../components/common/withDialog";
-import { Components } from "../vulcan-lib/components";
+import { AFNonMemberInitialPopup } from '@/components/alignment-forum/AFNonMemberInitialPopup';
+import { AFNonMemberSuccessPopup } from '@/components/alignment-forum/AFNonMemberSuccessPopup';
 
 
 const isComment = (document: PostsBase | CommentsList): document is CommentsList => {
@@ -15,7 +16,7 @@ export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, o
   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
     openDialog({
       name: "AFNonMemberInitialPopup",
-      contents: ({onClose}) => <Components.AFNonMemberInitialPopup onClose={onClose}/>
+      contents: ({onClose}) => <AFNonMemberInitialPopup onClose={onClose}/>
     })
     return true;
   }
@@ -35,7 +36,7 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
       void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument})
       openDialog({
         name: "AFNonMemberSuccessPopup",
-        contents: ({onClose}) => <Components.AFNonMemberSuccessPopup
+        contents: ({onClose}) => <AFNonMemberSuccessPopup
           _id={document._id}
           postId={document.postId ?? undefined}
           onClose={onClose}
@@ -45,7 +46,7 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
       void postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
       openDialog({
         name: "AFNonMemberSuccessPopup",
-        contents: ({onClose}) => <Components.AFNonMemberSuccessPopup
+        contents: ({onClose}) => <AFNonMemberSuccessPopup
           onClose={onClose}
           _id={document._id}
         />,

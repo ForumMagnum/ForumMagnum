@@ -53,8 +53,4 @@ export const WrappedWelcomeSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedWelcomeSection: typeof WrappedWelcomeSection
-  }
-}
+

@@ -134,14 +134,10 @@ const LWPostsPageTopHeaderVoteInner = ({
   );
 }
 
-export const PostsSplashPageHeaderVote = registerComponent(
+export const LWPostsPageTopHeaderVote = registerComponent(
   "LWPostsPageTopHeaderVote",
   LWPostsPageTopHeaderVoteInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsSplashPageHeaderVote: typeof PostsSplashPageHeaderVote
-  }
-}
+

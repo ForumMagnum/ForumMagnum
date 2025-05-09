@@ -95,9 +95,5 @@ export const RelatedQuestionsList = registerComponent('RelatedQuestionsList', Re
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    RelatedQuestionsList: typeof RelatedQuestionsList
-  }
-}
+
 

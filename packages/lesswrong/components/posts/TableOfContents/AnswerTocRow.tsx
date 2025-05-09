@@ -73,8 +73,4 @@ const AnswerTocRowInner = ({classes, answer}: {
 
 export const AnswerTocRow = registerComponent('AnswerTocRow', AnswerTocRowInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AnswerTocRow: typeof AnswerTocRow
-  }
-}
+

@@ -280,8 +280,4 @@ const NewConversationDialogInner = ({
 
 export const NewConversationDialog = registerComponent("NewConversationDialog", NewConversationDialogInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    NewConversationDialog: typeof NewConversationDialog;
-  }
-}
+

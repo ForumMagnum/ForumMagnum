@@ -71,8 +71,4 @@ const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof sty
 
 export const UserCommentsReplies = registerComponent('UserCommentsReplies', UserCommentsRepliesInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    UserCommentsReplies: typeof UserCommentsReplies,
-  }
-}
+

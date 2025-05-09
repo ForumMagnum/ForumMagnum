@@ -61,9 +61,5 @@ const ShowParentCommentInner = ({ comment, active, onClick, classes }: {
 
 export const ShowParentComment = registerComponent('ShowParentComment', ShowParentCommentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShowParentComment: typeof ShowParentComment,
-  }
-}
+
 

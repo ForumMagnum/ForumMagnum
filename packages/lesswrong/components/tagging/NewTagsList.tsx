@@ -74,9 +74,5 @@ const NewTagsListInner = ({classes, showHeaders = true}: {
 
 export const NewTagsList = registerComponent("NewTagsList", NewTagsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagsList: typeof NewTagsList
-  }
-}
+
 

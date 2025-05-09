@@ -133,9 +133,5 @@ export const DraftsList = registerComponent('DraftsList', DraftsListInner, {
   hocs: [withErrorBoundary], styles
 });
 
-declare global {
-  interface ComponentTypes {
-    DraftsList: typeof DraftsList
-  }
-}
+
 

@@ -395,8 +395,4 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
 
 export const FilterMode = registerComponent("FilterMode", FilterModeRawComponentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FilterMode: typeof FilterMode
-  }
-}
+

@@ -158,8 +158,4 @@ export const WrappedApp = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedApp: typeof WrappedApp
-  }
-}
+

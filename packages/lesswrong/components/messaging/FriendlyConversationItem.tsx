@@ -145,8 +145,4 @@ const FriendlyConversationItemInner = ({
 
 export const FriendlyConversationItem = registerComponent("FriendlyConversationItem", FriendlyConversationItemInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    FriendlyConversationItem: typeof FriendlyConversationItem;
-  }
-}
+

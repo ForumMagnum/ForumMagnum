@@ -65,9 +65,5 @@ const LibraryPageInner = ({classes}: {
 
 export const LibraryPage = registerComponent('LibraryPage', LibraryPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LibraryPage: typeof LibraryPage
-  }
-}
+
 

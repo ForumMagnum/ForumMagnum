@@ -40,8 +40,4 @@ const CitationTagsInner = ({title, author, coauthors, date}: {
 
 export const CitationTags = registerComponent("CitationTags", CitationTagsInner);
 
-declare global {
-  interface ComponentTypes {
-    CitationTags: typeof CitationTags
-  }
-}
+

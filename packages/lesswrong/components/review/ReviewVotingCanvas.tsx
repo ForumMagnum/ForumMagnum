@@ -495,8 +495,4 @@ export const ReviewVotingCanvas = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingCanvas: typeof ReviewVotingCanvas
-  }
-}
+

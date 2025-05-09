@@ -132,8 +132,4 @@ const FormGroupPostTopBarInner = ({ children }: { children: React.ReactNode }) =
 
 export const FormGroupPostTopBar = registerComponent('FormGroupPostTopBar', FormGroupPostTopBarInner)
 
-declare global {
-  interface ComponentTypes {
-    FormGroupPostTopBar: typeof FormGroupPostTopBar
-  }
-}
+

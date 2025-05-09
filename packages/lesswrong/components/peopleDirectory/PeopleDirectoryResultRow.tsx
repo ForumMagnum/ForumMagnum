@@ -87,8 +87,4 @@ export const PeopleDirectoryResultRow = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryResultRow: typeof PeopleDirectoryResultRow
-  }
-}
+

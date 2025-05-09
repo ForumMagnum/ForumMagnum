@@ -312,8 +312,4 @@ export const EABestOfPage = registerComponent(
   {styles, stylePriority: 2},
 );
 
-declare global {
-  interface ComponentTypes {
-    EABestOfPage: typeof EABestOfPage;
-  }
-}
+

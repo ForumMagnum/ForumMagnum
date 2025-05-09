@@ -152,10 +152,5 @@ const TagPageActionsMenuInner = ({tagOrLens, handleEditClick, createLens}: {
 export const TagPageActionsMenuButton = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButtonInner);
 export const TagPageActionsMenu = registerComponent('TagPageActionsMenu', TagPageActionsMenuInner);
 
-declare global {
-  interface ComponentTypes {
-    TagPageActionsMenu: typeof TagPageActionsMenu
-    TagPageActionsMenuButton: typeof TagPageActionsMenuButton
-  }
-}
+
 

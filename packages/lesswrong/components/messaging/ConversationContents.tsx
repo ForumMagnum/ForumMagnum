@@ -170,8 +170,4 @@ export const ConversationContents = registerComponent("ConversationContents", Co
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    ConversationContents: typeof ConversationContents;
-  }
-}
+

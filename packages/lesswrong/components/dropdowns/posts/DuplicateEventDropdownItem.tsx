@@ -29,8 +29,4 @@ export const DuplicateEventDropdownItem = registerComponent(
   DuplicateEventDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    DuplicateEventDropdownItem: typeof DuplicateEventDropdownItem
-  }
-}
+

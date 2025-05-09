@@ -63,8 +63,4 @@ export const PetrovAdminConsoleInner = ({classes, currentUser}: {
 
 export const PetrovAdminConsole = registerComponent('PetrovAdminConsole', PetrovAdminConsoleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovAdminConsole: typeof PetrovAdminConsole
-  }
-}
+

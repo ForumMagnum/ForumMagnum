@@ -268,8 +268,4 @@ export const ConceptItem = registerComponent('ConceptItem', ConceptItemInner);
 
 
 
-declare global {
-  interface ComponentTypes {
-    ConceptItem: typeof ConceptItem
-  }
-}
+

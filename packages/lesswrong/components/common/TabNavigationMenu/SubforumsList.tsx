@@ -93,8 +93,4 @@ const SubforumsListInner = ({ onClick, classes }: {
 
 export const SubforumsList = registerComponent("SubforumsList", SubforumsListInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SubforumsList: typeof SubforumsList;
-  }
-}
+

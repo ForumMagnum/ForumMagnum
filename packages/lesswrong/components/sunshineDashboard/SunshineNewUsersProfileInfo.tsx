@@ -45,8 +45,4 @@ const SunshineNewUsersProfileInfoInner = ({userId, classes}: {userId: string, cl
 
 export const SunshineNewUsersProfileInfo = registerComponent('SunshineNewUsersProfileInfo', SunshineNewUsersProfileInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfo
-  }
-}
+

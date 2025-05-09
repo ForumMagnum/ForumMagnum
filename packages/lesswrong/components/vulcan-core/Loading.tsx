@@ -66,10 +66,6 @@ const LoadingInner = ({classes, className, white}: {
 
 export const Loading = registerComponent('Loading', LoadingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Loading: typeof Loading
-  }
-}
+
 
 export default LoadingInner;

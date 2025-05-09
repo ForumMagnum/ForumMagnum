@@ -542,8 +542,4 @@ export const EAPostsItem = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsItem: typeof EAPostsItem
-  }
-}
+

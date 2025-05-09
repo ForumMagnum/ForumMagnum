@@ -119,8 +119,4 @@ export const LWUserTooltipContent = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWUserTooltipContent: typeof LWUserTooltipContent
-  }
-}
+

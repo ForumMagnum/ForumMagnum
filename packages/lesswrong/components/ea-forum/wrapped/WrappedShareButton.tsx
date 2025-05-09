@@ -85,8 +85,4 @@ export const WrappedShareButton = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedShareButton: typeof WrappedShareButton
-  }
-}
+

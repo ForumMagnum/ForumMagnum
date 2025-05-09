@@ -60,8 +60,4 @@ const ConversationPreviewInner = ({conversationId, currentUser, classes, showTit
 
 export const ConversationPreview = registerComponent('ConversationPreview', ConversationPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConversationPreview: typeof ConversationPreview
-  }
-}
+

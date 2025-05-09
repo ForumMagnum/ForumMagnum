@@ -34,8 +34,4 @@ const LinkToPostInner = ({post, classes}: {
 
 export const LinkToPost = registerComponent("LinkToPost", LinkToPostInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LinkToPost: typeof LinkToPost
-  }
-}
+

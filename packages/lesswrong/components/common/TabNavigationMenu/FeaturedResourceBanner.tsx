@@ -138,8 +138,4 @@ export const FeaturedResourceBanner = registerComponent(
   'FeaturedResourceBanner', FeaturedResourceBannerInner, { styles }
 )
 
-declare global {
-  interface ComponentTypes {
-    FeaturedResourceBanner: typeof FeaturedResourceBanner
-  }
-}
+

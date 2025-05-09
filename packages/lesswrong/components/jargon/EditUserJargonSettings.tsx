@@ -50,8 +50,4 @@ export const EditUserJargonSettingsInner = ({classes}: {
 
 export const EditUserJargonSettings = registerComponent('EditUserJargonSettings', EditUserJargonSettingsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditUserJargonSettings: typeof EditUserJargonSettings
-  }
-}
+

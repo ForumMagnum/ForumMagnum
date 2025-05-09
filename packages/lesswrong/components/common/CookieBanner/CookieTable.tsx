@@ -95,8 +95,4 @@ const CookieTableInner = ({
 
 export const CookieTable = registerComponent("CookieTable", CookieTableInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CookieTable: typeof CookieTable;
-  }
-}
+

@@ -67,8 +67,4 @@ export const CombinedSubscriptionsDropdownItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CombinedSubscriptionsDropdownItem: typeof CombinedSubscriptionsDropdownItem
-  }
-}
+

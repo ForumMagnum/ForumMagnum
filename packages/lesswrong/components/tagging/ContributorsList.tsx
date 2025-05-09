@@ -132,11 +132,5 @@ export const ContributorsList = registerComponent('ContributorsList', Contributo
 export const ToCContributorsList = registerComponent('ToCContributorsList', ToCContributorsListInner);
 export const HeadingContributorsList = registerComponent('HeadingContributorsList', HeadingContributorsListInner);
 
-declare global {
-  interface ComponentTypes {
-    ContributorsList: typeof ContributorsList
-    ToCContributorsList: typeof ToCContributorsList
-    HeadingContributorsList: typeof HeadingContributorsList
-  }
-}
+
 

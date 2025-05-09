@@ -142,8 +142,4 @@ const ImageUploadDefaultsDialogInner = ({ onSelect, onClose, classes, type }: {
 
 export const ImageUploadDefaultsDialog = registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ImageUploadDefaultsDialog: typeof ImageUploadDefaultsDialog
-  }
-}
+

@@ -45,8 +45,4 @@ const LoginPopupInner = ({onClose, classes}: {
 
 export const LoginPopup = registerComponent('LoginPopup', LoginPopupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LoginPopup: typeof LoginPopup
-  }
-}
+

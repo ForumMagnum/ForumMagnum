@@ -135,8 +135,4 @@ export const ContentSummaryRowsInner = ({classes, comments, posts, user, loading
 
 export const ContentSummaryRows = registerComponent('ContentSummaryRows', ContentSummaryRowsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ContentSummaryRows: typeof ContentSummaryRows
-  }
-}
+

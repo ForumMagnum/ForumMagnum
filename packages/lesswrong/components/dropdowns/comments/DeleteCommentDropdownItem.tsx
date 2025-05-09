@@ -82,8 +82,4 @@ export const DeleteCommentDropdownItem = registerComponent(
   'DeleteCommentDropdownItem', DeleteCommentDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteCommentDropdownItem: typeof DeleteCommentDropdownItem
-  }
-}
+

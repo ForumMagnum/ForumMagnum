@@ -16,8 +16,4 @@ const PostsSingleRouteInner = () => {
 
 export const PostsSingleRoute = registerComponent('PostsSingleRoute', PostsSingleRouteInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsSingleRoute: typeof PostsSingleRoute
-  }
-}
+

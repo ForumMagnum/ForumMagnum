@@ -4,7 +4,7 @@ import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { getAllTagsPath } from '../../lib/routes';
+import { getAllTagsPath } from '@/lib/pathConstants';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 

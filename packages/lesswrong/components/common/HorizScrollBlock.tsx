@@ -136,9 +136,5 @@ export const HorizScrollBlock = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    HorizScrollBlock: typeof HorizScrollBlock
-  }
-}
+
 

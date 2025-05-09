@@ -196,10 +196,6 @@ export const CurationNoticesItemInner = ({curationNotice, classes}: {
 
 export const CurationNoticesItem = registerComponent('CurationNoticesItem', CurationNoticesItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CurationNoticesItem: typeof CurationNoticesItem
-  }
-}
+
 
 

@@ -25,10 +25,6 @@ const TemplateComponentInner = () => {
 
 export const TemplateComponent = registerComponent('TemplateComponent', TemplateComponentInner);
 
-declare global {
-  interface ComponentTypes {
-    TemplateComponent: typeof TemplateComponent
-  }
-}
+
 
 export default TemplateComponentInner;

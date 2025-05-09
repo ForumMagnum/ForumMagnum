@@ -153,8 +153,4 @@ export const DropdownItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownItem: typeof DropdownItem
-  }
-}
+

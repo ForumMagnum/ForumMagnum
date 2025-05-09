@@ -277,8 +277,4 @@ export const UsersReviewInfoCard = registerComponent('UsersReviewInfoCard', User
   ],
 });
 
-declare global {
-  interface ComponentTypes {
-    UsersReviewInfoCard: typeof UsersReviewInfoCard
-  }
-}
+

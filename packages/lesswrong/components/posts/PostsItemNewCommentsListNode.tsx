@@ -53,8 +53,4 @@ export const PostsItemNewCommentsListNode = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsItemNewCommentsListNode: typeof PostsItemNewCommentsListNode
-  }
-}
+

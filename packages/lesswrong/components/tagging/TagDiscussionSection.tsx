@@ -46,8 +46,4 @@ const TagDiscussionSectionInner = ({classes, tag}: {
 export const TagDiscussionSection = registerComponent("TagDiscussionSection", TagDiscussionSectionInner, {styles});
 
 
-declare global {
-  interface ComponentTypes {
-    TagDiscussionSection: typeof TagDiscussionSection
-  }
-}
+

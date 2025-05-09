@@ -83,9 +83,5 @@ const SequencesSearchHitInner = ({hit, clickAction, classes, showIcon=false}: Se
 
 export const SequencesSearchHit = registerComponent("SequencesSearchHit", SequencesSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesSearchHit: typeof SequencesSearchHit
-  }
-}
+
 

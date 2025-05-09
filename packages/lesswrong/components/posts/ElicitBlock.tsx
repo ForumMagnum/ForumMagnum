@@ -301,11 +301,7 @@ export const ElicitBlock = registerComponent('ElicitBlock', ElicitBlockInner, {
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    ElicitBlock: typeof ElicitBlock
-  }
-}
+
 
 function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
   return {

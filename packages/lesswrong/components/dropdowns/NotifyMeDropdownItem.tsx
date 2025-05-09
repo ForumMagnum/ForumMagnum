@@ -56,8 +56,4 @@ export const NotifyMeDropdownItem = registerComponent(
   NotifyMeDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    NotifyMeDropdownItem: typeof NotifyMeDropdownItem
-  }
-}
+

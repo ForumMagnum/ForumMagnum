@@ -52,8 +52,4 @@ export const PeopleDirectoryCheckOption = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryCheckOption: typeof PeopleDirectoryCheckOption
-  }
-}
+

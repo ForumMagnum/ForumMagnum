@@ -22,8 +22,4 @@ const PostsSingleSlugRedirectInner = () => {
 
 export const PostsSingleSlugRedirect = registerComponent('PostsSingleSlugRedirect', PostsSingleSlugRedirectInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsSingleSlugRedirect: typeof PostsSingleSlugRedirect
-  }
-}
+

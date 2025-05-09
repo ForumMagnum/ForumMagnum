@@ -94,8 +94,4 @@ export const AdminGoogleServiceAccount = registerComponent(
   "AdminGoogleServiceAccount", AdminGoogleServiceAccountInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    AdminGoogleServiceAccount: typeof AdminGoogleServiceAccount
-  }
-}
+

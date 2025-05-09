@@ -236,8 +236,4 @@ const EventSidebarTooltip = ({event, classes}: {
 
 export const TabNavigationEventsList = registerComponent('TabNavigationEventsList', TabNavigationEventsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationEventsList: typeof TabNavigationEventsList
-  }
-}
+

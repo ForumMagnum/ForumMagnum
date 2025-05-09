@@ -176,8 +176,4 @@ const AddPostsToTagInner = ({classes, tag}: {
 
 export const AddPostsToTag = registerComponent("AddPostsToTag", AddPostsToTagInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    AddPostsToTag: typeof AddPostsToTag
-  }
-}
+

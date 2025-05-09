@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useSingle } from "@/lib/crud/withSingle";
 import { Loading } from "../vulcan-core/Loading";
-import { SubscribeTo } from "../notifications/NotifyMeButton";
+import { NotifyMeButton } from "../notifications/NotifyMeButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +54,7 @@ const SubscribedItemInner = ({
 
   return (
     <div className={classes.root}>
-      <SubscribeTo
+      <NotifyMeButton
         document={document}
         subscriptionType={subscription.type}
         subscribeMessage="Resubscribe"
@@ -74,8 +74,4 @@ export const SubscribedItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SubscribedItem: typeof SubscribedItem
-  }
-}
+

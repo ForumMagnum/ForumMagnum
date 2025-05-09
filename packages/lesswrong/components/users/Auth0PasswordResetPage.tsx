@@ -133,10 +133,4 @@ const Auth0PasswordResetPageInner = ({ classes }: { classes: ClassesType<typeof 
 
 export const Auth0PasswordResetPage = registerComponent('Auth0PasswordResetPage', Auth0PasswordResetPageInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    Auth0PasswordResetPage: typeof Auth0PasswordResetPageComponent;
-  }
-}
 
-export default Auth0PasswordResetPageComponent;

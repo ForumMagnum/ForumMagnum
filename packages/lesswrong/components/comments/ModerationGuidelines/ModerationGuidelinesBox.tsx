@@ -204,8 +204,4 @@ export const ModerationGuidelinesBox = registerComponent('ModerationGuidelinesBo
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    ModerationGuidelinesBox: typeof ModerationGuidelinesBox
-  }
-}
+

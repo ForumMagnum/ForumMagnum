@@ -41,8 +41,4 @@ const AnswersSortingInner = ({ post }: {
 
 export const AnswersSorting = registerComponent('AnswersSorting', AnswersSortingInner);
 
-declare global {
-  interface ComponentTypes {
-    AnswersSorting: typeof AnswersSorting,
-  }
-}
+

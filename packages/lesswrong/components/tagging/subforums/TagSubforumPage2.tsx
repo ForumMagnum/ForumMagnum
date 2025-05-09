@@ -372,8 +372,4 @@ const TagSubforumPage2Inner = ({classes}: {
 
 export const TagSubforumPage2 = registerComponent("TagSubforumPage2", TagSubforumPage2Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSubforumPage2: typeof TagSubforumPage2Component
-  }
-}
+

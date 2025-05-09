@@ -44,8 +44,4 @@ export const EventsListInner = ({currentUser, onClick}: {
 
 export const EventsList = registerComponent("EventsList", EventsListInner);
 
-declare global {
-  interface ComponentTypes {
-    EventsList: typeof EventsList
-  }
-}
+

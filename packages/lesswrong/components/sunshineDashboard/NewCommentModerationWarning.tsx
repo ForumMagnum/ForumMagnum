@@ -41,9 +41,5 @@ export const NewCommentModerationWarningInner = ({classes}: {
 
 export const NewCommentModerationWarning = registerComponent('NewCommentModerationWarning', NewCommentModerationWarningInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewCommentModerationWarning: typeof NewCommentModerationWarning
-  }
-}
+
 

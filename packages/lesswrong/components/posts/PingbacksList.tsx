@@ -92,8 +92,4 @@ const PingbacksListInner = ({classes, postId, limit=5}: {
 
 export const PingbacksList = registerComponent("PingbacksList", PingbacksListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PingbacksList: typeof PingbacksList
-  }
-}
+

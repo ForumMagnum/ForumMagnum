@@ -115,8 +115,4 @@ export const WrappedKarmaChangeSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedKarmaChangeSection: typeof WrappedKarmaChangeSection
-  }
-}
+

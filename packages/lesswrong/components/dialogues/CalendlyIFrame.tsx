@@ -41,8 +41,4 @@ const CalendlyIFrameInner = ({url, classes}: {url: string, classes: ClassesType<
 
 export const CalendlyIFrame = registerComponent('CalendlyIFrame', CalendlyIFrameInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    CalendlyIFrame: typeof CalendlyIFrame
-  }
-}
+

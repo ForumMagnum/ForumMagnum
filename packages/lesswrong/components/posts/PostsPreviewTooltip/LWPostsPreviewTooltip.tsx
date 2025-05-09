@@ -271,8 +271,4 @@ const LWPostsPreviewTooltipInner = ({
 
 export const LWPostsPreviewTooltip = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltipInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPreviewTooltip: typeof LWPostsPreviewTooltip
-  }
-}
+

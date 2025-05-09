@@ -197,8 +197,4 @@ export const PostsVoteDefault = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsVoteDefault: typeof PostsVoteDefault
-  }
-}
+

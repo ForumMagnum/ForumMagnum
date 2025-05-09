@@ -91,8 +91,4 @@ const TagRevisionItemInner = ({
 
 export const TagRevisionItem = registerComponent("TagRevisionItem", TagRevisionItemInner, {hocs: [withErrorBoundary]});
 
-declare global {
-  interface ComponentTypes {
-    TagRevisionItem: typeof TagRevisionItem
-  }
-}
+

@@ -84,8 +84,4 @@ const PostsUserAndCoauthorsInner = ({
 
 export const PostsUserAndCoauthors = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthorsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsUserAndCoauthors: typeof PostsUserAndCoauthors
-  }
-}
+

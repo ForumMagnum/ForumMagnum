@@ -74,9 +74,5 @@ const LocalEventMarkerInner = ({ event, handleMarkerClick, handleInfoWindowClose
 
 export const LocalEventMarker = registerComponent("LocalEventMarker", LocalEventMarkerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalEventMarker: typeof LocalEventMarker
-  }
-}
+
 

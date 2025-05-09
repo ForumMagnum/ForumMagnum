@@ -219,9 +219,4 @@ export function ResponseIconInner({response, classes}: {
 export const RSVPs = registerComponent('RSVPs', RSVPsInner, {styles});
 export const ResponseIcon = registerComponent('ResponseIcon', ResponseIconInner, {styles: responseIconStyles});
 
-declare global {
-  interface ComponentTypes {
-    RSVPs: typeof RSVPs
-    ResponseIcon: typeof ResponseIcon
-  }
-}
+

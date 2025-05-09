@@ -204,8 +204,4 @@ export const SubforumLayoutInner = ({titleComponent, bannerImageId, headerCompon
 
 export const SubforumLayout = registerComponent("SubforumLayout", SubforumLayoutInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubforumLayout: typeof SubforumLayout
-  }
-}
+

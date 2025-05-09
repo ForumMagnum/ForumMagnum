@@ -100,8 +100,4 @@ const SingleLineFeedEventInner = ({expands=false, expanded=false, setExpanded, f
 
 export const SingleLineFeedEvent = registerComponent("SingleLineFeedEvent", SingleLineFeedEventInner);
 
-declare global {
-  interface ComponentTypes {
-    SingleLineFeedEvent: typeof SingleLineFeedEvent
-  }
-}
+

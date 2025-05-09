@@ -51,9 +51,5 @@ export const BanUserFromAllPostsDropdownItem = registerComponent(
   'BanUserFromAllPostsDropdownItem', BanUserFromAllPostsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    BanUserFromAllPostsDropdownItem: typeof BanUserFromAllPostsDropdownItem,
-  }
-}
+
 

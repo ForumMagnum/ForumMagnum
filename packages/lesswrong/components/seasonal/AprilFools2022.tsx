@@ -140,9 +140,5 @@ export const AprilFools2022Inner = ({classes}: {
 
 export const AprilFools2022 = registerComponent('AprilFools2022', AprilFools2022Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AprilFools2022: typeof AprilFools2022Component
-  }
-}
+
 

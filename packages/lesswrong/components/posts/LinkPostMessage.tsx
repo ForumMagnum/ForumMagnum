@@ -50,8 +50,4 @@ const LinkPostMessageInner = ({post, classes, negativeTopMargin}: {
 
 export const LinkPostMessage = registerComponent('LinkPostMessage', LinkPostMessageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LinkPostMessage: typeof LinkPostMessage
-  }
-}
+

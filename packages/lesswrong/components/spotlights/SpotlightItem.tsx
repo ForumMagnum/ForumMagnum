@@ -652,8 +652,4 @@ export const SpotlightItem = registerComponent('SpotlightItem', SpotlightItemInn
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    SpotlightItem: typeof SpotlightItem
-  }
-}
+

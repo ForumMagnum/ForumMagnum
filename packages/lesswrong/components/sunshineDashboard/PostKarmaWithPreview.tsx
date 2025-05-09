@@ -73,8 +73,4 @@ const PostKarmaWithPreviewInner = ({ post, classes, displayTitle, reviewedAt }: 
 
 export const PostKarmaWithPreview = registerComponent('PostKarmaWithPreview', PostKarmaWithPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostKarmaWithPreview: typeof PostKarmaWithPreview
-  }
-}
+

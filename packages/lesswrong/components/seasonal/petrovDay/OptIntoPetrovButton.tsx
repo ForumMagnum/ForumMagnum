@@ -264,9 +264,5 @@ const OptIntoPetrovButtonInner = ({classes }: {
 
 export const OptIntoPetrovButton = registerComponent('OptIntoPetrovButton', OptIntoPetrovButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OptIntoPetrovButton: typeof OptIntoPetrovButton
-  }
-}
+
 

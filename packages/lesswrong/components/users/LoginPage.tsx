@@ -40,8 +40,4 @@ const LoginPageInner = () => {
 
 export const LoginPage = registerComponent('LoginPage', LoginPageInner);
 
-declare global {
-  interface ComponentTypes {
-    LoginPage: typeof LoginPage
-  }
-}
+

@@ -22,8 +22,4 @@ const EditTagsDialogInner = ({post, onClose }: {
 
 export const EditTagsDialog = registerComponent('EditTagsDialog', EditTagsDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    EditTagsDialog: typeof EditTagsDialog
-  }
-}
+

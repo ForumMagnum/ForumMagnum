@@ -203,8 +203,4 @@ export const ShortformListItem = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    ShortformListItem: typeof ShortformListItem,
-  }
-}
+

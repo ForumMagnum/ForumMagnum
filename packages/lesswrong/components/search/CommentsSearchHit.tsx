@@ -71,9 +71,5 @@ const CommentsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: Sea
 
 export const CommentsSearchHit = registerComponent("CommentsSearchHit", CommentsSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsSearchHit: typeof CommentsSearchHit
-  }
-}
+
 

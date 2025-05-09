@@ -27,9 +27,5 @@ const EventVicinityInner = ({post}: {
 
 export const EventVicinity = registerComponent('EventVicinity', EventVicinityInner, {})
 
-declare global {
-  interface ComponentTypes {
-    EventVicinity: typeof EventVicinity
-  }
-}
+
 

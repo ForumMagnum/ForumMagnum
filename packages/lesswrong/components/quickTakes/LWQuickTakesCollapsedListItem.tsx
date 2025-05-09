@@ -196,8 +196,4 @@ export const LWQuickTakesCollapsedListItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWQuickTakesCollapsedListItem: typeof LWQuickTakesCollapsedListItem
-  }
-}
+

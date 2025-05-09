@@ -33,9 +33,5 @@ const UsersAutoCompleteHitInner = ({document, classes}: {
 
 export const UsersAutoCompleteHit = registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersAutoCompleteHit: typeof UsersAutoCompleteHit
-  }
-}
+
 

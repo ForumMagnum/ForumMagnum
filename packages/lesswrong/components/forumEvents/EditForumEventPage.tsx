@@ -36,8 +36,4 @@ export const EditForumEventPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EditForumEventPage: typeof EditForumEventPage
-  }
-}
+

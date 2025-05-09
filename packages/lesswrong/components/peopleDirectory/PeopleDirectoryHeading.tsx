@@ -77,8 +77,4 @@ export const PeopleDirectoryHeading = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryHeading: typeof PeopleDirectoryHeading
-  }
-}
+

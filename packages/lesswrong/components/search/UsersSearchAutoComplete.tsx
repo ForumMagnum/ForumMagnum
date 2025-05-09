@@ -21,9 +21,5 @@ const UsersSearchAutoCompleteInner = ({clickAction, label}: {
 
 export const UsersSearchAutoComplete = registerComponent("UsersSearchAutoComplete", UsersSearchAutoCompleteInner);
 
-declare global {
-  interface ComponentTypes {
-    UsersSearchAutoComplete: typeof UsersSearchAutoComplete
-  }
-}
+
 

@@ -40,8 +40,4 @@ export const DeleteDraftDropdownItem = registerComponent(
   DeleteDraftDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteDraftDropdownItem: typeof DeleteDraftDropdownItem
-  }
-}
+

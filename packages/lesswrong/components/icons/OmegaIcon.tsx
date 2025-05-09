@@ -28,8 +28,4 @@ const OmegaIconInner = ({classes, className}: {
 
 export const OmegaIcon = registerComponent('OmegaIcon', OmegaIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OmegaIcon: typeof OmegaIcon
-  }
-}
+

@@ -8,9 +8,5 @@ const SequencesHighlightsCollectionInner = () => {
 
 export const SequencesHighlightsCollection = registerComponent('SequencesHighlightsCollection', SequencesHighlightsCollectionInner);
 
-declare global {
-  interface ComponentTypes {
-    SequencesHighlightsCollection: typeof SequencesHighlightsCollection
-  }
-}
+
 

@@ -316,10 +316,6 @@ const CensoredUserName = ({user, classes}: {
 
 export const ModerationAltAccounts = registerComponent('ModerationAltAccounts', ModerationAltAccountsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationAltAccounts: typeof ModerationAltAccounts
-  }
-}
+
 
 

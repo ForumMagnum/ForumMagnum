@@ -87,9 +87,5 @@ export const UserMetaInfoInner = ({user, hideAfKarma, hideWikiContribution, hide
 
 export const UserMetaInfo = registerComponent('UserMetaInfo', UserMetaInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserMetaInfo: typeof UserMetaInfo
-  }
-}
+
 

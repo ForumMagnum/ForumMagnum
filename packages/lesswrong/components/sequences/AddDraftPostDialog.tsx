@@ -56,8 +56,4 @@ export const AddDraftPostDialog = registerComponent(
   'AddDraftPostDialog', AddDraftPostDialogInner
 );
 
-declare global {
-  interface ComponentTypes {
-    AddDraftPostDialog: typeof AddDraftPostDialog
-  }
-}
+

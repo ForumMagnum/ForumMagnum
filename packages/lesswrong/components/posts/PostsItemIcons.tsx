@@ -189,9 +189,4 @@ const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersona
 
 export const PostsItemIcons = registerComponent('PostsItemIcons', PostsItemIconsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemIcons: typeof PostsItemIcons
-    CuratedIcon: typeof CuratedIcon
-  }
-}
+

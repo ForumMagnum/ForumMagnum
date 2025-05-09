@@ -51,9 +51,5 @@ export const ReviewsPageInner = ({classes, reviewYear}: {classes: ClassesType<ty
 
 export const ReviewsPage = registerComponent('ReviewsPage', ReviewsPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewsPage: typeof ReviewsPage
-  }
-}
+
 

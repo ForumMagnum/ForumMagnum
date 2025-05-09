@@ -58,8 +58,4 @@ const TagsListItemInner = ({tag, classes, postCount=3}: {
 
 export const TagsListItem = registerComponent("TagsListItem", TagsListItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagsListItem: typeof TagsListItem
-  }
-}
+

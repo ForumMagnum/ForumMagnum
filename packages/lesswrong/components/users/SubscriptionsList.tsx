@@ -99,8 +99,4 @@ export const SubscriptionsList = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SubscriptionsList: typeof SubscriptionsList
-  }
-}
+

@@ -94,8 +94,4 @@ const PopupCommentEditorInner = ({title, guidelines, commentFormProps, onClose, 
 
 export const PopupCommentEditor = registerComponent('PopupCommentEditor', PopupCommentEditorInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PopupCommentEditor: typeof PopupCommentEditor
-  }
-}
+

@@ -114,9 +114,5 @@ const ReportFormInner = ({ userId, postId, commentId, reportedUserId, onClose, o
 
 export const ReportForm = registerComponent('ReportForm', ReportFormInner);
 
-declare global {
-  interface ComponentTypes {
-    ReportForm: typeof ReportForm
-  }
-}
+
 

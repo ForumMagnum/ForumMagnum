@@ -78,8 +78,4 @@ const PostsPageCrosspostWrapperInner = ({post, eagerPostComments, refetch, fetch
 
 export const PostsPageCrosspostWrapper = registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsPageCrosspostWrapper: typeof PostsPageCrosspostWrapper
-  }
-}
+

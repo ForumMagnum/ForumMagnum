@@ -76,8 +76,4 @@ export const NewLensDialogInner = ({ tag, refetchTag, updateSelectedLens, onClos
 
 export const NewLensDialog = registerComponent('NewLensDialog', NewLensDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    NewLensDialog: typeof NewLensDialog
-  }
-}
+

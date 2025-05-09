@@ -328,10 +328,6 @@ export const LWPostsPageHeader = registerComponent(
   'LWPostsPageHeader', LWPostsPageHeaderInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPageHeader: typeof LWPostsPageHeader,
-  }
-}
+
 
 

@@ -245,8 +245,4 @@ export const JargonEditorRowInner = ({classes, jargonTerm, instancesOfJargonCoun
 
 export const JargonEditorRow = registerComponent('JargonEditorRow', JargonEditorRowInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    JargonEditorRow: typeof JargonEditorRow
-  }
-}
+

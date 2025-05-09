@@ -54,8 +54,4 @@ const PostsByVoteInner = ({postIds, year, limit, showMostValuableCheckbox=false,
 
 export const PostsByVote = registerComponent("PostsByVote", PostsByVoteInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsByVote: typeof PostsByVote
-  }
-}
+

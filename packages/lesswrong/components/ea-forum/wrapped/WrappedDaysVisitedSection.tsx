@@ -104,8 +104,4 @@ export const WrappedDaysVisitedSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedDaysVisitedSection: typeof WrappedDaysVisitedSection
-  }
-}
+

@@ -51,8 +51,4 @@ const TagFlagToggleListInner = ({ value, path, updateCurrentValues }: {
 
 export const TagFlagToggleList = registerComponent("TagFlagToggleList", TagFlagToggleListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagFlagToggleList: typeof TagFlagToggleList
-  }
-}
+

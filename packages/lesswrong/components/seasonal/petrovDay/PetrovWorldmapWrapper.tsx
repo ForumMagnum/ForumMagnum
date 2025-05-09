@@ -64,8 +64,4 @@ export const PetrovWorldmapWrapperInner = ({classes, children}: {
 
 export const PetrovWorldmapWrapper = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovWorldmapWrapper: typeof PetrovWorldmapWrapper
-  }
-}
+

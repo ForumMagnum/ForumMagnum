@@ -156,8 +156,4 @@ export const ContentStyles = registerComponent('ContentStyles', ContentStylesInn
 
 
 
-declare global {
-  interface ComponentTypes {
-    ContentStyles: typeof ContentStyles
-  }
-}
+

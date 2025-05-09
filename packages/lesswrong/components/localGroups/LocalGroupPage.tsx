@@ -24,7 +24,7 @@ import { SectionTitle } from "../common/SectionTitle";
 import { PostsList2 } from "../posts/PostsList2";
 import { Loading } from "../vulcan-core/Loading";
 import { SectionButton } from "../common/SectionButton";
-import { SubscribeTo } from "../notifications/NotifyMeButton";
+import { NotifyMeButton } from "../notifications/NotifyMeButton";
 import { SectionFooter } from "../common/SectionFooter";
 import { GroupFormLink } from "./GroupFormLink";
 import { ContentItemBody } from "../common/ContentItemBody";
@@ -354,7 +354,7 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
         <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
       </div>
     ) : <Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
-        <SubscribeTo
+        <NotifyMeButton
           showIcon={false}
           document={group}
           subscribeMessage="Subscribe to be notified when an event is added."
@@ -449,7 +449,7 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
           </div>
           <div>
             {currentUser && <SectionButton className={classes.notifyMe}>
-              <SubscribeTo
+              <NotifyMeButton
                 showIcon
                 document={group}
                 subscribeMessage="Subscribe to group"
@@ -577,8 +577,4 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
 
 export const LocalGroupPage = registerComponent('LocalGroupPage', LocalGroupPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupPage: typeof LocalGroupPage
-  }
-}
+

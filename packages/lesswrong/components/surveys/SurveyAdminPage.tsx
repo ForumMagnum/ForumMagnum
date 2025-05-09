@@ -212,8 +212,4 @@ export const SurveyAdminPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyAdminPage: typeof SurveyAdminPage
-  }
-}
+

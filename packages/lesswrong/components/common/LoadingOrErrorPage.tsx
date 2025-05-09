@@ -37,9 +37,5 @@ const LoadingOrErrorPageInner = ({loading, error}: {
 
 export const LoadingOrErrorPage = registerComponent('LoadingOrErrorPage', LoadingOrErrorPageInner);
 
-declare global {
-  interface ComponentTypes {
-    LoadingOrErrorPage: typeof LoadingOrErrorPage
-  }
-}
+
 

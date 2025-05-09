@@ -9,7 +9,7 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
-import { communityPath } from '../../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { AddToCalendarButton } from "../../posts/AddToCalendar/AddToCalendarButton";
@@ -214,8 +214,4 @@ const EventCardsInner = ({events, loading, numDefaultCards, hideSpecialCards, hi
 
 export const EventCards = registerComponent('EventCards', EventCardsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventCards: typeof EventCards
-  }
-}
+

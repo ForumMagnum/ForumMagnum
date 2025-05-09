@@ -23,9 +23,5 @@ const RandomTagPageInner = () => {
 
 export const RandomTagPage = registerComponent('RandomTagPage', RandomTagPageInner);
 
-declare global {
-  interface ComponentTypes {
-    RandomTagPage: typeof RandomTagPage
-  }
-}
+
 

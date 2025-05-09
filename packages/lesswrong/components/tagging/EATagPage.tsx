@@ -495,8 +495,4 @@ const EATagPageInner = ({classes}: {
 
 export const EATagPage = registerComponent("EATagPage", EATagPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EATagPage: typeof EATagPage
-  }
-}
+

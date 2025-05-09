@@ -388,8 +388,4 @@ const FooterTagListInner = ({
 
 export const FooterTagList = registerComponent("FooterTagList", FooterTagListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FooterTagList: typeof FooterTagList
-  }
-}
+

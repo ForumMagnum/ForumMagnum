@@ -110,8 +110,4 @@ export const PetrovGameWrapperInner = ({classes}: {
 
 export const PetrovGameWrapper = registerComponent('PetrovGameWrapper', PetrovGameWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovGameWrapper: typeof PetrovGameWrapper
-  }
-}
+

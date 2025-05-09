@@ -53,8 +53,4 @@ const ForeignCrosspostEditFormInner = ({post, classes}: {
 
 export const ForeignCrosspostEditForm = registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ForeignCrosspostEditForm: typeof ForeignCrosspostEditForm
-  }
-}
+

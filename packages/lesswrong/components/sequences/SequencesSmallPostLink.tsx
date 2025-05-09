@@ -69,8 +69,4 @@ const SequencesSmallPostLinkInner = ({classes, post, sequenceId, large, placemen
 
 export const SequencesSmallPostLink = registerComponent("SequencesSmallPostLink", SequencesSmallPostLinkInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesSmallPostLink: typeof SequencesSmallPostLink
-  }
-}
+

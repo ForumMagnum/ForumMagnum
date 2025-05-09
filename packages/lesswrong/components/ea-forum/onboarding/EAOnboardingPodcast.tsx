@@ -70,8 +70,4 @@ export const EAOnboardingPodcast = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingPodcast: typeof EAOnboardingPodcast
-  }
-}
+

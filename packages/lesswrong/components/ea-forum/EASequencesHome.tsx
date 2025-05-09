@@ -49,8 +49,4 @@ const EASequencesHomeInner = ({classes}: {
 
 export const EASequencesHome = registerComponent('EASequencesHome', EASequencesHomeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EASequencesHome: typeof EASequencesHome
-  }
-}
+

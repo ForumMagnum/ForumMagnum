@@ -224,8 +224,4 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof s
 
 export const CommentFrame = registerComponent('CommentFrame', CommentFrameInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    CommentFrame: typeof CommentFrame,
-  }
-}
+

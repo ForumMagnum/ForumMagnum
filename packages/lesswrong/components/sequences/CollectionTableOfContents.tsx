@@ -62,9 +62,5 @@ export const CollectionTableOfContentsInner = ({classes, collection}: {
 
 export const CollectionTableOfContents = registerComponent('CollectionTableOfContents', CollectionTableOfContentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionTableOfContents: typeof CollectionTableOfContents
-  }
-}
+
 

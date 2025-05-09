@@ -354,8 +354,4 @@ export const PostsPagePostHeader = registerComponent(
   'PostsPagePostHeader', PostsPagePostHeaderInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsPagePostHeader: typeof PostsPagePostHeader,
-  }
-}
+

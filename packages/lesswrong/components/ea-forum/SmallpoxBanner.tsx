@@ -43,8 +43,4 @@ export const SmallpoxBanner = registerComponent(
   'SmallpoxBanner', SmallpoxBannerInner, {styles},
 )
 
-declare global {
-  interface ComponentTypes {
-    SmallpoxBanner: typeof SmallpoxBanner
-  }
-}
+

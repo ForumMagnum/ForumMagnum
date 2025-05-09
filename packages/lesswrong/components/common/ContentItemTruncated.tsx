@@ -79,8 +79,4 @@ const ContentItemTruncatedInner = ({classes, maxLengthWords, graceWords=20, expa
 
 export const ContentItemTruncated = registerComponent('ContentItemTruncated', ContentItemTruncatedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ContentItemTruncated: typeof ContentItemTruncated
-  }
-}
+

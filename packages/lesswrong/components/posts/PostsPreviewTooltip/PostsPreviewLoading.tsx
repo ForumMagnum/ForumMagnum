@@ -33,8 +33,4 @@ export const PostsPreviewLoading = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsPreviewLoading: typeof PostsPreviewLoading
-  }
-}
+

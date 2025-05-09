@@ -164,8 +164,4 @@ export const FeedPostCardMeta = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    FeedPostCardMeta: typeof FeedPostCardMeta,
-  }
-}
+

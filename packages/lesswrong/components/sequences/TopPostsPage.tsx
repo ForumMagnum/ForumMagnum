@@ -1247,8 +1247,4 @@ export const TopPostsPage = registerComponent(
   { styles },
 );
 
-declare global {
-  interface ComponentTypes {
-    TopPostsPage: typeof TopPostsPage
-  }
-}
+

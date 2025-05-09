@@ -89,8 +89,4 @@ export const NotifyMeToggleDropdownItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotifyMeToggleDropdownItem: typeof NotifyMeToggleDropdownItem
-  }
-}
+

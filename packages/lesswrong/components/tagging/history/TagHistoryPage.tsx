@@ -344,8 +344,4 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
 
 export const TagHistoryPage = registerComponent("TagHistoryPage", TagHistoryPageInner);
 
-declare global {
-  interface ComponentTypes {
-    TagHistoryPage: typeof TagHistoryPage
-  }
-}
+

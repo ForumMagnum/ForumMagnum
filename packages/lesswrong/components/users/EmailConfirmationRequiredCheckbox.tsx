@@ -28,8 +28,4 @@ const EmailConfirmationRequiredCheckboxInner = (props: FormComponentCheckboxProp
 
 export const EmailConfirmationRequiredCheckbox = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckboxInner);
 
-declare global {
-  interface ComponentTypes {
-    EmailConfirmationRequiredCheckbox: typeof EmailConfirmationRequiredCheckbox
-  }
-}
+

@@ -273,8 +273,4 @@ export const PostsListSettings = registerComponent(
   'PostsListSettings', PostsListSettingsInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsListSettings: typeof PostsListSettings
-  }
-}
+

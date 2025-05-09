@@ -90,8 +90,4 @@ export const SunshineUserMessagesInner = ({classes, user, currentUser}: {
 
 export const SunshineUserMessages = registerComponent('SunshineUserMessages', SunshineUserMessagesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineUserMessages: typeof SunshineUserMessages
-  }
-}
+

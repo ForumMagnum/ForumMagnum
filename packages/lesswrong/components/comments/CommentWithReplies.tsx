@@ -93,8 +93,4 @@ export const CommentWithReplies = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentWithReplies: typeof CommentWithReplies;
-  }
-}
+

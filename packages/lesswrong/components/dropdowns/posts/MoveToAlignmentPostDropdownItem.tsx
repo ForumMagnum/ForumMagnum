@@ -50,8 +50,4 @@ export const MoveToAlignmentPostDropdownItem = registerComponent(
   MoveToAlignmentPostDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToAlignmentPostDropdownItem: typeof MoveToAlignmentPostDropdownItem
-  }
-}
+

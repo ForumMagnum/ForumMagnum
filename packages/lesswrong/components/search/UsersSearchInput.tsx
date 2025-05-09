@@ -30,9 +30,5 @@ const UsersSearchInputInner = ({ inputProps, classes }: {
 
 export const UsersSearchInput = registerComponent("UsersSearchInput", UsersSearchInputInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersSearchInput: typeof UsersSearchInput
-  }
-}
+
 

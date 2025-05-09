@@ -133,8 +133,4 @@ const PostsPageTitleInner = ({post, className}: {
 export const PostsPageTitle = registerComponent('PostsPageTitle', PostsPageTitleInner);
 
 
-declare global {
-  interface ComponentTypes {
-    PostsPageTitle: typeof PostsPageTitle
-  }
-}
+

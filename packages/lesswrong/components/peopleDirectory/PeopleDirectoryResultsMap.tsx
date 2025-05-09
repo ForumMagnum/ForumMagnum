@@ -28,8 +28,4 @@ export const PeopleDirectoryResultsMap = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryResultsMap: typeof PeopleDirectoryResultsMap
-  }
-}
+

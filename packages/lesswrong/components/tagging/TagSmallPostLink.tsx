@@ -101,8 +101,4 @@ const TagSmallPostLinkInner = ({classes, post, hideMeta, hideAuthor, wrap, wider
 
 export const TagSmallPostLink = registerComponent("TagSmallPostLink", TagSmallPostLinkInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSmallPostLink: typeof TagSmallPostLink
-  }
-}
+

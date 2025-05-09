@@ -38,8 +38,4 @@ export const EAKarmaDisplay = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAKarmaDisplay: typeof EAKarmaDisplay,
-  }
-}
+

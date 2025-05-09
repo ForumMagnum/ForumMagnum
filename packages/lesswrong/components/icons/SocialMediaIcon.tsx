@@ -29,9 +29,5 @@ const SocialMediaIconInner = ({name, className, classes}: {
 
 export const SocialMediaIcon = registerComponent('SocialMediaIcon', SocialMediaIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SocialMediaIcon: typeof SocialMediaIcon
-  }
-}
+
 

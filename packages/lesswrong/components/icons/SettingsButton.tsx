@@ -68,8 +68,4 @@ export const SettingsButton = registerComponent('SettingsButton', SettingsButton
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    SettingsButton: typeof SettingsButton
-  }
-}
+

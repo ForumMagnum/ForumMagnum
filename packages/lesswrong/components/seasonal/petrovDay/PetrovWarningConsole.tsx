@@ -126,8 +126,4 @@ export const PetrovWarningConsoleInner = ({classes, currentUser, side}: {
 
 export const PetrovWarningConsole = registerComponent('PetrovWarningConsole', PetrovWarningConsoleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovWarningConsole: typeof PetrovWarningConsole
-  }
-}
+

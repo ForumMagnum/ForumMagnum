@@ -55,9 +55,5 @@ export const DynamicTableOfContentsInner = ({title, rightColumnChildren, childre
 
 export const DynamicTableOfContents = registerComponent('DynamicTableOfContents', DynamicTableOfContentsInner);
 
-declare global {
-  interface ComponentTypes {
-    DynamicTableOfContents: typeof DynamicTableOfContents
-  }
-}
+
 

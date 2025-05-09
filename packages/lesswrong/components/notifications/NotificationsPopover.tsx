@@ -328,8 +328,4 @@ export const NotificationsPopover = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPopover: typeof NotificationsPopover
-  }
-}
+

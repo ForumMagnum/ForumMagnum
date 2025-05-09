@@ -88,8 +88,4 @@ export const EAOnboardingWorkStage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingWorkStage: typeof EAOnboardingWorkStage
-  }
-}
+

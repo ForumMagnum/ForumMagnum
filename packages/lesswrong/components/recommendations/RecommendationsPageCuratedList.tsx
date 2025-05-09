@@ -49,8 +49,4 @@ const RecommendationsPageCuratedListInner = ({classes}: {
 
 export const RecommendationsPageCuratedList = registerComponent('RecommendationsPageCuratedList', RecommendationsPageCuratedListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsPageCuratedList: typeof RecommendationsPageCuratedList
-  }
-}
+

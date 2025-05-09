@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuoteLocator, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 
@@ -106,9 +106,5 @@ const ReactionVoteArrow = ({orientation, onClick, className, classes}: {
 
 export const ReactOrAntireactVote = registerComponent('ReactOrAntireactVote', ReactOrAntireactVoteInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactOrAntireactVote: typeof ReactOrAntireactVote
-  }
-}
+
 

@@ -4,7 +4,7 @@ import Slide from '@/lib/vendor/@material-ui/core/src/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH, TabNavigationMenu } from './TabNavigationMenu';
-import { communityPath } from '../../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
@@ -84,8 +84,4 @@ export const NavigationStandalone = registerComponent(
   'NavigationStandalone', NavigationStandaloneInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    NavigationStandalone: typeof NavigationStandalone
-  }
-}
+

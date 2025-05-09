@@ -123,8 +123,4 @@ const EAHomeMainContentInner = ({FrontpageNode, classes}: {
 
 export const EAHomeMainContent = registerComponent('EAHomeMainContent', EAHomeMainContentInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeMainContent: typeof EAHomeMainContent
-  }
-}
+

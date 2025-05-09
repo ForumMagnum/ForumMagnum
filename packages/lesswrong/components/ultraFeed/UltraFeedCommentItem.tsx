@@ -336,9 +336,4 @@ const UltraFeedCommentItemInner = ({
 export const UltraFeedCommentItem = registerComponent("UltraFeedCommentItem", UltraFeedCommentItemInner);
 
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedCommentItem: typeof UltraFeedCommentItem
-    UltraFeedCompressedCommentsItem: typeof UltraFeedCompressedCommentsItem
-  }
-}
+

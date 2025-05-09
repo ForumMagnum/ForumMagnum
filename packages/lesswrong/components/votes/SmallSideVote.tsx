@@ -25,8 +25,4 @@ const SmallSideVoteInner = ({document, hideKarma=false, collectionName}: {
 
 export const SmallSideVote = registerComponent('SmallSideVote', SmallSideVoteInner, {areEqual: "auto"});
 
-declare global {
-  interface ComponentTypes {
-    SmallSideVote: typeof SmallSideVote
-  }
-}
+

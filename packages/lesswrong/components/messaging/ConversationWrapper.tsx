@@ -18,9 +18,5 @@ const ConversationWrapperInner = () => {
 
 export const ConversationWrapper = registerComponent('ConversationWrapper', ConversationWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    ConversationWrapper: typeof ConversationWrapper
-  }
-}
+
 

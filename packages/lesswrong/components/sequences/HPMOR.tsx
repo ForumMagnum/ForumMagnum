@@ -8,9 +8,5 @@ const HPMORInner = () => {
 
 export const HPMOR = registerComponent('HPMOR', HPMORInner);
 
-declare global {
-  interface ComponentTypes {
-    HPMOR: typeof HPMOR
-  }
-}
+
 

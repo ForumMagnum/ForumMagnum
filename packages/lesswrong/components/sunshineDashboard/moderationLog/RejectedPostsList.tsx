@@ -67,9 +67,5 @@ export const RejectedPostsListInner = ({classes}: {
 
 export const RejectedPostsList = registerComponent('RejectedPostsList', RejectedPostsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectedPostsList: typeof RejectedPostsList
-  }
-}
+
 

@@ -27,8 +27,4 @@ const PostsListPlaceholderInner = ({count, classes}: {
 
 export const PostsListPlaceholder = registerComponent("PostsListPlaceholder", PostsListPlaceholderInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListPlaceholder: typeof PostsListPlaceholder
-  }
-}
+

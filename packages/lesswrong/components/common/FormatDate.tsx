@@ -62,8 +62,4 @@ const FormatDateInner = ({date, format, includeAgo, tooltip=true, granularity="d
 
 export const FormatDate = registerComponent('FormatDate', FormatDateInner);
 
-declare global {
-  interface ComponentTypes {
-    FormatDate: typeof FormatDate
-  }
-}
+

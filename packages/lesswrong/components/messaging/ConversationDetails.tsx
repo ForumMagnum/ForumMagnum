@@ -56,8 +56,4 @@ const ConversationDetailsInner = ({conversation, hideOptions = false, classes}: 
 
 export const ConversationDetails = registerComponent('ConversationDetails', ConversationDetailsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConversationDetails: typeof ConversationDetails
-  }
-}
+

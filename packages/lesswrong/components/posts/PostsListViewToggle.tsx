@@ -142,8 +142,4 @@ export const PostsListViewToggle = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsListViewToggle: typeof PostsListViewToggle
-  }
-}
+

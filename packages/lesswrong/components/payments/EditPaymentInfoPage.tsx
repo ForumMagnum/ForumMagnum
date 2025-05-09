@@ -149,9 +149,5 @@ export const EditPaymentInfoPageInner = () => {
 
 export const EditPaymentInfoPage = registerComponent('EditPaymentInfoPage', EditPaymentInfoPageInner);
 
-declare global {
-  interface ComponentTypes {
-    EditPaymentInfoPage: typeof EditPaymentInfoPage
-  }
-}
+
 

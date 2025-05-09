@@ -166,8 +166,4 @@ const FollowUserSearchInner = ({onUserSelected, currentUser, classes}: {
 
 export const FollowUserSearch = registerComponent("FollowUserSearch", FollowUserSearchInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FollowUserSearch: typeof FollowUserSearch
-  }
-}
+

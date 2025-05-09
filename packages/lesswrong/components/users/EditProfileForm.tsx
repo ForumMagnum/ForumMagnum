@@ -589,8 +589,4 @@ const EditProfileFormInner = () => {
 
 export const EditProfileForm = registerComponent('EditProfileForm', EditProfileFormInner);
 
-declare global {
-  interface ComponentTypes {
-    EditProfileForm: typeof EditProfileForm
-  }
-}
+

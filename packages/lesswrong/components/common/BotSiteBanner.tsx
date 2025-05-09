@@ -38,8 +38,4 @@ const BotSiteBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }
 
 export const BotSiteBanner = registerComponent("BotSiteBanner", BotSiteBannerInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    BotSiteBanner: typeof BotSiteBanner;
-  }
-}
+

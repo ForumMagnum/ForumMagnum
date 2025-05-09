@@ -102,10 +102,6 @@ const DeleteAccountSectionInner = ({
 
 export const DeleteAccountSection = registerComponent('DeleteAccountSection', DeleteAccountSectionInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    DeleteAccountSection: typeof DeleteAccountSection
-  }
-}
+
 
 

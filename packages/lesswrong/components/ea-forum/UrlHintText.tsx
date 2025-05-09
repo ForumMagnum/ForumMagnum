@@ -37,8 +37,4 @@ const UrlHintTextInner = () => {
 
 export const UrlHintText = registerComponent("UrlHintText", UrlHintTextInner);
 
-declare global {
-  interface ComponentTypes {
-    UrlHintText: typeof UrlHintText
-  }
-}
+

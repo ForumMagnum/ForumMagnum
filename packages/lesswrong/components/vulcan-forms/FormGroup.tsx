@@ -92,10 +92,4 @@ const IconDownInner = ({ width = 24, height = 24 }) => (
 
 export const IconDown = registerComponent('IconDown', IconDownInner);
 
-declare global {
-  interface ComponentTypes {
-    FormGroupHeader: typeof FormGroupHeader
-    IconRight: typeof IconRight
-    IconDown: typeof IconDown
-  }
-}
+

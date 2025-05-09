@@ -288,8 +288,4 @@ export const LlmConversationsViewingPageInner = ({classes}: {
 
 export const LlmConversationsViewingPage = registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LlmConversationsViewingPage: typeof LlmConversationsViewingPage
-  }
-}
+

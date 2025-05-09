@@ -67,8 +67,4 @@ const UsersSingleInner = () => {
 
 export const UsersSingle = registerComponent('UsersSingle', UsersSingleInner);
 
-declare global {
-  interface ComponentTypes {
-    UsersSingle: typeof UsersSingle
-  }
-}
+

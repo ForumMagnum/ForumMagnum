@@ -263,8 +263,4 @@ export const SingleLineComment = registerComponent('SingleLineComment', SingleLi
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    SingleLineComment: typeof SingleLineComment,
-  }
-}
+

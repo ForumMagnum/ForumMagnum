@@ -96,9 +96,5 @@ export const ReviewDashboardButtonsInner = ({classes, reviewYear, reviewPhase, s
 
 export const ReviewDashboardButtons = registerComponent('ReviewDashboardButtons', ReviewDashboardButtonsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewDashboardButtons: typeof ReviewDashboardButtons
-  }
-}
+
 

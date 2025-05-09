@@ -36,8 +36,4 @@ const DialogGroupInner = ({title, trigger, actions, children}: {
 
 export const DialogGroup = registerComponent('DialogGroup', DialogGroupInner);
 
-declare global {
-  interface ComponentTypes {
-    DialogGroup: typeof DialogGroup
-  }
-}
+

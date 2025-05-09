@@ -40,8 +40,4 @@ const CloudinaryImageInner = ({width, height, publicId, imgProps = {}}: {
 
 export const CloudinaryImage = registerComponent('CloudinaryImage', CloudinaryImageInner);
 
-declare global {
-  interface ComponentTypes {
-    CloudinaryImage: typeof CloudinaryImage
-  }
-}
+

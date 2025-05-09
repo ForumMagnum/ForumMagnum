@@ -123,8 +123,4 @@ const AppInner = ({serverRequestStatus}: ExternalProps) => {
 
 export default registerComponent('App', AppInner);
 
-declare global {
-  interface ComponentTypes {
-    App: typeof App
-  }
-}
+

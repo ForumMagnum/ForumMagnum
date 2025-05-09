@@ -139,8 +139,4 @@ export const UsersNameDisplay = registerComponent(
   'UsersNameDisplay', UsersNameDisplayInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersNameDisplay: typeof UsersNameDisplay
-  }
-}
+

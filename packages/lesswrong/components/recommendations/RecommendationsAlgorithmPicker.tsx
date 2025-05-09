@@ -227,8 +227,4 @@ const RecommendationsAlgorithmPickerInner = ({ settings, configName, onChange, s
 
 export const RecommendationsAlgorithmPicker = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPickerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPicker
-  }
-}
+

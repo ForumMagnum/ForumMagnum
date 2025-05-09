@@ -150,8 +150,4 @@ export const WrappedPost = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedPost: typeof WrappedPost
-  }
-}
+

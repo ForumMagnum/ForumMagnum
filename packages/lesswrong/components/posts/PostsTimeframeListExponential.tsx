@@ -110,9 +110,5 @@ const PostsTimeframeListExponentialInner = ({postListParameters}: {
 
 export const PostsTimeframeListExponential = registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponentialInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsTimeframeListExponential: typeof PostsTimeframeListExponential
-  }
-}
+
 

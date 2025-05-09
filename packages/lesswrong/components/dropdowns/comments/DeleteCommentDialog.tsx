@@ -104,8 +104,4 @@ export const DeleteCommentDialog = registerComponent(
   'DeleteCommentDialog', DeleteCommentDialogInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteCommentDialog: typeof DeleteCommentDialog
-  }
-}
+

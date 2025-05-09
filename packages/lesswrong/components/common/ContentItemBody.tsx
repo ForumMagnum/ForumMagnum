@@ -682,9 +682,5 @@ export const ContentItemBody = registerComponent<ExternalProps>("ContentItemBody
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    ContentItemBody: typeof ContentItemBody
-  }
-}
+
 

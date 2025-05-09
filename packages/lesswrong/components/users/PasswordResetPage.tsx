@@ -58,8 +58,4 @@ const PasswordResetPageInner = ({classes}: {
 
 export const PasswordResetPage = registerComponent("PasswordResetPage", PasswordResetPageInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PasswordResetPage: typeof PasswordResetPage
-  }
-}
+

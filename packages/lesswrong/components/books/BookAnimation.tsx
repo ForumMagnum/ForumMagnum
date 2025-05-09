@@ -280,8 +280,4 @@ export const BookAnimation = registerComponent('BookAnimation', BookAnimationInn
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    BookAnimation: typeof BookAnimation
-  }
-}
+

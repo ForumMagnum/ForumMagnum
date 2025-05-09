@@ -128,9 +128,5 @@ export const AdminPaymentsPageInner = ({classes}: {
 
 export const AdminPaymentsPage = registerComponent('AdminPaymentsPage', AdminPaymentsPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AdminPaymentsPage: typeof AdminPaymentsPage
-  }
-}
+
 

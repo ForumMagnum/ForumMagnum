@@ -411,9 +411,5 @@ export const ModeratorActionsInner = ({classes, user, currentUser, refetch, comm
 
 export const ModeratorActions = registerComponent('ModeratorActions', ModeratorActionsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorActions: typeof ModeratorActions
-  }
-}
+
 

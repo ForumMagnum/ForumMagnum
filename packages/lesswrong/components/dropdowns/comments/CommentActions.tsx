@@ -75,8 +75,4 @@ const CommentActionsInner = ({currentUser, comment, post, tag, showEdit}: {
 
 export const CommentActions = registerComponent("CommentActions", CommentActionsInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentActions: typeof CommentActions,
-  }
-}
+

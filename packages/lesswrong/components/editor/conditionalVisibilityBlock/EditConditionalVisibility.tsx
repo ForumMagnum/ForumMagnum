@@ -84,9 +84,5 @@ export const EditConditionalVisibilityInner = ({initialState, setDocumentState}:
 
 export const EditConditionalVisibility = registerComponent('EditConditionalVisibility', EditConditionalVisibilityInner);
 
-declare global {
-  interface ComponentTypes {
-    EditConditionalVisibility: typeof EditConditionalVisibility
-  }
-}
+
 

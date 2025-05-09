@@ -63,8 +63,4 @@ export const EASequenceCard = registerComponent(
   EASequenceCardInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EASequenceCard: typeof EASequenceCard;
-  }
-}
+

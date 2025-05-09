@@ -122,8 +122,4 @@ const PostsItemReviewVoteInner = ({classes, post, marginRight=true}: {classes: C
 
 export const PostsItemReviewVote = registerComponent('PostsItemReviewVote', PostsItemReviewVoteInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemReviewVote: typeof PostsItemReviewVote
-  }
-}
+

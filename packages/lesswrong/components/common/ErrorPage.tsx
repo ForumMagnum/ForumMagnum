@@ -15,9 +15,5 @@ const ErrorPageInner = ({error}: {
 
 export const ErrorPage = registerComponent('ErrorPage', ErrorPageInner);
 
-declare global {
-  interface ComponentTypes {
-    ErrorPage: typeof ErrorPage
-  }
-}
+
 

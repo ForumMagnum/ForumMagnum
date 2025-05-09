@@ -86,8 +86,4 @@ const NewUserGuidelinesDialogInner = ({classes, onClose, post, user}: {
 
 export const NewUserGuidelinesDialog = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialogInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    NewUserGuidelinesDialog: typeof NewUserGuidelinesDialog
-  }
-}
+

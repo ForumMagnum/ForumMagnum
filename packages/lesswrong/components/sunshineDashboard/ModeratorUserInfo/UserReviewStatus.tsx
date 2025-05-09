@@ -54,8 +54,4 @@ export const UserReviewStatusInner = ({classes, user}: {
 
 export const UserReviewStatus = registerComponent('UserReviewStatus', UserReviewStatusInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserReviewStatus: typeof UserReviewStatus
-  }
-}
+

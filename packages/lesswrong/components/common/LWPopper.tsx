@@ -145,8 +145,4 @@ const LWPopperInner = ({
 
 export const LWPopper = registerComponent('LWPopper', LWPopperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPopper: typeof LWPopper
-  }
-}
+

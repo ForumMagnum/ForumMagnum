@@ -185,10 +185,6 @@ const WikiTagGroupInner = ({
 
 export const WikiTagGroup = registerComponent("WikiTagGroup", WikiTagGroupInner);
 
-declare global {
-  interface ComponentTypes {
-    WikiTagGroup: typeof WikiTagGroup
-  }
-}
+
 
 

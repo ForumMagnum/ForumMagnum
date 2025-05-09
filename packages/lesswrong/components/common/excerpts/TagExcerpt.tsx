@@ -45,8 +45,4 @@ export const TagExcerpt = registerComponent(
   TagExcerptInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    TagExcerpt: typeof TagExcerpt,
-  }
-}
+

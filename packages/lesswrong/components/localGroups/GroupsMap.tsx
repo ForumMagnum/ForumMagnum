@@ -27,8 +27,4 @@ const GroupsMapInner = () => {
 
 export const GroupsMap = registerComponent('GroupsMap', GroupsMapInner);
 
-declare global {
-  interface ComponentTypes {
-    GroupsMap: typeof GroupsMap
-  }
-}
+

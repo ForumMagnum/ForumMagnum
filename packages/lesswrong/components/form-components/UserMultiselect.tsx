@@ -78,8 +78,4 @@ export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) 
 
 export const UserMultiselect = registerComponent("UserMultiselect", UserMultiselectInner);
 
-declare global {
-  interface ComponentTypes {
-    UserMultiselect: typeof UserMultiselect
-  }
-}
+

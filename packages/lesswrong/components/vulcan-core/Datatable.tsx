@@ -257,8 +257,4 @@ const DatatableDefaultCell = ({ column, document }: {
 
 export const Datatable = registerComponent('Datatable', DatatableInner);
 
-declare global {
-  interface ComponentTypes {
-    Datatable: typeof Datatable,
-  }
-}
+

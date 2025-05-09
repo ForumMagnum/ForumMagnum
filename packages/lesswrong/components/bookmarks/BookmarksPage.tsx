@@ -92,8 +92,4 @@ export const BookmarksPage = registerComponent('BookmarksPage', BookmarksPageInn
   styles
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarksPage: typeof BookmarksPage
-  }
-}
+

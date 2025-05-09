@@ -61,8 +61,4 @@ export const PeopleDirectoryStaticFilter = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryStaticFilter: typeof PeopleDirectoryStaticFilter
-  }
-}
+

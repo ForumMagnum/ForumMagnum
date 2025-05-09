@@ -351,8 +351,4 @@ export const KarmaChangeNotifier = registerComponent('KarmaChangeNotifier', Karm
   styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    KarmaChangeNotifier: typeof KarmaChangeNotifier
-  }
-}
+

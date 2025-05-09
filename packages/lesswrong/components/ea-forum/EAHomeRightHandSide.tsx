@@ -312,8 +312,4 @@ export const EAHomeRightHandSideInner = ({classes}: {
 
 export const EAHomeRightHandSide = registerComponent('EAHomeRightHandSide', EAHomeRightHandSideInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeRightHandSide: typeof EAHomeRightHandSide
-  }
-}
+

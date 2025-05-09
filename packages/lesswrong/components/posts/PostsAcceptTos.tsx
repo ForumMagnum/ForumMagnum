@@ -87,8 +87,4 @@ const PostsAcceptTosInner = ({currentUser, classes}: {
 
 export const PostsAcceptTos = registerComponent("PostsAcceptTos", PostsAcceptTosInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAcceptTos: typeof PostsAcceptTos
-  }
-}
+

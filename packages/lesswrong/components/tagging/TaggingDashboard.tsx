@@ -215,8 +215,4 @@ const TaggingDashboardInner = ({classes}: {
 
 export const TaggingDashboard = registerComponent("TaggingDashboard", TaggingDashboardInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TaggingDashboard: typeof TaggingDashboard
-  }
-}
+

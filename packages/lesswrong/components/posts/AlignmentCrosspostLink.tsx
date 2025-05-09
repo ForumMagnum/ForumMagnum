@@ -22,8 +22,4 @@ const AlignmentCrosspostLinkInner = ({post}: {
 
 export const AlignmentCrosspostLink = registerComponent('AlignmentCrosspostLink', AlignmentCrosspostLinkInner);
 
-declare global {
-  interface ComponentTypes {
-    AlignmentCrosspostLink: typeof AlignmentCrosspostLink
-  }
-}
+

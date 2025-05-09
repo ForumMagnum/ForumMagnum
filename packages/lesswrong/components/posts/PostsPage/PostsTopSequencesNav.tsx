@@ -117,8 +117,4 @@ export const PostsTopSequencesNav = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsTopSequencesNav: typeof PostsTopSequencesNav
-  }
-}
+

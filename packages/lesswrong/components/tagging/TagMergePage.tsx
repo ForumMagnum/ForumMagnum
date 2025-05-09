@@ -232,8 +232,4 @@ const TagMergePageInner = ({ classes }: { classes: ClassesType<typeof styles> })
 
 export const TagMergePage = registerComponent("TagMergePage", TagMergePageInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TagMergePage: typeof TagMergePage;
-  }
-}
+

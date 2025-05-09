@@ -81,8 +81,4 @@ export const AFApplicationForm = registerComponent(
   'AFApplicationForm', AFApplicationFormInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    AFApplicationForm: typeof AFApplicationForm
-  }
-}
+

@@ -48,8 +48,4 @@ export const ReadTimeInner = ({classes, post, dialogueResponses}: {
 
 export const ReadTime = registerComponent('ReadTime', ReadTimeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReadTime: typeof ReadTime
-  }
-}
+

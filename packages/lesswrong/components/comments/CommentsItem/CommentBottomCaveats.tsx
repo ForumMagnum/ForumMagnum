@@ -50,8 +50,4 @@ const CommentBottomCaveatsInner = ({comment, classes}: {
 
 export const CommentBottomCaveats = registerComponent("CommentBottomCaveats", CommentBottomCaveatsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBottomCaveats: typeof CommentBottomCaveats
-  }
-}
+

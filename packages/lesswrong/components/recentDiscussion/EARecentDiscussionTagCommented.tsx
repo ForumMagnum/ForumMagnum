@@ -102,8 +102,4 @@ export const EARecentDiscussionTagCommented = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionTagCommented: typeof EARecentDiscussionTagCommented,
-  }
-}
+

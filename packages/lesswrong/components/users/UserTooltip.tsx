@@ -54,8 +54,4 @@ const UserTooltipInner = ({user, placement, inlineBlock, hideFollowButton, disab
 
 export const UserTooltip = registerComponent("UserTooltip", UserTooltipInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserTooltip: typeof UserTooltip
-  }
-}
+

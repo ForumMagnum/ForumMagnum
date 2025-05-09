@@ -58,8 +58,4 @@ export const EAOnboardingSelect = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingSelect: typeof EAOnboardingSelect
-  }
-}
+

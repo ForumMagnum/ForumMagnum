@@ -86,9 +86,5 @@ const CommentBottomInner = ({comment, treeOptions, votingSystem, voteProps, comm
 
 export const CommentBottom = registerComponent('CommentBottom', CommentBottomInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBottom: typeof CommentBottom
-  }
-}
+
 

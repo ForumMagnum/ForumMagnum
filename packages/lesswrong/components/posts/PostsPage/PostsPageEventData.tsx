@@ -240,8 +240,4 @@ const PostsPageEventDataInner = ({classes, post}: {
 
 export const PostsPageEventData = registerComponent('PostsPageEventData', PostsPageEventDataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPageEventData: typeof PostsPageEventData
-  }
-}
+

@@ -41,9 +41,5 @@ const AFSuggestUsersListInner = ({ classes }: {
 
 export const AFSuggestUsersList = registerComponent('AFSuggestUsersList', AFSuggestUsersListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFSuggestUsersList: typeof AFSuggestUsersList
-  }
-}
+
 

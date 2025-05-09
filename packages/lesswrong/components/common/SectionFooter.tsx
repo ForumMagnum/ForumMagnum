@@ -56,8 +56,4 @@ const SectionFooterInner = ({ children, className, classes }: {
 }
 export const SectionFooter = registerComponent('SectionFooter', SectionFooterInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SectionFooter: typeof SectionFooter
-  }
-}
+

@@ -142,8 +142,4 @@ const SunshineCuratedSuggestionsListInner = ({ terms, atBottom, classes, setCura
 
 export const SunshineCuratedSuggestionsList = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsListInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    SunshineCuratedSuggestionsList: typeof SunshineCuratedSuggestionsList
-  }
-}
+

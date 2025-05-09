@@ -40,8 +40,4 @@ export const TagMentionHit = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    TagMentionHit: typeof TagMentionHit
-  }
-}
+

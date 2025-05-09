@@ -205,8 +205,4 @@ export const EAOnboardingUserStage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingUserStage: typeof EAOnboardingUserStage
-  }
-}
+

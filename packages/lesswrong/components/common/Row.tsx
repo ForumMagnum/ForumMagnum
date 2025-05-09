@@ -21,9 +21,5 @@ export const RowInner = ({classes, justifyContent="space-between", alignItems="c
 
 export const Row = registerComponent('Row', RowInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Row: typeof Row
-  }
-}
+
 

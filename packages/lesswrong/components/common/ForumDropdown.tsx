@@ -36,8 +36,4 @@ const ForumDropdownInner = ({
 
 export const ForumDropdown = registerComponent('ForumDropdown', ForumDropdownInner);
 
-declare global {
-  interface ComponentTypes {
-    ForumDropdown: typeof ForumDropdown
-  }
-}
+

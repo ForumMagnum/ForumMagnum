@@ -306,8 +306,4 @@ export const SurveyEditPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyEditPage: typeof SurveyEditPage
-  }
-}
+

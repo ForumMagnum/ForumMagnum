@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/namesAttachedReactions';
+import { QuoteLocator, NamesAttachedReactionsList } from '@/lib/voting/namesAttachedReactions';
+import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import classNames from 'classnames';
 import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
@@ -166,9 +167,5 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
 
 export const InlineReactHoverableHighlight = registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlightInner);
 
-declare global {
-  interface ComponentTypes {
-    InlineReactHoverableHighlight: typeof InlineReactHoverableHighlight
-  }
-}
+
 

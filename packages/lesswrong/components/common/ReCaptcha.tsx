@@ -112,9 +112,5 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
 
 export const ReCaptcha = registerComponent("ReCaptcha", ReCaptchaInner)
 
-declare global {
-  interface ComponentTypes {
-    ReCaptcha: typeof ReCaptcha
-  }
-}
+
 

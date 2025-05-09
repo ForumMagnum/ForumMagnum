@@ -76,9 +76,5 @@ const CommentsMenuInner = ({classes, className, comment, post, tag, showEdit, ic
 
 export const CommentsMenu = registerComponent('CommentsMenu', CommentsMenuInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsMenu: typeof CommentsMenu,
-  }
-}
+
 

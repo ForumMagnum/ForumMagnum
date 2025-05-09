@@ -60,8 +60,4 @@ const PostsPageDateInner = ({ post, hasMajorRevision, classes }: {
 
 export const PostsPageDate = registerComponent("PostsPageDate", PostsPageDateInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPageDate: typeof PostsPageDate
-  }
-}
+

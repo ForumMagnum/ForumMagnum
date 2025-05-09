@@ -81,8 +81,4 @@ export const CommentSubscriptionsDropdownItem = registerComponent(
   CommentSubscriptionsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentSubscriptionsDropdownItem: typeof CommentSubscriptionsDropdownItem
-  }
-}
+

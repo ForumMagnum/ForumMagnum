@@ -346,10 +346,6 @@ const SummariesEditFormInner = ({ parentDocumentId, collectionName }: SummariesE
 
 export const SummariesEditForm = registerComponent("SummariesEditForm", SummariesEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    SummariesEditForm: typeof SummariesEditForm
-  }
-}
+
 
 export default SummariesEditFormInner;

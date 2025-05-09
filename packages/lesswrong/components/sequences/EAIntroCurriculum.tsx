@@ -8,9 +8,5 @@ const EAIntroCurriculumInner = () => {
 
 export const EAIntroCurriculum = registerComponent('EAIntroCurriculum', EAIntroCurriculumInner);
 
-declare global {
-  interface ComponentTypes {
-    EAIntroCurriculum: typeof EAIntroCurriculum
-  }
-}
+
 

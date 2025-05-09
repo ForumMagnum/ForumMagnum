@@ -69,8 +69,4 @@ export const DismissibleSpotlightItemInner = ({
 
 export const DismissibleSpotlightItem = registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItemInner);
 
-declare global {
-  interface ComponentTypes {
-    DismissibleSpotlightItem: typeof DismissibleSpotlightItem
-  }
-}
+

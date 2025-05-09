@@ -62,8 +62,4 @@ export const DisplayNameWithMarkers = registerComponent("DisplayNameWithMarkers"
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    DisplayNameWithMarkers: typeof DisplayNameWithMarkers;
-  }
-}
+

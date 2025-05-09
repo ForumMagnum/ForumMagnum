@@ -53,8 +53,4 @@ const ConfigurableRecommendationsListInner = ({configName}: {
 
 export const ConfigurableRecommendationsList = registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsListInner);
 
-declare global {
-  interface ComponentTypes {
-    ConfigurableRecommendationsList: typeof ConfigurableRecommendationsList
-  }
-}
+

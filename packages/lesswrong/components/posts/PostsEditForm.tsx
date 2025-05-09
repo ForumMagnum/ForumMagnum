@@ -255,8 +255,4 @@ const PostsEditFormInner = ({ documentId, version }: {
 
 export const PostsEditForm = registerComponent('PostsEditForm', PostsEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsEditForm: typeof PostsEditForm
-  }
-}
+

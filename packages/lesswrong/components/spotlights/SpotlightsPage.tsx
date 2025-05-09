@@ -127,9 +127,5 @@ export const SpotlightsPageInner = ({classes}: {
 
 export const SpotlightsPage = registerComponent('SpotlightsPage', SpotlightsPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SpotlightsPage: typeof SpotlightsPage
-  }
-}
+
 

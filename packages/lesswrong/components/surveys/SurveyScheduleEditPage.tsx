@@ -282,8 +282,4 @@ export const SurveyScheduleEditPage = registerComponent(
   SurveyScheduleEditPageInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyScheduleEditPage: typeof SurveyScheduleEditPage
-  }
-}
+

@@ -188,8 +188,4 @@ export const QuickTakesEntry = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesEntry: typeof QuickTakesEntry
-  }
-}
+

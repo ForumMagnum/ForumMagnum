@@ -104,8 +104,4 @@ const CrosspostLoginPageInner = ({classes}: {
 
 export const CrosspostLoginPage = registerComponent("CrosspostLoginPage", CrosspostLoginPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CrosspostLoginPage: typeof CrosspostLoginPage,
-  }
-}
+

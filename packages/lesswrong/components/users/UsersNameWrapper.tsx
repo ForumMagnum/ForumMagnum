@@ -37,8 +37,4 @@ const UsersNameWrapperInner = ({documentId, nofollow=false, simple=false, nowrap
 
 export const UsersNameWrapper = registerComponent('UsersNameWrapper', UsersNameWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    UsersNameWrapper: typeof UsersNameWrapper
-  }
-}
+

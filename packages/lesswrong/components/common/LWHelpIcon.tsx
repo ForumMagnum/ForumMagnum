@@ -18,8 +18,4 @@ const LWHelpIconInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
 export const LWHelpIcon = registerComponent("LWHelpIcon", LWHelpIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWHelpIcon: typeof LWHelpIcon
-  }
-}
+

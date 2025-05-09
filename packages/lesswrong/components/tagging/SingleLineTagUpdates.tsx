@@ -213,8 +213,4 @@ const SingleLineTagUpdatesInner = ({tag, revisionIds, commentCount, commentIds, 
 
 export const SingleLineTagUpdates = registerComponent('SingleLineTagUpdates', SingleLineTagUpdatesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SingleLineTagUpdates: typeof SingleLineTagUpdates
-  }
-}
+

@@ -8,9 +8,5 @@ const BooksInner = () => {
 
 export const Books = registerComponent('Books', BooksInner);
 
-declare global {
-  interface ComponentTypes {
-    Books: typeof Books
-  }
-}
+
 

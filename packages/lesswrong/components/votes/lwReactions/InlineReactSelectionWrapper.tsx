@@ -128,8 +128,4 @@ function countStringsInString(haystack: string, needle: string): number {
 
 export const InlineReactSelectionWrapper = registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    InlineReactSelectionWrapper: typeof InlineReactSelectionWrapper
-  }
-}
+

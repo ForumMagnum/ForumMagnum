@@ -53,9 +53,5 @@ const ParentCommentSingleInner = ({
 
 export const ParentCommentSingle = registerComponent('ParentCommentSingle', ParentCommentSingleInner, {});
 
-declare global {
-  interface ComponentTypes {
-    ParentCommentSingle: typeof ParentCommentSingle,
-  }
-}
+
 

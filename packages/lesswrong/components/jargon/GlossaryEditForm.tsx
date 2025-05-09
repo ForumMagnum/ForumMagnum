@@ -593,9 +593,5 @@ export const GlossaryEditFormInner = ({ classes, document, showTitle = true }: {
 
 export const GlossaryEditForm = registerComponent('GlossaryEditForm', GlossaryEditFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossaryEditForm: typeof GlossaryEditForm
-  }
-}
+
 

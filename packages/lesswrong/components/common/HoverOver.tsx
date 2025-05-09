@@ -16,8 +16,4 @@ export const HoverOver = registerComponent(
   HoverOverInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    HoverOver: typeof HoverOver
-  }
-}
+

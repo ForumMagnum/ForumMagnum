@@ -38,8 +38,4 @@ const VoteArrowIconInner = (props: VoteArrowIconProps) => {
 
 export const VoteArrowIcon = registerComponent('VoteArrowIcon', VoteArrowIconInner);
 
-declare global {
-  interface ComponentTypes {
-    VoteArrowIcon: typeof VoteArrowIcon;
-  }
-}
+

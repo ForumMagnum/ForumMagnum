@@ -59,9 +59,5 @@ const ReviewPostButtonInner = ({classes, post, reviewMessage="Review", year}: {
 
 export const ReviewPostButton = registerComponent('ReviewPostButton', ReviewPostButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPostButton: typeof ReviewPostButton
-  }
-}
+
 

@@ -85,8 +85,4 @@ export const CommentsListCondensed = registerComponent(
   {styles, stylePriority: 1},
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentsListCondensed: typeof CommentsListCondensed
-  }
-}
+

@@ -76,9 +76,5 @@ const TagSearchHitInner = ({hit, onClick, hidePostCount=false, isVotingContext, 
 
 export const TagSearchHit = registerComponent("TagSearchHit", TagSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSearchHit: typeof TagSearchHit
-  }
-}
+
 

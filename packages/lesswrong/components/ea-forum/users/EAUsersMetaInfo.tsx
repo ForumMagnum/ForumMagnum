@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "@/lib/collections/users/helpers";
-import { communityPath } from "../../../lib/routes";
+import { communityPath } from '@/lib/pathConstants';
 import { ContentStyles } from "../../common/ContentStyles";
 import { ForumIcon } from "../../common/ForumIcon";
 import { FormatDate } from "../../common/FormatDate";
@@ -136,8 +136,4 @@ export const EAUsersMetaInfo = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersMetaInfo: typeof EAUsersMetaInfo
-  }
-}
+

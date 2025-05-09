@@ -232,8 +232,4 @@ export const AnnualReviewPageInner = ({classes}: {
 
 export const AnnualReviewPage = registerComponent('AnnualReviewPage', AnnualReviewPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AnnualReviewPage: typeof AnnualReviewPage
-  }
-}
+

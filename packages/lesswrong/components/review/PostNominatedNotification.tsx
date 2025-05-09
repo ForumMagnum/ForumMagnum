@@ -55,8 +55,4 @@ const PostNominatedNotificationInner = ({classes, postId}: {classes: ClassesType
 
 export const PostNominatedNotification = registerComponent('PostNominatedNotification', PostNominatedNotificationInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostNominatedNotification: typeof PostNominatedNotification
-  }
-}
+

@@ -70,8 +70,4 @@ export const DislikeRecommendationDropdownItem = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    DislikeRecommendationDropdownItem: typeof DislikeRecommendationDropdownItem
-  }
-}
+

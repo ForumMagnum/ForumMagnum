@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
@@ -302,9 +302,4 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 export const CommunityMap = registerComponent("CommunityMap", CommunityMapInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CommunityMap: typeof CommunityMap
-    PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersTypes
-  }
-}
+

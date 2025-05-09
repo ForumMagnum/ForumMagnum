@@ -79,8 +79,4 @@ export const WrappedMostReadAuthorSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedMostReadAuthorSection: typeof WrappedMostReadAuthorSection
-  }
-}
+

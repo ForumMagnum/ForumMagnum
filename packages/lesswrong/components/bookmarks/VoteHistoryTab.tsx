@@ -107,8 +107,4 @@ const VoteHistoryTabInner = ({classes}: {classes: ClassesType<typeof styles>}) =
 
 export const VoteHistoryTab = registerComponent('VoteHistoryTab', VoteHistoryTabInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    VoteHistoryTab: typeof VoteHistoryTab
-  }
-}
+

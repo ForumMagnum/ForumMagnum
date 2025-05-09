@@ -72,8 +72,4 @@ const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessa
 
 export const RateLimitWarning = registerComponent('RateLimitWarning', RateLimitWarningInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RateLimitWarning: typeof RateLimitWarning
-  }
-}
+

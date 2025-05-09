@@ -85,10 +85,6 @@ const ContinueReadingListInner = ({ continueReading, continueReadingLoading, lim
 
 export const ContinueReadingList = registerComponent('ContinueReadingList', ContinueReadingListInner);
 
-declare global {
-  interface ComponentTypes {
-    ContinueReadingList: typeof ContinueReadingList
-  }
-}
+
 
 

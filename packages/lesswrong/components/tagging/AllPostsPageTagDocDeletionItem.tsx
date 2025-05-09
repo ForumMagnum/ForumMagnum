@@ -85,8 +85,4 @@ export const AllPostsPageTagDocDeletionItemInner = ({tag, documentDeletion}: {
 
 export const AllPostsPageTagDocDeletionItem = registerComponent('AllPostsPageTagDocDeletionItem', AllPostsPageTagDocDeletionItemInner);
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPageTagDocDeletionItem: typeof AllPostsPageTagDocDeletionItem
-  }
-}
+

@@ -7,7 +7,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import { ContentStyles } from "../../common/ContentStyles";
 import { NewConversationButton } from "../../messaging/NewConversationButton";
-import { SubscribeTo } from "../../notifications/NotifyMeButton";
+import { NotifyMeButton } from "../../notifications/NotifyMeButton";
 import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
@@ -106,7 +106,7 @@ const PostAuthorCardInner = ({author, currentUser, classes}: {
               Message
             </a>
           </NewConversationButton>}
-          {currentUser?._id !== author._id && <SubscribeTo
+          {currentUser?._id !== author._id && <NotifyMeButton
             document={author}
             className={classes.subscribeBtn}
             subscribeMessage="Subscribe"
@@ -124,8 +124,4 @@ const PostAuthorCardInner = ({author, currentUser, classes}: {
 
 export const PostAuthorCard = registerComponent("PostAuthorCard", PostAuthorCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostAuthorCard: typeof PostAuthorCard
-  }
-}
+

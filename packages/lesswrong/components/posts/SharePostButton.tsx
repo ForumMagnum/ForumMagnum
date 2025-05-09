@@ -82,8 +82,4 @@ export const SharePostButton = registerComponent('SharePostButton', SharePostBut
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    SharePostButton: typeof SharePostButton
-  }
-}
+

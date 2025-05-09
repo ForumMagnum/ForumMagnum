@@ -256,8 +256,4 @@ export const WrappedPersonalitySection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedPersonalitySection: typeof WrappedPersonalitySection
-  }
-}
+

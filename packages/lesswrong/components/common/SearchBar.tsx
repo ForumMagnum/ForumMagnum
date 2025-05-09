@@ -216,8 +216,4 @@ export const SearchBar = registerComponent("SearchBar", SearchBarInner, {
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    SearchBar: typeof SearchBar
-  }
-}
+

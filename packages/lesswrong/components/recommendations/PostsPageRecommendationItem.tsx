@@ -162,8 +162,4 @@ export const PostsPageRecommendationItem = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsPageRecommendationItem: typeof PostsPageRecommendationItem
-  }
-}
+

@@ -510,8 +510,4 @@ const EventsHomeInner = ({classes}: {
 
 export const EventsHome = registerComponent('EventsHome', EventsHomeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventsHome: typeof EventsHome
-  }
-}
+

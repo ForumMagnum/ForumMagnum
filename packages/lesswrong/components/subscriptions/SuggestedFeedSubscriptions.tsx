@@ -451,8 +451,4 @@ export const SuggestedFeedSubscriptionsInner = ({ refetchFeed, settingsButton, e
 
 export const SuggestedFeedSubscriptions = registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptionsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SuggestedFeedSubscriptions: typeof SuggestedFeedSubscriptions
-  }
-}
+

@@ -440,8 +440,4 @@ export const AnalyticsGraph = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsGraph: typeof AnalyticsGraph;
-  }
-}
+

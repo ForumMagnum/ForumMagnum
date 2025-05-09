@@ -126,8 +126,4 @@ export const PeopleDirectoryResultsList = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryResultsList: typeof PeopleDirectoryResultsList
-  }
-}
+

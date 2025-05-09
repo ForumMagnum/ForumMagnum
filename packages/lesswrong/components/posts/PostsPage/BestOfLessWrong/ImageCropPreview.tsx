@@ -467,8 +467,4 @@ const ImageCropPreviewInner = ({ imgRef, classes, flipped }: {
 
 export const ImageCropPreview = registerComponent('ImageCropPreview', ImageCropPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ImageCropPreview: typeof ImageCropPreview
-  }
-}
+

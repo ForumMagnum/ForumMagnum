@@ -34,8 +34,4 @@ const SingleLineReviewsListInner = () => {
 
 export const SingleLineReviewsList = registerComponent('SingleLineReviewsList', SingleLineReviewsListInner);
 
-declare global {
-  interface ComponentTypes {
-    SingleLineReviewsList: typeof SingleLineReviewsList
-  }
-}
+

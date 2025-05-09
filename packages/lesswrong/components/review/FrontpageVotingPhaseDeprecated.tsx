@@ -89,8 +89,4 @@ const FrontpageVotingPhaseInner = ({settings, classes}: {
 
 export const FrontpageVotingPhase = registerComponent('FrontpageVotingPhase', FrontpageVotingPhaseInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FrontpageVotingPhase: typeof FrontpageVotingPhase
-  }
-}
+

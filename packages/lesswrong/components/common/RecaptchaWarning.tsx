@@ -43,8 +43,4 @@ const RecaptchaWarningInner = ({ currentUser, classes, children }: {
 
 export const RecaptchaWarning = registerComponent('RecaptchaWarning', RecaptchaWarningInner, { styles }) 
 
-declare global {
-  interface ComponentTypes {
-    RecaptchaWarning: typeof RecaptchaWarning
-  }
-}
+

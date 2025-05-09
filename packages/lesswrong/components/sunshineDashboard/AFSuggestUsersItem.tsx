@@ -103,9 +103,5 @@ export const AFSuggestUsersItem = registerComponent('AFSuggestUsersItem', AFSugg
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    AFSuggestUsersItem: typeof AFSuggestUsersItem
-  }
-}
+
 

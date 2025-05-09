@@ -32,8 +32,4 @@ export const PeopleDirectoryViewToggle = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryViewToggle: typeof PeopleDirectoryViewToggle
-  }
-}
+

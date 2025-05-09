@@ -44,8 +44,4 @@ export const PeopleDirectoryNoResults = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryNoResults: typeof PeopleDirectoryNoResults
-  }
-}
+

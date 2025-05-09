@@ -27,9 +27,5 @@ export const ProfileShortformInner = ({classes, user}: {
 
 export const ProfileShortform = registerComponent('ProfileShortform', ProfileShortformInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ProfileShortform: typeof ProfileShortform
-  }
-}
+
 

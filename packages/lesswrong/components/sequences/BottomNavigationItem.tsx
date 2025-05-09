@@ -95,9 +95,5 @@ const BottomNavigationItemInner = ({direction, post, sequence, classes}: {
 
 export const BottomNavigationItem = registerComponent('BottomNavigationItem', BottomNavigationItemInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    BottomNavigationItem: typeof BottomNavigationItem
-  }
-}
+
 

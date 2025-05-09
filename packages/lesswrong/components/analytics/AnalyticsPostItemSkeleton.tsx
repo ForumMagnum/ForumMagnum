@@ -46,8 +46,4 @@ export const AnalyticsPostItemSkeleton = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPostItemSkeleton: typeof AnalyticsPostItemSkeleton
-  }
-}
+

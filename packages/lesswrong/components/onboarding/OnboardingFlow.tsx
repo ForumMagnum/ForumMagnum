@@ -49,8 +49,4 @@ export const OnboardingFlow = registerComponent(
   {styles},
 )
 
-declare global {
-  interface ComponentTypes {
-    OnboardingFlow: typeof OnboardingFlow
-  }
-}
+

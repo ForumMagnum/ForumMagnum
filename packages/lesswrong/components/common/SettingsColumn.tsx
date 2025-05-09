@@ -93,8 +93,4 @@ const SettingsColumnInner = ({type, title, options, currentOption, classes, setS
 
 export const SettingsColumn = registerComponent('SettingsColumn', SettingsColumnInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SettingsColumn: typeof SettingsColumn
-  }
-}
+

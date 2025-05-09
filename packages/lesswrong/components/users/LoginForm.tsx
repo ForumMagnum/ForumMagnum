@@ -273,8 +273,4 @@ const LoginFormEA = ({
 
 export const LoginForm = registerComponent('LoginForm', LoginFormInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    LoginForm: typeof LoginForm
-  }
-}
+

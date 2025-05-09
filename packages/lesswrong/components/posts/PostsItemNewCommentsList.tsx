@@ -44,8 +44,4 @@ export const PostsItemNewCommentsList = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsItemNewCommentsList: typeof PostsItemNewCommentsList
-  }
-}
+

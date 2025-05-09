@@ -1081,8 +1081,4 @@ export const LWTagPage = registerComponent("LWTagPage", LWTagPageInner);
 
 
 
-declare global {
-  interface ComponentTypes {
-    LWTagPage: typeof LWTagPage
-  }
-}
+

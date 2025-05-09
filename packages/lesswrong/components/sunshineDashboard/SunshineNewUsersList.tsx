@@ -53,9 +53,5 @@ const SunshineNewUsersListInner = ({ classes, terms, currentUser }: {
 
 export const SunshineNewUsersList = registerComponent('SunshineNewUsersList', SunshineNewUsersListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersList: typeof SunshineNewUsersList
-  }
-}
+
 

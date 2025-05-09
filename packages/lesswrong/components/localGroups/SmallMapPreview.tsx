@@ -88,8 +88,4 @@ const SmallMapPreviewInner = ({post, group, zoom, classes}: {
 
 export const SmallMapPreview = registerComponent("SmallMapPreview", SmallMapPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SmallMapPreview: typeof SmallMapPreview
-  }
-}
+

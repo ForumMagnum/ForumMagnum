@@ -96,9 +96,5 @@ export const VoteButton = registerComponent('VoteButton', VoteButtonInner, {
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    VoteButton: typeof VoteButton
-  }
-}
+
 

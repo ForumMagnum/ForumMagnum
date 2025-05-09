@@ -52,9 +52,5 @@ export const NewLongformReviewFormInner = ({classes}: {
 
 export const NewLongformReviewForm = registerComponent('NewLongformReviewForm', NewLongformReviewFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewLongformReviewForm: typeof NewLongformReviewForm
-  }
-}
+
 

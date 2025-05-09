@@ -113,8 +113,4 @@ export const ExpandableSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ExpandableSection: typeof ExpandableSection
-  }
-}
+

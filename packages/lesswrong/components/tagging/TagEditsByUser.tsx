@@ -73,8 +73,4 @@ export const TagEditsByUser = registerComponent('TagEditsByUser', TagEditsByUser
   styles, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    TagEditsByUser: typeof TagEditsByUser
-  }
-}
+

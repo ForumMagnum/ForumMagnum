@@ -70,8 +70,4 @@ const PostsCompareRevisionsInner = ({ classes }: {
 
 export const PostsCompareRevisions = registerComponent("PostsCompareRevisions", PostsCompareRevisionsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsCompareRevisions: typeof PostsCompareRevisions
-  }
-}
+

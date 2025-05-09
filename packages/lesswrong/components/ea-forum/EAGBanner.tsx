@@ -198,8 +198,4 @@ export const EAGBanner = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAGBanner: typeof EAGBanner
-  }
-}
+

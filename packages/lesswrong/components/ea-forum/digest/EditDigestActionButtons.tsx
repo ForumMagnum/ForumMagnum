@@ -102,8 +102,4 @@ const EditDigestActionButtonsInner = ({digest, classes}: {
 
 export const EditDigestActionButtons = registerComponent('EditDigestActionButtons', EditDigestActionButtonsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestActionButtons: typeof EditDigestActionButtons
-  }
-}
+

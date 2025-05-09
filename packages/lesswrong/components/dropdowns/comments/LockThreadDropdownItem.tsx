@@ -63,8 +63,4 @@ export const LockThreadDropdownItem = registerComponent(
   'LockThreadDropdownItem', LockThreadDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    LockThreadDropdownItem: typeof LockThreadDropdownItem
-  }
-}
+

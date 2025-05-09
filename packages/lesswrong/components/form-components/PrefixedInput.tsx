@@ -83,8 +83,4 @@ const PrefixedInputInner = ({
 
 export const PrefixedInput = registerComponent("PrefixedInput", PrefixedInputInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PrefixedInput: typeof PrefixedInput
-  }
-}
+

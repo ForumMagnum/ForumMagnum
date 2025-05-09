@@ -24,8 +24,4 @@ const LWDialogInner = ({children, dialogClasses, ...dialogProps}: {
 
 export const LWDialog = registerComponent('LWDialog', LWDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    LWDialog: typeof LWDialog
-  }
-}
+

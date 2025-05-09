@@ -138,9 +138,5 @@ const ForumEventEmojiPickerInner: FC<{ onSelect: (value: string) => void }> = ({
 
 export const ForumEventEmojiPicker = registerComponent('ForumEventEmojiPicker', ForumEventEmojiPickerInner)
 
-declare global {
-  interface ComponentTypes {
-    ForumEventEmojiPicker: typeof ForumEventEmojiPicker
-  }
-}
+
 

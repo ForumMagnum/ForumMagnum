@@ -76,8 +76,4 @@ const TagPageRevisionSelectInner = ({ classes }: {
 
 export const TagPageRevisionSelect = registerComponent("TagPageRevisionSelect", TagPageRevisionSelectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagPageRevisionSelect: typeof TagPageRevisionSelect
-  }
-}
+

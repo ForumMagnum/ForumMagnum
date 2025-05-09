@@ -265,10 +265,4 @@ export const SideItemsContainer = registerComponent('SideItemsContainer', SideIt
 export const SideItemsSidebar = registerComponent('SideItemsSidebar', SideItemsSidebarInner, {styles});
 export const SideItem = registerComponent('SideItem', SideItemInner, {});
 
-declare global {
-  interface ComponentTypes {
-    SideItemsContainer: typeof SideItemsContainer,
-    SideItemsSidebar: typeof SideItemsSidebar,
-    SideItem: typeof SideItem
-  }
-}
+

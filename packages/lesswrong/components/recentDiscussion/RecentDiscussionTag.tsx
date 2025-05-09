@@ -152,8 +152,4 @@ export const RecentDiscussionTag = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionTag: typeof RecentDiscussionTag,
-  }
-}
+

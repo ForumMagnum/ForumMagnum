@@ -72,8 +72,4 @@ const LWPostsByVoteInner = ({classes, postIds, year, limit, showMostValuableChec
 
 export const LWPostsByVote = registerComponent("LWPostsByVote", LWPostsByVoteInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsByVote: typeof LWPostsByVote
-  }
-}
+

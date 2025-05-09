@@ -2,7 +2,6 @@ import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'
 import type { Request, Response } from 'express';
-import { React } from '@/server/repos/VotesRepo';
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -42,7 +41,7 @@ export type Route = {
    */
   path: string,
   
-  componentName?: keyof ComponentTypes,
+  component?: React.ComponentType<any>,
 
   title?: string,
   titleComponent?: React.FunctionComponent<{ siteName: string, isSubtitle: boolean }>,

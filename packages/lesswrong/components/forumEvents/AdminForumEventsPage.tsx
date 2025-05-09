@@ -46,8 +46,4 @@ export const AdminForumEventsPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AdminForumEventsPage: typeof AdminForumEventsPage
-  }
-}
+

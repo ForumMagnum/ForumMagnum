@@ -122,8 +122,4 @@ const WelcomeBoxInner = ({ classes }: {
 
 export const WelcomeBox = registerComponent('WelcomeBox', WelcomeBoxInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    WelcomeBox: typeof WelcomeBox
-  }
-}
+

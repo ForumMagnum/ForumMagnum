@@ -17,9 +17,5 @@ const AllGroupsPageInner = () => {
 
 export const AllGroupsPage = registerComponent('AllGroupsPage', AllGroupsPageInner);
 
-declare global {
-  interface ComponentTypes {
-    AllGroupsPage: typeof AllGroupsPage
-  }
-}
+
 

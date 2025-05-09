@@ -296,8 +296,4 @@ export const EAOnboardingStage = registerComponent(
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingStage: typeof EAOnboardingStage
-  }
-}
+

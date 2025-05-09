@@ -239,8 +239,4 @@ export const RecombeePostsListInner = ({ algorithm, settings, limit = 15, classe
 
 export const RecombeePostsList = registerComponent('RecombeePostsList', RecombeePostsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecombeePostsList: typeof RecombeePostsList
-  }
-}
+

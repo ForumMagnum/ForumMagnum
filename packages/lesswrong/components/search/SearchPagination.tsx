@@ -65,9 +65,5 @@ const SearchPaginationInner = ({classes, pagesPadding=0, showFirst=false}: {
 
 export const SearchPagination = registerComponent("SearchPagination", SearchPaginationInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchPagination: typeof SearchPagination
-  }
-}
+
 

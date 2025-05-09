@@ -94,8 +94,4 @@ const PostsAnnualReviewMarketTagInner = ({ annualReviewMarketInfo, classes }: {
 
 export const PostsAnnualReviewMarketTag = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTagInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsAnnualReviewMarketTag: typeof PostsAnnualReviewMarketTag
-  }
-}
+

@@ -238,8 +238,4 @@ export const ForumEventCommentForm = registerComponent(
   { styles, stylePriority: 1 }
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventCommentForm: typeof ForumEventCommentForm;
-  }
-}
+

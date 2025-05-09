@@ -66,8 +66,4 @@ const CoreTagIconInner = ({tag, fallbackNode, className, classes}: {
 
 export const CoreTagIcon = registerComponent("CoreTagIcon", CoreTagIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagIcon: typeof CoreTagIcon
-  }
-}
+

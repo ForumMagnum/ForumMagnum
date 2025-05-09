@@ -228,8 +228,4 @@ export const KarmaChangeNotifierSettings = registerComponent("KarmaChangeNotifie
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    KarmaChangeNotifierSettings: typeof KarmaChangeNotifierSettings
-  }
-}
+

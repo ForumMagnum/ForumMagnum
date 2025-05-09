@@ -106,8 +106,4 @@ export const OverflowNavButtons = registerComponent("OverflowNavButtons", Overfl
 
 
 
-declare global {
-  interface ComponentTypes {
-    OverflowNavButtons: typeof OverflowNavButtons
-  }
-} 
+ 

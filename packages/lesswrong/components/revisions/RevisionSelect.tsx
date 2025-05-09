@@ -136,8 +136,4 @@ export const RevisionSelect = registerComponent(
   'RevisionSelect', RevisionSelectInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    RevisionSelect: typeof RevisionSelect
-  }
-}
+

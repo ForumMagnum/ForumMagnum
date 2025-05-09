@@ -317,8 +317,4 @@ export const SpotlightFeedItem = registerComponent('SpotlightFeedItem', Spotligh
 
 
 
-declare global {
-  interface ComponentTypes {
-    SpotlightFeedItem: typeof SpotlightFeedItem
-  }
-}
+

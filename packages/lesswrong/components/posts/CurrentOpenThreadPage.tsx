@@ -30,8 +30,4 @@ const CurrentOpenThreadPageInner = () => {
 
 export const CurrentOpenThreadPage = registerComponent('CurrentOpenThreadPage', CurrentOpenThreadPageInner);
 
-declare global {
-  interface ComponentTypes {
-    CurrentOpenThreadPage: typeof CurrentOpenThreadPage
-  }
-}
+

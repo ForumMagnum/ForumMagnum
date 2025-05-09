@@ -37,9 +37,5 @@ export const CommunityMapWrapper = registerComponent("CommunityMapWrapper", Comm
   hocs: [withErrorBoundary]
 })
 
-declare global {
-  interface ComponentTypes {
-    CommunityMapWrapper: typeof CommunityMapWrapper
-  }
-}
+
 

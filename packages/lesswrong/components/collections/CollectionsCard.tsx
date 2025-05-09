@@ -126,8 +126,4 @@ export const CollectionsCard = registerComponent(
   "CollectionsCard", CollectionsCardInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    CollectionsCard: typeof CollectionsCard
-  }
-}
+

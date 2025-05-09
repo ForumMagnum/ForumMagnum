@@ -347,8 +347,4 @@ const UltraFeedInner = ({alwaysShow = false}: {
 
 export const UltraFeed = registerComponent('UltraFeed', UltraFeedInner);
 
-declare global {
-  interface ComponentTypes {
-    UltraFeed: typeof UltraFeed
-  }
-} 
+ 

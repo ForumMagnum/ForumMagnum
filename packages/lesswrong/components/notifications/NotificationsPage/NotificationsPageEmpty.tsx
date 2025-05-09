@@ -70,8 +70,4 @@ export const NotificationsPageEmpty = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageEmpty: typeof NotificationsPageEmpty,
-  }
-}
+

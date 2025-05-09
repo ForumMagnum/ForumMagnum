@@ -136,8 +136,4 @@ export const EAPostsPreviewTooltip = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsPreviewTooltip: typeof EAPostsPreviewTooltip
-  }
-}
+

@@ -248,8 +248,4 @@ const SubscribeButtonInner = ({
 
 export const SubscribeButton = registerComponent('SubscribeButton', SubscribeButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubscribeButton: typeof SubscribeButton
-  }
-}
+

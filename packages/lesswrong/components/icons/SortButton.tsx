@@ -42,8 +42,4 @@ const SortButtonInner = ({classes, className, onClick, showIcon=true, label=""}:
 
 export const SortButton = registerComponent('SortButton', SortButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SortButton: typeof SortButton
-  }
-}
+

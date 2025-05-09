@@ -46,9 +46,5 @@ const EventsPastInner = ({ classes }: {
 
 export const EventsPast = registerComponent('EventsPast', EventsPastInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventsPast: typeof EventsPast
-  }
-}
+
 

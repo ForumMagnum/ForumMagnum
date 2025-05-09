@@ -64,8 +64,4 @@ export const TabNavigationCompressedItem = registerComponent(
   'TabNavigationCompressedItem', TabNavigationCompressedItemInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationCompressedItem: typeof TabNavigationCompressedItem
-  }
-}
+

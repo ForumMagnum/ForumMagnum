@@ -74,8 +74,4 @@ const AFNonMemberInitialPopupInner = ({onClose, classes}: {
 
 export const AFNonMemberInitialPopup = registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFNonMemberInitialPopup: typeof AFNonMemberInitialPopup
-  }
-}
+

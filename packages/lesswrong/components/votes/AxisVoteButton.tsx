@@ -55,8 +55,4 @@ const AxisVoteButtonInner = <T extends VoteableTypeClient>({VoteIconComponent, v
 
 export const AxisVoteButton = registerComponent('AxisVoteButton', AxisVoteButtonInner);
 
-declare global {
-  interface ComponentTypes {
-    AxisVoteButton: typeof AxisVoteButton
-  }
-}
+

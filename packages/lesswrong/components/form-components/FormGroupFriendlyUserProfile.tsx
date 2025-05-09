@@ -53,8 +53,4 @@ export const FormGroupFriendlyUserProfile = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    FormGroupFriendlyUserProfile: typeof FormGroupFriendlyUserProfile
-  }
-}
+

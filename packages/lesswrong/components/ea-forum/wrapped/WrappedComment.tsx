@@ -148,8 +148,4 @@ export const WrappedComment = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedComment: typeof WrappedComment
-  }
-}
+

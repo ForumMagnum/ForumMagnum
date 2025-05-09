@@ -434,8 +434,4 @@ export const Books2021SaleAnimation = registerComponent('Books2021SaleAnimation'
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Books2021SaleAnimation: typeof Books2021SaleAnimationComponent
-  }
-}
+

@@ -417,9 +417,5 @@ const GroupFormDialogInner = ({ onClose, documentId, isOnline }: {
 
 export const GroupFormDialog = registerComponent('GroupFormDialog', GroupFormDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    GroupFormDialog: typeof GroupFormDialog
-  }
-}
+
 

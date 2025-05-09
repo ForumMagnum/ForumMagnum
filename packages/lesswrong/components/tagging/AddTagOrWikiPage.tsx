@@ -8,7 +8,7 @@ import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { getAllTagsPath } from '../../lib/routes';
+import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
 import { TagSearchHit } from "./TagSearchHit";
 import { DropdownDivider } from "../dropdowns/DropdownDivider";
@@ -141,8 +141,4 @@ const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSug
 
 export const AddTagOrWikiPage = registerComponent("AddTagOrWikiPage", AddTagOrWikiPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddTagOrWikiPage: typeof AddTagOrWikiPage
-  }
-}
+

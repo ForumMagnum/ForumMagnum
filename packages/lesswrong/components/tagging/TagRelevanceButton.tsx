@@ -62,9 +62,5 @@ const TagRelevanceButtonInner = ({document, voteType, vote, label, classes, canc
 
 export const TagRelevanceButton = registerComponent('TagRelevanceButton', TagRelevanceButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelevanceButton: typeof TagRelevanceButton
-  }
-}
+
 

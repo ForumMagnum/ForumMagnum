@@ -114,8 +114,4 @@ export const AdminSynonymsPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AdminSynonymsPage: typeof AdminSynonymsPage
-  }
-}
+

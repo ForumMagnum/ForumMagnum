@@ -54,8 +54,4 @@ export const RotatingReviewWinnerSpotlightInner = () => {
 
 export const RotatingReviewWinnerSpotlight = registerComponent('RotatingReviewWinnerSpotlight', RotatingReviewWinnerSpotlightInner);
 
-declare global {
-  interface ComponentTypes {
-    RotatingReviewWinnerSpotlight: typeof RotatingReviewWinnerSpotlight
-  }
-}
+

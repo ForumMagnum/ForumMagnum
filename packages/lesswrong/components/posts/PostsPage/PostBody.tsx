@@ -138,8 +138,4 @@ const PostBodyInner = ({post, html, isOldVersion, voteProps}: {
 
 export const PostBody = registerComponent('PostBody', PostBodyInner);
 
-declare global {
-  interface ComponentTypes {
-    PostBody: typeof PostBody
-  }
-}
+

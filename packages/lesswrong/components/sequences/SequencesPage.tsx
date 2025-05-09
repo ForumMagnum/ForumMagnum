@@ -29,7 +29,7 @@ import { ContentItemBody } from "../common/ContentItemBody";
 import { Typography } from "../common/Typography";
 import { SectionButton } from "../common/SectionButton";
 import { ContentStyles } from "../common/ContentStyles";
-import { SubscribeTo } from "../notifications/NotifyMeButton";
+import { NotifyMeButton } from "../notifications/NotifyMeButton";
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -294,7 +294,7 @@ const SequencesPageInner = ({ documentId, classes }: {
             </div>
             {allowSubscribeToSequencePosts && <div className={classes.notifyCol}>
               <AnalyticsContext pageElementContext="notifyMeButton">
-                <SubscribeTo
+                <NotifyMeButton
                   document={document}
                   tooltip="Get notified when a new post is added to this sequence"
                   subscribeMessage="Get notified"
@@ -343,8 +343,4 @@ const SequencesPageInner = ({ documentId, classes }: {
 
 export const SequencesPage = registerComponent('SequencesPage', SequencesPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesPage: typeof SequencesPage
-  }
-}
+

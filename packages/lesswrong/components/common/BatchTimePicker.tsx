@@ -76,8 +76,4 @@ const BatchTimePickerInner = ({ mode, value, onChange, disabled = false }: {
 
 export const BatchTimePicker = registerComponent("BatchTimePicker", BatchTimePickerInner, {hocs:[withErrorBoundary]});
 
-declare global {
-  interface ComponentTypes {
-    BatchTimePicker: typeof BatchTimePicker
-  }
-}
+

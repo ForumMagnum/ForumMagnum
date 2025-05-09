@@ -145,8 +145,4 @@ const WriteNewButtonInner = ({
 
 export const WriteNewButton = registerComponent('WriteNewButton', WriteNewButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WriteNewButton: typeof WriteNewButton
-  }
-}
+

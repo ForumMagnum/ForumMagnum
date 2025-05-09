@@ -70,8 +70,4 @@ const MessageUserInner = ({ classes }: { classes: ClassesType<typeof styles> }) 
 
 export const MessageUser = registerComponent("MessageUser", MessageUserInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    MessageUser: typeof MessageUser;
-  }
-}
+

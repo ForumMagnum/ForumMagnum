@@ -722,8 +722,4 @@ const LWHomePostsInner = ({ children, classes }: {
 
 export const LWHomePosts = registerComponent('LWHomePosts', LWHomePostsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWHomePosts: typeof LWHomePosts
-  }
-}
+

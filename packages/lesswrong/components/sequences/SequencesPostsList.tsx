@@ -13,8 +13,4 @@ const SequencesPostsListInner = ({posts, chapter}: {
 
 export const SequencesPostsList = registerComponent('SequencesPostsList', SequencesPostsListInner)
 
-declare global {
-  interface ComponentTypes {
-    SequencesPostsList: typeof SequencesPostsList
-  }
-}
+

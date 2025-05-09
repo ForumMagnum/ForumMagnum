@@ -498,8 +498,4 @@ export const AutocompleteModelSettings = registerComponent("AutocompleteModelSet
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    AutocompleteModelSettings: typeof AutocompleteModelSettings;
-  }
-}
+

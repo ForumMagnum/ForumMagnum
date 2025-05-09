@@ -565,8 +565,4 @@ export const Header = registerComponent('Header', HeaderInner, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    Header: typeof Header
-  }
-}
+

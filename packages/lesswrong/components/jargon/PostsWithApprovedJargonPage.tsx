@@ -164,8 +164,4 @@ export const PostsWithApprovedJargonPageInner = ({classes}: {
 
 export const PostsWithApprovedJargonPage = registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsWithApprovedJargonPage: typeof PostsWithApprovedJargonPage
-  }
-}
+

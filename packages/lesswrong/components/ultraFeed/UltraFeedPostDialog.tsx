@@ -250,8 +250,4 @@ export const UltraFeedPostDialog = registerComponent("UltraFeedPostDialog", Ultr
 
 export default UltraFeedPostDialogInner;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPostDialog: typeof UltraFeedPostDialog
-  }
-}
+

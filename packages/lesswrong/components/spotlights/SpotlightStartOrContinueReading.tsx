@@ -95,8 +95,4 @@ export const SpotlightStartOrContinueReading = registerComponent(
   {styles, stylePriority: -2}
 );
 
-declare global {
-  interface ComponentTypes {
-    SpotlightStartOrContinueReading: typeof SpotlightStartOrContinueReading
-  }
-}
+

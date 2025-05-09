@@ -236,11 +236,7 @@ const LocationPickerInner = ({
 
 export const LocationPicker = registerComponent("LocationPicker", LocationPickerInner);
 
-declare global {
-  interface ComponentTypes {
-    LocationPicker: typeof LocationPicker
-  }
-}
+
 
 interface LocationFormComponentProps {
   field: TypedFieldApi<AnyBecauseHard>;

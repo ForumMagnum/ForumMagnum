@@ -101,8 +101,4 @@ export const WrappedMostValuablePostsSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedMostValuablePostsSection: typeof WrappedMostValuablePostsSection
-  }
-}
+

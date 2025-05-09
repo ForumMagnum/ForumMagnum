@@ -33,9 +33,4 @@ export const EmailHistoryInner = ({terms}: {terms: LWEventsViewTerms}) => {
 
 export const EmailHistory = registerComponent('EmailHistory', EmailHistoryInner);
 
-declare global {
-  interface ComponentTypes {
-    EmailHistoryPage: typeof EmailHistoryPage
-    EmailHistory: typeof EmailHistory
-  }
-}
+

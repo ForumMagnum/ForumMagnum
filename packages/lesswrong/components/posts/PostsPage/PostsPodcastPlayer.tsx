@@ -74,8 +74,4 @@ const PostsPodcastPlayerInner = ({ podcastEpisode, postId, hideIconList = false,
 
 export const PostsPodcastPlayer = registerComponent('PostsPodcastPlayer', PostsPodcastPlayerInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsPodcastPlayer: typeof PostsPodcastPlayer,
-  }
-}
+

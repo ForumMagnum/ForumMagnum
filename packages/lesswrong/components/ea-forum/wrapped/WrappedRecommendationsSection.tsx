@@ -75,8 +75,4 @@ export const WrappedRecommendationsSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedRecommendationsSection: typeof WrappedRecommendationsSection
-  }
-}
+

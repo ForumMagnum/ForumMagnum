@@ -77,8 +77,4 @@ export const EAUsersProfileImage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersProfileImage: typeof EAUsersProfileImage
-  }
-}
+

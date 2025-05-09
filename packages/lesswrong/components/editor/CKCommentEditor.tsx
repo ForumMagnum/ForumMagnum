@@ -119,8 +119,4 @@ const CKCommentEditorInner = ({
 export const CKCommentEditor = registerComponent("CKCommentEditor", CKCommentEditorInner, {
   debugRerenders: true
 });
-declare global {
-  interface ComponentTypes {
-    CKCommentEditor: typeof CKCommentEditor
-  }
-}
+

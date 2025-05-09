@@ -50,8 +50,4 @@ export const AllReactedCommentsPageInner = ({classes}: {
 
 export const AllReactedCommentsPage = registerComponent('AllReactedCommentsPage', AllReactedCommentsPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AllReactedCommentsPage: typeof AllReactedCommentsPage
-  }
-}
+

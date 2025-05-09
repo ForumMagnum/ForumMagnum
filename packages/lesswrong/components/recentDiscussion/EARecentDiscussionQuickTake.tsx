@@ -164,8 +164,4 @@ export const EARecentDiscussionQuickTake = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionQuickTake: typeof EARecentDiscussionQuickTake,
-  }
-}
+

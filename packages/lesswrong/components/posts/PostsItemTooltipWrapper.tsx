@@ -41,9 +41,5 @@ const PostsItemTooltipWrapperInner = ({
 export const PostsItemTooltipWrapper = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapperInner
 )
 
-declare global {
-  interface ComponentTypes {
-    PostsItemTooltipWrapper: typeof PostsItemTooltipWrapper
-  }
-}
+
 

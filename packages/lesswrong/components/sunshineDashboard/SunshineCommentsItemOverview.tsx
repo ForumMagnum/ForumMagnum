@@ -48,9 +48,5 @@ const SunshineCommentsItemOverviewInner = ({ comment, classes }: {
 
 export const SunshineCommentsItemOverview = registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineCommentsItemOverview: typeof SunshineCommentsItemOverview
-  }
-}
+
 

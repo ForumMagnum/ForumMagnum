@@ -235,9 +235,5 @@ export const LargeSequencesItemInner = ({sequence, showAuthor=false, showChapter
 
 export const LargeSequencesItem = registerComponent('LargeSequencesItem', LargeSequencesItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LargeSequencesItem: typeof LargeSequencesItem
-  }
-}
+
 

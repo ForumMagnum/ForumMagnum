@@ -143,8 +143,4 @@ export const WrappedReceivedReactsSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedReceivedReactsSection: typeof WrappedReceivedReactsSection
-  }
-}
+

@@ -103,8 +103,4 @@ export const NotificationsPageKarmaChangeList = registerComponent(
   {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageKarmaChangeList: typeof NotificationsPageKarmaChangeList
-  }
-}
+

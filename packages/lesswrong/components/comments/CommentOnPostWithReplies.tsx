@@ -14,8 +14,4 @@ export const CommentOnPostWithReplies = registerComponent(
   'CommentOnPostWithReplies', CommentOnPostWithRepliesInner
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentOnPostWithReplies: typeof CommentOnPostWithReplies;
-  }
-}
+

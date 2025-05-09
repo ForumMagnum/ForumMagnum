@@ -130,8 +130,4 @@ export const TruncatedAuthorsList = registerComponent(
   {styles, stylePriority: -2},
 );
 
-declare global {
-  interface ComponentTypes {
-    TruncatedAuthorsList: typeof TruncatedAuthorsList
-  }
-}
+

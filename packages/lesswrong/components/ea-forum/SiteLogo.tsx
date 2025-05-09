@@ -48,8 +48,4 @@ export const SiteLogo = registerComponent(
   'SiteLogo', SiteLogoInner, {styles}
 )
 
-declare global {
-  interface ComponentTypes {
-    SiteLogo: typeof SiteLogo
-  }
-}
+

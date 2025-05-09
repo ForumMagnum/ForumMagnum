@@ -146,8 +146,4 @@ const EditUrlInner = ({ value, path, classes, document, defaultValue, label, hin
 
 export const EditUrl = registerComponent("EditUrl", EditUrlInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditUrl: typeof EditUrl
-  }
-}
+

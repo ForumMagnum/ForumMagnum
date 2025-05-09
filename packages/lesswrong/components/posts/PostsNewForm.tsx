@@ -263,8 +263,4 @@ const PostsNewFormInner = () => {
 
 export const PostsNewForm = registerComponent('PostsNewForm', PostsNewFormInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsNewForm: typeof PostsNewForm
-  }
-}
+

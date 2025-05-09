@@ -66,8 +66,4 @@ const AnswersListInner = ({post, answersTree, classes}: {
 
 export const AnswersList = registerComponent('AnswersList', AnswersListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AnswersList: typeof AnswersList
-  }
-}
+

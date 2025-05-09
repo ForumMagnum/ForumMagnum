@@ -39,8 +39,4 @@ export const MoveToDraftDropdownItem = registerComponent(
   MoveToDraftDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToDraftDropdownItem: typeof MoveToDraftDropdownItem
-  }
-}
+

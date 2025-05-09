@@ -36,8 +36,4 @@ const ModeratorInboxWrapperInner = () => {
 
 export const ModeratorInboxWrapper = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    ModeratorInboxWrapper: typeof ModeratorInboxWrapper
-  }
-}
+

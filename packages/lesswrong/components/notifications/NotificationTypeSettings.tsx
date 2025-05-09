@@ -169,8 +169,4 @@ export const NotificationTypeSettingsWidget = registerComponent('NotificationTyp
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidget
-  }
-}
+

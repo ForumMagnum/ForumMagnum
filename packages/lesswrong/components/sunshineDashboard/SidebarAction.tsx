@@ -46,9 +46,5 @@ const SidebarActionInner = ({children, classes, title, warningHighlight, onClick
 
 export const SidebarAction = registerComponent('SidebarAction', SidebarActionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarAction: typeof SidebarAction
-  }
-}
+
 

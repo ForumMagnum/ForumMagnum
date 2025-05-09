@@ -14,8 +14,4 @@ export const BasicOnboardingFlow = registerComponent(
   BasicOnboardingFlowInner,
 )
 
-declare global {
-  interface ComponentTypes {
-    BasicOnboardingFlow: typeof BasicOnboardingFlow
-  }
-}
+

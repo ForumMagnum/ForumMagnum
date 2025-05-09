@@ -157,9 +157,5 @@ const TagProgressBarInner = ({ classes }: {
 
 export const TagProgressBar = registerComponent("TagProgressBar", TagProgressBarInner, { styles, hocs: [withErrorBoundary] });
 
-declare global {
-  interface ComponentTypes {
-    TagProgressBar: typeof TagProgressBar
-  }
-}
+
 

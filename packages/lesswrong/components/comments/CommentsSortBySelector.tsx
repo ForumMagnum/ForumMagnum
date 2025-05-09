@@ -36,8 +36,4 @@ export const CommentsSortBySelectorInner = ({setRestoreScrollPos}: {
 
 export const CommentsSortBySelector = registerComponent('CommentsSortBySelector', CommentsSortBySelectorInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentsSortBySelector: typeof CommentsSortBySelector
-  }
-}
+

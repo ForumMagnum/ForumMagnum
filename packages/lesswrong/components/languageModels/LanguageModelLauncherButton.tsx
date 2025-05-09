@@ -73,8 +73,4 @@ export const LanguageModelLauncherButtonInner = ({classes}: {
 
 export const LanguageModelLauncherButton = registerComponent('LanguageModelLauncherButton', LanguageModelLauncherButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LanguageModelLauncherButton: typeof LanguageModelLauncherButton
-  }
-}
+

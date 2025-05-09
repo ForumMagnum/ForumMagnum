@@ -175,8 +175,4 @@ export const QuickReviewPage2022Inner = ({classes}: {
 
 export const QuickReviewPage2022 = registerComponent('QuickReviewPage2022', QuickReviewPage2022Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    QuickReviewPage2022: typeof QuickReviewPage2022Component
-  }
-}
+

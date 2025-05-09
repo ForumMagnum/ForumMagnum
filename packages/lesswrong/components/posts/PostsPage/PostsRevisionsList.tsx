@@ -44,8 +44,4 @@ export const PostsRevisionsList = registerComponent(
   'PostsRevisionsList', PostsRevisionsListInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionsList: typeof PostsRevisionsList
-  }
-}
+

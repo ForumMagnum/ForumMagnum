@@ -108,8 +108,4 @@ export const DeleteAccountConfirmationModal = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteAccountConfirmationModal: typeof DeleteAccountConfirmationModal
-  }
-}
+

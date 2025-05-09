@@ -246,8 +246,4 @@ export const OverallVoteAxis = registerComponent('OverallVoteAxis', OverallVoteA
 
 
 
-declare global {
-  interface ComponentTypes {
-    OverallVoteAxis: typeof OverallVoteAxis
-  }
-}
+

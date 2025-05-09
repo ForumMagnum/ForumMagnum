@@ -40,8 +40,4 @@ const StickiedPostsInner = ({
 
 export const StickiedPosts = registerComponent("StickiedPosts", StickiedPostsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    StickiedPosts: typeof StickiedPosts
-  }
-}
+

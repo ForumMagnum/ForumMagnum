@@ -69,8 +69,4 @@ export const AlignmentForumHome = registerComponent(
   'AlignmentForumHome', AlignmentForumHomeInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    AlignmentForumHome: typeof AlignmentForumHome
-  }
-}
+

@@ -1378,8 +1378,4 @@ const UsersEditFormInner = ({ terms }: {
 
 export const UsersEditForm = registerComponent('UsersEditForm', UsersEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    UsersEditForm: typeof UsersEditForm
-  }
-}
+

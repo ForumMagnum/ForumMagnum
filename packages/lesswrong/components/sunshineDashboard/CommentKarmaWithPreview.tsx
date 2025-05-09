@@ -76,9 +76,5 @@ const CommentKarmaWithPreviewInner = ({ comment, classes, displayTitle, reviewed
 
 export const CommentKarmaWithPreview = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentKarmaWithPreview: typeof CommentKarmaWithPreview
-  }
-}
+
 

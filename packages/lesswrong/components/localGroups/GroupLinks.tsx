@@ -210,8 +210,4 @@ const GroupLinksInner = ({ document, noMargin, classes }: {
 
 export const GroupLinks = registerComponent("GroupLinks", GroupLinksInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GroupLinks: typeof GroupLinks
-  }
-}
+

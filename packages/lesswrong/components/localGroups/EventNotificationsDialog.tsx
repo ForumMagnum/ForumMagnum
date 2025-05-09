@@ -216,9 +216,5 @@ const EventNotificationsDialogInner = ({ onClose, classes }: {
 
 export const EventNotificationsDialog = registerComponent('EventNotificationsDialog', EventNotificationsDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventNotificationsDialog: typeof EventNotificationsDialog
-  }
-}
+
 

@@ -1,5 +1,4 @@
 import React from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { defineStyles, useStyles } from "../hooks/useStyles";

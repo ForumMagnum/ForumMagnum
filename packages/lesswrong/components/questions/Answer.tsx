@@ -298,8 +298,4 @@ export const Answer = registerComponent('Answer', AnswerInner, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    Answer: typeof Answer
-  }
-}
+

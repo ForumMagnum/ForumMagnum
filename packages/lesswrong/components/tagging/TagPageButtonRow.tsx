@@ -18,7 +18,7 @@ import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { LoginPopup } from "../users/LoginPopup";
 import { NewLensDialog } from "./lenses/NewLensDialog";
 import { LWTooltip } from "../common/LWTooltip";
-import { SubscribeTo } from "../notifications/NotifyMeButton";
+import { NotifyMeButton } from "../notifications/NotifyMeButton";
 import { TagDiscussionButton } from "./TagDiscussionButton";
 import { ContentItemBody } from "../common/ContentItemBody";
 import { ForumIcon } from "../common/ForumIcon";
@@ -290,7 +290,7 @@ const TagPageButtonRowInner = ({
         </span>
       </Link>}
       {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-        <SubscribeTo
+        <NotifyMeButton
           document={tag}
           className={classes.subscribeTo}
           showIcon
@@ -325,8 +325,4 @@ const TagPageButtonRowInner = ({
 
 export const TagPageButtonRow = registerComponent("TagPageButtonRow", TagPageButtonRowInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TagPageButtonRow: typeof TagPageButtonRow
-  }
-}
+

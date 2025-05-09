@@ -154,8 +154,4 @@ const SidebarSubtagsBoxInner = ({ tag, className, classes }: {
 
 export const SidebarSubtagsBox = registerComponent("SidebarSubtagsBox", SidebarSubtagsBoxInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SidebarSubtagsBox: typeof SidebarSubtagsBox;
-  }
-}
+

@@ -385,8 +385,4 @@ export const UltraFeedPostItem = registerComponent("UltraFeedPostItem", UltraFee
 
 
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPostItem: typeof UltraFeedPostItem
-  }
-} 
+ 

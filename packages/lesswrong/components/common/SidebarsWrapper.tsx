@@ -52,8 +52,4 @@ const SidebarsWrapperInner = ({children}: {
 
 export const SidebarsWrapper = registerComponent("SidebarsWrapper", SidebarsWrapperInner);
 
-declare global {
-  interface ComponentTypes {
-    SidebarsWrapper: typeof SidebarsWrapper
-  }
-}
+

@@ -58,8 +58,4 @@ const MaintenanceBannerInner = ({ classes }: { classes: ClassesType<typeof style
 
 export const MaintenanceBanner = registerComponent("MaintenanceBanner", MaintenanceBannerInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    MaintenanceBanner: typeof MaintenanceBanner;
-  }
-}
+

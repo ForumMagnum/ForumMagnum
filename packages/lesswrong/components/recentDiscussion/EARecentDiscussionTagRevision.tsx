@@ -44,8 +44,4 @@ export const EARecentDiscussionTagRevision = registerComponent(
   EARecentDiscussionTagRevisionInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionTagRevision: typeof EARecentDiscussionTagRevision,
-  }
-}
+

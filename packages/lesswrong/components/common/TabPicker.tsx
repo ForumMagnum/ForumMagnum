@@ -335,8 +335,4 @@ const TabPickerInner = <T extends TabRecord[]>(
 
 export const TabPicker = registerComponent('TabPicker', TabPickerInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    TabPicker: typeof TabPicker
-  }
-}
+

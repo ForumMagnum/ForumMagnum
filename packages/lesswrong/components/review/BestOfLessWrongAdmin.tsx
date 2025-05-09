@@ -178,8 +178,4 @@ export const BestOfLessWrongAdminInner = () => {
 
 export const BestOfLessWrongAdmin = registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdminInner);
 
-declare global {
-  interface ComponentTypes {
-    BestOfLessWrongAdmin: typeof BestOfLessWrongAdmin
-  }
-}
+

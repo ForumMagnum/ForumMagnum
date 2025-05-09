@@ -31,8 +31,4 @@ const ResendVerificationEmailPageInner = ({classes}: {
 
 export const ResendVerificationEmailPage = registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ResendVerificationEmailPage: typeof ResendVerificationEmailPage
-  }
-}
+

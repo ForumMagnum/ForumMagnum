@@ -103,8 +103,4 @@ const TagRevisionItemShortMetadataInner = ({tag, url, itemDescription, revision,
 
 export const TagRevisionItemShortMetadata = registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRevisionItemShortMetadata: typeof TagRevisionItemShortMetadata
-  }
-}
+

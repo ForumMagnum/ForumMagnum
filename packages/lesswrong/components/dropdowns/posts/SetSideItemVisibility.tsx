@@ -177,8 +177,4 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
 
 export const SetSideItemVisibility = registerComponent('SetSideItemVisibility', SetSideItemVisibilityInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SetSideItemVisibility: typeof SetSideItemVisibility
-  }
-}
+

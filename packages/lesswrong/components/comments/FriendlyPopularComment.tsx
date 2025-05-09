@@ -191,8 +191,4 @@ export const FriendlyPopularComment = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    FriendlyPopularComment: typeof FriendlyPopularComment
-  }
-}
+

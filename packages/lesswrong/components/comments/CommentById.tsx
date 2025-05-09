@@ -27,8 +27,4 @@ const CommentByIdInner = ({commentId, nestingLevel=0, isChild=false, treeOptions
 
 export const CommentById = registerComponent('CommentById', CommentByIdInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentById: typeof CommentById
-  }
-}
+

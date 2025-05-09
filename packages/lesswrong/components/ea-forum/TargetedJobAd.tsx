@@ -428,8 +428,4 @@ const TargetedJobAdInner = ({jobName, userJobAd, onDismiss, onApply, onRemindMe,
 
 export const TargetedJobAd = registerComponent("TargetedJobAd", TargetedJobAdInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TargetedJobAd: typeof TargetedJobAd
-  }
-}
+

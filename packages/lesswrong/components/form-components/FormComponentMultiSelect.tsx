@@ -203,8 +203,4 @@ export const FormComponentMultiSelect = ({
 
 export const MultiSelect = registerComponent("MultiSelect", MultiSelectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MultiSelect: typeof MultiSelect
-  }
-}
+

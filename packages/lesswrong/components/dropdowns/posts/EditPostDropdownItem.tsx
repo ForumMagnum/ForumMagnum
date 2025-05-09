@@ -33,8 +33,4 @@ export const EditPostDropdownItem = registerComponent(
   EditPostDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EditPostDropdownItem: typeof EditPostDropdownItem
-  }
-}
+

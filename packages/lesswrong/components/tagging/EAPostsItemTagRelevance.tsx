@@ -121,8 +121,4 @@ export const EAPostsItemTagRelevance = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsItemTagRelevance: typeof EAPostsItemTagRelevance
-  }
-}
+

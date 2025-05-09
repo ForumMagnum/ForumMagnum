@@ -74,8 +74,4 @@ export const UserCommentMarkers = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    UserCommentMarkers: typeof UserCommentMarkers
-  }
-}
+

@@ -80,8 +80,4 @@ const SubforumMembersDialogInner = ({classes, onClose, tag}: {
 
 export const SubforumMembersDialog = registerComponent('SubforumMembersDialog', SubforumMembersDialogInner, { styles })
 
-declare global {
-  interface ComponentTypes {
-    SubforumMembersDialog: typeof SubforumMembersDialog
-  }
-}
+

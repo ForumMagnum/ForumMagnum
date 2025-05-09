@@ -281,8 +281,4 @@ export const SubforumSubforumTab = registerComponent(
   'SubforumSubforumTab', SubforumSubforumTabInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SubforumSubforumTab: typeof SubforumSubforumTab
-  }
-}
+

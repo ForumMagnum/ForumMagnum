@@ -75,8 +75,4 @@ export const DebateTypingIndicatorInner = ({classes, post}: {
 
 export const DebateTypingIndicator = registerComponent('DebateTypingIndicator', DebateTypingIndicatorInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateTypingIndicator: typeof DebateTypingIndicator
-  }
-}
+

@@ -164,8 +164,4 @@ export const ActiveDialoguesInner = ({classes}: {
 
 export const ActiveDialogues = registerComponent('ActiveDialogues', ActiveDialoguesInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ActiveDialogues: typeof ActiveDialogues
-  }
-}
+

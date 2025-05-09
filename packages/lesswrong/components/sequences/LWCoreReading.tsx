@@ -110,8 +110,4 @@ const LWCoreReadingInner = ({classes}: {
 
 export const LWCoreReading = registerComponent("LWCoreReading", LWCoreReadingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWCoreReading: typeof LWCoreReading
-  }
-}
+

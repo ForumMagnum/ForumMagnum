@@ -200,8 +200,4 @@ export const VirtualProgramCard = registerComponent('VirtualProgramCard', Virtua
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    VirtualProgramCard: typeof VirtualProgramCard
-  }
-}
+

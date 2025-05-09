@@ -143,8 +143,4 @@ const NewFeatureTooltipInner = ({classes, children, title = 'New feature!', plac
 
 export const NewFeatureTooltip = registerComponent('NewFeatureTooltip', NewFeatureTooltipInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    NewFeatureTooltip: typeof NewFeatureTooltip
-  }
-}
+

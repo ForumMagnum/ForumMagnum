@@ -19,9 +19,5 @@ const PostsNoResultsInner = ({classes}: {
 
 export const PostsNoResults = registerComponent('PostsNoResults', PostsNoResultsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsNoResults: typeof PostsNoResults
-  }
-}
+
 

@@ -522,8 +522,4 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
 
 export const Layout = registerComponent('Layout', LayoutInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Layout: typeof Layout
-  }
-}
+

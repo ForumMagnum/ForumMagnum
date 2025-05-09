@@ -59,8 +59,4 @@ class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBounda
 
 export const ErrorBoundary = registerComponent("ErrorBoundary", ErrorBoundaryInner);
 
-declare global {
-  interface ComponentTypes {
-    ErrorBoundary: typeof ErrorBoundary
-  }
-}
+

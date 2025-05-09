@@ -240,8 +240,4 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 
 export const CommentsTableOfContents = registerComponent('CommentsTableOfContents', CommentsTableOfContentsInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CommentsTableOfContents: typeof CommentsTableOfContents
-  }
-}
+

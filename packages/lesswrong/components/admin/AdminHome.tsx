@@ -105,8 +105,4 @@ const AdminHomeInner = ({ classes }: {
 
 export const AdminHome = registerComponent('AdminHome', AdminHomeInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AdminHome: typeof AdminHome
-  }
-}
+

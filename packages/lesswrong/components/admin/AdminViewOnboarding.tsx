@@ -39,8 +39,4 @@ export const AdminViewOnboarding = registerComponent(
   "AdminViewOnboarding", AdminViewOnboardingInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    AdminViewOnboarding: typeof AdminViewOnboarding
-  }
-}
+

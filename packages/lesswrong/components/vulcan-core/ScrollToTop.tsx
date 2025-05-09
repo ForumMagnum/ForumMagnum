@@ -39,8 +39,4 @@ export default function ScrollToTopInner() {
 
 export const ScrollToTop = registerComponent('ScrollToTop', ScrollToTopInner);
 
-declare global {
-  interface ComponentTypes {
-    ScrollToTop: typeof ScrollToTop
-  }
-}
+

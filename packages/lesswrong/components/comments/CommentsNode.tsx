@@ -356,8 +356,4 @@ export const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsNode: typeof CommentsNode,
-  }
-}
+

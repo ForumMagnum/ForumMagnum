@@ -17,8 +17,4 @@ const LoginToTrackInner = ({className, children = "Log in to save where you left
 
 export const LoginToTrack = registerComponent("LoginToTrack", LoginToTrackInner, {})
 
-declare global {
-  interface ComponentTypes {
-    LoginToTrack: typeof LoginToTrack
-  }
-}
+

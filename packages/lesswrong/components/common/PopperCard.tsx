@@ -32,8 +32,4 @@ const PopperCardInner = ({
 
 export const PopperCard = registerComponent("PopperCard", PopperCardInner, {stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    PopperCard: typeof PopperCard
-  }
-}
+

@@ -205,8 +205,4 @@ const NewFeedButtonInner = ({classes, user, closeModal}: {
 
 export const NewFeedButton = registerComponent('NewFeedButton', NewFeedButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewFeedButton: typeof NewFeedButton
-  }
-}
+

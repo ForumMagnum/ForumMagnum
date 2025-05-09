@@ -139,8 +139,4 @@ export const CollapsedFootnotes = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CollapsedFootnotes: typeof CollapsedFootnotes
-  }
-}
+

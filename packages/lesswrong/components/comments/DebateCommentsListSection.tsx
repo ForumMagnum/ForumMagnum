@@ -120,9 +120,5 @@ const DebateCommentsListSectionInner = ({post, totalComments, comments, newForm=
 
 export const DebateCommentsListSection = registerComponent("DebateCommentsListSection", DebateCommentsListSectionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateCommentsListSection: typeof DebateCommentsListSection,
-  }
-}
+
 

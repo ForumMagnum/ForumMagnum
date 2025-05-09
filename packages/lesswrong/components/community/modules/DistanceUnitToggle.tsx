@@ -72,8 +72,4 @@ const DistanceUnitToggleInner = ({distanceUnit='km', onChange, skipDefaultEffect
 
 export const DistanceUnitToggle = registerComponent('DistanceUnitToggle', DistanceUnitToggleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DistanceUnitToggle: typeof DistanceUnitToggle
-  }
-}
+

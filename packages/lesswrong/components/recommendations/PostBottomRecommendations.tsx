@@ -192,8 +192,4 @@ export const PostBottomRecommendations = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostBottomRecommendations: typeof PostBottomRecommendations
-  }
-}
+

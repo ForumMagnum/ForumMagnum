@@ -138,8 +138,4 @@ export const PeopleDirectorySearchableFilter = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectorySearchableFilter: typeof PeopleDirectorySearchableFilter
-  }
-}
+

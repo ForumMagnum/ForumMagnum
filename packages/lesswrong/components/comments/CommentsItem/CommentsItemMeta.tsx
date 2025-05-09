@@ -369,8 +369,4 @@ export const CommentsItemMeta = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentsItemMeta: typeof CommentsItemMeta,
-  }
-}
+

@@ -169,8 +169,4 @@ export const SunshineCuratedSuggestionsItem = registerComponent('SunshineCurated
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineCuratedSuggestionsItem: typeof SunshineCuratedSuggestionsItem
-  }
-}
+

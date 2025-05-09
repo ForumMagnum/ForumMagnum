@@ -66,8 +66,4 @@ const PostsLayoutDropdownInner = ({classes, value=defaultPostsLayout, queryParam
 
 export const PostsLayoutDropdown = registerComponent('PostsLayoutDropdown', PostsLayoutDropdownInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsLayoutDropdown: typeof PostsLayoutDropdown
-  }
-}
+

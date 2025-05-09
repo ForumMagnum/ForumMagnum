@@ -91,8 +91,4 @@ export const PrettyEventDateTimeInner = ({
 
 export const PrettyEventDateTime = registerComponent("PrettyEventDateTime", PrettyEventDateTimeInner);
 
-declare global {
-  interface ComponentTypes {
-    PrettyEventDateTime: typeof PrettyEventDateTime;
-  }
-}
+

@@ -84,8 +84,4 @@ const AddInlineReactionButtonInner = ({voteProps, classes, quote, disabled}: {
 
 export const AddInlineReactionButton = registerComponent('AddInlineReactionButton', AddInlineReactionButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddInlineReactionButton: typeof AddInlineReactionButton
-  }
-}
+

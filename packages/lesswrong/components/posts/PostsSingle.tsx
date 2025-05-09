@@ -19,9 +19,5 @@ const PostsSingleInner = () => {
 
 export const PostsSingle = registerComponent('PostsSingle', PostsSingleInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsSingle: typeof PostsSingle
-  }
-}
+
 

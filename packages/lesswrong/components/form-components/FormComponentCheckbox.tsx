@@ -67,8 +67,4 @@ const FormComponentCheckboxInner = ({
 
 export const FormComponentCheckbox = registerComponent('FormComponentCheckbox', FormComponentCheckboxInner);
 
-declare global {
-  interface ComponentTypes {
-    FormComponentCheckbox: typeof FormComponentCheckbox
-  }
-}
+

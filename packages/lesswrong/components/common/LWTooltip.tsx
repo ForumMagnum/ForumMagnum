@@ -146,8 +146,4 @@ export const LWTooltip = registerComponent("LWTooltip", LWTooltipInner, {
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    LWTooltip: typeof LWTooltip
-  }
-}
+

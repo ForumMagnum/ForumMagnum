@@ -10,8 +10,4 @@ const FormGroupNoStylingInner = ({children}: FormGroupLayoutProps) => {
   
 export const FormGroupNoStyling = registerComponent('FormGroupNoStyling', FormGroupNoStylingInner)
 
-declare global {
-  interface ComponentTypes {
-    FormGroupNoStyling: typeof FormGroupNoStyling
-  }
-}
+

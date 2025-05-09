@@ -93,9 +93,5 @@ export const FrontpageBestOfLWWidget = registerComponent('FrontpageBestOfLWWidge
   allowNonThemeColors: true, // Overlayed on an image
 });
 
-declare global {
-  interface ComponentTypes {
-    FrontpageBestOfLWWidget: typeof FrontpageBestOfLWWidget
-  }
-}
+
 

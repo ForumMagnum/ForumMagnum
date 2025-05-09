@@ -279,9 +279,5 @@ const PetrovDayButtonInner = ({classes, alreadyLaunched }: {
 
 export const PetrovDayButton = registerComponent('PetrovDayButton', PetrovDayButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayButton: typeof PetrovDayButton
-  }
-}
+
 

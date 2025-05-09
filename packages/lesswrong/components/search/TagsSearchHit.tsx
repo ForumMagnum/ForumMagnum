@@ -58,9 +58,5 @@ const TagsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchH
 
 export const TagsSearchHit = registerComponent("TagsSearchHit", TagsSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagsSearchHit: typeof TagsSearchHit
-  }
-}
+
 

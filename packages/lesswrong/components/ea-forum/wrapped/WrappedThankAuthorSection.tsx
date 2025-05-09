@@ -154,8 +154,4 @@ export const WrappedThankAuthorSection = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedThankAuthorSection: typeof WrappedThankAuthorSection
-  }
-}
+

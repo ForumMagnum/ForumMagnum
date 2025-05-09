@@ -139,8 +139,4 @@ const EAAllTagsPageInner = ({classes}: {
 
 export const EAAllTagsPage = registerComponent("EAAllTagsPage", EAAllTagsPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAAllTagsPage: typeof EAAllTagsPage
-  }
-}
+

@@ -189,8 +189,4 @@ export const UltraFeedCommentsDialog = registerComponent("UltraFeedCommentsDialo
 
 
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedCommentsDialog: typeof UltraFeedCommentsDialog
-  }
-} 
+ 

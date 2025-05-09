@@ -69,8 +69,4 @@ export const PeopleDirectoryInput = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryInput: typeof PeopleDirectoryInput
-  }
-}
+

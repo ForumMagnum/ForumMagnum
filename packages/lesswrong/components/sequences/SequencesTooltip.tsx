@@ -43,8 +43,4 @@ export const SequencesTooltip = registerComponent(
   SequencesTooltipInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    SequencesTooltip: typeof SequencesTooltip
-  }
-}
+

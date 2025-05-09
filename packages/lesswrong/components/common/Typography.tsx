@@ -72,8 +72,4 @@ export const Typography = registerComponent("Typography", TypographyInner, {
   stylePriority: -2,
 });
 
-declare global {
-  interface ComponentTypes {
-    Typography: typeof Typography
-  }
-}
+

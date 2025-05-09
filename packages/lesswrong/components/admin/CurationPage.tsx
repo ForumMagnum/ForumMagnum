@@ -87,8 +87,4 @@ export const CurationPageInner = ({classes}: {
 
 export const CurationPage = registerComponent('CurationPage', CurationPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CurationPage: typeof CurationPage
-  }
-}
+

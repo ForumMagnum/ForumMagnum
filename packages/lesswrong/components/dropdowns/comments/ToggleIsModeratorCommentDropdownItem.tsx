@@ -58,8 +58,4 @@ export const ToggleIsModeratorCommentDropdownItem = registerComponent(
   "ToggleIsModeratorCommentDropdownItem", ToggleIsModeratorCommentDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ToggleIsModeratorCommentDropdownItem: typeof ToggleIsModeratorCommentDropdownItem
-  }
-}
+

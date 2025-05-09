@@ -42,8 +42,4 @@ export const ReportPostDropdownItem = registerComponent(
   ReportPostDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ReportPostDropdownItem: typeof ReportPostDropdownItem
-  }
-}
+

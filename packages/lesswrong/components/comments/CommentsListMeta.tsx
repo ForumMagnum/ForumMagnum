@@ -26,8 +26,4 @@ const CommentsListMetaInner = ({classes, children}: {
 
 export const CommentsListMeta = registerComponent('CommentsListMeta', CommentsListMetaInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsListMeta: typeof CommentsListMeta,
-  }
-}
+

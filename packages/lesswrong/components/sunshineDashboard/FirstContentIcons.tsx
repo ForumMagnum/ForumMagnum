@@ -30,9 +30,5 @@ export const FirstContentIconsInner = ({user, classes}: {
 
 export const FirstContentIcons = registerComponent('FirstContentIcons', FirstContentIconsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FirstContentIcons: typeof FirstContentIcons
-  }
-}
+
 

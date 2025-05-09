@@ -97,9 +97,5 @@ const LocalGroupsItemInner = ({group, classes}: {
 
 export const LocalGroupsItem = registerComponent('LocalGroupsItem', LocalGroupsItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupsItem: typeof LocalGroupsItem
-  }
-}
+
 

@@ -323,8 +323,4 @@ const ForumEventStickersInner: FC<{
 
 export const ForumEventStickers = registerComponent( 'ForumEventStickers', ForumEventStickersInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ForumEventStickers: typeof ForumEventStickers;
-  }
-}
+

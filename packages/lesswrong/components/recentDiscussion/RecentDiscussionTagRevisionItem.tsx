@@ -79,8 +79,4 @@ export const RecentDiscussionTagRevisionItem = registerComponent(
   'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItemInner
 )
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItem,
-  }
-}
+

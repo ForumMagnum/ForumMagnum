@@ -59,8 +59,4 @@ export const SplashImageEditingOptionsInner = ({ post }: {
 
 export const SplashImageEditingOptions = registerComponent('SplashImageEditingOptions', SplashImageEditingOptionsInner);
 
-declare global {
-  interface ComponentTypes {
-    SplashImageEditingOptions: typeof SplashImageEditingOptions
-  }
-}
+

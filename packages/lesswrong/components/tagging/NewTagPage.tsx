@@ -109,8 +109,4 @@ const NewTagPageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
 export const NewTagPage = registerComponent('NewTagPage', NewTagPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagPage: typeof NewTagPage
-  }
-}
+

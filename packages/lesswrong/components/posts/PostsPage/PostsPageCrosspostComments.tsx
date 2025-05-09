@@ -48,8 +48,4 @@ const PostsPageCrosspostCommentsInner = ({classes}: {classes: ClassesType<typeof
 
 export const PostsPageCrosspostComments = registerComponent("PostsPageCrosspostComments", PostsPageCrosspostCommentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPageCrosspostComments: typeof PostsPageCrosspostComments
-  }
-}
+

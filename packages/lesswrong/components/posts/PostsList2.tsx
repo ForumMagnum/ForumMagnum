@@ -130,8 +130,4 @@ export const PostsList2 = registerComponent('PostsList2', PostsList2Inner, {
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsList2: typeof PostsList2Component
-  }
-}
+

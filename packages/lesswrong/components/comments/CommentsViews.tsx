@@ -49,8 +49,4 @@ const CommentsViewsInner = ({post, setRestoreScrollPos}: {post?: PostsDetails, s
 
 export const CommentsViews = registerComponent('CommentsViews', CommentsViewsInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentsViews: typeof CommentsViews,
-  }
-}
+

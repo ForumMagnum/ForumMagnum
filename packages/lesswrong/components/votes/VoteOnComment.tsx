@@ -17,8 +17,4 @@ const VoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSy
 
 export const VoteOnComment = registerComponent('VoteOnComment', VoteOnCommentInner);
 
-declare global {
-  interface ComponentTypes {
-    VoteOnComment: typeof VoteOnComment
-  }
-}
+

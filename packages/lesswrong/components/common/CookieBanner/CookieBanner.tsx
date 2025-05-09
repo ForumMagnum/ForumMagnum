@@ -115,8 +115,4 @@ export const CookieBanner = registerComponent("CookieBanner", CookieBannerInner,
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CookieBanner: typeof CookieBanner;
-  }
-}
+

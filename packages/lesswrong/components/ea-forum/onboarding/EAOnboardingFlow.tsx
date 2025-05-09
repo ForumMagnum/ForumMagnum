@@ -32,8 +32,4 @@ export const EAOnboardingFlow = registerComponent(
   EAOnboardingFlowInner,
 )
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingFlow: typeof EAOnboardingFlow
-  }
-}
+

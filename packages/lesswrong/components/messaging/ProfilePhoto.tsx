@@ -111,9 +111,5 @@ const ProfilePhotoInner = ({user, noLink=false, from, className, classes}: {
 
 export const ProfilePhoto = registerComponent('ProfilePhoto', ProfilePhotoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ProfilePhoto: typeof ProfilePhoto
-  }
-}
+
 

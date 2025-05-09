@@ -74,9 +74,5 @@ export const RevealHiddenBlocks = ({children}: {
 
 export const ConditionalVisibilityBlockDisplay = registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplayInner);
 
-declare global {
-  interface ComponentTypes {
-    ConditionalVisibilityBlockDisplay: typeof ConditionalVisibilityBlockDisplay
-  }
-}
+
 

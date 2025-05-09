@@ -43,9 +43,5 @@ export const ModeratorMessageCountInner = ({classes, userId}: {
 
 export const ModeratorMessageCount = registerComponent('ModeratorMessageCount', ModeratorMessageCountInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorMessageCount: typeof ModeratorMessageCount
-  }
-}
+
 

@@ -173,8 +173,4 @@ const ReviewAdminDashboardInner = ({classes}: {classes: ClassesType<typeof style
 
 export const ReviewAdminDashboard = registerComponent('ReviewAdminDashboard', ReviewAdminDashboardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewAdminDashboard: typeof ReviewAdminDashboard
-  }
-}
+

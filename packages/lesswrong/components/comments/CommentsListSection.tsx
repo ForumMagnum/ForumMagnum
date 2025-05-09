@@ -308,8 +308,4 @@ const CommentsListSectionInner = ({
 
 export const CommentsListSection = registerComponent("CommentsListSection", CommentsListSectionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsListSection: typeof CommentsListSection,
-  }
-}
+

@@ -48,8 +48,4 @@ const UsersNameInner = ({
 
 export const UsersName = registerComponent('UsersName', UsersNameInner);
 
-declare global {
-  interface ComponentTypes {
-    UsersName: typeof UsersName
-  }
-}
+

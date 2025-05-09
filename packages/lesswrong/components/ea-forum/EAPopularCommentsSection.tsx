@@ -31,8 +31,4 @@ export const EAPopularCommentsSection = registerComponent(
   EAPopularCommentsSectionInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPopularCommentsSection: typeof EAPopularCommentsSection
-  }
-}
+

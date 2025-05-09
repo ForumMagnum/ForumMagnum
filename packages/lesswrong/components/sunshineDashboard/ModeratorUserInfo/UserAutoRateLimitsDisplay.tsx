@@ -109,8 +109,4 @@ export const UserAutoRateLimitsDisplayInner = ({user, showKarmaMeta=false, class
 
 export const UserAutoRateLimitsDisplay = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplayInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplay
-  }
-}
+

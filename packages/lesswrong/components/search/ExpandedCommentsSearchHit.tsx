@@ -116,9 +116,5 @@ const ExpandedCommentsSearchHitInner = ({hit, classes}: {
 
 export const ExpandedCommentsSearchHit = registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedCommentsSearchHit: typeof ExpandedCommentsSearchHit
-  }
-}
+
 

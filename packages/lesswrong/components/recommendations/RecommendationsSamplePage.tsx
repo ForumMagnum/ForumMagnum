@@ -252,8 +252,4 @@ export const RecommendationsSamplePage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsSamplePage: typeof RecommendationsSamplePage,
-  }
-}
+

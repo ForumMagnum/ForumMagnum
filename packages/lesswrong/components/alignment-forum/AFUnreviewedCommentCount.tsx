@@ -43,8 +43,4 @@ const AFUnreviewedCommentCountInner = ({ post, classes }: {
 
 export const AFUnreviewedCommentCount = registerComponent('AFUnreviewedCommentCount', AFUnreviewedCommentCountInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFUnreviewedCommentCount: typeof AFUnreviewedCommentCount
-  }
-}
+

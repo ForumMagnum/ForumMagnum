@@ -78,8 +78,4 @@ export const NotificationsPage = registerComponent(
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPage: typeof NotificationsPage
-  }
-}
+

@@ -32,8 +32,4 @@ const PostsStatsInner = ({post, classes}: {
 
 export const PostsStats = registerComponent('PostsStats', PostsStatsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsStats: typeof PostsStats
-  }
-}
+

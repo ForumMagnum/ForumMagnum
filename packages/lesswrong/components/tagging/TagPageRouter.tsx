@@ -95,8 +95,4 @@ const TagPageRouterInner = () => {
 
 export const TagPageRouter = registerComponent("TagPageRouter", TagPageRouterInner);
 
-declare global {
-  interface ComponentTypes {
-    TagPageRouter: typeof TagPageRouter
-  }
-}
+

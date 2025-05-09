@@ -42,8 +42,4 @@ export const BannedNotice = registerComponent(
   'BannedNotice', BannedNoticeInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    BannedNotice: typeof BannedNotice
-  }
-}
+

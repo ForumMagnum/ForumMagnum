@@ -212,8 +212,4 @@ const FooterTagInner = ({
 
 export const FooterTag = registerComponent("FooterTag", FooterTagInner);
 
-declare global {
-  interface ComponentTypes {
-    FooterTag: typeof FooterTag
-  }
-}
+

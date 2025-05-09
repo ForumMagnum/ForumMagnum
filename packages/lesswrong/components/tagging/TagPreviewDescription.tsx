@@ -123,8 +123,4 @@ const TagPreviewDescriptionInner = ({tag, hash, classes, activeTab}: {
 
 export const TagPreviewDescription = registerComponent("TagPreviewDescription", TagPreviewDescriptionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagPreviewDescription: typeof TagPreviewDescription
-  }
-}
+

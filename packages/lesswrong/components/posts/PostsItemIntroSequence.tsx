@@ -219,8 +219,4 @@ export const PostsItemIntroSequence = registerComponent('PostsItemIntroSequence'
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsItemIntroSequence: typeof PostsItemIntroSequence
-  }
-}
+
