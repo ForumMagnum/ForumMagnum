@@ -4,7 +4,7 @@ import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { isAF } from '../../lib/instanceSettings';
-// import { getDefaultVotingSystem } from '../../lib/voting/getVotingSystem';
+import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';
 import type { VotingSystem } from '@/lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
@@ -34,7 +34,6 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const typeName = collectionNameToTypeName[collectionName];
   const query = getVoteMutationQuery(typeName);
-  const { getDefaultVotingSystem }: typeof import('@/lib/voting/getVotingSystem') = require('@/lib/voting/getVotingSystem');
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();
   
