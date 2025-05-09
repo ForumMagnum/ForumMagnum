@@ -351,7 +351,8 @@ function getFootnoteIndex(href: string, html: string): string|null {
   // This prevents using the version of the footnote from within quick-switch edit form that has a div parent instead of an ol
   const footnoteWithOlParent = allMatchingElements.find(el => 
     el.parentElement?.tagName === 'OL' &&
-    el.parentElement.classList.contains('footnotes')
+    (el.parentElement.classList.contains('footnotes')
+      || el.parentElement.classList.contains('footnotes-list'))
   );
   
   if (footnoteWithOlParent) {
