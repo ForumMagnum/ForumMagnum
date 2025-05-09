@@ -10,10 +10,16 @@ import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import _ from "underscore";
 
+
+const defaultCheckAccess: CheckAccessFunction<CollectionNameString> = async () => false;
+
+export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
+
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   return userIsAdmin(currentUser)
 };
+
 
 const banCheckAccess: CheckAccessFunction<'Bans'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
@@ -361,36 +367,97 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AdvisorRequests: allowAccess,
+  ArbitalCaches: allowAccess,
+  ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
   Bans: banCheckAccess,
   Bookmarks: bookmarkCheckAccess,
+  Books: allowAccess,
   Chapters: chapterCheckAccess,
+  CkEditorUserSessions: allowAccess,
   ClientIds: clientIdCheckAccess,
+  Collections: allowAccess,
+  Comments: allowAccess,
+  CommentModeratorActions: allowAccess,
   Conversations: conversationCheckAccess,
+  CronHistories: allowAccess,
+  CurationEmails: allowAccess,
   CurationNotices: curationNoticeCheckAccess,
+  DatabaseMetadata: allowAccess,
+  DebouncerEvents: allowAccess,
   DialogueChecks: dialogueCheckCheckAccess,
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
+  DigestPosts: allowAccess,
+  Digests: allowAccess,
+  ElectionCandidates: allowAccess,
+  ElectionVotes: allowAccess,
+  ElicitQuestionPredictions: allowAccess,
+  ElicitQuestions: allowAccess,
+  EmailTokens: allowAccess,
+  FeaturedResources: allowAccess,
+  FieldChanges: allowAccess,
+  ForumEvents: allowAccess,
+  GardenCodes: allowAccess,
+  GoogleServiceAccountSessions: allowAccess,
+  Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
+  LegacyData: allowAccess,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
+  Localgroups: allowAccess,
   LWEvents: lweventCheckAccess,
+  ManifoldProbabilitiesCaches: allowAccess,
   Messages: messageCheckAccess,
+  Migrations: allowAccess,
+  ModerationTemplates: allowAccess,
+  ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
   Notifications: notificationCheckAccess,
+  PageCache: allowAccess,
+  PetrovDayActions: allowAccess,
+  PetrovDayLaunchs: allowAccess,
+  PodcastEpisodes: allowAccess,
+  Podcasts: allowAccess,
   Posts: postCheckAccess,
+  PostEmbeddings: allowAccess,
+  PostRecommendations: allowAccess,
+  PostRelations: allowAccess,
+  PostViewTimes: allowAccess,
+  PostViews: allowAccess,
+  ReadStatuses: allowAccess,
+  RecommendationsCaches: allowAccess,
   Reports: reportCheckAccess,
   ReviewVotes: reviewVoteCheckAccess,
+  ReviewWinnerArts: allowAccess,
+  ReviewWinners: allowAccess,
   Revisions: revisionCheckAccess,
+  RSSFeeds: allowAccess,
   Sequences: sequenceCheckAccess,
   Sessions: sessionCheckAccess,
+  SideCommentCaches: allowAccess,
+  SplashArtCoordinates: allowAccess,
+  Spotlights: allowAccess,
   Subscriptions: subscriptionCheckAccess,
-  TagRels: tagRelCheckAccess,
+  Surveys: allowAccess,
+  SurveyQuestions: allowAccess,
+  SurveyResponses: allowAccess,
+  SurveySchedules: allowAccess,
   Tags: tagCheckAccess,
+  TagFlags: allowAccess,
+  TagRels: tagRelCheckAccess,
+  Tweets: allowAccess,
   TypingIndicators: typingIndicatorCheckAccess,
-  UserTagRels: userTagRelCheckAccess,
+  UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
+  UserEAGDetails: allowAccess,
+  UserJobAds: allowAccess,
+  UserMostValuablePosts: allowAccess,
+  UserRateLimits: allowAccess,
+  UserTagRels: userTagRelCheckAccess,
+  UserActivities: allowAccess,
   Votes: voteCheckAccess,
-} satisfies Partial<Record<CollectionNameString, CheckAccessFunction<CollectionNameString>>>;
+} satisfies Record<CollectionNameString, CheckAccessFunction<CollectionNameString>>;
 
 function collectionHasAccessFilter<N extends CollectionNameString>(collectionName: N): collectionName is (N & keyof typeof accessFilters) {
   return collectionName in accessFilters;
@@ -401,8 +468,5 @@ type AccessFunctionForCollection<N extends CollectionNameString> = N extends key
   : undefined;
 
 export function getCollectionAccessFilter<N extends CollectionNameString>(collectionName: N): AccessFunctionForCollection<N> {
-  if (collectionName in accessFilters) {
-    return accessFilters[collectionName as keyof typeof accessFilters] as AccessFunctionForCollection<N>;
-  }
-  return undefined as AccessFunctionForCollection<N>;
+  return accessFilters[collectionName as keyof typeof accessFilters] as AccessFunctionForCollection<N>;
 }
