@@ -2,6 +2,7 @@ import { useContext, useLayoutEffect, useState, useRef, useMemo } from 'react';
 import { Cookie, CookieSetOptions, CookieGetOptions } from 'universal-cookie';
 import CookiesContext from './CookiesContext';
 import { isInBrowser } from './utils';
+import isEqual from 'lodash/isEqual';
 
 export default function useCookies<T extends string, U = { [K in T]?: any }>(
   dependencies?: T[],
@@ -63,7 +64,7 @@ function shouldUpdate<U = { [K: string]: any }>(
   }
 
   for (let dependency of dependencies) {
-    if (newCookies[dependency] !== oldCookies[dependency]) {
+    if (!isEqual(newCookies[dependency], oldCookies[dependency])) {
       return true;
     }
   }
