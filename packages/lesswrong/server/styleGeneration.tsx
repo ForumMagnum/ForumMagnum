@@ -62,7 +62,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
 }
 
 function getAllStylesByName() {
-  // importAllComponents();
+  importAllComponents();
   require("@/lib/generated/nonRegisteredComponents");
   
   // Sort components by stylePriority, tiebroken by name (alphabetical)
