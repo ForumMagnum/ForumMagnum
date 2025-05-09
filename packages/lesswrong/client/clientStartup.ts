@@ -17,7 +17,6 @@ import { initReCaptcha } from './reCaptcha';
 import './type3';
 import { initDatadog } from './datadogRum';
 import miscStyles from '@/themes/globalStyles/miscStyles';
-import draftjsStyles from '@/themes/globalStyles/draftjsStyles';
 import { viteHandleReload } from '@/viteClient/viteReload';
 
 /**
@@ -150,7 +149,6 @@ function removeStaticStylesheet() {
           const miscStylesNode = document.createElement("style");
           miscStylesNode.append(document.createTextNode([
             miscStyles(),
-            draftjsStyles(),
           ].join("\n")));
           linkTag.parentElement!.insertBefore(miscStylesNode, linkTag);
         }

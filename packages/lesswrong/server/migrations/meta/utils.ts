@@ -58,9 +58,11 @@ export const addRemovedField = async <N extends CollectionNameString>(
 export const dropField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
-  fieldName: keyof ObjectsByCollectionName[N] & string,
+  // Not typed as being a key of this collection, because if this isn't for a
+  // down-migration, it'll have been removed from the schema
+  fieldName: string,
 ): Promise<void> => {
-  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, true).compile();
   await db.none(sql, args);
 }
 

@@ -31,20 +31,24 @@ const styles = defineStyles("MuiPaper", (theme: ThemeType) => {
  * A card with a border and a drop shadow. Based on the material-UI <Paper>
  * component.
  */
-export const Paper = ({elevation=2, square=false, className, style, children}: {
+export const Paper = ({elevation=2, square=false, className, nodeRef, style, children}: {
   elevation?: number,
   square?: boolean,
   className?: string,
+  nodeRef?: React.Ref<HTMLDivElement|null>,
   style?: CSSProperties,
   children?: React.ReactNode
 }) => {
   const classes = useStyles(styles);
-  return <div className={classNames(
-    classes.root,
-    !square && classes.rounded,
-    (classes as any)[`elevation${elevation}`],
-    className,
-  )} style={style}>
+  return <div
+    className={classNames(
+      classes.root,
+      !square && classes.rounded,
+      (classes as any)[`elevation${elevation}`],
+      className,
+    )} style={style}
+    ref={nodeRef}
+  >
     {children}
   </div>
 }

@@ -21,8 +21,8 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       VALUES ($(bookmarkId), $(userId), $(documentId), $(collectionName), true, NOW(), NOW())
       ON CONFLICT ("userId", "documentId", "collectionName") DO UPDATE 
       SET 
-        active = NOT "Bookmarks".active,
-        lastUpdated = NOW()
+        "active" = NOT "Bookmarks"."active",
+        "lastUpdated" = NOW()
       WHERE "Bookmarks"."userId" = $(userId) 
         AND "Bookmarks"."documentId" = $(documentId) 
         AND "Bookmarks"."collectionName" = $(collectionName)

@@ -83,7 +83,7 @@ export interface OverflowNavResult {
  * the viewport. Uses a shared IntersectionObserver provided via context.
  */
 export const useOverflowNav = (
-  targetRef: React.RefObject<HTMLElement>,
+  targetRef: React.RefObject<HTMLElement|null>,
   ratio: number = OVERFLOW_HEIGHT_RATIO,
 ): OverflowNavResult => {
   const [showUp, setShowUp] = useState(false);

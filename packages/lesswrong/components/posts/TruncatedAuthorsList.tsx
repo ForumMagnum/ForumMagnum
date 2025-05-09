@@ -60,7 +60,7 @@ const TruncatedAuthorsList = ({
   useMoreSuffix = true
 }: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
-  expandContainer: RefObject<HTMLDivElement>,
+  expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
   classes: ClassesType<typeof styles>,
   useMoreSuffix?: boolean,

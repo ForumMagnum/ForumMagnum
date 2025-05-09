@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/TextField';
+import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/TextField/TextField';
 import classnames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';

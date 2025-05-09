@@ -957,9 +957,12 @@ interface MultiArbitalTagContentRelOutput {
 interface AutomatedContentEvaluation {
   _id: string;
   createdAt: Date;
-  revisionId: string | null;
-  score: number | null;
-  sentenceScores: Array<SentenceScore | null> | null;
+  revisionId: string;
+  score: number;
+  sentenceScores: Array<SentenceScore>;
+  aiChoice: string;
+  aiReasoning: string;
+  aiCoT: string;
 }
 
 interface SentenceScore {
@@ -3081,7 +3084,6 @@ interface Revision {
   originalContents: ContentType | null;
   html: string | null;
   markdown: string | null;
-  draftJS: any;
   ckEditorMarkup: string | null;
   wordCount: number;
   htmlHighlight: string;

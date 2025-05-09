@@ -354,7 +354,6 @@ importComponent("WrappedWelcomeSection", () => require("../../components/ea-foru
 importComponent("CKCommentEditor", () => require("../../components/editor/CKCommentEditor.tsx"));
 importComponent("CKPostEditor", () => require("../../components/editor/CKPostEditor.tsx"));
 importComponent("CollabEditorPermissionsNotices", () => require("../../components/editor/CollabEditorPermissionsNotices.tsx"));
-importComponent("DraftJSEditor", () => require("../../components/editor/DraftJSEditor.tsx"));
 importComponent("EditUrl", () => require("../../components/editor/EditUrl.tsx"));
 importComponent("EditableUsersList", () => require("../../components/editor/EditableUsersList.tsx"));
 importComponent("Editor", () => require("../../components/editor/Editor.tsx"));

@@ -77,7 +77,7 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
 };
 
 export const NotificationsPageFeed = ({karmaChanges, classes}: {
-  karmaChanges?: KarmaChanges,
+  karmaChanges?: KarmaChanges|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -146,7 +146,7 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
         <>
           <SectionTitle title="Karma and reactions" />
           <div className={classes.karmaChanges}>
-            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges ?? undefined} />
             <div className={classes.karmaBatching}>
               <span>{batchingMessages[karmaChanges!.updateFrequency as KarmaChangeUpdateFrequency]}{" "}</span>
               <Link to={karmaSettingsLink}>

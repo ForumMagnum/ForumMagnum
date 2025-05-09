@@ -1,12 +1,12 @@
 import { getForumType, ThemeOptions } from './themeNames';
 import { baseTheme } from './createThemeDefaults';
-import { createMuiTheme, Theme as MuiThemeType } from '@/lib/vendor/@material-ui/core/src/styles';
 import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import { forumSelect } from '../lib/forumTypeUtils';
 import capitalize from 'lodash/capitalize';
+import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
 
 export type SiteUIStyle = "book" | "friendly";
 
@@ -47,7 +47,7 @@ const themeCache = new Map<string,ThemeType>();
 // important that, given the same theme options, this always return something
 // reference-equal to other versions with the same theme options, or else there
 // will be a memory leak on every pageload.
-export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeType => {
+export const getForumTheme = (themeOptions: ThemeOptions): ThemeType => {
   const forumType = getForumType(themeOptions);
   const themeCacheKey = `${forumType}/${themeOptions.name}`;
   
@@ -81,14 +81,14 @@ const buildTheme = (
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
-  let themeWithPalette = {
+  return {
     forumType,
     ...combinedTheme,
-    palette
+    palette,
+    themeOptions,
+    
+    breakpoints: createBreakpoints(),
   };
-  const theme = createMuiTheme(themeWithPalette as any) as any;
-  theme.themeOptions = themeOptions;
-  return theme;
 }
 
 /**
