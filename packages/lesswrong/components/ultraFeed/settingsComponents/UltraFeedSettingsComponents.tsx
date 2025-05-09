@@ -57,7 +57,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     fontWeight: 600,
     lineHeight: '2.5',
     '& code': {
-      fontSize: '0.9rem',
+      fontSize: '0.8rem',
       fontWeight: 600,
       backgroundColor: theme.palette.grey[200],
       padding: '4px 8px',
@@ -885,7 +885,7 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
       <h3 className={classes.groupTitle}>Comment Thread Multipliers (2/2)</h3>
       <div className={classes.groupDescription}>
         <p className={classes.formulaDescription}>
-          <code>engagementFactor = (1 + commentCoeff*numComments) * (1 + voteCoeff*voteScore) * (1 + viewCoeff*viewScore) * onReadPostFactor</code><br/>
+          <code>engagementFactor = (1+commentCoeff*numComments) * (1+voteCoeff*voteScore) * (1+viewCoeff*viewScore) * onReadPostFactor</code><br/>
           <code>threadMultiplier = 1 + log(engagementFactor) * logImpactFactor</code><br/>
           <code>clampedThreadMultiplier = clamped(threadMultiplier, minOverallMultiplier, maxOverallMultiplier)</code><br/><br/>
           <code>overallThreadScore = baseThreadScore * clampedThreadMultiplier</code>
