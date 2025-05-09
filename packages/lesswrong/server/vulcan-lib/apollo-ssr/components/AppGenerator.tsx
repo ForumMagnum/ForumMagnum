@@ -13,17 +13,20 @@ import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import { SSRMetadata, EnvironmentOverrideContext } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
+import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { AbstractThemeOptions } from '@/themes/themeNames';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, enableSuspense }: {
+const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions, enableSuspense }: {
   req: Request,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   ssrMetadata: SSRMetadata,
+  themeOptions: AbstractThemeOptions,
   enableSuspense: boolean,
 }) => {
   const App = (
@@ -33,6 +36,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
         <StaticRouter location={req.url}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
+            <ThemeContextProvider options={themeOptions}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
                 <EnvironmentOverrideContext.Provider value={{
@@ -46,6 +50,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
                 </EnvironmentOverrideContext.Provider>
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
+            </ThemeContextProvider>
           </CookiesProvider>
         </StaticRouter>
       </ForeignApolloClientProvider>

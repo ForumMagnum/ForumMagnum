@@ -7,6 +7,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
+import { FMJssProvider } from '../hooks/FMJssProvider';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -146,6 +147,8 @@ export const ThemeContextProvider = ({options, children}: {
   );
   
   return <ThemeContext.Provider value={themeContext}>
-    {children}
+    <FMJssProvider>
+      {children}
+    </FMJssProvider>
   </ThemeContext.Provider>
 }
