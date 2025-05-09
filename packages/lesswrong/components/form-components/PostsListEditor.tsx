@@ -19,7 +19,8 @@ const styles = defineStyles('PostsListEditor', (theme: ThemeType) => ({
 }));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
       <Components.PostsItemWrapper documentId={contents} removeItem={removeItem} />
     </li>
@@ -38,7 +39,6 @@ export const PostsListEditor = ({ field }: {
       setValue={(newValue: string[]) => {
         field.handleChange(newValue);
       }}
-      classes={classes}
     />
     <Components.PostsSearchAutoComplete
       clickAction={(postId: string) => {

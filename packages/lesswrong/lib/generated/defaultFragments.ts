@@ -41,6 +41,9 @@ export const AutomatedContentEvaluationsDefaultFragment = `
     createdAt
     revisionId
     score
+    aiChoice
+    aiReasoning
+    aiCoT
   }
 `;
 

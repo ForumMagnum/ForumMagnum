@@ -79,8 +79,14 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
   "score" DOUBLE PRECISION NOT NULL,
-  "sentenceScores" JSONB NOT NULL
+  "sentenceScores" JSONB NOT NULL,
+  "aiChoice" TEXT NOT NULL,
+  "aiReasoning" TEXT NOT NULL,
+  "aiCoT" TEXT NOT NULL
 );
+
+-- Index "idx_AutomatedContentEvaluations_revisionId"
+CREATE INDEX IF NOT EXISTS "idx_AutomatedContentEvaluations_revisionId" ON "AutomatedContentEvaluations" USING btree ("revisionId");
 
 -- Table "Bans"
 CREATE TABLE "Bans" (

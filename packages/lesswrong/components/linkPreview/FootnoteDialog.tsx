@@ -27,7 +27,7 @@ const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
 }) => {
   const { ContentStyles, LWDialog } = Components;
 
-  return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
+  return <LWDialog open onClose={onClose} paperClassName={classes.dialogPaper}>
     <ContentStyles contentType="postHighlight" className={classes.content}>
       <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
     </ContentStyles>

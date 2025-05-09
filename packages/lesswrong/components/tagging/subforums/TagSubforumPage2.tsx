@@ -323,7 +323,7 @@ const TagSubforumPage2 = ({classes}: {
     <div className={classes.subtitle}>{tag.subtitle}</div>
   </div>
 
-  const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
+  const rightSidebarComponents: Record<SubforumTab, React.JSX.Element[]> = {
     posts: [
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
@@ -339,7 +339,7 @@ const TagSubforumPage2 = ({classes}: {
     ],
   };
   
-  const tabComponents: Record<SubforumTab, JSX.Element> = {
+  const tabComponents: Record<SubforumTab, React.JSX.Element> = {
     posts: (
       <SubforumSubforumTab
         tag={tag}

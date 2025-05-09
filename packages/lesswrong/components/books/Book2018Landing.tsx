@@ -324,7 +324,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   bigQuote: string,
   bigQuoteAuthor: string,
   accentColor: string,
-  bodyText: JSX.Element
+  bodyText: React.JSX.Element
 }) => {
   
   const { captureEvent } = useTracking()

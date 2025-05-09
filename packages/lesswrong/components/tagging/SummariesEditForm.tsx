@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
-import { SortableHandle as sortableHandle } from "react-sortable-hoc";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { SummaryForm } from "./SummaryForm";
+import { useSortable } from "@dnd-kit/sortable";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -154,6 +154,10 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
       pointerEvents: 'none',
     },
   },
+  list: {
+    display: "flex",
+    flexDirection: "column",
+  },
 }));
 
 const NO_SUMMARIES_TEXT = "There are no custom summaries written for this page, so users will see an excerpt from the beginning of the page when hovering over links to this page.  You can create up to 3 custom summaries; by default you should avoid creating more than one summary unless the subject matter benefits substantially from multiple kinds of explanation.";
@@ -177,7 +181,7 @@ const SummaryEditorRow = ({ summary, refetch }: {
 
   return (<span className={classNames(classes.summaryEditorRow, edit && classes.editing)}>
     <div className={classNames(edit && classes.hide)} onClick={() => setEdit(true)}>
-      <LWTooltip title={tooltipContent} placement="right" className={classes.summaryTooltipWrapperElement}>
+      <LWTooltip title={tooltipContent} placement="bottom-end" className={classes.summaryTooltipWrapperElement}>
         <div className={classNames(classes.summaryTitle, summary.deleted && classes.deletedSummary)}>
           {summary.tabTitle}
           <ForumIcon icon="Edit" className={classes.editIcon} />
@@ -227,15 +231,17 @@ const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, 
   </div>
 }
 
-const SortableRowHandle = sortableHandle(() => {
+export const SortableRowHandle = ({children}: { children?: React.ReactNode }) => {
   const { ForumIcon, LWTooltip } = Components;
   const classes = useStyles(styles);
+
   return <span className={classes.dragHandle}>
     <LWTooltip title="Drag to reorder" placement='left'>
       <ForumIcon icon="DragIndicator" className={classes.dragIndicatorIcon} />
     </LWTooltip>
   </span>;
-});
+};
+
 
 function getSummariesHelpText(results: MultiDocumentContentDisplay[]) {
   if (results.length === 0) {
@@ -274,17 +280,9 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
     }
   `);
 
-  if (loading && !results) {
-    return <Loading />;
-  }
-
-  if (!results) {
-    return <span className={classes.root} />;
-  }
-
   const icon = newSummaryEditorOpen ? 'MinusSmall' : 'PlusSmall';
 
-  const showNewSummaryButton = results.length < 3;
+  const showNewSummaryButton = results && results.length < 3;
   const newSummaryButton = showNewSummaryButton && (
     <LWTooltip title="Add a new summary" placement="right" className={classes.newSummaryButtonTooltip}>
       <a onClick={() => setNewSummaryEditorOpen(!newSummaryEditorOpen)}>
@@ -293,25 +291,34 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
     </LWTooltip>
   );
 
-  const topRow = <div className={classes.topRow}>
-    <span className={classes.topRowText}>
-      {getSummariesHelpText(results)}
-    </span>
-    {newSummaryButton}
-  </div>;
-
-  const summariesById = Object.fromEntries(results.map((summary) => [summary._id, summary]));
+  const summariesById = results ? Object.fromEntries(results.map((summary) => [summary._id, summary])) : {};
 
   // We need to do this inside of the component to get the summary by id, to pass through to SummaryEditorRow
   // Our sortable list wrapper currently only deal with arrays of strings, and it doesn't seem worth refactoring right now.
   const SortableSummaryRowList = makeSortableListComponent({
-    renderItem: ({contents, removeItem, classes}) => {
+    RenderItem: ({contents, removeItem}) => {
+      const classes = useStyles(styles);
       return <li className={classes.sortableListItem}>
         <SortableRowHandle />
         <SummaryEditorRow summary={summariesById[contents]} refetch={refetch} />
       </li>
     }
   });
+
+  if (loading && !results) {
+    return <Loading />;
+  }
+
+  if (!results) {
+    return <span className={classes.root} />;
+  }
+
+  const topRow = <div className={classes.topRow}>
+    <span className={classes.topRowText}>
+      {getSummariesHelpText(results)}
+    </span>
+    {newSummaryButton}
+  </div>;
 
   const displayedSummaries = reorderedSummaries
     ? reorderedSummaries.map((summaryId) => summariesById[summaryId])
@@ -327,6 +334,8 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
     />}
     <SortableSummaryRowList
       value={displayedSummaries.map((summary) => summary._id)}
+      axis="xy"
+      className={classes.list}
       setValue={(newValue: string[]) => {
         void reorderSummaries({
           variables: {
@@ -337,8 +346,6 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
         });
         setReorderedSummaries(newValue);
       }}
-      useDragHandle={true}
-      classes={classes}
     />
   </span>;
 };

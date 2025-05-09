@@ -15,7 +15,8 @@ const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
 }));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
       <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
     </li>
@@ -34,7 +35,6 @@ export const SequencesListEditor = ({ field }: {
       setValue={(newValue: string[]) => {
         field.handleChange(newValue);
       }}
-      classes={classes}
     />
     <Components.SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {

@@ -9,7 +9,7 @@ import { getOffsetChainTop } from '@/lib/utils/domUtil';
 export type SideItemOptions = {
   format: "block"|"icon",
   offsetTop: number,
-  measuredElement?: React.RefObject<HTMLElement>,
+  measuredElement?: React.RefObject<HTMLElement|null>,
 }
 const defaultSideItemOptions: SideItemOptions = {
   format: "block",

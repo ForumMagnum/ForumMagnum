@@ -5,7 +5,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper } from '../widgets/Paper';
 
 const styles = (theme: ThemeType) => ({
   root: {

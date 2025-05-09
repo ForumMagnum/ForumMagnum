@@ -32,7 +32,7 @@ const NewShortformDialog = ({onClose, classes}: {
       maxWidth={isFriendlyUI ? "md" : "sm"}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
-      dialogClasses={{paper: classes.dialogPaper}}
+      paperClassName={classes.dialogPaper}
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm

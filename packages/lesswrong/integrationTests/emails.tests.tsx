@@ -3,8 +3,8 @@ import React from 'react';
 import { useSingle } from '../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
-import { withStyles, createStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {
   const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";
@@ -15,7 +15,7 @@ const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: str
 async function renderTestEmail({ user=null, subject="Unit test email", bodyComponent, boilerplateGenerator }: {
   user?: DbUser|null,
   subject?: string,
-  bodyComponent: JSX.Element,
+  bodyComponent: React.JSX.Element,
   boilerplateGenerator?: typeof unitTestBoilerplateGenerator
 }) {
   const destinationUser = user || await createDummyUser();
@@ -48,16 +48,14 @@ describe('renderEmail', () => {
   });
   
   it("Renders styles with withStyles", async () => {
-    const styles = createStyles({
+    const styles = defineStyles("StyledComponent", (theme) => ({
       underlined: {
         textDecoration: "underline",
       }
-    });
-    const StyledComponent = withStyles(styles, {name:"StyledComponent"})(
-      ({classes, children}: {classes: any, children: any}) =>
-        <div className={classes.underlined}>{children}</div>
-    );
-    
+    }));
+    const TestComponent = ({classes, children}: {classes: any, children: any}) =>
+      <div className={classes.underlined}>{children}</div>
+    const StyledComponent = withStyles(styles, TestComponent);
     
     const email = await renderTestEmail({
       bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>,

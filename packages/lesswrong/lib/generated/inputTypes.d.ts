@@ -871,19 +871,6 @@ interface UltraFeedEntryType {
   feedSpotlight: FeedSpotlightItem | null;
 }
 
-interface BookmarksFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<BookmarksFeedEntryType> | null;
-}
-
-interface BookmarksFeedEntryType {
-  type: string;
-  feedPost: FeedPost | null;
-  feedCommentThread: FeedCommentThread | null;
-  sortKey: Date;
-}
-
 interface ElicitQuestionPredictionCreator {
   _id: string;
   displayName: string;
@@ -970,9 +957,12 @@ interface MultiArbitalTagContentRelOutput {
 interface AutomatedContentEvaluation {
   _id: string;
   createdAt: Date;
-  revisionId: string | null;
-  score: number | null;
-  sentenceScores: Array<SentenceScore | null> | null;
+  revisionId: string;
+  score: number;
+  sentenceScores: Array<SentenceScore>;
+  aiChoice: string;
+  aiReasoning: string;
+  aiCoT: string;
 }
 
 interface SentenceScore {
@@ -3094,7 +3084,6 @@ interface Revision {
   originalContents: ContentType | null;
   html: string | null;
   markdown: string | null;
-  draftJS: any;
   ckEditorMarkup: string | null;
   wordCount: number;
   htmlHighlight: string;
@@ -6536,8 +6525,6 @@ interface GraphQLTypeMap {
   FeedSpotlightItem: FeedSpotlightItem;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntryType: UltraFeedEntryType;
-  BookmarksFeedQueryResults: BookmarksFeedQueryResults;
-  BookmarksFeedEntryType: BookmarksFeedEntryType;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
