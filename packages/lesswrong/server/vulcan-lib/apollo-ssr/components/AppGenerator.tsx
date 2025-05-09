@@ -6,7 +6,7 @@ import type { Request } from 'express';
 import { StaticRouter } from 'react-router';
 import { Components } from '../../../../lib/vulcan-lib/components';
 import { ForeignApolloClientProvider } from '../../../../components/hooks/useForeignApolloClient';
-import { CookiesProvider } from 'react-cookie';
+import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';

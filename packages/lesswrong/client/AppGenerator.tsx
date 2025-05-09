@@ -6,7 +6,7 @@ import { Components } from '../lib/vulcan-lib/components';
 import { wrapWithMuiTheme } from './themeProvider';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
-import { CookiesProvider } from 'react-cookie';
+import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abTestImpl';
