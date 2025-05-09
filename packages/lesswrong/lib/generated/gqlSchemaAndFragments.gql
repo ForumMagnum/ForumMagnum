@@ -1437,9 +1437,12 @@ extend type Query {
 type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
-  revisionId: String
-  score: Float
-  sentenceScores: [SentenceScore]
+  revisionId: String!
+  score: Float!
+  sentenceScores: [SentenceScore!]!
+  aiChoice: String!
+  aiReasoning: String!
+  aiCoT: String!
 }
 
 type SentenceScore {
@@ -3771,7 +3774,6 @@ type Revision {
   originalContents: ContentType
   html: String
   markdown: String
-  draftJS: JSON
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!
@@ -7490,6 +7492,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   createdAt
   revisionId
   score
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {
@@ -10270,7 +10275,6 @@ fragment RevisionEdit on Revision {
     data
   }
   markdown
-  draftJS
   ckEditorMarkup
 }
 
@@ -10770,6 +10774,9 @@ fragment SunshinePostsList on Post {
         sentence
         score
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
   }
 

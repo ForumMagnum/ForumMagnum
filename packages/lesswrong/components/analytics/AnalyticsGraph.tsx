@@ -6,7 +6,7 @@ import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
 import startCase from "lodash/startCase";
-import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
 import { useDialog } from "../common/withDialog";
 import { DateRangeModal } from "./DateRangeModal";
 import { Typography } from "../common/Typography";

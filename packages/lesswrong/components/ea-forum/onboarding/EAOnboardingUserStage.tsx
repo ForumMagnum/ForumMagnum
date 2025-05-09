@@ -86,7 +86,7 @@ export const EAOnboardingUserStageInner = ({classes, icon = lightbulbIcon}: {
       }
     }
   `);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement|null>(null);
   const currentUser = useCurrentUser()
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {

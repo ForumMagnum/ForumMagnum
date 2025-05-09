@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import type { ContentItemBodyInner } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
 import { AddInlineReactionButton } from "./AddInlineReactionButton";
 import { LWPopper } from "../../common/LWPopper";
@@ -24,8 +24,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const InlineReactSelectionWrapperInner = ({contentRef, voteProps, styling, children, classes}: {
-  contentRef?: React.RefObject<ContentItemBodyInner>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+const InlineReactSelectionWrapperInner = ({contentRef, voteProps, styling, children, classes}: {
+  contentRef?: React.RefObject<ContentItemBodyImperative|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post"|"tag",
   children: React.ReactNode,
@@ -105,7 +105,7 @@ export const InlineReactSelectionWrapperInner = ({contentRef, voteProps, styling
   );
 }
 
-function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
+function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement|null>) {
   const commentTextRect = commentTextRef.current?.getBoundingClientRect();
   if (!commentTextRect) return 0;
 

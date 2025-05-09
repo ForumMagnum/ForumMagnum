@@ -51,7 +51,7 @@ const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSug
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);
   }, []);
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement|null>(null);
 
   // When this appears, yield to the event loop once, use getElementsByTagName
   // to find the search input text box, then focus it.

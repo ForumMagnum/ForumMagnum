@@ -8,6 +8,7 @@ export const AutomatedContentEvaluations: AutomatedContentEvaluationsCollection 
   // This is where you can add indexes for the collection.
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex("AutomatedContentEvaluations", {revisionId: 1});
     return indexSet;
   },
 });

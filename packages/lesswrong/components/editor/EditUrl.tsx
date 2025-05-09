@@ -70,7 +70,7 @@ const EditUrlInner = ({ value, path, classes, document, defaultValue, label, hin
   setFooterContent: (content: React.ReactNode) => void,
 }) => {
   const [active, setActive] = useState(!!value);
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   
   // RobertM: we're deleting the global components table.
   // This form component isn't currently in use, and was only ever used by

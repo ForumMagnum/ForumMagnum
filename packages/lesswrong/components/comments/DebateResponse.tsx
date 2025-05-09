@@ -5,7 +5,7 @@ import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
-import type { ContentItemBodyInner } from '../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../common/ContentItemBody';
 import { CommentUserName } from "./CommentsItem/CommentUserName";
 import { CommentsItemDate } from "./CommentsItem/CommentsItemDate";
 import { CommentBody } from "./CommentsItem/CommentBody";
@@ -105,7 +105,7 @@ export const DebateResponseInner = ({classes, comment, replies, idx, responseCou
     const votingSystemName = comment.votingSystem || "default";
     const votingSystem = getVotingSystemByName(votingSystemName);
     const voteProps = useVote(comment, "Comments", votingSystem);
-    const commentBodyRef = useRef<ContentItemBodyInner|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+    const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
 
     const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 

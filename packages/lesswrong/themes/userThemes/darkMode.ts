@@ -135,6 +135,13 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         main: "#0e9bb4",
         dark: "#0e9bb4",
       },
+      action: {
+        active: '#ffffff',
+        hover: 'rgba(255, 255, 255, 0.1)',
+        hoverOpacity: 0.1,
+        disabled: 'rgba(255, 255, 255, 0.3)',
+        disabledBackground: 'rgba(255, 255, 255, 0.12)',
+      },
       text: {
         primaryAlert: '#F3F9FA'
       },
@@ -188,10 +195,12 @@ export const darkModeTheme: UserThemeSpecification = {
     inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    invertIfDarkMode: (color: string) => invertHexColor(color),
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      disabled: shadePalette.greyAlpha(0.5),
       primaryAlert: '#b2c5b5',
       warning: '#FFF7E6',
       alwaysWhite: '#fff',
@@ -286,6 +295,13 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     arbital: {
       arbitalGreen: '#02796b',
+    },
+    action: {
+      active: '#fff',
+      hover: greyAlpha(0.1),
+      hoverOpacity: 0.1,
+      disabled: greyAlpha(0.3),
+      disabledBackground: greyAlpha(0.12),
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({

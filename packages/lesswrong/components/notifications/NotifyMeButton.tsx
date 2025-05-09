@@ -73,7 +73,7 @@ const NotifyMeButtonInner = ({
   // uses <a> by default, set this to use <button>
   asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
-  componentIfSubscribed?: JSX.Element,
+  componentIfSubscribed?: React.JSX.Element,
 }) => {
   const {loading, disabled, isSubscribed, onSubscribe} = useNotifyMe({
     document,

@@ -138,8 +138,8 @@ const Book2020FrontpageWidgetInner = ({ classes }: {
   const BookMarketingText = ({title, subtitle, description, buttons}: {
     title: string;
     subtitle: string;
-    description: string | JSX.Element;
-    buttons: JSX.Element;
+    description: string | React.JSX.Element;
+    buttons: React.JSX.Element;
   }) => {
     return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>

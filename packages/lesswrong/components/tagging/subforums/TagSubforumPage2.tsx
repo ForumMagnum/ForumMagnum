@@ -5,7 +5,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useTagBySlug } from '../useTag';
 import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
 import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
@@ -320,7 +320,7 @@ const TagSubforumPage2Inner = ({classes}: {
     <div className={classes.subtitle}>{tag.subtitle}</div>
   </div>
 
-  const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
+  const rightSidebarComponents: Record<SubforumTab, React.JSX.Element[]> = {
     posts: [
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
@@ -336,7 +336,7 @@ const TagSubforumPage2Inner = ({classes}: {
     ],
   };
   
-  const tabComponents: Record<SubforumTab, JSX.Element> = {
+  const tabComponents: Record<SubforumTab, React.JSX.Element> = {
     posts: (
       <SubforumSubforumTab
         tag={tag}

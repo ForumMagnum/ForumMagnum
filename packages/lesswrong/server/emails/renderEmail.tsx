@@ -1,4 +1,3 @@
-import { createGenerateClassName, MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
@@ -6,8 +5,6 @@ import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
 import { renderToString } from 'react-dom/server';
-import { SheetsRegistry } from 'react-jss/lib/jss';
-import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
@@ -152,12 +149,6 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
   
-  // Wrap the body in Apollo, JSS, and MUI wrappers.
-  const sheetsRegistry = new SheetsRegistry();
-  const generateClassName = createGenerateClassName({
-    dangerouslyUseGlobalCSS: true
-  });
-  
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
   // visited since before that feature was implemented.
@@ -167,20 +158,17 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const theme = getForumTheme(themeOptions);
   const stylesContext = createStylesContext(theme);
   
+  // Wrap the body in Apollo, JSS, and MUI wrappers.
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <ThemeContextProvider options={themeOptions}>
     <FMJssProvider stylesContext={stylesContext}>
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
     </TimezoneContext.Provider>
     </UserContext.Provider>
-    </MuiThemeProvider>
-    </JssProvider>
     </FMJssProvider>
     </ThemeContextProvider>
     </ApolloProvider>
@@ -196,7 +184,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
-  const css = generateEmailStylesheet({ muiSheetsRegistry: sheetsRegistry, stylesContext, theme, themeOptions });
+  const css = generateEmailStylesheet({ stylesContext, theme, themeOptions });
   const html = boilerplateGenerator({ css, body, title:subject })
   
   // Find any relative links, and convert them to absolute

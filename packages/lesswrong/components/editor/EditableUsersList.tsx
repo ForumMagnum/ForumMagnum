@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { makeSortableListComponent } from '../form-components/sortableList';
 import { SingleUsersItem } from "../form-components/SingleUsersItem";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditableUsersList', theme => ({
   listEditor: {
     display: "flex"
   },
@@ -17,24 +17,28 @@ const styles = (theme: ThemeType) => ({
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
   },
-});
+}));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => <li className={classes.item}>
-    <SingleUsersItem userId={contents} removeItem={removeItem} />
-  </li>
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
+    return <li className={classes.item}>
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
+    </li>
+  }
 });
 
 /**
  * An editable list of users, with a straightforward getValue/setValue
  * and no form-system integration.
  */
-export function EditableUsersListInner({value, setValue, label, classes}: {
+export function EditableUsersList({value, setValue, label}: {
   value: string[],
   setValue: (newValue: string[]) => void,
-  label: string,
-  classes: ClassesType<typeof styles>,
+  label: string
 }) {
+  const classes = useStyles(styles);
+  
   return <span className={classes.listEditor}>
     <ErrorBoundary>
       <UsersSearchAutoComplete
@@ -49,11 +53,6 @@ export function EditableUsersListInner({value, setValue, label, classes}: {
       setValue={setValue}
       axis="xy"
       className={classes.list}
-      classes={classes}
     />
   </span>
 }
-
-export const EditableUsersList = registerComponent('EditableUsersList', EditableUsersListInner, {styles});
-
-

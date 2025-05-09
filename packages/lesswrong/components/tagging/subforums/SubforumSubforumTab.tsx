@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
@@ -238,7 +238,7 @@ const SubforumSubforumTabInner = ({
     </div>
   );
 
-  const layoutComponents: Record<PostsLayout, JSX.Element> = {
+  const layoutComponents: Record<PostsLayout, React.JSX.Element> = {
     card: cardLayoutComponent,
     list: listLayoutComponent
   }

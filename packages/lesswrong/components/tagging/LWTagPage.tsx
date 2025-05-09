@@ -21,7 +21,7 @@ import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
-import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
@@ -32,7 +32,7 @@ import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
-import { ContentItemBodyInner, ContentItemBody } from "../common/ContentItemBody";
+import { ContentItemBody, type ContentItemBodyImperative } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useDisplayedContributors, ToCContributorsList, HeadingContributorsList } from "./ContributorsList";
@@ -1042,7 +1042,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
 }) => {
   const classes = useStyles(styles);
 
-  const contentRef = useRef<ContentItemBodyInner>(null);
+  const contentRef = useRef<ContentItemBodyImperative|null>(null);
   const votingSystem = getVotingSystemByName("reactionsAndLikes");
   const mainLensIsSelected = !selectedLens || selectedLens?._id === 'main-tab';
   const voteProps = useVote(

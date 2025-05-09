@@ -3,19 +3,8 @@ import { debateEditorPlaceholder, defaultEditorPlaceholder, getDefaultLocalStora
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import {
-  Editor,
-  EditorChangeEvent,
-  getUserDefaultEditor,
-  getInitialEditorContents,
-  getBlankEditorContents,
-  EditorContents,
-  isBlank,
-  serializeEditorContents,
-  EditorTypeString,
-  styles,
-  shouldSubmitContents,
-} from '../editor/Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
+import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -113,20 +102,20 @@ interface EditorFormComponentProps<S, R> {
 }
 
 export function useEditorFormCallbacks<R>() {
-  const onSubmitCallback = useRef<EditorSubmitCallback>();
-  const onSuccessCallback = useRef<EditorSuccessCallback<R>>();
+  const onSubmitCallback = useRef<EditorSubmitCallback | null>(null);
+  const onSuccessCallback = useRef<EditorSuccessCallback<R> | null>(null);
 
   const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
     onSubmitCallback.current = cb;
     return () => {
-      onSubmitCallback.current = undefined;
+      onSubmitCallback.current = null;
     };
   };
 
   const addOnSuccessCallback = (cb: EditorSuccessCallback<R>) => {
     onSuccessCallback.current = cb;
     return () => {
-      onSuccessCallback.current = undefined;
+      onSuccessCallback.current = null;
     };
   };
 
@@ -212,12 +201,13 @@ function InnerEditorFormComponent<S, R>({
   // to show it to people using the html editor. Converting from markdown to ckEditor
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
-  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
-
+  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
+  
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
   const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
   const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(!!currentUser?.criticismTipsDismissed)
+  const tipsNodeRef = useRef<HTMLElement|null>(null);
   const updateCurrentUser = useUpdateCurrentUser()
   
   const handleDismissCriticismTips = () => {
@@ -559,6 +549,7 @@ function InnerEditorFormComponent<S, R>({
   return <div className={classes.root}>
     {showEditorWarning && 
       <LastEditedInWarning
+        autoConvert={(contents.type as LegacyEditorTypeString) === 'draftJS'}
         initialType={initialEditorType}
         currentType={contents.type}
         defaultType={defaultEditorType}
@@ -572,7 +563,7 @@ function InnerEditorFormComponent<S, R>({
       getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
-    <Editor
+    {isValidEditorType(contents.type) && <Editor
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
@@ -582,7 +573,6 @@ function InnerEditorFormComponent<S, R>({
       documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
-      initialEditorType={initialEditorType}
       formProps={{ maxHeight, commentMinimalistStyle }}
       isCollaborative={isCollabEditor}
       accessLevel={document.myEditorAccess}
@@ -597,7 +587,7 @@ function InnerEditorFormComponent<S, R>({
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
-    />
+    />}
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" && (
       <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
@@ -608,10 +598,11 @@ function InnerEditorFormComponent<S, R>({
         postId={document._id}
       />
     )}
-    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear nodeRef={tipsNodeRef}>
       {(state) => <PostsEditBotTips
         handleDismiss={handleDismissCriticismTips}
         postId={document._id}
+        nodeRef={tipsNodeRef}
         className={classes[`${state}BotTips`]}
       />}
     </Transition>

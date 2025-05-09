@@ -1,6 +1,6 @@
 import React, { FC, PropsWithChildren } from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { CENTRAL_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { Link } from "../../lib/reactRouterWrapper";
 import { Typography } from "../common/Typography";
 

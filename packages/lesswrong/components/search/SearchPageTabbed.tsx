@@ -22,7 +22,6 @@ import {
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
 } from '../../lib/search/searchUtil';
-import Modal from '@/lib/vendor/@material-ui/core/src/Modal';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
@@ -37,6 +36,7 @@ import { ExpandedTagsSearchHit } from "./ExpandedTagsSearchHit";
 import { ExpandedSequencesSearchHit } from "./ExpandedSequencesSearchHit";
 import { LWTooltip } from "../common/LWTooltip";
 import { ForumIcon } from "../common/ForumIcon";
+import { LWDialog } from '../common/LWDialog';
 
 const hitsPerPage = 10
 
@@ -399,11 +399,9 @@ const SearchPageTabbedInner = ({classes}: {
 
         <div ref={scrollToRef} />
 
-        <Modal
+        <LWDialog
           open={modalOpen}
           onClose={() => setModalOpen(false)}
-          aria-labelledby="search-filters-modal"
-          aria-describedby="search-filters-modal"
           className={classNames(classes.filtersModal)}
           keepMounted
         >
@@ -418,7 +416,7 @@ const SearchPageTabbedInner = ({classes}: {
               setModalOpen={setModalOpen}
             />
           </div>
-        </Modal>
+        </LWDialog>
 
         <Tabs
           value={tab}

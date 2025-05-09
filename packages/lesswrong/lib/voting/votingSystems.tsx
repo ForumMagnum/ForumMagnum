@@ -9,7 +9,7 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
-import type { ContentItemBodyInner, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
+import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import { TagLens } from '../arbital/useTagLenses';
 import { EAEmojisVoteOnComment } from '@/components/votes/EAEmojisVoteOnComment';
 import { EAEmojisVoteOnPost } from '@/components/votes/EAEmojisVoteOnPost';
@@ -26,7 +26,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
-  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }

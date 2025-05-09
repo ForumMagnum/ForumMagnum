@@ -21,7 +21,7 @@ import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
-import type { ContentItemBodyInner } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
@@ -368,7 +368,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
-  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
@@ -490,7 +490,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   react: EmojiReactName,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
-  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null
 }) => {
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
   const alreadyUsedReactions: NamesAttachedReactionsList = normalizedReactions?.reacts ?? {};

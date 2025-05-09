@@ -48,6 +48,16 @@ const styles = (theme: ThemeType) => ({
   llmScore: {
     cursor: 'pointer',
   },
+  automatedContentEvaluations: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    alignItems: 'flex-end',
+  },
+  aiOutput: {
+    fontSize: '0.9em',
+    textWrap: 'pretty',
+  },
 })
 
 
@@ -69,8 +79,8 @@ const SunshineNewUserPostsListInner = ({posts, user, classes}: {
 
     openDialog({
       name: "LLMScoreDialog",
-      contents: () => (
-        <LWDialog open={true}>
+      contents: ({onClose}) => (
+        <LWDialog open={true} onClose={onClose}>
           <DialogContent>
             <div>
               <p>LLM Score: {automatedContentEvaluation.score}</p>
@@ -84,64 +94,89 @@ const SunshineNewUserPostsListInner = ({posts, user, classes}: {
     });
   }
 
- 
+  function handleAiJudgementClick(automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations) {
+    openDialog({
+      name: "AiJudgementDialog",
+      contents: ({onClose}) => (
+        <LWDialog open={true} onClose={onClose}>
+          <DialogContent>
+            <p><strong>AI Choice:</strong> {automatedContentEvaluations.aiChoice}</p>
+            <p><strong>AI Reasoning:</strong></p>
+            <pre className={classes.aiOutput}>{automatedContentEvaluations.aiReasoning}</pre>
+            <p><strong>AI CoT:</strong></p>
+            <pre className={classes.aiOutput}>{automatedContentEvaluations.aiCoT}</pre>
+          </DialogContent>
+        </LWDialog>
+      ),
+    });
+  }
+
   if (!posts) return null
 
   const newPosts = user.reviewedAt ? posts.filter(post => post.postedAt > user.reviewedAt!) : posts
 
   return (
     <div>
-      {newPosts.map(post=><div className={classes.post} key={post._id}>
-        <div className={classes.row}>
-          <div>
-            <Link to={`/posts/${post._id}`}>
-              <PostsTitle post={post} showIcons={false} wrap/> 
-              {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
-            </Link>
+      {newPosts.map(post => {
+        const automatedContentEvaluations = post.contents?.automatedContentEvaluations
+        return <div className={classes.post} key={post._id}>
+          <div className={classes.row}>
             <div>
-              <span className={classes.meta}>
-                <span className={classes.vote}>
-                  <SmallSideVote document={post} collectionName="Posts"/>
+              <Link to={`/posts/${post._id}`}>
+                <PostsTitle post={post} showIcons={false} wrap />
+                {(post.status !== 2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
+              </Link>
+              <div>
+                <span className={classes.meta}>
+                  <span className={classes.vote}>
+                    <SmallSideVote document={post} collectionName="Posts" />
+                  </span>
+                  <MetaInfo>
+                    <FormatDate date={post.postedAt} />
+                  </MetaInfo>
+                  <MetaInfo>
+                    <Link to={`${postGetPageUrl(post)}#comments`}>
+                      {postGetCommentCountStr(post)}
+                    </Link>
+                  </MetaInfo>
                 </span>
-                <MetaInfo>
-                  <FormatDate date={post.postedAt}/>
-                </MetaInfo>
-                <MetaInfo>
-                  <Link to={`${postGetPageUrl(post)}#comments`}>
-                    {postGetCommentCountStr(post)}
-                  </Link>
-                </MetaInfo>
-              </span>
+              </div>
             </div>
+
+            {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
+              {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason} />}
+              {automatedContentEvaluations && (
+                <div className={classes.automatedContentEvaluations}>
+                  <span
+                    className={classes.llmScore}
+                    onClick={() => handleLLMScoreClick(
+                      automatedContentEvaluations,
+                      post.contents!.html
+                    )}
+                  >
+                    <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
+                  </span>
+                  <span
+                    className={classes.llmScore}
+                    onClick={() => handleAiJudgementClick(automatedContentEvaluations)}
+                  >
+                    <strong>AI judgement:</strong> {automatedContentEvaluations.aiChoice}
+                  </span>
+                </div>
+              )}
+              <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }} />
+            </span>}
+
+            <PostActionsButton post={post} />
           </div>
-          
-          {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
-            {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
-            {post.contents?.automatedContentEvaluations && (
-              <span
-                className={classes.llmScore}
-                onClick={() =>
-                  handleLLMScoreClick(
-                    post.contents!.automatedContentEvaluations!,
-                    post.contents!.html
-                  )
-                }
-              >
-              LLM Score: {post.contents?.automatedContentEvaluations?.score?.toFixed(2)}
-              </span>
-            )}
-            <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
-          </span>}
-          
-          <PostActionsButton post={post} />
+          {!post.draft && <div className={classes.postBody}>
+            <LinkPostMessage post={post} />
+            <ContentStyles contentType="postHighlight">
+              <div dangerouslySetInnerHTML={{ __html: (post.contents?.html || "") }} />
+            </ContentStyles>
+          </div>}
         </div>
-        {!post.draft && <div className={classes.postBody}>
-          <LinkPostMessage post={post}/>
-          <ContentStyles contentType="postHighlight">
-            <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
-          </ContentStyles>
-        </div>}
-      </div>)}
+      })}
     </div>
   )
 }

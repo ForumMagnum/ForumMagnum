@@ -39,7 +39,7 @@ export const NotificationsPageInner = ({classes}: {
 
   // Save the initial karma changes to display, as they'll be marked as read
   // once the user visits the page and they'll dissapear
-  const karmaChanges = useRef<KarmaChanges>();
+  const karmaChanges = useRef<KarmaChanges|null>(null);
   if (fetchedKarmaChanges && !karmaChanges.current) {
     karmaChanges.current = fetchedKarmaChanges.karmaChanges;
   }

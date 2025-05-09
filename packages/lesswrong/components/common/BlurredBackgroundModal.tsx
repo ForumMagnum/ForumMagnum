@@ -1,8 +1,7 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import Popover from "@/lib/vendor/@material-ui/core/src/Popover";
-import Fade from "@/lib/vendor/@material-ui/core/src/Fade";
 import classNames from "classnames";
+import { LWDialog } from "./LWDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,22 +47,11 @@ export const BlurredBackgroundModalInner = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  return (
-    <Popover
-      open={open}
-      onClose={onClose}
-      anchorReference="none"
-      ModalClasses={{root: classes.modal}}
-      BackdropProps={{className: classes.backdrop}}
-      TransitionComponent={Fade}
-    >
-      {open &&
-        <div className={classNames(classes.root, className)}>
-          {children}
-        </div>
-      }
-    </Popover>
-  );
+  return <LWDialog open={open} onClose={onClose} backdrop="blur">
+    <div className={classNames(classes.root, className)}>
+      {children}
+    </div>
+  </LWDialog>
 }
 
 export const BlurredBackgroundModal = registerComponent(

@@ -7,7 +7,7 @@ import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';

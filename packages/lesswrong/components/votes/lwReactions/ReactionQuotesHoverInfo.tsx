@@ -1,13 +1,11 @@
 import React from 'react';
-import { EmojiReactName, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
+import type { EmojiReactName, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
-import filter from 'lodash/filter';
-import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
-import type { ContentItemBodyInner } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { ReactOrAntireactVote } from "./ReactOrAntireactVote";
 import { UsersWhoReacted } from "./UsersWhoReacted";
 
@@ -68,7 +66,7 @@ const ReactionQuotesHoverInfoInner = ({react, quote, voteProps, commentBodyRef, 
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   classes: ClassesType<typeof styles>
 }) => {
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);

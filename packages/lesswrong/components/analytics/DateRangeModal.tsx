@@ -50,9 +50,7 @@ const DateRangeModalInner = ({
     <LWDialog
       open={true}
       onClose={onClose}
-      dialogClasses={{
-        paper: classes.paper
-      }}
+      paperClassName={classes.paper}
     >
       <div className={classes.datePickers}>
         <DatePicker label="Start date" value={startDateInternal ?? undefined} onChange={setStartDateInternal} />

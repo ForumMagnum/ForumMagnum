@@ -27,7 +27,7 @@ export type LWTooltipProps = {
   flip?: boolean,
   clickable?: boolean,
   inlineBlock?: boolean,
-  As?: keyof JSX.IntrinsicElements,
+  As?: keyof React.JSX.IntrinsicElements,
   disabled?: boolean,
   disabledOnMobile?: boolean,
   hideOnTouchScreens?: boolean,

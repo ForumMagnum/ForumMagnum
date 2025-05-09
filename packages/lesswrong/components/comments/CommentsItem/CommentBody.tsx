@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { ContentStyleType, ContentStyles } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import { ContentItemBodyInner, ContentReplacedSubstringComponentInfo, ContentItemBody } from '../../common/ContentItemBody';
+import { ContentItemBody, type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { CommentDeletedMetadata } from "./CommentDeletedMetadata";
 import { InlineReactSelectionWrapper } from "../../votes/lwReactions/InlineReactSelectionWrapper";
@@ -50,7 +50,7 @@ const CommentBodyInner = ({
   classes,
 }: {
   comment: CommentsList,
-  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,

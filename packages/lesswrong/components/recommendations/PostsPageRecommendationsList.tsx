@@ -6,7 +6,7 @@ import type {
   RecommendationStrategyName,
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
-import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import DeferRender from "../common/DeferRender";
 import { SectionTitle } from "../common/SectionTitle";
 import { RecommendationsList } from "./RecommendationsList";

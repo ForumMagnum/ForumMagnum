@@ -4,7 +4,6 @@ import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
@@ -18,7 +17,6 @@ import { CKCommentEditor } from "./CKCommentEditor";
 import { CKPostEditor } from "./CKPostEditor";
 import { WarningBanner } from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
-import { DraftJSEditor } from "./DraftJSEditor";
 import { MenuItem } from "../common/Menus";
 import { Loading } from "../vulcan-core/Loading";
 import { SectionTitle } from "../common/SectionTitle";
@@ -193,21 +191,26 @@ const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
 export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
-export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
+export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup";
+export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
-export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?: string}> = {
+export const editorTypeToDisplay: Record<LegacyEditorTypeString,{name: string, postfix?: string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName},
   markdown: {name: 'Markdown'},
-  draftJS: {name: 'Draft-JS'},
+  draftJS: {name: "DraftJS"},
 }
 
 export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
-export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
+export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown']
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
   return "ckEditorMarkup"
+}
+
+export function isValidEditorType(editorType: string): editorType is EditorTypeString {
+  return editorType in editorTypeToDisplay && editorType !== 'draftJS';
 }
 
 // Contents of an editor, with `value` in the native format of the editor
@@ -244,7 +247,6 @@ interface EditorProps {
   documentId?: string,
   collectionName: CollectionNameString,
   fieldName: string,
-  initialEditorType: EditorTypeString,
   formProps?: FormProps,
 
   // Whether to use the CkEditor collaborative editor, ie, this is the
@@ -281,29 +283,16 @@ interface EditorComponentState {
 }
 
 export const getBlankEditorContents = (editorType: EditorTypeString): EditorContents => {
-  if (editorType === "draftJS") {
-    return {
-      type: editorType,
-      value: EditorState.createEmpty(),
-    }
-  } else {
-    return {
-      type: editorType,
-      value: "",
-    }
+  return {
+    type: editorType,
+    value: "",
   }
 }
 
 export const isBlank = (editorContents: EditorContents): boolean => {
   if (!editorContents.value)
     return true;
-  
-  if (editorContents.type === "draftJS") {
-    const draftJScontent = editorContents.value.getCurrentContent()
-    return !draftJScontent.hasText();
-  } else {
-    return editorContents.value.trim() === "";
-  }
+  return editorContents.value.trim() === "";
 }
 
 export const getInitialEditorContents = (value: any, document: any, fieldName: string, currentUser: UsersCurrent|null): EditorContents => {
@@ -322,24 +311,12 @@ export const getInitialEditorContents = (value: any, document: any, fieldName: s
 }
 
 export const serializeEditorContents = (contents: EditorContents): SerializedEditorContents => {
-  if (contents.type === "draftJS") {
-    return {
-      type: "draftJS",
-      value: convertToRaw(contents.value.getCurrentContent()),
-    };
-  } else {
-    return contents;
-  }
+  return contents;
 }
 
 export const deserializeEditorContents = (contents: SerializedEditorContents): EditorContents|null => {
   if (!contents?.type) {
     return null;
-  } else if (contents.type === "draftJS") {
-    return {
-      type: "draftJS",
-      value: EditorState.createWithContent(convertFromRaw(contents.value)),
-    };
   } else {
     return contents;
   }
@@ -414,10 +391,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(this.props.value.type) {
-      case "draftJS":
-        const draftJS = this.props.value.value.getCurrentContent()
-        data = convertToRaw(draftJS);
-        break
       case "markdown":
       case "html":
         data = this.props.value.value;
@@ -460,13 +433,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           autosave: true,
         });
         this.debouncedCheckMarkdownImgErrs()
-        break;
-      }
-      case "draftJS": {
-        this.props.onChange({
-          contents: {type: editorType, value},
-          autosave: true,
-        });
         break;
       }
       case "ckEditorMarkup": {
@@ -528,8 +494,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     switch (forceType ?? contents.type) {
       case "ckEditorMarkup":
         return this.renderCkEditor(contents)
-      case "draftJS":
-        return this.renderDraftJSEditor(contents)
       case "markdown":
         return this.renderPlaintextEditor(contents)
       case "html":
@@ -712,27 +676,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         connection. You should update all links to images so that they are served over a{' '}
         secure HTTPS connection (i.e. the links should start with <em>https://</em>).
       </Typography>}
-    </div>
-  }
-
-  renderDraftJSEditor = (contents: EditorContents) => {
-    const draftJSValue = contents.value;
-    const { questionStyles, commentEditor, _classes: classes } = this.props
-    const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
-    const {className, contentType} = this.getBodyStyles();
-
-    return <div>
-      { this.renderPlaceholder(showPlaceholder, false) }
-      {draftJSValue && <ContentStyles contentType={contentType}><DraftJSEditor
-        editorState={draftJSValue}
-        onChange={(value: string) => this.setContents("draftJS", value)}
-        commentEditor={commentEditor||false}
-        className={classNames(
-          className,
-          this.getHeightClass(),
-          {[classes.questionWidth]: questionStyles}
-        )}
-      /></ContentStyles>}
     </div>
   }
 

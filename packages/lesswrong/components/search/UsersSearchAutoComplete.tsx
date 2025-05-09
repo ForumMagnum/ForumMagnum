@@ -13,7 +13,7 @@ const UsersSearchAutoCompleteInner = ({clickAction, label}: {
     indexName={getSearchIndexName("Users")}
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <UsersAutoCompleteHit document={hit} />}
-    renderInputComponent={(hit: any) => <UsersSearchInput inputProps={hit} />}
+    renderInputComponent={(inputProps: any) => <UsersSearchInput inputProps={inputProps} />}
     placeholder={label || "Search for Users"}
     noSearchPlaceholder='User ID'
   />

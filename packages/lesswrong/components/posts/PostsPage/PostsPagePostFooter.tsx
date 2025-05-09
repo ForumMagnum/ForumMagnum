@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
-import { MAX_COLUMN_WIDTH } from './PostsPage';
+import { MAX_COLUMN_WIDTH } from './constants';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';

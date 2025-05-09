@@ -35,7 +35,7 @@ export const ForumEventBannerInner = () => {
     "--forum-event-banner-text": bannerTextColor
   } as CSSProperties;
 
-  const wrapWithStyles = (content: JSX.Element) => <span style={style}>{content}</span>;
+  const wrapWithStyles = (content: React.JSX.Element) => <span style={style}>{content}</span>;
 
   switch (bannerType) {
     case "frontpage":

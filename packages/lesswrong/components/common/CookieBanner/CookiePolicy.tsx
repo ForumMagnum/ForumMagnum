@@ -1,6 +1,6 @@
 import React, { FC, PropsWithChildren } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { CENTRAL_COLUMN_WIDTH } from "../../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useDialog } from "../withDialog";
 import { CookiesTable } from "../../../lib/cookies/utils";
 import { CookieDialog } from "./CookieDialog";

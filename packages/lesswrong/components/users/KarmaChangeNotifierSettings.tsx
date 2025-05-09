@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
@@ -185,8 +185,7 @@ const KarmaChangeNotifierSettingsInner = ({
       {_.map(getKarmaNotificationTimingChoices(), (timingChoice, key) =>
         <FormControlLabel
           key={key}
-          value={key}
-          control={<Radio className={classes.radioButton} />}
+          control={<Radio className={classes.radioButton} value={key} />}
           label={
             <Typography className={classes.inline} variant="body2" component="span">
               {timingChoice.label}

@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): JSX.Element => {
+const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): React.JSX.Element => {
   if (!user) {
     return <>Can't recognize user</>
   }

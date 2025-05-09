@@ -111,7 +111,7 @@ const TwitterAdminInner = ({ classes }: { classes: ClassesType<typeof styles> })
     itemsPerPage: 20,
   });
 
-  const authorExpandContainer = useRef(null);
+  const authorExpandContainer = useRef<HTMLDivElement>(null);
 
   if (!userIsAdmin(currentUser)) {
     return <Error404 />;

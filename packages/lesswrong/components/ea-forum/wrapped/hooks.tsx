@@ -301,8 +301,8 @@ type ForumWrappedContext = {
   mostValuablePosts: PostsListWithVotes[],
   mostValuablePostsLoading: boolean,
   mostValuablePostsLoadMoreProps: LoadMoreProps,
-  thinkingVideoRef: RefObject<HTMLVideoElement>,
-  personalityVideoRef: RefObject<HTMLVideoElement>,
+  thinkingVideoRef: RefObject<HTMLVideoElement|null>,
+  personalityVideoRef: RefObject<HTMLVideoElement|null>,
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);

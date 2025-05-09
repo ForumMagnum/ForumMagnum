@@ -9,7 +9,7 @@ import { FriendlyInbox } from "./FriendlyInbox";
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
   currentUser: UsersCurrent;
-  title?: JSX.Element | String;
+  title?: React.JSX.Element | String;
   isModInbox?: boolean;
 };
 

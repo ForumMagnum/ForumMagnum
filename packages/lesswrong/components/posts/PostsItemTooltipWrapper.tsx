@@ -18,7 +18,7 @@ const PostsItemTooltipWrapperInner = ({
   children?: React.ReactNode,
   post: PostsList,
   placement?: PopperPlacementType,
-  As?: keyof JSX.IntrinsicElements,
+  As?: keyof React.JSX.IntrinsicElements,
   disabled?: boolean,
   className?: string,
 }) => {

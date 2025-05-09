@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import DialogContent from "@material-ui/core/DialogContent";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -12,6 +11,7 @@ import { FeedContentBody } from "./FeedContentBody";
 import { Loading } from "../vulcan-core/Loading";
 import { CommentsListSection } from "../comments/CommentsListSection";
 import { PostsVote } from "../votes/PostsVote";
+import { DialogContent } from "../widgets/DialogContent";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   '@global': {
@@ -142,9 +142,7 @@ const UltraFeedDialogContent = ({
       open={true}
       onClose={onClose}
       fullWidth
-      dialogClasses={{
-        paper: classes.dialogPaper,
-      }}
+      paperClassName={classes.dialogPaper}
     >
       <DialogContent className={classes.dialogContent}>
         {post && <div>

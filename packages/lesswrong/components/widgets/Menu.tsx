@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import type { Placement as PopperPlacementType } from 'popper.js'
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { createPortal } from 'react-dom';
 import { isClient } from '@/lib/executionEnvironment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { LWPopper } from "../common/LWPopper";
+import { Paper } from './Paper';
 
 const styles = defineStyles("Menu", (theme) => ({
   menu: {
@@ -15,18 +14,19 @@ const styles = defineStyles("Menu", (theme) => ({
   },
 }));
 
-export function Menu({open, anchorEl, onClose, onClick, className, children}: {
+export function Menu({open, anchorEl, onClose, onClick, minWidth, className, children}: {
   open: boolean
   anchorEl: any
-  onClose?: () => void
-  onClick?: () => void
+  onClose?: (event: AnyBecauseTodo) => void
+  onClick?: (event: AnyBecauseTodo) => void
+  minWidth?: number
   className?: string,
   children?: React.ReactNode
 }) {
   if (!anchorEl) return null;
-  function sendCloseAndClick() {
-    onClick?.();
-    onClose?.();
+  function sendCloseAndClick(ev: AnyBecauseTodo) {
+    onClick?.(ev);
+    onClose?.(ev);
   }
   
   return <MenuPopper
@@ -61,6 +61,10 @@ function MenuPopper({open, className, anchorEl, children}: {
   const positioning = (anchorEl && element)
     ? getMenuPositionStyles(anchorEl, element, "bottom-start")
     : getOffScreeStyles();
+
+  if (!open) {
+    return null;
+  }
 
   return <>
     {createPortal(<div

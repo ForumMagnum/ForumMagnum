@@ -124,7 +124,7 @@ const SideCommentDialogInner = ({ commentIds, post, onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof dialogStyles>
 }) => {
-  return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
+  return <LWDialog open onClose={onClose} paperClassName={classes.dialogPaper}>
     <SideCommentHover commentIds={commentIds} post={post} closeDialog={onClose} />
   </LWDialog>;
 }

@@ -8,7 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
-import type { ContentItemBodyInner } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { CommentBottomCaveats } from "./CommentBottomCaveats";
@@ -37,7 +37,7 @@ const CommentBottomInner = ({comment, treeOptions, votingSystem, voteProps, comm
   treeOptions: CommentTreeOptions,
   votingSystem: VotingSystem
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBodyInner>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {

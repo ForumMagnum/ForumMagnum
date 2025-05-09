@@ -186,7 +186,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
+type ShareButtonProps = { label: string; icon: React.JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
 
 const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) => {
   return (

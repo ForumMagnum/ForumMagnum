@@ -7,7 +7,7 @@ const PostsListPlaceholderInner = ({count, classes}: {
   count: number,
   classes: ClassesType<typeof styles>
 }) => {
-  let placeholders: Array<JSX.Element> = [];
+  let placeholders: Array<React.JSX.Element> = [];
   for(let i=0; i<count; i++) {
     placeholders.push(
       <div key={i} className={classNames(

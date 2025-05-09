@@ -1,10 +1,16 @@
 import * as React from 'react';
-import { StyledComponentProps } from './styles';
-export { StyledComponentProps };
 
 export type PropsOf<C> = C extends new (props: infer P) => React.Component
   ? P
   : C extends (props: infer P) => React.ReactElement<any> | null ? P : never;
+
+
+export type ClassNameMap<ClassKey extends string = string> = Record<ClassKey, string>;
+
+export interface StyledComponentProps<ClassKey extends string = string> {
+  classes?: Partial<ClassNameMap<ClassKey>>;
+  innerRef?: React.Ref<any> | React.RefObject<any>;
+}
 
 /**
  * All standard components exposed by `material-ui` are `StyledComponents` with

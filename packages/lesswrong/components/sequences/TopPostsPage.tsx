@@ -982,7 +982,7 @@ const PostGridContents = (props: PostGridContentsProps) => {
   return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id ?? `empty-${rowIdx}-${columnIdx}`} {...cellArgs} />))}</>;
 }
 
-const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
+const PostGridCellContents = (props: PostGridCellContentsProps): React.JSX.Element => {
   const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved, dpr } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const offsetColumnIdx = columnIdx - (leftBookOffset * 3);

@@ -28,7 +28,7 @@ const SortButtonInner = ({classes, className, onClick, showIcon=true, label=""}:
   classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
-  label?: JSX.Element|string,
+  label?: React.JSX.Element|string,
   showIcon?: boolean
 }) => {
   if (label) {

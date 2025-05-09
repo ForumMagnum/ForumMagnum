@@ -260,9 +260,8 @@ const SubscribeDialogInner = (props: {
             >
               { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
                 <FormControlLabel
-                  control={<Radio />}
+                  control={<Radio value={threshold} />}
                   label={threshold}
-                  value={threshold}
                   key={`labelKarmaThreshold${threshold}`}
                   className={classes.thresholdButton}
                 />

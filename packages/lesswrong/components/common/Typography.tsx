@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("Typography", (theme: ThemeType) => ({
   root: {
     display: "block",
     margin: 0,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   gutterBottom: {
     marginBottom: "0.35em",
   },
-});
+}), {stylePriority: -2});
 
 type VariantString = "display4"|"display3"|"display2"|"display1"|"headline"|"title"|"subheading"|"body2"|"body1"
 
@@ -37,17 +37,17 @@ const variantToDefaultComponent: Record<VariantString, string> = {
   body1: 'p',
 };
 
-const TypographyInner = ({children, variant, component, className, onClick, gutterBottom=false, classes, id, htmlFor}: {
+export const Typography = ({children, variant, component, className, onClick, gutterBottom=false, id, htmlFor}: {
   children: React.ReactNode,
   variant: VariantString,
   component?: "div"|"span"|"label"|"aside"|"p",
   className?: string,
   onClick?: any,
   gutterBottom?: boolean,
-  classes: ClassesType<typeof styles>,
   id?: string,
   htmlFor?: string,
 }) => {
+  const classes = useStyles(styles);
   const Component: any = component || variantToDefaultComponent[variant] || "span";
 
   return (
@@ -66,10 +66,3 @@ const TypographyInner = ({children, variant, component, className, onClick, gutt
     </Component>
   );
 }
-
-export const Typography = registerComponent("Typography", TypographyInner, {
-  styles,
-  stylePriority: -2,
-});
-
-

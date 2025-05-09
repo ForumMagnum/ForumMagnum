@@ -5,7 +5,7 @@ import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
-import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';

@@ -29,7 +29,7 @@ const RecommendationsListInner = ({
   algorithm: RecommendationsAlgorithm,
   translucentBackground?: boolean,
   ListItem?: RecommendationsListItem,
-  loadingFallback?: JSX.Element,
+  loadingFallback?: React.JSX.Element,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {

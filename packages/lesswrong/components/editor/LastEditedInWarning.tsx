@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { editorTypeToDisplay, EditorTypeString, EditorContents, EditorChangeEvent } from './Editor';
+import { editorTypeToDisplay, EditorTypeString, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
 import { Loading } from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
@@ -14,10 +14,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LastEditedInWarningInner = ({initialType, currentType, defaultType, value, setValue, classes}: {
-  initialType: EditorTypeString,
-  currentType: EditorTypeString,
-  defaultType: EditorTypeString,
+const LastEditedInWarningInner = ({autoConvert, initialType, currentType, defaultType, value, setValue, classes}: {
+  autoConvert: boolean,
+  initialType: LegacyEditorTypeString,
+  currentType: LegacyEditorTypeString,
+  defaultType: LegacyEditorTypeString,
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
   classes: ClassesType<typeof styles>
@@ -31,20 +32,34 @@ const LastEditedInWarningInner = ({initialType, currentType, defaultType, value,
     }
   });
   
+  useEffect(() => {
+    if (autoConvert) {
+      setTimeout(() => {
+        convertDocument(value, 'ckEditorMarkup');
+      }, 0);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoConvert]);
+  
   return <div>
     {loading && <Loading/>}
     <Typography variant="body2" className={classes.lastEditedWarning}>
-      This document was last saved in {editorTypeToDisplay[initialType].name} format. Showing the{' '}
-      {editorTypeToDisplay[currentType].name} editor.{' '}
-      <a
-        className={classes.clickHereColor}
-        onClick={() => {
-          convertDocument(value, 'ckEditorMarkup');
-        }}
-      >
-        Click here
-      </a>
-      {' '}to switch to the {editorTypeToDisplay['ckEditorMarkup'].name} editor (the default editor).
+      This document was last saved in {editorTypeToDisplay[initialType].name} format.{' '}
+      {autoConvert
+        ? <>Converting...</>
+        : <>Showing the {editorTypeToDisplay[currentType].name} editor.</>
+      }
+      {!autoConvert && <>
+        <a
+          className={classes.clickHereColor}
+          onClick={() => {
+            convertDocument(value, 'ckEditorMarkup');
+          }}
+        >
+          Click here
+        </a>
+        {' '}to switch to the {editorTypeToDisplay['ckEditorMarkup'].name} editor (the default editor).
+      </>}
     </Typography>
     <br/>
   </div>

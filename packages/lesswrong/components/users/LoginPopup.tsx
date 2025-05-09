@@ -34,9 +34,7 @@ const LoginPopupInner = ({onClose, classes}: {
       open={true}
       onClose={onClose}
       className={classes.dialog}
-      dialogClasses={{
-        paper: classes.paper
-      }}
+      paperClassName={classes.paper}
     >
       <LoginForm />
     </LWDialog>

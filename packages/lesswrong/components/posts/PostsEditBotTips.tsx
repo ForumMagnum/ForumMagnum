@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
@@ -95,10 +95,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsEditBotTipsInner = ({handleDismiss, postId, className, classes}: {
+const PostsEditBotTipsInner = ({handleDismiss, postId, className, nodeRef, classes}: {
   handleDismiss: () => void,
   postId?: string,
   className?: string,
+  nodeRef: RefObject<HTMLElement|null>
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking()
@@ -106,7 +107,8 @@ const PostsEditBotTipsInner = ({handleDismiss, postId, className, classes}: {
   if (!isEAForum) {
     return null
   }
-  return <aside className={classes.root}>
+
+  return <aside className={classes.root} ref={nodeRef}>
     <div className={classNames(className, classes.card)}>
       <div className={classes.headingRow}>
         <h2 className={classes.heading}>A tip for constructive criticism</h2>

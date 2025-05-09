@@ -198,7 +198,7 @@ const FriendlyInboxInner = ({
   const navigate = useNavigate();
   const markConversationRead = useMarkConversationRead();
 
-  const selectedConversationRef = useRef<HTMLDivElement>(null);
+  const selectedConversationRef = useRef<HTMLDivElement|null>(null);
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
