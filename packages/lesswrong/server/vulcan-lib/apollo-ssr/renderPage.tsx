@@ -8,8 +8,6 @@ import React from 'react';
 import ReactDOM, { renderToPipeableStream } from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
-
-import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
@@ -516,22 +514,21 @@ const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming,
   let abTestGroupsUsed: RelevantTestGroupAllocation = {};
   
   const now = new Date();
-  const App = <AppGenerator
-    req={req}
-    apolloClient={client}
-    foreignApolloClient={foreignClient}
-    serverRequestStatus={serverRequestStatus}
-    abTestGroupsUsed={abTestGroupsUsed}
-    ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
-    enableSuspense={isStreaming}
-  />;
-  
   const themeOptions = getThemeOptionsFromReq(req, user);
 
   const WrappedApp = <div id="react-app">
-    {wrapWithMuiTheme(App, themeOptions)}
+    <AppGenerator
+      req={req}
+      apolloClient={client}
+      foreignApolloClient={foreignClient}
+      serverRequestStatus={serverRequestStatus}
+      abTestGroupsUsed={abTestGroupsUsed}
+      ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
+      enableSuspense={isStreaming}
+      themeOptions={themeOptions}
+    />
   </div>
-  
+
   let htmlContent = '';
   try {
     if (isStreaming) {
