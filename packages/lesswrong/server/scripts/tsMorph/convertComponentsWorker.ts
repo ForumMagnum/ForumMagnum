@@ -1,18 +1,10 @@
+/* eslint-disable */
 import {
   Project,
-  SourceFile,
   SyntaxKind,
   ImportDeclaration,
-  Identifier,
-  PropertyAccessExpression,
-  VariableDeclaration,
   Node,
-  VariableStatement,
-  CallExpression,
-  StringLiteral,
   BindingElement,
-  ExportAssignment,
-  ts,
 } from 'ts-morph';
 import path from 'path';
 import fs from 'fs';

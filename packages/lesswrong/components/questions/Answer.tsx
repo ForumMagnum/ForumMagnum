@@ -4,7 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
+import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
 import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';

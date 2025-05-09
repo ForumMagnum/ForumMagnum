@@ -24,13 +24,7 @@ import { ForumIcon } from "../../common/ForumIcon";
 import { CommentsMenu } from "../../dropdowns/comments/CommentsMenu";
 import { UserCommentMarkers } from "../../users/UserCommentMarkers";
 import { CommentPollVote } from "./CommentPollVote";
-
-export const metaNoticeStyles = (theme: ThemeType) => ({
-    color: theme.palette.lwTertiary.main,
-    fontSize: "1rem",
-    marginLeft: theme.spacing.unit / 2,
-    ...theme.typography.italic,
-});
+import { metaNoticeStyles } from "./metaNoticeStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {

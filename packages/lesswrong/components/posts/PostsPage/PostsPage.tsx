@@ -86,13 +86,9 @@ import { FundraisingThermometer } from "../../common/FundraisingThermometer";
 import { PostPageReviewButton } from "./PostPageReviewButton";
 import { HoveredReactionContextProvider } from "../../votes/lwReactions/HoveredReactionContextProvider";
 import { FixedPositionToCHeading } from '../TableOfContents/PostFixedPositionToCHeading';
-import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
-export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
-  theme.breakpoints.down('md')
-
-
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [

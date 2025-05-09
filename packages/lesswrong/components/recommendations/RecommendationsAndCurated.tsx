@@ -22,8 +22,6 @@ import { LWTooltip } from "../common/LWTooltip";
 import { CuratedPostsList } from "./CuratedPostsList";
 import { ForumIcon } from "../common/ForumIcon";
 
-export const curatedUrl = "/recommendations"
-
 const styles = (theme: ThemeType) => ({
   section: isFriendlyUI ? {} : {
     marginTop: -12,

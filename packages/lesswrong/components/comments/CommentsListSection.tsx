@@ -30,8 +30,7 @@ import { SimpleDivider } from "../widgets/SimpleDivider";
 import { CommentsListMeta } from "./CommentsListMeta";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
-
-export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
 
 const styles = (theme: ThemeType) => ({
   root: {

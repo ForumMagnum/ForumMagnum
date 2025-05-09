@@ -2,7 +2,7 @@ import { VotingProps } from "@/components/votes/votingProps";
 import { isLW } from "../instanceSettings";
 import type { NamesAttachedReactionsList, UserVoteOnSingleReaction } from "./namesAttachedReactions";
 import { addReactsVote, removeReactsVote, getDocumentHighlights } from './reactionDisplayHelpers';
-import { defineVotingSystem } from "./votingSystems";
+import { defineVotingSystem } from './defineVotingSystem';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import keyBy from 'lodash/keyBy';

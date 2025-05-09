@@ -18,6 +18,7 @@ import { EmojiReactionVoteOnComment } from '@/components/votes/EmojiReactionVote
 import { ReactBallotVoteOnComment } from '@/components/votes/ReactBallotVoteOnComment';
 import { TwoAxisVoteOnComment } from '@/components/votes/TwoAxisVoteOnComment';
 import { VoteOnComment } from '@/components/votes/VoteOnComment';
+import { defineVotingSystem } from './defineVotingSystem';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
 
@@ -82,10 +83,6 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
     tagOrLens: TagLens|TagPageFragment,
     voteProps: VotingProps<VoteableTypeClient>
   }) => ContentReplacedSubstringComponentInfo[]
-}
-
-export const defineVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
-  return votingSystem;
 }
 
 export const defaultVotingSystem = defineVotingSystem({

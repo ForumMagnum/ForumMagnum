@@ -4,7 +4,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isLWorAF } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
-import { forumHeaderTitleSetting } from '../common/Header';
+import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
 import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({

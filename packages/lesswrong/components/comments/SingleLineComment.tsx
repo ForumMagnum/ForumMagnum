@@ -7,7 +7,7 @@ import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
 import { coreTagIconMap, CoreTagIcon } from '../tagging/CoreTagIcon';
-import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
+import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FormatDate } from "../common/FormatDate";
 import { ShowParentComment } from "./ShowParentComment";

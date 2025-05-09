@@ -11,7 +11,8 @@ import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import { metaNoticeStyles, CommentsItemMeta } from './CommentsItemMeta';
+import { CommentsItemMeta } from './CommentsItemMeta';
+import { metaNoticeStyles } from "./metaNoticeStyles";
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
@@ -32,10 +33,6 @@ import { CoreTagIcon } from "../../tagging/CoreTagIcon";
 import { RejectedReasonDisplay } from "../../sunshineDashboard/RejectedReasonDisplay";
 import { HoveredReactionContextProvider } from "../../votes/lwReactions/HoveredReactionContextProvider";
 import { CommentBottom } from "./CommentBottom";
-
-export const highlightSelectorClassName = "highlighted-substring";
-export const dimHighlightClassName = "dim-highlighted-substring";
-export const faintHighlightClassName = "dashed-highlighted-substring";
 
 
 const styles = (theme: ThemeType) => ({

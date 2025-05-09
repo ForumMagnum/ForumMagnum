@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
-import { forumHeaderTitleSetting } from "../common/Header";
+import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
 import { gql, useMutation } from "@apollo/client";
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
