@@ -113,7 +113,7 @@ export const isGroupByAggregateExpression = (value: any) => {
  */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
-  private sqlComment: string|null
+  protected sqlComment: string|null
 
   constructor(
     table: Table<T> | Query<T>,

@@ -115,13 +115,18 @@ export function getDbIndexesOnComments() {
     ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
     WHERE ("baseScore" >= 15)
   `);
-  indexSet.addIndex("Comments",
-    augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, postedAt:1, }),
-    {
-      name: "comments.alignmentSuggestedComments",
-      partialFilterExpression: { "suggestForAlignmentUserIds.0": {$exists:true} },
-    }
-  );
+
+  void indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_suggestForAlignmentUserIds"
+    ON "Comments" USING btree
+    (
+      "reviewForAlignmentUserId" ASC NULLS LAST,
+      af ASC NULLS LAST,
+      "postedAt" ASC NULLS LAST
+    )
+    WITH (deduplicate_items=True)
+    WHERE "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
+  `);
 
   indexSet.addIndex("Comments", { userId: 1, createdAt: 1 });
 
