@@ -15,7 +15,7 @@ import gql from 'graphql-tag';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
 import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
-import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings, getResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
@@ -131,7 +131,7 @@ const weightedSample = (
   return finalFeed;
 };
 
-const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = getResolverSettings(DEFAULT_ULTRAFEED_SETTINGS);
+const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
 
 const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
   let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS;

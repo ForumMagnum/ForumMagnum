@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { 
-  UltraFeedSettingsType, 
+  UltraFeedSettingsType,
   DEFAULT_SOURCE_WEIGHTS, 
   DEFAULT_SETTINGS,
   TruncationLevel,
@@ -12,7 +12,10 @@ import {
   getFirstCommentLevel,
   getPostBreakpointLevel,
   SettingsFormState,
-  TruncationGridFields,
+  ThreadInterestModelFormState,
+  CommentScoringFormState,
+  CommentScoringSettings,
+  DisplaySettingsFormState
 } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -26,6 +29,62 @@ import {
   ValidatedUltraFeedSettings
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
+
+// Helper function to parse form numbers, falling back to a default
+const parseFormNumber = (value: string | number | '', defaultValue: number): number => {
+  if (value === '') return defaultValue;
+  const num = Number(value);
+  return isNaN(num) ? defaultValue : num;
+};
+
+// Helper function to derive formValues from settings
+const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): SettingsFormState => {
+
+  const { displaySettings: defaultDisplaySettings, resolverSettings: defaultResolverSettings } = DEFAULT_SETTINGS;
+  const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel } = defaultResolverSettings;
+
+  const { displaySettings, resolverSettings } = settings;
+  const { commentScoring, threadInterestModel } = resolverSettings;
+
+  return {
+    sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(resolverSettings.sourceWeights || {}) },
+    incognitoMode: resolverSettings.incognitoMode,
+    displaySetting: {
+      lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
+      postBreakpoints: [...(displaySettings.postTruncationBreakpoints || [])],
+      commentBreakpoints: [...(displaySettings.commentTruncationBreakpoints || [])],
+      postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
+    },
+    commentScoring: {
+      ultraFeedSeenPenalty: commentScoring?.ultraFeedSeenPenalty ?? defaultCommentScoring.ultraFeedSeenPenalty,
+      quickTakeBoost: commentScoring?.quickTakeBoost ?? defaultCommentScoring.quickTakeBoost,
+      commentSubscribedAuthorMultiplier: commentScoring?.commentSubscribedAuthorMultiplier ?? defaultCommentScoring.commentSubscribedAuthorMultiplier,
+      commentDecayFactor: commentScoring?.commentDecayFactor ?? defaultCommentScoring.commentDecayFactor,
+      commentDecayBiasHours: commentScoring?.commentDecayBiasHours ?? defaultCommentScoring.commentDecayBiasHours,
+      threadScoreAggregation: commentScoring?.threadScoreAggregation ?? defaultCommentScoring.threadScoreAggregation,
+      threadScoreFirstN: commentScoring?.threadScoreFirstN ?? defaultCommentScoring.threadScoreFirstN,
+    },
+    threadInterestModel: {
+      commentCoeff: threadInterestModel?.commentCoeff ?? defaultThreadInterestModel.commentCoeff,
+      voteCoeff: threadInterestModel?.voteCoeff ?? defaultThreadInterestModel.voteCoeff,
+      viewCoeff: threadInterestModel?.viewCoeff ?? defaultThreadInterestModel.viewCoeff,
+      onReadPostFactor: threadInterestModel?.onReadPostFactor ?? defaultThreadInterestModel.onReadPostFactor,
+      logImpactFactor: threadInterestModel?.logImpactFactor ?? defaultThreadInterestModel.logImpactFactor,
+      minOverallMultiplier: threadInterestModel?.minOverallMultiplier ?? defaultThreadInterestModel.minOverallMultiplier,
+      maxOverallMultiplier: threadInterestModel?.maxOverallMultiplier ?? defaultThreadInterestModel.maxOverallMultiplier,
+    },
+  };
+};
+
+// Helper function to derive simpleViewTruncationLevels from settings
+const deriveSimpleViewTruncationLevelsFromSettings = (settings: UltraFeedSettingsType) => ({
+  commentLevel0: getFirstCommentLevel(settings.displaySettings.lineClampNumberOfLines, settings.displaySettings.commentTruncationBreakpoints?.[0]),
+  commentLevel1: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[1]),
+  commentLevel2: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[2]),
+  postLevel0: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[0]),
+  postLevel1: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[1]),
+  postLevel2: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[2]) ?? 'Unset',
+});
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -137,7 +196,7 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
 
-  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, ThreadEngagementSettings, MiscSettings } = Components; 
+  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings, ThreadInterestTuningSettings } = Components; 
 
   const { flash } = useMessages();
 
@@ -145,110 +204,51 @@ const UltraFeedSettings = ({
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
   const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode);
 
-  const [formValues, setFormValues] = useState<SettingsFormState>(() => ({
-    sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
-    commentLevel0: getFirstCommentLevel(settings.lineClampNumberOfLines, settings.commentTruncationBreakpoints?.[0]),
-    commentLevel1: getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[1]),
-    commentLevel2: getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[2]),
-    postLevel0: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[0]),
-    postLevel1: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[1]),
-    postLevel2: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[2]),
-    incognitoMode: settings.incognitoMode,
-    quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
-    commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier ?? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier,
-    threadVotePowerWeight: settings.threadVotePowerWeight ?? DEFAULT_SETTINGS.threadVotePowerWeight,
-    threadParticipationWeight: settings.threadParticipationWeight ?? DEFAULT_SETTINGS.threadParticipationWeight,
-    threadViewScoreWeight: settings.threadViewScoreWeight ?? DEFAULT_SETTINGS.threadViewScoreWeight,
-    threadOnReadPostWeight: settings.threadOnReadPostWeight ?? DEFAULT_SETTINGS.threadOnReadPostWeight,
+  const [simpleViewTruncationLevels, setSimpleViewTruncationLevels] = useState(() => 
+    deriveSimpleViewTruncationLevelsFromSettings(settings)
+  );
 
-    lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
-    postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
-    commentBreakpoints: [...(settings.commentTruncationBreakpoints || [])],
-    ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty ?? DEFAULT_SETTINGS.ultraFeedSeenPenalty,
-    postTitlesAreModals: settings.postTitlesAreModals ?? DEFAULT_SETTINGS.postTitlesAreModals,
-  }));
+  const [formValues, setFormValues] = useState<SettingsFormState>(() => 
+    deriveFormValuesFromSettings(settings)
+  );
 
   const [zodErrors, setZodErrors] = useState<UltraFeedSettingsZodErrors>(null);
 
-  const getSourceWeightError = useCallback(
-    (k: FeedItemSourceType): string | undefined =>
-      zodErrors?.sourceWeights?.[k]?._errors[0],
-    [zodErrors]
-  );
-
-  const getScalarError = useCallback(<K extends keyof ValidatedUltraFeedSettings>(k: K): string | undefined =>
-    zodErrors?.[k]?._errors[0], [zodErrors]);
-
-  const getArrayError = useCallback(
-    (k: 'postTruncationBreakpoints' | 'commentTruncationBreakpoints'): ZodFormattedError<(number | null)[]> | undefined =>
-      zodErrors?.[k],
-    [zodErrors]
-  );
-
   const sourceWeightErrors: Record<FeedItemSourceType, string | undefined> = React.useMemo(() => {
+    const errors = zodErrors as ZodFormattedError<ValidatedUltraFeedSettings, string>;
     return Object.keys(DEFAULT_SOURCE_WEIGHTS).reduce((acc, key) => {
-      acc[key as FeedItemSourceType] = getSourceWeightError(key as FeedItemSourceType);
+      acc[key as FeedItemSourceType] = errors?.resolverSettings?.sourceWeights?.[key as FeedItemSourceType]?._errors[0];
       return acc;
     }, {} as Record<FeedItemSourceType, string | undefined>);
-  }, [getSourceWeightError]);
+  }, [zodErrors]);
 
   useEffect(() => {
-    const derivedCommentLevel0 = getFirstCommentLevel(settings.lineClampNumberOfLines, settings.commentTruncationBreakpoints?.[0]);
-    const derivedCommentLevel1 = getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[1]) || 'Long';
-    const derivedCommentLevel2 = getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[2]) || 'Long';
-    const derivedPostLevel0 = getPostBreakpointLevel(settings.postTruncationBreakpoints?.[0]);
-    const derivedPostLevel1 = getPostBreakpointLevel(settings.postTruncationBreakpoints?.[1]);
-    const derivedPostLevel2 = getPostBreakpointLevel(settings.postTruncationBreakpoints?.[2]) || 'Unset';
-
-    setFormValues(currentValues => ({
-      ...currentValues,
-      sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
-      commentLevel0: derivedCommentLevel0,
-      commentLevel1: derivedCommentLevel1,
-      commentLevel2: derivedCommentLevel2,
-      postLevel0: derivedPostLevel0,
-      postLevel1: derivedPostLevel1,
-      postLevel2: derivedPostLevel2,
-      incognitoMode: settings.incognitoMode,
-      quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
-      commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier ?? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier,
-      threadVotePowerWeight: settings.threadVotePowerWeight ?? DEFAULT_SETTINGS.threadVotePowerWeight,
-      threadParticipationWeight: settings.threadParticipationWeight ?? DEFAULT_SETTINGS.threadParticipationWeight,
-      threadViewScoreWeight: settings.threadViewScoreWeight ?? DEFAULT_SETTINGS.threadViewScoreWeight,
-      threadOnReadPostWeight: settings.threadOnReadPostWeight ?? DEFAULT_SETTINGS.threadOnReadPostWeight,
-      // Advanced
-      lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
-      postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
-      commentBreakpoints: [...(settings.commentTruncationBreakpoints || [])],
-      // Misc
-      ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty ?? DEFAULT_SETTINGS.ultraFeedSeenPenalty,
-      postTitlesAreModals: settings.postTitlesAreModals ?? DEFAULT_SETTINGS.postTitlesAreModals,
-    }));
-  }, [
-      settings.sourceWeights,
-      settings.lineClampNumberOfLines,
-      settings.commentTruncationBreakpoints,
-      settings.postTruncationBreakpoints,
-      settings.incognitoMode,
-      settings.quickTakeBoost,
-      settings.ultraFeedSeenPenalty,
-      settings.postTitlesAreModals,
-      settings.commentSubscribedAuthorMultiplier,
-      settings.threadVotePowerWeight,
-      settings.threadParticipationWeight,
-      settings.threadViewScoreWeight,
-      settings.threadOnReadPostWeight,
-     ]);
+    setFormValues(deriveFormValuesFromSettings(settings));
+    setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(settings));
+  }, [settings]);
 
   const updateForm = useCallback(<K extends keyof SettingsFormState>(
     key: K,
     value: SettingsFormState[K] | ((prev: SettingsFormState[K]) => SettingsFormState[K])
   ) => {
     setZodErrors(null);
-
+    setFormValues(prev => {
+      const newValue = typeof value === 'function' ? (value as any)(prev[key]) : value;
+      return { ...prev, [key]: newValue };
+    });
+  }, []);
+  
+  const updateDisplaySettingForm = useCallback(<K extends keyof DisplaySettingsFormState>(
+    key: K,
+    value: DisplaySettingsFormState[K] | ((prev: DisplaySettingsFormState[K]) => DisplaySettingsFormState[K])
+  ) => {
+    setZodErrors(null);
     setFormValues(prev => ({
       ...prev,
-      [key]: typeof value === 'function' ? (value as any)(prev[key]) : value,
+      displaySetting: {
+        ...prev.displaySetting,
+        [key]: typeof value === 'function' ? (value as any)(prev.displaySetting[key]) : value,
+      }
     }));
   }, []);
 
@@ -261,61 +261,38 @@ const UltraFeedSettings = ({
       const parsedValue = parseInt(strValue, 10);
       numValue = (!isNaN(parsedValue) && Number.isInteger(Number(strValue))) ? parsedValue : '';
     }
-
-    updateForm('sourceWeights', prev => ({
-      ...prev,
-      [key]: numValue,
-    }));
+    updateForm('sourceWeights', prev => ({ ...prev, [key]: numValue }));
   }, [updateForm]);
 
-  const handleTruncationLevelChange = useCallback((
-    field: TruncationGridFields,
+  const handleSimpleTruncationLevelChange = useCallback((
+    field: keyof typeof simpleViewTruncationLevels,
     value: TruncationLevel
   ) => {
-    updateForm(field, value);
-  }, [updateForm]);
+    setZodErrors(null);
+    setSimpleViewTruncationLevels(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleBooleanChange = useCallback((
-    field: keyof SettingsFormState,
+    field: 'incognitoMode' | 'postTitlesAreModals',
     checked: boolean
   ) => {
-    updateForm(field, checked);
-  }, [updateForm]);
-
-  const handleQuickTakeBoostChange = useCallback((value: number | string) => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    updateForm('quickTakeBoost', numValue);
-  }, [updateForm]);
-
-  const handleSubscribedAuthorMultiplierChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateForm('commentSubscribedAuthorMultiplier', '');
-    } else {
-      const numValue = parseFloat(strValue);
-      updateForm('commentSubscribedAuthorMultiplier', numValue);
+    setZodErrors(null);
+    if (field === 'incognitoMode') {
+      updateForm(field, checked);
+    } else if (field === 'postTitlesAreModals') {
+      updateDisplaySettingForm(field, checked);
     }
-  }, [updateForm]);
+  }, [updateForm, updateDisplaySettingForm]);
 
-  const handleSeenPenaltyChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateForm('ultraFeedSeenPenalty', '');
-    } else {
-      const numValue = parseFloat(strValue);
-      updateForm('ultraFeedSeenPenalty', numValue);
-    }
-  }, [updateForm]);
-  
   const handleLineClampChange = useCallback((value: number | string) => {
     const strValue = String(value).trim();
     if (strValue === '') {
-      updateForm('lineClampNumberOfLines', '');
+      updateDisplaySettingForm('lineClampNumberOfLines', '');
     } else {
       const numValue = parseInt(strValue, 10);
-      updateForm('lineClampNumberOfLines', isNaN(numValue) ? '' : numValue);
+      updateDisplaySettingForm('lineClampNumberOfLines', isNaN(numValue) ? '' : numValue);
     }
-  }, [updateForm]);
+  }, [updateDisplaySettingForm]);
 
   const handleBreakpointChange = useCallback((
     kind: 'post' | 'comment',
@@ -323,142 +300,181 @@ const UltraFeedSettings = ({
     value: string | number | null
   ) => {
     const field = kind === 'post' ? 'postBreakpoints' : 'commentBreakpoints';
-    
-    updateForm(field, prev => {
+    updateDisplaySettingForm(field, (prev: (number | null | '')[]) => {
       const currentArray = [...prev];
       if (value === '') {
         currentArray[index] = '';
-      } 
-      else if (value === null) {
+      } else if (value === null) {
         currentArray[index] = null;
-      } 
-      else if (typeof value === 'string') {
+      } else if (typeof value === 'string') {
         const parsed = parseInt(value, 10);
         currentArray[index] = isNaN(parsed) ? '' : parsed;
-      } 
-      else {
+      } else {
         currentArray[index] = value;
       }
-      return currentArray;
+      // Ensure array has 3 elements for the UI, padding with '' if needed
+      while (currentArray.length < 3) {
+        currentArray.push('');
+      }
+      return currentArray.slice(0, 3); // Max 3 breakpoints
     });
+  }, [updateDisplaySettingForm]);
+
+  const handleCommentScoringFieldChange = useCallback((
+    field: keyof CommentScoringFormState, 
+    value: number | string 
+  ) => {
+    let processedValue: string | number = value;
+
+    if (field === 'threadScoreAggregation') {
+      processedValue = value as string; 
+    } else {
+      const strValue = String(value).trim();
+      if (strValue === '') {
+        processedValue = DEFAULT_SETTINGS.resolverSettings.commentScoring[field as keyof CommentScoringSettings];
+      } else {
+        const num = parseFloat(strValue);
+        processedValue = isNaN(num) ? DEFAULT_SETTINGS.resolverSettings.commentScoring[field as keyof CommentScoringSettings] : num;
+      }
+    }
+    updateForm('commentScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 
-  const handleThreadVotePowerWeightChange = useCallback((value: number | string) => {
+  const handleThreadInterestFieldChange = useCallback((field: keyof ThreadInterestModelFormState, value: number | string) => {
     const strValue = String(value).trim();
-    updateForm('threadVotePowerWeight', strValue === '' ? '' : parseFloat(strValue));
-  }, [updateForm]);
-
-  const handleThreadParticipationWeightChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    updateForm('threadParticipationWeight', strValue === '' ? '' : parseFloat(strValue));
-  }, [updateForm]);
-
-  const handleThreadViewScoreWeightChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    updateForm('threadViewScoreWeight', strValue === '' ? '' : parseFloat(strValue));
-  }, [updateForm]);
-
-  const handleThreadOnReadPostWeightChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    updateForm('threadOnReadPostWeight', strValue === '' ? '' : parseFloat(strValue));
+    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
+    updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue, }));
   }, [updateForm]);
 
   const handleSave = useCallback(() => {
-    const settingsToUpdate: Record<string, any> = {};
 
-    settingsToUpdate.sourceWeights = Object.entries(formValues.sourceWeights)
-      .reduce((acc, [key, value]) => {
-        acc[key as FeedItemSourceType] = value === '' ? 0 : Number(value);
-        return acc;
-      }, {} as Record<FeedItemSourceType, number>);
+    const defaultResolverSettings = DEFAULT_SETTINGS.resolverSettings;
+    const defaultThreadInterestModel = defaultResolverSettings.threadInterestModel;
 
-    settingsToUpdate.quickTakeBoost = isNaN(formValues.quickTakeBoost) 
-        ? DEFAULT_SETTINGS.quickTakeBoost 
-        : formValues.quickTakeBoost;
-        
-    settingsToUpdate.commentSubscribedAuthorMultiplier = formValues.commentSubscribedAuthorMultiplier === '' || isNaN(Number(formValues.commentSubscribedAuthorMultiplier))
-        ? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier
-        : Number(formValues.commentSubscribedAuthorMultiplier);
-
-    settingsToUpdate.ultraFeedSeenPenalty = formValues.ultraFeedSeenPenalty === '' || isNaN(Number(formValues.ultraFeedSeenPenalty))
-        ? DEFAULT_SETTINGS.ultraFeedSeenPenalty
-        : Number(formValues.ultraFeedSeenPenalty);
-
-    settingsToUpdate.incognitoMode = formValues.incognitoMode;
-    settingsToUpdate.postTitlesAreModals = formValues.postTitlesAreModals;
-
-    settingsToUpdate.threadVotePowerWeight = formValues.threadVotePowerWeight === '' || isNaN(Number(formValues.threadVotePowerWeight))
-        ? DEFAULT_SETTINGS.threadVotePowerWeight
-        : Number(formValues.threadVotePowerWeight);
-    settingsToUpdate.threadParticipationWeight = formValues.threadParticipationWeight === '' || isNaN(Number(formValues.threadParticipationWeight))
-        ? DEFAULT_SETTINGS.threadParticipationWeight
-        : Number(formValues.threadParticipationWeight);
-    settingsToUpdate.threadViewScoreWeight = formValues.threadViewScoreWeight === '' || isNaN(Number(formValues.threadViewScoreWeight))
-        ? DEFAULT_SETTINGS.threadViewScoreWeight
-        : Number(formValues.threadViewScoreWeight);
-    settingsToUpdate.threadOnReadPostWeight = formValues.threadOnReadPostWeight === '' || isNaN(Number(formValues.threadOnReadPostWeight))
-        ? DEFAULT_SETTINGS.threadOnReadPostWeight
-        : Number(formValues.threadOnReadPostWeight);
-
+    const settingsToUpdate: Partial<UltraFeedSettingsType> = {
+      resolverSettings: {
+        sourceWeights: Object.entries(formValues.sourceWeights)
+          .reduce((acc, [key, value]) => {
+            acc[key as FeedItemSourceType] = value === '' ? 0 : Number(value);
+            return acc;
+          }, {} as Record<FeedItemSourceType, number>),
+        incognitoMode: formValues.incognitoMode,
+        commentScoring: {
+          commentDecayFactor: parseFormNumber(formValues.commentScoring.commentDecayFactor, defaultResolverSettings.commentScoring.commentDecayFactor),
+          commentDecayBiasHours: parseFormNumber(formValues.commentScoring.commentDecayBiasHours, defaultResolverSettings.commentScoring.commentDecayBiasHours),
+          threadScoreAggregation: formValues.commentScoring.threadScoreAggregation || defaultResolverSettings.commentScoring.threadScoreAggregation,
+          threadScoreFirstN: parseFormNumber(formValues.commentScoring.threadScoreFirstN, defaultResolverSettings.commentScoring.threadScoreFirstN),
+          ultraFeedSeenPenalty: parseFormNumber(formValues.commentScoring.ultraFeedSeenPenalty, defaultResolverSettings.commentScoring.ultraFeedSeenPenalty),
+          quickTakeBoost: parseFormNumber(formValues.commentScoring.quickTakeBoost, defaultResolverSettings.commentScoring.quickTakeBoost),
+          commentSubscribedAuthorMultiplier: parseFormNumber(formValues.commentScoring.commentSubscribedAuthorMultiplier, defaultResolverSettings.commentScoring.commentSubscribedAuthorMultiplier),
+        },
+        threadInterestModel: {
+          commentCoeff: parseFormNumber(formValues.threadInterestModel.commentCoeff, defaultThreadInterestModel.commentCoeff),
+          voteCoeff: parseFormNumber(formValues.threadInterestModel.voteCoeff, defaultThreadInterestModel.voteCoeff),
+          viewCoeff: parseFormNumber(formValues.threadInterestModel.viewCoeff, defaultThreadInterestModel.viewCoeff),
+          onReadPostFactor: parseFormNumber(formValues.threadInterestModel.onReadPostFactor, defaultThreadInterestModel.onReadPostFactor),
+          logImpactFactor: parseFormNumber(formValues.threadInterestModel.logImpactFactor, defaultThreadInterestModel.logImpactFactor),
+          minOverallMultiplier: parseFormNumber(formValues.threadInterestModel.minOverallMultiplier, defaultThreadInterestModel.minOverallMultiplier),
+          maxOverallMultiplier: parseFormNumber(formValues.threadInterestModel.maxOverallMultiplier, defaultThreadInterestModel.maxOverallMultiplier),
+        },
+      },
+      displaySettings: {
+        postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
+        lineClampNumberOfLines: 0,
+        postTruncationBreakpoints: [],
+        commentTruncationBreakpoints: [],
+      }
+    };
+    
     if (viewMode === 'simple') {
-      settingsToUpdate.lineClampNumberOfLines = levelToCommentLinesMap[formValues.commentLevel0];
+      settingsToUpdate.displaySettings!.lineClampNumberOfLines = levelToCommentLinesMap[simpleViewTruncationLevels.commentLevel0];
 
-      const commentLevels = [formValues.commentLevel0, formValues.commentLevel1, formValues.commentLevel2];
+      const commentLevels = [simpleViewTruncationLevels.commentLevel0, simpleViewTruncationLevels.commentLevel1, simpleViewTruncationLevels.commentLevel2];
       let commentBreakpoints: (number | null)[] = commentLevels
-        .map(lvl => levelToCommentBreakpointMap[lvl])        // (num|null|undef)[]
-        .filter(bp => bp !== undefined) as (number | null)[];// drop undefined, keep null
-      // trim trailing nulls
-      while (commentBreakpoints.at(-1) === null) commentBreakpoints.pop();
-      settingsToUpdate.commentTruncationBreakpoints = commentBreakpoints;
+        .map(lvl => levelToCommentBreakpointMap[lvl])
+        .filter(bp => bp !== undefined) as (number | null)[];
+      while (commentBreakpoints.length > 0 && commentBreakpoints[commentBreakpoints.length -1] === null) commentBreakpoints.pop();
+      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = commentBreakpoints;
 
-      const postLevels = [formValues.postLevel0, formValues.postLevel1, formValues.postLevel2];
-      const postBreakpoints: (number | null)[] = postLevels
+      const postLevels = [simpleViewTruncationLevels.postLevel0, simpleViewTruncationLevels.postLevel1, simpleViewTruncationLevels.postLevel2];
+      let postBreakpoints: (number | null)[] = postLevels
         .map(lvl => levelToPostBreakpointMap[lvl])
         .filter(bp => bp !== undefined) as (number | null)[];
-      settingsToUpdate.postTruncationBreakpoints = postBreakpoints; 
+       while (postBreakpoints.length > 0 && postBreakpoints[postBreakpoints.length -1] === null) postBreakpoints.pop();
+      settingsToUpdate.displaySettings!.postTruncationBreakpoints = postBreakpoints;
       
-    } else { 
-      settingsToUpdate.lineClampNumberOfLines = formValues.lineClampNumberOfLines === '' || isNaN(Number(formValues.lineClampNumberOfLines))
+    } else {
+      settingsToUpdate.displaySettings!.lineClampNumberOfLines = formValues.displaySetting.lineClampNumberOfLines === '' || isNaN(Number(formValues.displaySetting.lineClampNumberOfLines))
           ? 0
-          : Number(formValues.lineClampNumberOfLines);
+          : Number(formValues.displaySetting.lineClampNumberOfLines);
           
-      settingsToUpdate.postTruncationBreakpoints = formValues.postBreakpoints.map(breakpoint => {
-        if (breakpoint === '' || isNaN(Number(breakpoint))) return undefined;
-        return Number(breakpoint);
-      });
+      settingsToUpdate.displaySettings!.postTruncationBreakpoints = formValues.displaySetting.postBreakpoints
+        .map(breakpoint => {
+          if (breakpoint === '' || breakpoint === undefined) return undefined;
+          if (breakpoint === null) return null;
+          return Number(breakpoint);
+        }).filter(bp => bp !== undefined) as (number | null)[];
       
-      settingsToUpdate.commentTruncationBreakpoints = formValues.commentBreakpoints.map(breakpoint => {
-        if (breakpoint === '' || isNaN(Number(breakpoint))) return undefined;
-        return Number(breakpoint);
-      });
+      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = formValues.displaySetting.commentBreakpoints
+        .map(breakpoint => {
+          if (breakpoint === '' || breakpoint === undefined) return undefined;
+          if (breakpoint === null) return null;
+          return Number(breakpoint);
+        }).filter(bp => bp !== undefined) as (number | null)[];
     }
 
     const result = ultraFeedSettingsSchema.safeParse(settingsToUpdate);
 
     if (!result.success) {
-      const formattedErrors = result.error.format();
+      const formattedErrors = result.error.format() as UltraFeedSettingsZodErrors;
       setZodErrors(formattedErrors);
-      // eslint-disable-next-line no-console
       console.error("UltraFeed Settings Validation Errors:", formattedErrors);
       return;
     } 
     
     setZodErrors(null);
     
-    updateSettings(result.data);
+    updateSettings(result.data as Partial<UltraFeedSettingsType>);
     flash("Settings saved");
     captureEvent("ultraFeedSettingsUpdated", {
       oldSettings: settings,
       newSettings: result.data
     });
 
-  }, [formValues, updateSettings, captureEvent, settings, viewMode, flash]);
+  }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash]);
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
     setZodErrors(null); 
   }, [resetSettingsToDefault]);
 
+  // Prepare props for TruncationGridSettings
+  const truncationGridProps = {
+    levels: simpleViewTruncationLevels,
+    onChange: handleSimpleTruncationLevelChange,
+    originalSettings: settings,
+  };
+  
+  // Prepare props for AdvancedTruncationSettings
+  const advancedTruncationProps = {
+    values: formValues.displaySetting,
+    errors: {
+      lineClampNumberOfLines: (zodErrors as any)?.displaySettings?.lineClampNumberOfLines?._errors[0],
+      postBreakpoints: (zodErrors as any)?.displaySettings?.postTruncationBreakpoints,
+      commentBreakpoints: (zodErrors as any)?.displaySettings?.commentTruncationBreakpoints,
+    },
+    onLineClampChange: handleLineClampChange,
+    onBreakpointChange: handleBreakpointChange,
+  };
+  
+  // Props for MiscSettings
+  const miscSettingsProps = {
+    formValues: {
+      incognitoMode: formValues.incognitoMode,
+      postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
+    },
+    onBooleanChange: handleBooleanChange,
+  };
 
   const renderSimpleView = () => (
     <>
@@ -467,11 +483,8 @@ const UltraFeedSettings = ({
         errors={sourceWeightErrors}
         onChange={handleSourceWeightChange}
       />
-      <TruncationGridSettings
-        levels={formValues}
-        onChange={handleTruncationLevelChange}
-        originalSettings={settings} 
-      />
+      <TruncationGridSettings {...truncationGridProps} />
+      <MiscSettings {...miscSettingsProps} />
     </>
   );
 
@@ -483,62 +496,17 @@ const UltraFeedSettings = ({
         onChange={handleSourceWeightChange}
       />
       <MultipliersSettings
-        quickTakeBoost={{
-          value: formValues.quickTakeBoost,
-          error: getScalarError('quickTakeBoost'),
-          onChange: handleQuickTakeBoostChange,
-        }}
-        seenPenalty={{
-          value: formValues.ultraFeedSeenPenalty,
-          error: getScalarError('ultraFeedSeenPenalty'),
-          onChange: handleSeenPenaltyChange,
-        }}
-        commentSubscribedAuthorMultiplier={{
-          value: formValues.commentSubscribedAuthorMultiplier,
-          error: getScalarError('commentSubscribedAuthorMultiplier'),
-          onChange: handleSubscribedAuthorMultiplierChange,
-        }}
+        formValues={formValues.commentScoring}
+        errors={zodErrors ? (zodErrors as any).resolverSettings?.commentScoring : null}
+        onFieldChange={handleCommentScoringFieldChange}
       />
-      <ThreadEngagementSettings 
-        threadVotePowerWeight={{
-          value: formValues.threadVotePowerWeight,
-          error: getScalarError('threadVotePowerWeight'),
-          onChange: handleThreadVotePowerWeightChange,
-        }}
-        threadParticipationWeight={{
-          value: formValues.threadParticipationWeight,
-          error: getScalarError('threadParticipationWeight'),
-          onChange: handleThreadParticipationWeightChange,
-        }}
-        threadViewScoreWeight={{
-          value: formValues.threadViewScoreWeight,
-          error: getScalarError('threadViewScoreWeight'),
-          onChange: handleThreadViewScoreWeightChange,
-        }}
-        threadOnReadPostWeight={{
-          value: formValues.threadOnReadPostWeight,
-          error: getScalarError('threadOnReadPostWeight'),
-          onChange: handleThreadOnReadPostWeightChange,
-        }}
+      <ThreadInterestTuningSettings
+        formValues={formValues.threadInterestModel}
+        errors={zodErrors ? (zodErrors as any).resolverSettings?.threadInterestModel : null}
+        onFieldChange={handleThreadInterestFieldChange}
       />
-      <AdvancedTruncationSettings
-        onLineClampChange={handleLineClampChange}
-        onBreakpointChange={handleBreakpointChange}
-        values={{
-          lineClampNumberOfLines: formValues.lineClampNumberOfLines,
-          postBreakpoints: formValues.postBreakpoints,
-          commentBreakpoints: formValues.commentBreakpoints,
-        }}
-        errors={{
-          lineClampNumberOfLines: getScalarError('lineClampNumberOfLines'),
-          postBreakpoints: getArrayError('postTruncationBreakpoints'),
-          commentBreakpoints: getArrayError('commentTruncationBreakpoints'),
-        }}
-      />
-      <MiscSettings
-        formValues={formValues} 
-        onBooleanChange={handleBooleanChange}
-      />
+      <AdvancedTruncationSettings {...advancedTruncationProps} />
+      <MiscSettings {...miscSettingsProps} />
     </>
   );
 

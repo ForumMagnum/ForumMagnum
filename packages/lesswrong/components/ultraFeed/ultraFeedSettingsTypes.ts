@@ -3,23 +3,8 @@
  * This file defines the UltraFeed settings types and default values.
  */
 import { FeedItemSourceType } from './ultraFeedTypes';
+import { ZodFormattedError } from 'zod';
 
-export interface UltraFeedResolverSettings {
-  sourceWeights: Record<FeedItemSourceType, number>;
-  commentDecayFactor: number;
-  commentDecayBiasHours: number;
-  ultraFeedSeenPenalty: number;
-  quickTakeBoost: number;
-  commentSubscribedAuthorMultiplier: number;
-  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
-  threadScoreFirstN: number;
-  incognitoMode: boolean;
-  // Thread Engagement Boost Settings
-  threadVotePowerWeight: number;
-  threadParticipationWeight: number;
-  threadViewScoreWeight: number;
-  threadOnReadPostWeight: number;
-}
 
 export interface UltraFeedDisplaySettings {
   postTruncationBreakpoints: (number | null)[];
@@ -35,36 +20,93 @@ interface DefaultUltraFeedDisplaySettings {
   postTitlesAreModals: boolean;
 }
 
-export type UltraFeedSettingsType = UltraFeedResolverSettings & UltraFeedDisplaySettings;
-
-type UltraFeedDefaultSettingsType = UltraFeedResolverSettings & DefaultUltraFeedDisplaySettings;
-export interface UltraFeedStoredSettings extends UltraFeedSettingsType {
-   viewMode?: 'simple' | 'advanced';
+interface DefaultUltraFeedResolverSettings {
+  incognitoMode: boolean;
+  sourceWeights: Record<FeedItemSourceType, number>;
+  threadInterestModel: ThreadInterestModelSettings;
+  commentScoring: CommentScoringSettings;
+}
+export interface UltraFeedResolverSettings {
+  incognitoMode: boolean;
+  sourceWeights: Record<FeedItemSourceType, number>;
+  threadInterestModel: ThreadInterestModelSettings;
+  commentScoring: CommentScoringSettings;
 }
 
-export const getResolverSettings = (settings: UltraFeedSettingsType): UltraFeedResolverSettings => ({
-  sourceWeights: settings.sourceWeights,
-  commentDecayFactor: settings.commentDecayFactor,
-  commentDecayBiasHours: settings.commentDecayBiasHours,
-  ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
-  quickTakeBoost: settings.quickTakeBoost,
-  commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier,
-  threadScoreAggregation: settings.threadScoreAggregation,
-  threadScoreFirstN: settings.threadScoreFirstN,
-  incognitoMode: settings.incognitoMode,
-  // Thread Engagement Boost Settings
-  threadVotePowerWeight: settings.threadVotePowerWeight,
-  threadParticipationWeight: settings.threadParticipationWeight,
-  threadViewScoreWeight: settings.threadViewScoreWeight,
-  threadOnReadPostWeight: settings.threadOnReadPostWeight,
-});
+export interface UltraFeedSettingsType {
+  displaySettings: UltraFeedDisplaySettings;
+  resolverSettings: UltraFeedResolverSettings;
+}
 
-export const getDisplaySettings = (settings: UltraFeedSettingsType): UltraFeedDisplaySettings => ({
-  postTruncationBreakpoints: settings.postTruncationBreakpoints,
-  lineClampNumberOfLines: settings.lineClampNumberOfLines,
-  commentTruncationBreakpoints: settings.commentTruncationBreakpoints,
-  postTitlesAreModals: settings.postTitlesAreModals,
-}); 
+interface DefaultUltraFeedSettings {
+  displaySettings: DefaultUltraFeedDisplaySettings;
+  resolverSettings: DefaultUltraFeedResolverSettings;
+}
+
+const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
+  postTruncationBreakpoints: [200, 2000],
+  lineClampNumberOfLines: 2,
+  commentTruncationBreakpoints: [50, 200, 1000],
+  postTitlesAreModals: true,
+};
+
+export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
+  'recombee-lesswrong-custom': 30,
+  'hacker-news': 30,
+  'recentComments': 60,
+  'spotlights': 10,
+  'bookmarks': 10,
+  'subscriptions': 10,
+};
+export interface CommentScoringSettings {
+  commentDecayFactor: number;
+  commentDecayBiasHours: number;
+  ultraFeedSeenPenalty: number;
+  quickTakeBoost: number;
+  commentSubscribedAuthorMultiplier: number;
+  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
+  threadScoreFirstN: number;
+}
+
+const DEFAULT_COMMENT_SCORING_SETTINGS: CommentScoringSettings = {
+  commentDecayFactor: 1.8,
+  commentDecayBiasHours: 2,
+  ultraFeedSeenPenalty: 0.1,
+  quickTakeBoost: 1.5,
+  commentSubscribedAuthorMultiplier: 2,
+  threadScoreAggregation: 'logSum',
+  threadScoreFirstN: 5,
+};
+export interface ThreadInterestModelSettings {
+  commentCoeff: number;
+  voteCoeff: number;
+  viewCoeff: number;
+  onReadPostFactor: number;
+  logImpactFactor: number;
+  minOverallMultiplier: number;
+  maxOverallMultiplier: number;
+}
+
+const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
+  commentCoeff: 0.05,
+  voteCoeff: 0.02,
+  viewCoeff: 0.01,
+  onReadPostFactor: 1.1,
+  logImpactFactor: 0.15,
+  minOverallMultiplier: 0.5,
+  maxOverallMultiplier: 2.0,
+};
+
+// Now define the constant using this explicit type
+export const DEFAULT_SETTINGS: DefaultUltraFeedSettings = {
+  displaySettings: DEFAULT_DISPLAY_SETTINGS,
+  resolverSettings: {
+    incognitoMode: false,
+    sourceWeights: DEFAULT_SOURCE_WEIGHTS,
+    commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
+    threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
+  },
+};
 
 export interface SourceWeightConfig {
   key: FeedItemSourceType;
@@ -104,39 +146,6 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     description: "Posts from users you've subscribed to or followed (for subscribed comments config, see Advanced Settings)."
   },
 ];
-
-export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
-  'recombee-lesswrong-custom': 30,
-  'hacker-news': 30,
-  'recentComments': 60,
-  'spotlights': 10,
-  'bookmarks': 10,
-  'subscriptions': 10,
-};
-
-export const DEFAULT_SETTINGS: UltraFeedDefaultSettingsType = {
-  // Display Settings Defaults
-  postTruncationBreakpoints: [200, 2000],
-  lineClampNumberOfLines: 2,
-  commentTruncationBreakpoints: [50, 200, 1000],
-  postTitlesAreModals: true,
-
-  // Resolver Settings Defaults
-  sourceWeights: DEFAULT_SOURCE_WEIGHTS,
-  commentDecayFactor: 1.8, 
-  commentDecayBiasHours: 2, 
-  ultraFeedSeenPenalty: 0.1, 
-  quickTakeBoost: 1.5, 
-  commentSubscribedAuthorMultiplier: 2,
-  threadScoreAggregation: 'logSum', 
-  threadScoreFirstN: 5, 
-  incognitoMode: false, 
-  // Thread Engagement Boost Settings Defaults
-  threadVotePowerWeight: 0.1,
-  threadParticipationWeight: 0.2,
-  threadViewScoreWeight: 0.05,
-  threadOnReadPostWeight: 0.15,
-};
 
 export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full', 'Unset'] as const;
 export type TruncationLevel = typeof truncationLevels[number];
@@ -220,47 +229,50 @@ export const getPostBreakpointLevel = (breakpoint: number | null | undefined): T
 };
 
 export interface SettingsFormState {
-  sourceWeights: Record<FeedItemSourceType, number | ''>;
-  postLevel0: TruncationLevel;
-  postLevel1: TruncationLevel;
-  postLevel2: TruncationLevel;
-  commentLevel0: TruncationLevel;
-  commentLevel1: TruncationLevel;
-  commentLevel2: TruncationLevel;
   incognitoMode: boolean;
-  quickTakeBoost: number;
-  commentSubscribedAuthorMultiplier: number | '';
-  // Advanced truncation settings
-  lineClampNumberOfLines: number | '';
-  postBreakpoints: (number | null | '')[];
-  commentBreakpoints: (number | null | '')[];
-  // Misc settings
-  ultraFeedSeenPenalty: number | '';
-  postTitlesAreModals: boolean;
-  threadVotePowerWeight: number | '';
-  threadParticipationWeight: number | '';
-  threadViewScoreWeight: number | '';
-  threadOnReadPostWeight: number | '';
+  sourceWeights: SourceWeightFormState;
+  displaySetting: DisplaySettingsFormState;
+  commentScoring: CommentScoringFormState;
+  threadInterestModel: ThreadInterestModelFormState;
 }
 
 export interface SettingsFormErrors {
-  sourceWeights: Record<FeedItemSourceType, boolean>;
-  postLevel0?: boolean;
-  postLevel1?: boolean;
-  postLevel2?: boolean;
-  commentLevel0?: boolean;
-  commentLevel1?: boolean;
-  commentLevel2?: boolean;
-  quickTakeBoost?: boolean;
-  // Advanced truncation errors
+  sourceWeights?: Record<FeedItemSourceType, boolean>;
   lineClampNumberOfLines?: boolean;
   postBreakpoints?: boolean;
   commentBreakpoints?: boolean;
-  // Misc errors
-  ultraFeedSeenPenalty?: boolean;
+  commentScoring?: ZodFormattedError<CommentScoringFormState, string> | null;
+  threadInterestModel?: ZodFormattedError<ThreadInterestModelFormState, string> | null;
 }
 
-export type TruncationGridFields = 'postLevel0' | 'postLevel1' | 'postLevel2' | 'commentLevel0' | 'commentLevel1' | 'commentLevel2';
+export type SourceWeightFormState = {
+  [key in FeedItemSourceType]: number | '';
+}
 
+export interface DisplaySettingsFormState {
+  lineClampNumberOfLines: number | '';
+  postBreakpoints: (number | null | '')[];
+  commentBreakpoints: (number | null | '')[];
+  postTitlesAreModals: boolean;
+}
+
+export interface CommentScoringFormState {
+  ultraFeedSeenPenalty: number | '';
+  quickTakeBoost: number | '';
+  commentSubscribedAuthorMultiplier: number | '';
+  commentDecayFactor: number | '';
+  commentDecayBiasHours: number | '';
+  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg' | '';
+  threadScoreFirstN: number | '';
+}
+export interface ThreadInterestModelFormState {
+  commentCoeff: number | '';
+  voteCoeff: number | '';
+  viewCoeff: number | '';
+  onReadPostFactor: number | '';
+  logImpactFactor: number | '';
+  minOverallMultiplier: number | '';
+  maxOverallMultiplier: number | '';
+}
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings';

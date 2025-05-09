@@ -4,18 +4,18 @@ import { useStyles, defineStyles } from '../../hooks/useStyles';
 import { 
   TruncationLevel, 
   UltraFeedSettingsType,
-  SettingsFormState,
   sourceWeightConfigs,
   truncationLevels,
   levelToCommentLinesMap,
   levelToCommentBreakpointMap,
   levelToPostBreakpointMap,
-  DEFAULT_SETTINGS
+  DEFAULT_SETTINGS,
+  ThreadInterestModelFormState,
+  CommentScoringFormState
 } from '../ultraFeedSettingsTypes';
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { useTracking } from '@/lib/analyticsEvents';
 import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { ZodFormattedError } from 'zod';
 
@@ -48,6 +48,21 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     color: theme.palette.text.dim,
     fontSize: '1.1rem',
     fontFamily: 'inherit',
+    '& ul': {
+      paddingInlineStart: "30px"
+    },
+  },
+  formulaDescription: {
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    lineHeight: '2.5',
+    '& code': {
+      fontSize: '0.9rem',
+      fontWeight: 600,
+      backgroundColor: theme.palette.grey[200],
+      padding: '4px 8px',
+      borderRadius: 4,
+    }
   },
   sourceWeightItem: {
     marginBottom: 16,
@@ -59,7 +74,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   sourceWeightLabel: {
     fontSize: '1.15rem',
-    width: 140,
+    width: 160,
     flexShrink: 0,
   },
   sourceWeightDescription: {
@@ -80,6 +95,10 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     color: theme.palette.text.primary,
     background: theme.palette.background.default,
     textAlign: 'right',
+  },
+  threadAggSelect: {
+    minWidth: "100px",
+    marginLeft: "auto",
   },
   lineClampLabel: {
     fontSize: '1.1rem',
@@ -283,10 +302,19 @@ const getPostLevelLabel = (level: TruncationLevel): string => {
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
+type SimpleViewTruncationLevels = {
+  commentLevel0: TruncationLevel;
+  commentLevel1: TruncationLevel;
+  commentLevel2: TruncationLevel;
+  postLevel0: TruncationLevel;
+  postLevel1: TruncationLevel;
+  postLevel2: TruncationLevel;
+};
+
 interface TruncationLevelDropdownProps {
-  field: TruncationGridFields;
+  field: keyof SimpleViewTruncationLevels;
   value: TruncationLevel;
-  onChange: (field: TruncationGridFields, value: TruncationLevel) => void;
+  onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
 }
 
 const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
@@ -328,23 +356,24 @@ const arrayHasUnsupported = (
   });
 };
 
-const checkMismatch = (originalSettings: UltraFeedSettingsType) => {
+const checkMismatch = (originalSettings: UltraFeedSettingsType) => { 
   const allowedLineClamps = new Set(Object.values(levelToCommentLinesMap));
   const allowedCommentValues = new Set(Object.values(levelToCommentBreakpointMap).filter(v => v !== undefined));
   const allowedPostValues = new Set(Object.values(levelToPostBreakpointMap).filter(v => v !== undefined));
 
-  if (!allowedLineClamps.has(originalSettings.lineClampNumberOfLines)) return true;
+  const { displaySettings } = originalSettings;
 
-  if (arrayHasUnsupported(originalSettings.commentTruncationBreakpoints, allowedCommentValues)) return true;
-  if (arrayHasUnsupported(originalSettings.postTruncationBreakpoints, allowedPostValues)) return true;
+  if (!allowedLineClamps.has(displaySettings.lineClampNumberOfLines)) return true;
+
+  if (arrayHasUnsupported(displaySettings.commentTruncationBreakpoints, allowedCommentValues)) return true;
+  if (arrayHasUnsupported(displaySettings.postTruncationBreakpoints, allowedPostValues)) return true;
 
   return false;
 };
 
-type TruncationGridFields = 'postLevel0' | 'postLevel1' | 'postLevel2' | 'commentLevel0' | 'commentLevel1' | 'commentLevel2';
 interface TruncationGridSettingsProps {
-  levels: Pick<SettingsFormState, TruncationGridFields>;
-  onChange: (field: TruncationGridFields, value: TruncationLevel) => void;
+  levels: SimpleViewTruncationLevels;
+  onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
   originalSettings: UltraFeedSettingsType;
 }
 
@@ -359,17 +388,18 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   return (
     <div className={classes.settingGroup}>
       <h3 className={classes.groupTitle}>Content Display Length</h3>
-      <p className={classes.groupDescription}>
-        Choose how much content to show for posts and comments.
-      </p>
-      <ul>
-        <li>Deemphasized comments start at Level 0. Comments of primary interest start at Level 1.</li>
-        <li>If text remains after final truncation amount, a "continue reading" button will appear.</li>
-      </ul>
-      <p>
-        See Advanced View for granular control.
-      </p>
-        
+      <div className={classes.groupDescription}>
+        <p>
+          Choose how much content to show for posts and comments.
+        </p>
+        <ul>
+          <li>Deemphasized comments start at Level 0. Comments of primary interest start at Level 1.</li>
+          <li>If text remains after final truncation amount, a "continue reading" button will appear.</li>
+        </ul>
+        <p>
+          See Advanced View for granular control.
+        </p>
+      </div>
       {showWarning && (
         <p className={classes.customWarningMessage}>
           Note: Some settings were customized in the Advanced view. Saving from the Simple view will overrwrite them.
@@ -398,6 +428,10 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
 
 const TruncationGridSettingsComponent = registerComponent('TruncationGridSettings', TruncationGridSettings);
 
+type ArrayFieldError = ZodFormattedError<(number | null)[] | undefined, string> & {
+  [k: number]: ZodFormattedError<number | null, string>;
+};
+
 interface AdvancedTruncationSettingsProps {
   values: {
     lineClampNumberOfLines: number | '';
@@ -406,8 +440,8 @@ interface AdvancedTruncationSettingsProps {
   };
   errors: {
     lineClampNumberOfLines?: string;
-    postBreakpoints?: ZodFormattedError<(number | null)[]>;
-    commentBreakpoints?: ZodFormattedError<(number | null)[]>;
+    postBreakpoints?: ZodFormattedError<(number | null)[] | undefined, string>;
+    commentBreakpoints?: ZodFormattedError<(number | null)[] | undefined, string>;
   };
   onLineClampChange: (value: number | string) => void;
   onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
@@ -419,23 +453,29 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   onLineClampChange,
   onBreakpointChange,
 }) => {
-
   const classes = useStyles(styles);
 
-  const getBreakpointError = (kind: 'post' | 'comment', index: number): string | undefined => {
-    const errorObj = kind === 'post' ? errors.postBreakpoints : errors.commentBreakpoints;
-    return errorObj?.[index]?._errors?.[0] || errorObj?._errors?.[0];
-  };
+  // Returns the first validation error for the given breakpoint index, falling back
+  // to an array-level error if there is none for the specific element.
+  const getBreakpointError = (
+    kind: 'post' | 'comment',
+    index: number,
+  ): string | undefined => {
+    const err = (kind === 'post'
+      ? errors.postBreakpoints
+      : errors.commentBreakpoints) as ArrayFieldError | undefined;
 
+    return err?.[index]?._errors?.[0] ?? err?._errors?.[0];
+  };
+  
   const createBreakpointInputProps = (kind: 'post' | 'comment', index: number) => ({
     kind,
     index,
     value: kind === 'post' ? values.postBreakpoints[index] : values.commentBreakpoints[index],
     errorMessage: getBreakpointError(kind, index),
     onChange: onBreakpointChange,
-    disabled: kind === 'comment' && index === 0 && values.lineClampNumberOfLines !== 0,
+    disabled: kind === 'comment' && index === 0 && values.lineClampNumberOfLines !== 0 && values.lineClampNumberOfLines !== '',
   });
-
 
   return (
     <div className={classes.settingGroup}>
@@ -462,8 +502,6 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
             min={0}
             max={10}
             step={1}
-            aria-invalid={!!errors.lineClampNumberOfLines}
-            aria-describedby={errors.lineClampNumberOfLines ? `lineclamp-error` : undefined}
           />
         </div>
         {errors.lineClampNumberOfLines && (
@@ -503,43 +541,85 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
 const AdvancedTruncationSettingsComponent = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettings);
 
 interface MultipliersSettingsProps {
-  quickTakeBoost: {
-    value: number;
-    error?: string;
-    onChange: (value: number | string) => void;
-  };
-  seenPenalty: {
-    value: number | '';
-    error?: string;
-    onChange: (value: number | string) => void;
-  };
-  commentSubscribedAuthorMultiplier: {
-    value: number | '';
-    error?: string;
-    onChange: (value: number | string) => void;
-  };
+  formValues: CommentScoringFormState;
+  errors: ZodFormattedError<CommentScoringFormState, string> | null;
+  onFieldChange: (field: keyof CommentScoringFormState, value: number | string) => void;
 }
 
 const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
-  quickTakeBoost,
-  seenPenalty,
-  commentSubscribedAuthorMultiplier,
+  formValues, 
+  errors,
+  onFieldChange,
 }) => {
   const classes = useStyles(styles);
+
+  const defaultCommentScoringSettings = DEFAULT_SETTINGS.resolverSettings.commentScoring;
+
+  const quickTakeBoostSliderValue = typeof formValues.quickTakeBoost === 'number' ? formValues.quickTakeBoost : defaultCommentScoringSettings.quickTakeBoost;
+  const subscribedAuthorSliderValue = typeof formValues.commentSubscribedAuthorMultiplier === 'number' ? formValues.commentSubscribedAuthorMultiplier : defaultCommentScoringSettings.commentSubscribedAuthorMultiplier;
+  const seenPenaltySliderValue = typeof formValues.ultraFeedSeenPenalty === 'number' ? formValues.ultraFeedSeenPenalty : defaultCommentScoringSettings.ultraFeedSeenPenalty;
+  const commentDecayFactorSliderValue = typeof formValues.commentDecayFactor === 'number' ? formValues.commentDecayFactor : defaultCommentScoringSettings.commentDecayFactor;
+  const commentDecayBiasHoursSliderValue = typeof formValues.commentDecayBiasHours === 'number' ? formValues.commentDecayBiasHours : defaultCommentScoringSettings.commentDecayBiasHours;
+  const threadScoreFirstNSliderValue = typeof formValues.threadScoreFirstN === 'number' ? formValues.threadScoreFirstN : defaultCommentScoringSettings.threadScoreFirstN;
+
+  const quickTakeBoost = {
+    value: formValues.quickTakeBoost,
+    error: errors?.quickTakeBoost?._errors[0],
+    onChange: (val: number | string) => onFieldChange('quickTakeBoost', val),
+  };
+  const seenPenalty = {
+    value: formValues.ultraFeedSeenPenalty,
+    error: errors?.ultraFeedSeenPenalty?._errors[0],
+    onChange: (val: number | string) => onFieldChange('ultraFeedSeenPenalty', val),
+  };
+  const commentSubscribedAuthorMultiplier = {
+    value: formValues.commentSubscribedAuthorMultiplier,
+    error: errors?.commentSubscribedAuthorMultiplier?._errors[0],
+    onChange: (val: number | string) => onFieldChange('commentSubscribedAuthorMultiplier', val),
+  };
+  const commentDecayFactor = {
+    value: formValues.commentDecayFactor,
+    error: errors?.commentDecayFactor?._errors[0],
+    onChange: (val: number | string) => onFieldChange('commentDecayFactor', val),
+  };
+  const commentDecayBiasHours = {
+    value: formValues.commentDecayBiasHours,
+    error: errors?.commentDecayBiasHours?._errors[0],
+    onChange: (val: number | string) => onFieldChange('commentDecayBiasHours', val),
+  };
+  const threadScoreFirstN = {
+    value: formValues.threadScoreFirstN,
+    error: errors?.threadScoreFirstN?._errors[0],
+    onChange: (val: number | string) => onFieldChange('threadScoreFirstN', val),
+  };
+  const threadScoreAggregation = {
+    value: formValues.threadScoreAggregation,
+    error: errors?.threadScoreAggregation?._errors[0],
+    onChange: (val: string) => onFieldChange('threadScoreAggregation', val),
+  };
+
   return (
     <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Multipliers</h3>
+      <h3 className={classes.groupTitle}>Comment Scoring (1/2)</h3>
+      <div className={classes.groupDescription}>
+        <p className={classes.formulaDescription}>
+          <code>timeDecayedKarma = ((karma + 1) / (ageHours + commentDecayBiasHours)^(commentDecayFactor))</code><br/>
+          <code>individualCommentScore = timeDecayedKarma * quickTakeBoost * subscribedMultiplier * seenPenalty</code><br/>
+          <code>baseThreadScore = aggregateMethod(firstN(individualCommentScore))</code>
+        </p>
+      </div>
+
 
       <div className={classes.sourceWeightItem}>
         <div className={classes.sourceWeightContainer}>
           <label className={classes.sourceWeightLabel}>Quick Take Boost</label>
           <Slider
             className={classes.sourceWeightSlider}
-            value={quickTakeBoost.value}
+            value={quickTakeBoostSliderValue}
             onChange={(_, val) => quickTakeBoost.onChange(val as number)}
             min={0.5}
             max={3.0}
-            step={0.1}
+            step={0.01}
           />
           <input
             type="number"
@@ -547,10 +627,10 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
               [classes.invalidInput]: !!quickTakeBoost.error
             })}
             value={quickTakeBoost.value}
-            onChange={(e) => quickTakeBoost.onChange(parseFloat(e.target.value))}
+            onChange={(e) => quickTakeBoost.onChange(e.target.value)}
             min={0.5}
             max={3.0}
-            step={0.1}
+            step={0.01}
           />
         </div>
         <p className={classes.sourceWeightDescription}>Multiplier applied to the score of Quick Takes comments.</p>
@@ -564,7 +644,7 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
           <label className={classes.sourceWeightLabel}>Subscribed Boost</label>
           <Slider
             className={classes.sourceWeightSlider}
-            value={typeof commentSubscribedAuthorMultiplier.value === 'number' ? commentSubscribedAuthorMultiplier.value : 1}
+            value={subscribedAuthorSliderValue}
             onChange={(_, val) => commentSubscribedAuthorMultiplier.onChange(val as number)}
             min={1}
             max={5}
@@ -583,7 +663,7 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
           />
         </div>
         <p className={classes.sourceWeightDescription}>
-          Multiplier for comments by authors you subscribe to or follow. Default: {DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier}
+          Multiplier for comments by authors you subscribe to or follow. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.commentSubscribedAuthorMultiplier}
         </p>
         {commentSubscribedAuthorMultiplier.error && (
           <p className={classes.errorMessage}>{commentSubscribedAuthorMultiplier.error}</p>
@@ -595,11 +675,11 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
           <label className={classes.sourceWeightLabel}>Seen Penalty</label>
           <Slider
             className={classes.sourceWeightSlider}
-            value={typeof seenPenalty.value === 'number' ? seenPenalty.value : 0}
+            value={seenPenaltySliderValue}
             onChange={(_, val) => seenPenalty.onChange(val as number)}
             min={0}
             max={1}
-            step={0.05}
+            step={0.01}
           />
           <input
             type="number"
@@ -610,14 +690,129 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
             onChange={(e) => seenPenalty.onChange(e.target.value)}
             min={0}
             max={1}
-            step={0.05}
+            step={0.01}
           />
         </div>
         <p className={classes.sourceWeightDescription}>
-          Score multiplier for items already marked as seen (0 to 1). Default: {DEFAULT_SETTINGS.ultraFeedSeenPenalty}
+          Score multiplier for items already marked as seen (0 to 1). Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.ultraFeedSeenPenalty}
         </p>
         {seenPenalty.error && (
           <p className={classes.errorMessage}>{seenPenalty.error}</p>
+        )}
+      </div>
+
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Decay Factor</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={commentDecayFactorSliderValue}
+            onChange={(_, val) => commentDecayFactor.onChange(val as number)}
+            min={1.0}
+            max={2.5}
+            step={0.1}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, {
+              [classes.invalidInput]: !!commentDecayFactor.error
+            })}
+            value={commentDecayFactor.value}
+            onChange={(e) => commentDecayFactor.onChange(e.target.value)}
+            min={1.0}
+            max={2.5}
+            step={0.1}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>
+          Controls how quickly comments lose score over time. Higher values mean faster decay. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.commentDecayFactor}
+        </p>
+        {commentDecayFactor.error && (
+          <p className={classes.errorMessage}>{commentDecayFactor.error}</p>
+        )}
+      </div>
+
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Decay Bias (hours)</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={commentDecayBiasHoursSliderValue}
+            onChange={(_, val) => commentDecayBiasHours.onChange(val as number)}
+            min={0}
+            max={8}
+            step={0.5}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, {
+              [classes.invalidInput]: !!commentDecayBiasHours.error
+            })}
+            value={commentDecayBiasHours.value}
+            onChange={(e) => commentDecayBiasHours.onChange(e.target.value)}
+            min={0}
+            max={8}
+            step={0.5}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>
+          Hours to add to comment age for decay calculation. Higher values give newer comments a boost. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.commentDecayBiasHours}
+        </p>
+        {commentDecayBiasHours.error && (
+          <p className={classes.errorMessage}>{commentDecayBiasHours.error}</p>
+        )}
+      </div>
+
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Thread First N</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={threadScoreFirstNSliderValue}
+            onChange={(_, val) => threadScoreFirstN.onChange(val as number)}
+            min={1}
+            max={20}
+            step={1}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, {
+              [classes.invalidInput]: !!threadScoreFirstN.error
+            })}
+            value={threadScoreFirstN.value}
+            onChange={(e) => threadScoreFirstN.onChange(e.target.value)}
+            min={1}
+            max={20}
+            step={1}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>
+          Number of top comments to consider when calculating thread score. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.threadScoreFirstN}
+        </p>
+        {threadScoreFirstN.error && (
+          <p className={classes.errorMessage}>{threadScoreFirstN.error}</p>
+        )}
+      </div>
+
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Thread Agg.</label>
+          <select
+            className={classNames(classes.sourceWeightInput, classes.threadAggSelect, { [classes.invalidInput]: !!threadScoreAggregation.error })}
+            value={threadScoreAggregation.value}
+            onChange={(e) => threadScoreAggregation.onChange(e.target.value)}
+          >
+            <option value="sum">Sum</option>
+            <option value="max">Max</option>
+            <option value="logSum">Log Sum</option>
+            <option value="avg">Average</option>
+          </select>
+        </div>
+        <p className={classes.sourceWeightDescription}>
+          How to aggregate comment scores into a thread score. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.threadScoreAggregation}
+        </p>
+        {threadScoreAggregation.error && (
+          <p className={classes.errorMessage}>{threadScoreAggregation.error}</p>
         )}
       </div>
     </div>
@@ -625,68 +820,130 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
 };
 const MultipliersSettingsComponent = registerComponent('MultipliersSettings', MultipliersSettings);
 
-// New Component for Thread Engagement Boost Settings
-interface ThreadEngagementSettingsProps {
-  threadVotePowerWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
-  threadParticipationWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
-  threadViewScoreWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
-  threadOnReadPostWeight: { value: number | ''; error?: string; onChange: (value: number | string) => void; };
+interface ThreadInterestTuningSettingsProps {
+  formValues: ThreadInterestModelFormState;
+  errors: ZodFormattedError<ThreadInterestModelFormState, string> | null;
+  onFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
 }
 
-const ThreadEngagementSettings: React.FC<ThreadEngagementSettingsProps> = ({
-  threadVotePowerWeight,
-  threadParticipationWeight,
-  threadViewScoreWeight,
-  threadOnReadPostWeight,
+const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> = ({
+  formValues,
+  errors,
+  onFieldChange,
 }) => {
   const classes = useStyles(styles);
 
+  const defaultThreadInterestModelSettings = DEFAULT_SETTINGS.resolverSettings.threadInterestModel;
+
   const fields = [
-    { prop: threadVotePowerWeight, label: "Vote Power Weight", description: "Multiplier for user's vote power in a thread.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadVotePowerWeight },
-    { prop: threadParticipationWeight, label: "Participation Weight", description: "Bonus if user commented in a thread.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadParticipationWeight },
-    { prop: threadViewScoreWeight, label: "View Score Weight", description: "Multiplier for user's view/expand score in a thread.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadViewScoreWeight },
-    { prop: threadOnReadPostWeight, label: "On Read Post Weight", description: "Bonus if thread is on a post the user recently read.", min: 0, max: 1, step: 0.01, defaultVal: DEFAULT_SETTINGS.threadOnReadPostWeight },
+    {
+      key: 'commentCoeff' as const,
+      label: "Comment Coefficient",
+      description: "How much each comment you have in a thread contributes to further activity in that thread being shown.",
+      min: 0, max: 0.5, step: 0.01, defaultVal: defaultThreadInterestModelSettings.commentCoeff,
+    },
+    {
+      key: 'voteCoeff' as const,
+      label: "Vote Coefficient",
+      description: "How much each vote you have in a thread contributes to further activity in that thread being shown.",
+      min: 0, max: 0.2, step: 0.005, defaultVal: defaultThreadInterestModelSettings.voteCoeff,
+    },
+    {
+      key: 'viewCoeff' as const,
+      label: "View Coefficient",
+      description: "How much viewing (and especially expanding) an item contributes to further activity in a thread being shown.",
+      min: 0, max: 0.1, step: 0.005, defaultVal: defaultThreadInterestModelSettings.viewCoeff,
+    },
+    {
+      key: 'onReadPostFactor' as const,
+      label: "Read Post Factor",
+      description: "Multiplier if the thread is on a post a user has read.",
+      min: 0.5, max: 2.0, step: 0.05, defaultVal: defaultThreadInterestModelSettings.onReadPostFactor,
+    },
+    {
+      key: 'logImpactFactor' as const,
+      label: "Log Impact Factor",
+      description: "Scales the effect of the combined log-of-factors on the final multiplier (Multiplier = 1 + LogOfFactors * Impact).",
+      min: 0.01, max: 1.0, step: 0.01, defaultVal: defaultThreadInterestModelSettings.logImpactFactor,
+    },
+    {
+      key: 'minOverallMultiplier' as const,
+      label: "Min Overall Multiplier",
+      description: "The minimum final multiplier applied to the thread's base score (e.g., 0.5 for max 50% reduction).",
+      min: 0.1, max: 1.0, step: 0.05, defaultVal: defaultThreadInterestModelSettings.minOverallMultiplier,
+    },
+    {
+      key: 'maxOverallMultiplier' as const,
+      label: "Max Overall Multiplier",
+      description: "The maximum final multiplier applied to the thread's base score (e.g., 2.0 for max 100% boost).",
+      min: 1.0, max: 20.0, step: 0.1, defaultVal: defaultThreadInterestModelSettings.maxOverallMultiplier,
+    },
   ];
 
   return (
     <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Thread Engagement Boosts</h3>
-      <p className={classes.groupDescription}>
-        Boost threads based on your past interactions. Multipliers are summed (e.g., 1.0 + vote_boost + participation_boost).
-      </p>
-      {fields.map(f => (
-        <div key={f.label} className={classes.sourceWeightItem}>
-          <div className={classes.sourceWeightContainer}>
-            <label className={classes.sourceWeightLabel}>{f.label}</label>
-            <Slider
-              className={classes.sourceWeightSlider}
-              value={typeof f.prop.value === 'number' ? f.prop.value : f.defaultVal}
-              onChange={(_, val) => f.prop.onChange(val as number)}
-              min={f.min}
-              max={f.max}
-              step={f.step}
-            />
-            <input
-              type="number"
-              className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!f.prop.error })}
-              value={f.prop.value}
-              onChange={(e) => f.prop.onChange(e.target.value)}
-              min={f.min}
-              max={f.max}
-              step={f.step}
-            />
+      <h3 className={classes.groupTitle}>Comment Thread Multipliers (2/2)</h3>
+      <div className={classes.groupDescription}>
+        <p className={classes.formulaDescription}>
+          <code>engagementFactor = (1 + commentCoeff*numComments) * (1 + voteCoeff*voteScore) * (1 + viewCoeff*viewScore) * onReadPostFactor</code><br/>
+          <code>threadMultiplier = 1 + log(engagementFactor) * logImpactFactor</code><br/>
+          <code>clampedThreadMultiplier = clamped(threadMultiplier, minOverallMultiplier, maxOverallMultiplier)</code><br/><br/>
+          <code>overallThreadScore = baseThreadScore * clampedThreadMultiplier</code>
+        </p>
+        <p>
+          <ul>
+            <li>See Comment Scoring section for calculation of baseThreadScore</li>
+            <li>voteScore: smallUpvotes = 1 vote unit, bigUpovtes = 5</li>
+            <li>viewScore: itemOnViewport = 1 view unit, itemExpanded = 3 view units</li>
+            <li>onReadPostFactor applies if thread is on a post user has read, otherwise 1.0</li>
+          </ul>
+        </p>
+      </div>
+      {fields.map(f => {
+        const currentValue = formValues[f.key];
+        const currentError = errors?.[f.key]?._errors[0];
+        const sliderValue = typeof currentValue === 'number' ? currentValue : f.defaultVal;
+
+        return (
+          <div key={f.key} className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>{f.label}</label>
+              <Slider
+                className={classes.sourceWeightSlider}
+                value={sliderValue}
+                onChange={(_, val) => onFieldChange(f.key, val as number)}
+                min={f.min}
+                max={f.max}
+                step={f.step}
+                aria-labelledby={`${f.key}-label`}
+              />
+              <input
+                type="number"
+                className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!currentError })}
+                value={currentValue} // Keep as number | '' for input field
+                onChange={(e) => onFieldChange(f.key, e.target.value)}
+                min={f.min}
+                max={f.max}
+                step={f.step}
+                aria-describedby={currentError ? `${f.key}-error` : undefined}
+              />
+            </div>
+            <p id={`${f.key}-label`} className={classes.sourceWeightDescription}>{f.description} Default: {f.defaultVal}</p>
+            {currentError && <p id={`${f.key}-error`} className={classes.errorMessage}>{currentError}</p>}
           </div>
-          <p className={classes.sourceWeightDescription}>{f.description} Default: {f.defaultVal}</p>
-          {f.prop.error && <p className={classes.errorMessage}>{f.prop.error}</p>}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
-const ThreadEngagementSettingsComponent = registerComponent('ThreadEngagementSettings', ThreadEngagementSettings);
+
+const ThreadInterestTuningSettingsComponent = registerComponent('ThreadInterestTuningSettings', ThreadInterestTuningSettings);
 
 interface MiscSettingsProps {
-  formValues: Pick<SettingsFormState, 'postTitlesAreModals' | 'incognitoMode'>;
+  formValues: {
+    incognitoMode: boolean;
+    postTitlesAreModals: boolean;
+  };
   onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
 }
 
@@ -732,7 +989,6 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
   );
 };
 const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);
-
 export default TruncationGridSettingsComponent; // one export required to make Vite HMR work
 
 declare global {
@@ -741,7 +997,7 @@ declare global {
     TruncationGridSettings: typeof TruncationGridSettingsComponent
     AdvancedTruncationSettings: typeof AdvancedTruncationSettingsComponent
     MultipliersSettings: typeof MultipliersSettingsComponent
-    ThreadEngagementSettings: typeof ThreadEngagementSettingsComponent
+    ThreadInterestTuningSettings: typeof ThreadInterestTuningSettingsComponent
     MiscSettings: typeof MiscSettingsComponent
   }
 }

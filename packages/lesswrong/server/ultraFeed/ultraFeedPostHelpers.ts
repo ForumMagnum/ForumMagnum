@@ -109,7 +109,8 @@ export async function getLatestPostsForUltraFeed(
 
   const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-  const seenPenalty = settings.ultraFeedSeenPenalty;
+  // TODO: this is for posts and shouldn't be coming out of the comment scoring settings
+  const seenPenalty = settings.commentScoring.ultraFeedSeenPenalty;
 
   return await repos.posts.getLatestPostsForUltraFeed(
     context,
