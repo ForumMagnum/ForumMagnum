@@ -32,7 +32,7 @@ import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
-import type { ContentItemBody } from "../common/ContentItemBody";
+import type { ContentItemBodyImperative } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useDisplayedContributors } from "./ContributorsList";
@@ -1024,7 +1024,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   const { ContentItemBody, InlineReactSelectionWrapper, HoveredReactionContextProvider, PathInfo } = Components;
   const classes = useStyles(styles);
 
-  const contentRef = useRef<ContentItemBody>(null);
+  const contentRef = useRef<ContentItemBodyImperative|null>(null);
   const votingSystem = getVotingSystemByName("reactionsAndLikes");
   const mainLensIsSelected = !selectedLens || selectedLens?._id === 'main-tab';
   const voteProps = useVote(

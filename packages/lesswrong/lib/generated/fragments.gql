@@ -90,6 +90,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   createdAt
   revisionId
   score
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {
@@ -2843,7 +2846,6 @@ fragment RevisionEdit on Revision {
     data
   }
   markdown
-  draftJS
   ckEditorMarkup
 }
 
@@ -3343,6 +3345,9 @@ fragment SunshinePostsList on Post {
         sentence
         score
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
   }
 

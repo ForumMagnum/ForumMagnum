@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import DialogContent from "@material-ui/core/DialogContent";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
+import { DialogContent } from "../widgets/DialogContent";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 
@@ -149,9 +149,7 @@ const UltraFeedCommentsDialog = ({
       open={true}
       onClose={onClose}
       fullWidth
-      dialogClasses={{
-        paper: classes.dialogPaper,
-      }}
+      paperClassName={classes.dialogPaper}
     >
       <div className={classes.titleContainer}>
         {postDataForTree

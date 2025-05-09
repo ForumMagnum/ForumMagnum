@@ -5,7 +5,7 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
@@ -80,7 +80,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
-  const contentRef = useRef<ContentItemBody>(null);
+  const contentRef = useRef<ContentItemBodyImperative|null>(null);
   let content: React.ReactNode
   
   const highlights = votingSystem.getPostHighlights

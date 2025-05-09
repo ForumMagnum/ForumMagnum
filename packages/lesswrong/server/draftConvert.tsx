@@ -1,58 +1,5 @@
 import React from 'react';
-import { convertFromHTML, convertToHTML } from 'draft-convert';
-
-export const htmlToDraft = convertFromHTML({
-  htmlToEntity: (nodeName, node, createEntity) => {
-    if (nodeName === 'img') {
-      const nodeImg = (node as HTMLImageElement);
-      return createEntity(
-        'IMAGE',
-        'IMMUTABLE',
-        {src: nodeImg.src}
-      )
-    }
-    if (nodeName === 'a') {
-      const nodeA = (node as HTMLAnchorElement);
-      return createEntity(
-        'LINK',
-        'MUTABLE',
-        {url: nodeA.href}
-      )
-    }
-    // if (nodeName === 'img') {
-    //   return createEntity(
-    //     'IMAGE',
-    //     'IMMUTABLE',
-    //     {src: node.src}
-    //   )
-    // }
-  },
-  // htmlToBlock is annotated by DefinitelyTyped as having only two arguments,
-  // but the third and fourth argument here (lastList, inBlock) are maaaaybe
-  // real. Nothing here breaks if they aren't real, and I don't feel like figuring
-  // it out, so:
-  // @ts-ignore
-  htmlToBlock: (nodeName, node, lastList, inBlock) => {
-    if ((nodeName === 'figure' && node.firstChild?.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
-        return 'atomic';
-    }
-    // if (nodeName === 'blockquote') {
-    //   return {
-    //     type: 'blockquote',
-    //     data: {}
-    //   };
-    // }
-    if (nodeName === 'hr') { // This currently appears to be broken, sadly. TODO: Fix this
-      return {
-        type: 'divider',
-        data: {},
-        text: 'as',
-        depth: 0,
-        inlineStyleRanges: [ { offset: 0, length: 2, style: 'ITALIC' } ],
-      }
-    }
-  }
-})
+import { convertToHTML } from 'draft-convert';
 
 export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name

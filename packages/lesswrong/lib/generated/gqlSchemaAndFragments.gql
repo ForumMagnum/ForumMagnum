@@ -1197,8 +1197,17 @@ extend type Mutation {
   acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
+input ToggleBookmarkInput {
+  documentId: String!
+  collectionName: String!
+}
+
+type ToggleBookmarkOutput {
+  data: Bookmark
+}
+
 extend type Mutation {
-  setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!
+  toggleBookmark(input: ToggleBookmarkInput!): ToggleBookmarkOutput
 }
 
 extend type Mutation {
@@ -1428,9 +1437,12 @@ extend type Query {
 type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
-  revisionId: String
-  score: Float
-  sentenceScores: [SentenceScore]
+  revisionId: String!
+  score: Float!
+  sentenceScores: [SentenceScore!]!
+  aiChoice: String!
+  aiReasoning: String!
+  aiCoT: String!
 }
 
 type SentenceScore {
@@ -1477,6 +1489,45 @@ type MultiBanOutput {
 extend type Query {
   ban(input: SingleBanInput): SingleBanOutput
   bans(input: MultiBanInput): MultiBanOutput
+}
+
+type Bookmark {
+  _id: String!
+  createdAt: Date!
+  documentId: String!
+  collectionName: String!
+  userId: String!
+  post: Post
+  comment: Comment
+  lastUpdated: Date!
+  active: Boolean!
+}
+
+input SingleBookmarkInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  allowNull: Boolean
+}
+
+type SingleBookmarkOutput {
+  result: Bookmark
+}
+
+input MultiBookmarkInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiBookmarkOutput {
+  results: [Bookmark]
+  totalCount: Int
+}
+
+extend type Query {
+  bookmark(input: SingleBookmarkInput): SingleBookmarkOutput
+  bookmarks(input: MultiBookmarkInput): MultiBookmarkOutput
 }
 
 type Book {
@@ -3723,7 +3774,6 @@ type Revision {
   originalContents: ContentType
   html: String
   markdown: String
-  draftJS: JSON
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!
@@ -7442,6 +7492,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   createdAt
   revisionId
   score
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {
@@ -7500,6 +7553,33 @@ fragment BookPageFragment on Book {
   displaySequencesAsGrid
   hideProgressBar
   showChapters
+}
+
+fragment BookmarksDefaultFragment on Bookmark {
+  _id
+  createdAt
+  documentId
+  collectionName
+  userId
+  lastUpdated
+  active
+}
+
+fragment BookmarksFeedItemFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
+  comment {
+    ...UltraFeedComment
+  }
+}
+
+fragment BookmarksWithDocumentFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
 }
 
 fragment BooksDefaultFragment on Book {
@@ -10195,7 +10275,6 @@ fragment RevisionEdit on Revision {
     data
   }
   markdown
-  draftJS
   ckEditorMarkup
 }
 
@@ -10695,6 +10774,9 @@ fragment SunshinePostsList on Post {
         sentence
         score
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
   }
 

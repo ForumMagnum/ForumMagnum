@@ -133,7 +133,7 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
       </div>
       {isRecommendedPost && !showMostValuableCheckbox &&
         <InteractionWrapper>
-          <BookmarkButton post={post} className={classes.bookmarkIcon} />
+          <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkIcon} />
         </InteractionWrapper>
       }
       {showMostValuableCheckbox &&

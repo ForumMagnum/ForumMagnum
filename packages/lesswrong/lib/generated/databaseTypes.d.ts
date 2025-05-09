@@ -53,6 +53,9 @@ type AutomatedContentEvaluationsCollection = CollectionBase<"AutomatedContentEva
 
 interface DbAutomatedContentEvaluation extends DbObject {
   __collectionName?: "AutomatedContentEvaluations"
+  aiChoice: "accept" | "review"
+  aiCoT: string
+  aiReasoning: string
   createdAt: Date
   revisionId: string
   score: number
@@ -70,6 +73,18 @@ interface DbBan extends DbObject {
   legacyData: any | null
   properties: any | null
   reason: string | null
+  userId: string
+}
+
+type BookmarksCollection = CollectionBase<"Bookmarks">;
+
+interface DbBookmark extends DbObject {
+  __collectionName?: "Bookmarks"
+  active: boolean
+  collectionName: "Posts" | "Comments"
+  createdAt: Date
+  documentId: string
+  lastUpdated: Date
   userId: string
 }
 
@@ -2275,6 +2290,7 @@ interface CollectionsByName {
   ArbitalTagContentRels: ArbitalTagContentRelsCollection
   AutomatedContentEvaluations: AutomatedContentEvaluationsCollection
   Bans: BansCollection
+  Bookmarks: BookmarksCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
   CkEditorUserSessions: CkEditorUserSessionsCollection
@@ -2367,6 +2383,7 @@ interface ObjectsByCollectionName {
   ArbitalTagContentRels: DbArbitalTagContentRel
   AutomatedContentEvaluations: DbAutomatedContentEvaluation
   Bans: DbBan
+  Bookmarks: DbBookmark
   Books: DbBook
   Chapters: DbChapter
   CkEditorUserSessions: DbCkEditorUserSession
@@ -2459,6 +2476,7 @@ interface ObjectsByTypeName {
   ArbitalTagContentRel: DbArbitalTagContentRel
   AutomatedContentEvaluation: DbAutomatedContentEvaluation
   Ban: DbBan
+  Bookmark: DbBookmark
   Book: DbBook
   Chapter: DbChapter
   CkEditorUserSession: DbCkEditorUserSession

@@ -228,7 +228,7 @@ const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveA
 }
 
 const ImageCropPreview = ({ imgRef, classes, flipped }: {
-  imgRef: RefObject<HTMLImageElement>,
+  imgRef: RefObject<HTMLImageElement|null>,
   classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {

@@ -8,7 +8,6 @@ import { extractTableOfContents } from "@/lib/tableOfContents";
 import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
-import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
 import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
@@ -18,6 +17,7 @@ import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
 import { getOriginalContents } from "./helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
+import { isLWorAF } from "@/lib/instanceSettings";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -253,14 +253,6 @@ const schema = {
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
     },
   },
-  draftJS: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: ({ originalContents }) =>
-        originalContents ? dataToDraftJS(originalContents.data, originalContents.type) : null,
-    },
-  },
   ckEditorMarkup: {
     graphql: {
       outputType: "String",
@@ -492,6 +484,7 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (revision, args, context) => {
+        if (!isLWorAF) return null;
         const {AutomatedContentEvaluations} =  context;
 
         return AutomatedContentEvaluations.findOne({
