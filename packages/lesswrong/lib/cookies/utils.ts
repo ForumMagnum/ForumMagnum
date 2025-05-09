@@ -1,4 +1,4 @@
-import { Cookies } from "react-cookie";
+import Cookies from "universal-cookie";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 import { getExplicitConsentRequiredAsync } from "../../components/common/CookieBanner/geolocation";
 

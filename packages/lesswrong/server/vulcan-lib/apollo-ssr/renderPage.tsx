@@ -8,8 +8,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
-
-import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
@@ -491,18 +489,17 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   let abTestGroupsUsed: RelevantTestGroupAllocation = {};
   
   const now = new Date();
-  const App = <AppGenerator
+  const themeOptions = getThemeOptionsFromReq(req, user);
+
+  const WrappedApp = <AppGenerator
     req={req}
     apolloClient={client}
     foreignApolloClient={foreignClient}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroupsUsed}
     ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
-  />;
-  
-  const themeOptions = getThemeOptionsFromReq(req, user);
-
-  const WrappedApp = wrapWithMuiTheme(App, themeOptions);
+    themeOptions={themeOptions}
+  />
   
   let htmlContent = '';
   try {

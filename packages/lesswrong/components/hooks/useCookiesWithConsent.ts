@@ -1,5 +1,5 @@
-import { useCookies } from "react-cookie";
-import { CookieSetOptions } from "universal-cookie/cjs/types";
+import useCookies from "@/lib/vendor/react-cookie/useCookies";
+import type { CookieSetOptions } from "universal-cookie";
 import { ALL_COOKIES, COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, ONLY_NECESSARY_COOKIES, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cookiePreferencesChanged } from "../../lib/cookies/callbacks";
