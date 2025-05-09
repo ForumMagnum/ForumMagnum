@@ -24,7 +24,7 @@ export type FriendlyHoverOverProps = {
   title: ReactNode,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
-  As?: keyof JSX.IntrinsicElements,
+  As?: keyof React.JSX.IntrinsicElements,
   clickable?: boolean,
   flip?: boolean,
   analyticsProps?: AnalyticsProps,

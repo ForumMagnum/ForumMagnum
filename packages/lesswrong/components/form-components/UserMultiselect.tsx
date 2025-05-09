@@ -20,7 +20,8 @@ const styles = defineStyles('UserMultiselect', (theme: ThemeType) => ({
 }));
 
 export const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
       <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
@@ -48,7 +49,6 @@ const UserMultiselect = ({value, setValue, label}: {
         value={value}
         setValue={setValue}
         className={classes.list}
-        classes={classes}
       />
     </div>
   )

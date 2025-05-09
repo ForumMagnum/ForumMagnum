@@ -2582,7 +2582,6 @@ interface RevisionDisplay { // fragment on Revisions
 interface RevisionEdit extends RevisionDisplay { // fragment on Revisions
   readonly originalContents: ContentType,
   readonly markdown: string|null,
-  readonly draftJS: any,
   readonly ckEditorMarkup: string|null,
 }
 

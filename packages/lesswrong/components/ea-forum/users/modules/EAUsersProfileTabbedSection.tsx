@@ -106,7 +106,7 @@ const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
   
   // handle the case when we want a collapsable tab body
-  const bodyRef = useRef<HTMLDivElement>(null)
+  const bodyRef = useRef<HTMLDivElement|null>(null)
   // this tracks whether the tab body is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
   

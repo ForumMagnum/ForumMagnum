@@ -1,10 +1,9 @@
 import compose from 'lodash/flowRight';
 import React, { forwardRef } from 'react';
-import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
-import { classNameProxy, withAddClasses } from '@/components/hooks/useStyles';
+import { classNameProxy, withAddClasses, withStyles } from '@/components/hooks/useStyles';
 import type { StyleOptions } from '@/server/styleGeneration';
 
 type ComparisonFn = (prev: any, next: any) => boolean
@@ -88,22 +87,10 @@ const addClassnames = (componentName: string, styles: any, hasForwardRef: boolea
   
   if (hasForwardRef) {
     return (WrappedComponent: any) => forwardRef(function AddClassnames(props, ref) {
-      const emailRenderContext = React.useContext(EmailRenderContext);
-      if (emailRenderContext?.isEmailRender) {
-        const withStylesHoc = withStyles(styles, {name: componentName})
-        const StylesWrappedComponent = withStylesHoc(WrappedComponent)
-        return <StylesWrappedComponent {...props}/>
-      }
       return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
     })
   } else {
     return (WrappedComponent: any) => function AddClassnames(props: AnyBecauseHard) {
-      const emailRenderContext = React.useContext(EmailRenderContext);
-      if (emailRenderContext?.isEmailRender) {
-        const withStylesHoc = withStyles(styles, {name: componentName})
-        const StylesWrappedComponent = withStylesHoc(WrappedComponent)
-        return <StylesWrappedComponent {...props}/>
-      }
       return <WrappedComponent {...props} classes={classesProxy}/>
     }
   }

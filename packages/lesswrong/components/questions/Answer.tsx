@@ -8,7 +8,7 @@ import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import type { ContentItemBody } from '../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
@@ -139,7 +139,7 @@ const Answer = ({ comment, post, childComments, classes }: {
 }) => {
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);

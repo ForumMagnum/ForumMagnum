@@ -200,9 +200,7 @@ const NewConversationDialog = ({
       <LWDialog
         open={true}
         onClose={onClose}
-        dialogClasses={{
-          paper: classes.paper,
-        }}
+        paperClassName={classes.paper}
       >
         <div className={classes.root}>
           <div className={classes.titleRow}>

@@ -44,7 +44,8 @@ type CoauthorListItem = {
 }
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(coauthorsListEditorStyles);
     return <li className={classes.item}>
       <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
@@ -100,7 +101,6 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
             }));
           }}
           className={classes.list}
-          classes={classes}
         />
       </div>
       {isEAForum && <div className={classes.checkboxContainer}>

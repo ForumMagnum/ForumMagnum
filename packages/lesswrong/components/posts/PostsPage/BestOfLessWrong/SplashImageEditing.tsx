@@ -43,7 +43,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
   },
 }));
 
-const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
+const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement|null>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
   const { SplashImageEditingOptions, ImageCropPreview, LWPopper } = Components;
 

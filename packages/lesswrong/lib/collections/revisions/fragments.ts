@@ -30,7 +30,6 @@ export const RevisionEdit = () => frag`
       data
     }
     markdown
-    draftJS
     ckEditorMarkup
   }
 `

@@ -4,7 +4,6 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -351,7 +350,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       </Typography>
   }
   
-  let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+  let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
   if (isEAForum) {
     tbdEventsList = tbdEvents?.length ? <>
       <Typography variant="headline" className={classes.eventsHeadline}>
@@ -369,7 +368,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     </> : null
   }
   
-  let pastEventsList: JSX.Element|null = <>
+  let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
       Past Events
     </Typography>
