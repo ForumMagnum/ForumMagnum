@@ -66,9 +66,9 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
     <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
         <SunshineGoogleServiceAccount />
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineReportedContentList currentUser={currentUser}/>
         <SunshineNewTagsList />
         
