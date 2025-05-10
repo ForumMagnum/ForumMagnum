@@ -179,7 +179,75 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     fontSize: '1.15rem',
     flexGrow: 1,
   },
+  collapsibleHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    marginBottom: 0,
+  },
+  collapsibleHeaderExpanded: {
+    marginBottom: 16,
+  },
+  collapsibleTitle: {
+    fontSize: '1.3rem',
+    fontWeight: 600,
+    marginRight: 8,
+  },
+  collapsibleIcon: {
+    verticalAlign: 'middle',
+    transform: "translateY(2px)",
+    fontSize: 18,
+    transition: "transform 0.2s ease-in-out",
+    color: theme.palette.grey[700],
+    '&:hover': {
+      color: theme.palette.grey[900],
+    }
+  },
+  collapsibleIconExpanded: {
+    transform: "translateY(2px) rotate(90deg)",
+  },
 }));
+
+interface CollapsibleSettingGroupProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+}
+
+const CollapsibleSettingGroup: React.FC<CollapsibleSettingGroupProps> = ({
+  title,
+  children,
+  defaultOpen = false,
+  className,
+}) => {
+  const classes = useStyles(styles);
+  const [isExpanded, setIsExpanded] = React.useState(defaultOpen);
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div className={className}>
+      <div
+        className={classNames(classes.collapsibleHeader, { [classes.collapsibleHeaderExpanded]: isExpanded })}
+        onClick={toggleExpanded}
+      >
+        <div className={classNames(classes.collapsibleTitle)}>{title}</div>
+        <Components.LWTooltip title={isExpanded ? "Collapse" : "Expand"} hideOnTouchScreens>
+          <Components.ForumIcon
+            icon="ThickChevronRight"
+            className={classNames(classes.collapsibleIcon, {
+              [classes.collapsibleIconExpanded]: isExpanded,
+            })}
+          />
+        </Components.LWTooltip>
+      </div>
+      {isExpanded && <>{children}</>}
+    </div>
+  );
+};
 
 const BreakpointInput = ({
   kind,
@@ -229,17 +297,18 @@ interface SourceWeightsSettingsProps {
   weights: Record<FeedItemSourceType, number | '' >;
   errors: Record<FeedItemSourceType, string | undefined>;
   onChange: (key: FeedItemSourceType, value: string | number) => void;
+  defaultOpen?: boolean;
 }
 
 const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   weights,
   errors,
   onChange,
+  defaultOpen = true,
 }) => {
   const classes = useStyles(styles);
   return (
-    <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Source Weights</h3>
+    <CollapsibleSettingGroup title="Source Weights" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <p className={classes.groupDescription}>
         Adjust the relative frequency of different content types in your feed. Higher numbers mean more frequent items. Uses weighted sampling.
       </p>
@@ -280,7 +349,7 @@ const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
           </div>
         );
       })}
-    </div>
+    </CollapsibleSettingGroup>
   );
 };
 const SourceWeightsSettingsComponent = registerComponent('SourceWeightsSettings', SourceWeightsSettings);
@@ -375,19 +444,20 @@ interface TruncationGridSettingsProps {
   levels: SimpleViewTruncationLevels;
   onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
   originalSettings: UltraFeedSettingsType;
+  defaultOpen?: boolean;
 }
 
 const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   levels,
   onChange,
   originalSettings,
+  defaultOpen = true,
 }) => {
   const classes = useStyles(styles);
   const showWarning = checkMismatch(originalSettings);
 
   return (
-    <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Content Display Length</h3>
+    <CollapsibleSettingGroup title="Content Display Length" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.groupDescription}>
         <p>
           Choose how much content to show for posts and comments.
@@ -422,7 +492,7 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
         <TruncationLevelDropdown field="postLevel2" value={levels.postLevel2} onChange={onChange} />
         <TruncationLevelDropdown field="commentLevel2" value={levels.commentLevel2} onChange={onChange} />
       </div>
-    </div>
+    </CollapsibleSettingGroup>
   );
 };
 
@@ -445,6 +515,7 @@ interface AdvancedTruncationSettingsProps {
   };
   onLineClampChange: (value: number | string) => void;
   onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
+  defaultOpen?: boolean;
 }
 
 const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
@@ -452,6 +523,7 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   errors,
   onLineClampChange,
   onBreakpointChange,
+  defaultOpen = true,
 }) => {
   const classes = useStyles(styles);
 
@@ -478,8 +550,7 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   });
 
   return (
-    <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Advanced Truncation</h3>
+    <CollapsibleSettingGroup title="Advanced Truncation" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <p className={classes.groupDescription}>
         Fine-tune content truncation with precise word counts. Empty values are treated as "no truncation". 
       </p>
@@ -535,7 +606,7 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
       {errors.commentBreakpoints?._errors?.[0] && !getBreakpointError('comment', 0) && !getBreakpointError('comment', 1) && !getBreakpointError('comment', 2) && (
         <p className={classes.errorMessage}>{errors.commentBreakpoints._errors[0]}</p>
       )}
-    </div>
+    </CollapsibleSettingGroup>
   );
 };
 const AdvancedTruncationSettingsComponent = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettings);
@@ -544,12 +615,14 @@ interface MultipliersSettingsProps {
   formValues: CommentScoringFormState;
   errors: ZodFormattedError<CommentScoringFormState, string> | null;
   onFieldChange: (field: keyof CommentScoringFormState, value: number | string) => void;
+  defaultOpen?: boolean;
 }
 
 const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
   formValues, 
   errors,
   onFieldChange,
+  defaultOpen,
 }) => {
   const classes = useStyles(styles);
 
@@ -599,8 +672,7 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
   };
 
   return (
-    <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Comment Scoring (1/2)</h3>
+    <CollapsibleSettingGroup title="Comment Scoring" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.groupDescription}>
         <p className={classes.formulaDescription}>
           <code>timeDecayedKarma = ((karma + 1) / (ageHours + commentDecayBiasHours)^(commentDecayFactor))</code><br/>
@@ -815,7 +887,7 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
           <p className={classes.errorMessage}>{threadScoreAggregation.error}</p>
         )}
       </div>
-    </div>
+    </CollapsibleSettingGroup>
   );
 };
 const MultipliersSettingsComponent = registerComponent('MultipliersSettings', MultipliersSettings);
@@ -824,12 +896,14 @@ interface ThreadInterestTuningSettingsProps {
   formValues: ThreadInterestModelFormState;
   errors: ZodFormattedError<ThreadInterestModelFormState, string> | null;
   onFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
+  defaultOpen?: boolean;
 }
 
 const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> = ({
   formValues,
   errors,
   onFieldChange,
+  defaultOpen,
 }) => {
   const classes = useStyles(styles);
 
@@ -881,8 +955,7 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
   ];
 
   return (
-    <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Comment Thread Multipliers (2/2)</h3>
+    <CollapsibleSettingGroup title="Comment Thread Scoring" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.groupDescription}>
         <p className={classes.formulaDescription}>
           <code>engagementFactor = (1+commentCoeff*numComments) * (1+voteCoeff*voteScore) * (1+viewCoeff*viewScore) * onReadPostFactor</code><br/>
@@ -933,7 +1006,7 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
           </div>
         );
       })}
-    </div>
+    </CollapsibleSettingGroup>
   );
 };
 
@@ -943,16 +1016,16 @@ interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
     postTitlesAreModals: boolean;
+    defaultOpen?: boolean;
   };
   onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
+  defaultOpen?: boolean;
 }
 
-const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
+const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, defaultOpen = true }) => {
   const classes = useStyles(styles);
   return (
-    <div className={classes.settingGroup}>
-      <h3 className={classes.groupTitle}>Misc</h3>
-      
+    <CollapsibleSettingGroup title="Misc" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.checkboxContainer}>
         <Checkbox
           id="postTitlesAreModalsCheckbox"
@@ -985,7 +1058,7 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
         When enabled, the feed algorithm does not log viewing behavior (votes and comments will still influence it). This does not disable standard LessWrong analytics separate from the feed.
       </p>
 
-    </div>
+    </CollapsibleSettingGroup>
   );
 };
 const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);

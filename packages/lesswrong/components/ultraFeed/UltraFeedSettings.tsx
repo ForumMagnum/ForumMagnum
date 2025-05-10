@@ -474,6 +474,7 @@ const UltraFeedSettings = ({
       postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
     },
     onBooleanChange: handleBooleanChange,
+
   };
 
   const renderSimpleView = () => (
@@ -484,7 +485,7 @@ const UltraFeedSettings = ({
         onChange={handleSourceWeightChange}
       />
       <TruncationGridSettings {...truncationGridProps} />
-      <MiscSettings {...miscSettingsProps} />
+      <MiscSettings {...miscSettingsProps} defaultOpen={false} />
     </>
   );
 
@@ -495,17 +496,19 @@ const UltraFeedSettings = ({
         errors={sourceWeightErrors}
         onChange={handleSourceWeightChange}
       />
+      <AdvancedTruncationSettings {...advancedTruncationProps} />
       <MultipliersSettings
         formValues={formValues.commentScoring}
         errors={zodErrors ? (zodErrors as any).resolverSettings?.commentScoring : null}
         onFieldChange={handleCommentScoringFieldChange}
+        defaultOpen={false}
       />
       <ThreadInterestTuningSettings
         formValues={formValues.threadInterestModel}
         errors={zodErrors ? (zodErrors as any).resolverSettings?.threadInterestModel : null}
         onFieldChange={handleThreadInterestFieldChange}
+        defaultOpen={false}
       />
-      <AdvancedTruncationSettings {...advancedTruncationProps} />
       <MiscSettings {...miscSettingsProps} />
     </>
   );
