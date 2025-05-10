@@ -1,8 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 import { accessFilterSingle } from "../../utils/schemaUtils";
-
-const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments"];
+import { bookmarkableCollectionNames } from "./constants";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -33,7 +32,7 @@ const schema = {
       canRead: ['guests'],
       canCreate: ['members'],
       validation: {
-        allowedValues: ALLOWED_COLLECTION_NAMES,
+        allowedValues: [...bookmarkableCollectionNames],
       },
     },
   },

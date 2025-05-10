@@ -8,14 +8,15 @@
  * - Preparing threads for display (expansion/highlighting)
  */
 
-import { UltraFeedResolverSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
+import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
   PreDisplayFeedCommentThread, 
   FeedCommentsThread, 
   FeedCommentMetaInfo, 
   FeedCommentFromDb,
-  FeedItemSourceType
+  FeedItemSourceType,
+  ThreadEngagementStats,
 } from '../../components/ultraFeed/ultraFeedTypes';
 
 import * as crypto from 'crypto';
@@ -137,7 +138,8 @@ interface PreparedFeedCommentsThread extends FeedCommentsThread {
  */
 function calculateCommentScore(
   comment: FeedCommentFromDb,
-  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  subscribedToUserIds: Set<string>
 ): number {
   if (!comment.postedAt) {
     return 0; // Cannot score without a timestamp
@@ -155,7 +157,13 @@ function calculateCommentScore(
   }
 
   // Apply quick take boost if applicable
-  const boost = comment.shortform ? settings.quickTakeBoost : 1.0;
+  let boost = comment.shortform ? settings.quickTakeBoost : 1.0;
+  
+  // Apply boost for comments by subscribed authors
+  if (comment.authorId && subscribedToUserIds.has(comment.authorId)) {
+    boost *= settings.commentSubscribedAuthorMultiplier; 
+  }
+
   const boostedScore = decayedScore * boost;
 
   // Apply seen penalty
@@ -168,10 +176,10 @@ function calculateCommentScore(
 /**
  * Calculates the aggregate score for a thread based on settings.
  */
-function calculateThreadScore(
+function calculateThreadBaseScore(
   thread: FinalScoredComment[],
-  aggregation: UltraFeedResolverSettings['threadScoreAggregation'],
-  firstN: number
+  aggregation: CommentScoringSettings['threadScoreAggregation'],
+  firstN: CommentScoringSettings['threadScoreFirstN']
 ): number {
   if (!thread || thread.length === 0) {
     return 0;
@@ -226,12 +234,63 @@ function calculateThreadScore(
  */
 function scoreComments(
   comments: FeedCommentFromDb[],
-  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  subscribedToUserIds: Set<string>
 ): IntermediateScoredComment[] { 
   return comments.map(comment => ({
     ...comment,
-    score: calculateCommentScore(comment, settings),
+    score: calculateCommentScore(comment, settings, subscribedToUserIds),
   }));
+}
+
+/**
+ * Calculates an engagement-based score multiplier for a thread.
+ */
+function calculateThreadEngagementMultiplier(
+  topLevelId: string,
+  engagementStatsMap: Map<string, ThreadEngagementStats>,
+  threadInterestModel: ThreadInterestModelSettings
+): number {
+  let cumulativeProductOfEffects = 1.0;
+  const engagementData = engagementStatsMap.get(topLevelId);
+
+  const {
+    commentCoeff,
+    voteCoeff,
+    viewCoeff,
+    onReadPostFactor,
+    logImpactFactor,
+    minOverallMultiplier,
+    maxOverallMultiplier,
+  } = threadInterestModel;
+
+  if (engagementData) {
+    const commentMultiplier = Math.max(0, 1.0 + (engagementData.participationCount * commentCoeff));
+    const voteMultiplier = Math.max(0, 1.0 + (engagementData.votingActivityScore * voteCoeff));
+    const expansionMultiplier = Math.max(0, 1.0 + (engagementData.viewScore * viewCoeff));
+
+    cumulativeProductOfEffects *= commentMultiplier;
+    cumulativeProductOfEffects *= voteMultiplier;
+    cumulativeProductOfEffects *= expansionMultiplier;
+
+    if (engagementData.isOnReadPost) {
+      cumulativeProductOfEffects *= Math.max(0, onReadPostFactor);
+    }
+  }
+
+  const epsilon = 1e-9; // avoid log(0)
+  const logOfProduct = Math.log(Math.max(epsilon, cumulativeProductOfEffects));
+
+  const preliminaryMultiplier = 1.0 + (logOfProduct * logImpactFactor);
+
+  let finalScoreMultiplier = Math.min(maxOverallMultiplier, Math.max(minOverallMultiplier, preliminaryMultiplier));
+
+  // Ensure the multiplier is positive, fallback to 1.0 if it ended up zero or negative
+  if (finalScoreMultiplier <= 0) {
+    finalScoreMultiplier = 1.0;
+  }
+
+  return finalScoreMultiplier;
 }
 
 /**
@@ -239,8 +298,12 @@ function scoreComments(
  */
 function buildAndScoreThreads(
   scoredComments: IntermediateScoredComment[],
-  settings: Pick<UltraFeedResolverSettings, 'threadScoreAggregation' | 'threadScoreFirstN'>
+  settings: Pick<UltraFeedResolverSettings, 'threadInterestModel' | 'commentScoring'>,
+  engagementStatsMap: Map<string, ThreadEngagementStats>
 ): PrioritizedThread[] { 
+  const { commentScoring } = settings;
+  const threadInterestModel = settings.threadInterestModel; 
+
   // Group comments by their effective top-level ID
   const groups: Record<string, IntermediateScoredComment[]> = {};
   for (const comment of scoredComments) {
@@ -282,9 +345,13 @@ function buildAndScoreThreads(
   }
 
   const scoredThreads: PrioritizedThread[] = allPossibleFinalThreads.map(thread => {
-    const threadScore = calculateThreadScore(thread, settings.threadScoreAggregation, settings.threadScoreFirstN);
+    const baseThreadScore = calculateThreadBaseScore(thread, commentScoring.threadScoreAggregation, commentScoring.threadScoreFirstN);
     const topLevelId = thread[0].topLevelCommentId ?? thread[0].commentId;
-    return { thread, score: threadScore, topLevelId }; 
+
+    const engagementMultiplier = calculateThreadEngagementMultiplier(topLevelId, engagementStatsMap, threadInterestModel);
+    const finalThreadScore = baseThreadScore * engagementMultiplier;
+
+    return { thread, score: finalThreadScore, topLevelId }; 
   });
 
   return scoredThreads;
@@ -402,32 +469,55 @@ export async function getUltraFeedCommentThreads(
   context: ResolverContext,
   limit = 20,
   settings: UltraFeedResolverSettings,
-  servedThreadHashes: Set<string> = new Set()
+  servedThreadHashes: Set<string> = new Set(),
+  initialCandidateLookbackDays: number,
+  commentServedEventRecencyHours: number,
+  threadEngagementLookbackDays: number
 ): Promise<PreparedFeedCommentsThread[]> { // Return array of new type
   const userId = context.userId;
   if (!userId) {
     return [];
   }
 
-  // --- Step 1: Fetch Data ---
+  const subscriptionsRepo = context.repos.subscriptions;
   const commentsRepo = context.repos.comments;
-  const rawCommentsData = await commentsRepo.getCommentsForFeed(userId, 1000);
 
-  // --- Step 2: Score Individual Comments ---
-  const relevantSettings = { 
-    commentDecayFactor: settings.commentDecayFactor, 
-    commentDecayBiasHours: settings.commentDecayBiasHours, 
-    ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
-    quickTakeBoost: settings.quickTakeBoost 
-  };
-  const scoredComments = scoreComments(rawCommentsData, relevantSettings); 
+  // Fetch data in parallel
+  const rawCommentsDataPromise = commentsRepo.getCommentsForFeed(
+    userId, 
+    1000, 
+    initialCandidateLookbackDays, 
+    commentServedEventRecencyHours
+  );
+  const engagementStatsPromise = commentsRepo.getThreadEngagementStatsForRecentlyActiveThreads(
+    userId,
+    threadEngagementLookbackDays
+  );
+  const subscribedToUserIdsPromise = subscriptionsRepo.getSubscribedToUserIds(userId);
+
+  const [
+    rawCommentsData,
+    engagementStatsList,
+    subscribedToUserIdsList
+  ] = await Promise.all([
+    rawCommentsDataPromise,
+    engagementStatsPromise,
+    subscribedToUserIdsPromise
+  ]);
+
+  const subscribedToUserIds = new Set(subscribedToUserIdsList);
+  const engagementStatsMap = new Map(engagementStatsList.map(stats => [stats.threadTopLevelId, stats]));
+
+  // --- Step 2: Score Comments ---
+  const individualCommentScoringSettings = settings.commentScoring; // Pass the nested object
+  const scoredComments = scoreComments(rawCommentsData, individualCommentScoringSettings, subscribedToUserIds);
 
   // --- Steps 3 & 4a: Build and Score Threads --- 
-  const threadScoringSettings = {
-    threadScoreAggregation: settings.threadScoreAggregation,
-    threadScoreFirstN: settings.threadScoreFirstN
+  const threadProcessingSettings = {
+    commentScoring: settings.commentScoring,
+    threadInterestModel: settings.threadInterestModel,
   };
-  const allScoredThreads = buildAndScoreThreads(scoredComments, threadScoringSettings); 
+  const allScoredThreads = buildAndScoreThreads(scoredComments, threadProcessingSettings, engagementStatsMap); 
 
   // --- Step 4b: Select Best Threads --- 
   const finalRankedThreads = selectBestThreads(allScoredThreads); 

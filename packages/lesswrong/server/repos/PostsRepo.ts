@@ -1106,7 +1106,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     context: ResolverContext,
     filterSettings: FilterSettings,
     seenPenalty: number,
-    maxAgeDays = 30,
+    maxAgeDays: number,
     excludedPostIds: string[] = [],
     limit = 100
   ): Promise<FeedFullPost[]> {
@@ -1237,6 +1237,50 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           lastInteracted: lastInteracted,
         },
       };
+    });
+  }
+
+  /**
+   * Get posts from users the current user is subscribed to, for UltraFeed
+   */
+  async getPostsFromSubscribedUsersForUltraFeed(
+    context: ResolverContext,
+    maxAgeDays: number,
+    limit = 100
+  ): Promise<{ postId: string }[]> {
+    const db = this.getRawDb();
+    const userId = context.currentUser?._id;
+
+    if (!userId) {
+      return [];
+    }
+
+    return await db.manyOrNone<{ postId: string }>(`
+      -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
+      WITH user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" IN ('newActivityForFeed', 'newPosts')
+          AND "userId" = $(userId)
+      )
+      SELECT
+        p._id AS "postId"
+      FROM "Posts" p
+      JOIN user_subscriptions us
+      USING ("userId")
+      WHERE 
+        p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
+        AND p.rejected IS NOT TRUE 
+        AND ${getViewablePostsSelector('p')} 
+      ORDER BY p."postedAt" DESC
+      LIMIT $(limitParam)
+    `, { 
+      userId: userId, 
+      maxAgeDaysParam: maxAgeDays,
+      limitParam: limit
     });
   }
 }

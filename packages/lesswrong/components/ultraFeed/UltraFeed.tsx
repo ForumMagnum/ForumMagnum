@@ -10,7 +10,7 @@ import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY, getResolverSettings } from './ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
@@ -191,7 +191,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
     setSettings(defaultSettings);
   };
 
-  const resolverSettings = getResolverSettings(settings);
+  const { resolverSettings } = settings;
   
   const customTitle = <>
     <div className={classes.titleContainer}>
@@ -224,7 +224,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
       </div>
       
       {ultraFeedEnabled && <>
-        <UltraFeedObserverProvider incognitoMode={settings.incognitoMode}>
+        <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
           <SingleColumnSection>
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />

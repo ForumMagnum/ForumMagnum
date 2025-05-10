@@ -11,7 +11,7 @@ import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 import { useDialog } from "../common/withDialog";
-import { bookmarkableCollectionNames } from "../posts/BookmarkButton";
+import { bookmarkableCollectionNames } from "@/lib/collections/bookmarks/constants";
 
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
