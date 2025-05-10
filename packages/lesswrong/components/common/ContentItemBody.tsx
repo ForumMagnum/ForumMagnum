@@ -274,9 +274,9 @@ function markScrollableBlocks(element: HTMLElement) {
     if (block.nodeType === Node.ELEMENT_NODE) {
       const blockAsElement = block as HTMLElement;
       
-      // Only do this for <p> and <div> tags (in practice this is most
-      // top-level blocks, but not the <ol> that wraps footnotes)
-      if (!['P','DIV'].includes(blockAsElement.tagName))
+      // Only do this for <p>, <div>, and <table> tags (in practice this is
+      // most top-level blocks, but not the <ol> that wraps footnotes)
+      if (!['P','DIV','TABLE'].includes(blockAsElement.tagName))
         continue;
       
       // Check whether this block is wider than the content-block it's inside
