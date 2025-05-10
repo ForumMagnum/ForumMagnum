@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { useIsAboveBreakpoint, useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
+import { LWTooltip } from "../common/LWTooltip";
+import { UsersProfileImage } from "../users/UsersProfileImage";
+import { ForumEventResultPopper } from "./ForumEventResultPopper";
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
@@ -51,7 +54,7 @@ export type ForumEventVoteDisplay = {
   comment: ShortformComments | null
 }
 
-const ForumEventResultIcon = ({
+const ForumEventResultIconInner = ({
   vote,
   tooltipDisabled,
   classes,
@@ -60,8 +63,6 @@ const ForumEventResultIcon = ({
   tooltipDisabled: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { LWTooltip, UsersProfileImage, ForumEventResultPopper } = Components;
-
   const isDesktop = useIsAboveBreakpoint('sm');
 
   const { captureEvent } = useTracking();
@@ -116,14 +117,10 @@ const ForumEventResultIcon = ({
   );
 };
 
-const ForumEventResultIconComponent = registerComponent(
+export const ForumEventResultIcon = registerComponent(
   'ForumEventResultIcon',
-  ForumEventResultIcon,
+  ForumEventResultIconInner,
   { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventResultIcon: typeof ForumEventResultIconComponent;
-  }
-}
+

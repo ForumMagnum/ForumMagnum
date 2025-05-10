@@ -1,14 +1,14 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
+import { ActionButtonSection } from "./ActionButtonSection";
 
-const DeactivateAccountSection = ({
+const DeactivateAccountSectionInner = ({
   user,
 }: {
   user: UsersEdit,
 }) => {
-  const { ActionButtonSection } = Components;
   const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
@@ -33,12 +33,8 @@ const DeactivateAccountSection = ({
   );
 };
 
-const DeactivateAccountSectionComponent = registerComponent('DeactivateAccountSection', DeactivateAccountSection);
+export const DeactivateAccountSection = registerComponent('DeactivateAccountSection', DeactivateAccountSectionInner);
 
-declare global {
-  interface ComponentTypes {
-    DeactivateAccountSection: typeof DeactivateAccountSectionComponent
-  }
-}
 
-export default DeactivateAccountSectionComponent;
+
+

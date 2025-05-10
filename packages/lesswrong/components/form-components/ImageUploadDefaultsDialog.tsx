@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogTitle } from '../widgets/DialogTitle';
-
+import { LWDialog } from "../common/LWDialog";
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   images: {
@@ -21,15 +22,12 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
+const ImageUploadDefaultsDialogInner = ({ onSelect, onClose, classes, type }: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
   type?: 'Event' | 'Profile'
 }) => {
-
-  const { LWDialog, CloudinaryImage2 } = Components
-  
   const selectImg = (img: string) => {
     onSelect(img)
     if (onClose)
@@ -142,10 +140,6 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   )
 }
 
-const ImageUploadDefaultsDialogComponent = registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialog, {styles});
+export const ImageUploadDefaultsDialog = registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ImageUploadDefaultsDialog: typeof ImageUploadDefaultsDialogComponent
-  }
-}
+

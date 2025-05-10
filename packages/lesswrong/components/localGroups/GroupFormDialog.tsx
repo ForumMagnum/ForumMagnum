@@ -3,7 +3,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { useNavigate } from '../../lib/routeUtil';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
@@ -23,6 +23,11 @@ import { GroupFormSubmit } from './GroupFormSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { LWTooltip } from "../common/LWTooltip";
+import { Error404 } from "../common/Error404";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import { LWDialog } from "../common/LWDialog";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -69,9 +74,6 @@ const LocalGroupForm = ({
   onSuccess: (group: any) => void;
 }) => {
   const classes = useStyles(styles);
-
-  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
-
   const formType = initialData ? 'edit' : 'new';
 
   const {
@@ -367,12 +369,11 @@ const LocalGroupForm = ({
   );
 };
 
-const GroupFormDialog = ({ onClose, documentId, isOnline }: {
+const GroupFormDialogInner = ({ onClose, documentId, isOnline }: {
   onClose: () => void,
   documentId?: string,
   isOnline?: boolean
 }) => {
-  const { LWDialog, Loading } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
@@ -414,11 +415,7 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   </LWDialog>
 }
 
-const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog);
+export const GroupFormDialog = registerComponent('GroupFormDialog', GroupFormDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    GroupFormDialog: typeof GroupFormDialogComponent
-  }
-}
+
 

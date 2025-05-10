@@ -1,21 +1,21 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
+import { Loading } from "../vulcan-core/Loading";
+import { TagFlagItem } from "../tagging/TagFlagItem";
 
 const styles = (theme: ThemeType) => ({
   
 });
 
-const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
+const TagFlagToggleListInner = ({ value, path, updateCurrentValues }: {
   value: string[],
   path: string,
   updateCurrentValues: UpdateCurrentValues,
 }) => {
-  const { Loading, TagFlagItem } = Components
-
   const handleClick = (option: string) => {    
     if (value.includes(option)) {
       void updateCurrentValues({
@@ -49,10 +49,6 @@ const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
   </div></DeferRender>
 }
 
-const TagFlagToggleListComponent = registerComponent("TagFlagToggleList", TagFlagToggleList, {styles});
+export const TagFlagToggleList = registerComponent("TagFlagToggleList", TagFlagToggleListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagFlagToggleList: typeof TagFlagToggleListComponent
-  }
-}
+

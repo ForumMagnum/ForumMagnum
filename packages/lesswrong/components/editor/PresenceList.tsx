@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
+import { UsersName } from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   user: {
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType) => ({
  * This is used inside fo EditorTopBar. If alwaysShownUserIds is provided, those
  * users will be shown even if they're not connected (but grayed out).
  */
-const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
+const PresenceListInner = ({connectedUsers, alwaysShownUserIds, classes}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
   classes: ClassesType<typeof styles>,
@@ -95,15 +96,11 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
     <div className={classes.activeDot}>
     </div>
     <span className={classes.offlineIcon}>{!connected && <CloudOff/>}</span>
-    {user && <Components.UsersName user={user}/>}
+    {user && <UsersName user={user}/>}
     {isLoggedOutUser && <>Anonymous</>}
   </span>
 }
 
-const PresenceListComponent = registerComponent('PresenceList', PresenceList, {styles});
+export const PresenceList = registerComponent('PresenceList', PresenceListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PresenceList: typeof PresenceListComponent
-  }
-}
+

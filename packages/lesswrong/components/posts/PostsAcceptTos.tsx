@@ -1,10 +1,12 @@
 import React, { FC, useState, useCallback, PropsWithChildren } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import { Loading } from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
@@ -32,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAcceptTos = ({currentUser, classes}: {
+const PostsAcceptTosInner = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -73,20 +75,16 @@ const PostsAcceptTos = ({currentUser, classes}: {
         disableRipple
       />
       {loading
-        ? <Components.Loading className={classes.spinner} />
-        : <Components.Typography variant="body2" className={classes.label}>
+        ? <Loading className={classes.spinner} />
+        : <Typography variant="body2" className={classes.label}>
           Before you can publish this post you must agree to the <TosLink /> including
           your content being available under a <LicenseLink /> license
-        </Components.Typography>
+        </Typography>
       }
     </div>
   );
 }
 
-const PostsAcceptTosComponent = registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
+export const PostsAcceptTos = registerComponent("PostsAcceptTos", PostsAcceptTosInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAcceptTos: typeof PostsAcceptTosComponent
-  }
-}
+

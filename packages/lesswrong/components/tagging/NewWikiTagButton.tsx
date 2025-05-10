@@ -1,13 +1,19 @@
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '@/components/common/withDialog';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { LoginPopup } from "../users/LoginPopup";
+import { SectionButton } from "../common/SectionButton";
+import { LWPopper } from "../common/LWPopper";
+import { DropdownMenu } from "../dropdowns/DropdownMenu";
+import { DropdownItem } from "../dropdowns/DropdownItem";
+import { DropdownDivider } from "../dropdowns/DropdownDivider";
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
@@ -33,12 +39,11 @@ const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   },
 }));
 
-const NewWikiTagButton = ({ hideLabel=false, className }: {
+const NewWikiTagButtonInner = ({ hideLabel=false, className }: {
   hideLabel?: boolean,
   className?: string
 }) => {
   const classes = useStyles(styles);
-  const { SectionButton, LWPopper, DropdownMenu, DropdownItem, DropdownDivider } = Components;
   const { eventHandlers, hover, forceUnHover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -48,7 +53,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
     event.stopPropagation();
     openDialog({
       name: "LoginPopup",
-      contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
     });
   };
 
@@ -106,12 +111,8 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   );
 };
 
-const NewWikiTagButtonComponent = registerComponent("NewWikiTagButton", NewWikiTagButton);
+export const NewWikiTagButton = registerComponent("NewWikiTagButton", NewWikiTagButtonInner);
 
-export default NewWikiTagButtonComponent;
 
-declare global {
-  interface ComponentTypes {
-    NewWikiTagButton: typeof NewWikiTagButtonComponent;
-  }
-} 
+
+ 

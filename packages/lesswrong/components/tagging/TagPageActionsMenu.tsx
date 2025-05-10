@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
@@ -11,6 +11,12 @@ import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
 import { tagGetHistoryUrl, tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import { ForumIcon } from "../common/ForumIcon";
+import { DropdownMenu } from "../dropdowns/DropdownMenu";
+import { DropdownItem } from "../dropdowns/DropdownItem";
+import { MenuItem } from "../common/Menus";
+import { LWTooltip } from "../common/LWTooltip";
+import { AnalyticsTracker } from "../common/AnalyticsTracker";
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {
@@ -39,7 +45,7 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
 }))
 
-const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
+const TagPageActionsMenuButtonInner = ({tagOrLens, createLens, handleEditClick}: {
   tagOrLens: TagLens|undefined
   createLens: (() => void)|null,
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
@@ -48,8 +54,6 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const [everOpened, setEverOpened] = useState(false);
   const { captureEvent } = useTracking({eventType: "tagPageMenuClicked", eventProps: {tagOrLensId: tagOrLens?._id, itemType: "tag"}});
-  const { ForumIcon } = Components;
-
   if (!tagOrLens) {
     return null;
   }
@@ -73,7 +77,7 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
       anchorEl={anchorEl}
       className={classes.menu}
     >
-      {everOpened && <TagPageActionsMenu
+      {everOpened && <TagPageActionsMenuInner
         tagOrLens={tagOrLens}
         createLens={createLens}
         handleEditClick={handleEditClick}
@@ -82,12 +86,11 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
   </>
 }
 
-const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
+const TagPageActionsMenuInner = ({tagOrLens, handleEditClick, createLens}: {
   tagOrLens: TagLens
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
   createLens: (() => void)|null,
 }) => {
-  const { DropdownMenu, DropdownItem, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const apolloClient = useApolloClient();
@@ -146,13 +149,8 @@ const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
   </AnalyticsTracker>
 }
 
-const TagPageActionsMenuButtonComponent = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButton);
-const TagPageActionsMenuComponent = registerComponent('TagPageActionsMenu', TagPageActionsMenu);
+export const TagPageActionsMenuButton = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButtonInner);
+export const TagPageActionsMenu = registerComponent('TagPageActionsMenu', TagPageActionsMenuInner);
 
-declare global {
-  interface ComponentTypes {
-    TagPageActionsMenu: typeof TagPageActionsMenuComponent
-    TagPageActionsMenuButton: typeof TagPageActionsMenuButtonComponent
-  }
-}
+
 

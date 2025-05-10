@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
 import { slugify } from '@/lib/utils/slugify';
+import { Typography } from "./Typography";
 
 export const sectionTitleStyle = isFriendlyUI
   ? (theme: ThemeType) => ({
@@ -70,7 +71,7 @@ export type SectionTitleProps = {
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({
+const SectionTitleInner = ({
   title,
   noTopMargin,
   noBottomPadding,
@@ -84,7 +85,7 @@ const SectionTitle = ({
 }: SectionTitleProps & {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
-      <Components.Typography
+      <Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
         className={classNames(classes.title, titleClassName)}
@@ -93,16 +94,12 @@ const SectionTitle = ({
           ? <Link to={href}>{title}</Link>
           : title
         }
-      </Components.Typography>
+      </Typography>
       {!centered && <div className={classes.children}>{ children }</div>}
     </div>
   )
 }
 
-const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
+export const SectionTitle = registerComponent('SectionTitle', SectionTitleInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SectionTitle: typeof SectionTitleComponent
-  }
-}
+

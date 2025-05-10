@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useAuth0Client } from '../hooks/useAuth0Client';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { lightbulbIcon } from '../icons/lightbulbIcon';
+import { EAButton } from "../ea-forum/EAButton";
+import { SingleColumnSection } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,8 +81,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const Auth0PasswordResetPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { EAButton, SingleColumnSection } = Components;
+const Auth0PasswordResetPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
   const client = useAuth0Client();
 
@@ -130,12 +131,6 @@ const Auth0PasswordResetPage = ({ classes }: { classes: ClassesType<typeof style
   );
 };
 
-const Auth0PasswordResetPageComponent = registerComponent('Auth0PasswordResetPage', Auth0PasswordResetPage, { styles });
+export const Auth0PasswordResetPage = registerComponent('Auth0PasswordResetPage', Auth0PasswordResetPageInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    Auth0PasswordResetPage: typeof Auth0PasswordResetPageComponent;
-  }
-}
 
-export default Auth0PasswordResetPageComponent;

@@ -1,12 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useContext } from 'react';
 import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
+import { LWTooltip } from "./LWTooltip";
+import { TimeTag } from "./TimeTag";
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
-  const { FormatDate } = Components
   return <FormatDate date={date} format={"LLL z"} />
 };
 
@@ -14,7 +15,7 @@ export const ExpandedDate = ({date}: {date: Date | string}) => {
  * A relative time/date, like "4d". If tooltip is true (default), hover over
  * for the actual (non-relative) date/time.
  */
-const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="datetime", className}: {
+const FormatDateInner = ({date, format, includeAgo, tooltip=true, granularity="datetime", className}: {
   date: Date | string,
   format?: string,
   includeAgo?: boolean,
@@ -31,8 +32,6 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   const { cacheFriendly=false } = useContext(EnvironmentOverrideContext);
   const dateToRender = date||now;
   const dateTimeAttr = granularity === "datetime" ? dateToRender : moment(dateToRender).tz(timezone).format("YYYY-MM-DD")
-  const { LWTooltip, TimeTag } = Components
-
   let displayFormat = format;
   if (cacheFriendly && !format) {
     displayFormat = "MMM D YYYY"
@@ -61,10 +60,6 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   }
 };
 
-const FormatDateComponent = registerComponent('FormatDate', FormatDate);
+export const FormatDate = registerComponent('FormatDate', FormatDateInner);
 
-declare global {
-  interface ComponentTypes {
-    FormatDate: typeof FormatDateComponent
-  }
-}
+

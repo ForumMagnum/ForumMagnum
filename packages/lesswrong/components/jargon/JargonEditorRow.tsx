@@ -3,8 +3,11 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JargonTermForm } from './JargonTermForm';
+import { JargonTooltip } from "./JargonTooltip";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { LWTooltip } from "../common/LWTooltip";
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -153,7 +156,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 // Jargon editor row
-export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
+export const JargonEditorRowInner = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
@@ -196,8 +199,6 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
       }
     })
   }
-  const { JargonTooltip, ContentItemBody, LWTooltip } = Components;
-
   const jargonDefinition = jargonTerm?.contents?.html ?? '';
 
   return <div className={classes.root}>
@@ -242,10 +243,6 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
   </div>
 }
 
-const JargonEditorRowComponent = registerComponent('JargonEditorRow', JargonEditorRow, {styles});
+export const JargonEditorRow = registerComponent('JargonEditorRow', JargonEditorRowInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    JargonEditorRow: typeof JargonEditorRowComponent
-  }
-}
+

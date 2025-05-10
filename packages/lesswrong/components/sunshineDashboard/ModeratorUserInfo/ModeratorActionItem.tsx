@@ -2,13 +2,15 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from "@/lib/collections/moderatorActions/constants";
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { sortBy } from 'underscore';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
+import { MetaInfo } from "../../common/MetaInfo";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,16 +52,13 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
+export const ModeratorActionItemInner = ({classes, user, moderatorAction, comments, posts }: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
   moderatorAction: ModeratorActionDisplay,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined
 }) => {
-
-  const { MetaInfo, LWTooltip } = Components
-
   const endedAtDate = moment(moderatorAction.endedAt)
   const today = moment(new Date())
   const existingEndedAtDays = endedAtDate.diff(today, "days")
@@ -148,11 +147,7 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
   </div>;
 }
 
-const ModeratorActionItemComponent = registerComponent('ModeratorActionItem', ModeratorActionItem, {styles});
+export const ModeratorActionItem = registerComponent('ModeratorActionItem', ModeratorActionItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorActionItem: typeof ModeratorActionItemComponent
-  }
-}
+
 

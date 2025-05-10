@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
-import type { DebateResponseWithReplies } from './DebateResponseBlock';
+import { DebateResponseWithReplies, DebateResponseBlock } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { DebateTypingIndicator } from "./DebateTypingIndicator";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,12 +14,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const DebateBody = ({ debateResponses, post, classes }: {
+export const DebateBodyInner = ({ debateResponses, post, classes }: {
   debateResponses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = filterNonnull(uniq(debateResponses.map(({ comment }) => comment.userId)));
 
   return (<DeferRender ssr={false}>
@@ -67,10 +67,6 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   </DeferRender>);
 }
 
-const DebateBodyComponent = registerComponent('DebateBody', DebateBody, {styles});
+export const DebateBody = registerComponent('DebateBody', DebateBodyInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateBody: typeof DebateBodyComponent
-  }
-}
+

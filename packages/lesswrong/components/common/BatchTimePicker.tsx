@@ -1,11 +1,12 @@
 import React from 'react';
 import moment from '../../lib/moment-timezone';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
+import { MenuItem } from "./Menus";
 
 type TimeChange = {
   timeOfDay: number;
@@ -20,7 +21,7 @@ export interface PickedTime {
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
+const BatchTimePickerInner = ({ mode, value, onChange, disabled = false }: {
   mode: string,
   value: PickedTime,
   onChange: (value: PickedTime) => void,
@@ -29,8 +30,6 @@ const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;
-  const { MenuItem } = Components;
-  
   const applyChange = (change: TimeChange) => {
     const newTimeLocal = { ...valueLocal, ...change };
     const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocal.timeOfDay, newTimeLocal.dayOfWeek, timezone, "GMT");
@@ -75,10 +74,6 @@ const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
   </React.Fragment>;
 }
 
-const BatchTimePickerComponent = registerComponent("BatchTimePicker", BatchTimePicker, {hocs:[withErrorBoundary]});
+export const BatchTimePicker = registerComponent("BatchTimePicker", BatchTimePickerInner, {hocs:[withErrorBoundary]});
 
-declare global {
-  interface ComponentTypes {
-    BatchTimePicker: typeof BatchTimePickerComponent
-  }
-}
+

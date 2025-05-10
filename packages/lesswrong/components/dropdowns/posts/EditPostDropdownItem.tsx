@@ -1,12 +1,13 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
 import { userIsPodcaster } from "../../../lib/vulcan-users/permissions";
 import { userIsSharedOn } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
+import { DropdownItem } from "../DropdownItem";
 
-const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
+const EditPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   const isPodcaster = userIsPodcaster(currentUser);
@@ -18,8 +19,6 @@ const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   const link = (isEditor || isPodcaster)
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
     : `/collaborateOnPost?${qs.stringify({postId: post._id})}`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Edit"
@@ -29,13 +28,9 @@ const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const EditPostDropdownItemComponent = registerComponent(
+export const EditPostDropdownItem = registerComponent(
   "EditPostDropdownItem",
-  EditPostDropdownItem,
+  EditPostDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    EditPostDropdownItem: typeof EditPostDropdownItemComponent
-  }
-}
+

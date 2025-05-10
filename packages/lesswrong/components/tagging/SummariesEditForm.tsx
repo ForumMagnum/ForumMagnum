@@ -4,9 +4,13 @@ import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { SummaryForm } from "./SummaryForm";
-import { useSortable } from "@dnd-kit/sortable";
+import { LWTooltip } from "../common/LWTooltip";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { ForumIcon } from "../common/ForumIcon";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -168,7 +172,6 @@ const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
   refetch: () => Promise<void>,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles, ForumIcon } = Components;
   const classes = useStyles(styles);
 
   const [edit, setEdit] = useState(false);
@@ -232,7 +235,6 @@ const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, 
 }
 
 export const SortableRowHandle = ({children}: { children?: React.ReactNode }) => {
-  const { ForumIcon, LWTooltip } = Components;
   const classes = useStyles(styles);
 
   return <span className={classes.dragHandle}>
@@ -258,9 +260,7 @@ interface SummariesEditFormProps {
   collectionName: 'Tags' | 'MultiDocuments',
 }
 
-const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
-  const { Loading, ForumIcon, LWTooltip } = Components;
-
+const SummariesEditFormInner = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
@@ -350,12 +350,8 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
   </span>;
 };
 
-const SummariesEditFormComponent = registerComponent("SummariesEditForm", SummariesEditForm);
+export const SummariesEditForm = registerComponent("SummariesEditForm", SummariesEditFormInner);
 
-declare global {
-  interface ComponentTypes {
-    SummariesEditForm: typeof SummariesEditFormComponent
-  }
-}
 
-export default SummariesEditForm;
+
+export default SummariesEditFormInner;

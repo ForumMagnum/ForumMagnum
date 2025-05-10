@@ -1,5 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { MetaInfo } from "../../common/MetaInfo";
+import { FormatDate } from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,11 +16,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const UserReviewMetadata = ({classes, user}: {
+export const UserReviewMetadataInner = ({classes, user}: {
   user: SunshineUsersList
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, FormatDate } = Components
   return <div className={classes.root}>
     <MetaInfo>
       {user.email}
@@ -32,11 +33,7 @@ export const UserReviewMetadata = ({classes, user}: {
   </div>
 }
 
-const UserReviewMetadataComponent = registerComponent('UserReviewMetadata', UserReviewMetadata, {styles});
+export const UserReviewMetadata = registerComponent('UserReviewMetadata', UserReviewMetadataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserReviewMetadata: typeof UserReviewMetadataComponent
-  }
-}
+
 

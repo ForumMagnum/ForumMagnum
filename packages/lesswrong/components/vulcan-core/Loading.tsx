@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const Loading = ({classes, className, white}: {
+const LoadingInner = ({classes, className, white}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   white?: boolean
@@ -64,12 +64,8 @@ const Loading = ({classes, className, white}: {
   );
 };
 
-const LoadingComponent = registerComponent('Loading', Loading, {styles});
+export const Loading = registerComponent('Loading', LoadingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Loading: typeof LoadingComponent
-  }
-}
 
-export default Loading;
+
+export default LoadingInner;

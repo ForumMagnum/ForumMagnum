@@ -1,6 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CoreReadingCollection } from './LWCoreReading';
+import { CollectionsCardContainer } from "../collections/CollectionsCardContainer";
+import { BigCollectionsCard } from "../collections/BigCollectionsCard";
+import { CollectionsCard } from "../collections/CollectionsCard";
 
 const styles = (theme: ThemeType) => ({
   razLargeVersion: {
@@ -49,27 +52,23 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const EACoreReading = ({minimal=false, classes}: {
+const EACoreReadingInner = ({minimal=false, classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => (
-  <Components.CollectionsCardContainer>
+  <CollectionsCardContainer>
     <div className={classes.razLargeVersion}>
-      <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
+      <BigCollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
     </div>
     <div className={classes.razSmallVersion}>
-      <Components.CollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
+      <CollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
     </div>
 
-    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>}
-    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={false} />}
-  </Components.CollectionsCardContainer>
+    {!minimal && <CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>}
+    {!minimal && <CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={false} />}
+  </CollectionsCardContainer>
 );
 
-const EACoreReadingComponent = registerComponent("EACoreReading", EACoreReading, {styles});
+export const EACoreReading = registerComponent("EACoreReading", EACoreReadingInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EACoreReading: typeof EACoreReadingComponent
-  }
-}
+

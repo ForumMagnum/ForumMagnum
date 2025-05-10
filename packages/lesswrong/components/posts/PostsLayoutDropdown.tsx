@@ -1,9 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defaultPostsLayout, PostsLayout, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames';
+import { ForumIcon } from "../common/ForumIcon";
+import { ForumDropdown } from "../common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   optionIcon: {
@@ -21,12 +23,11 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
+const PostsLayoutDropdownInner = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
   classes: ClassesType<typeof styles>,
   value?: PostsLayout
   queryParam?: string,
 }) => {
-  const { ForumIcon, ForumDropdown } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -49,7 +50,7 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
       ),
       shortLabel: <ForumIcon className={classes.optionIcon} icon="List" />,
     },
-  }), [ForumIcon, classes.optionIcon, classes.optionIconInline]);
+  }), [classes.optionIcon, classes.optionIconInline]);
 
   const onSelect = useCallback((value: PostsLayout) => {
     if (!currentUser) return;
@@ -63,10 +64,6 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
   return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} />;
 }
 
-const PostsLayoutDropdownComponent = registerComponent('PostsLayoutDropdown', PostsLayoutDropdown, {styles});
+export const PostsLayoutDropdown = registerComponent('PostsLayoutDropdown', PostsLayoutDropdownInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsLayoutDropdown: typeof PostsLayoutDropdownComponent
-  }
-}
+

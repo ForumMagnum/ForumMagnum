@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { WrappedYear } from "./hooks";
+import { WrappedSection } from "./WrappedSection";
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -33,13 +34,12 @@ const styles = (theme: ThemeType) => ({
  *  2. When the application is loading and we don't have access to a
  *     ForumWrappedContext
  */
-const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
+const WrappedWelcomeMessageInner = ({currentUser, year, children, classes}: {
   currentUser: UsersCurrent,
   year: WrappedYear,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {WrappedSection} = Components;
   return (
     <WrappedSection pageSectionContext="top" align="left">
       <div className={classes.container}>
@@ -57,14 +57,10 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
   );
 }
 
-const WrappedWelcomeMessageComponent = registerComponent(
+export const WrappedWelcomeMessage = registerComponent(
   "WrappedWelcomeMessage",
-  WrappedWelcomeMessage,
+  WrappedWelcomeMessageInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedWelcomeMessage: typeof WrappedWelcomeMessageComponent
-  }
-}
+

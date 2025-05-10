@@ -296,7 +296,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Books2021SaleAnimation = ({ classes, successContent }: {
+const Books2021SaleAnimationInner = ({ classes, successContent }: {
   classes: ClassesType<typeof styles>,
   successContent?: any
 }) => {
@@ -427,15 +427,11 @@ const Books2021SaleAnimation = ({ classes, successContent }: {
 }
 
 
-const Books2021SaleAnimationComponent = registerComponent('Books2021SaleAnimation', Books2021SaleAnimation, {
+export const Books2021SaleAnimation = registerComponent('Books2021SaleAnimation', Books2021SaleAnimationInner, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Books2021SaleAnimation: typeof Books2021SaleAnimationComponent
-  }
-}
+

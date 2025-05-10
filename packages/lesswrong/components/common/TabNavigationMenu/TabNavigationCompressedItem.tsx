@@ -1,9 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { LWTooltip } from "../LWTooltip";
+import { MenuItemLink } from "../Menus";
 
 const compressedIconSize = 23
 
@@ -41,9 +43,7 @@ type TabNavigationCompressedItemProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
-  const { LWTooltip, MenuItemLink } = Components
-  
+const TabNavigationCompressedItemInner = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemLink
       onClick={onClick}
@@ -60,12 +60,8 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompr
   </LWTooltip>;
 }
 
-const TabNavigationCompressedItemComponent = registerComponent(
-  'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
+export const TabNavigationCompressedItem = registerComponent(
+  'TabNavigationCompressedItem', TabNavigationCompressedItemInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationCompressedItem: typeof TabNavigationCompressedItemComponent
-  }
-}
+

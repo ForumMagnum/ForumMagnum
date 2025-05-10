@@ -1,10 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useMulti } from '@/lib/crud/withMulti';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '@/themes/stylePiping';
+import { ContentStyles } from "../common/ContentStyles";
+import { TagSmallPostLink } from "../tagging/TagSmallPostLink";
+import { FollowUserButton } from "./FollowUserButton";
+import { UserMetaInfo } from "./UserMetaInfo";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,14 +62,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
+export const LWUserTooltipContentInner = ({hideFollowButton=false, classes, user}: {
   hideFollowButton?: boolean,
   classes: ClassesType<typeof styles>,
   user: UsersMinimumInfo,
 }) => {
-
-  const { ContentStyles, TagSmallPostLink, FollowUserButton, UserMetaInfo, Loading } = Components
-
   const currentUser = useCurrentUser();
 
   const { htmlBio, displayName } = user;
@@ -111,14 +113,10 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
 );
 }
 
-const LWUserTooltipContentComponent = registerComponent(
+export const LWUserTooltipContent = registerComponent(
   'LWUserTooltipContent',
-  LWUserTooltipContent,
+  LWUserTooltipContentInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWUserTooltipContent: typeof LWUserTooltipContentComponent
-  }
-}
+

@@ -2,7 +2,6 @@ import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -11,6 +10,8 @@ import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFor
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { Error404 } from "../common/Error404";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
 
 interface CurationNoticesFormProps {
   initialData?: UpdateCurationNoticeDataInput & { _id: string; };
@@ -34,8 +35,6 @@ export const CurationNoticesForm = ({
   onSuccess,
 }: CurationNoticesFormProps) => {
   const classes = useStyles(formStyles);
-  const { Error404, FormComponentCheckbox } = Components;
-
   const formType = initialData ? 'edit' : 'new';
 
   const {

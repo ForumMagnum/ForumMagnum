@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -9,6 +9,7 @@ import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../..
 import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
 
 export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -72,14 +73,13 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
 }
 const includeExtra = forumSelect(forumIncludeExtra)
 
-const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
+const RecommendationsAlgorithmPickerInner = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
   classes: ClassesType<typeof styles>
 }) => {
-  const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings: DefaultRecommendationsAlgorithm) {
@@ -225,10 +225,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   </div>;
 }
 
-const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
+export const RecommendationsAlgorithmPicker = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPickerInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPickerComponent
-  }
-}
+

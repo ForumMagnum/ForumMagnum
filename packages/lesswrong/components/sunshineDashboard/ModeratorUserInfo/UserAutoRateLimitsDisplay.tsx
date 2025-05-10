@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames, getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
 import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
+import { MetaInfo } from "../../common/MetaInfo";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   padding: {
@@ -56,13 +58,11 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
   </div>
 }
 
-export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
+export const UserAutoRateLimitsDisplayInner = ({user, showKarmaMeta=false, classes}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
 }) => {
-  const { MetaInfo, LWTooltip } = Components
-
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
@@ -107,10 +107,6 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   </div>;
 }
 
-const UserAutoRateLimitsDisplayComponent = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
+export const UserAutoRateLimitsDisplay = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplayInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplayComponent
-  }
-}
+

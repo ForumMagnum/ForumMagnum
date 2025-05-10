@@ -1,15 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { CollectionsPage } from "./CollectionsPage";
 
-const HPMOR = () => {
-  return <Components.CollectionsPage documentId={'ywQvGBSojSQZTMpLh'} />
+const HPMORInner = () => {
+  return <CollectionsPage documentId={'ywQvGBSojSQZTMpLh'} />
 };
 
-const HPMORComponent = registerComponent('HPMOR', HPMOR);
+export const HPMOR = registerComponent('HPMOR', HPMORInner);
 
-declare global {
-  interface ComponentTypes {
-    HPMOR: typeof HPMORComponent
-  }
-}
+
 

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TooltipRef } from '../FMTooltip';
+import { TabNavigationSubItem } from "./TabNavigationSubItem";
 
 const smallIconSize = 23
 
@@ -75,8 +76,7 @@ type TabNavigationFooterItemProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {
-  const { TabNavigationSubItem } = Components
+const TabNavigationFooterItemInner = ({tab, classes}: TabNavigationFooterItemProps) => {
   const { pathname } = useLocation()
   // React router links don't handle external URLs, so use a
   // normal HTML a tag if the URL is external
@@ -118,12 +118,8 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
   </TooltipRef>
 }
 
-const TabNavigationFooterItemComponent = registerComponent(
-  'TabNavigationFooterItem', TabNavigationFooterItem, {styles}
+export const TabNavigationFooterItem = registerComponent(
+  'TabNavigationFooterItem', TabNavigationFooterItemInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationFooterItem: typeof TabNavigationFooterItemComponent
-  }
-}
+

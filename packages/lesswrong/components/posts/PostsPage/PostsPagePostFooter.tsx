@@ -1,15 +1,20 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
-import { MAX_COLUMN_WIDTH } from './PostsPage';
+import { MAX_COLUMN_WIDTH } from './constants';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
-
-
+import { PostsVote } from "../../votes/PostsVote";
+import { BookmarkButton } from "../BookmarkButton";
+import { SharePostButton } from "../SharePostButton";
+import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
+import { BottomNavigation } from "../../sequences/BottomNavigation";
+import { PingbacksList } from "../PingbacksList";
+import { FooterTagList } from "../../tagging/FooterTagList";
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -76,7 +81,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPagePostFooter = ({post, sequenceId, classes}: {
+const PostsPagePostFooterInner = ({post, sequenceId, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
@@ -84,7 +89,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const currentUser = useCurrentUser();
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  const { PostsVote, BookmarkButton, SharePostButton, PostActionsButton, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
   const PostBottomSecondaryVotingComponent = votingSystem?.getPostBottomSecondaryVotingComponent?.();
   const isEAEmojis = votingSystemName === "eaEmojis";
@@ -136,10 +140,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   </>
 }
 
-const PostsPagePostFooterComponent = registerComponent("PostsPagePostFooter", PostsPagePostFooter, {styles});
+export const PostsPagePostFooter = registerComponent("PostsPagePostFooter", PostsPagePostFooterInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPagePostFooter: typeof PostsPagePostFooterComponent
-  }
-}
+

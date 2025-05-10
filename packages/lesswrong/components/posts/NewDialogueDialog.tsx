@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../widgets/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -7,6 +7,10 @@ import { useMessages } from '../common/withMessages';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { UserMultiselect } from "../form-components/UserMultiselect";
+import { LWDialog } from "../common/LWDialog";
+import { Loading } from "../vulcan-core/Loading";
+import { EAButton } from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -45,12 +49,11 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+const NewDialogueDialogInner = ({initialParticipantIds, onClose, classes}: {
   initialParticipantIds?: string[],
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
@@ -137,10 +140,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   </LWDialog>
 }
 
-const NewDialogueDialogComponent = registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
+export const NewDialogueDialog = registerComponent('NewDialogueDialog', NewDialogueDialogInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewDialogueDialog: typeof NewDialogueDialogComponent
-  }
-}
+

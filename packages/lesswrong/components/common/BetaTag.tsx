@@ -11,16 +11,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const BetaTag = ({classes}: {
+const BetaTagInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   return <span className={classes.root}>[Beta]</span>
 }
 
-const BetaTagComponent = registerComponent('BetaTag', BetaTag, {styles});
+export const BetaTag = registerComponent('BetaTag', BetaTagInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BetaTag: typeof BetaTagComponent
-  }
-}
+

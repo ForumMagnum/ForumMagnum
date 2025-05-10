@@ -1,12 +1,13 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import { DropdownItem } from "../DropdownItem";
 
-const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
+const ShortformDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -27,8 +28,6 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const contentType = preferredHeadingCase("Quick Takes");
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(`Set as user's ${contentType} Post`)}
@@ -37,13 +36,9 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const ShortformDropdownItemComponent = registerComponent(
+export const ShortformDropdownItem = registerComponent(
   "ShortformDropdownItem",
-  ShortformDropdownItem,
+  ShortformDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ShortformDropdownItem: typeof ShortformDropdownItemComponent
-  }
-}
+

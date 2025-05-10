@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
@@ -9,6 +9,8 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { SequencesTooltip } from "../../sequences/SequencesTooltip";
+import { SequencesNavigationLink } from "../../sequences/SequencesNavigationLink";
 
 export const darkGreyAlpha = .7
 
@@ -52,12 +54,11 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsTopSequencesNav = ({post, classes, blackText}: {
+const PostsTopSequencesNavInner = ({post, classes, blackText}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
   blackText?: boolean
 }) => {
-  const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -109,15 +110,11 @@ const PostsTopSequencesNav = ({post, classes, blackText}: {
   )
 }
 
-const PostsTopSequencesNavComponent = registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNav, {
+export const PostsTopSequencesNav = registerComponent(
+  'PostsTopSequencesNav', PostsTopSequencesNavInner, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsTopSequencesNav: typeof PostsTopSequencesNavComponent
-  }
-}
+

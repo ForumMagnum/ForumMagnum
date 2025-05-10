@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
+import { LWCommentCount } from "./LWCommentCount";
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
@@ -168,7 +169,7 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
+const MultiToCLayoutInner = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
@@ -177,7 +178,6 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   commentCount?: number,
   tocContext?: 'tag' | 'post'
 }) => {
-  const { LWCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)
@@ -243,11 +243,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   </div>
 }
 
-const MultiToCLayoutComponent = registerComponent('MultiToCLayout', MultiToCLayout, {styles});
+export const MultiToCLayout = registerComponent('MultiToCLayout', MultiToCLayoutInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MultiToCLayout: typeof MultiToCLayoutComponent
-  }
-}
+
 

@@ -1,7 +1,6 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -16,6 +15,9 @@ import { FormComponentDatePicker } from "../form-components/FormComponentDateTim
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { LWTooltip } from "../common/LWTooltip";
+import { Error404 } from "../common/Error404";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
   defaultFormSection: {
@@ -38,7 +40,6 @@ export const SpotlightForm = ({
   descriptionOnly?: boolean;
   onSuccess: (doc: SpotlightEditQueryFragment) => void;
 }) => {
-  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
 
   const formType = initialData ? 'edit' : 'new';

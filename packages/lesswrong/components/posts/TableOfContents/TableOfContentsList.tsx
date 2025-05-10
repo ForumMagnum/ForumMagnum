@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
@@ -10,6 +10,8 @@ import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { TableOfContentsRow } from "./TableOfContentsRow";
+import { AnswerTocRow } from "./AnswerTocRow";
 
 export interface ToCDisplayOptions {
   /**
@@ -35,7 +37,7 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
+const TableOfContentsListInner = ({tocSections, title, onClickSection, displayOptions}: {
   tocSections: ToCSection[],
   title: string|null,
   onClickSection?: () => void,
@@ -65,9 +67,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       }
     }
   }
-
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
@@ -249,14 +248,10 @@ export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDi
   }
 }
 
-const TableOfContentsListComponent = registerComponent(
-  "TableOfContentsList", TableOfContentsList, {
+export const TableOfContentsList = registerComponent(
+  "TableOfContentsList", TableOfContentsListInner, {
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsList: typeof TableOfContentsListComponent
-  }
-}
+

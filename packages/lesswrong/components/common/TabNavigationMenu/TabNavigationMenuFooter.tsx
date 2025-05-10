@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { TabNavigationFooterItem } from "./TabNavigationFooterItem";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
@@ -29,11 +30,9 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TabNavigationMenuFooter = ({classes}: {
+const TabNavigationMenuFooterInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { TabNavigationFooterItem } = Components
-
   return (
     <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
@@ -54,12 +53,8 @@ const TabNavigationMenuFooter = ({classes}: {
   )
 };
 
-const TabNavigationMenuFooterComponent = registerComponent(
-  'TabNavigationMenuFooter', TabNavigationMenuFooter, {styles}
+export const TabNavigationMenuFooter = registerComponent(
+  'TabNavigationMenuFooter', TabNavigationMenuFooterInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenuFooter: typeof TabNavigationMenuFooterComponent
-  }
-}
+

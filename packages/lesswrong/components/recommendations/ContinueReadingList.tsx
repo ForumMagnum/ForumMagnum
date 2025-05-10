@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { ContinueReading } from './withContinueReading';
+import { PostsItem } from "../posts/PostsItem";
+import { PostsLoading } from "../posts/PostsLoading";
+import { SectionFooter } from "../common/SectionFooter";
 
-
-const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
+const ContinueReadingListInner = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
   continueReading: ContinueReading[],
   continueReadingLoading?: boolean,
   limit?: number,
@@ -55,8 +57,6 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
       }
     }
   }
-
-  const { PostsItem, PostsLoading, SectionFooter } = Components;
   if (continueReadingLoading || !continueReading)
     return <PostsLoading/>
 
@@ -83,12 +83,8 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
   </div>
 }
 
-const ContinueReadingListComponent = registerComponent('ContinueReadingList', ContinueReadingList);
+export const ContinueReadingList = registerComponent('ContinueReadingList', ContinueReadingListInner);
 
-declare global {
-  interface ComponentTypes {
-    ContinueReadingList: typeof ContinueReadingListComponent
-  }
-}
+
 
 

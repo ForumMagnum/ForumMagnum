@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { RawSearchResultsMap } from "../community/modules/SearchResultsMap";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -8,11 +9,10 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryResultsMap = ({classes}: {
+const PeopleDirectoryResultsMapInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = usePeopleDirectory();
-  const {RawSearchResultsMap} = Components;
   return (
     <RawSearchResultsMap
       hits={results as AnyBecauseTodo[]}
@@ -22,14 +22,10 @@ const PeopleDirectoryResultsMap = ({classes}: {
   );
 }
 
-const PeopleDirectoryResultsMapComponent = registerComponent(
+export const PeopleDirectoryResultsMap = registerComponent(
   "PeopleDirectoryResultsMap",
-  PeopleDirectoryResultsMap,
+  PeopleDirectoryResultsMapInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryResultsMap: typeof PeopleDirectoryResultsMapComponent
-  }
-}
+

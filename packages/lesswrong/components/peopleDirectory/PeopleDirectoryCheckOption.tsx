@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,13 +29,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
+const PeopleDirectoryCheckOptionInner = ({label, selected, onSelect, classes}: {
   label: string,
   selected: boolean,
   onSelect?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {ForumIcon} = Components;
   return (
     <div onClick={onSelect} className={classes.root}>
       <div className={classes.label}>{label}</div>
@@ -46,14 +46,10 @@ const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
   );
 }
 
-const PeopleDirectoryCheckOptionComponent = registerComponent(
+export const PeopleDirectoryCheckOption = registerComponent(
   "PeopleDirectoryCheckOption",
-  PeopleDirectoryCheckOption,
+  PeopleDirectoryCheckOptionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryCheckOption: typeof PeopleDirectoryCheckOptionComponent
-  }
-}
+

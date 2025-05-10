@@ -19,17 +19,13 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const OmegaIcon = ({classes, className}: {
+const OmegaIconInner = ({classes, className}: {
   classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <span className={classNames(classes.root, className)}>Ω</span>
 }
 
-const OmegaIconComponent = registerComponent('OmegaIcon', OmegaIcon, {styles});
+export const OmegaIcon = registerComponent('OmegaIcon', OmegaIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OmegaIcon: typeof OmegaIconComponent
-  }
-}
+

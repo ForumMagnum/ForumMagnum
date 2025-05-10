@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button'
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close'
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -10,6 +10,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import type { CareerStageValue } from "@/lib/collections/users/helpers";
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { TooltipSpan } from '../common/FMTooltip';
+import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
+import { EAButton } from "./EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -311,7 +315,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
 /**
  * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
  */
-const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
+const TargetedJobAdInner = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
   jobName: string,
   userJobAd?: UserJobAdsMinimumInfo,
   onDismiss: () => void,
@@ -321,9 +325,6 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
 }) => {
   const adData = JOB_AD_DATA[jobName]
   const now = useCurrentTime();
-  
-  const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
-  
   if (!adData) {
     return null
   }
@@ -425,10 +426,6 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
   </AnalyticsContext>
 }
 
-const TargetedJobAdComponent = registerComponent("TargetedJobAd", TargetedJobAd, {styles});
+export const TargetedJobAd = registerComponent("TargetedJobAd", TargetedJobAdInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TargetedJobAd: typeof TargetedJobAdComponent
-  }
-}
+

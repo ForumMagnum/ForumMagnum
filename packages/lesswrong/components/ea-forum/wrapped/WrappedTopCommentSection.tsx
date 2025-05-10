@@ -1,7 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
+import { WrappedComment } from "./WrappedComment";
 
 const styles = (_theme: ThemeType) => ({
   topComment: {
@@ -18,12 +21,11 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedTopCommentSection = ({classes}: {
+const WrappedTopCommentSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
   const percentile = formatPercentile(data.commenterPercentile);
-  const {WrappedSection, WrappedHeading, WrappedComment} = Components;
   return (
     <WrappedSection pageSectionContext="topComment">
       <WrappedHeading>
@@ -43,14 +45,10 @@ const WrappedTopCommentSection = ({classes}: {
   );
 }
 
-const WrappedTopCommentSectionComponent = registerComponent(
+export const WrappedTopCommentSection = registerComponent(
   "WrappedTopCommentSection",
-  WrappedTopCommentSection,
+  WrappedTopCommentSectionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedTopCommentSection: typeof WrappedTopCommentSectionComponent
-  }
-}
+

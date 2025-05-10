@@ -3,8 +3,13 @@ import {AnalyticsContext} from '../../lib/analyticsEvents'
 import {useCurrentUser} from '../common/withUser'
 import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import moment from 'moment'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { SectionTitle } from "../common/SectionTitle";
+import { Loading } from "../vulcan-core/Loading";
+import { PostsItem } from "../posts/PostsItem";
+import { LoadMore } from "../common/LoadMore";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -60,7 +65,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
   return {data, loading, fetchMore, networkStatus}
 }
 
-const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
+const ReadHistoryTabInner = ({classes, groupByDate = true, filter, sort}: {
   classes: ClassesType<typeof styles>,
   groupByDate?: boolean,
   filter?: FilterPostsForReview,
@@ -79,9 +84,6 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     filter,
     sort,
   })
-
-  const {SectionTitle, Loading, PostsItem, LoadMore, Typography} = Components
-  
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
@@ -135,10 +137,6 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
 }
 
 
-const ReadHistoryTabComponent = registerComponent('ReadHistoryTab', ReadHistoryTab, {styles})
+export const ReadHistoryTab = registerComponent('ReadHistoryTab', ReadHistoryTabInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    ReadHistoryTab: typeof ReadHistoryTabComponent
-  }
-}
+

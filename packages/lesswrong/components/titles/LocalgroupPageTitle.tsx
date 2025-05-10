@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 
-const LocalgroupPageTitle = ({siteName}: {
+export const LocalgroupPageTitle = ({siteName}: {
   siteName: string,
 }) => {
   const { params: {groupId} } = useLocation();
@@ -24,12 +23,3 @@ const LocalgroupPageTitle = ({siteName}: {
       <meta property='og:title' content={titleString}/>
     </Helmet>
 }
-
-const LocalgroupPageTitleComponent = registerComponent("LocalgroupPageTitle", LocalgroupPageTitle);
-
-declare global {
-  interface ComponentTypes {
-    LocalgroupPageTitle: typeof LocalgroupPageTitleComponent
-  }
-}
-

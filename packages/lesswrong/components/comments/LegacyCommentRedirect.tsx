@@ -1,13 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from './useComment';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { PermanentRedirect } from "../common/PermanentRedirect";
+import { Loading } from "../vulcan-core/Loading";
+import { Error404 } from "../common/Error404";
 
-
-const LegacyCommentRedirect = () => {
+const LegacyCommentRedirectInner = () => {
   const { params } = useLocation();
   const legacyPostId = params.id;
   const legacyCommentId = params.commentId;
@@ -19,20 +21,16 @@ const LegacyCommentRedirect = () => {
       postId: post._id, postSlug: post.slug,
       commentId: comment._id, permalink: true
     });
-    return <Components.PermanentRedirect url={canonicalUrl}/>
+    return <PermanentRedirect url={canonicalUrl}/>
   } else if (post) {
     const canonicalUrl = postGetPageUrl(post);
-    return <Components.PermanentRedirect url={canonicalUrl}/>
+    return <PermanentRedirect url={canonicalUrl}/>
   } else {
-    return (loadingPost || loadingComment) ? <Components.Loading/> : <Components.Error404/>;
+    return (loadingPost || loadingComment) ? <Loading/> : <Error404/>;
   }
 };
 
-const LegacyCommentRedirectComponent = registerComponent('LegacyCommentRedirect', LegacyCommentRedirect);
+export const LegacyCommentRedirect = registerComponent('LegacyCommentRedirect', LegacyCommentRedirectInner);
 
-declare global {
-  interface ComponentTypes {
-    LegacyCommentRedirect: typeof LegacyCommentRedirectComponent,
-  }
-}
+
 

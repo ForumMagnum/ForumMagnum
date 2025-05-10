@@ -1,11 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { ForumIcon } from "../../common/ForumIcon";
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -144,7 +145,7 @@ const shouldHideToggleContentsButton = () => {
   return scrollY > 0 && scrollY < scrollEnd * 0.99;
 }
 
-export const ToCColumn = ({
+export const ToCColumnInner = ({
   tableOfContents,
   header,
   rightColumnChildren,
@@ -195,7 +196,7 @@ export const ToCColumn = ({
             [classes.hideTocButtonHidden]: !hideTocButtonHidden,
           })}
         >
-          <Components.ForumIcon icon="ListBullet" />
+          <ForumIcon icon="ListBullet" />
           {hidden ? "Show" : "Hide"} table of contents
         </div>
       }
@@ -228,10 +229,6 @@ export const ToCColumn = ({
   );
 }
 
-const ToCColumnComponent = registerComponent("ToCColumn", ToCColumn, {styles});
+export const ToCColumn = registerComponent("ToCColumn", ToCColumnInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ToCColumn: typeof ToCColumnComponent
-  }
-}
+

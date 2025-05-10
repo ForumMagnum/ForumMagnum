@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import { Row } from "../common/Row";
+import { SectionFooter } from "../common/SectionFooter";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   actionButton: {
@@ -34,14 +37,13 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
+export const ReviewDashboardButtonsInner = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
   showAdvancedDashboard?: boolean,
   showQuickReview?: boolean
 }) => {
-  const { Row, SectionFooter, LWTooltip } = Components 
   const currentUser = useCurrentUser()
 
   return <div>
@@ -92,11 +94,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
   </div>;
 }
 
-const ReviewDashboardButtonsComponent = registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
+export const ReviewDashboardButtons = registerComponent('ReviewDashboardButtons', ReviewDashboardButtonsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewDashboardButtons: typeof ReviewDashboardButtonsComponent
-  }
-}
+
 

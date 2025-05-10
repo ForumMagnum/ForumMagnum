@@ -4,7 +4,7 @@ import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const VoteArrowIconHollow = ({
+const VoteArrowIconHollowInner = ({
   orientation,
   enabled = true,
   color,
@@ -113,14 +113,10 @@ const VoteArrowIconHollow = ({
   );
 };
 
-const VoteArrowIconHollowComponent = registerComponent(
+export const VoteArrowIconHollow = registerComponent(
   'VoteArrowIconHollow',
-  VoteArrowIconHollow,
+  VoteArrowIconHollowInner,
   { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    VoteArrowIconHollow: typeof VoteArrowIconHollowComponent;
-  }
-}
+

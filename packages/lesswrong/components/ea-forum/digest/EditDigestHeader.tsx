@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getDigestName } from '../../../lib/collections/digests/helpers';
 import moment from 'moment';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import { ColorPicker } from '@/components/form-components/FormComponentColorPicker';
+import { EAButton } from "../EAButton";
+import { SectionTitle } from "../../common/SectionTitle";
+import { DatePicker } from "../../form-components/FormComponentDateTime";
+import { ForumIcon } from "../../common/ForumIcon";
+import { ImageUpload2 } from "../../form-components/ImageUpload2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -83,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EditDigestHeader = ({digest, classes}: {
+export const EditDigestHeaderInner = ({digest, classes}: {
   digest: DigestsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -129,9 +134,6 @@ export const EditDigestHeader = ({digest, classes}: {
       },
     });
   }
-
-  const {EAButton, SectionTitle, DatePicker, ForumIcon, ImageUpload2} = Components;
-
   const startNode = isEditingStartDate
     ? (
       <div className={classes.datePicker}>
@@ -224,10 +226,6 @@ export const EditDigestHeader = ({digest, classes}: {
   </div>
 }
 
-const EditDigestHeaderComponent = registerComponent('EditDigestHeader', EditDigestHeader, {styles});
+export const EditDigestHeader = registerComponent('EditDigestHeader', EditDigestHeaderInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestHeader: typeof EditDigestHeaderComponent
-  }
-}
+

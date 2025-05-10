@@ -1,10 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
+import { CommentsItem } from "./CommentsItem/CommentsItem";
+import { Loading } from "../vulcan-core/Loading";
 
-const ParentCommentSingle = ({
+const ParentCommentSingleInner = ({
   documentId,
   nestingLevel,
   post,
@@ -35,7 +37,7 @@ const ParentCommentSingle = ({
           "comments-node-odd"  : nestingLevel % 2 !== 0,
         }
       )}>
-        <Components.CommentsItem
+        <CommentsItem
           treeOptions={{...treeOptions, tag, post}}
           isParentComment
           comment={document}
@@ -45,15 +47,11 @@ const ParentCommentSingle = ({
       </div>
     )
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 }
 
-const ParentCommentSingleComponent = registerComponent('ParentCommentSingle', ParentCommentSingle, {});
+export const ParentCommentSingle = registerComponent('ParentCommentSingle', ParentCommentSingleInner, {});
 
-declare global {
-  interface ComponentTypes {
-    ParentCommentSingle: typeof ParentCommentSingleComponent,
-  }
-}
+
 

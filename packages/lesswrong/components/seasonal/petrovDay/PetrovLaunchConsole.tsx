@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import type { PetrovDayActionType } from "@/lib/collections/petrovDayActions/constants";
+import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
+import { PastWarnings } from "./PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,13 +66,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PetrovLaunchConsole = ({classes, side, currentUser}: {
+export const PetrovLaunchConsoleInner = ({classes, side, currentUser}: {
   classes: ClassesType<typeof styles>,
   side: 'east' | 'west',
   currentUser: UsersCurrent
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { PetrovWorldmapWrapper, PastWarnings } = Components;
   const [launched, setLaunched] = useState(false)
   const [openCodes, setOpenCodes] = useState(false)
   const [launchCode, setLaunchCode] = useState('')
@@ -144,10 +145,6 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   </PetrovWorldmapWrapper>
 }
 
-const PetrovLaunchConsoleComponent = registerComponent('PetrovLaunchConsole', PetrovLaunchConsole, {styles});
+export const PetrovLaunchConsole = registerComponent('PetrovLaunchConsole', PetrovLaunchConsoleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovLaunchConsole: typeof PetrovLaunchConsoleComponent
-  }
-}
+

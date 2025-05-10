@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
+import { LWTooltip } from "../common/LWTooltip";
 
 /**
  * Username for a deleted user. Ordinarily, looks like "[anonymous]" and
@@ -11,7 +12,7 @@ import { useCurrentUser } from '../common/withUser';
  * provided and the current user is an admin, then this will reveal the name on
  * hover-over and work as a link.
  */
-const UserNameDeleted = ({userShownToAdmins}: {
+const UserNameDeletedInner = ({userShownToAdmins}: {
   userShownToAdmins?: UsersMinimumInfo|null
 }) => {
   const currentUser = useCurrentUser();
@@ -22,20 +23,18 @@ const UserNameDeleted = ({userShownToAdmins}: {
     // Users.checkAccess will have filtered out server side.)
     return <UserNameDeletedWithAdminHover user={userShownToAdmins}/>
   }
-  return <Components.LWTooltip title={<div>
+  return <LWTooltip title={<div>
     <div>Author has deactivated their account,</div>
     <div>or is no longer associated with this post.</div>
   </div>}>
     [anonymous]
-  </Components.LWTooltip>
+  </LWTooltip>
 };
 
 const UserNameDeletedWithAdminHover = ({user}: {
   user: UsersMinimumInfo
 }) => {
   const {eventHandlers,hover} = useHover();
-  const { LWTooltip } = Components;
-
   return <span {...eventHandlers}>
     <LWTooltip
       title={<div>
@@ -53,10 +52,6 @@ const UserNameDeletedWithAdminHover = ({user}: {
   </span>
 }
 
-const UserNameDeletedComponent = registerComponent('UserNameDeleted', UserNameDeleted);
+export const UserNameDeleted = registerComponent('UserNameDeleted', UserNameDeletedInner);
 
-declare global {
-  interface ComponentTypes {
-    UserNameDeleted: typeof UserNameDeletedComponent
-  }
-}
+

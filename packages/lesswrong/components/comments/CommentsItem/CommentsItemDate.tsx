@@ -1,12 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ExpandedDate } from '@/components/common/FormatDate';
+import { ExpandedDate, FormatDate } from '@/components/common/FormatDate';
+import { LWTooltip } from "../../common/LWTooltip";
 
 // The amount of time during which you can edit a comment, without it causing
 // the comment to be marked as edited.
@@ -68,8 +69,7 @@ type CommentsItemDateProps = UseCommentLinkProps & {
   className?: string,
 };
 
-const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
-  const { FormatDate, LWTooltip } = Components
+const CommentsItemDateInner = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
   const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
@@ -131,11 +131,7 @@ const CommentDateTooltip = ({comment}: {
   }
 }
 
-const CommentsItemDateComponent = registerComponent('CommentsItemDate', CommentsItemDate);
+export const CommentsItemDate = registerComponent('CommentsItemDate', CommentsItemDateInner);
 
-declare global {
-  interface ComponentTypes {
-    CommentsItemDate: typeof CommentsItemDateComponent,
-  }
-}
+
 

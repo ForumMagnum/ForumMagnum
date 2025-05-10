@@ -18,6 +18,7 @@ import './helpers'
 import './routes';
 
 import '@/allComponents';
+import '@/lib/generated/nonRegisteredComponents';
 
 // Alignment Forum
 import './alignment-forum/posts/helpers';

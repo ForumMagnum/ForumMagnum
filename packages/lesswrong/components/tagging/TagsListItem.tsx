@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { PopperCard } from "../common/PopperCard";
+import { TagPreview } from "./TagPreview";
 
 const styles = (theme: ThemeType) => ({
   tag: {
@@ -30,12 +32,11 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsListItem = ({tag, classes, postCount=3}: {
+const TagsListItemInner = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType<typeof styles>,
   postCount?: number,
 }) => {
-  const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
 
   return <div {...eventHandlers} className={classes.tag}>
@@ -55,10 +56,6 @@ const TagsListItem = ({tag, classes, postCount=3}: {
   </div>;
 }
 
-const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});
+export const TagsListItem = registerComponent("TagsListItem", TagsListItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagsListItem: typeof TagsListItemComponent
-  }
-}
+

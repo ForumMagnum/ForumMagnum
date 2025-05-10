@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
 import {
@@ -8,6 +8,8 @@ import {
   wrappedSecondaryColor,
   wrappedWhiteColor,
 } from "./wrappedHelpers";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -37,11 +39,10 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays the user's overall karma change and accompanying chart
  */
-const WrappedKarmaChangeSection = ({classes}: {
+const WrappedKarmaChangeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="karmaChange">
       <WrappedHeading>
@@ -108,14 +109,10 @@ const WrappedKarmaChangeSection = ({classes}: {
   );
 }
 
-const WrappedKarmaChangeSectionComponent = registerComponent(
+export const WrappedKarmaChangeSection = registerComponent(
   "WrappedKarmaChangeSection",
-  WrappedKarmaChangeSection,
+  WrappedKarmaChangeSectionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedKarmaChangeSection: typeof WrappedKarmaChangeSectionComponent
-  }
-}
+

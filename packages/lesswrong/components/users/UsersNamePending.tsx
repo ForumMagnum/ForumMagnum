@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import ErrorIcon from '@/lib/vendor/@material-ui/icons/src/ErrorOutline';
@@ -6,6 +6,7 @@ import {
   userGetDisplayName,
   userGetProfileUrl,
 } from '../../lib/collections/users/helpers';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   userName: {
@@ -21,11 +22,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UsersNamePending = ({ user, classes }: {
+const UsersNamePendingInner = ({ user, classes }: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components;
   const name = userGetDisplayName(user)
   const tooltip = <p>
     <span className={classes.tooltipUserName}>{name}</span> has been requested
@@ -41,12 +41,8 @@ const UsersNamePending = ({ user, classes }: {
   );
 }
 
-const UsersNamePendingComponent = registerComponent(
-  'UsersNamePending', UsersNamePending, {styles}
+export const UsersNamePending = registerComponent(
+  'UsersNamePending', UsersNamePendingInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersNamePending: typeof UsersNamePendingComponent
-  }
-}
+

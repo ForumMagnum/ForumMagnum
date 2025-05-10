@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,14 +29,13 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
+const SidebarActionInner = ({children, classes, title, warningHighlight, onClick}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   title: string,
   warningHighlight?: boolean,
   onClick: () => void,
 }) => {
-  const { LWTooltip } = Components
   return <LWTooltip title={title} placement="bottom">
     <div onClick={onClick} className={classes.root}>
       {children}
@@ -44,11 +44,7 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   </LWTooltip>
 }
 
-const SidebarActionComponent = registerComponent('SidebarAction', SidebarAction, {styles});
+export const SidebarAction = registerComponent('SidebarAction', SidebarActionInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarAction: typeof SidebarActionComponent
-  }
-}
+
 

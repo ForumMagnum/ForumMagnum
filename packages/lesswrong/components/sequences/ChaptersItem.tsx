@@ -1,7 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useSingle } from '@/lib/crud/withSingle';
+import { ChaptersEditForm } from "./ChaptersEditForm";
+import { ChapterTitle } from "./ChapterTitle";
+import { SectionFooter } from "../common/SectionFooter";
+import { SectionButton } from "../common/SectionButton";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { ContentStyles } from "../common/ContentStyles";
+import { PostsItem } from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -25,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ChaptersItem = ({ chapter, canEdit, classes }: {
+const ChaptersItemInner = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
   classes: ClassesType<typeof styles>,
@@ -45,9 +52,6 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   const showChapter = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { ChaptersEditForm, ChapterTitle, SectionFooter,
-    SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
 
   if (edit && editableChapter) return (
@@ -87,10 +91,6 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   )
 }
 
-const ChaptersItemComponent = registerComponent('ChaptersItem', ChaptersItem, {styles});
+export const ChaptersItem = registerComponent('ChaptersItem', ChaptersItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChaptersItem: typeof ChaptersItemComponent
-  }
-}
+

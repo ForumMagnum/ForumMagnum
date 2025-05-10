@@ -1,27 +1,26 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { PermanentRedirect } from "../common/PermanentRedirect";
+import { Loading } from "../vulcan-core/Loading";
+import { Error404 } from "../common/Error404";
 
-const LegacyPostRedirect = () => {
+const LegacyPostRedirectInner = () => {
   const { params } = useLocation();
   const legacyId = params.id;
   const { post, loading } = usePostByLegacyId({ legacyId });
   
   if (post) {
     const canonicalUrl = postGetPageUrl(post);
-    return <Components.PermanentRedirect url={canonicalUrl}/>
+    return <PermanentRedirect url={canonicalUrl}/>
   } else {
-    return loading ? <Components.Loading/> : <Components.Error404 />
+    return loading ? <Loading/> : <Error404 />
   }
 };
 
-const LegacyPostRedirectComponent = registerComponent('LegacyPostRedirect', LegacyPostRedirect);
+export const LegacyPostRedirect = registerComponent('LegacyPostRedirect', LegacyPostRedirectInner);
 
-declare global {
-  interface ComponentTypes {
-    LegacyPostRedirect: typeof LegacyPostRedirectComponent
-  }
-}
+
 

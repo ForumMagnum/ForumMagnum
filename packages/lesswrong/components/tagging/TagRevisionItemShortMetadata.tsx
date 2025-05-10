@@ -1,8 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useDialog } from '../common/withDialog';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
+import { ArbitalImportRevisionDetails } from "./history/ArbitalImportRevisionDetails";
+import { FormatDate } from "../common/FormatDate";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import { MetaInfo } from "../common/MetaInfo";
+import { LWTooltip } from "../common/LWTooltip";
+import { ChangeMetricsDisplay } from "./ChangeMetricsDisplay";
+import { SmallSideVote } from "../votes/SmallSideVote";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   username: {
@@ -28,20 +36,19 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
+const TagRevisionItemShortMetadataInner = ({tag, url, itemDescription, revision, classes}: {
   tag: TagBasicInfo,
   url: string,
   itemDescription?: React.ReactNode,
   revision: RevisionHistoryEntry,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote, ForumIcon } = Components
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
     openDialog({
       name: "ArbitalImportRevisionDetails",
-      contents: ({onClose}) => <Components.ArbitalImportRevisionDetails
+      contents: ({onClose}) => <ArbitalImportRevisionDetails
         onClose={onClose}
         revision={revision}
       />
@@ -94,10 +101,6 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
   </>;
 }
 
-const TagRevisionItemShortMetadataComponent = registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadata, {styles});
+export const TagRevisionItemShortMetadata = registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadataInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRevisionItemShortMetadata: typeof TagRevisionItemShortMetadataComponent
-  }
-}
+

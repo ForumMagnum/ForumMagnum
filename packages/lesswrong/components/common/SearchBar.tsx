@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
@@ -15,6 +15,8 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { createPortal } from 'react-dom';
+import { SearchBarResults } from "../search/SearchBarResults";
+import { ForumIcon } from "./ForumIcon";
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -107,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
+const SearchBarInner = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
   classes: ClassesType<typeof styles>
@@ -167,9 +169,6 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
       captureSearch("searchBar", {query: currentQuery});
     }
   }, [currentQuery, captureSearch])
-
-  const { SearchBarResults, ForumIcon } = Components
-
   if (!isSearchEnabled()) {
     return <div>Search is disabled (ElasticSearch not configured on server)</div>
   }
@@ -211,14 +210,10 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   </div>
 }
 
-const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
+export const SearchBar = registerComponent("SearchBar", SearchBarInner, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    SearchBar: typeof SearchBarComponent
-  }
-}
+

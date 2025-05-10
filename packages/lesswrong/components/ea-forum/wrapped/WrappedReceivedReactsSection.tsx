@@ -1,10 +1,12 @@
 import React, { ComponentType, useMemo } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { isClient } from "@/lib/executionEnvironment";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import { getTotalReactsReceived } from "./wrappedHelpers";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 type ReceivedReact = {
   top: string,
@@ -88,7 +90,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedReceivedReactsSection = ({classes}: {
+const WrappedReceivedReactsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -98,8 +100,6 @@ const WrappedReceivedReactsSection = ({classes}: {
     [mostReceivedReacts],
   );
   const totalReactsReceived = getTotalReactsReceived(data);
-
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="reactsReceived" fullHeight>
       {allReactsReceived?.map(({top, left, transform, Component}, i) => (
@@ -137,14 +137,10 @@ const WrappedReceivedReactsSection = ({classes}: {
   );
 }
 
-const WrappedReceivedReactsSectionComponent = registerComponent(
+export const WrappedReceivedReactsSection = registerComponent(
   "WrappedReceivedReactsSection",
-  WrappedReceivedReactsSection,
+  WrappedReceivedReactsSectionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedReceivedReactsSection: typeof WrappedReceivedReactsSectionComponent
-  }
-}
+

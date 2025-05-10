@@ -3,8 +3,13 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { gql, useLazyQuery } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { Typography } from "../common/Typography";
+import { Error404 } from "../common/Error404";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RandomUserPage = ({classes}: {
+const RandomUserPageInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -67,9 +72,6 @@ const RandomUserPage = ({classes}: {
       setNewTabKeyHeld(false);
     }
   }, [recievedNewResults, data, newTabKeyHeld]);
-  
-  const { SingleColumnSection, SectionTitle, Typography, Error404, Loading } = Components;
-  
   if (!userIsAdminOrMod(currentUser)) {
     return <Error404 />
   }
@@ -101,12 +103,8 @@ const RandomUserPage = ({classes}: {
   </SingleColumnSection>
 }
 
-const RandomUserPageComponent = registerComponent(
-  "RandomUserPage", RandomUserPage, {styles}
+export const RandomUserPage = registerComponent(
+  "RandomUserPage", RandomUserPageInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    RandomUserPage: typeof RandomUserPageComponent
-  }
-}
+

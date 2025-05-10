@@ -1,6 +1,11 @@
 import React from 'react'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { UserNameDeleted } from "../../users/UserNameDeleted";
+import { UsersName } from "../../users/UsersName";
+import { UserCommentMarkers } from "../../users/UserCommentMarkers";
+import { PostsCoauthor } from "./PostsCoauthor";
+import { Typography } from "../../common/Typography";
 
 export const AUTHOR_MARKER_STYLES = {
   display: "inline-block",
@@ -21,16 +26,15 @@ const styles = (theme: ThemeType) => ({
   authorMarkers: AUTHOR_MARKER_STYLES,
 })
 
-const PostsAuthors = ({classes, post, pageSectionContext}: {
+const PostsAuthorsInner = ({classes, post, pageSectionContext}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   pageSectionContext?: string,
 }) => {
-  const { UsersName, UserCommentMarkers, PostsCoauthor, Typography } = Components
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
       {!post.user || post.hideAuthor
-        ? <Components.UserNameDeleted/>
+        ? <UserNameDeleted/>
         : <>
           <UsersName user={post.user} pageSectionContext={pageSectionContext} />
           <UserCommentMarkers user={post.user} className={classes.authorMarkers} />
@@ -43,10 +47,6 @@ const PostsAuthors = ({classes, post, pageSectionContext}: {
   </Typography>
 }
 
-const PostsAuthorsComponent = registerComponent('PostsAuthors', PostsAuthors, {styles});
+export const PostsAuthors = registerComponent('PostsAuthors', PostsAuthorsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAuthors: typeof PostsAuthorsComponent
-  }
-}
+

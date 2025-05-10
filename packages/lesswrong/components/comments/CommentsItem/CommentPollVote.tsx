@@ -1,8 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,9 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
-  const { LWTooltip } = Components;
-
+const CommentPollVoteInner = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
@@ -86,12 +85,8 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   );
 };
 
-const CommentPollVoteComponent = registerComponent("CommentPollVote", CommentPollVote, {
+export const CommentPollVote = registerComponent("CommentPollVote", CommentPollVoteInner, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentPollVote: typeof CommentPollVoteComponent;
-  }
-}
+

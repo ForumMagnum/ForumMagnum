@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import React from 'react';
 import type { SearchHitComponentProps } from './types';
+import { LWTooltip } from "../common/LWTooltip";
+import { MetaInfo } from "../common/MetaInfo";
+import { FormatDate } from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,8 +28,7 @@ export const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
-  const { LWTooltip, MetaInfo, FormatDate } = Components
+const UsersSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const user = hit as SearchUser
 
   return <div className={classes.root}>
@@ -47,10 +49,6 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
   </div>
 }
 
-const UsersSearchHitComponent = registerComponent("UsersSearchHit", UsersSearchHit, {styles});
+export const UsersSearchHit = registerComponent("UsersSearchHit", UsersSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersSearchHit: typeof UsersSearchHitComponent
-  }
-}
+

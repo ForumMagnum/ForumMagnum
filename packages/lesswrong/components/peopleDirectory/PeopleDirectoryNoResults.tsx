@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { EAButton } from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,11 +23,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryNoResults = ({classes}: {
+const PeopleDirectoryNoResultsInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {clearSearch} = usePeopleDirectory();
-  const {EAButton} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.heading}>No people found</div>
@@ -38,14 +38,10 @@ const PeopleDirectoryNoResults = ({classes}: {
   );
 }
 
-const PeopleDirectoryNoResultsComponent = registerComponent(
+export const PeopleDirectoryNoResults = registerComponent(
   "PeopleDirectoryNoResults",
-  PeopleDirectoryNoResults,
+  PeopleDirectoryNoResultsInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryNoResults: typeof PeopleDirectoryNoResultsComponent
-  }
-}
+

@@ -1,5 +1,6 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { MetaInfo } from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   overflow: {
@@ -7,11 +8,10 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListCount = ({ count, classes }: {
+const SunshineListCountInner = ({ count, classes }: {
   count: number|undefined,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo } = Components
   if (count && count > 10) {
     return <MetaInfo className={count > 20 ? classes.overflow : undefined}>({count})</MetaInfo>
   } else {
@@ -19,11 +19,7 @@ const SunshineListCount = ({ count, classes }: {
   }
 }
 
-const SunshineListCountComponent = registerComponent('SunshineListCount', SunshineListCount, {styles});
+export const SunshineListCount = registerComponent('SunshineListCount', SunshineListCountInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineListCount: typeof SunshineListCountComponent
-  }
-}
+
 

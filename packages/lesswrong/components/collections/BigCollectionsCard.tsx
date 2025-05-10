@@ -1,8 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { CloudinaryImage } from "../common/CloudinaryImage";
+import { LinkCard } from "../common/LinkCard";
+import { UsersName } from "../users/UsersName";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,18 +72,17 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const BigCollectionsCard = ({ collection, url, classes }: {
+const BigCollectionsCardInner = ({ collection, url, classes }: {
   collection: CoreReadingCollection,
   url: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LinkCard, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
       {collection.imageId && <div className={classes.media}>
-        <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
+        <CloudinaryImage publicId={collection.imageId} width={326} height={280} />
       </div>}
       <div className={classes.content} style={cardContentStyle}>
         <Typography variant="title">
@@ -96,12 +99,8 @@ const BigCollectionsCard = ({ collection, url, classes }: {
   </LinkCard>
 }
 
-const BigCollectionsCardComponent = registerComponent(
-  "BigCollectionsCard", BigCollectionsCard, { styles }
+export const BigCollectionsCard = registerComponent(
+  "BigCollectionsCard", BigCollectionsCardInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    BigCollectionsCard: typeof BigCollectionsCardComponent
-  }
-}
+

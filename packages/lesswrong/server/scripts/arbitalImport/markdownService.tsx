@@ -6,7 +6,6 @@
 
 //import app from './angular.ts';
 //import {Editor} from './Markdown.Editor.ts';
-import { Components } from '@/lib/vulcan-lib/components';
 import { DomainsRow, PagesRow, PageSummariesRow, PageInfosRow, WholeArbitalDatabase } from './arbitalSchema';
 import type { ArbitalConversionContext } from './arbitalImport';
 import {getSanitizingConverter} from './Markdown.Sanitizer';
@@ -155,7 +154,6 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
 }) {
   if (!pageMarkdown) return "";
   const { slugsByPageId, titlesByPageId, pageInfosByPageId, domainsByPageId } = conversionContext;
-  const { ForumIcon } = Components;
   const footnotes: Array<{
     footnoteId: string
     contentsMarkdown: string

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { Typography } from "./Typography";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -22,25 +23,21 @@ export const styles = (theme: ThemeType) => ({
   }
 })
 
-const MetaInfo = ({children, classes, button, className}: {
+const MetaInfoInner = ({children, classes, button, className}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   button?: boolean,
   className?: string
   title?: string,
 }) => {
-  return <Components.Typography
+  return <Typography
     component='span'
     className={classNames(classes.root, button && classes.button, className)}
     variant='body2'>
       {children}
-  </Components.Typography>
+  </Typography>
 }
 
-const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, {styles});
+export const MetaInfo = registerComponent('MetaInfo', MetaInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MetaInfo: typeof MetaInfoComponent
-  }
-}
+

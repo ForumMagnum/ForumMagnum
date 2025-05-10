@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   usersWhoReactedRoot: {
@@ -23,14 +24,12 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
+const UsersWhoReactedInner = ({reactions, wrap=false, showTooltip=true, classes}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components;
-
   if (reactions.length === 0) return null;
 
   const usersWhoProReacted = reactions.filter(r=>r.reactType!=="disagreed")
@@ -76,11 +75,7 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   }
 }
 
-const UsersWhoReactedComponent = registerComponent('UsersWhoReacted', UsersWhoReacted, {styles});
+export const UsersWhoReacted = registerComponent('UsersWhoReacted', UsersWhoReactedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersWhoReacted: typeof UsersWhoReactedComponent
-  }
-}
+
 

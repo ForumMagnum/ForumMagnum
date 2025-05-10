@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 import classNames from 'classnames';
 import { CommentTreeNode, addGapIndicators, flattenCommentBranch, unflattenComments } from '../../lib/utils/unflatten';
@@ -11,6 +11,10 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import { CommentsNode } from "../comments/CommentsNode";
+import { FeedPostsHighlight } from "../posts/FeedPostsHighlight";
+import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
+import { FeedPostCardMeta } from "../posts/FeedPostCardMeta";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -123,8 +127,6 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   expandAllThreads: boolean,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNode } = Components;
-
   const [expanded, setExpanded] = useState(expandAllThreads);
 
   const flattenedCommentBranch = flattenCommentBranch(comment);
@@ -162,7 +164,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   </div>
 };
 
-const FeedPostCommentsCard = ({
+const FeedPostCommentsCardInner = ({
   post,
   comments,
   refetch,
@@ -194,9 +196,6 @@ const FeedPostCommentsCard = ({
     commentTreeOptions,
     initialExpandAllThreads,
   });
-
-  const { FeedPostsHighlight, PostActionsButton, FeedPostCardMeta } = Components;
-
   return (
     <AnalyticsContext pageSubSectionContext='FeedPostCommentsCard'>
 
@@ -238,7 +237,7 @@ const FeedPostCommentsCard = ({
   )
 };
 
-const FeedPostCommentsCardComponent = registerComponent('FeedPostCommentsCard', FeedPostCommentsCard, {
+export const FeedPostCommentsCard = registerComponent('FeedPostCommentsCard', FeedPostCommentsCardInner, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {
@@ -248,8 +247,4 @@ const FeedPostCommentsCardComponent = registerComponent('FeedPostCommentsCard', 
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    FeedPostCommentsCard: typeof FeedPostCommentsCardComponent,
-  }
-}
+

@@ -15,8 +15,7 @@ import {
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { useTracking } from '@/lib/analyticsEvents';
-import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { ZodFormattedError } from 'zod';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
@@ -212,7 +211,7 @@ interface SourceWeightsSettingsProps {
   onChange: (key: FeedItemSourceType, value: string | number) => void;
 }
 
-const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
+const SourceWeightsSettingsInner: React.FC<SourceWeightsSettingsProps> = ({
   weights,
   errors,
   onChange,
@@ -264,7 +263,7 @@ const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
     </div>
   );
 };
-const SourceWeightsSettingsComponent = registerComponent('SourceWeightsSettings', SourceWeightsSettings);
+export const SourceWeightsSettings = registerComponent('SourceWeightsSettings', SourceWeightsSettingsInner);
 
 const getCommentLevelLabel = (level: TruncationLevel): string => {
   if (level === 'Very Short') return `${level} (2 lines)`;
@@ -348,7 +347,7 @@ interface TruncationGridSettingsProps {
   originalSettings: UltraFeedSettingsType;
 }
 
-const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
+const TruncationGridSettingsInner: React.FC<TruncationGridSettingsProps> = ({
   levels,
   onChange,
   originalSettings,
@@ -396,7 +395,7 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   );
 };
 
-const TruncationGridSettingsComponent = registerComponent('TruncationGridSettings', TruncationGridSettings);
+export const TruncationGridSettings = registerComponent('TruncationGridSettings', TruncationGridSettingsInner);
 
 interface AdvancedTruncationSettingsProps {
   values: {
@@ -413,7 +412,7 @@ interface AdvancedTruncationSettingsProps {
   onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
 }
 
-const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
+const AdvancedTruncationSettingsInner: React.FC<AdvancedTruncationSettingsProps> = ({
   values,
   errors,
   onLineClampChange,
@@ -500,7 +499,7 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
     </div>
   );
 };
-const AdvancedTruncationSettingsComponent = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettings);
+export const AdvancedTruncationSettings = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettingsInner);
 
 interface MultipliersSettingsProps {
   quickTakeBoost: {
@@ -515,7 +514,7 @@ interface MultipliersSettingsProps {
   };
 }
 
-const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
+const MultipliersSettingsInner: React.FC<MultipliersSettingsProps> = ({
   quickTakeBoost,
   seenPenalty,
 }) => {
@@ -586,14 +585,14 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
     </div>
   );
 };
-const MultipliersSettingsComponent = registerComponent('MultipliersSettings', MultipliersSettings);
+export const MultipliersSettings = registerComponent('MultipliersSettings', MultipliersSettingsInner);
 
 interface MiscSettingsProps {
   formValues: Pick<SettingsFormState, 'postTitlesAreModals' | 'incognitoMode'>;
   onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
 }
 
-const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
+const MiscSettingsInner: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
   const classes = useStyles(styles);
   return (
     <div className={classes.settingGroup}>
@@ -634,16 +633,7 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
     </div>
   );
 };
-const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);
 
-export default TruncationGridSettingsComponent; // one export required to make Vite HMR work
+export const MiscSettings = registerComponent('MiscSettings', MiscSettingsInner);
 
-declare global {
-  interface ComponentTypes {
-    SourceWeightsSettings: typeof SourceWeightsSettingsComponent
-    TruncationGridSettings: typeof TruncationGridSettingsComponent
-    AdvancedTruncationSettings: typeof AdvancedTruncationSettingsComponent
-    MultipliersSettings: typeof MultipliersSettingsComponent
-    MiscSettings: typeof MiscSettingsComponent
-  }
-}
+

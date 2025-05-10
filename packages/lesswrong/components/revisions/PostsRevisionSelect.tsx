@@ -1,19 +1,21 @@
 import React, { useCallback } from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { RevisionSelect } from "./RevisionSelect";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   revisionList: {
   },
 });
 
-const PostsRevisionSelect = ({ classes }: {
+const PostsRevisionSelectInner = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();
   const navigate = useNavigate();
   const postId = params._id;
@@ -58,10 +60,6 @@ const PostsRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-const PostsRevisionSelectComponent = registerComponent("PostsRevisionSelect", PostsRevisionSelect, {styles});
+export const PostsRevisionSelect = registerComponent("PostsRevisionSelect", PostsRevisionSelectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionSelect: typeof PostsRevisionSelectComponent
-  }
-}
+

@@ -1,7 +1,6 @@
 import React from 'react'
 import passport from 'passport'
-import bcrypt from 'bcrypt'
-import { createHash, randomBytes } from "crypto";
+import { randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { getClientIP } from '@/server/utils/getClientIP';
@@ -9,10 +8,9 @@ import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
-import { EmailTokenType } from "../../emails/emailTokens";
+import { emailTokenTypesByName } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
-import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
@@ -24,23 +22,7 @@ import { createLWEvent } from '@/server/collections/lwevents/mutations';
 import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
-
-// Meteor hashed its passwords twice, once on the client
-// and once again on the server. To preserve backwards compatibility
-// with Meteor passwords, we do the same, but do it both on the server-side
-function createMeteorClientSideHash(password: string) {
-  return createHash('sha256').update(password).digest('hex')
-}
-
-async function createPasswordHash(password: string) {
-  const meteorClientSideHash = createMeteorClientSideHash(password)
-  return await bcrypt.hash(meteorClientSideHash, 10)
-}
-
-
-async function comparePasswords(password: string, hash: string) {
-  return await bcrypt.compare(createMeteorClientSideHash(password), hash)
-}
+import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);
@@ -78,11 +60,6 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
 
 passport.use(passwordAuthStrategy)
 
-
-function validatePassword(password: string): {validPassword: true} | {validPassword: false, reason: string} {
-  if (password.length < 6) return { validPassword: false, reason: "Your password needs to be at least 6 characters long"}
-  return { validPassword: true }
-}
 
 function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
   if (username.length < 2) {
@@ -149,19 +126,10 @@ export async function createAndSetToken(req: AnyBecauseTodo, res: AnyBecauseTodo
 }
 
 
-const VerifyEmailToken = new EmailTokenType({
-  name: "verifyEmail",
-  onUseAction: async (user) => {
-    if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
-    await new UsersRepo().verifyEmail(user._id);
-    return {message: "Your email has been verified" };
-  },
-  resultComponentName: "EmailTokenResult"
-});
 
 
 export async function sendVerificationEmail(user: DbUser) {
-  const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
+  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
   await wrapAndSendEmail({
     user,
     force: true,
@@ -178,21 +146,6 @@ export async function sendVerificationEmail(user: DbUser) {
     </div>
   })
 }
-
-const ResetPasswordToken = new EmailTokenType({
-  name: "resetPassword",
-  onUseAction: async (user, params, args) => {
-    if (!args) throw Error("Using a reset-password token requires providing a new password")
-    const { password } = args
-    const validatePasswordResponse = validatePassword(password)
-    if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
-
-    await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
-    return {message: "Your new password has been set. Try logging in again." };
-  },
-  resultComponentName: "EmailTokenResult",
-  path: "resetPassword" // Defined in routes.ts
-});
 
 export const loginDataGraphQLTypeDefs = gql`
   type LoginReturnData {
@@ -303,7 +256,7 @@ export const loginDataGraphQLMutations = {
     if (!email) throw Error("Email is required for resetting passwords")
     const user = await userFindOneByEmail(email)
     if (!user) throw Error("Can't find user with given email address")
-    const tokenLink = await ResetPasswordToken.generateLink(user._id)
+    const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id)
     const emailSucceeded = await wrapAndSendEmail({
       user,
       force: true,

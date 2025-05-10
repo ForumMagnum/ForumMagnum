@@ -1,9 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { PostsTitle } from "../posts/PostsTitle";
+import { MetaInfo } from "../common/MetaInfo";
+import { FormatDate } from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,12 +31,11 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsListEditorSearchHit = ({hit, classes}: {
+const PostsListEditorSearchHitInner = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,
   classes: ClassesType<typeof styles>,
 }) => {
   const post = hit as SearchPost;
-  const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;
   return (
     <PostsTooltip postId={post._id} postsList placement="left">
       <div className={classes.root}>
@@ -58,10 +61,6 @@ const PostsListEditorSearchHit = ({hit, classes}: {
   );
 }
 
-const PostsListEditorSearchHitComponent = registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, {styles});
+export const PostsListEditorSearchHit = registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListEditorSearchHit: typeof PostsListEditorSearchHitComponent
-  }
-}
+

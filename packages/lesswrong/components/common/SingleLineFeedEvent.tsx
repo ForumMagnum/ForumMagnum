@@ -1,8 +1,9 @@
 import React from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { Paper }from '@/components/widgets/Paper';
+import { LWTooltip } from "./LWTooltip";
 
 const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {
@@ -58,7 +59,7 @@ const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
 }));
 
 
-const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
+const SingleLineFeedEventInner = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
   expands?: boolean,
   expanded?: boolean,
   setExpanded?: (expanded: boolean) => void,
@@ -68,8 +69,7 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip } = Components;
-  
+
   function handleClick() {
     if (expands) {
       setExpanded?.(true);
@@ -98,10 +98,6 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   }
 }
 
-const SingleLineFeedEventComponent = registerComponent("SingleLineFeedEvent", SingleLineFeedEvent);
+export const SingleLineFeedEvent = registerComponent("SingleLineFeedEvent", SingleLineFeedEventInner);
 
-declare global {
-  interface ComponentTypes {
-    SingleLineFeedEvent: typeof SingleLineFeedEventComponent
-  }
-}
+

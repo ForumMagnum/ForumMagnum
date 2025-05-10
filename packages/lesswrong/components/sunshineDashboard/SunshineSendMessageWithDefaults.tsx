@@ -2,11 +2,14 @@ import React, {useState} from 'react';
 import { Menu } from '@/components/widgets/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
+import { TemplateQueryStrings, NewConversationButton } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { ContentItemBody } from "../common/ContentItemBody";
+import { LWTooltip } from "../common/LWTooltip";
+import { MenuItem } from "../common/Menus";
 
 const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
@@ -48,13 +51,11 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
+const SunshineSendMessageWithDefaultsInner = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
-
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
@@ -111,12 +112,8 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   )
 }
 
-const SunshineSendMessageWithDefaultsComponent = registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaults, {
+export const SunshineSendMessageWithDefaults = registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaultsInner, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineSendMessageWithDefaults: typeof SunshineSendMessageWithDefaultsComponent
-  }
-}
+

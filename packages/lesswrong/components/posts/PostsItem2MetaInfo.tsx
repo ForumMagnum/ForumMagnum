@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   metaInfo: {
@@ -13,24 +14,20 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsItem2MetaInfo = ({children, className, classes}: {
+const PostsItem2MetaInfoInner = ({children, className, classes}: {
   children?: React.ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
   read?: boolean,
 }) => {
-  return <Components.Typography
+  return <Typography
     component='span'
     className={classNames(classes.metaInfo, className)}
     variant='body2'>
       {children}
-  </Components.Typography>
+  </Typography>
 }
 
-const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});
+export const PostsItem2MetaInfo = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfoInner, {styles});
   
-declare global {
-  interface ComponentTypes {
-    PostsItem2MetaInfo: typeof PostsItem2MetaInfoComponent
-  }
-}
+

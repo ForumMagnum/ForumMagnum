@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
 import { DialogActions } from '@/components/widgets/DialogActions';
@@ -8,6 +8,7 @@ import { DialogTitle } from '../../widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { LWDialog } from "../../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const DeleteCommentDialog = ({comment, onClose, classes}: {
+const DeleteCommentDialogInner = ({comment, onClose, classes}: {
   comment: CommentsList,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -60,7 +61,6 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   }
 
   const render = () => {
-    const { LWDialog } = Components;
     return (
       <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
@@ -100,12 +100,8 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   return render();
 }
 
-const DeleteCommentDialogComponent = registerComponent(
-  'DeleteCommentDialog', DeleteCommentDialog, {styles}
+export const DeleteCommentDialog = registerComponent(
+  'DeleteCommentDialog', DeleteCommentDialogInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteCommentDialog: typeof DeleteCommentDialogComponent
-  }
-}
+

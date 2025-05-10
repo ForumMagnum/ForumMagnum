@@ -1,9 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { drawnArrow } from "@/components/icons/drawnArrow";
 import { useForumWrappedContext } from "./hooks";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -42,7 +44,7 @@ const styles = (theme: ThemeType) => ({
  * Section that displays a list of the core topics that the user has read more 
  * relative to the avg
  */
-const WrappedRelativeMostReadTopicsSection = ({classes}: {
+const WrappedRelativeMostReadTopicsSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {relativeMostReadCoreTopics}} = useForumWrappedContext();
@@ -56,8 +58,6 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   }).slice(0, 4);
 
   const relativeTopicsChartHeight = 200 * (relativeMostReadTopics.length / 4);
-
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="relativeMostReadTopics">
       <WrappedHeading>
@@ -105,14 +105,10 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   );
 }
 
-const WrappedRelativeMostReadTopicsSectionComponent = registerComponent(
+export const WrappedRelativeMostReadTopicsSection = registerComponent(
   "WrappedRelativeMostReadTopicsSection",
-  WrappedRelativeMostReadTopicsSection,
+  WrappedRelativeMostReadTopicsSectionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedRelativeMostReadTopicsSection: typeof WrappedRelativeMostReadTopicsSectionComponent
-  }
-}
+

@@ -1,13 +1,18 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
-import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
+import { MAX_CONTENT_WIDTH, ToCColumn } from "../posts/TableOfContents/ToCColumn";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import { PostsLoading } from "../posts/PostsLoading";
+import { EAPostsItem } from "../posts/EAPostsItem";
+import { EALargePostsItem } from "../posts/EALargePostsItem";
+import { UserTooltip } from "../users/UserTooltip";
+import { PostsItem } from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,8 +54,6 @@ const WrapperComponent = ({hasTableOfContents, children}: {
   hasTableOfContents: boolean
   children: React.ReactNode
 }) => {
-  const { ToCColumn } = Components;
-  
   if (isFriendlyUI) {
     return <ToCColumn
       tableOfContents={hasTableOfContents ? <div /> : null}
@@ -63,7 +66,7 @@ const WrapperComponent = ({hasTableOfContents, children}: {
   }
 };
 
-const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
+const PostBottomRecommendationsInner = ({post, hasTableOfContents, ssr = false, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
   ssr?: boolean,
@@ -111,11 +114,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
 
   const hasUserPosts = post.user &&
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
-
-  const {
-    PostsLoading, EAPostsItem, EALargePostsItem, UserTooltip, PostsItem
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
@@ -188,14 +186,10 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
   );
 }
 
-const PostBottomRecommendationsComponent = registerComponent(
+export const PostBottomRecommendations = registerComponent(
   "PostBottomRecommendations",
-  PostBottomRecommendations,
+  PostBottomRecommendationsInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostBottomRecommendations: typeof PostBottomRecommendationsComponent
-  }
-}
+

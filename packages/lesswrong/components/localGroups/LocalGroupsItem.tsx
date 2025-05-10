@@ -1,7 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import { PostsItemMetaInfo } from "../posts/PostsItemMetaInfo";
+import { GroupLinks } from "./GroupLinks";
 
 export const postsItemLikeStyles = (theme: ThemeType) => ({
   root: {
@@ -74,12 +76,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupsItem = ({group, classes}: {
+const LocalGroupsItemInner = ({group, classes}: {
   group: localGroupsHomeFragment,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsItemMetaInfo, GroupLinks } = Components
-  
   if (!group) { return null }
 
   return (
@@ -95,11 +95,7 @@ const LocalGroupsItem = ({group, classes}: {
   )
 }
 
-const LocalGroupsItemComponent = registerComponent('LocalGroupsItem', LocalGroupsItem, {styles});
+export const LocalGroupsItem = registerComponent('LocalGroupsItem', LocalGroupsItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupsItem: typeof LocalGroupsItemComponent
-  }
-}
+
 

@@ -1,9 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { isEAForum } from '../../lib/instanceSettings';
+import { Loading } from "../vulcan-core/Loading";
+import { SectionTitle } from "./SectionTitle";
+import { ShortformListItem } from "../shortform/ShortformListItem";
+import { LoadMore } from "./LoadMore";
+import { SectionButton } from "./SectionButton";
+import { ShortformSubmitForm } from "../shortform/ShortformSubmitForm";
 
 const styles = (_: ThemeType) => ({
   subheader: {
@@ -15,7 +21,7 @@ const styles = (_: ThemeType) => ({
   }
 });
 
-const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
+const CommentsListCondensedInner = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
   label: string,
   terms: CommentsViewTerms
   initialLimit?: number,
@@ -31,8 +37,6 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   const toggleShortformFeed = useCallback(() => {
     setShowShortformFeed(!showShortformFeed);
   }, [setShowShortformFeed, showShortformFeed]);
-
-  const { Loading, SectionTitle, ShortformListItem, LoadMore, SectionButton, ShortformSubmitForm } = Components;
   const { results, loading, count, totalCount, loadMoreProps, refetch } = useMulti({
     terms: terms,
     limit: initialLimit,
@@ -75,14 +79,10 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   </>;
 }
 
-const CommentsListCondensedComponent = registerComponent(
+export const CommentsListCondensed = registerComponent(
   'CommentsListCondensed',
-  CommentsListCondensed,
+  CommentsListCondensedInner,
   {styles, stylePriority: 1},
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentsListCondensed: typeof CommentsListCondensedComponent
-  }
-}
+

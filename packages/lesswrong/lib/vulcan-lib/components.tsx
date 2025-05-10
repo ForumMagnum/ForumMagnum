@@ -67,7 +67,7 @@ const componentsProxyHandler = {
  * registerComponents calls. Lazily loads those components when you dereference,
  * using a proxy.
  */
-export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
+// export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
 
 const PreparedComponents: Record<string,any> = {};
 
@@ -154,15 +154,16 @@ export function registerComponent<PropType>(
   };
   
   if (enableVite) {
-    delete PreparedComponents[name as keyof ComponentTypes];
-    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>;
+    delete PreparedComponents[name];
+    // return Components[name] as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>;
   }
   
   // The Omit is a hacky way of ensuring that hocs props are omitted from the
   // ones required to be passed in by parent components. It doesn't work for
   // hocs that share prop names that overlap with actually passed-in props, like
   // `location`.
-  return (null as any as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>);
+  // return (null as any as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>);
+  return composeComponent({ name, rawComponent, hocs, options });
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until
@@ -170,7 +171,7 @@ export function registerComponent<PropType>(
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
+export function importComponent(componentName: /*keyof ComponentTypes|Array<keyof ComponentTypes>*/ string | string[], importFn: () => void) {
   if (Array.isArray(componentName)) {
     for (let name of componentName) {
       DeferredComponentsTable[name] = importFn;
@@ -214,10 +215,14 @@ const getComponent = (name: string): any => {
     throw new Error(`Component ${name} not registered.`);
   }
   
+  return composeComponent(componentMeta);
+};
+
+const composeComponent = (componentMeta: ComponentsTableEntry) => {
   const componentWithMemo = componentMeta.options?.areEqual
-    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, name, !!componentMeta.options.debugRerenders)
+    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, componentMeta.name, !!componentMeta.options.debugRerenders)
     : componentMeta.rawComponent;
-  
+
   if (componentMeta.hocs && componentMeta.hocs.length) {
     const hocs = componentMeta.hocs.map(hoc => {
       if (!Array.isArray(hoc)) {
@@ -323,22 +328,22 @@ export const populateComponentsAppDebug = (): void => {
 //
 // @param {string|function} component  A component or registered component name
 // @param {Object} [props]  Optional properties to pass to the component
-export const instantiateComponent = (component: any, props: any) => {
-  if (!component) {
-    return null;
-  } else if (typeof component === 'string') {
-    const Component: any = Components[component as keyof ComponentTypes];
-    return <Component {...props} />;
-  } else if (
-    typeof component === 'function' &&
-    component.prototype &&
-    component.prototype.isReactComponent
-  ) {
-    const Component = component;
-    return <Component {...props} />;
-  } else if (typeof component === 'function') {
-    return component(props);
-  } else {
-    return component;
-  }
-};
+// export const instantiateComponent = (component: any, props: any) => {
+//   if (!component) {
+//     return null;
+//   } else if (typeof component === 'string') {
+//     const Component: any = Components[component as keyof ComponentTypes];
+//     return <Component {...props} />;
+//   } else if (
+//     typeof component === 'function' &&
+//     component.prototype &&
+//     component.prototype.isReactComponent
+//   ) {
+//     const Component = component;
+//     return <Component {...props} />;
+//   } else if (typeof component === 'function') {
+//     return component(props);
+//   } else {
+//     return component;
+//   }
+// };

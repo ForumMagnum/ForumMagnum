@@ -1,8 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
 import Button  from '@/lib/vendor/@material-ui/core/src/Button'
+import { ContentItemBody } from "../common/ContentItemBody";
+import { LWDialog } from "../common/LWDialog";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -28,14 +31,13 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
+const AFNonMemberSuccessPopupInner = ({_id, postId, onClose, classes}: {
   _id: string,
   postId?: string,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(true)
-  const { ContentItemBody, LWDialog, ContentStyles } = Components
   const { tag } = useTagBySlug("af-non-member-submission-success", "TagFragment")
   
   const handleClose = () => {
@@ -77,10 +79,6 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   );
 }
 
-const AFNonMemberSuccessPopupComponent = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopup, {styles});
+export const AFNonMemberSuccessPopup = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopupInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFNonMemberSuccessPopup: typeof AFNonMemberSuccessPopupComponent
-  }
-}
+

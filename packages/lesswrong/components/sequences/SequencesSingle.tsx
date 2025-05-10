@@ -1,17 +1,14 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import { SequencesPage } from "./SequencesPage";
 
-const SequencesSingle = () => {
+const SequencesSingleInner = () => {
   const { params } = useLocation();
-  return <Components.SequencesPage documentId={params._id} />
+  return <SequencesPage documentId={params._id} />
 };
 
-const SequencesSingleComponent = registerComponent('SequencesSingle', SequencesSingle);
+export const SequencesSingle = registerComponent('SequencesSingle', SequencesSingleInner);
 
-declare global {
-  interface ComponentTypes {
-    SequencesSingle: typeof SequencesSingleComponent
-  }
-}
+
 

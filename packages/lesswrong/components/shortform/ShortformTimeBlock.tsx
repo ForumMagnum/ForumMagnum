@@ -1,7 +1,11 @@
 import React, { FC, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { QuickTakesListItem } from "../quickTakes/QuickTakesListItem";
+import { CommentsNode } from "../comments/CommentsNode";
+import { LoadMore } from "../common/LoadMore";
+import { ContentType } from "../posts/PostsPage/ContentType";
 
 const styles = (_: ThemeType) => ({
   shortformGroup: {
@@ -22,11 +26,11 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   }
   if (isFriendlyUI) {
     return (
-      <Components.QuickTakesListItem quickTake={comment} />
+      <QuickTakesListItem quickTake={comment} />
     );
   }
   return (
-    <Components.CommentsNode
+    <CommentsNode
       treeOptions={{
         post: comment.post || undefined,
         forceSingleLine: true
@@ -37,15 +41,13 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
+const ShortformTimeBlockInner  = ({reportEmpty, before, after, terms, classes}: {
   reportEmpty: () => void,
   before: string
   after: string
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {LoadMore, ContentType} = Components;
-
   const {totalCount, loadMore, loading, results: comments} = useMulti({
     terms: {
       ...terms,
@@ -91,11 +93,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   </div>
 }
 
-const ShortformTimeBlockComponent = registerComponent('ShortformTimeBlock', ShortformTimeBlock, {styles});
+export const ShortformTimeBlock = registerComponent('ShortformTimeBlock', ShortformTimeBlockInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformTimeBlock: typeof ShortformTimeBlockComponent
-  }
-}
+
 

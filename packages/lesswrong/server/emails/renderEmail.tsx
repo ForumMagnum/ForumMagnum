@@ -13,7 +13,7 @@ import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { UnsubscribeAllToken } from '../emails/emailTokens';
+import { emailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
@@ -221,7 +221,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
 }
 
 export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user: DbUser | null, to: string, from?: string, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await UnsubscribeAllToken.generateLink(user._id) : null;
+  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
   return await generateEmail({
     user,
     to,

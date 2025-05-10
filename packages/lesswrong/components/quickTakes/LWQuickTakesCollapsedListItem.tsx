@@ -1,10 +1,15 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
+import { ForumIcon } from "../common/ForumIcon";
+import { LWPopper } from "../common/LWPopper";
+import { CommentsNode } from "../comments/CommentsNode";
+import { CommentsItemMeta } from "../comments/CommentsItem/CommentsItemMeta";
+import { CommentBottomCaveats } from "../comments/CommentsItem/CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,13 +62,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
+const LWQuickTakesCollapsedListItemInner = ({ quickTake, setExpanded, classes }: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta, CommentBottomCaveats } = Components;
-
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",
@@ -187,14 +190,10 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   );
 }
 
-const LWQuickTakesCollapsedListItemComponent = registerComponent(
+export const LWQuickTakesCollapsedListItem = registerComponent(
   "LWQuickTakesCollapsedListItem",
-  LWQuickTakesCollapsedListItem,
+  LWQuickTakesCollapsedListItemInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWQuickTakesCollapsedListItem: typeof LWQuickTakesCollapsedListItemComponent
-  }
-}
+

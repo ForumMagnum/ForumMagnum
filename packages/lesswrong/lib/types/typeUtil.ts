@@ -104,13 +104,5 @@ type ComponentProps<C> = C extends React.ComponentType<infer P> ? P : never;
 
 type IsOptional<T, K extends keyof T> = undefined extends T[K] ? true : false;
 
-export type ComponentWithProps<T> = {
-  // The ternary here is to make sure e.g. `{onClose?: any}` only matches components that have onClose as an optional parameter,
-  // and not components that don't have it at all
-  [K in keyof ComponentTypes]: IsOptional<ComponentProps<ComponentTypes[K]>, keyof T & keyof ComponentProps<ComponentTypes[K]>> extends true
-    ? (ComponentProps<ComponentTypes[K]> extends T ? K : never)
-    : (ComponentProps<ComponentTypes[K]> extends Required<T> ? K : never)
-}[keyof ComponentTypes];
-
 }
 

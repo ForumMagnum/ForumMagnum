@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { useLocation } from '@/lib/routeUtil';
@@ -8,7 +8,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { useTagOrLens } from '../hooks/useTagOrLens';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = defineStyles("PathInfo", (theme) => ({
   pathInfo: {
@@ -88,13 +88,11 @@ function usePathInfo(tag: TagPageFragment|TagPageWithRevisionFragment|null, lens
   return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
-const PathInfo = ({tag, lens}: {
+const PathInfoInner = ({tag, lens}: {
   tag: TagPageFragment
   lens: TagLens|null
 }) => {
   const classes = useStyles(styles);
-  const { ForumIcon } = Components;
-  
   const pathInfo = usePathInfo(tag, lens);
 
   const { tag: guideTag, lens: guideLens } = useTagOrLens(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
@@ -133,11 +131,7 @@ const PathInfo = ({tag, lens}: {
   </div>
 }
 
-const PathInfoComponent = registerComponent('PathInfo', PathInfo);
+export const PathInfo = registerComponent('PathInfo', PathInfoInner);
 
-declare global {
-  interface ComponentTypes {
-    PathInfo: typeof PathInfoComponent
-  }
-}
+
 

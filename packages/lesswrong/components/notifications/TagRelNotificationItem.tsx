@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   meta: {
@@ -14,12 +15,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const TagRelNotificationItem = ({classes, tagRelId}: {
+export const TagRelNotificationItemInner = ({classes, tagRelId}: {
   classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
-  const { Loading } = Components
-
   const { document: tagRel, loading } = useSingle({
     documentId: tagRelId,
     collectionName: "TagRels",
@@ -35,11 +34,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   </div>;
 }
 
-const TagRelNotificationItemComponent = registerComponent('TagRelNotificationItem', TagRelNotificationItem, {styles});
+export const TagRelNotificationItem = registerComponent('TagRelNotificationItem', TagRelNotificationItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelNotificationItem: typeof TagRelNotificationItemComponent
-  }
-}
+
 

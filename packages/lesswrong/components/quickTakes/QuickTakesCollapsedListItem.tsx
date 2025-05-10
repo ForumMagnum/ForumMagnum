@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
@@ -9,6 +9,14 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import moment from "moment";
+import { KarmaDisplay } from "../common/KarmaDisplay";
+import { ForumIcon } from "../common/ForumIcon";
+import { UsersName } from "../users/UsersName";
+import { LWTooltip } from "../common/LWTooltip";
+import { FooterTag } from "../tagging/FooterTag";
+import { CommentsMenu } from "../dropdowns/comments/CommentsMenu";
+import { LWPopper } from "../common/LWPopper";
+import { CommentsNode } from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -97,7 +105,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
+const QuickTakesCollapsedListItemInner = ({quickTake, setExpanded, classes}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -141,11 +149,6 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
       }, 0);
     }
   }, [commentsAreClickable, quickTake]);
-
-  const {
-    KarmaDisplay, ForumIcon, UsersName, LWTooltip, FooterTag, CommentsMenu,
-    LWPopper, CommentsNode,
-  } = Components;
   return (
     <div
       onClick={onClick}
@@ -226,14 +229,10 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   );
 }
 
-const QuickTakesCollapsedListItemComponent = registerComponent(
+export const QuickTakesCollapsedListItem = registerComponent(
   "QuickTakesCollapsedListItem",
-  QuickTakesCollapsedListItem,
+  QuickTakesCollapsedListItemInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesCollapsedListItem: typeof QuickTakesCollapsedListItemComponent
-  }
-}
+

@@ -2,9 +2,13 @@ import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
+import { TagPreview } from "./TagPreview";
+import { OverallVoteButton } from "../votes/OverallVoteButton";
+import { TagRelevanceButton } from "./TagRelevanceButton";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   relevance: {
@@ -55,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagRelCard = ({tagRel, classes}: {
+const TagRelCardInner = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -76,9 +80,6 @@ const TagRelCard = ({tagRel, classes}: {
       {children}
     </LWTooltip>
   )
-
-  const { TagPreview, OverallVoteButton, TagRelevanceButton, LWTooltip } = Components;
-  
   return <div>
     <div className={classes.relevance}>
       <LWTooltip title="How relevant is this tag to this post?" placement="top">
@@ -130,10 +131,6 @@ const TagRelCard = ({tagRel, classes}: {
   </div>
 }
 
-const TagRelCardComponent = registerComponent("TagRelCard", TagRelCard, {styles});
+export const TagRelCard = registerComponent("TagRelCard", TagRelCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelCard: typeof TagRelCardComponent
-  }
-}
+

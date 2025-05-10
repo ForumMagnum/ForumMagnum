@@ -1,15 +1,18 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
-import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
+import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
-import { jargonTermsToTextReplacements } from './JargonTooltip';
+import { jargonTermsToTextReplacements, JargonTooltip } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { useHover } from '../common/withHover';
+import { SideItem } from "../contents/SideItems";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const lowOpacity = .4;
 const highOpacity = .85;
@@ -180,7 +183,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
+const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
@@ -188,8 +191,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
   unapprovedTermsCount: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
-
   const { captureEvent } = useTracking();
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
 
@@ -329,10 +330,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
   </SideItem></div>
 }
 
-const GlossarySidebarComponent = registerComponent('GlossarySidebar', GlossarySidebar, {styles});
+export const GlossarySidebar = registerComponent('GlossarySidebar', GlossarySidebarInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossarySidebar: typeof GlossarySidebarComponent
-  }
-}
+

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -7,6 +7,8 @@ import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { requireCssVar } from '../../themes/cssVars';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import { FormatDate } from "../common/FormatDate";
+import { UserNameDeleted } from "../users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,12 +71,11 @@ const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
 const greyBackground = requireCssVar("palette", "grey", 0);
 
-const ExpandedSequencesSearchHit = ({hit, classes}: {
+const ExpandedSequencesSearchHitInner = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const sequence: SearchSequence = hit
   
   const handleClick = () => {
@@ -105,11 +106,7 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedSequencesSearchHitComponent = registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHit, {styles});
+export const ExpandedSequencesSearchHit = registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedSequencesSearchHit: typeof ExpandedSequencesSearchHitComponent
-  }
-}
+
 

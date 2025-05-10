@@ -1,10 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
+import { ReportForm } from "../../sunshineDashboard/ReportForm";
+import { DropdownItem } from "../DropdownItem";
 
-const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
+const ReportPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
@@ -18,7 +20,7 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
     }
     openDialog({
       name: "ReportForm",
-      contents: ({onClose}) => <Components.ReportForm
+      contents: ({onClose}) => <ReportForm
         onClose={onClose}
         postId={post._id}
         link={"/posts/" + post._id}
@@ -26,8 +28,6 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
       />
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Report"
@@ -37,13 +37,9 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 };
 
-const ReportPostDropdownItemComponent = registerComponent(
+export const ReportPostDropdownItem = registerComponent(
   'ReportPostDropdownItem',
-  ReportPostDropdownItem,
+  ReportPostDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ReportPostDropdownItem: typeof ReportPostDropdownItemComponent
-  }
-}
+

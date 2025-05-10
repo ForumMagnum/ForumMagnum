@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PastWarnings = ({classes, petrovDayActions, side, general}: {
+export const PastWarningsInner = ({classes, petrovDayActions, side, general}: {
   classes: ClassesType<typeof styles>,
   petrovDayActions: PetrovDayActionInfo[],
   side: 'east' | 'west',
@@ -52,10 +52,6 @@ export const PastWarnings = ({classes, petrovDayActions, side, general}: {
   </div>;
 }
 
-const PastWarningsComponent = registerComponent('PastWarnings', PastWarnings, {styles});
+export const PastWarnings = registerComponent('PastWarnings', PastWarningsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PastWarnings: typeof PastWarningsComponent
-  }
-}
+

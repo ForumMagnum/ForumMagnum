@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
@@ -7,9 +7,10 @@ import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
+import { DeleteCommentDialog } from "./DeleteCommentDialog";
+import { DropdownItem } from "../DropdownItem";
 
-
-const DeleteCommentDropdownItem = ({comment, post, tag}: {
+const DeleteCommentDropdownItemInner = ({comment, post, tag}: {
   comment: CommentsList,
   post?: PostsBase,
   tag?: TagBasicInfo,
@@ -24,7 +25,7 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   const showDeleteDialog = () => {
     openDialog({
       name: "DeleteCommentDialog",
-      contents: ({onClose}) => <Components.DeleteCommentDialog
+      contents: ({onClose}) => <DeleteCommentDialog
         onClose={onClose}
         comment={comment}
       />
@@ -55,8 +56,6 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   ) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   if (!comment.deleted) {
     return (
       <DropdownItem
@@ -79,12 +78,8 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   }
 }
 
-const DeleteCommentDropdownItemComponent = registerComponent(
-  'DeleteCommentDropdownItem', DeleteCommentDropdownItem,
+export const DeleteCommentDropdownItem = registerComponent(
+  'DeleteCommentDropdownItem', DeleteCommentDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteCommentDropdownItem: typeof DeleteCommentDropdownItemComponent
-  }
-}
+

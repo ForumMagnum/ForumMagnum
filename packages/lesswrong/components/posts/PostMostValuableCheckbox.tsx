@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
  * This is used by the EA Forum Wrapped page, to let users indicate which posts
  * they found particularly valuable.
  */
-export const PostMostValuableCheckbox = ({post, classes}: {
+export const PostMostValuableCheckboxInner = ({post, classes}: {
   post: Pick<PostsBase, "_id">,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -79,18 +80,14 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   
   if (!currentUser || loading || !results) return null
   
-  return <Components.ForumIcon
+  return <ForumIcon
     onClick={toggleChecked}
     icon={checked ? "Heart" : "HeartOutline"}
     className={classes.root}
   />
 }
 
-const PostMostValuableCheckboxComponent = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
+export const PostMostValuableCheckbox = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckboxInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostMostValuableCheckbox: typeof PostMostValuableCheckboxComponent
-  }
-}
+
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { Components } from '../../../lib/vulcan-lib/components';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
+import { PostsPreviewLoading } from "./PostsPreviewLoading";
 
 export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,
@@ -13,8 +13,6 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
     documentId: postId,
   });
-
-  const {PostsPreviewLoading} = Components;
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -35,8 +33,6 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
     documentId: postId,
   });
-
-  const {PostsPreviewLoading} = Components;
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -63,8 +59,6 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
     documentId: commentId,
   });
-
-  const {PostsPreviewLoading} = Components;
   if (postLoading || commentLoading) {
     return <PostsPreviewLoading />
   }
@@ -86,8 +80,6 @@ export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
     documentId: tagRelId,
   });
-
-  const {PostsPreviewLoading} = Components;
   if (tagRelLoading) {
     return <PostsPreviewLoading />
   }

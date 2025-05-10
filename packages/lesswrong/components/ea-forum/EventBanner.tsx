@@ -1,6 +1,6 @@
 import React from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -29,11 +29,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const EventBanner = ({ classes }: {
+const EventBannerInner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection } = Components
-
   const mobileImageId = eventBannerMobileImageSetting.get()
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()
@@ -52,12 +50,8 @@ const EventBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-const EventBannerComponent = registerComponent(
-  'EventBanner', EventBanner, {styles},
+export const EventBanner = registerComponent(
+  'EventBanner', EventBannerInner, {styles},
 )
 
-declare global {
-  interface ComponentTypes {
-    EventBanner: typeof EventBannerComponent
-  }
-}
+

@@ -1,7 +1,8 @@
 import React, { createContext, useContext } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { ConditionalVisibilitySettings } from './conditionalVisibility';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ShowBlockVisibilityCondition } from "./ShowBlockVisibilityCondition";
 
 const styles = defineStyles("ConditionalVisibilityBlockDisplay", (theme) => ({
   revealHiddenBlocks: {
@@ -36,7 +37,7 @@ const useBlockIsVisible = (options: ConditionalVisibilitySettings) => {
   }
 }
 
-const ConditionalVisibilityBlockDisplay = ({options, children}: {
+const ConditionalVisibilityBlockDisplayInner = ({options, children}: {
   options: ConditionalVisibilitySettings,
   children: React.ReactNode,
 }) => {
@@ -46,9 +47,9 @@ const ConditionalVisibilityBlockDisplay = ({options, children}: {
   const visible = useBlockIsVisible(options);
   
   if (revealHiddenBlocks) {
-    return <Components.ShowBlockVisibilityCondition options={options}>
+    return <ShowBlockVisibilityCondition options={options}>
       {children}
-    </Components.ShowBlockVisibilityCondition>
+    </ShowBlockVisibilityCondition>
   } else if (visible) {
     if (options.inline) {
       return <span>{children}</span>
@@ -71,11 +72,7 @@ export const RevealHiddenBlocks = ({children}: {
   </RevealHiddenBlocksContext.Provider>
 }
 
-const ConditionalVisibilityBlockDisplayComponent = registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplay);
+export const ConditionalVisibilityBlockDisplay = registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplayInner);
 
-declare global {
-  interface ComponentTypes {
-    ConditionalVisibilityBlockDisplay: typeof ConditionalVisibilityBlockDisplayComponent
-  }
-}
+
 

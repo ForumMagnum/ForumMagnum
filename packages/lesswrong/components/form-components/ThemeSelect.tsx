@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { themeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -56,10 +55,3 @@ export const ThemeSelect = ({ field }: ThemeSelectProps) => {
   );
 }
 
-const ThemeSelectComponent = registerComponent("ThemeSelect", ThemeSelect);
-
-declare global {
-  interface ComponentTypes {
-    ThemeSelect: typeof ThemeSelectComponent
-  }
-}

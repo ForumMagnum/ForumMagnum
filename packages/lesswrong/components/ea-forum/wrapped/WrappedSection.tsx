@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import classNames from "classnames";
 
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
  * ForumWrappedContext here as this component is also used when the page is
  * still loading.
  */
-const WrappedSection = ({
+const WrappedSectionInner = ({
   pageSectionContext,
   align = "center",
   fullWidth,
@@ -90,14 +90,10 @@ const WrappedSection = ({
   );
 }
 
-const WrappedSectionComponent = registerComponent(
+export const WrappedSection = registerComponent(
   "WrappedSection",
-  WrappedSection,
+  WrappedSectionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedSection: typeof WrappedSectionComponent
-  }
-}
+

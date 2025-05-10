@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ConditionalVisibilityMode, conditionalVisibilityModes, ConditionalVisibilitySettings, EditConditionalVisibilityProps } from './conditionalVisibility';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { MenuItem } from "../../common/Menus";
 
 const styles = defineStyles("EditConditionalVisibility", (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,7 @@ const styles = defineStyles("EditConditionalVisibility", (theme: ThemeType) => (
   },
 }));
 
-export const EditConditionalVisibility = ({initialState, setDocumentState}: EditConditionalVisibilityProps) => {
+export const EditConditionalVisibilityInner = ({initialState, setDocumentState}: EditConditionalVisibilityProps) => {
   const classes = useStyles(styles);
   const [state,setState] = useState(initialState);
   const changeValue = (newState: ConditionalVisibilitySettings) => {
@@ -31,8 +32,6 @@ export const EditConditionalVisibility = ({initialState, setDocumentState}: Edit
     setState(newState);
   }
   const mode = conditionalVisibilityModes[state.type];
-  const { MenuItem } = Components;
-
   return <div
     className={classes.root} contentEditable={false}
     data-cke-ignore-events={true}
@@ -83,11 +82,7 @@ export const EditConditionalVisibility = ({initialState, setDocumentState}: Edit
   </div>
 }
 
-const EditConditionalVisibilityComponent = registerComponent('EditConditionalVisibility', EditConditionalVisibility);
+export const EditConditionalVisibility = registerComponent('EditConditionalVisibility', EditConditionalVisibilityInner);
 
-declare global {
-  interface ComponentTypes {
-    EditConditionalVisibility: typeof EditConditionalVisibilityComponent
-  }
-}
+
 

@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = () => ({
   root: {
@@ -19,12 +20,12 @@ const styles = () => ({
   },
 });
 
-const TagMentionHit = ({hit, classes}: {
+const TagMentionHitInner = ({hit, classes}: {
   hit: SearchTag,
   classes: ClassesType<typeof styles>,
 }) => {
   const icon = isFriendlyUI
-    ? <Components.ForumIcon icon="Tag" className={classes.icon} />
+    ? <ForumIcon icon="Tag" className={classes.icon} />
     : "🏷️";
   return (
     <span className={classes.root}>
@@ -33,14 +34,10 @@ const TagMentionHit = ({hit, classes}: {
   );
 }
 
-const TagMentionHitComponent = registerComponent(
+export const TagMentionHit = registerComponent(
   "TagMentionHit",
-  TagMentionHit,
+  TagMentionHitInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    TagMentionHit: typeof TagMentionHitComponent
-  }
-}
+

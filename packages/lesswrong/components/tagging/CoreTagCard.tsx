@@ -1,9 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '@/lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import { SubscribeButton } from "./SubscribeButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,12 +57,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CoreTagCard = ({tag, classes}: {
+const CoreTagCardInner = ({tag, classes}: {
   tag: TagDetailsFragment
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CloudinaryImage2, SubscribeButton } = Components;
-
   const imageId = tag.squareImageId || tag.bannerImageId
 
   return (
@@ -89,10 +89,6 @@ const CoreTagCard = ({tag, classes}: {
   );
 }
 
-const CoreTagCardComponent = registerComponent("CoreTagCard", CoreTagCard, {styles});
+export const CoreTagCard = registerComponent("CoreTagCard", CoreTagCardInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagCard: typeof CoreTagCardComponent
-  }
-}
+

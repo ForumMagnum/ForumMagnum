@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { FormatDate } from "../../common/FormatDate";
+import { UsersNameWrapper } from "../../users/UsersNameWrapper";
+import { AltAccountInfo } from "./AltAccountInfo";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -16,12 +19,10 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-export const UserReviewStatus = ({classes, user}: {
+export const UserReviewStatusInner = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { FormatDate, UsersNameWrapper, AltAccountInfo } = Components
-
   const approvalStatus = user.banned 
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
@@ -51,10 +52,6 @@ export const UserReviewStatus = ({classes, user}: {
   </div>;
 }
 
-const UserReviewStatusComponent = registerComponent('UserReviewStatus', UserReviewStatus, {styles});
+export const UserReviewStatus = registerComponent('UserReviewStatus', UserReviewStatusInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserReviewStatus: typeof UserReviewStatusComponent
-  }
-}
+

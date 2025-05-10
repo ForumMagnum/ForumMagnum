@@ -4,8 +4,9 @@ import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from '@/lib/analyticsEvents';
+import { Loading } from "../vulcan-core/Loading";
 
 const defaultLoadMoreDistance = 500;
 
@@ -72,7 +73,7 @@ interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
 // Results have type ResultType and are rendered into React elements by the
 // renderResult function. If not provided, the results are presumed to be usable
 // as React elements as-is (ie, strings).
-const MixedTypeFeed = (args: {
+const MixedTypeFeedInner = (args: {
   resolverName: string,
   
   // Types for parameters given to the resolver, as an object mapping from
@@ -152,9 +153,6 @@ const MixedTypeFeed = (args: {
   // updates would be a problem.
   const queryIsPending = useRef(false);
   const {captureEvent} = useTracking();
-  
-  const {Loading} = Components;
-  
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
   const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {
@@ -274,10 +272,6 @@ function elementIsNearVisible(element: HTMLElement|null, distance: number) {
   return (top-distance) <= windowHeight;
 }
 
-const MixedTypeInfiniteComponent = registerComponent('MixedTypeFeed', MixedTypeFeed);
+export const MixedTypeFeed = registerComponent('MixedTypeFeed', MixedTypeFeedInner);
 
-declare global {
-  interface ComponentTypes {
-    MixedTypeFeed: typeof MixedTypeInfiniteComponent,
-  }
-}
+

@@ -1,7 +1,10 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
+import { Loading } from "../vulcan-core/Loading";
 
 const commentModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('commentModerationWarningCommentId', '')
 
@@ -13,11 +16,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const NewCommentModerationWarning = ({classes}: {
+export const NewCommentModerationWarningInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody, Loading } = Components
-  
   const documentId = commentModerationWarningCommentIdSetting.get() 
   
   const {document, loading } = useSingle({
@@ -38,11 +39,7 @@ export const NewCommentModerationWarning = ({classes}: {
   </div>;
 }
 
-const NewCommentModerationWarningComponent = registerComponent('NewCommentModerationWarning', NewCommentModerationWarning, {styles});
+export const NewCommentModerationWarning = registerComponent('NewCommentModerationWarning', NewCommentModerationWarningInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewCommentModerationWarning: typeof NewCommentModerationWarningComponent
-  }
-}
+
 

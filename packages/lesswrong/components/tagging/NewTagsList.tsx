@@ -1,7 +1,12 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { LoadMore } from "../common/LoadMore";
+import { TagsListItem } from "./TagsListItem";
+import { FormatDate } from "../common/FormatDate";
+import { MetaInfo } from "../common/MetaInfo";
+import { UsersNameDisplay } from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,12 +33,10 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewTagsList = ({classes, showHeaders = true}: {
+const NewTagsListInner = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
-  const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
-
   const { results, loadMoreProps } = useMulti({
     terms: {view:"newTags", limit: 4 },
     collectionName: "Tags",
@@ -69,11 +72,7 @@ const NewTagsList = ({classes, showHeaders = true}: {
   </div>
 }
 
-const NewTagsListComponent = registerComponent("NewTagsList", NewTagsList, {styles});
+export const NewTagsList = registerComponent("NewTagsList", NewTagsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagsList: typeof NewTagsListComponent
-  }
-}
+
 

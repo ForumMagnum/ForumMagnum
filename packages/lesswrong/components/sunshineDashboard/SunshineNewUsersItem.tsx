@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { getUserEmail , userGetProfileUrl} from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -6,6 +6,12 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag'
+import { SunshineListItem } from "./SunshineListItem";
+import { SidebarHoverOver } from "./SidebarHoverOver";
+import { SunshineNewUsersInfo } from "./SunshineNewUsersInfo";
+import { MetaInfo } from "../common/MetaInfo";
+import { FormatDate } from "../common/FormatDate";
+import { FirstContentIcons } from "./FirstContentIcons";
 
 const styles = (theme: ThemeType) => ({
   negativeKarma: {
@@ -26,16 +32,13 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
-const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersItemInner = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   refetch: () => void,
   currentUser: UsersCurrent,
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
-
-  const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate, FirstContentIcons } = Components
-  
   return (
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : undefined}>
       <SunshineListItem hover={hover}>
@@ -65,16 +68,12 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   )
 }
 
-const SunshineNewUsersItemComponent = registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, {
+export const SunshineNewUsersItem = registerComponent('SunshineNewUsersItem', SunshineNewUsersItemInner, {
   styles,
   hocs: [
     withErrorBoundary,
   ]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersItem: typeof SunshineNewUsersItemComponent
-  }
-}
+
 

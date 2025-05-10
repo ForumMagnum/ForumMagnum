@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
+import { UserSelect } from "../form-components/UserSelect";
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   adminOverrides: {
@@ -34,13 +36,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const RecombeePostsListSettings = ({ settings, updateSettings, classes }: {
+export const RecombeePostsListSettingsInner = ({ settings, updateSettings, classes }: {
   settings: RecombeeConfiguration,
   updateSettings: (settings: RecombeeConfiguration) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UserSelect, LWTooltip } = Components;
-
   const [userIdOverride, setUserIdOverride] = useState<string | null>(settings.userId ?? null);
   const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings.booster);
   const [rotationRateOverride, setRotationRateOverride] = useState<number|undefined>(settings.rotationRate);
@@ -128,10 +128,6 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   );
 }
  
-const RecombeePostsListSettingsComponent = registerComponent('RecombeePostsListSettings', RecombeePostsListSettings, {styles});
+export const RecombeePostsListSettings = registerComponent('RecombeePostsListSettings', RecombeePostsListSettingsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecombeePostsListSettings: typeof RecombeePostsListSettingsComponent
-  }
-}
+

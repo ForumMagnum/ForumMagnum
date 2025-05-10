@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { DialogActions } from '../widgets/DialogActions';
 import { DialogTitle } from '../widgets/DialogTitle';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { LWDialog } from "./LWDialog";
 
 // Dialog group, with trigger-button and dialog-instance
-const DialogGroup = ({title, trigger, actions, children}: {
+const DialogGroupInner = ({title, trigger, actions, children}: {
   title?: string,
   trigger: React.ReactNode,
   actions: any[],
   children?: React.ReactNode,
 }) => {
   const [open,setOpen] = useState(false);
-  const { LWDialog } = Components;
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -35,10 +34,6 @@ const DialogGroup = ({title, trigger, actions, children}: {
   );
 }
 
-const DialogGroupComponent = registerComponent('DialogGroup', DialogGroup);
+export const DialogGroup = registerComponent('DialogGroup', DialogGroupInner);
 
-declare global {
-  interface ComponentTypes {
-    DialogGroup: typeof DialogGroupComponent
-  }
-}
+

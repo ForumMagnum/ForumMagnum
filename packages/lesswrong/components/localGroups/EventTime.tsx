@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { TimeTag } from "../common/TimeTag";
 
 function getDateFormat(dense: boolean, isThisYear: boolean): string {
   if (dense) {
@@ -20,14 +21,12 @@ function getDateFormat(dense: boolean, isThisYear: boolean): string {
   }
 }
 
-const EventTime = ({post, dense=false}: {
+const EventTimeInner = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,
 }) => {
   const now = moment(useCurrentTime())
   const { timezone } = useTimezone();
-  const { TimeTag } = Components;
-
   const start = post.startTime ? moment(post.startTime).tz(timezone) : undefined;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : undefined;
 
@@ -82,11 +81,7 @@ const EventTime = ({post, dense=false}: {
   }
 };
 
-const EventTimeComponent = registerComponent('EventTime', EventTime);
+export const EventTime = registerComponent('EventTime', EventTimeInner);
 
-declare global {
-  interface ComponentTypes {
-    EventTime: typeof EventTimeComponent
-  }
-}
+
 

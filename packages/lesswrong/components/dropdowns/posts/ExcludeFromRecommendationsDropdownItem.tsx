@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { DropdownItem } from "../DropdownItem";
 
-
-const ExcludeFromRecommendationsDropdownItem = ({post}: {
+const ExcludeFromRecommendationsDropdownItemInner = ({post}: {
   post: PostsList|SunshinePostsList,
 }) => {
   const currentUser = useCurrentUser();
@@ -31,8 +31,6 @@ const ExcludeFromRecommendationsDropdownItem = ({post}: {
   const label = post.disableRecommendation
     ? "Include in Recommendations"
     : "Exclude from Recommendations"
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(label)}
@@ -41,13 +39,9 @@ const ExcludeFromRecommendationsDropdownItem = ({post}: {
   );
 }
 
-const ExcludeFromRecommendationsDropdownItemComponent = registerComponent(
+export const ExcludeFromRecommendationsDropdownItem = registerComponent(
   'ExcludeFromRecommendationsDropdownItem',
-  ExcludeFromRecommendationsDropdownItem,
+  ExcludeFromRecommendationsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ExcludeFromRecommendationsDropdownItem: typeof ExcludeFromRecommendationsDropdownItemComponent
-  }
-}
+

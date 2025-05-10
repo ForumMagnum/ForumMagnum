@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
+import { LWPopper } from "../common/LWPopper";
+import { CommentsNode } from "../comments/CommentsNode";
+import { FormatDate } from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,15 +41,13 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
+const CommentKarmaWithPreviewInner = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt?: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, CommentsNode, FormatDate } = Components
-
   if (!comment) return null 
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
@@ -73,11 +74,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   </span>
 }
 
-const CommentKarmaWithPreviewComponent = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
+export const CommentKarmaWithPreview = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentKarmaWithPreview: typeof CommentKarmaWithPreviewComponent
-  }
-}
+
 

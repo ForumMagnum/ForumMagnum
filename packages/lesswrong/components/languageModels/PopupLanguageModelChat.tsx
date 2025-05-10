@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import Fullscreen from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
@@ -9,6 +9,9 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
+import { LanguageModelChat } from "./LanguageModelChat";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -81,12 +84,10 @@ const styles = (theme: ThemeType) => ({
 
 const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
 
-const PopupLanguageModelChat = ({onClose, classes}: {
+const PopupLanguageModelChatInner = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LanguageModelChat, LWTooltip, ForumIcon } = Components;
-
   const { currentConversation } = useLlmChat();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
   const expanded = cookies[LLM_CHAT_EXPANDED] === "true";
@@ -125,10 +126,6 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   </Card>
 }
 
-const PopupLanguageModelChatComponent = registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
+export const PopupLanguageModelChat = registerComponent('PopupLanguageModelChat', PopupLanguageModelChatInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PopupLanguageModelChat: typeof PopupLanguageModelChatComponent
-  }
-}
+

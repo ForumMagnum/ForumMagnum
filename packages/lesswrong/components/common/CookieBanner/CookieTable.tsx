@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { CookieSignature, CookieType, CookiesTable } from "../../../lib/cookies/utils";
+import { Typography } from "../Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -50,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CookieTable = ({
+const CookieTableInner = ({
   type,
   thirdPartyName,
   className,
@@ -61,8 +62,6 @@ const CookieTable = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Typography } = Components;
-
   const filteredCookies = Object.values(CookiesTable).filter(
     (cookie: CookieSignature) => cookie.type === type && cookie.thirdPartyName === thirdPartyName
   );
@@ -94,10 +93,6 @@ const CookieTable = ({
   );
 };
 
-const CookieTableComponent = registerComponent("CookieTable", CookieTable, { styles });
+export const CookieTable = registerComponent("CookieTable", CookieTableInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CookieTable: typeof CookieTableComponent;
-  }
-}
+

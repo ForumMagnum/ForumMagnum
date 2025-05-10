@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments'; 
 import { gql, useQuery } from '@apollo/client';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -12,7 +12,8 @@ import { ImageProvider, useImageContext } from '../posts/PostsPage/ImageContext'
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import GenerateImagesButton from './GenerateImagesButton';
-import { useLocation } from '@/lib/routeUtil'; 
+import { useLocation } from '@/lib/routeUtil';
+import { Loading } from "../vulcan-core/Loading";
 
 const previewWidth = 300;
 
@@ -116,10 +117,8 @@ making it easier to quickly make a call for each post.
 date rather than ReviewYear, i.e. 2 years after a ReviewYear)
 
 */
-export const BestOfLessWrongAdmin = () => { 
+export const BestOfLessWrongAdminInner = () => { 
   const classes = useStyles(styles);
-  const { Loading } = Components;
-  
   const currentUser = useCurrentUser();
 
   const { data, loading: reviewWinnersLoading } = useQuery(gql`
@@ -177,10 +176,6 @@ export const BestOfLessWrongAdmin = () => {
   </div>
 }
 
-const BestOfLessWrongAdminComponent = registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdmin);
+export const BestOfLessWrongAdmin = registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdminInner);
 
-declare global {
-  interface ComponentTypes {
-    BestOfLessWrongAdmin: typeof BestOfLessWrongAdminComponent
-  }
-}
+

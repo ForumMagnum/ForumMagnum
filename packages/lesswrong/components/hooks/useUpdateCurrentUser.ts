@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { hookToHoc } from '../../lib/hocUtils';
 
 export type UpdateCurrentUserFunction = (
   data: UpdateUserDataInput,
@@ -24,9 +23,3 @@ export function useUpdateCurrentUser(): UpdateCurrentUserFunction {
     }
   }, [updateUser, currentUserId]);
 }
-
-export interface WithUpdateCurrentUserProps {
-  updateCurrentUser: UpdateCurrentUserFunction
-}
-
-export const withUpdateCurrentUser = hookToHoc(() => ({updateCurrentUser: useUpdateCurrentUser()}));

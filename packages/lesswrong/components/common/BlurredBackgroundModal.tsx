@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { LWDialog } from "./LWDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const BlurredBackgroundModal = ({
+export const BlurredBackgroundModalInner = ({
   open,
   onClose,
   children,
@@ -46,8 +47,6 @@ export const BlurredBackgroundModal = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWDialog } = Components;
-
   return <LWDialog open={open} onClose={onClose} backdrop="blur">
     <div className={classNames(classes.root, className)}>
       {children}
@@ -55,14 +54,10 @@ export const BlurredBackgroundModal = ({
   </LWDialog>
 }
 
-const BlurredBackgroundModalComponent = registerComponent(
+export const BlurredBackgroundModal = registerComponent(
   "BlurredBackgroundModal",
-  BlurredBackgroundModal,
+  BlurredBackgroundModalInner,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    BlurredBackgroundModal: typeof BlurredBackgroundModalComponent
-  }
-}
+

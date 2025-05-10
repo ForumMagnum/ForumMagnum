@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
+import { NoContent } from "../common/NoContent";
+import { PostsItemNewCommentsListNode } from "./PostsItemNewCommentsListNode";
 
 const styles = (theme: ThemeType) => ({})
 
-const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
+const PostsItemNewCommentsListInner = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   post: PostsList,
@@ -18,9 +20,6 @@ const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
     fetchPolicy: 'cache-first',
     limit: 5,
   });
-
-  const { NoContent, PostsItemNewCommentsListNode } = Components
-
   const noCommentsFound = !loading && results && !results.length;
 
   if (noCommentsFound) {
@@ -39,14 +38,10 @@ const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-const PostsItemNewCommentsListComponent = registerComponent(
-  'PostsItemNewCommentsList', PostsItemNewCommentsList, {
+export const PostsItemNewCommentsList = registerComponent(
+  'PostsItemNewCommentsList', PostsItemNewCommentsListInner, {
     styles,
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsItemNewCommentsList: typeof PostsItemNewCommentsListComponent
-  }
-}
+

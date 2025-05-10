@@ -1,9 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { UsersName } from "../users/UsersName";
+import { MetaInfo } from "../common/MetaInfo";
+import { KarmaDisplay } from "../common/KarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -60,7 +64,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
+const TagSmallPostLinkInner = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   hideMeta?: boolean,
@@ -69,7 +73,6 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   widerSpacing?: boolean
   disableHoverPreview?: boolean
 }) => {
-  const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
   return (
     <PostsTooltip post={post} clickable={false} placement="bottom-start" disabled={disableHoverPreview}>
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
@@ -96,10 +99,6 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   );
 }
 
-const TagSmallPostLinkComponent = registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
+export const TagSmallPostLink = registerComponent("TagSmallPostLink", TagSmallPostLinkInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSmallPostLink: typeof TagSmallPostLinkComponent
-  }
-}
+

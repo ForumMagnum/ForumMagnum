@@ -227,7 +227,7 @@ const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveA
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-const ImageCropPreview = ({ imgRef, classes, flipped }: {
+const ImageCropPreviewInner = ({ imgRef, classes, flipped }: {
   imgRef: RefObject<HTMLImageElement|null>,
   classes: ClassesType<typeof styles>,
   flipped: boolean
@@ -465,10 +465,6 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
   );
 };
 
-const ImageCropPreviewComponent = registerComponent('ImageCropPreview', ImageCropPreview, {styles});
+export const ImageCropPreview = registerComponent('ImageCropPreview', ImageCropPreviewInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ImageCropPreview: typeof ImageCropPreviewComponent
-  }
-}
+

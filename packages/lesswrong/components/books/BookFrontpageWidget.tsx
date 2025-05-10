@@ -1,10 +1,14 @@
 import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import { LoginPopup } from "../users/LoginPopup";
+import { BookCheckout } from "../review/BookCheckout";
+import { BookAnimation } from "./BookAnimation";
+import { ContentStyles } from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,10 +124,9 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const BookFrontpageWidget = ({ classes }: {
+const BookFrontpageWidgetInner = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { BookCheckout, BookAnimation, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -144,7 +147,7 @@ const BookFrontpageWidget = ({ classes }: {
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     }
   }
@@ -210,10 +213,6 @@ const BookFrontpageWidget = ({ classes }: {
 }
 
 
-const BookFrontpageWidgetComponent = registerComponent('BookFrontpageWidget', BookFrontpageWidget, { styles });
+export const BookFrontpageWidget = registerComponent('BookFrontpageWidget', BookFrontpageWidgetInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    BookFrontpageWidget: typeof BookFrontpageWidgetComponent
-  }
-}
+

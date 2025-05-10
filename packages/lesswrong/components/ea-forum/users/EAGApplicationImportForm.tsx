@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import ArrowBack from '@/lib/vendor/@material-ui/icons/src/ArrowBack'
 import pick from 'lodash/pick';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { useGoogleMaps } from '../../form-components/LocationFormComponent';
+import { useGoogleMaps, LocationPicker } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
@@ -15,6 +15,10 @@ import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { Loading } from "../../vulcan-core/Loading";
+import { Typography } from "../../common/Typography";
+import { MultiSelect } from "../../form-components/FormComponentMultiSelect";
+import { PrefixedInput } from "../../form-components/PrefixedInput";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -203,9 +207,8 @@ type EditorFormComponentRefType = {
 // Wrapper around EAGApplicationImportForm which fetches the current user with
 // the UsersEdit fragment so that it will have all the fields to be able to
 // edit bio, howICanHelpOthers.
-const EAGApplicationImportFormWrapper = () => {
+const EAGApplicationImportFormWrapperInner = () => {
   const currentUser = useCurrentUser()
-  const { Loading, EAGApplicationImportForm } = Components;
   const { document: currentUserEdit, loading } = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -222,7 +225,7 @@ const EAGApplicationImportFormWrapper = () => {
   />
 }
 
-const EAGApplicationImportForm = ({currentUser, classes}: {
+const EAGApplicationImportFormInner = ({currentUser, classes}: {
   currentUser: UsersEdit,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -485,10 +488,6 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       setSubmitLoading(false)
     })
   }
-  
-  const { Typography, MultiSelect, LocationPicker,
-    PrefixedInput, ContentStyles, Loading } = Components
-
   if (!currentUser) {
     return (
       <AnalyticsContext pageContext="eagApplicationImportForm">
@@ -749,12 +748,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
 }
 
 
-const EAGApplicationImportFormWrapperComponent = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportForm);
-const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm, {styles});
+export const EAGApplicationImportFormWrapper = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapperInner);
+export const EAGApplicationImportForm = registerComponent('EAGApplicationImportForm', EAGApplicationImportFormInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapperComponent
-    EAGApplicationImportForm: typeof EAGApplicationImportFormComponent
-  }
-}
+

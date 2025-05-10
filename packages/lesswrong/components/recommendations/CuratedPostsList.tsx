@@ -1,12 +1,13 @@
 import React from "react";
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isEAForum } from "../../lib/instanceSettings";
 import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import { PostsList2 } from "../posts/PostsList2";
 
-const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
+const CuratedPostsListInner = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
 
@@ -14,7 +15,7 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
 
   return (
     <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
-      <Components.PostsList2
+      <PostsList2
         terms={{
           view: "curated",
           limit: overrideLimit ?? currentCuratedPostCount,
@@ -32,10 +33,6 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   );
 }
 
-const CuratedPostsListComponent = registerComponent("CuratedPostsList", CuratedPostsList, {});
+export const CuratedPostsList = registerComponent("CuratedPostsList", CuratedPostsListInner, {});
 
-declare global {
-  interface ComponentTypes {
-    CuratedPostsList: typeof CuratedPostsListComponent
-  }
-}
+

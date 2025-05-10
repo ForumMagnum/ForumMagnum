@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import { getRecommendationSettings, RecommendationsAlgorithmPicker } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { isLW, isEAForum } from '../../lib/instanceSettings';
@@ -10,8 +10,17 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { isFriendlyUI } from '../../themes/forumTheme';
-
-export const curatedUrl = "/recommendations"
+import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SettingsButton } from "../icons/SettingsButton";
+import { ContinueReadingList } from "./ContinueReadingList";
+import { RecommendationsList } from "./RecommendationsList";
+import { SectionTitle } from "../common/SectionTitle";
+import { SectionSubtitle } from "../common/SectionSubtitle";
+import { BookmarksList } from "../bookmarks/BookmarksList";
+import { LWTooltip } from "../common/LWTooltip";
+import { CuratedPostsList } from "./CuratedPostsList";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: isFriendlyUI ? {} : {
@@ -114,7 +123,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 // NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
 // more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
 // create an EARecommendations component, or we can just delete it.
-const RecommendationsAndCurated = ({
+const RecommendationsAndCuratedInner = ({
   configName,
   classes,
 }: {
@@ -142,9 +151,6 @@ const RecommendationsAndCurated = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
-      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
-
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
@@ -315,10 +321,6 @@ const RecommendationsAndCurated = ({
   return render();
 }
 
-const RecommendationsAndCuratedComponent = registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+export const RecommendationsAndCurated = registerComponent("RecommendationsAndCurated", RecommendationsAndCuratedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
-  }
-}
+

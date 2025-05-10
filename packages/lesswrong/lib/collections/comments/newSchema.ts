@@ -11,7 +11,6 @@ import {
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { isEAForum } from "../../instanceSettings";
 import { commentGetPageUrlFromDB } from "./helpers";
-import { getVotingSystemNameForDocument } from "../../voting/getVotingSystem";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
@@ -698,6 +697,8 @@ const schema = {
       outputType: "String!",
       canRead: ["guests"],
       resolver: (comment, args, context) => {
+        // This is to break an annoying import cycle that causes a crash on start.
+        const { getVotingSystemNameForDocument }: typeof import('@/lib/voting/getVotingSystem') = require('@/lib/voting/getVotingSystem');
         return getVotingSystemNameForDocument(comment, "Comments", context);
       },
     },

@@ -1,10 +1,14 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import classNames from 'classnames';
+import { Loading } from "../vulcan-core/Loading";
+import { PostsTitle } from "./PostsTitle";
+import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
+import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
+const PostsItemWrapperInner = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
   addItem?: any,
@@ -66,7 +70,6 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
   simpleAuthor?: boolean,
   draggable?: boolean
 }) => {
-  const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
@@ -92,15 +95,11 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
       {removeItem && <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />}
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
+export const PostsItemWrapper = registerComponent('PostsItemWrapper', PostsItemWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemWrapper: typeof PostsItemWrapperComponent
-  }
-}
+
 

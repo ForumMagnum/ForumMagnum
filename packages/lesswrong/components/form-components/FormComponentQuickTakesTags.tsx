@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
 import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
+import { TagsChecklist } from "../tagging/TagsChecklist";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles('FormComponentQuickTakesTags', (_theme: ThemeType) => ({
   tagContainer: {
@@ -38,8 +39,6 @@ export const FormComponentQuickTakesTags = ({ field }: {
   useEffect(() => {
     field.handleChange(selectedTagIds ?? null);
   }, [field, selectedTagIds])
-
-  const {TagsChecklist, Loading} = Components;
   return <div className={classes.tagContainer}>
     <span className={classes.tagLabel}>Set topic</span>
     {loading

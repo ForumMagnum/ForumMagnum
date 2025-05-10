@@ -1,6 +1,4 @@
-import type { ForumTypeString } from "@/lib/instanceSettings";
-
-export const getCkEditor = (forumType: ForumTypeString) => {
+export const getCkEditor = () => {
   return { EditorWatchdog: null, getCommentEditor: null, getPostEditor: null, getPostEditorCollaboration : null};
 }
 

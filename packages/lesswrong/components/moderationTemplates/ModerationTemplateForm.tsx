@@ -2,7 +2,6 @@ import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -14,6 +13,8 @@ import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderatio
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { Error404 } from "../common/Error404";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -30,7 +31,6 @@ export const ModerationTemplatesForm = ({
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   onSuccess?: (doc: ModerationTemplateFragment) => void;
 }) => {
-  const { Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
 
   const formType = initialData ? 'edit' : 'new';

@@ -1,10 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { CommentsList } from "../comments/CommentsList";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,12 +27,10 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TagDiscussion = ({classes, tag}: {
+const TagDiscussionInner = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
-  const { CommentsList, Loading } = Components;
-  
   const { results, loading, totalCount } = useMulti({
     skip: !tag?._id,
     terms: {
@@ -70,11 +70,7 @@ const TagDiscussion = ({classes, tag}: {
   </div>
 }
 
-const TagDiscussionComponent = registerComponent("TagDiscussion", TagDiscussion, {styles})
+export const TagDiscussion = registerComponent("TagDiscussion", TagDiscussionInner, {styles})
 
 
-declare global {
-  interface ComponentTypes {
-    TagDiscussion: typeof TagDiscussionComponent
-  }
-}
+

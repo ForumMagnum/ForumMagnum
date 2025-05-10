@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useImageContext } from '../ImageContext';
@@ -127,12 +126,4 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     </div>
       {userIsAdminOrMod(currentUser) && <SplashImageEditing imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
     </div>
-}
-
-const BestOfLWPostsPageSplashImageComponent = registerComponent('BestOfLWPostsPageSplashImage', BestOfLWPostsPageSplashImage);
-
-declare global {
-  interface ComponentTypes {
-    BestOfLWPostsPageSplashImage: typeof BestOfLWPostsPageSplashImageComponent
-  }
 }

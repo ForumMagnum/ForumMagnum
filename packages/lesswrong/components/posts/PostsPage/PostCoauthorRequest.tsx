@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { Typography } from "../../common/Typography";
+import { Loading } from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   coauthorRequest: {
@@ -45,7 +47,7 @@ const isRequestedCoauthor = (
   currentUser: UsersCurrent|null
 ) => currentUser && post.coauthorStatuses?.find?.(({ userId, confirmed }) => userId === currentUser._id && !confirmed);
 
-const PostCoauthorRequest = ({post, currentUser, classes}: {
+const PostCoauthorRequestInner = ({post, currentUser, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
@@ -81,8 +83,6 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
 
   const onDecline = () => onResponse(false);
   const onAccept = () => onResponse(true);
-
-  const { Typography, Loading } = Components;
   return (
     <div className={classes.coauthorRequest}>
       <div className={classes.content}>
@@ -108,12 +108,8 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
   );
 }
 
-const PostCoauthorRequestComponent = registerComponent(
-  'PostCoauthorRequest', PostCoauthorRequest, {styles}
+export const PostCoauthorRequest = registerComponent(
+  'PostCoauthorRequest', PostCoauthorRequestInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostCoauthorRequest: typeof PostCoauthorRequestComponent,
-  }
-}
+

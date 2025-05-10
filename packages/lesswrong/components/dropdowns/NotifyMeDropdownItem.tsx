@@ -1,7 +1,8 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
+import { DropdownItem } from "./DropdownItem";
 
 type NotifyMeDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -32,8 +33,6 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemInternalProps> = ({
   }
 
   const message = isSubscribed ? unsubscribeMessage : subscribeMessage;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={message}
@@ -45,20 +44,16 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemInternalProps> = ({
   );
 }
 
-const NotifyMeDropdownItem = (props: NotifyMeDropdownItemProps) =>
+const NotifyMeDropdownItemInner = (props: NotifyMeDropdownItemProps) =>
   props.document && (props.enabled ?? true)
     ? <NotifyMeDropdownItemInternal
       {...props as NotifyMeDropdownItemInternalProps}
     />
     : null;
 
-const NotifyMeDropdownItemComponent = registerComponent(
+export const NotifyMeDropdownItem = registerComponent(
   "NotifyMeDropdownItem",
-  NotifyMeDropdownItem,
+  NotifyMeDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    NotifyMeDropdownItem: typeof NotifyMeDropdownItemComponent
-  }
-}
+

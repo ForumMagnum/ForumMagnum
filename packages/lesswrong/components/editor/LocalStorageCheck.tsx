@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,7 +89,7 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
+const LocalStorageCheckInner = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
   getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
   classes: ClassesType<typeof styles>,
@@ -138,14 +139,10 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewP
     </div>
     <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
 
-    <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
+    <ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }
 
-const LocalStorageCheckComponent = registerComponent('LocalStorageCheck', LocalStorageCheck, {styles});
+export const LocalStorageCheck = registerComponent('LocalStorageCheck', LocalStorageCheckInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalStorageCheck: typeof LocalStorageCheckComponent
-  }
-}
+

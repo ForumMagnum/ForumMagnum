@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { ForumDropdownMultiselect } from "./ForumDropdownMultiselect";
 
-const ForumDropdown = ({
+const ForumDropdownInner = ({
   value,
   options,
   queryParam,
@@ -21,7 +22,7 @@ const ForumDropdown = ({
   disabled?: boolean,
   className?: string,
 }) => {
-  return <Components.ForumDropdownMultiselect
+  return <ForumDropdownMultiselect
     values={[value]}
     options={options}
     queryParam={queryParam}
@@ -33,10 +34,6 @@ const ForumDropdown = ({
   />
 }
 
-const ForumDropdownComponent = registerComponent('ForumDropdown', ForumDropdown);
+export const ForumDropdown = registerComponent('ForumDropdown', ForumDropdownInner);
 
-declare global {
-  interface ComponentTypes {
-    ForumDropdown: typeof ForumDropdownComponent
-  }
-}
+

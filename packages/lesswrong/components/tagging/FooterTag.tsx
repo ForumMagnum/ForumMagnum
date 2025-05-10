@@ -1,15 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { coreTagIconMap } from './CoreTagIcon';
+import { coreTagIconMap, CoreTagIcon } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
+import { TagsTooltipPreviewWrapper, TagsTooltip } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { ForumIcon } from "../common/ForumIcon";
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -130,7 +131,7 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
  * hover-previews of posts, and they will initially open into a loading state
  * where we have tags' names but don't have their descriptions.
  */
-const FooterTag = ({
+const FooterTagInner = ({
   tagRel,
   tag,
   hideScore=false,
@@ -171,8 +172,6 @@ const FooterTag = ({
   const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name
     : tag.name;
-
-  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
@@ -211,10 +210,6 @@ const FooterTag = ({
   );
 }
 
-const FooterTagComponent = registerComponent("FooterTag", FooterTag);
+export const FooterTag = registerComponent("FooterTag", FooterTagInner);
 
-declare global {
-  interface ComponentTypes {
-    FooterTag: typeof FooterTagComponent
-  }
-}
+

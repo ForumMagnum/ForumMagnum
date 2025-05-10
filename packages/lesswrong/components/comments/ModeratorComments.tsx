@@ -1,7 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { sectionTitleStyle } from '../common/SectionTitle';
+import { CommentsNode } from "./CommentsNode";
+import { Loading } from "../vulcan-core/Loading";
+import { LoadMore } from "../common/LoadMore";
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -16,14 +21,12 @@ const styles = (theme: ThemeType) =>  ({
 })
 
 
-const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
+const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { CommentsNode, Loading, LoadMore, SingleColumnSection, Typography } = Components;
-
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collectionName: "Comments",
@@ -62,11 +65,7 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
   )
 }
 
-const ModeratorCommentsComponent = registerComponent('ModeratorComments', ModeratorComments, {styles});
+export const ModeratorComments = registerComponent('ModeratorComments', ModeratorCommentsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorComments: typeof ModeratorCommentsComponent,
-  }
-}
+
 

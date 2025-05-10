@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, VotingPropsDocument, VotingSystem, } from '../../../lib/voting/votingSystems';
 import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -9,6 +9,10 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
 import { isMobile } from '@/lib/utils/isMobile';
+import { LoginPopup } from "../../users/LoginPopup";
+import { NamesAttachedReactionsCommentBottom } from "./NamesAttachedReactionsVoteOnComment";
+import { LWTooltip } from "../../common/LWTooltip";
+import { ForumIcon } from "../../common/ForumIcon";
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
@@ -51,21 +55,21 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   },
 }));
 
-const ReactionsAndLikesVoteOnComment  = ({document, hideKarma=false, collectionName, votingSystem, isSelected=false}: {
+const ReactionsAndLikesVoteOnCommentInner  = ({document, hideKarma=false, collectionName, votingSystem, isSelected=false}: {
   document: VotingPropsDocument,
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
   isSelected?: boolean,
 }) => {
-  return <ReactionsAndLikesVote
+  return <ReactionsAndLikesVoteInner
     document={document} hideKarma={hideKarma}
     collectionName={collectionName} votingSystem={votingSystem}
     isSelected={isSelected}
   />
 }
 
-const ReactionsAndLikesVote  = ({
+const ReactionsAndLikesVoteInner  = ({
   document,
   hideKarma=false,
   collectionName,
@@ -79,7 +83,6 @@ const ReactionsAndLikesVote  = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip, ForumIcon } = Components;
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
@@ -96,7 +99,7 @@ const ReactionsAndLikesVote  = ({
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     } else if (currentUserLikesIt) {
       await voteProps.vote({
@@ -143,25 +146,19 @@ const ReactionsAndLikesVote  = ({
   </div>
 }
 
-const ReactionsAndLikesCommentBottom = ({
+const ReactionsAndLikesCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, voteProps, post, collectionName, votingSystem
 }: NamesAttachedReactionsCommentBottomProps) => {
-  return <Components.NamesAttachedReactionsCommentBottom
+  return <NamesAttachedReactionsCommentBottom
     document={document} hideKarma={hideKarma} commentBodyRef={commentBodyRef}
     voteProps={voteProps} post={post}
     collectionName={collectionName} votingSystem={votingSystem}
   />
 }
 
-const ReactionsAndLikesVoteComponent = registerComponent('ReactionsAndLikesVote', ReactionsAndLikesVote);
-const ReactionsAndLikesVoteOnCommentComponent = registerComponent('ReactionsAndLikesVoteOnComment', ReactionsAndLikesVoteOnComment);
-const ReactionsAndLikesCommentBottomComponent = registerComponent('ReactionsAndLikesCommentBottom', ReactionsAndLikesCommentBottom);
+export const ReactionsAndLikesVote = registerComponent('ReactionsAndLikesVote', ReactionsAndLikesVoteInner);
+export const ReactionsAndLikesVoteOnComment = registerComponent('ReactionsAndLikesVoteOnComment', ReactionsAndLikesVoteOnCommentInner);
+export const ReactionsAndLikesCommentBottom = registerComponent('ReactionsAndLikesCommentBottom', ReactionsAndLikesCommentBottomInner);
 
-declare global {
-  interface ComponentTypes {
-    ReactionsAndLikesVote: typeof ReactionsAndLikesVoteComponent
-    ReactionsAndLikesVoteOnComment: typeof ReactionsAndLikesVoteOnCommentComponent
-    ReactionsAndLikesCommentBottom: typeof ReactionsAndLikesCommentBottomComponent
-  }
-}
+
 

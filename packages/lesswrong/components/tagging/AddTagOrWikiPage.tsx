@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -8,8 +8,10 @@ import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { getAllTagsPath } from '../../lib/routes';
+import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
+import { TagSearchHit } from "./TagSearchHit";
+import { DropdownDivider } from "../dropdowns/DropdownDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
+const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
   onlyTags: boolean,
@@ -44,7 +46,6 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   showAllTagsAndCreateTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
@@ -138,10 +139,6 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   </div>
 }
 
-const AddTagOrWikiPageComponent = registerComponent("AddTagOrWikiPage", AddTagOrWikiPage, {styles});
+export const AddTagOrWikiPage = registerComponent("AddTagOrWikiPage", AddTagOrWikiPageInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddTagOrWikiPage: typeof AddTagOrWikiPageComponent
-  }
-}
+

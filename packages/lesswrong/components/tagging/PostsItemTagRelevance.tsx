@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
@@ -7,6 +7,8 @@ import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
+import { OverallVoteButton } from "../votes/OverallVoteButton";
+import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,11 +48,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, classes}: {
+const PostsItemTagRelevanceInner = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
   const currentUser = useCurrentUser();
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -95,10 +96,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   </PostsItem2MetaInfo>
 }
 
-const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
+export const PostsItemTagRelevance = registerComponent("PostsItemTagRelevance", PostsItemTagRelevanceInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemTagRelevance: typeof PostsItemTagRelevanceComponent
-  }
-}
+

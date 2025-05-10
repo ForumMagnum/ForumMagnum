@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -15,6 +15,8 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
 import { TooltipSpan } from '../common/FMTooltip';
+import { MetaInfo } from "../common/MetaInfo";
+import { SettingsColumn } from "../common/SettingsColumn";
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -143,7 +145,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
+const PostsListSettingsInner = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -157,7 +159,6 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   showTimeframe?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -268,12 +269,8 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   );
 };
 
-const PostsListSettingsComponent = registerComponent(
-  'PostsListSettings', PostsListSettings, { styles }
+export const PostsListSettings = registerComponent(
+  'PostsListSettings', PostsListSettingsInner, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsListSettings: typeof PostsListSettingsComponent
-  }
-}
+

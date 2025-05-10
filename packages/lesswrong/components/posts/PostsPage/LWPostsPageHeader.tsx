@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
@@ -8,8 +8,25 @@ import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers'
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
-import { titleStyles } from './PostsTopSequencesNav';
+import { titleStyles, PostsTopSequencesNav } from './PostsTopSequencesNav';
 import { Link } from '@/lib/reactRouterWrapper';
+import { PostsPageTitle } from "./PostsPageTitle";
+import { PostsAuthors } from "./PostsAuthors";
+import { LWTooltip } from "../../common/LWTooltip";
+import { PostsPageDate } from "./PostsPageDate";
+import { CrosspostHeaderIcon } from "./CrosspostHeaderIcon";
+import { PostsGroupDetails } from "../PostsGroupDetails";
+import { PostsPageEventData } from "./PostsPageEventData";
+import { AddToCalendarButton } from "../AddToCalendar/AddToCalendarButton";
+import { GroupLinks } from "../../localGroups/GroupLinks";
+import { LWPostsPageHeaderTopRight } from "./LWPostsPageHeaderTopRight";
+import { PostsAudioPlayerWrapper } from "./PostsAudioPlayerWrapper";
+import { PostsVote } from "../../votes/PostsVote";
+import { AudioToggle } from "./AudioToggle";
+import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
+import { AlignmentCrosspostLink } from "../AlignmentCrosspostLink";
+import { ReadTime } from "./ReadTime";
+import { LWCommentCount } from "../TableOfContents/LWCommentCount";
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -203,7 +220,7 @@ const styles = (theme: ThemeType) => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
+const LWPostsPageHeaderInner = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
@@ -213,8 +230,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showSplashPageHeader?: boolean
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
-
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
   let feedLink;
@@ -309,14 +324,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   </div>
 }
 
-const LWPostsPageHeaderComponent = registerComponent(
-  'LWPostsPageHeader', LWPostsPageHeader, {styles}
+export const LWPostsPageHeader = registerComponent(
+  'LWPostsPageHeader', LWPostsPageHeaderInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPageHeader: typeof LWPostsPageHeaderComponent,
-  }
-}
 
-export default LWPostsPageHeaderComponent;
+
+

@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
+import { LWTooltip } from "./LWTooltip";
+import { SingleColumnSection } from "./SingleColumnSection";
+import { ForumIcon } from "./ForumIcon";
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -178,7 +181,7 @@ export interface TabRecord {
 /**
  * A horizontal bar of clickable tabs as alternative to a dropdown
  */
-const TabPicker = <T extends TabRecord[]>(
+const TabPickerInner = <T extends TabRecord[]>(
   {
     classes,
     sortedTabs,
@@ -193,8 +196,6 @@ const TabPicker = <T extends TabRecord[]>(
     showDescriptionOnHover?: boolean,
   },
 ) => {
-  const { LWTooltip, SingleColumnSection, ForumIcon } = Components;
-
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name);
 
   // we use the widths of the tab list container when calculating how far to scroll left and right
@@ -332,10 +333,6 @@ const TabPicker = <T extends TabRecord[]>(
   );
 }
 
-const TabPickerComponent = registerComponent('TabPicker', TabPicker, {styles})
+export const TabPicker = registerComponent('TabPicker', TabPickerInner, {styles})
 
-declare global {
-  interface ComponentTypes {
-    TabPicker: typeof TabPickerComponent
-  }
-}
+

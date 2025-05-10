@@ -56,7 +56,7 @@ const styles = defineStyles("LWDialog", theme => ({
 // providing that breaks the toolbar in CkEditor and DraftJS. Also provides a
 // centralized place to fix it if we discover other issues with MUI Dialog, or
 // want to write it ourselves.
-const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBackdropClick, disableEscapeKeyDown, className, paperClassName, onClose, keepMounted, backdrop="darken", children}: {
+const LWDialogInner = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBackdropClick, disableEscapeKeyDown, className, paperClassName, onClose, keepMounted, backdrop="darken", children}: {
   open: boolean,
   fullScreen?: boolean,
   title?: string,
@@ -152,10 +152,6 @@ function useDelayedHide(open: boolean, delay: number): boolean {
   return delayedHide;
 }
 
-const LWDialogComponent = registerComponent('LWDialog', LWDialog);
+export const LWDialog = registerComponent('LWDialog', LWDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    LWDialog: typeof LWDialogComponent
-  }
-}
+

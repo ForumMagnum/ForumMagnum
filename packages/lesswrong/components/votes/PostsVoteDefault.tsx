@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
@@ -8,6 +8,8 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
+import { OverallVoteButton } from "./OverallVoteButton";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   voteBlock: {
@@ -84,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsVoteDefault = ({
+const PostsVoteDefaultInner = ({
   post,
   useHorizontalLayout,
   votingSystem,
@@ -99,7 +101,6 @@ const PostsVoteDefault = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
 
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -190,14 +191,10 @@ const PostsVoteDefault = ({
   );
 }
 
-const PostsVoteDefaultComponent = registerComponent(
+export const PostsVoteDefault = registerComponent(
   "PostsVoteDefault",
-  PostsVoteDefault,
+  PostsVoteDefaultInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsVoteDefault: typeof PostsVoteDefaultComponent
-  }
-}
+

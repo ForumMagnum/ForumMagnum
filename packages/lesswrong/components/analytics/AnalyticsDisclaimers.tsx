@@ -1,9 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
+import { Typography } from "../common/Typography";
 
 const missingClientRangeText = forumSelect({
   EAForum: "Jan 11th - Jun 14th of 2021",
@@ -30,11 +31,10 @@ const styles = (theme: ThemeType) => ({
     : {},
 });
 
-const AnalyticsDisclaimers = ({earliestDate, classes}: {
+const AnalyticsDisclaimersInner = ({earliestDate, classes}: {
   earliestDate: Date,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Typography} = Components;
   return (
     <>
       {missingClientLastDay && moment(earliestDate) < moment(missingClientLastDay) && (
@@ -54,14 +54,10 @@ const AnalyticsDisclaimers = ({earliestDate, classes}: {
   );
 };
 
-const AnalyticsDisclaimersComponent = registerComponent(
+export const AnalyticsDisclaimers = registerComponent(
   "AnalyticsDisclaimers",
-  AnalyticsDisclaimers,
+  AnalyticsDisclaimersInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsDisclaimers: typeof AnalyticsDisclaimersComponent;
-  }
-}
+

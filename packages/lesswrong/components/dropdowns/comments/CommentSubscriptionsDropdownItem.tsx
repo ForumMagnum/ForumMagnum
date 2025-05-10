@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/helpers";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments } from "../../../lib/betas";
+import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -57,7 +58,7 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const CommentSubscriptionsDropdownItem = ({comment, post}: {
+export const CommentSubscriptionsDropdownItemInner = ({comment, post}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
 }) => {
@@ -72,21 +73,12 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   const notifyMeItems = useMemo(() => {
     return getNotifyMeItems({comment, post, currentUser, enableSubscribeToCommentUser});
   }, [comment, post, currentUser, enableSubscribeToCommentUser]);
-
-  const {
-    CombinedSubscriptionsDropdownItem
-  } = Components;
-
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
-const CommentSubscriptionsDropdownItemComponent = registerComponent(
+export const CommentSubscriptionsDropdownItem = registerComponent(
   "CommentSubscriptionsDropdownItem",
-  CommentSubscriptionsDropdownItem,
+  CommentSubscriptionsDropdownItemInner,
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentSubscriptionsDropdownItem: typeof CommentSubscriptionsDropdownItemComponent
-  }
-}
+

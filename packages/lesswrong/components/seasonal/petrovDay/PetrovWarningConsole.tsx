@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { gql, useQuery } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
+import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
+import { PastWarnings } from "./PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,13 +33,11 @@ export const inWarningWindow = (currentMinute: number) => {
   return currentMinute >= STARTING_MINUTE || currentMinute < 17
 }
 
-export const PetrovWarningConsole = ({classes, currentUser, side}: {
+export const PetrovWarningConsoleInner = ({classes, currentUser, side}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
-  const { PetrovWorldmapWrapper, PastWarnings } = Components;
-
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
@@ -124,10 +124,6 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   }
 }
 
-const PetrovWarningConsoleComponent = registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
+export const PetrovWarningConsole = registerComponent('PetrovWarningConsole', PetrovWarningConsoleInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovWarningConsole: typeof PetrovWarningConsoleComponent
-  }
-}
+

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { ClearInput } from '../form-components/ClearInput';
+import { MenuItem } from "../common/Menus";
 
 interface SelectOption {
   label: string;
@@ -21,8 +21,6 @@ export const FormComponentSelect = ({ field, defaultValue, options, label, hideC
   label?: string;
   hideClear?: boolean;
 }) => {
-  const { MenuItem } = Components;
-
   return (<>
     <MuiTextField select field={field} label={label} defaultValue={defaultValue}>
       {options.map((option) => (

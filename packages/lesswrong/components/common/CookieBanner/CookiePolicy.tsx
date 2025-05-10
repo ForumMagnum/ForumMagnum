@@ -1,8 +1,11 @@
 import React, { FC, PropsWithChildren } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { CENTRAL_COLUMN_WIDTH } from "../../posts/PostsPage/PostsPage";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { CENTRAL_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useDialog } from "../withDialog";
 import { CookiesTable } from "../../../lib/cookies/utils";
+import { CookieDialog } from "./CookieDialog";
+import { Typography } from "../Typography";
+import { CookieTable } from "./CookieTable";
 
 const PADDING = 15;
 
@@ -66,8 +69,7 @@ const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children 
   </a>
 );
 
-const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { Typography, CookieTable } = Components;
+const CookiePolicyInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { openDialog } = useDialog();
 
   const uniqueNecessaryThirdParties = [
@@ -118,7 +120,7 @@ const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         cookie preferences at any time by clicking{" "}
         <a onClick={() => openDialog({
           name: "CookieDialog",
-          contents: ({onClose}) => <Components.CookieDialog onClose={onClose} />
+          contents: ({onClose}) => <CookieDialog onClose={onClose} />
         })}>here</a>.
       </Typography>
       <Typography variant="body1">
@@ -217,10 +219,6 @@ const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const CookiePolicyComponent = registerComponent("CookiePolicy", CookiePolicy, { styles });
+export const CookiePolicy = registerComponent("CookiePolicy", CookiePolicyInner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CookiePolicy: typeof CookiePolicyComponent;
-  }
-}
+

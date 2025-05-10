@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -8,6 +8,8 @@ import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import { FormatDate } from "../common/FormatDate";
+import { UserNameDeleted } from "../users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,12 +68,11 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ExpandedCommentsSearchHit = ({hit, classes}: {
+const ExpandedCommentsSearchHitInner = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const comment: SearchComment = hit
   
   let url = "";
@@ -113,11 +114,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedCommentsSearchHitComponent = registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHit, {styles});
+export const ExpandedCommentsSearchHit = registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHitInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedCommentsSearchHit: typeof ExpandedCommentsSearchHitComponent
-  }
-}
+
 

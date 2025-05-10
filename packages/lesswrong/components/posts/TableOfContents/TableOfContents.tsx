@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
-import type { ToCDisplayOptions } from './TableOfContentsList';
+import { ToCDisplayOptions, TableOfContentsList } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { FixedPositionToc } from './FixedPositionToC';
 
 const styles = (theme: ThemeType) => ({
 });
 
-const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
+const TableOfContentsInner = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
   sectionData: ToCData,
   title: string,
   heading?: React.ReactNode,
@@ -37,7 +38,7 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   if (fixedPositionToc) {
     return (
       <AnalyticsContext pageSectionContext="tableOfContents" componentName="FixedPositionToC">
-        <Components.FixedPositionToC
+        <FixedPositionToc
           tocSections={displayToc.sectionData.sections}
           title={title}
           heading={heading}
@@ -51,7 +52,7 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
 
   return (
     <AnalyticsContext pageSectionContext="tableOfContents" componentName="TableOfContentsList">
-      <Components.TableOfContentsList
+      <TableOfContentsList
         tocSections={sectionData.sections}
         title={title}
         onClickSection={onClickSection}
@@ -61,15 +62,11 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   );
 }
 
-const TableOfContentsComponent = registerComponent(
-  "TableOfContents", TableOfContents, {
+export const TableOfContents = registerComponent(
+  "TableOfContents", TableOfContentsInner, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    TableOfContents: typeof TableOfContentsComponent
-  }
-}
+

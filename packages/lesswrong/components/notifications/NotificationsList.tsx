@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { NotificationsItem } from "./NotificationsItem";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NotificationsList = ({ terms, currentUser, classes }: {
+const NotificationsListInner = ({ terms, currentUser, classes }: {
   terms: NotificationsViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -52,7 +54,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     return (
       <ul className={classes.root}>
         {results.map(notification =>
-          <Components.NotificationsItem
+          <NotificationsItem
             notification={notification}
             lastNotificationsCheck={lastNotificationsCheck}
             currentUser={currentUser}
@@ -71,7 +73,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       </ul>
     )
   } else if (loading) {
-    return <Components.Loading/>
+    return <Loading/>
   } else {
     const modifier =
         (terms.type === undefined) ? (<></>)
@@ -83,10 +85,6 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   }
 }
 
-const NotificationsListComponent = registerComponent('NotificationsList', NotificationsList, {styles});
+export const NotificationsList = registerComponent('NotificationsList', NotificationsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NotificationsList: typeof NotificationsListComponent
-  }
-}
+

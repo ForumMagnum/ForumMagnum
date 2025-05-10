@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { Components } from "@/lib/vulcan-lib/components";
 import groupBy from "lodash/groupBy";
 import { useImageContext } from "../ImageContext";
 import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import { useCreate } from "@/lib/crud/withCreate";
 import classNames from "classnames";
+import { LWTooltip } from "../../../common/LWTooltip";
 
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
@@ -78,7 +78,6 @@ type Post = {_id: string, slug: string, title: string}
 export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean}) => {
   const classes = useStyles(artRowStyles);
   const imagesByPrompt = groupBy(images, (image) => image.splashArtImagePrompt);
-  const { LWTooltip } = Components;
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { selectedImageInfo, setImageInfo } = useImageContext();
 

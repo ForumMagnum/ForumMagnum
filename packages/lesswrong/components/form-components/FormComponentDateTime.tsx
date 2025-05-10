@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import DatePicker from "react-datepicker";
+import ReactDatePicker from "react-datepicker";
 import moment from '../../lib/moment-timezone';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
@@ -774,7 +773,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const ReactDatePicker = ({label, name, value, below, onChange}: {
+export const DatePicker = ({label, name, value, below, onChange}: {
   label?: string,
   name?: string,
   value?: Date,
@@ -809,7 +808,7 @@ const ReactDatePicker = ({label, name, value, below, onChange}: {
       [classes.wrapperAbove]: !below,
       [classes.wrapperBelow]: below,
     })}>
-      <DatePicker
+      <ReactDatePicker
         showTimeInput
         dateFormat="MM/dd/yyyy h:mm aa"
         selected={value}
@@ -831,7 +830,7 @@ export const FormComponentDatePicker = ({ field, label, name, below }: {
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
 
   return (<>
-    <ReactDatePicker
+    <DatePicker
       label={label}
       name={name}
       value={date}
@@ -842,12 +841,5 @@ export const FormComponentDatePicker = ({ field, label, name, below }: {
   </>);
 }
 
-const DatePickerComponent = registerComponent("DatePicker", ReactDatePicker);
-
-declare global {
-  interface ComponentTypes {
-    DatePicker: typeof DatePickerComponent
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////

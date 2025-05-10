@@ -2,8 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { Components } from '@/lib/vulcan-lib/components';
 import { Paper } from './Paper';
+import { Typography } from "../common/Typography";
 
 export const styles = defineStyles("MuiSnackbarContent", theme => {
   return {
@@ -48,8 +48,6 @@ export function SnackbarContent({action, className, message}: {
   message: React.ReactNode
 }) {
   const classes = useStyles(styles);
-  const { Typography } = Components;
-
   return (
     <Paper
       square

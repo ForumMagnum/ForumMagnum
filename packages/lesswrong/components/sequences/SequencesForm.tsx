@@ -1,7 +1,6 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
-import { Components } from "@/lib/vulcan-lib/components";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -18,6 +17,9 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
+import { LWTooltip } from "../common/LWTooltip";
+import { Error404 } from "../common/Error404";
+import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -39,8 +41,6 @@ export const SequencesForm = ({
   onSuccess: (doc: SequencesEdit) => void;
   onCancel: () => void;
 }) => {
-  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
-
   const classes = useStyles(formStyles);
 
   const formType = initialData ? 'edit' : 'new';

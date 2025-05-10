@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
@@ -17,7 +17,7 @@ const styles = defineStyles('UsersEmailVerification', (theme: ThemeType) => ({
   }
 }));
 
-const UsersEmailVerification = ({ resend = false }: { resend?: boolean }) => {
+const UsersEmailVerificationInner = ({ resend = false }: { resend?: boolean }) => {
   const classes = useStyles(styles);
   const [emailSent, setEmailSent] = useState(false);
 
@@ -61,12 +61,8 @@ const UsersEmailVerification = ({ resend = false }: { resend?: boolean }) => {
 }
 
 
-const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification, {
+export const UsersEmailVerification = registerComponent('UsersEmailVerification', UsersEmailVerificationInner, {
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    UsersEmailVerification: typeof UsersEmailVerificationComponent
-  }
-}
+

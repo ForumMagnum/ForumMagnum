@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { TagsChecklist } from "../tagging/TagsChecklist";
+import { TagMultiselect } from "./TagMultiselect";
+import { FooterTagList } from "../tagging/FooterTagList";
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = defineStyles('FormComponentPostEditorTagging', (_theme: ThemeType) => ({
   root: {
@@ -168,9 +171,6 @@ export const FormComponentPostEditorTagging = ({ field, postCategory, placeholde
       void onTagRemoved(tagValue, selectedTagIds);
     }
   }, [postCategory, onTagRemoved, onTagSelected, postTypeTags, selectedTagIds]);
-
-  const {TagsChecklist, TagMultiselect, FooterTagList, Loading} = Components;
-
   if (loading) {
     return <Loading/>;
   }

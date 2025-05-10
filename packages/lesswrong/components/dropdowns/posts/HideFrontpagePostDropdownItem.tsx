@@ -6,8 +6,10 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import { LoginPopup } from "../../users/LoginPopup";
+import { DropdownItem } from "../DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -16,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
+const HideFrontpagePostDropdownItemInner = ({post}: {post: PostsBase}) => {
   const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
@@ -35,7 +37,7 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return;
     }
@@ -50,8 +52,6 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   // Named to be consistent with bookmark / un-bookmark
   const title = hidden ? "Un-hide from frontpage" : "Hide from frontpage";
   const icon = hidden ? "EyeOutline" : "Eye";
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -61,17 +61,13 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const HideFrontPageButtonComponent = registerComponent(
+export const HideFrontPageButton = registerComponent(
   'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItem,
+  HideFrontpagePostDropdownItemInner,
   {
     styles,
     hocs: [withErrorBoundary],
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    HideFrontpagePostDropdownItem: typeof HideFrontPageButtonComponent
-  }
-}
+

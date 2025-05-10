@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { PostsList2 } from "../posts/PostsList2";
+import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
+import { RecentComments } from "../comments/RecentComments";
+import { LWTooltip } from "../common/LWTooltip";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -22,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Reviews2018 = ({classes}: {
+const Reviews2018Inner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -31,9 +38,6 @@ const Reviews2018 = ({classes}: {
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
   const [sortReviews, setSortReviews] = useState<CommentSortingMode>("new")
   const [sortNominations, setSortNominations] = useState<CommentSortingMode>("top")
-
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
-
   const handleSetExpandUnread = () => {
     void updateCurrentUser({
       noExpandUnreadCommentsReview: expandUnread,
@@ -106,11 +110,7 @@ const Reviews2018 = ({classes}: {
   )
 }
 
-const Reviews2018Component = registerComponent('Reviews2018', Reviews2018, {styles});
+export const Reviews2018 = registerComponent('Reviews2018', Reviews2018Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Reviews2018: typeof Reviews2018Component
-  }
-}
+
 

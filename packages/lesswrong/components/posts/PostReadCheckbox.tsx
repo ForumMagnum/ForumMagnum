@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { LWTooltip } from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,12 +22,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PostReadCheckbox = ({classes, post, width=12}: {
+export const PostReadCheckboxInner = ({classes, post, width=12}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   width?: number
 }) => {
-  const { LWTooltip } = Components
   const {postsRead, setPostRead} = useItemsRead();
   
 
@@ -66,11 +66,7 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
   }
 }
 
-const PostReadCheckboxComponent = registerComponent('PostReadCheckbox', PostReadCheckbox, {styles});
+export const PostReadCheckbox = registerComponent('PostReadCheckbox', PostReadCheckboxInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostReadCheckbox: typeof PostReadCheckboxComponent
-  }
-}
+
 

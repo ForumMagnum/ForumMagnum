@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import * as _ from 'underscore';
-import type { Option } from '../common/InlineSelect';
+import { Option, InlineSelect } from '../common/InlineSelect';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
@@ -14,15 +14,12 @@ const sortingNames = {
   'recentComments': preferredHeadingCase('latest reply'),
 }
 
-const AnswersSorting = ({ post }: {
+const AnswersSortingInner = ({ post }: {
   post?: PostsList,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  
-  const {InlineSelect} = Components;
-
   const handleSortingClick = (opt: Option) => {
     const sorting = opt.value;
     const { query } = location;
@@ -42,10 +39,6 @@ const AnswersSorting = ({ post }: {
   return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
 };
 
-const AnswersSortingComponent = registerComponent('AnswersSorting', AnswersSorting);
+export const AnswersSorting = registerComponent('AnswersSorting', AnswersSortingInner);
 
-declare global {
-  interface ComponentTypes {
-    AnswersSorting: typeof AnswersSortingComponent,
-  }
-}
+

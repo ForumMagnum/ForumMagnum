@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   outdatedWarning: {
@@ -40,16 +41,13 @@ function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|Post
   }
 }
 
-const CommentOutdatedWarning = ({comment, post, classes}: {
+const CommentOutdatedWarningInner = ({comment, post, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
   if (!postHadMajorRevision(comment, post))
     return null;
-
-  const { LWTooltip } = Components
-
   return <span className={classes.outdatedWarning}>
     <LWTooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
       <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
@@ -57,13 +55,9 @@ const CommentOutdatedWarning = ({comment, post, classes}: {
   </span>;
 };
 
-const CommentOutdatedWarningComponent = registerComponent(
-  'CommentOutdatedWarning', CommentOutdatedWarning, {styles}
+export const CommentOutdatedWarning = registerComponent(
+  'CommentOutdatedWarning', CommentOutdatedWarningInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentOutdatedWarning: typeof CommentOutdatedWarningComponent,
-  }
-}
+
 

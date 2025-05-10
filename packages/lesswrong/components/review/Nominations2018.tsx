@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { SectionTitle } from "../common/SectionTitle";
+import { PostsList2 } from "../posts/PostsList2";
+import { RecentDiscussionThreadsList } from "../recentDiscussion/RecentDiscussionThreadsList";
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -8,13 +12,10 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Nominations2018 = ({classes}: {
+const Nominations2018Inner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [sortByMost, setSortBy] = useState(false);
-
-  const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList } = Components
-
   return (
     <div>
       <SingleColumnSection>
@@ -44,11 +45,7 @@ const Nominations2018 = ({classes}: {
   )
 }
 
-const Nominations2018Component = registerComponent('Nominations2018', Nominations2018, {styles});
+export const Nominations2018 = registerComponent('Nominations2018', Nominations2018Inner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Nominations2018: typeof Nominations2018Component
-  }
-}
+
 

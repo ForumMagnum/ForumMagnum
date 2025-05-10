@@ -1,7 +1,9 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { SingleColumnSection } from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,11 +16,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BannedNotice = ({classes}: {
+const BannedNoticeInner = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {SingleColumnSection, Typography } = Components;
-  
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant='body2' gutterBottom>
@@ -38,12 +38,8 @@ const BannedNotice = ({classes}: {
   </SingleColumnSection>
 }
 
-const BannedNoticeComponent = registerComponent(
-  'BannedNotice', BannedNotice, {styles}
+export const BannedNotice = registerComponent(
+  'BannedNotice', BannedNoticeInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    BannedNotice: typeof BannedNoticeComponent
-  }
-}
+

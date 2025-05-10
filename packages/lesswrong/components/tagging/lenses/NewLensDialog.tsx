@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogContentText } from "@/components/widgets/DialogContentText";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { LensForm } from './LensForm';
+import { LWDialog } from "../../common/LWDialog";
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
@@ -42,14 +43,12 @@ const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   },
 }));
 
-export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: {
+export const NewLensDialogInner = ({ tag, refetchTag, updateSelectedLens, onClose }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
   refetchTag: () => Promise<void>,
   updateSelectedLens: (lensId: string) => void,
   onClose?: () => void,
 }) => {
-  const { LWDialog } = Components;
-  
   const classes = useStyles(styles);
 
   const wrappedSuccessCallback = async (lens: MultiDocumentMinimumInfo) => {
@@ -75,10 +74,6 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
   </LWDialog>;
 }
 
-const NewLensDialogComponent = registerComponent('NewLensDialog', NewLensDialog);
+export const NewLensDialog = registerComponent('NewLensDialog', NewLensDialogInner);
 
-declare global {
-  interface ComponentTypes {
-    NewLensDialog: typeof NewLensDialogComponent
-  }
-}
+

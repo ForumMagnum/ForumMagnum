@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { voteButtonsDisabledForUser } from "../../lib/collections/users/helpers";
 import { useDialog } from "../common/withDialog";
@@ -7,6 +7,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useVote } from "../votes/withVote";
 import { useMessages } from "../common/withMessages";
 import classNames from "classnames";
+import { LoginPopup } from "../users/LoginPopup";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +44,7 @@ export const styles = (theme: ThemeType) => ({
  * votes yet, but most of the logic is in place. Once the design is finished, this
  * is a drop-in replacement for `PostsItemTagRelevance` in `EAPostsItem`.
  */
-const EAPostsItemTagRelevance = ({tagRel, classes}: {
+const EAPostsItemTagRelevanceInner = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -72,16 +75,13 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
 
   const isUpvoted = document.currentUserVote ? document.currentUserVote.indexOf("Up") > 0 : false;
   const isDownvoted = document.currentUserVote ? document.currentUserVote.indexOf("Down") > 0 : false;
-
-  const {LWTooltip, ForumIcon} = Components;
-
   return (
     <div className={classes.root}>
       <ForumIcon
@@ -115,14 +115,10 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   );
 }
 
-const EAPostsItemTagRelevanceComponent = registerComponent(
+export const EAPostsItemTagRelevance = registerComponent(
   "EAPostsItemTagRelevance",
-  EAPostsItemTagRelevance,
+  EAPostsItemTagRelevanceInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsItemTagRelevance: typeof EAPostsItemTagRelevanceComponent
-  }
-}
+

@@ -1,8 +1,8 @@
-import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import React, { ReactNode } from "react";
 import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { FormComponentFriendlyTextInput } from "./FormComponentFriendlyTextInput";
 
 const styles = defineStyles('FormComponentFriendlyDisplayNameInput', (theme: ThemeType) => ({
   inputRow: {
@@ -46,8 +46,6 @@ export const FormComponentFriendlyDisplayNameInput = ({
   className?: string;
   label?: string;
 }) => {
-  const { FormComponentFriendlyTextInput } = Components;
-
   const classes = useStyles(styles);
 
   const value = field.state.value;
@@ -76,14 +74,3 @@ export const FormComponentFriendlyDisplayNameInput = ({
     </div>
   );
 };
-
-const FormComponentFriendlyDisplayNameInputComponent = registerComponent(
-  "FormComponentFriendlyDisplayNameInput",
-  FormComponentFriendlyDisplayNameInput,
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentFriendlyDisplayNameInput: typeof FormComponentFriendlyDisplayNameInputComponent;
-  }
-}

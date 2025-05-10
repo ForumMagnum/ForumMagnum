@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
+import { PresenceList } from "./PresenceList";
+import { LWTooltip } from "../common/LWTooltip";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   editorTopBar: {
@@ -41,7 +44,7 @@ const styles = (theme: ThemeType) => ({
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
-const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
+const EditorTopBarInner = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode) => void,
@@ -49,7 +52,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   connectedUsers: ConnectedUserInfo[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PresenceList, LWTooltip, MenuItem } = Components
   const currentUser = useCurrentUser();
   
   const isAdmin = !!currentUser && currentUser.isAdmin;
@@ -114,10 +116,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   </div>
 }
 
-const EditorTopBarComponent = registerComponent("EditorTopBar", EditorTopBar, {styles});
+export const EditorTopBar = registerComponent("EditorTopBar", EditorTopBarInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditorTopBar: typeof EditorTopBarComponent
-  }
-}
+

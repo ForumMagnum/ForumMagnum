@@ -1,11 +1,12 @@
 import React, { useState, useCallback, ReactNode, useMemo, useContext, type ReactElement, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { MessageFunctionsContext } from './withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Snackbar } from '../widgets/Snackbar';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Paper } from '../widgets/Paper';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { Typography } from "./Typography";
 
 const styles = defineStyles("FlashMessages", (theme) => ({
   root: {
@@ -134,14 +135,12 @@ export const MessageContextProvider = ({children}: {
   </MessageFunctionsContext.Provider>
 }
 
-const FlashMessages = () => {
+const FlashMessagesInner = () => {
   const messagesState = useContext(MessagesStateContext);
   const messagesFunctions = useContext(MessageFunctionsContext);
   const clear = messagesFunctions?.clear;
   const tick = messagesFunctions?.tick;
   const classes = useStyles(styles);
-  const { Typography } = Components;
-
   useEffect(() => {
     if (messagesState?.animationState === "opening") {
       setTimeout(() => tick?.(), 0);
@@ -182,10 +181,6 @@ const FlashMessages = () => {
   );
 }
 
-const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages);
+export const FlashMessages = registerComponent('FlashMessages', FlashMessagesInner);
 
-declare global {
-  interface ComponentTypes {
-    FlashMessages: typeof FlashMessagesComponent
-  }
-}
+

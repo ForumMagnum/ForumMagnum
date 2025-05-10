@@ -1,6 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,25 +13,21 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarInfo = ({children, classes, className}: {
+const SidebarInfoInner = ({children, classes, className}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
-  return <Components.Typography
+  return <Typography
     component='span'
     className={classNames(classes.root, className)}
     variant='body2'
   >
     {children}
-  </Components.Typography>
+  </Typography>
 }
 
-const SidebarInfoComponent = registerComponent('SidebarInfo', SidebarInfo, {styles});
+export const SidebarInfo = registerComponent('SidebarInfo', SidebarInfoInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarInfo: typeof SidebarInfoComponent
-  }
-}
+
 

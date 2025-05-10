@@ -1,9 +1,9 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryCommentCountCell', (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
@@ -13,12 +13,12 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     whiteSpace: "nowrap",
   },
-});
+}));
 
-const PeopleDirectoryCommentCountCell = ({user, classes}: {
+export const PeopleDirectoryCommentCountCell = ({user}: {
   user: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const url = userGetProfileUrl(user) + "#contributions";
   return (
     <div className={classes.root}>
@@ -32,16 +32,4 @@ const PeopleDirectoryCommentCountCell = ({user, classes}: {
       </Link>
     </div>
   );
-}
-
-const PeopleDirectoryCommentCountCellComponent = registerComponent(
-  "PeopleDirectoryCommentCountCell",
-  PeopleDirectoryCommentCountCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryCommentCountCell: typeof PeopleDirectoryCommentCountCellComponent
-  }
 }

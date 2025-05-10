@@ -1,8 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   iconWrapper: {
@@ -21,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UserCommentMarkers = ({
+const UserCommentMarkersInner = ({
   user,
   isPostAuthor,
   className,
@@ -42,8 +44,6 @@ const UserCommentMarkers = ({
   if (!showAuthorIcon && !showNewUserIcon) {
     return null;
   }
-
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <span className={className}>
       {showAuthorIcon &&
@@ -68,14 +68,10 @@ const UserCommentMarkers = ({
   );
 }
 
-const UserCommentMarkersComponent = registerComponent(
+export const UserCommentMarkers = registerComponent(
   "UserCommentMarkers",
-  UserCommentMarkers,
+  UserCommentMarkersInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    UserCommentMarkers: typeof UserCommentMarkersComponent
-  }
-}
+

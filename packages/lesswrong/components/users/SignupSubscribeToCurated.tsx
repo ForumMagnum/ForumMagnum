@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, forumHeaderTitleSetting } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
-import { forumHeaderTitleSetting } from '../common/Header';
 import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
@@ -32,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
+const SignupSubscribeToCuratedInner = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
   onChange: (checked: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -64,10 +63,6 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   </div>
 }
 
-const SignupSubscribeToCuratedComponent = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated, {styles});
+export const SignupSubscribeToCurated = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCuratedInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SignupSubscribeToCurated: typeof SignupSubscribeToCuratedComponent
-  }
-}
+

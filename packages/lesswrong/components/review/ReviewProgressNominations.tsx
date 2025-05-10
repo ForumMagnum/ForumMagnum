@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import range from 'lodash/range';
-
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,15 +34,12 @@ const styles = (theme: ThemeType) => ({
 
 const TARGET_REVIEWS_NUM = 2
 
-export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
+export const ReviewProgressNominationsInner = ({classes, reviewYear = REVIEW_YEAR}: {
     classes: ClassesType<typeof styles>,
     reviewYear: ReviewYear
   }) => {
 
     const currentUser = useCurrentUser()
-
-    const { LWTooltip, ForumIcon } = Components
-
     const { results: reviewsResults, totalCount: reviewsTotalCount } = useMulti({
       terms: {
         view: "reviews",
@@ -76,10 +74,6 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
       </LWTooltip>
 }
 
-const ReviewProgressNominationsComponent = registerComponent('ReviewProgressNominations', ReviewProgressNominations, {styles});
+export const ReviewProgressNominations = registerComponent('ReviewProgressNominations', ReviewProgressNominationsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewProgressNominations: typeof ReviewProgressNominationsComponent
-  }
-}
+

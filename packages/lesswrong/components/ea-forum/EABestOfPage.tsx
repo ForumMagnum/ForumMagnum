@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -8,6 +8,13 @@ import { useMulti } from "../../lib/crud/withMulti";
 import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
+import { Loading } from "../vulcan-core/Loading";
+import { HeadTags } from "../common/HeadTags";
+import { EASequenceCard } from "./EASequenceCard";
+import { EACollectionCard } from "./EACollectionCard";
+import { EAPostsItem } from "../posts/EAPostsItem";
+import { PostsAudioCard } from "../posts/PostsAudioCard";
+import { PostsVideoCard } from "../posts/PostsVideoCard";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -139,7 +146,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EABestOfPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { results: posts, loading } = useMulti({
@@ -178,7 +185,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
 
   if (loading || sequencesLoading || collectionsLoading || monthlyHighlightsLoading) {
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
@@ -187,11 +194,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
-
-  const {
-    HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
-    PostsVideoCard,
-  } = Components;
   return (
     <>
       <HeadTags title="Best of the Forum" />
@@ -304,14 +306,10 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const EABestOfPageComponent = registerComponent(
+export const EABestOfPage = registerComponent(
   "EABestOfPage",
-  EABestOfPage,
+  EABestOfPageInner,
   {styles, stylePriority: 2},
 );
 
-declare global {
-  interface ComponentTypes {
-    EABestOfPage: typeof EABestOfPageComponent;
-  }
-}
+

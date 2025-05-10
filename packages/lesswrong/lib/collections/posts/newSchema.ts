@@ -32,7 +32,6 @@ import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "simpl-schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { getVotingSystemByName } from '../../voting/getVotingSystem';
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
 import { forumSelect } from "../../forumTypeUtils";
 import * as _ from "underscore";
@@ -1926,6 +1925,8 @@ const schema = {
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
       onCreate: ({ document }) => {
+        // This is to break an annoying import cycle that causes a crash on start.
+        const { getVotingSystemByName }: typeof import('@/lib/voting/getVotingSystem') = require('@/lib/voting/getVotingSystem');
         const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
           ? document.votingSystem
           : getDefaultVotingSystem();

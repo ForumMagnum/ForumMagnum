@@ -1,9 +1,14 @@
 import React, {useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import RejectedIcon from "@/lib/vendor/@material-ui/icons/src/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
+import { LWPopper } from "../common/LWPopper";
+import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import { RejectContentDialog } from "./RejectContentDialog";
+import { LWTooltip } from "../common/LWTooltip";
+import { MetaInfo } from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,14 +30,13 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectContentButton = ({contentWrapper, classes}: {
+export const RejectContentButtonInner = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,
   classes: ClassesType<typeof styles>,
 }) => {
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const { LWPopper, LWClickAwayListener, RejectContentDialog, LWTooltip, MetaInfo } = Components;
   const { content } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
@@ -63,11 +67,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   </span>
 }
 
-const RejectContentButtonComponent = registerComponent('RejectContentButton', RejectContentButton, {styles});
+export const RejectContentButton = registerComponent('RejectContentButton', RejectContentButtonInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectContentButton: typeof RejectContentButtonComponent
-  }
-}
+
 

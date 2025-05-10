@@ -1,7 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import { WrappedSection } from "./WrappedSection";
+import { WrappedHeading } from "./WrappedHeading";
+import { WrappedComment } from "./WrappedComment";
 
 const styles = (_theme: ThemeType) => ({
   topQuickTake: {
@@ -22,12 +25,11 @@ const styles = (_theme: ThemeType) => ({
  * Section that displays the user's highest-karma quick take (shortform) plus
  * other data on their quick takes
  */
-const WrappedTopQuickTakeSection = ({classes}: {
+const WrappedTopQuickTakeSectionInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
   const percentile = formatPercentile(data.shortformPercentile);
-  const {WrappedSection, WrappedHeading, WrappedComment} = Components;
   return (
     <WrappedSection pageSectionContext="topQuickTake">
       <WrappedHeading>
@@ -47,14 +49,10 @@ const WrappedTopQuickTakeSection = ({classes}: {
   );
 }
 
-const WrappedTopQuickTakeSectionComponent = registerComponent(
+export const WrappedTopQuickTakeSection = registerComponent(
   "WrappedTopQuickTakeSection",
-  WrappedTopQuickTakeSection,
+  WrappedTopQuickTakeSectionInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedTopQuickTakeSection: typeof WrappedTopQuickTakeSectionComponent
-  }
-}
+

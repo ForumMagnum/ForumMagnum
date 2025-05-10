@@ -1,6 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { ConceptItem } from "./ConceptItem";
 
 const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
@@ -36,14 +37,13 @@ interface WikiTagNestedListProps {
   showArbitalIcons?: boolean;
 }
 
-const WikiTagNestedList = ({
+const WikiTagNestedListInner = ({
   pages,
   nestingLevel = 0,
   maxInitialShow = 40,
   totalChildrenCount,
   showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
-  const { ConceptItem } = Components;
   const classes = useStyles(styles);
 
   return (
@@ -66,12 +66,8 @@ const WikiTagNestedList = ({
   );
 }
 
-const WikiTagNestedListComponent = registerComponent('WikiTagNestedList', WikiTagNestedList);
+export const WikiTagNestedList = registerComponent('WikiTagNestedList', WikiTagNestedListInner);
 
-export default WikiTagNestedListComponent;
 
-declare global {
-  interface ComponentTypes {
-    WikiTagNestedList: typeof WikiTagNestedListComponent
-  }
-}
+
+

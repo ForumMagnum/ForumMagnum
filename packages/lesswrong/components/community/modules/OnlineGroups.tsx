@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -7,6 +7,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -143,14 +144,12 @@ const styles = (theme: ThemeType) => ({
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
 const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
-const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
+const OnlineGroupsInner = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CloudinaryImage2 } = Components
-  
   const { results, loading } = useMulti({
     terms: {view: 'online', includeInactive},
     collectionName: "Localgroups",
@@ -226,10 +225,6 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   )
 }
 
-const OnlineGroupsComponent = registerComponent('OnlineGroups', OnlineGroups, {styles});
+export const OnlineGroups = registerComponent('OnlineGroups', OnlineGroupsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OnlineGroups: typeof OnlineGroupsComponent
-  }
-}
+

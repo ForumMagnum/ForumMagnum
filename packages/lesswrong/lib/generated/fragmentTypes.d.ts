@@ -1039,7 +1039,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly pollAgreeWording: string|null,
   readonly pollDisagreeWording: string|null,
   readonly maxStickersPerUser: number,
-  readonly customComponent: string|null,
+  readonly customComponent: "GivingSeason2024Banner" | null,
   readonly commentPrompt: string|null,
   readonly publicData: any,
 }
@@ -1096,7 +1096,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly postId: string|null,
   readonly bannerImageId: string|null,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
-  readonly customComponent: string|null,
+  readonly customComponent: "GivingSeason2024Banner" | null,
   readonly commentPrompt: string|null,
   readonly isGlobal: boolean,
   readonly pollAgreeWording: string|null,

@@ -1,8 +1,9 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { Components, registerComponent } from "../../lib/vulcan-lib/components"
+import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { TagRevisionItem } from "../tagging/TagRevisionItem";
 
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
@@ -32,7 +33,7 @@ const onlyStyleEditors = ['pkJTc4xXhsCbNqkZM']
  * This component's only job is to filter out tag edits that shouldn't be shown.
  * Otherwise it's just a wrapper around TagRevisionItem.
  */
-function RecentDiscussionTagRevisionItem({
+function RecentDiscussionTagRevisionItemInner({
   tag,
   collapsed=false,
   headingStyle,
@@ -46,8 +47,6 @@ function RecentDiscussionTagRevisionItem({
   documentId: string,
 }) {
   const classes = useStyles(styles);
-  const { TagRevisionItem } = Components
-  
   if (tag.adminOnly) {
     return null
   }
@@ -76,12 +75,8 @@ function RecentDiscussionTagRevisionItem({
   </div>
 }
 
-const RecentDiscussionTagRevisionItemComponent = registerComponent(
-  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
+export const RecentDiscussionTagRevisionItem = registerComponent(
+  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItemInner
 )
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItemComponent,
-  }
-}
+

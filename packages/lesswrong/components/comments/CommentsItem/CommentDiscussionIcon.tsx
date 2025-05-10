@@ -1,7 +1,8 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import classNames from 'classnames';
+import { LWTooltip } from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -20,12 +21,11 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommentDiscussionIcon = ({comment, small = false, classes}: {
+const CommentDiscussionIconInner = ({comment, small = false, classes}: {
   comment: CommentsList,
   small?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components
   if (comment.tagCommentType !== "SUBFORUM" || comment.topLevelCommentId) return null
 
   return (
@@ -35,13 +35,9 @@ const CommentDiscussionIcon = ({comment, small = false, classes}: {
   )
 }
 
-const CommentDiscussionIconComponent = registerComponent(
-  'CommentDiscussionIcon', CommentDiscussionIcon, {styles}
+export const CommentDiscussionIcon = registerComponent(
+  'CommentDiscussionIcon', CommentDiscussionIconInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentDiscussionIcon: typeof CommentDiscussionIconComponent,
-  }
-}
+
 

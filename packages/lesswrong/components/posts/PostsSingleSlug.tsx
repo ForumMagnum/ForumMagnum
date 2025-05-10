@@ -1,25 +1,24 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
+import { PostsPageWrapper } from "./PostsPage/PostsPageWrapper";
+import { Loading } from "../vulcan-core/Loading";
+import { Error404 } from "../common/Error404";
 
-const PostsSingleSlug = () => {
+const PostsSingleSlugInner = () => {
   const { params, query } = useLocation();
   const version = query?.revision
   const slug = params.slug;
   const { post, loading } = usePostBySlug({ slug });
   
   if (post) {
-    return <Components.PostsPageWrapper documentId={post._id} sequenceId={null} version={version} />
+    return <PostsPageWrapper documentId={post._id} sequenceId={null} version={version} />
   } else {
-    return loading ? <Components.Loading/> : <Components.Error404 />
+    return loading ? <Loading/> : <Error404 />
   }
 };
 
-const PostsSingleSlugComponent = registerComponent('PostsSingleSlug', PostsSingleSlug);
+export const PostsSingleSlug = registerComponent('PostsSingleSlug', PostsSingleSlugInner);
 
-declare global {
-  interface ComponentTypes {
-    PostsSingleSlug: typeof PostsSingleSlugComponent
-  }
-}
+

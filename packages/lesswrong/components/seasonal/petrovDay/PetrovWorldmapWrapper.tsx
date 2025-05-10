@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import ReactMapGL from 'react-map-gl';
 import { mapboxAPIKeySetting } from '@/lib/publicSettings';
 import { Helmet } from '@/lib/utils/componentsWithChildren';
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PetrovWorldmapWrapper = ({classes, children}: {
+export const PetrovWorldmapWrapperInner = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
@@ -62,10 +62,6 @@ export const PetrovWorldmapWrapper = ({classes, children}: {
   </div>;
 }
 
-const PetrovWorldmapWrapperComponent = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
+export const PetrovWorldmapWrapper = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapperInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovWorldmapWrapper: typeof PetrovWorldmapWrapperComponent
-  }
-}
+

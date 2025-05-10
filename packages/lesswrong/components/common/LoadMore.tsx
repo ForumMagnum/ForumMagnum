@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
@@ -8,6 +8,7 @@ import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
+import { Loading } from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
  * from the return value of `useMulti` and spread it into this component's
  * props.
  */
-const LoadMore = ({
+const LoadMoreInner = ({
   loadMore,
   count,
   totalCount,
@@ -100,8 +101,6 @@ const LoadMore = ({
   // Don't show the loading animation on the initial render
   const isFirstRender = useIsFirstRender();
   loading = loading && !isFirstRender;
-
-  const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     void loadMore();
@@ -129,10 +128,6 @@ const LoadMore = ({
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
+export const LoadMore = registerComponent('LoadMore', LoadMoreInner, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    LoadMore: typeof LoadMoreComponent
-  }
-}
+

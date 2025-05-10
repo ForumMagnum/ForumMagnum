@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
@@ -8,6 +8,12 @@ import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
+import { LWPopper } from "../common/LWPopper";
+import { LWTooltip } from "../common/LWTooltip";
+import { ForumIcon } from "../common/ForumIcon";
+import { UsersName } from "../users/UsersName";
+import { FooterTag } from "../tagging/FooterTag";
+import { CommentsNode } from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,7 +85,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ShortformListItem = ({comment, hideTag, classes}: {
+const ShortformListItemInner = ({comment, hideTag, classes}: {
   comment: ShortformComments,
   hideTag?: boolean,
   classes: ClassesType<typeof styles>,
@@ -104,11 +110,6 @@ const ShortformListItem = ({comment, hideTag, classes}: {
     showCollapseButtons: true,
     onToggleCollapsed: () => wrappedSetExpanded(!expanded),
   };
-
-  const {
-    LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode
-  } = Components;
-
   if (expanded) {
     return (
       <div className={classes.expandedRoot}>
@@ -191,9 +192,9 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   );
 }
 
-const ShortformListItemComponent = registerComponent(
+export const ShortformListItem = registerComponent(
   "ShortformListItem",
-  ShortformListItem, {
+  ShortformListItemInner, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {
@@ -202,8 +203,4 @@ const ShortformListItemComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    ShortformListItem: typeof ShortformListItemComponent,
-  }
-}
+

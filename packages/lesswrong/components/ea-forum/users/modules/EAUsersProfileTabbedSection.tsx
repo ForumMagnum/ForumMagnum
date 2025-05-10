@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCheckMeritsCollapse } from '../../../common/useCheckMeritsCollapse';
-
+import { Typography } from "../../../common/Typography";
 
 const COLLAPSED_SECTION_HEIGHT = 200
 
@@ -98,7 +98,7 @@ export type UserProfileTabType = {
   collapsable?: boolean
 }
 
-const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
+const EAUsersProfileTabbedSectionInner = ({tabs, id, classes}: {
   tabs: Array<UserProfileTabType>,
   id?: string,
   classes: ClassesType<typeof styles>,
@@ -115,9 +115,6 @@ const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
     height: COLLAPSED_SECTION_HEIGHT,
     deps: [activeTab]
   })
-
-  const { Typography } = Components
-  
   if (!activeTab) return null
   
   let tabBody = activeTab.body
@@ -165,12 +162,8 @@ const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   )
 }
 
-const EAUsersProfileTabbedSectionComponent = registerComponent(
-  'EAUsersProfileTabbedSection', EAUsersProfileTabbedSection, {styles}
+export const EAUsersProfileTabbedSection = registerComponent(
+  'EAUsersProfileTabbedSection', EAUsersProfileTabbedSectionInner, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersProfileTabbedSection: typeof EAUsersProfileTabbedSectionComponent
-  }
-}
+

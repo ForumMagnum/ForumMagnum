@@ -1,6 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { CommentsNode } from "../comments/CommentsNode";
+import { RejectContentButton } from "./RejectContentButton";
+import { RejectedReasonDisplay } from "./RejectedReasonDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,13 +27,11 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewUserCommentsList = ({comments, user, classes}: {
+const SunshineNewUserCommentsListInner = ({comments, user, classes}: {
   comments?: Array<CommentsListWithParentMetadata>,
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { CommentsNode, RejectContentButton, RejectedReasonDisplay } = Components
-
   if (!comments) return null 
 
   const newComments = user.reviewedAt ? comments.filter(comment => comment.postedAt > user.reviewedAt!) : comments
@@ -57,10 +58,6 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   )
 }
 
-const SunshineNewUserCommentsListComponent = registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsList, {styles});
+export const SunshineNewUserCommentsList = registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsListInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUserCommentsList: typeof SunshineNewUserCommentsListComponent
-  }
-}
+

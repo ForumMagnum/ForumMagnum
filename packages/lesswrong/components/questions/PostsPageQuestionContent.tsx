@@ -1,17 +1,20 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import { AnswersList } from "./AnswersList";
+import { NewAnswerCommentQuestionForm } from "./NewAnswerCommentQuestionForm";
+import { CantCommentExplanation } from "../comments/CantCommentExplanation";
+import { RelatedQuestionsList } from "./RelatedQuestionsList";
 
-const PostsPageQuestionContent = ({post, answersTree, refetch}: {
+const PostsPageQuestionContentInner = ({post, answersTree, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answersTree: CommentTreeNode<CommentsList>[],
   refetch: () => void,
 }) => {
   const currentUser = useCurrentUser();
-  const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   const author = post.user;
   return (
     <div>
@@ -26,13 +29,9 @@ const PostsPageQuestionContent = ({post, answersTree, refetch}: {
 
 };
 
-const PostsPageQuestionContentComponent = registerComponent('PostsPageQuestionContent', PostsPageQuestionContent, {
+export const PostsPageQuestionContent = registerComponent('PostsPageQuestionContent', PostsPageQuestionContentInner, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsPageQuestionContent: typeof PostsPageQuestionContentComponent
-  }
-}
+
 

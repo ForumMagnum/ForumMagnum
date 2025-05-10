@@ -1,8 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { WarningBanner } from "../common/WarningBanner";
+import { ContentStyles } from "../common/ContentStyles";
+import { ContentItemBody } from "../common/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   lwBanner: {
@@ -23,14 +26,12 @@ const styles = (theme: ThemeType) => ({
 });
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
+const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
   contentType: 'comment' | 'post',
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentStyles, ContentItemBody } = Components
-
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
     const now = moment()
@@ -60,7 +61,7 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 
   if (isFriendlyUI) {
-    return <Components.WarningBanner message={message}/>
+    return <WarningBanner message={message}/>
   } else {
     return <ContentStyles contentType="comment" className={classes.lwBanner}>
       <AlarmIcon className={classes.icon} />
@@ -69,10 +70,6 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 }
 
-const RateLimitWarningComponent = registerComponent('RateLimitWarning', RateLimitWarning, {styles});
+export const RateLimitWarning = registerComponent('RateLimitWarning', RateLimitWarningInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RateLimitWarning: typeof RateLimitWarningComponent
-  }
-}
+

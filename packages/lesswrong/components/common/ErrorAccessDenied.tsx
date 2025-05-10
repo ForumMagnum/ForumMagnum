@@ -1,8 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { LoginForm } from "../users/LoginForm";
+import { SingleColumnSection } from "./SingleColumnSection";
+import { Typography } from "./Typography";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -27,12 +30,11 @@ const styles = (theme: ThemeType) => ({
  * However, for pages that are normally meant to be publicly accessible (like the post page),
  * we skip the login prompt and just display the "you don't have access" message.
  */
-const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
+const ErrorAccessDeniedInner = ({explanation, skipLoginPrompt, classes}: {
   explanation?: string,
   skipLoginPrompt?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, Typography } = Components;
   const serverRequestStatus = useServerRequestStatus()
   const currentUser = useCurrentUser();
   if (serverRequestStatus) serverRequestStatus.status = 403
@@ -47,19 +49,15 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
       <Typography variant='body1' className={classes.root}>
         Please log in to access this page.
       </Typography>
-      <Components.LoginForm startingState='login'/>
+      <LoginForm startingState='login'/>
     </SingleColumnSection>
   }
 }
 
-const ErrorAccessDeniedComponent = registerComponent(
+export const ErrorAccessDenied = registerComponent(
   "ErrorAccessDenied",
-  ErrorAccessDenied,
+  ErrorAccessDeniedInner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ErrorAccessDenied: typeof ErrorAccessDeniedComponent
-  }
-}
+
