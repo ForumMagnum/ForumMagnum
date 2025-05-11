@@ -11,11 +11,11 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { hasAuthorModeration } from '@/lib/betas';
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
-import { ErrorMessage } from "../common/ErrorMessage";
-import { LoginForm } from "../users/LoginForm";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import ErrorMessage from "../common/ErrorMessage";
+import LoginForm from "../users/LoginForm";
+import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 type EventTemplateFields =
   | "contents"
@@ -135,7 +135,7 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
-const PostsNewFormInner = () => {
+const PostsNewForm = () => {
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
@@ -261,6 +261,6 @@ const PostsNewFormInner = () => {
   }
 }
 
-export const PostsNewForm = registerComponent('PostsNewForm', PostsNewFormInner);
+export default registerComponent('PostsNewForm', PostsNewForm);
 
 

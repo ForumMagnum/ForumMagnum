@@ -10,7 +10,7 @@ import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
-import { ContentStyles } from '@/components/common/ContentStyles';
+import ContentStyles from '@/components/common/ContentStyles';
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;

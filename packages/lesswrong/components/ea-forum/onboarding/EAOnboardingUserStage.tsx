@@ -7,9 +7,9 @@ import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
 import {useCurrentUser} from '../../common/withUser'
-import { EAOnboardingStage } from "./EAOnboardingStage";
-import { EAOnboardingInput } from "./EAOnboardingInput";
-import { ForumIcon } from "../../common/ForumIcon";
+import EAOnboardingStage from "./EAOnboardingStage";
+import EAOnboardingInput from "./EAOnboardingInput";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,7 +59,7 @@ const links = {
   license: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
 
-export const EAOnboardingUserStageInner = ({classes, icon = lightbulbIcon}: {
+export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   icon?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -199,9 +199,9 @@ export const EAOnboardingUserStageInner = ({classes, icon = lightbulbIcon}: {
   );
 }
 
-export const EAOnboardingUserStage = registerComponent(
+export default registerComponent(
   "EAOnboardingUserStage",
-  EAOnboardingUserStageInner,
+  EAOnboardingUserStage,
   {styles},
 );
 

@@ -14,23 +14,23 @@ import { useRecommendations } from "@/components/recommendations/withRecommendat
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import { LoadMoreProps, useMulti } from "@/lib/crud/withMulti";
-import { WrappedWelcomeSection } from "./WrappedWelcomeSection";
-import { WrappedTimeSpentSection } from "./WrappedTimeSpentSection";
-import { WrappedDaysVisitedSection } from "./WrappedDaysVisitedSection";
-import { WrappedMostReadTopicsSection } from "./WrappedMostReadTopicsSection";
-import { WrappedRelativeMostReadTopicsSection } from "./WrappedRelativeMostReadTopicsSection";
-import { WrappedMostReadAuthorSection } from "./WrappedMostReadAuthorSection";
-import { WrappedThankAuthorSection } from "./WrappedThankAuthorSection";
-import { WrappedPersonalitySection } from "./WrappedPersonalitySection";
-import { WrappedTopPostSection } from "./WrappedTopPostSection";
-import { WrappedTopCommentSection } from "./WrappedTopCommentSection";
-import { WrappedTopQuickTakeSection } from "./WrappedTopQuickTakeSection";
-import { WrappedKarmaChangeSection } from "./WrappedKarmaChangeSection";
-import { WrappedReceivedReactsSection } from "./WrappedReceivedReactsSection";
-import { WrappedSummarySection } from "./WrappedSummarySection";
-import { WrappedRecommendationsSection } from "./WrappedRecommendationsSection";
-import { WrappedMostValuablePostsSection } from "./WrappedMostValuablePostsSection";
-import { WrappedThankYouSection } from "./WrappedThankYouSection";
+import WrappedWelcomeSection from "./WrappedWelcomeSection";
+import WrappedTimeSpentSection from "./WrappedTimeSpentSection";
+import WrappedDaysVisitedSection from "./WrappedDaysVisitedSection";
+import WrappedMostReadTopicsSection from "./WrappedMostReadTopicsSection";
+import WrappedRelativeMostReadTopicsSection from "./WrappedRelativeMostReadTopicsSection";
+import WrappedMostReadAuthorSection from "./WrappedMostReadAuthorSection";
+import WrappedThankAuthorSection from "./WrappedThankAuthorSection";
+import WrappedPersonalitySection from "./WrappedPersonalitySection";
+import WrappedTopPostSection from "./WrappedTopPostSection";
+import WrappedTopCommentSection from "./WrappedTopCommentSection";
+import WrappedTopQuickTakeSection from "./WrappedTopQuickTakeSection";
+import WrappedKarmaChangeSection from "./WrappedKarmaChangeSection";
+import WrappedReceivedReactsSection from "./WrappedReceivedReactsSection";
+import WrappedSummarySection from "./WrappedSummarySection";
+import WrappedRecommendationsSection from "./WrappedRecommendationsSection";
+import WrappedMostValuablePostsSection from "./WrappedMostValuablePostsSection";
+import WrappedThankYouSection from "./WrappedThankYouSection";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:

@@ -9,7 +9,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 
 const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -19,7 +19,7 @@ const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   submitButton: submitButtonStyles(theme),
 }));
 
-const ReportFormInner = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
+const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   userId: string,
   postId?: string,
   commentId?: string,
@@ -112,7 +112,7 @@ const ReportFormInner = ({ userId, postId, commentId, reportedUserId, onClose, o
   )
 }
 
-export const ReportForm = registerComponent('ReportForm', ReportFormInner);
+export default registerComponent('ReportForm', ReportForm);
 
 
 

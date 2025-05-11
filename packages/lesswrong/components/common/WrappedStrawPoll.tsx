@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const WrappedStrawPollInner = ({ id, src, classes }: {
+const WrappedStrawPoll = ({ id, src, classes }: {
   id: string|null
   src: string
   classes: ClassesType<typeof styles>
@@ -50,6 +50,6 @@ const WrappedStrawPollInner = ({ id, src, classes }: {
   }
 }
 
-export const WrappedStrawPoll = registerComponent("WrappedStrawPoll", WrappedStrawPollInner, {styles})
+export default registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles});
 
 

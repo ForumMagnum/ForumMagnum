@@ -4,18 +4,18 @@ import { useMulti } from '../../lib/crud/withMulti';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import { ContentTypeString, ContentType } from './PostsPage/ContentType';
+import ContentType, { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { PostsItem } from "./PostsItem";
-import { LoadMore } from "../common/LoadMore";
-import { ShortformTimeBlock } from "../shortform/ShortformTimeBlock";
-import { TagEditsTimeBlock } from "../tagging/TagEditsTimeBlock";
-import { Divider } from "../common/Divider";
+import PostsItem from "./PostsItem";
+import LoadMore from "../common/LoadMore";
+import ShortformTimeBlock from "../shortform/ShortformTimeBlock";
+import TagEditsTimeBlock from "../tagging/TagEditsTimeBlock";
+import Divider from "../common/Divider";
 import { Typography } from "../common/Typography";
-import { PostsTagsList } from "../tagging/PostsTagsList";
-import { PostsLoading } from "./PostsLoading";
+import PostsTagsList from "../tagging/PostsTagsList";
+import PostsLoading from "./PostsLoading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -97,7 +97,7 @@ const postTypes: PostTypeOptions[] = [
 
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
-const PostsTimeBlockInner = ({
+const PostsTimeBlock = ({
   terms,
   timeBlockLoadComplete,
   dateForTitle,
@@ -266,7 +266,7 @@ const PostsTimeBlockInner = ({
   );
 };
 
-export const PostsTimeBlock = registerComponent('PostsTimeBlock', PostsTimeBlockInner, {
+export default registerComponent('PostsTimeBlock', PostsTimeBlock, {
   styles,
 });
 

@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useCallback } from 'react';
 import { useIsInView, useTracking } from "../../lib/analyticsEvents";
 
-const AnalyticsInViewTrackerInner = ({eventType, eventProps, observerProps, children, skip}: {
+const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children, skip}: {
   eventType?: string,
   eventProps?: Record<string,any>,
   observerProps?: Record<string,any>,
@@ -32,6 +32,6 @@ const AnalyticsInViewTrackerInner = ({eventType, eventProps, observerProps, chil
   )
 }
 
-export const AnalyticsInViewTracker = registerComponent('AnalyticsInViewTracker', AnalyticsInViewTrackerInner)
+export default registerComponent('AnalyticsInViewTracker', AnalyticsInViewTracker);
 
 

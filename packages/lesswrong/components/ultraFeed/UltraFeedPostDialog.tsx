@@ -6,11 +6,11 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
-import { LWDialog } from "../common/LWDialog";
-import { FeedContentBody } from "./FeedContentBody";
-import { Loading } from "../vulcan-core/Loading";
-import { CommentsListSection } from "../comments/CommentsListSection";
-import { PostsVote } from "../votes/PostsVote";
+import LWDialog from "../common/LWDialog";
+import FeedContentBody from "./FeedContentBody";
+import Loading from "../vulcan-core/Loading";
+import CommentsListSection from "../comments/CommentsListSection";
+import PostsVote from "../votes/PostsVote";
 import { DialogContent } from "../widgets/DialogContent";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
@@ -197,7 +197,7 @@ const UltraFeedDialogContent = ({
 }
 
 
-const UltraFeedPostDialogInner = ({
+const UltraFeedPostDialog = ({
   postId,
   post,
   onClose,
@@ -240,12 +240,8 @@ const UltraFeedPostDialogInner = ({
       onClose={onClose}
     />}
   </>
-
-
 };
 
-export const UltraFeedPostDialog = registerComponent("UltraFeedPostDialog", UltraFeedPostDialogInner);
-
-export default UltraFeedPostDialogInner;
+export default UltraFeedPostDialog;
 
 

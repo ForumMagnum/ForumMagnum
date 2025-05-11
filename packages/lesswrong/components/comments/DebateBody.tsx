@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
-import { DebateResponseWithReplies, DebateResponseBlock } from './DebateResponseBlock';
+import DebateResponseBlock, { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { DebateTypingIndicator } from "./DebateTypingIndicator";
+import DebateTypingIndicator from "./DebateTypingIndicator";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const DebateBodyInner = ({ debateResponses, post, classes }: {
+export const DebateBody = ({ debateResponses, post, classes }: {
   debateResponses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>,
@@ -67,6 +67,6 @@ export const DebateBodyInner = ({ debateResponses, post, classes }: {
   </DeferRender>);
 }
 
-export const DebateBody = registerComponent('DebateBody', DebateBodyInner, {styles});
+export default registerComponent('DebateBody', DebateBody, {styles});
 
 

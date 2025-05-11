@@ -4,7 +4,7 @@ import { linkStyle } from './PostLinkPreview';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 
 // A link to a post. Differs from the stuff in PostLinkPreview in that it's a
 // provided post object, rather than integrating with user-provided markup.
-const LinkToPostInner = ({post, classes}: {
+const LinkToPost = ({post, classes}: {
   post: PostsList|null,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -32,6 +32,6 @@ const LinkToPostInner = ({post, classes}: {
   );
 }
 
-export const LinkToPost = registerComponent("LinkToPost", LinkToPostInner, {styles});
+export default registerComponent("LinkToPost", LinkToPost, {styles});
 
 

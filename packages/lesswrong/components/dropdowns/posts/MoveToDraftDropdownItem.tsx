@@ -4,9 +4,9 @@ import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const MoveToDraftDropdownItemInner = ({ post }: {
+const MoveToDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
@@ -34,9 +34,9 @@ const MoveToDraftDropdownItemInner = ({ post }: {
   }
 }
 
-export const MoveToDraftDropdownItem = registerComponent(
+export default registerComponent(
   'MoveToDraftDropdownItem',
-  MoveToDraftDropdownItemInner,
+  MoveToDraftDropdownItem,
 );
 
 

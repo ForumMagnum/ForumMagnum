@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { CollectionsItem } from "./CollectionsItem";
+import SingleColumnSection from "../common/SingleColumnSection";
+import CollectionsItem from "./CollectionsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,7 +99,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const LWCoreReadingInner = ({classes}: {
+const LWCoreReading = ({classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -108,6 +108,6 @@ const LWCoreReadingInner = ({classes}: {
   </SingleColumnSection>
 }
 
-export const LWCoreReading = registerComponent("LWCoreReading", LWCoreReadingInner, {styles});
+export default registerComponent("LWCoreReading", LWCoreReading, {styles});
 
 

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const BasicFormStylesInner = ({classes, children}: {
+export const BasicFormStyles = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
@@ -27,7 +27,7 @@ export const BasicFormStylesInner = ({classes, children}: {
   </div>;
 }
 
-export const BasicFormStyles = registerComponent('BasicFormStyles', BasicFormStylesInner, {styles});
+export default registerComponent('BasicFormStyles', BasicFormStyles, {styles});
 
 
 

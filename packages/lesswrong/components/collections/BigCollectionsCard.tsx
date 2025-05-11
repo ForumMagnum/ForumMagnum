@@ -3,9 +3,9 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { CloudinaryImage } from "../common/CloudinaryImage";
-import { LinkCard } from "../common/LinkCard";
-import { UsersName } from "../users/UsersName";
+import CloudinaryImage from "../common/CloudinaryImage";
+import LinkCard from "../common/LinkCard";
+import UsersName from "../users/UsersName";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -72,7 +72,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const BigCollectionsCardInner = ({ collection, url, classes }: {
+const BigCollectionsCard = ({ collection, url, classes }: {
   collection: CoreReadingCollection,
   url: string,
   classes: ClassesType<typeof styles>,
@@ -99,8 +99,8 @@ const BigCollectionsCardInner = ({ collection, url, classes }: {
   </LinkCard>
 }
 
-export const BigCollectionsCard = registerComponent(
-  "BigCollectionsCard", BigCollectionsCardInner, { styles }
+export default registerComponent(
+  "BigCollectionsCard", BigCollectionsCard, { styles }
 );
 
 

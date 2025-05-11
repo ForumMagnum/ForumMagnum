@@ -8,11 +8,11 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { CommentsNode } from "./CommentsNode";
-import { SettingsButton } from "../icons/SettingsButton";
-import { LoginPopupButton } from "../users/LoginPopupButton";
-import { LWTooltip } from "../common/LWTooltip";
+import ErrorBoundary from "../common/ErrorBoundary";
+import CommentsNodeInner from "./CommentsNode";
+import SettingsButton from "../icons/SettingsButton";
+import LoginPopupButton from "../users/LoginPopupButton";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
+const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -98,7 +98,7 @@ const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThrea
         sorting view, so that the scroll position doesn't move. */}
     <div className={classNames({[classes.commentsListLoadingSpacer]: loading})}>
       {comments.map(comment =>
-        <CommentsNode
+        <CommentsNodeInner
           treeOptions={treeOptions}
           startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
           expandAllThreads={expandAllThreads}
@@ -117,7 +117,7 @@ const CommentsListFnInner = ({treeOptions, comments, totalComments=0, startThrea
 }
 
 
-export const CommentsList = registerComponent('CommentsList', CommentsListFnInner, {
+export default registerComponent('CommentsList', CommentsListFn, {
   styles, hocs: [withErrorBoundary]
 });
 

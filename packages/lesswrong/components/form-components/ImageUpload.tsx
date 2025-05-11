@@ -10,9 +10,9 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { UsersProfileImage } from "../users/UsersProfileImage";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { ImageUploadDefaultsDialog } from "./ImageUploadDefaultsDialog";
+import UsersProfileImage from "../users/UsersProfileImage";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import ImageUploadDefaultsDialog from "./ImageUploadDefaultsDialog";
 
 const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   root: {

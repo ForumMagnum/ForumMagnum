@@ -1,12 +1,12 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { SCROLL_INDICATOR_SIZE, HorizScrollBlock } from "../common/HorizScrollBlock";
+import HorizScrollBlock, { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";
-import { PeopleDirectoryHeading } from "./PeopleDirectoryHeading";
-import { PeopleDirectoryResultRow } from "./PeopleDirectoryResultRow";
-import { PeopleDirectoryNoResults } from "./PeopleDirectoryNoResults";
-import { PeopleDirectoryCard } from "./PeopleDirectoryCard";
+import PeopleDirectoryHeading from "./PeopleDirectoryHeading";
+import PeopleDirectoryResultRow from "./PeopleDirectoryResultRow";
+import PeopleDirectoryNoResults from "./PeopleDirectoryNoResults";
+import PeopleDirectoryCard from "./PeopleDirectoryCard";
 
 const HORIZ_PADDING = 24;
 
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryResultsListInner = ({classes}: {
+const PeopleDirectoryResultsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results, resultsLoading, columns, loadMore} = usePeopleDirectory();
@@ -120,9 +120,9 @@ const PeopleDirectoryResultsListInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryResultsList = registerComponent(
+export default registerComponent(
   "PeopleDirectoryResultsList",
-  PeopleDirectoryResultsListInner,
+  PeopleDirectoryResultsList,
   {styles},
 );
 

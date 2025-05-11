@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
-import { CommonExcerptProps, ContentExcerpt } from "./ContentExcerpt";
+import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 
 type ExcerptableTag =
   TagRecentDiscussion |
@@ -20,7 +20,7 @@ export const getTagDescriptionHtml = (tag: ExcerptableTag) => {
   return tag.description.htmlHighlightStartingAtHash;
 }
 
-const TagExcerptInner = ({
+const TagExcerpt = ({
   tag,
   ...commonExcerptProps
 }: CommonExcerptProps & {
@@ -40,9 +40,9 @@ const TagExcerptInner = ({
   );
 }
 
-export const TagExcerpt = registerComponent(
+export default registerComponent(
   "TagExcerpt",
-  TagExcerptInner,
+  TagExcerpt,
 );
 
 

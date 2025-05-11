@@ -3,9 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { WarningBanner } from "../common/WarningBanner";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
+import WarningBanner from "../common/WarningBanner";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   lwBanner: {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
+const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
   contentType: 'comment' | 'post',
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
@@ -70,6 +70,6 @@ const RateLimitWarningInner = ({contentType, lastRateLimitExpiry, rateLimitMessa
   }
 }
 
-export const RateLimitWarning = registerComponent('RateLimitWarning', RateLimitWarningInner, {styles});
+export default registerComponent('RateLimitWarning', RateLimitWarning, {styles});
 
 

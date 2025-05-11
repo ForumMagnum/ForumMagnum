@@ -22,14 +22,14 @@ import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { EventNotificationsDialog } from "../localGroups/EventNotificationsDialog";
-import { LoginPopup } from "../users/LoginPopup";
-import { HighlightedEventCard } from "./modules/HighlightedEventCard";
-import { EventCards } from "./modules/EventCards";
-import { Loading } from "../vulcan-core/Loading";
-import { DistanceUnitToggle } from "../community/modules/DistanceUnitToggle";
+import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
+import LoginPopup from "../users/LoginPopup";
+import HighlightedEventCard from "./modules/HighlightedEventCard";
+import EventCards from "./modules/EventCards";
+import Loading from "../vulcan-core/Loading";
+import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -169,7 +169,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EventsHomeInner = ({classes}: {
+const EventsHome = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -508,6 +508,6 @@ const EventsHomeInner = ({classes}: {
   )
 }
 
-export const EventsHome = registerComponent('EventsHome', EventsHomeInner, {styles});
+export default registerComponent('EventsHome', EventsHome, {styles});
 
 

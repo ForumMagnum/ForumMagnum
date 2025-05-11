@@ -6,8 +6,8 @@ import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import type { PetrovDayActionType } from "@/lib/collections/petrovDayActions/constants";
-import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
-import { PastWarnings } from "./PastWarnings";
+import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
+import PastWarnings from "./PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PetrovLaunchConsoleInner = ({classes, side, currentUser}: {
+export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   classes: ClassesType<typeof styles>,
   side: 'east' | 'west',
   currentUser: UsersCurrent
@@ -145,6 +145,6 @@ export const PetrovLaunchConsoleInner = ({classes, side, currentUser}: {
   </PetrovWorldmapWrapper>
 }
 
-export const PetrovLaunchConsole = registerComponent('PetrovLaunchConsole', PetrovLaunchConsoleInner, {styles});
+export default registerComponent('PetrovLaunchConsole', PetrovLaunchConsole, {styles});
 
 

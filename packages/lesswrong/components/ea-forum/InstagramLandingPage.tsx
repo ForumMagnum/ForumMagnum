@@ -4,8 +4,8 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
 import flatten from "lodash/flatten";
-import { PostsLoading } from "../posts/PostsLoading";
-import { EAPostsItem } from "../posts/EAPostsItem";
+import PostsLoading from "../posts/PostsLoading";
+import EAPostsItem from "../posts/EAPostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,7 +31,7 @@ const SEQUENCE_ID = 'iNAgbC98BnMuNWmxN';
  * This is a page that the EAF links to from our Instagram account bio.
  * Basically this is the way to get visitors from Instagram to go where you want them to go.
  */
-const InstagramLandingPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
       view: "SequenceChapters",
@@ -82,9 +82,9 @@ const InstagramLandingPageInner = ({ classes }: { classes: ClassesType<typeof st
   );
 };
 
-export const InstagramLandingPage = registerComponent(
+export default registerComponent(
   "InstagramLandingPage",
-  InstagramLandingPageInner,
+  InstagramLandingPage,
   {styles},
 );
 

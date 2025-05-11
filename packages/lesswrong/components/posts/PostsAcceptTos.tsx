@@ -5,7 +5,7 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAcceptTosInner = ({currentUser, classes}: {
+const PostsAcceptTos = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -85,6 +85,6 @@ const PostsAcceptTosInner = ({currentUser, classes}: {
   );
 }
 
-export const PostsAcceptTos = registerComponent("PostsAcceptTos", PostsAcceptTosInner, {styles});
+export default registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
 
 

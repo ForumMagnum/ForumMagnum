@@ -6,11 +6,11 @@ import { Card } from "@/components/widgets/Paper";
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { Row } from "../common/Row";
-import { MetaInfo } from "../common/MetaInfo";
-import { LWTooltip } from "../common/LWTooltip";
-import { CommentsNode } from "../comments/CommentsNode";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import Row from "../common/Row";
+import MetaInfo from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -56,7 +56,7 @@ type ReviewLeaderboardRow = {
   reviews: CommentsListWithParentMetadata[]
 }
 
-export const ReviewsLeaderboardInner = ({classes, reviews, reviewYear}: {
+export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviews?: CommentsListWithParentMetadata[],
   reviewYear?: ReviewYear
@@ -108,7 +108,7 @@ export const ReviewsLeaderboardInner = ({classes, reviews, reviewYear}: {
         </div>
         <div className={classes.reviews}>{reviewUser.reviews.map(review => {
           return <LWTooltip placement="bottom-start" title={<div className={classes.card}>
-            <CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
+            <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
             <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
               <MetaInfo>{(review.baseScore ?? 0) - getSelfUpvotePower(review.user)}</MetaInfo>
             </a>
@@ -137,7 +137,7 @@ export const ReviewsLeaderboardInner = ({classes, reviews, reviewYear}: {
   </div>
 }
 
-export const ReviewsLeaderboard = registerComponent('ReviewsLeaderboard', ReviewsLeaderboardInner, {styles});
+export default registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
 
 
 

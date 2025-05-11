@@ -6,8 +6,8 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { Typography } from "../../common/Typography";
-import { ForumIcon } from "../../common/ForumIcon";
-import { LWTooltip } from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -81,7 +81,7 @@ const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   },
 }));
 
-const PostsPageTitleInner = ({post, className}: {
+const PostsPageTitle = ({post, className}: {
   post: PostsDetails|PostsList,
   className?: string
 }) => {
@@ -130,7 +130,7 @@ const PostsPageTitleInner = ({post, className}: {
   )
 }
 
-export const PostsPageTitle = registerComponent('PostsPageTitle', PostsPageTitleInner);
+export default registerComponent('PostsPageTitle', PostsPageTitle);
 
 
 

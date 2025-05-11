@@ -4,8 +4,8 @@ import { truncate } from "../../lib/editor/ellipsize";
 import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
-import { UsersProfileImage } from "../users/UsersProfileImage";
-import { FormatDate } from "../common/FormatDate";
+import UsersProfileImage from "../users/UsersProfileImage";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FriendlyConversationItemInner = ({
+const FriendlyConversationItem = ({
   conversation,
   currentUser,
   classes,
@@ -143,6 +143,6 @@ const FriendlyConversationItemInner = ({
   );
 };
 
-export const FriendlyConversationItem = registerComponent("FriendlyConversationItem", FriendlyConversationItemInner, { styles });
+export default registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
 
 

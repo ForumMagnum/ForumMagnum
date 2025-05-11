@@ -11,10 +11,10 @@ import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instan
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
 import { captureException } from '@sentry/core';
 import { auth0FacebookLoginEnabled } from "@/lib/publicSettings";
-import { BlurredBackgroundModal } from "../../common/BlurredBackgroundModal";
-import { ForumIcon } from "../../common/ForumIcon";
-import { EAButton } from "../EAButton";
-import { Loading } from "../../vulcan-core/Loading";
+import BlurredBackgroundModal from "../../common/BlurredBackgroundModal";
+import ForumIcon from "../../common/ForumIcon";
+import EAButton from "../EAButton";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -240,7 +240,7 @@ const links = {
 
 const FACEBOOK_DEFAULT_ENABLED = auth0FacebookLoginEnabled.get()
 
-export const EALoginPopoverInner = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
+export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
@@ -565,9 +565,9 @@ export const EALoginPopoverInner = ({action: action_, setAction: setAction_, fac
   );
 }
 
-export const EALoginPopover = registerComponent(
+export default registerComponent(
   "EALoginPopover",
-  EALoginPopoverInner,
+  EALoginPopover,
   {styles},
 );
 

@@ -2,8 +2,8 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ForumEventsListInner = ({title, view, classes}: {
+export const ForumEventsList = ({title, view, classes}: {
   title: string,
   view: ForumEventsViewName,
   classes: ClassesType<typeof styles>,
@@ -48,9 +48,9 @@ export const ForumEventsListInner = ({title, view, classes}: {
   );
 }
 
-export const ForumEventsList = registerComponent(
+export default registerComponent(
   "ForumEventsList",
-  ForumEventsListInner,
+  ForumEventsList,
   {styles},
 );
 

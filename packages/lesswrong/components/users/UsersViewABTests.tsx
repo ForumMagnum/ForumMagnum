@@ -6,8 +6,8 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UsersViewABTestsInner = ({classes}: {
+const UsersViewABTests = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -98,6 +98,6 @@ const UsersViewABTestsInner = ({classes}: {
   </SingleColumnSection>
 }
 
-export const UsersViewABTests = registerComponent("UsersViewABTests", UsersViewABTestsInner, {styles});
+export default registerComponent("UsersViewABTests", UsersViewABTests, {styles});
 
 

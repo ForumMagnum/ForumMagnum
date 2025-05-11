@@ -8,7 +8,7 @@ import debounce from 'lodash/debounce';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({

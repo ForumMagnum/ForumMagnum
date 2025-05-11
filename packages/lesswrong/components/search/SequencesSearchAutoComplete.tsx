@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
-import { SearchAutoComplete } from "./SearchAutoComplete";
-import { SequencesSearchHit } from "./SequencesSearchHit";
+import SearchAutoComplete from "./SearchAutoComplete";
+import SequencesSearchHit from "./SequencesSearchHit";
 
-const SequencesSearchAutoCompleteInner = ({clickAction}: {
+const SequencesSearchAutoComplete = ({clickAction}: {
   clickAction: (id: string) => void
 }) => {
   return <SearchAutoComplete
@@ -17,7 +17,7 @@ const SequencesSearchAutoCompleteInner = ({clickAction}: {
   />
 }
 
-export const SequencesSearchAutoComplete = registerComponent("SequencesSearchAutoComplete", SequencesSearchAutoCompleteInner);
+export default registerComponent("SequencesSearchAutoComplete", SequencesSearchAutoComplete);
 
 
 

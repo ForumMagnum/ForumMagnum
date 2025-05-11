@@ -5,10 +5,10 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { slugify } from "@/lib/utils/slugify";
-import { SequencesTooltip } from "../sequences/SequencesTooltip";
-import { EASequenceOrCollectionCard } from "./EASequenceOrCollectionCard";
+import SequencesTooltip from "../sequences/SequencesTooltip";
+import EASequenceOrCollectionCard from "./EASequenceOrCollectionCard";
 
-const EASequenceCardInner = ({sequence, className}: {
+const EASequenceCard = ({sequence, className}: {
   sequence: SequencesPageFragment,
   className?: string,
 }) => {
@@ -58,9 +58,9 @@ const EASequenceCardInner = ({sequence, className}: {
   );
 };
 
-export const EASequenceCard = registerComponent(
+export default registerComponent(
   "EASequenceCard",
-  EASequenceCardInner,
+  EASequenceCard,
 );
 
 

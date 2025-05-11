@@ -1,12 +1,12 @@
 import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components'
-import { OnboardingFlow } from "../../onboarding/OnboardingFlow";
-import { EAOnboardingUserStage } from "./EAOnboardingUserStage";
-import { EAOnboardingSubscribeStage } from "./EAOnboardingSubscribeStage";
-import { EAOnboardingWorkStage } from "./EAOnboardingWorkStage";
-import { EAOnboardingThankYouStage } from "./EAOnboardingThankYouStage";
+import OnboardingFlow from "../../onboarding/OnboardingFlow";
+import EAOnboardingUserStage from "./EAOnboardingUserStage";
+import EAOnboardingSubscribeStage from "./EAOnboardingSubscribeStage";
+import EAOnboardingWorkStage from "./EAOnboardingWorkStage";
+import EAOnboardingThankYouStage from "./EAOnboardingThankYouStage";
 
-const EAOnboardingFlowInner = ({viewAsAdmin}: {
+const EAOnboardingFlow = ({viewAsAdmin}: {
   // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
   viewAsAdmin?: boolean,
 }) => {
@@ -27,9 +27,9 @@ const EAOnboardingFlowInner = ({viewAsAdmin}: {
   )
 }
 
-export const EAOnboardingFlow = registerComponent(
+export default registerComponent(
   'EAOnboardingFlow',
-  EAOnboardingFlowInner,
-)
+  EAOnboardingFlow,
+);
 
 

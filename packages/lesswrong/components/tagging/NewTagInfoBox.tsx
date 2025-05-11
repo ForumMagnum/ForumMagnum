@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NewTagInfoBoxInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const tag = taggingNameSetting.get();
   return (
     <AnalyticsContext pageElementContext="newTagInfoBox">
@@ -69,9 +69,9 @@ const NewTagInfoBoxInner = ({classes}: {classes: ClassesType<typeof styles>}) =>
   );
 }
 
-export const NewTagInfoBox = registerComponent(
+export default registerComponent(
   "NewTagInfoBox",
-  NewTagInfoBoxInner,
+  NewTagInfoBox,
   {styles},
 );
 

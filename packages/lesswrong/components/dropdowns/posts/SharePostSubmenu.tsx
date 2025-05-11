@@ -4,14 +4,14 @@ import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isMobile } from '@/lib/utils/isMobile';
-import { SharePostActions } from "./SharePostActions";
-import { DropdownItem } from "../DropdownItem";
-import { LWTooltip } from "../../common/LWTooltip";
+import SharePostActions from "./SharePostActions";
+import DropdownItem from "../DropdownItem";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
 })
 
-const SharePostSubmenuInner = ({post, closeMenu, classes}: {
+const SharePostSubmenu = ({post, closeMenu, classes}: {
   post: PostsListBase,
   closeMenu?: () => void,
   classes: ClassesType<typeof styles>,
@@ -58,5 +58,5 @@ const SharePostSubmenuInner = ({post, closeMenu, classes}: {
     </MaybeWrapWithSubmenu>
   </div>
 }
-export const SharePostSubmenu = registerComponent('SharePostSubmenu', SharePostSubmenuInner, {styles});
+export default registerComponent('SharePostSubmenu', SharePostSubmenu, {styles});
 

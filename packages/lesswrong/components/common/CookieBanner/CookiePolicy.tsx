@@ -3,9 +3,9 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { CENTRAL_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useDialog } from "../withDialog";
 import { CookiesTable } from "../../../lib/cookies/utils";
-import { CookieDialog } from "./CookieDialog";
+import CookieDialog from "./CookieDialog";
 import { Typography } from "../Typography";
-import { CookieTable } from "./CookieTable";
+import CookieTable from "./CookieTable";
 
 const PADDING = 15;
 
@@ -69,7 +69,7 @@ const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children 
   </a>
 );
 
-const CookiePolicyInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { openDialog } = useDialog();
 
   const uniqueNecessaryThirdParties = [
@@ -219,6 +219,6 @@ const CookiePolicyInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const CookiePolicy = registerComponent("CookiePolicy", CookiePolicyInner, { styles });
+export default registerComponent("CookiePolicy", CookiePolicy, { styles });
 
 

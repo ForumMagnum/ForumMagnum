@@ -10,8 +10,8 @@ import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFor
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 interface CurationNoticesFormProps {
   initialData?: UpdateCurationNoticeDataInput & { _id: string; };

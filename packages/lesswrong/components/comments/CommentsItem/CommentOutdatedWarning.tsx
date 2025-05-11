@@ -3,7 +3,7 @@ import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   outdatedWarning: {
@@ -41,7 +41,7 @@ function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|Post
   }
 }
 
-const CommentOutdatedWarningInner = ({comment, post, classes}: {
+const CommentOutdatedWarning = ({comment, post, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
@@ -55,8 +55,8 @@ const CommentOutdatedWarningInner = ({comment, post, classes}: {
   </span>;
 };
 
-export const CommentOutdatedWarning = registerComponent(
-  'CommentOutdatedWarning', CommentOutdatedWarningInner, {styles}
+export default registerComponent(
+  'CommentOutdatedWarning', CommentOutdatedWarning, {styles}
 );
 
 

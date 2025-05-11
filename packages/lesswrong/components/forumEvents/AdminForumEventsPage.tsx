@@ -1,10 +1,10 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { ForumEventsList } from "./ForumEventsList";
-import { ForumEventForm } from "./ForumEventForm";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ForumEventsList from "./ForumEventsList";
+import ForumEventForm from "./ForumEventForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AdminForumEventsPageInner = ({classes}: {
+export const AdminForumEventsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -40,9 +40,9 @@ export const AdminForumEventsPageInner = ({classes}: {
   );
 }
 
-export const AdminForumEventsPage = registerComponent(
+export default registerComponent(
   "AdminForumEventsPage",
-  AdminForumEventsPageInner,
+  AdminForumEventsPage,
   {styles},
 );
 

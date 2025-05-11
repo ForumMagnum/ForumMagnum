@@ -3,11 +3,11 @@ import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
-import { ErrorAccessDenied } from "../../common/ErrorAccessDenied";
-import { DummyFormGroup } from "../../form-components/DummyFormGroup";
-import { Loading } from "../../vulcan-core/Loading";
-import { DeactivateAccountSection } from "./DeactivateAccountSection";
-import { DeleteAccountSection } from "./DeleteAccountSection";
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import DummyFormGroup from "../../form-components/DummyFormGroup";
+import Loading from "../../vulcan-core/Loading";
+import DeactivateAccountSection from "./DeactivateAccountSection";
+import DeleteAccountSection from "./DeleteAccountSection";
 
 const styles = (_theme: ThemeType) => ({
   actionsWrapper: {
@@ -18,7 +18,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const UsersAccountManagementInner = ({terms: { slug }, classes}: {
+const UsersAccountManagement = ({terms: { slug }, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
 }) => {
@@ -44,6 +44,6 @@ const UsersAccountManagementInner = ({terms: { slug }, classes}: {
   );
 };
 
-export const UsersAccountManagement = registerComponent('UsersAccountManagement', UsersAccountManagementInner, {styles});
+export default registerComponent('UsersAccountManagement', UsersAccountManagement, {styles});
 
 

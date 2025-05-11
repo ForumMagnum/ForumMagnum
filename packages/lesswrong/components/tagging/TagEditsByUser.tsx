@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { SingleLineTagUpdates } from "./SingleLineTagUpdates";
-import { LoadMore } from "../common/LoadMore";
+import SingleLineTagUpdates from "./SingleLineTagUpdates";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const TagEditsByUserInner = ({userId, limit, classes}: {
+const TagEditsByUser = ({userId, limit, classes}: {
   userId: string,
   limit: number,
   classes: ClassesType<typeof styles>
@@ -69,7 +69,7 @@ const TagEditsByUserInner = ({userId, limit, classes}: {
   </div>
 }
 
-export const TagEditsByUser = registerComponent('TagEditsByUser', TagEditsByUserInner, {
+export default registerComponent('TagEditsByUser', TagEditsByUser, {
   styles, hocs: [withErrorBoundary]
 });
 

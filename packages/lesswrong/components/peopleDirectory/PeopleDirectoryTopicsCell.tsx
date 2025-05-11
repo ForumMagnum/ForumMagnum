@@ -9,8 +9,8 @@ import {
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TagsTooltip } from "../tagging/TagsTooltip";
-import { LWTooltip } from "../common/LWTooltip";
+import TagsTooltip from "../tagging/TagsTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles('PeopleDirectoryTopicsCell', (theme: ThemeType) => ({
   root: {

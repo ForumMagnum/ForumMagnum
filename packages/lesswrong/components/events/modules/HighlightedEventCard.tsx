@@ -6,9 +6,9 @@ import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { Loading } from "../../vulcan-core/Loading";
-import { AddToCalendarButton } from "../../posts/AddToCalendar/AddToCalendarButton";
-import { PrettyEventDateTime } from "./PrettyEventDateTime";
+import Loading from "../../vulcan-core/Loading";
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const HighlightedEventCardInner = ({event, loading, classes}: {
+const HighlightedEventCard = ({event, loading, classes}: {
   event?: PostsList,
   loading: boolean,
   classes: ClassesType<typeof styles>,
@@ -180,6 +180,6 @@ const HighlightedEventCardInner = ({event, loading, classes}: {
   )
 }
 
-export const HighlightedEventCard = registerComponent('HighlightedEventCard', HighlightedEventCardInner, {styles});
+export default registerComponent('HighlightedEventCard', HighlightedEventCard, {styles});
 
 

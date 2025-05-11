@@ -10,9 +10,9 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { CommentsNode } from "../comments/CommentsNode";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
+import CommentsNodeInner from "../comments/CommentsNode";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecentDiscussionTagInner = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
@@ -129,7 +129,7 @@ const RecentDiscussionTagInner = ({ tag, refetch = () => {}, comments, expandAll
       <div className={classes.commentsList}>
         {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
           <div key={comment.item._id}>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={commentTreeOptions}
               startThreadTruncated={true}
               expandAllThreads={initialExpandAllThreads || expandAllThreads}
@@ -145,8 +145,8 @@ const RecentDiscussionTagInner = ({ tag, refetch = () => {}, comments, expandAll
   </div>
 }
 
-export const RecentDiscussionTag = registerComponent(
-  'RecentDiscussionTag', RecentDiscussionTagInner, {
+export default registerComponent(
+  'RecentDiscussionTag', RecentDiscussionTag, {
     styles,
     hocs: [withErrorBoundary],
   }

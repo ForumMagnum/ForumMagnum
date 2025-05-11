@@ -4,11 +4,11 @@ import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { Card } from "@/components/widgets/Paper";
-import { ReviewProgressNominations } from "./ReviewProgressNominations";
-import { ReviewProgressReviews } from "./ReviewProgressReviews";
-import { ContentStyles } from "../common/ContentStyles";
-import { LWTooltip } from "../common/LWTooltip";
-import { ReviewProgressVoting } from "./ReviewProgressVoting";
+import ReviewProgressNominations from "./ReviewProgressNominations";
+import ReviewProgressReviews from "./ReviewProgressReviews";
+import ContentStyles from "../common/ContentStyles";
+import LWTooltip from "../common/LWTooltip";
+import ReviewProgressVoting from "./ReviewProgressVoting";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ReviewPhaseInformationInner = ({classes, reviewYear, reviewPhase}: {
+export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
@@ -105,7 +105,7 @@ export const ReviewPhaseInformationInner = ({classes, reviewYear, reviewPhase}: 
   </ContentStyles>
 }
 
-export const ReviewPhaseInformation = registerComponent('ReviewPhaseInformation', ReviewPhaseInformationInner, {styles});
+export default registerComponent('ReviewPhaseInformation', ReviewPhaseInformation, {styles});
 
 
 

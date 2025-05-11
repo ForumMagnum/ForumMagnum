@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingPodcastInner = ({podcast, classes}: {
+export const EAOnboardingPodcast = ({podcast, classes}: {
   podcast?: PodcastData,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -64,9 +64,9 @@ export const EAOnboardingPodcastInner = ({podcast, classes}: {
   );
 }
 
-export const EAOnboardingPodcast = registerComponent(
+export default registerComponent(
   "EAOnboardingPodcast",
-  EAOnboardingPodcastInner,
+  EAOnboardingPodcast,
   {styles},
 );
 

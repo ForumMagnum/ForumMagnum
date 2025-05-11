@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { MultiSelectState } from "../hooks/useMultiSelect";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectorySelectOptionInner = ({state, className, classes}: {
+const PeopleDirectorySelectOption = ({state, className, classes}: {
   state: MultiSelectState,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -71,9 +71,9 @@ const PeopleDirectorySelectOptionInner = ({state, className, classes}: {
   );
 }
 
-export const PeopleDirectorySelectOption = registerComponent(
+export default registerComponent(
   "PeopleDirectorySelectOption",
-  PeopleDirectorySelectOptionInner,
+  PeopleDirectorySelectOption,
   {styles, stylePriority: -1},
 );
 

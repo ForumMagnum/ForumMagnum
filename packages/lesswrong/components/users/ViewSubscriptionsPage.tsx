@@ -13,9 +13,9 @@ import {
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SubscriptionsList } from "./SubscriptionsList";
-import { UsersNameDisplay } from "./UsersNameDisplay";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SubscriptionsList from "./SubscriptionsList";
+import UsersNameDisplay from "./UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   noSubscriptions: {
@@ -175,7 +175,7 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
   );
 }
 
-const ViewSubscriptionsPageInner = ({classes}: {
+const ViewSubscriptionsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -193,9 +193,9 @@ const ViewSubscriptionsPageInner = ({classes}: {
   );
 }
 
-export const ViewSubscriptionsPage = registerComponent(
+export default registerComponent(
   "ViewSubscriptionsPage",
-  ViewSubscriptionsPageInner,
+  ViewSubscriptionsPage,
   {styles},
 );
 

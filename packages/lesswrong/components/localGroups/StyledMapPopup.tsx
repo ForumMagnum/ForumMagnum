@@ -44,7 +44,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const StyledMapPopupInner = ({
+const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
   onClose, offsetTop=-20, offsetLeft, hideBottomLinks
@@ -85,7 +85,7 @@ const StyledMapPopupInner = ({
   </Popup>
 }
 
-export const StyledMapPopup = registerComponent("StyledMapPopup", StyledMapPopupInner, {styles});
+export default registerComponent("StyledMapPopup", StyledMapPopup, {styles});
 
 
 

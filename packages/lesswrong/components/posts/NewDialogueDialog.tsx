@@ -7,10 +7,10 @@ import { useMessages } from '../common/withMessages';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { UserMultiselect } from "../form-components/UserMultiselect";
-import { LWDialog } from "../common/LWDialog";
-import { Loading } from "../vulcan-core/Loading";
-import { EAButton } from "../ea-forum/EAButton";
+import UserMultiselect from "../form-components/UserMultiselect";
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewDialogueDialogInner = ({initialParticipantIds, onClose, classes}: {
+const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   initialParticipantIds?: string[],
   onClose: () => void,
   classes: ClassesType<typeof styles>,
@@ -140,6 +140,6 @@ const NewDialogueDialogInner = ({initialParticipantIds, onClose, classes}: {
   </LWDialog>
 }
 
-export const NewDialogueDialog = registerComponent('NewDialogueDialog', NewDialogueDialogInner, {styles});
+export default registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
 
 

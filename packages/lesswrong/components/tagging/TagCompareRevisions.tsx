@@ -7,10 +7,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useMulti } from '@/lib/crud/withMulti';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { CompareRevisions } from "../revisions/CompareRevisions";
-import { RevisionComparisonNotice } from "../revisions/RevisionComparisonNotice";
-import { LoadingOrErrorPage } from "../common/LoadingOrErrorPage";
+import SingleColumnSection from "../common/SingleColumnSection";
+import CompareRevisions from "../revisions/CompareRevisions";
+import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
@@ -23,7 +23,7 @@ const styles = defineStyles('TagCompareRevisions', (theme) => ({
   description: {},
 }));
 
-const TagCompareRevisionsInner = () => {
+const TagCompareRevisions = () => {
   const classes = useStyles(styles);
   const { params, query } = useLocation();
   const { slug } = params;
@@ -72,7 +72,7 @@ const TagCompareRevisionsInner = () => {
   </SingleColumnSection>
 }
 
-export const TagCompareRevisions = registerComponent("TagCompareRevisions", TagCompareRevisionsInner);
+export default registerComponent("TagCompareRevisions", TagCompareRevisions);
 
 
 

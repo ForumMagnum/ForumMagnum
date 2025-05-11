@@ -27,46 +27,46 @@ import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
-import { useTagEditingRestricted, TagPageButtonRow } from "./TagPageButtonRow";
+import TagPageButtonRow, { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
-import { ContentItemBody, type ContentItemBodyImperative } from "../common/ContentItemBody";
+import ContentItemBody, { type ContentItemBodyImperative } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
-import { useDisplayedContributors, ToCContributorsList, HeadingContributorsList } from "./ContributorsList";
+import { useDisplayedContributors, HeadingContributorsList, ToCContributorsList } from "./ContributorsList";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { LensForm } from "./lenses/LensForm";
 import { useSingle } from "@/lib/crud/withSingle";
-import { ErrorPage } from "../common/ErrorPage";
-import { RedlinkTagPage } from "./RedlinkTagPage";
+import ErrorPage from "../common/ErrorPage";
+import RedlinkTagPage from "./RedlinkTagPage";
 import { SideItem, SideItemsContainer } from "../contents/SideItems";
-import { ArbitalLinkedPagesRightSidebar, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
-import { TagAudioPlayerWrapper } from "./TagAudioPlayerWrapper";
+import { ParentsAndChildrenSmallScreen, ArbitalLinkedPagesRightSidebar, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
+import TagAudioPlayerWrapper from "./TagAudioPlayerWrapper";
 import { LensTabBar } from "./lenses/LensTab";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsListSortDropdown } from "../posts/PostsListSortDropdown";
-import { PostsList2 } from "../posts/PostsList2";
-import { Loading } from "../vulcan-core/Loading";
-import { AddPostsToTag } from "./AddPostsToTag";
+import SectionTitle from "../common/SectionTitle";
+import PostsListSortDropdown from "../posts/PostsListSortDropdown";
+import PostsList2 from "../posts/PostsList2";
+import Loading from "../vulcan-core/Loading";
+import AddPostsToTag from "./AddPostsToTag";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { HeadTags } from "../common/HeadTags";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { TagFlagItem } from "./TagFlagItem";
-import { CommentsListCondensed } from "../common/CommentsListCondensed";
-import { SubscribeButton } from "./SubscribeButton";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { TagIntroSequence } from "./TagIntroSequence";
-import { MultiToCLayout } from "../posts/TableOfContents/MultiToCLayout";
-import { TableOfContents } from "../posts/TableOfContents/TableOfContents";
-import { FormatDate } from "../common/FormatDate";
-import { InlineReactSelectionWrapper } from "../votes/lwReactions/InlineReactSelectionWrapper";
-import { HoveredReactionContextProvider } from "../votes/lwReactions/HoveredReactionContextProvider";
-import { PathInfo } from "./PathInfo";
+import ContentStyles from "../common/ContentStyles";
+import PermanentRedirect from "../common/PermanentRedirect";
+import HeadTags from "../common/HeadTags";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TagFlagItem from "./TagFlagItem";
+import CommentsListCondensed from "../common/CommentsListCondensed";
+import SubscribeButton from "./SubscribeButton";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import TagIntroSequence from "./TagIntroSequence";
+import MultiToCLayout from "../posts/TableOfContents/MultiToCLayout";
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
+import FormatDate from "../common/FormatDate";
+import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import PathInfo from "./PathInfo";
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -530,7 +530,7 @@ function getTagQueryOptions(
   return { tagFragmentName, tagQueryOptions };
 }
 
-const LWTagPageInner = () => {
+const LWTagPage = () => {
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
@@ -1077,7 +1077,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   </HoveredReactionContextProvider>
 }
 
-export const LWTagPage = registerComponent("LWTagPage", LWTagPageInner);
+export default registerComponent("LWTagPage", LWTagPage);
 
 
 

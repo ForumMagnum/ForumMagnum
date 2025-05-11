@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   usersWhoReactedRoot: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersWhoReactedInner = ({reactions, wrap=false, showTooltip=true, classes}: {
+const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
@@ -75,7 +75,7 @@ const UsersWhoReactedInner = ({reactions, wrap=false, showTooltip=true, classes}
   }
 }
 
-export const UsersWhoReacted = registerComponent('UsersWhoReacted', UsersWhoReactedInner, {styles});
+export default registerComponent('UsersWhoReacted', UsersWhoReacted, {styles});
 
 
 

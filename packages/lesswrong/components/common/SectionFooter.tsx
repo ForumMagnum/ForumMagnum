@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionFooterInner = ({ children, className, classes }: {
+const SectionFooter = ({ children, className, classes }: {
   children: React.ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -54,6 +54,6 @@ const SectionFooterInner = ({ children, className, classes }: {
     </Typography>
   )
 }
-export const SectionFooter = registerComponent('SectionFooter', SectionFooterInner, {styles})
+export default registerComponent('SectionFooter', SectionFooter, {styles});
 
 

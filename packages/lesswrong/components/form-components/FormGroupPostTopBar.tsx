@@ -8,10 +8,10 @@ import { isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { QuestionIcon } from '../icons/questionIcon';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
-import { LWTooltip } from "../common/LWTooltip";
-import { EAButton } from "../ea-forum/EAButton";
-import { ForumIcon } from "../common/ForumIcon";
-import { GoogleDocImportButton } from "../posts/GoogleDocImportButton";
+import LWTooltip from "../common/LWTooltip";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import GoogleDocImportButton from "../posts/GoogleDocImportButton";
 
 // We want the buttons to go _above_ the tabs when the space gets too tight,
 // which requires some special breakpoint logic (due to the how the central column
@@ -110,7 +110,7 @@ const LinkToEditorGuideButton = () => {
   }
 }
 
-const FormGroupPostTopBarInner = ({ children }: { children: React.ReactNode }) => {
+const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {
   const classes = useStyles(styles);
   const childrenArray = React.Children.toArray(children);
   const [tabs, ...otherChildren] = childrenArray;
@@ -130,6 +130,6 @@ const FormGroupPostTopBarInner = ({ children }: { children: React.ReactNode }) =
   );
 };
 
-export const FormGroupPostTopBar = registerComponent('FormGroupPostTopBar', FormGroupPostTopBarInner)
+export default registerComponent('FormGroupPostTopBar', FormGroupPostTopBar);
 
 

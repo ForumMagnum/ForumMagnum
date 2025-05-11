@@ -11,13 +11,13 @@ import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { SectionTitle } from "../common/SectionTitle";
-import { SettingsButton } from "../icons/SettingsButton";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostsList2 } from "../posts/PostsList2";
-import { ReviewProgressReviews } from "./ReviewProgressReviews";
-import { ReviewProgressVoting } from "./ReviewProgressVoting";
-import { ReviewProgressNominations } from "./ReviewProgressNominations";
+import SectionTitle from "../common/SectionTitle";
+import SettingsButton from "../icons/SettingsButton";
+import LWTooltip from "../common/LWTooltip";
+import PostsList2 from "../posts/PostsList2";
+import ReviewProgressReviews from "./ReviewProgressReviews";
+import ReviewProgressVoting from "./ReviewProgressVoting";
+import ReviewProgressNominations from "./ReviewProgressNominations";
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -232,7 +232,7 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidgetInner = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)
@@ -462,6 +462,6 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
   return result.toFixed(2)
 }
 
-export const FrontpageReviewWidget = registerComponent('FrontpageReviewWidget', FrontpageReviewWidgetInner, {styles});
+export default registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
 
 

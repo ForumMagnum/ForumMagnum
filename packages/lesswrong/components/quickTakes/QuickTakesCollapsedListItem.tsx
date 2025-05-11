@@ -9,14 +9,14 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import moment from "moment";
-import { KarmaDisplay } from "../common/KarmaDisplay";
-import { ForumIcon } from "../common/ForumIcon";
-import { UsersName } from "../users/UsersName";
-import { LWTooltip } from "../common/LWTooltip";
-import { FooterTag } from "../tagging/FooterTag";
-import { CommentsMenu } from "../dropdowns/comments/CommentsMenu";
-import { LWPopper } from "../common/LWPopper";
-import { CommentsNode } from "../comments/CommentsNode";
+import KarmaDisplay from "../common/KarmaDisplay";
+import ForumIcon from "../common/ForumIcon";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import FooterTag from "../tagging/FooterTag";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const QuickTakesCollapsedListItemInner = ({quickTake, setExpanded, classes}: {
+const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -210,7 +210,7 @@ const QuickTakesCollapsedListItemInner = ({quickTake, setExpanded, classes}: {
         clickable={false}
       >
         <div className={classes.hoverOver}>
-          <CommentsNode
+          <CommentsNodeInner
             truncated
             nestingLevel={1}
             comment={quickTake}
@@ -229,9 +229,9 @@ const QuickTakesCollapsedListItemInner = ({quickTake, setExpanded, classes}: {
   );
 }
 
-export const QuickTakesCollapsedListItem = registerComponent(
+export default registerComponent(
   "QuickTakesCollapsedListItem",
-  QuickTakesCollapsedListItemInner,
+  QuickTakesCollapsedListItem,
   {styles},
 );
 

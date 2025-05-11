@@ -1,9 +1,9 @@
 import React from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components"
-import { styles as metaInfoStyles, MetaInfo } from "../common/MetaInfo"
+import MetaInfo, { styles as metaInfoStyles } from "../common/MetaInfo"
 import { isFriendlyUI } from "@/themes/forumTheme";
-import { FormatDate } from "../common/FormatDate";
-import { ForumIcon } from "../common/ForumIcon";
+import FormatDate from "../common/FormatDate";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UserMentionHitInner = ({hit, classes}: {
+const UserMentionHit = ({hit, classes}: {
   hit: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -51,9 +51,9 @@ const UserMentionHitInner = ({hit, classes}: {
   </span>
 }
 
-export const UserMentionHit = registerComponent(
+export default registerComponent(
   "UserMentionHit",
-  UserMentionHitInner,
+  UserMentionHit,
   {styles},
 );
 

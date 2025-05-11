@@ -6,13 +6,13 @@ import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
 import type { ContentItemBodyImperative } from '../common/ContentItemBody';
-import { CommentUserName } from "./CommentsItem/CommentUserName";
-import { CommentsItemDate } from "./CommentsItem/CommentsItemDate";
-import { CommentBody } from "./CommentsItem/CommentBody";
-import { CommentsEditForm } from "./CommentsEditForm";
-import { CommentsMenu } from "../dropdowns/comments/CommentsMenu";
-import { DebateCommentsListSection } from "./DebateCommentsListSection";
-import { HoveredReactionContextProvider } from "../votes/lwReactions/HoveredReactionContextProvider";
+import CommentUserName from "./CommentsItem/CommentUserName";
+import CommentsItemDate from "./CommentsItem/CommentsItemDate";
+import CommentBody from "./CommentsItem/CommentBody";
+import CommentsEditForm from "./CommentsEditForm";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import DebateCommentsListSection from "./DebateCommentsListSection";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -89,7 +89,7 @@ const getParticipantBorderStyle = (
   participantIndex: number
 ) => (classes as AnyBecauseTodo)[`border${participantIndex}`] ?? classes.border0;
 
-export const DebateResponseInner = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
+export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
   classes: ClassesType<typeof styles>,
   comment: CommentsList,
   replies: CommentsList[],
@@ -198,6 +198,6 @@ export const DebateResponseInner = ({classes, comment, replies, idx, responseCou
   }
 
 
-export const DebateResponse = registerComponent('DebateResponse', DebateResponseInner, {styles});
+export default registerComponent('DebateResponse', DebateResponse, {styles});
 
 

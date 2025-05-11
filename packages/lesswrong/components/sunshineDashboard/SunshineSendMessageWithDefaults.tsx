@@ -5,10 +5,10 @@ import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import { TemplateQueryStrings, NewConversationButton } from '../messaging/NewConversationButton'
+import NewConversationButton, { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { ContentItemBody } from "../common/ContentItemBody";
-import { LWTooltip } from "../common/LWTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 
 const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineSendMessageWithDefaultsInner = ({ user, embedConversation, classes }: {
+const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType<typeof styles>,
@@ -112,7 +112,7 @@ const SunshineSendMessageWithDefaultsInner = ({ user, embedConversation, classes
   )
 }
 
-export const SunshineSendMessageWithDefaults = registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaultsInner, {
+export default registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaults, {
   styles,
 });
 

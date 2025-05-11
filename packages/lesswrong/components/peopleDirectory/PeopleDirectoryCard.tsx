@@ -7,9 +7,9 @@ import { CAREER_STAGES, userGetProfileUrl } from "@/lib/collections/users/helper
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
 import moment from "moment";
-import { UsersProfileImage } from "../users/UsersProfileImage";
-import { NewConversationButton } from "../messaging/NewConversationButton";
-import { ForumIcon } from "../common/ForumIcon";
+import UsersProfileImage from "../users/UsersProfileImage";
+import NewConversationButton from "../messaging/NewConversationButton";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryCardInner = ({user, isFirst, isLast, classes}: {
+const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   user: SearchUser,
   isFirst?: boolean,
   isLast?: boolean,
@@ -169,9 +169,9 @@ const PeopleDirectoryCardInner = ({user, isFirst, isLast, classes}: {
   );
 }
 
-export const PeopleDirectoryCard = registerComponent(
+export default registerComponent(
   "PeopleDirectoryCard",
-  PeopleDirectoryCardInner,
+  PeopleDirectoryCard,
   {styles},
 );
 

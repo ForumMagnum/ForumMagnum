@@ -13,9 +13,9 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
-import { ContentStyles } from "../common/ContentStyles";
-import { LWTooltip } from "../common/LWTooltip";
-import { Loading } from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -150,7 +150,7 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
   },
 }
 
-export const ReviewVotingPageMenuInner = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
+export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
   classes: ClassesType<typeof styles>,
   reviewPhase: ReviewPhase,
   loading: boolean,
@@ -286,6 +286,6 @@ export const ReviewVotingPageMenuInner = ({classes, reviewPhase, loading, sorted
   </AnalyticsContext>;
 }
 
-export const ReviewVotingPageMenu = registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenuInner, {styles});
+export default registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenu, {styles});
 
 

@@ -20,9 +20,9 @@ import {
 } from "../../lib/publicSettings";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { PostsTimeframeList } from "./PostsTimeframeList";
-import { PostsTimeframeListExponential } from "./PostsTimeframeListExponential";
-import { PostsList2 } from "./PostsList2";
+import PostsTimeframeList from "./PostsTimeframeList";
+import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
+import PostsList2 from "./PostsList2";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -38,7 +38,7 @@ const timeframeToNumTimeBlocks = {
   yearly: forumAllPostsNumYearsSetting.get(),
 }
 
-const AllPostsListInner = ({
+const AllPostsList = ({
   currentTimeframe,
   currentSorting,
   currentFilter,
@@ -162,6 +162,6 @@ const AllPostsListInner = ({
   );
 }
 
-export const AllPostsList = registerComponent("AllPostsList", AllPostsListInner);
+export default registerComponent("AllPostsList", AllPostsList);
 
 

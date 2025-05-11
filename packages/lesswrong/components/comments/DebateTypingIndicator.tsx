@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 const INCIDATOR_UPDATE_PERIOD = 15000
 const INDICATOR_DISPLAY_PERIOD = 20000;
 
-export const DebateTypingIndicatorInner = ({classes, post}: {
+export const DebateTypingIndicator = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
@@ -73,6 +73,6 @@ export const DebateTypingIndicatorInner = ({classes, post}: {
   </div>;
 }
 
-export const DebateTypingIndicator = registerComponent('DebateTypingIndicator', DebateTypingIndicatorInner, {styles});
+export default registerComponent('DebateTypingIndicator', DebateTypingIndicator, {styles});
 
 

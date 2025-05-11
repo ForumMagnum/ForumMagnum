@@ -6,8 +6,8 @@ import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { TagsTooltip } from "./TagsTooltip";
-import { LWTooltip } from "../common/LWTooltip";
+import TagsTooltip from "./TagsTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const CONCEPT_ITEM_WIDTH = 280;
 
@@ -152,7 +152,7 @@ interface ConceptItemProps {
   noLinkOrHoverOnTitle?: boolean;
 }
 
-const ConceptItemInner = ({
+const ConceptItem = ({
   wikitag,
   isTitleItem,
   showArbitalIcon,
@@ -264,7 +264,7 @@ const ConceptItemInner = ({
   );
 };
 
-export const ConceptItem = registerComponent('ConceptItem', ConceptItemInner);
+export default registerComponent('ConceptItem', ConceptItem);
 
 
 

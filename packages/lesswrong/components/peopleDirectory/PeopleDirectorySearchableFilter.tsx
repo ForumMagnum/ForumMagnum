@@ -1,11 +1,11 @@
 import React, { Fragment, ReactNode, useCallback, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { SearchableMultiSelectResult } from "../hooks/useSearchableMultiSelect";
-import { PeopleDirectoryFilterDropdown } from "./PeopleDirectoryFilterDropdown";
-import { PeopleDirectoryInput } from "./PeopleDirectoryInput";
-import { Loading } from "../vulcan-core/Loading";
-import { PeopleDirectorySelectOption } from "./PeopleDirectorySelectOption";
-import { PeopleDirectoryClearAll } from "./PeopleDirectoryClearAll";
+import PeopleDirectoryFilterDropdown from "./PeopleDirectoryFilterDropdown";
+import PeopleDirectoryInput from "./PeopleDirectoryInput";
+import Loading from "../vulcan-core/Loading";
+import PeopleDirectorySelectOption from "./PeopleDirectorySelectOption";
+import PeopleDirectoryClearAll from "./PeopleDirectoryClearAll";
 
 const styles = (theme: ThemeType) => ({
   search: {
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectorySearchableFilterInner = ({
+const PeopleDirectorySearchableFilter = ({
   filter: {
     search,
     setSearch,
@@ -132,9 +132,9 @@ const PeopleDirectorySearchableFilterInner = ({
   );
 }
 
-export const PeopleDirectorySearchableFilter = registerComponent(
+export default registerComponent(
   "PeopleDirectorySearchableFilter",
-  PeopleDirectorySearchableFilterInner,
+  PeopleDirectorySearchableFilter,
   {styles},
 );
 

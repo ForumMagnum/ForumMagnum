@@ -4,9 +4,9 @@ import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import { ForumIcon } from "../common/ForumIcon";
-import { StyledMapPopup } from "./StyledMapPopup";
-import { GroupLinks } from "./GroupLinks";
+import ForumIcon from "../common/ForumIcon";
+import StyledMapPopup from "./StyledMapPopup";
+import GroupLinks from "./GroupLinks";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LocalGroupMarkerInner = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   group: any,
   handleMarkerClick: any,
   handleInfoWindowClose: any,
@@ -71,7 +71,7 @@ const LocalGroupMarkerInner = ({ group, handleMarkerClick, handleInfoWindowClose
   </React.Fragment>
 }
 
-export const LocalGroupMarker = registerComponent("LocalGroupMarker", LocalGroupMarkerInner, {styles});
+export default registerComponent("LocalGroupMarker", LocalGroupMarker, {styles});
 
 
 

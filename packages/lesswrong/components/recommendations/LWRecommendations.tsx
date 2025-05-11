@@ -2,23 +2,23 @@ import React, { useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getRecommendationSettings, RecommendationsAlgorithmPicker } from './RecommendationsAlgorithmPicker'
+import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
-import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SettingsButton } from "../icons/SettingsButton";
-import { RecommendationsList } from "./RecommendationsList";
-import { SectionTitle } from "../common/SectionTitle";
-import { LWTooltip } from "../common/LWTooltip";
-import { CuratedPostsList } from "./CuratedPostsList";
-import { Book2020FrontpageWidget } from "../books/Book2020FrontpageWidget";
-import { SectionSubtitle } from "../common/SectionSubtitle";
-import { ContinueReadingList } from "./ContinueReadingList";
-import { BookmarksList } from "../bookmarks/BookmarksList";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SettingsButton from "../icons/SettingsButton";
+import RecommendationsList from "./RecommendationsList";
+import SectionTitle from "../common/SectionTitle";
+import LWTooltip from "../common/LWTooltip";
+import CuratedPostsList from "./CuratedPostsList";
+import Book2020FrontpageWidget from "../books/Book2020FrontpageWidget";
+import SectionSubtitle from "../common/SectionSubtitle";
+import ContinueReadingList from "./ContinueReadingList";
+import BookmarksList from "../bookmarks/BookmarksList";
 
 export const curatedUrl = "/recommendations"
 
@@ -104,7 +104,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 
 export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
 
-const LWRecommendationsInner = ({
+const LWRecommendations = ({
   configName,
   classes,
 }: {
@@ -252,6 +252,6 @@ const LWRecommendationsInner = ({
   return render();
 }
 
-export const LWRecommendations = registerComponent("LWRecommendations", LWRecommendationsInner, {styles});
+export default registerComponent("LWRecommendations", LWRecommendations, {styles});
 
 

@@ -4,10 +4,10 @@ import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ModerationTemplatesForm } from './ModerationTemplateForm';
-import { ContentItemBody } from "../common/ContentItemBody";
-import { MetaInfo } from "../common/MetaInfo";
-import { BasicFormStyles } from "../form-components/BasicFormStyles";
-import { Row } from "../common/Row";
+import ContentItemBody from "../common/ContentItemBody";
+import MetaInfo from "../common/MetaInfo";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import Row from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModerationTemplateItemInner = ({classes, template}: {
+export const ModerationTemplateItem = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
@@ -58,7 +58,7 @@ export const ModerationTemplateItemInner = ({classes, template}: {
   </div></DeferRender>
 }
 
-export const ModerationTemplateItem = registerComponent('ModerationTemplateItem', ModerationTemplateItemInner, {styles});
+export default registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});
 
 
 

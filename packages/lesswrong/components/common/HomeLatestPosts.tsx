@@ -8,7 +8,7 @@ import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
-import { sectionTitleStyle, SectionTitle } from '../common/SectionTitle';
+import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
@@ -19,15 +19,15 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
-import { SingleColumnSection } from "./SingleColumnSection";
-import { PostsList2 } from "../posts/PostsList2";
-import { TagFilterSettings } from "../tagging/TagFilterSettings";
-import { LWTooltip } from "./LWTooltip";
-import { SettingsButton } from "../icons/SettingsButton";
-import { CuratedPostsList } from "../recommendations/CuratedPostsList";
-import { StickiedPosts } from "../ea-forum/StickiedPosts";
-import { PostsListViewToggle } from "../posts/PostsListViewToggle";
-import { SurveyPostsItem } from "../surveys/SurveyPostsItem";
+import SingleColumnSection from "./SingleColumnSection";
+import PostsList2 from "../posts/PostsList2";
+import TagFilterSettings from "../tagging/TagFilterSettings";
+import LWTooltip from "./LWTooltip";
+import SettingsButton from "../icons/SettingsButton";
+import CuratedPostsList from "../recommendations/CuratedPostsList";
+import StickiedPosts from "../ea-forum/StickiedPosts";
+import PostsListViewToggle from "../posts/PostsListViewToggle";
+import SurveyPostsItem from "../surveys/SurveyPostsItem";
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -111,7 +111,7 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
   };
 }
 
-const HomeLatestPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
@@ -239,6 +239,6 @@ const HomeLatestPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) 
   )
 }
 
-export const HomeLatestPosts = registerComponent('HomeLatestPosts', HomeLatestPostsInner, {styles});
+export default registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
 
 

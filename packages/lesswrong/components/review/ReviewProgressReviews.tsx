@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import range from 'lodash/range';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ReviewProgressReviewsInner = ({classes, reviewYear}: {
+export const ReviewProgressReviews = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
@@ -78,7 +78,7 @@ export const ReviewProgressReviewsInner = ({classes, reviewYear}: {
   </LWTooltip>
 }
 
-export const ReviewProgressReviews = registerComponent('ReviewProgressReviews', ReviewProgressReviewsInner, {styles});
+export default registerComponent('ReviewProgressReviews', ReviewProgressReviews, {styles});
 
 
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {

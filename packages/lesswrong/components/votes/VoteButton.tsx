@@ -7,7 +7,7 @@ import type { VoteArrowIconProps } from './VoteArrowIcon';
 const styles = (theme: ThemeType) => ({
 })
 
-const VoteButtonInner = ({
+const VoteButton = ({
   vote, currentStrength, upOrDown,
   color = "secondary",
   orientation = "up",
@@ -92,7 +92,7 @@ const VoteButtonInner = ({
   return <VoteIconComponent {...voteArrowProps} />
 }
 
-export const VoteButton = registerComponent('VoteButton', VoteButtonInner, {
+export default registerComponent('VoteButton', VoteButton, {
   areEqual: "auto"
 });
 

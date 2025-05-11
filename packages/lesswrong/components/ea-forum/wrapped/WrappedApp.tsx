@@ -5,7 +5,7 @@ import { getWrappedVideo } from "./videos";
 import { Helmet } from "@/lib/utils/componentsWithChildren";
 import range from "lodash/range";
 import classNames from "classnames";
-import { ForumIcon } from "../../common/ForumIcon";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -74,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedAppInner = ({classes}: {
+const WrappedApp = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -152,9 +152,9 @@ const WrappedAppInner = ({classes}: {
   );
 }
 
-export const WrappedApp = registerComponent(
+export default registerComponent(
   "WrappedApp",
-  WrappedAppInner,
+  WrappedApp,
   {styles},
 );
 

@@ -1,7 +1,7 @@
 import React, { ErrorInfo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { configureScope, captureException }from '@sentry/core';
-import { ErrorMessage } from "./ErrorMessage";
+import ErrorMessage from "./ErrorMessage";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode,
@@ -57,6 +57,6 @@ class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBounda
   }
 }
 
-export const ErrorBoundary = registerComponent("ErrorBoundary", ErrorBoundaryInner);
+export default registerComponent("ErrorBoundary", ErrorBoundaryInner);
 
 

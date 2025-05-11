@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { isClient } from '@/lib/executionEnvironment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import LWClickAwayListener from "../common/LWClickAwayListener";
 import { Paper } from './Paper';
 
 const styles = defineStyles("Menu", (theme) => ({

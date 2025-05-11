@@ -4,13 +4,13 @@ import { useLocation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { styles } from './PostsPage/PostsPage';
 import { useMulti } from '@/lib/crud/withMulti';
-import { CompareRevisions } from "../revisions/CompareRevisions";
-import { PostsPagePostHeader } from "./PostsPage/PostsPagePostHeader";
-import { RevisionComparisonNotice } from "../revisions/RevisionComparisonNotice";
-import { LoadingOrErrorPage } from "../common/LoadingOrErrorPage";
-import { ErrorPage } from "../common/ErrorPage";
+import CompareRevisions from "../revisions/CompareRevisions";
+import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
+import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
+import ErrorPage from "../common/ErrorPage";
 
-const PostsCompareRevisionsInner = ({ classes }: {
+const PostsCompareRevisions = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
@@ -68,6 +68,6 @@ const PostsCompareRevisionsInner = ({ classes }: {
   </div>;
 }
 
-export const PostsCompareRevisions = registerComponent("PostsCompareRevisions", PostsCompareRevisionsInner, {styles});
+export default registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
 
 

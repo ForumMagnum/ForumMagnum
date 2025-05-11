@@ -1,14 +1,14 @@
 import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { ForumIconName, ForumIcon } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { MenuItem } from "../common/Menus";
-import { Loading } from "../vulcan-core/Loading";
-import { LWTooltip } from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -93,7 +93,7 @@ const RawLink: FC<PropsWithChildren<{
   </a>
 );
 
-const DropdownItemInner = ({
+const DropdownItem = ({
   title,
   sideMessage,
   onClick,
@@ -147,9 +147,9 @@ const DropdownItemInner = ({
   );
 }
 
-export const DropdownItem = registerComponent(
+export default registerComponent(
   "DropdownItem",
-  DropdownItemInner,
+  DropdownItem,
   {styles},
 );
 

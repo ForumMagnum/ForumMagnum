@@ -5,11 +5,11 @@ import { useMulti } from '@/lib/crud/withMulti';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { ContentStyles } from "../common/ContentStyles";
-import { TagSmallPostLink } from "../tagging/TagSmallPostLink";
-import { FollowUserButton } from "./FollowUserButton";
-import { UserMetaInfo } from "./UserMetaInfo";
-import { Loading } from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import TagSmallPostLink from "../tagging/TagSmallPostLink";
+import FollowUserButton from "./FollowUserButton";
+import UserMetaInfo from "./UserMetaInfo";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const LWUserTooltipContentInner = ({hideFollowButton=false, classes, user}: {
+export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   hideFollowButton?: boolean,
   classes: ClassesType<typeof styles>,
   user: UsersMinimumInfo,
@@ -113,9 +113,9 @@ export const LWUserTooltipContentInner = ({hideFollowButton=false, classes, user
 );
 }
 
-export const LWUserTooltipContent = registerComponent(
+export default registerComponent(
   'LWUserTooltipContent',
-  LWUserTooltipContentInner,
+  LWUserTooltipContent,
   {styles},
 );
 

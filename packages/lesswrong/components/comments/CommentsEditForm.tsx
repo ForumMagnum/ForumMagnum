@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentForm } from './CommentForm';
 import { useSingle } from '@/lib/crud/withSingle';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
-const CommentsEditFormInner = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
+const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
@@ -36,7 +36,7 @@ const CommentsEditFormInner = ({ comment, successCallback, cancelCallback, class
   )
 }
 
-export const CommentsEditForm = registerComponent('CommentsEditForm', CommentsEditFormInner);
+export default registerComponent('CommentsEditForm', CommentsEditForm);
 
 
 

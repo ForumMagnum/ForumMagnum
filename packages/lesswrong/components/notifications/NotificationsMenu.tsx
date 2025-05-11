@@ -13,9 +13,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
-import { ForumIcon } from "../common/ForumIcon";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { NotificationsList } from "./NotificationsList";
+import ForumIcon from "../common/ForumIcon";
+import ErrorBoundary from "../common/ErrorBoundary";
+import NotificationsList from "./NotificationsList";
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -72,7 +72,7 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   },
 }));
 
-const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
+const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
@@ -169,7 +169,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   )
 };
 
-export const NotificationsMenu = registerComponent('NotificationsMenu', NotificationsMenuInner, {
+export default registerComponent('NotificationsMenu', NotificationsMenu, {
   hocs: [withErrorBoundary]
 });
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = () => ({
   root: {
@@ -20,7 +20,7 @@ const styles = () => ({
   },
 });
 
-const PostMentionHitInner = ({hit, classes}: {
+const PostMentionHit = ({hit, classes}: {
   hit: SearchPost,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -34,9 +34,9 @@ const PostMentionHitInner = ({hit, classes}: {
   );
 }
 
-export const PostMentionHit = registerComponent(
+export default registerComponent(
   "PostMentionHit",
-  PostMentionHitInner,
+  PostMentionHit,
   {styles},
 );
 

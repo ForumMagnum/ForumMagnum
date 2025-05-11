@@ -4,10 +4,10 @@ import { commentBodyStyles } from "@/themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useCountItemsContext } from "../hooks/CountItemsContext";
-import { SubscribedItem } from "./SubscribedItem";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { LoadMore } from "../common/LoadMore";
+import SubscribedItem from "./SubscribedItem";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SubscriptionsListInner = ({
+const SubscriptionsList = ({
   collectionName,
   fragmentName,
   subscriptionType,
@@ -93,9 +93,9 @@ const SubscriptionsListInner = ({
   );
 }
 
-export const SubscriptionsList = registerComponent(
+export default registerComponent(
   "SubscriptionsList",
-  SubscriptionsListInner,
+  SubscriptionsList,
   {styles},
 );
 

@@ -16,14 +16,14 @@ import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { Link } from "../../lib/reactRouterWrapper";
-import { UltraFeedPostDialog } from "./UltraFeedPostDialog";
-import { TruncatedAuthorsList } from "../posts/TruncatedAuthorsList";
-import { FormatDate } from "../common/FormatDate";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
-import { FeedContentBody } from "./FeedContentBody";
-import { UltraFeedItemFooter } from "./UltraFeedItemFooter";
-import { Loading } from "../vulcan-core/Loading";
-import { OverflowNavButtons } from "./OverflowNavButtons";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import FormatDate from "../common/FormatDate";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import FeedContentBody from "./FeedContentBody";
+import UltraFeedItemFooter from "./UltraFeedItemFooter";
+import Loading from "../vulcan-core/Loading";
+import OverflowNavButtons from "./OverflowNavButtons";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -201,7 +201,7 @@ const UltraFeedPostItemHeader = ({
   );
 };
 
-const UltraFeedPostItemInner = ({
+const UltraFeedPostItem = ({
   post,
   postMetaInfo,
   index,
@@ -381,7 +381,7 @@ const UltraFeedPostItemInner = ({
   );
 };
 
-export const UltraFeedPostItem = registerComponent("UltraFeedPostItem", UltraFeedPostItemInner);
+export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
 
 
 

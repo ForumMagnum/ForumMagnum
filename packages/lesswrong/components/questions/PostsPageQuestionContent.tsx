@@ -4,12 +4,12 @@ import { useCurrentUser } from '../common/withUser'
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { AnswersList } from "./AnswersList";
-import { NewAnswerCommentQuestionForm } from "./NewAnswerCommentQuestionForm";
-import { CantCommentExplanation } from "../comments/CantCommentExplanation";
-import { RelatedQuestionsList } from "./RelatedQuestionsList";
+import AnswersList from "./AnswersList";
+import NewAnswerCommentQuestionForm from "./NewAnswerCommentQuestionForm";
+import CantCommentExplanation from "../comments/CantCommentExplanation";
+import RelatedQuestionsList from "./RelatedQuestionsList";
 
-const PostsPageQuestionContentInner = ({post, answersTree, refetch}: {
+const PostsPageQuestionContent = ({post, answersTree, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answersTree: CommentTreeNode<CommentsList>[],
   refetch: () => void,
@@ -29,7 +29,7 @@ const PostsPageQuestionContentInner = ({post, answersTree, refetch}: {
 
 };
 
-export const PostsPageQuestionContent = registerComponent('PostsPageQuestionContent', PostsPageQuestionContentInner, {
+export default registerComponent('PostsPageQuestionContent', PostsPageQuestionContent, {
   hocs: [withErrorBoundary]
 });
 

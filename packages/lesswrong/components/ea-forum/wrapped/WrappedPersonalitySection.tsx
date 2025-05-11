@@ -9,12 +9,12 @@ import React, {
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { captureException } from "@sentry/core";
 import { useTheme } from "@/components/themes/useTheme";
-import { WRAPPED_SHARE_BUTTON_WIDTH, WrappedShareButton } from "./WrappedShareButton";
+import WrappedShareButton, { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedPersonalitySectionInner = ({classes}: {
+const WrappedPersonalitySection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -250,9 +250,9 @@ const WrappedPersonalitySectionInner = ({classes}: {
   );
 }
 
-export const WrappedPersonalitySection = registerComponent(
+export default registerComponent(
   "WrappedPersonalitySection",
-  WrappedPersonalitySectionInner,
+  WrappedPersonalitySection,
   {styles},
 );
 

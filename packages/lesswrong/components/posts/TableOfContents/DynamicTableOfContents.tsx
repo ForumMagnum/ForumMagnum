@@ -2,8 +2,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
-import { TableOfContents } from "./TableOfContents";
-import { ToCColumn } from "./ToCColumn";
+import TableOfContents from "./TableOfContents";
+import ToCColumn from "./ToCColumn";
 
 export interface DynamicTableOfContentsContextType {
   setToc: (document: EditorContents) => void;
@@ -11,7 +11,7 @@ export interface DynamicTableOfContentsContextType {
 
 export const DynamicTableOfContentsContext = React.createContext<DynamicTableOfContentsContextType | null>(null);
 
-export const DynamicTableOfContentsInner = ({title, rightColumnChildren, children}: {
+export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   title?: string,
   rightColumnChildren?: React.ReactNode,
   children: React.ReactNode
@@ -53,7 +53,7 @@ export const DynamicTableOfContentsInner = ({title, rightColumnChildren, childre
   </div>;
 }
 
-export const DynamicTableOfContents = registerComponent('DynamicTableOfContents', DynamicTableOfContentsInner);
+export default registerComponent('DynamicTableOfContents', DynamicTableOfContents);
 
 
 

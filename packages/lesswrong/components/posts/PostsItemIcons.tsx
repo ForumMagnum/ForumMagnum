@@ -12,9 +12,9 @@ import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { OmegaIcon } from "../icons/OmegaIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import OmegaIcon from "../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconSet: {
@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CuratedIconInner = ({hasColor, classes}: {
+const CuratedIconInner = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {

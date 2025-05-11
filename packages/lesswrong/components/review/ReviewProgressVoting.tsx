@@ -5,7 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@/lib/vendor/@material-ui/icons/src/CropSquare';
 import range from 'lodash/range';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 
 export const TARGET_REVIEW_VOTING_NUM = 6
 
-export const ReviewProgressVotingInner = ({classes, reviewYear}: {
+export const ReviewProgressVoting = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
@@ -70,7 +70,7 @@ export const ReviewProgressVotingInner = ({classes, reviewYear}: {
 </LWTooltip></div>
 }
 
-export const ReviewProgressVoting = registerComponent('ReviewProgressVoting', ReviewProgressVotingInner, {styles});
+export default registerComponent('ReviewProgressVoting', ReviewProgressVoting, {styles});
 
 
 

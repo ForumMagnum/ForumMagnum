@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
-import { TableOfContentsList } from "../../posts/TableOfContents/TableOfContentsList";
-import { TabNavigationMenu } from "./TabNavigationMenu";
-import { TabNavigationMenuCompressed } from "./TabNavigationMenuCompressed";
+import TableOfContentsList from "../../posts/TableOfContents/TableOfContentsList";
+import TabNavigationMenu from "./TabNavigationMenu";
+import TabNavigationMenuCompressed from "./TabNavigationMenuCompressed";
 
 const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   paperWithoutToC: {
@@ -55,7 +55,7 @@ const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   },
 }))
 
-const NavigationDrawerInner = ({open, handleClose, toc}: {
+const NavigationDrawer = ({open, handleClose, toc}: {
   open: boolean,
   handleOpen: () => void,
   handleClose: () => void,
@@ -90,6 +90,6 @@ const NavigationDrawerInner = ({open, handleClose, toc}: {
   </Drawer>
 }
 
-export const NavigationDrawer = registerComponent('NavigationDrawer', NavigationDrawerInner);
+export default registerComponent('NavigationDrawer', NavigationDrawer);
 
 

@@ -5,9 +5,9 @@ import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
-import { UsersEditForm } from "./UsersEditForm";
-import { UsersAccountManagement } from "./UsersAccountManagement";
-import { ErrorAccessDenied } from "../../common/ErrorAccessDenied";
+import UsersEditForm from "./UsersEditForm";
+import UsersAccountManagement from "./UsersAccountManagement";
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersAccountInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
   const terms = { slug: params.slug ?? currentUser?.slug };
@@ -59,7 +59,7 @@ const UsersAccountInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const UsersAccount = registerComponent('UsersAccount', UsersAccountInner, { styles });
+export default registerComponent('UsersAccount', UsersAccount, { styles });
 
 
 

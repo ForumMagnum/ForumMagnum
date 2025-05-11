@@ -4,9 +4,9 @@ import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
-import { LoadMore } from "../common/LoadMore";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import LoadMore from "../common/LoadMore";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,7 +92,7 @@ interface TagsChecklistItem {
   selected: boolean,
 }
 
-const TagsChecklistInner = ({
+const TagsChecklist = ({
   onTagSelected = () => {},
   onTagRemoved = () => {},
   classes,
@@ -210,6 +210,6 @@ const TagsChecklistInner = ({
 };
 
 
-export const TagsChecklist = registerComponent("TagsChecklist", TagsChecklistInner, {styles});
+export default registerComponent("TagsChecklist", TagsChecklist, {styles});
 
 

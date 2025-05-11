@@ -6,11 +6,11 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import { ColorPicker } from '@/components/form-components/FormComponentColorPicker';
-import { EAButton } from "../EAButton";
-import { SectionTitle } from "../../common/SectionTitle";
+import EAButton from "../EAButton";
+import SectionTitle from "../../common/SectionTitle";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
-import { ForumIcon } from "../../common/ForumIcon";
-import { ImageUpload2 } from "../../form-components/ImageUpload2";
+import ForumIcon from "../../common/ForumIcon";
+import ImageUpload2 from "../../form-components/ImageUpload2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EditDigestHeaderInner = ({digest, classes}: {
+export const EditDigestHeader = ({digest, classes}: {
   digest: DigestsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -226,6 +226,6 @@ export const EditDigestHeaderInner = ({digest, classes}: {
   </div>
 }
 
-export const EditDigestHeader = registerComponent('EditDigestHeader', EditDigestHeaderInner, {styles});
+export default registerComponent('EditDigestHeader', EditDigestHeader, {styles});
 
 

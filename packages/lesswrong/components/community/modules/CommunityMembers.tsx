@@ -9,11 +9,10 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
-import { NewConversationButton } from "../../messaging/NewConversationButton";
-import { SearchResultsMap } from "./SearchResultsMap";
-import { ContentStyles } from "../../common/ContentStyles";
-import { ForumIcon } from "../../common/ForumIcon";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import SearchResultsMap from "./SearchResultsMap";
+import ContentStyles from "../../common/ContentStyles";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   filters: {
@@ -183,7 +182,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommunityMembersInner = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
+const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
   currentUser: UsersCurrent | null,
   userLocation: {
     lat: number,
@@ -309,7 +308,7 @@ const CommunityMembersInner = ({currentUser, userLocation, distanceUnit='km', lo
   </InstantSearch>
 }
 
-export const CommunityMembers = registerComponent('CommunityMembers', CommunityMembersInner, {styles});
+export default registerComponent('CommunityMembers', CommunityMembers, {styles});
 
 
 

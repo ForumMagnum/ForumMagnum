@@ -1,14 +1,14 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { CollectionsPage } from "./CollectionsPage";
+import CollectionsPage from "./CollectionsPage";
 
-const CollectionsSingleInner = () => {
+const CollectionsSingle = () => {
   const { params } = useLocation();
   return <CollectionsPage documentId={params._id} />
 };
 
-export const CollectionsSingle = registerComponent('CollectionsSingle', CollectionsSingleInner);
+export default registerComponent('CollectionsSingle', CollectionsSingle);
 
 
 

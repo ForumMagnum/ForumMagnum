@@ -13,18 +13,18 @@ import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
-import { CommentsEditForm } from "../comments/CommentsEditForm";
-import { SmallSideVote } from "../votes/SmallSideVote";
-import { AnswerCommentsList } from "./AnswerCommentsList";
-import { CommentsMenu } from "../dropdowns/comments/CommentsMenu";
-import { ForumIcon } from "../common/ForumIcon";
-import { CommentBody } from "../comments/CommentsItem/CommentBody";
-import { CommentsItemDate } from "../comments/CommentsItem/CommentsItemDate";
-import { UsersName } from "../users/UsersName";
+import CommentsEditForm from "../comments/CommentsEditForm";
+import SmallSideVote from "../votes/SmallSideVote";
+import AnswerCommentsList from "./AnswerCommentsList";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import ForumIcon from "../common/ForumIcon";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import UsersName from "../users/UsersName";
 import { Typography } from "../common/Typography";
-import { CommentBottom } from "../comments/CommentsItem/CommentBottom";
-import { CommentsNewForm } from "../comments/CommentsNewForm";
-import { HoveredReactionContextProvider } from "../votes/lwReactions/HoveredReactionContextProvider";
+import CommentBottom from "../comments/CommentsItem/CommentBottom";
+import CommentsNewForm from "../comments/CommentsNewForm";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -143,7 +143,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const AnswerInner = ({ comment, post, childComments, classes }: {
+const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
@@ -293,7 +293,7 @@ const AnswerInner = ({ comment, post, childComments, classes }: {
   )
 }
 
-export const Answer = registerComponent('Answer', AnswerInner, {
+export default registerComponent('Answer', Answer, {
   styles,
   hocs: [withErrorBoundary]
 });

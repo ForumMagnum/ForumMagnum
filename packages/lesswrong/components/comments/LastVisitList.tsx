@@ -2,14 +2,14 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
-import { CalendarDate } from "../common/CalendarDate";
-import { Loading } from "../vulcan-core/Loading";
+import CalendarDate from "../common/CalendarDate";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const VISITS_TO_SHOW = 4
 const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
 
-const LastVisitListInner = ({ postId, currentUser, clickCallback }: {
+const LastVisitList = ({ postId, currentUser, clickCallback }: {
   postId: string,
   currentUser: UsersCurrent,
   clickCallback: (date: Date) => void,
@@ -55,7 +55,7 @@ const LastVisitListInner = ({ postId, currentUser, clickCallback }: {
   )}</>
 }
 
-export const LastVisitList = registerComponent("LastVisitList", LastVisitListInner);
+export default registerComponent("LastVisitList", LastVisitList);
 
 
 

@@ -10,11 +10,11 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getTagDescriptionHtmlHighlight, TagPreviewDescription } from './TagPreviewDescription';
+import TagPreviewDescription, { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
 import startCase from 'lodash/startCase';
 import { htmlToTextDefault } from '@/lib/htmlToText';
-import { TagSmallPostLink } from "./TagSmallPostLink";
-import { Loading } from "../vulcan-core/Loading";
+import TagSmallPostLink from "./TagSmallPostLink";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -164,7 +164,7 @@ const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { 
   return !tagNameIsBoldedAnywhere(tooltipText, tag.name);
 };
 
-const TagPreviewInner = ({
+const TagPreview = ({
   tag,
   hash,
   showCount=true,
@@ -352,7 +352,7 @@ const TagPreviewTitle = ({tag}: {
   </div>
 }
 
-export const TagPreview = registerComponent("TagPreview", TagPreviewInner);
+export default registerComponent("TagPreview", TagPreview);
 
 
 

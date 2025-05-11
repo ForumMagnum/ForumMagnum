@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
-import { PostsVoteDefault } from "./PostsVoteDefault";
+import PostsVoteDefault from "./PostsVoteDefault";
 
-const PostsVoteInner = ({post, useHorizontalLayout, isFooter}: {
+const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   post: PostsWithVotes,
   /** if true, display the vote arrows to the left & right of the score */
   useHorizontalLayout?: boolean,
@@ -31,6 +31,6 @@ const PostsVoteInner = ({post, useHorizontalLayout, isFooter}: {
     );
 }
 
-export const PostsVote = registerComponent('PostsVote', PostsVoteInner);
+export default registerComponent('PostsVote', PostsVote);
 
 

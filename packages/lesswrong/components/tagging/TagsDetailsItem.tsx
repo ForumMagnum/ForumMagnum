@@ -9,11 +9,11 @@ import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { LinkCard } from "../common/LinkCard";
-import { TagPreviewDescription } from "./TagPreviewDescription";
-import { TagSmallPostLink } from "./TagSmallPostLink";
-import { Loading } from "../vulcan-core/Loading";
-import { TagFlagItem } from "./TagFlagItem";
+import LinkCard from "../common/LinkCard";
+import TagPreviewDescription from "./TagPreviewDescription";
+import TagSmallPostLink from "./TagSmallPostLink";
+import Loading from "../vulcan-core/Loading";
+import TagFlagItem from "./TagFlagItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,7 +85,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsDetailsItemInner = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
+const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
   tag: TagFragment | TagWithFlagsFragment,
   classes: ClassesType<typeof styles>,
   showFlags?: boolean,
@@ -172,6 +172,6 @@ const TagsDetailsItemInner = ({ tag, classes, showFlags = false, flagId, collaps
   </div>
 }
 
-export const TagsDetailsItem = registerComponent("TagsDetailsItem", TagsDetailsItemInner, { styles });
+export default registerComponent("TagsDetailsItem", TagsDetailsItem, { styles });
 
 

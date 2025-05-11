@@ -11,11 +11,11 @@ import { distance } from "../community/modules/LocalGroups";
 import { getCachedUserCountryCode } from "../common/CookieBanner/geolocation";
 import { lightbulbIcon } from "../icons/lightbulbIcon";
 import DeferRender from "../common/DeferRender";
-import { AnalyticsInViewTracker } from "../common/AnalyticsInViewTracker";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { LWTooltip } from "../common/LWTooltip";
-import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
-import { ForumIcon } from "../common/ForumIcon";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import SingleColumnSection from "../common/SingleColumnSection";
+import LWTooltip from "../common/LWTooltip";
+import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,7 +100,7 @@ const applicationDeadline = moment.utc('2024-11-30', 'YYYY-MM-DD')
  * We are considering displaying a small banner when an EAG(x) application deadline is near,
  * visible only to users who we think are in a relevant location for that conference.
  */
-const EAGBannerInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EAG_BANNER_COOKIE]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
@@ -192,9 +192,9 @@ const EAGBannerInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-export const EAGBanner = registerComponent(
+export default registerComponent(
   "EAGBanner",
-  EAGBannerInner,
+  EAGBanner,
   {styles},
 );
 

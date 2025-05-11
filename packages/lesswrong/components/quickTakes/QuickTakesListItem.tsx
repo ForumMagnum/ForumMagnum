@@ -5,9 +5,9 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
-import { CommentsNode } from "../comments/CommentsNode";
-import { QuickTakesCollapsedListItem } from "./QuickTakesCollapsedListItem";
-import { LWQuickTakesCollapsedListItem } from "./LWQuickTakesCollapsedListItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
+import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
@@ -27,7 +27,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const QuickTakesListItemInner = ({quickTake, classes}: {
+const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -45,7 +45,7 @@ const QuickTakesListItemInner = ({quickTake, classes}: {
   const expandedComment = (
     <DeferRender ssr={false}>
       <div className={classNames(classes.expandedRoot, { [classes.hidden]: !expanded })}>
-        <CommentsNode
+        <CommentsNodeInner
           treeOptions={{
             post: quickTake.post ?? undefined,
             showCollapseButtons: isFriendlyUI,
@@ -72,9 +72,9 @@ const QuickTakesListItemInner = ({quickTake, classes}: {
   </>;
 }
 
-export const QuickTakesListItem = registerComponent(
+export default registerComponent(
   "QuickTakesListItem",
-  QuickTakesListItemInner,
+  QuickTakesListItem,
   {styles},
 );
 

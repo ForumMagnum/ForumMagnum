@@ -5,11 +5,11 @@ import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
-import { LoadMore } from "../common/LoadMore";
-import { PostsNoResults } from "./PostsNoResults";
-import { SectionFooter } from "../common/SectionFooter";
-import { PostsItem } from "./PostsItem";
-import { PostsLoading } from "./PostsLoading";
+import LoadMore from "../common/LoadMore";
+import PostsNoResults from "./PostsNoResults";
+import SectionFooter from "../common/SectionFooter";
+import PostsItem from "./PostsItem";
+import PostsLoading from "./PostsLoading";
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
 type PostsList2Props = PostsListConfig & {classes: ClassesType<typeof styles>};
 
 /** A list of posts, defined by a query that returns them. */
-const PostsList2Inner = ({classes, ...props}: PostsList2Props) => {
+const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   const {
     children,
     showNoResults,
@@ -123,7 +123,7 @@ const PostsList2Inner = ({classes, ...props}: PostsList2Props) => {
   )
 }
 
-export const PostsList2 = registerComponent('PostsList2', PostsList2Inner, {
+export default registerComponent('PostsList2', PostsList2, {
   styles,
   areEqual: {
     terms: "deep",

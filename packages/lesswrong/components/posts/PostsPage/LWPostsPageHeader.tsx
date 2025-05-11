@@ -8,25 +8,25 @@ import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers'
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
-import { titleStyles, PostsTopSequencesNav } from './PostsTopSequencesNav';
+import PostsTopSequencesNav, { titleStyles } from './PostsTopSequencesNav';
 import { Link } from '@/lib/reactRouterWrapper';
-import { PostsPageTitle } from "./PostsPageTitle";
-import { PostsAuthors } from "./PostsAuthors";
-import { LWTooltip } from "../../common/LWTooltip";
-import { PostsPageDate } from "./PostsPageDate";
-import { CrosspostHeaderIcon } from "./CrosspostHeaderIcon";
-import { PostsGroupDetails } from "../PostsGroupDetails";
-import { PostsPageEventData } from "./PostsPageEventData";
-import { AddToCalendarButton } from "../AddToCalendar/AddToCalendarButton";
-import { GroupLinks } from "../../localGroups/GroupLinks";
-import { LWPostsPageHeaderTopRight } from "./LWPostsPageHeaderTopRight";
-import { PostsAudioPlayerWrapper } from "./PostsAudioPlayerWrapper";
-import { PostsVote } from "../../votes/PostsVote";
-import { AudioToggle } from "./AudioToggle";
-import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
-import { AlignmentCrosspostLink } from "../AlignmentCrosspostLink";
-import { ReadTime } from "./ReadTime";
-import { LWCommentCount } from "../TableOfContents/LWCommentCount";
+import PostsPageTitle from "./PostsPageTitle";
+import PostsAuthors from "./PostsAuthors";
+import LWTooltip from "../../common/LWTooltip";
+import PostsPageDate from "./PostsPageDate";
+import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
+import PostsGroupDetails from "../PostsGroupDetails";
+import PostsPageEventData from "./PostsPageEventData";
+import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
+import GroupLinks from "../../localGroups/GroupLinks";
+import LWPostsPageHeaderTopRight from "./LWPostsPageHeaderTopRight";
+import PostsAudioPlayerWrapper from "./PostsAudioPlayerWrapper";
+import PostsVote from "../../votes/PostsVote";
+import AudioToggle from "./AudioToggle";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import AlignmentCrosspostLink from "../AlignmentCrosspostLink";
+import ReadTime from "./ReadTime";
+import LWCommentCount from "../TableOfContents/LWCommentCount";
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -220,7 +220,7 @@ const styles = (theme: ThemeType) => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeaderInner = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
@@ -324,8 +324,8 @@ const LWPostsPageHeaderInner = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer,
   </div>
 }
 
-export const LWPostsPageHeader = registerComponent(
-  'LWPostsPageHeader', LWPostsPageHeaderInner, {styles}
+export default registerComponent(
+  'LWPostsPageHeader', LWPostsPageHeader, {styles}
 );
 
 

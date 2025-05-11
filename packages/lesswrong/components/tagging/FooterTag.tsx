@@ -6,11 +6,11 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { coreTagIconMap, CoreTagIcon } from './CoreTagIcon';
+import CoreTagIcon, { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { TagsTooltipPreviewWrapper, TagsTooltip } from './TagsTooltip';
+import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -131,7 +131,7 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
  * hover-previews of posts, and they will initially open into a loading state
  * where we have tags' names but don't have their descriptions.
  */
-const FooterTagInner = ({
+const FooterTag = ({
   tagRel,
   tag,
   hideScore=false,
@@ -210,6 +210,6 @@ const FooterTagInner = ({
   );
 }
 
-export const FooterTag = registerComponent("FooterTag", FooterTagInner);
+export default registerComponent("FooterTag", FooterTag);
 
 

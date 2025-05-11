@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TabNavigationSubItemInner = ({children, classes, className}: {
+const TabNavigationSubItem = ({children, classes, className}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -41,6 +41,6 @@ const TabNavigationSubItemInner = ({children, classes, className}: {
   </div>
 }
 
-export const TabNavigationSubItem = registerComponent('TabNavigationSubItem', TabNavigationSubItemInner, {styles});
+export default registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
 
 

@@ -3,8 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import type { VotingProps } from '../votingProps';
 import { Card } from "@/components/widgets/Paper";
-import { ReactionHoverTopRow } from "./ReactionHoverTopRow";
-import { ReactionQuotesHoverInfo } from "./ReactionQuotesHoverInfo";
+import ReactionHoverTopRow from "./ReactionHoverTopRow";
+import ReactionQuotesHoverInfo from "./ReactionQuotesHoverInfo";
 
 const styles = (theme: ThemeType) => ({
 })
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
  * multiple different types of reactions here, if different users reacted
  * differently.
  */
-const InlineReactHoverInfoInner = ({quote, reactions, voteProps, classes}: {
+const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -41,7 +41,7 @@ const InlineReactHoverInfoInner = ({quote, reactions, voteProps, classes}: {
   </Card>
 }
 
-export const InlineReactHoverInfo = registerComponent('InlineReactHoverInfo', InlineReactHoverInfoInner, {styles});
+export default registerComponent('InlineReactHoverInfo', InlineReactHoverInfo, {styles});
 
 
 

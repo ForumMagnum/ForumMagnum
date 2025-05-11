@@ -6,7 +6,7 @@ import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { gql, useMutation } from '@apollo/client';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const FollowUserButtonInner = ({user, classes}: {
+export const FollowUserButton = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -69,6 +69,6 @@ export const FollowUserButtonInner = ({user, classes}: {
   </div>;
 }
 
-export const FollowUserButton = registerComponent('FollowUserButton', FollowUserButtonInner, {styles});
+export default registerComponent('FollowUserButton', FollowUserButton, {styles});
 
 

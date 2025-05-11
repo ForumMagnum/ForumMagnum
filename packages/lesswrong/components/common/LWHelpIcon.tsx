@@ -12,10 +12,10 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const LWHelpIconInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 
-export const LWHelpIcon = registerComponent("LWHelpIcon", LWHelpIconInner, {styles});
+export default registerComponent("LWHelpIcon", LWHelpIcon, {styles});
 
 

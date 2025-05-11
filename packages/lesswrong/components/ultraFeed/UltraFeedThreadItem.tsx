@@ -6,8 +6,8 @@ import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } 
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useSingle } from "@/lib/crud/withSingle";
 import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
-import { UltraFeedPostItem } from "./UltraFeedPostItem";
-import { Loading } from "../vulcan-core/Loading";
+import UltraFeedPostItem from "./UltraFeedPostItem";
+import Loading from "../vulcan-core/Loading";
 
 const itemSeparator = (theme: ThemeType) => ({
   content: '""',
@@ -137,7 +137,7 @@ const initializeHighlightStatuses = (
   return result;
 };
 
-const UltraFeedThreadItemInner = ({thread, index, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   thread: DisplayFeedCommentThread,
   index: number,
   settings?: UltraFeedSettingsType,
@@ -238,9 +238,9 @@ const UltraFeedThreadItemInner = ({thread, index, settings = DEFAULT_SETTINGS}: 
   );
 }
 
-export const UltraFeedThreadItem = registerComponent(
+export default registerComponent(
   "UltraFeedThreadItem",
-  UltraFeedThreadItemInner,
+  UltraFeedThreadItem,
 );
 
 

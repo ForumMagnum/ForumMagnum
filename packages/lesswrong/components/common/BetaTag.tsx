@@ -11,12 +11,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const BetaTagInner = ({classes}: {
+const BetaTag = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   return <span className={classes.root}>[Beta]</span>
 }
 
-export const BetaTag = registerComponent('BetaTag', BetaTagInner, {styles});
+export default registerComponent('BetaTag', BetaTag, {styles});
 
 

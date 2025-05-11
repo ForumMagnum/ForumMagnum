@@ -4,8 +4,8 @@ import { REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import range from 'lodash/range';
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
 
 const TARGET_REVIEWS_NUM = 2
 
-export const ReviewProgressNominationsInner = ({classes, reviewYear = REVIEW_YEAR}: {
+export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
     classes: ClassesType<typeof styles>,
     reviewYear: ReviewYear
   }) => {
@@ -74,6 +74,6 @@ export const ReviewProgressNominationsInner = ({classes, reviewYear = REVIEW_YEA
       </LWTooltip>
 }
 
-export const ReviewProgressNominations = registerComponent('ReviewProgressNominations', ReviewProgressNominationsInner, {styles});
+export default registerComponent('ReviewProgressNominations', ReviewProgressNominations, {styles});
 
 

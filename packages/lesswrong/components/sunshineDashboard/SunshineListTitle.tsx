@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListTitleInner = ({children, classes}: {
+const SunshineListTitle = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -22,7 +22,7 @@ const SunshineListTitleInner = ({children, classes}: {
   </Typography>
 };
 
-export const SunshineListTitle = registerComponent('SunshineListTitle', SunshineListTitleInner, {styles});
+export default registerComponent('SunshineListTitle', SunshineListTitle, {styles});
 
 
 

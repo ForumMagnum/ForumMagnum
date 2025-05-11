@@ -6,10 +6,10 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { isPostWithForeignId } from "@/components/hooks/useForeignCrosspost";
 import { SoftUpArrowIcon } from "@/components/icons/softUpArrowIcon";
 import type { WrappedTopPost } from "./hooks";
-import { PostsItemTooltipWrapper } from "../../posts/PostsItemTooltipWrapper";
-import { TruncatedAuthorsList } from "../../posts/TruncatedAuthorsList";
-import { PostMostValuableCheckbox } from "../../posts/PostMostValuableCheckbox";
-import { BookmarkButton } from "../../posts/BookmarkButton";
+import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
+import TruncatedAuthorsList from "../../posts/TruncatedAuthorsList";
+import PostMostValuableCheckbox from "../../posts/PostMostValuableCheckbox";
+import BookmarkButton from "../../posts/BookmarkButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedPostInner = ({post, showMostValuableCheckbox, classes}: {
+const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
   post: WrappedTopPost | PostsListWithVotes,
   showMostValuableCheckbox?: boolean,
   classes: ClassesType<typeof styles>,
@@ -144,9 +144,9 @@ const WrappedPostInner = ({post, showMostValuableCheckbox, classes}: {
   );
 }
 
-export const WrappedPost = registerComponent(
+export default registerComponent(
   "WrappedPost",
-  WrappedPostInner,
+  WrappedPost,
   {styles},
 );
 

@@ -4,7 +4,7 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
-import { SocialMediaIcon } from "../icons/SocialMediaIcon";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +37,7 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
  * This is similar to a normal text input,
  * except it also displays an inputPrefix to the left of the cursor.
  */
-const PrefixedInputInner = ({
+const PrefixedInput = ({
   field,
   heading,
   inputPrefix,
@@ -81,6 +81,6 @@ const PrefixedInputInner = ({
   );
 }
 
-export const PrefixedInput = registerComponent("PrefixedInput", PrefixedInputInner, { styles });
+export default registerComponent("PrefixedInput", PrefixedInput, { styles });
 
 

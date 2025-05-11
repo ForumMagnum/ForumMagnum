@@ -7,7 +7,7 @@ import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import Check from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 import { MenuItem } from "../../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -65,7 +65,7 @@ export type SideItemVisibilityContextType = {
 
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
-const SetSideItemVisibilityInner = ({classes}: {
+const SetSideItemVisibility = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const sideItemVisibility = useContext(SideItemVisibilityContext);
@@ -175,6 +175,6 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   </SideItemVisibilityContext.Provider>
 }
 
-export const SetSideItemVisibility = registerComponent('SetSideItemVisibility', SetSideItemVisibilityInner, {styles});
+export default registerComponent('SetSideItemVisibility', SetSideItemVisibility, {styles});
 
 

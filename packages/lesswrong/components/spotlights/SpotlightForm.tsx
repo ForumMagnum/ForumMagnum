@@ -15,9 +15,9 @@ import { FormComponentDatePicker } from "../form-components/FormComponentDateTim
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
   defaultFormSection: {

@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
-import { UsersName } from "../users/UsersName";
-import { Loading } from "../vulcan-core/Loading";
+import UsersName from "../users/UsersName";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentOnYourDraftNotificationHoverInner = ({notification, classes}: {
+const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
   classes: ClassesType<typeof styles>
 }) => {
@@ -46,6 +46,6 @@ const CommentOnYourDraftNotificationHoverInner = ({notification, classes}: {
   </div>
 }
 
-export const CommentOnYourDraftNotificationHover = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHoverInner, {styles});
+export default registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
 
 

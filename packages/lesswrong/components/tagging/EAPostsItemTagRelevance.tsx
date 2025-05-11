@@ -7,9 +7,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useVote } from "../votes/withVote";
 import { useMessages } from "../common/withMessages";
 import classNames from "classnames";
-import { LoginPopup } from "../users/LoginPopup";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LoginPopup from "../users/LoginPopup";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -44,7 +44,7 @@ export const styles = (theme: ThemeType) => ({
  * votes yet, but most of the logic is in place. Once the design is finished, this
  * is a drop-in replacement for `PostsItemTagRelevance` in `EAPostsItem`.
  */
-const EAPostsItemTagRelevanceInner = ({tagRel, classes}: {
+const EAPostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -115,9 +115,9 @@ const EAPostsItemTagRelevanceInner = ({tagRel, classes}: {
   );
 }
 
-export const EAPostsItemTagRelevance = registerComponent(
+export default registerComponent(
   "EAPostsItemTagRelevance",
-  EAPostsItemTagRelevanceInner,
+  EAPostsItemTagRelevance,
   {styles},
 );
 

@@ -8,9 +8,9 @@ import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const BANNER_HEIGHT = 60;
 
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ForumEventPostPageBannerInner = ({classes}: {
+export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
@@ -101,9 +101,9 @@ export const ForumEventPostPageBannerInner = ({classes}: {
   );
 }
 
-export const ForumEventPostPageBanner = registerComponent(
+export default registerComponent(
   "ForumEventPostPageBanner",
-  ForumEventPostPageBannerInner,
+  ForumEventPostPageBanner,
   {styles},
 );
 

@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   box: {
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesListEditorItemInner = ({documentId, removeItem, classes}: {
+const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   documentId: string;
   removeItem: (itemId: string) => void;
   classes: ClassesType<typeof styles>;
@@ -82,6 +82,6 @@ const SequencesListEditorItemInner = ({documentId, removeItem, classes}: {
   }
 };
 
-export const SequencesListEditorItem = registerComponent('SequencesListEditorItem', SequencesListEditorItemInner, {styles});
+export default registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
 
 

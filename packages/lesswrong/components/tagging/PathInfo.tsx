@@ -8,7 +8,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { useTagOrLens } from '../hooks/useTagOrLens';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = defineStyles("PathInfo", (theme) => ({
   pathInfo: {
@@ -88,7 +88,7 @@ function usePathInfo(tag: TagPageFragment|TagPageWithRevisionFragment|null, lens
   return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
-const PathInfoInner = ({tag, lens}: {
+const PathInfo = ({tag, lens}: {
   tag: TagPageFragment
   lens: TagLens|null
 }) => {
@@ -131,7 +131,7 @@ const PathInfoInner = ({tag, lens}: {
   </div>
 }
 
-export const PathInfo = registerComponent('PathInfo', PathInfoInner);
+export default registerComponent('PathInfo', PathInfo);
 
 
 

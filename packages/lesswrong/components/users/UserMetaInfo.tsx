@@ -5,8 +5,8 @@ import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import classNames from 'classnames';
-import { ForumIcon } from "../common/ForumIcon";
-import { FormatDate } from "../common/FormatDate";
+import ForumIcon from "../common/ForumIcon";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const UserMetaInfoInner = ({user, hideAfKarma, hideWikiContribution, hideInfoOnSmallScreen, infoClassName, classes}: {
+export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoOnSmallScreen, infoClassName, classes}: {
   user: UsersMinimumInfo,
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
@@ -85,7 +85,7 @@ export const UserMetaInfoInner = ({user, hideAfKarma, hideWikiContribution, hide
     </div>
 }
 
-export const UserMetaInfo = registerComponent('UserMetaInfo', UserMetaInfoInner, {styles});
+export default registerComponent('UserMetaInfo', UserMetaInfo, {styles});
 
 
 

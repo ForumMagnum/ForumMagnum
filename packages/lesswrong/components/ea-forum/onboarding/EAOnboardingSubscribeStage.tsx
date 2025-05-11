@@ -2,10 +2,10 @@ import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
-import { EAOnboardingStage } from "./EAOnboardingStage";
-import { EAOnboardingTag } from "./EAOnboardingTag";
-import { EAOnboardingAuthor } from "./EAOnboardingAuthor";
-import { Loading } from "../../vulcan-core/Loading";
+import EAOnboardingStage from "./EAOnboardingStage";
+import EAOnboardingTag from "./EAOnboardingTag";
+import EAOnboardingAuthor from "./EAOnboardingAuthor";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -38,7 +38,7 @@ const editSet = (currentSet: string[], value: string, add: boolean) => {
   return Array.from(values);
 }
 
-export const EAOnboardingSubscribeStageInner = ({classes}: {
+export const EAOnboardingSubscribeStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -98,9 +98,9 @@ export const EAOnboardingSubscribeStageInner = ({classes}: {
   );
 }
 
-export const EAOnboardingSubscribeStage = registerComponent(
+export default registerComponent(
   "EAOnboardingSubscribeStage",
-  EAOnboardingSubscribeStageInner,
+  EAOnboardingSubscribeStage,
   {styles},
 );
 

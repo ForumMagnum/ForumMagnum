@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const VoteArrowIconSolidInner = ({
+const VoteArrowIconSolid = ({
   orientation,
   enabled = true,
   color,
@@ -167,7 +167,7 @@ const VoteArrowIconSolidInner = ({
   );
 };
 
-export const VoteArrowIconSolid = registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolidInner, {styles});
+export default registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolid, {styles});
 
 
 

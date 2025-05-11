@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsGraphSkeletonInner = ({dateOptionDropdown, classes}: {
+export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   dateOptionDropdown?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -80,9 +80,9 @@ export const AnalyticsGraphSkeletonInner = ({dateOptionDropdown, classes}: {
   );
 }
 
-export const AnalyticsGraphSkeleton = registerComponent(
+export default registerComponent(
   "AnalyticsGraphSkeleton",
-  AnalyticsGraphSkeletonInner,
+  AnalyticsGraphSkeleton,
   {styles},
 );
 

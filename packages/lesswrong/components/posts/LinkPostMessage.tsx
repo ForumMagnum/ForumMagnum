@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const LinkPostMessageInner = ({post, classes, negativeTopMargin}: {
+const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
   negativeTopMargin?: boolean
@@ -48,6 +48,6 @@ const LinkPostMessageInner = ({post, classes, negativeTopMargin}: {
   );
 }
 
-export const LinkPostMessage = registerComponent('LinkPostMessage', LinkPostMessageInner, {styles});
+export default registerComponent('LinkPostMessage', LinkPostMessage, {styles});
 
 

@@ -16,8 +16,8 @@ import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
-import { ForumEventCommentForm } from "./ForumEventCommentForm";
-import { ForumEventSticker } from "./ForumEventSticker";
+import ForumEventCommentForm from "./ForumEventCommentForm";
+import ForumEventSticker from "./ForumEventSticker";
 
 const styles = (theme: ThemeType) => ({
   stickersContainer: {
@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ForumEventStickersInner: FC<{
+const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
@@ -321,6 +321,6 @@ const ForumEventStickersInner: FC<{
   );
 };
 
-export const ForumEventStickers = registerComponent( 'ForumEventStickers', ForumEventStickersInner, {styles});
+export default registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
 
 

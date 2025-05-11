@@ -1,7 +1,7 @@
 import React from "react";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 export const EMPTY_TEXT_PLACEHOLDER = "–";
 

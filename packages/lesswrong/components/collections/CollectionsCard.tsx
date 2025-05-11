@@ -4,9 +4,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LinkCard } from "../common/LinkCard";
-import { CloudinaryImage } from "../common/CloudinaryImage";
-import { UsersName } from "../users/UsersName";
+import LinkCard from "../common/LinkCard";
+import CloudinaryImage from "../common/CloudinaryImage";
+import UsersName from "../users/UsersName";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const CollectionsCardInner = ({ collection, url, mergeTitle=false, classes }: {
+const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   collection: CoreReadingCollection,
   url: string,
   mergeTitle?: boolean,
@@ -122,8 +122,8 @@ const CollectionsCardInner = ({ collection, url, mergeTitle=false, classes }: {
   </LinkCard>
 }
 
-export const CollectionsCard = registerComponent(
-  "CollectionsCard", CollectionsCardInner, { styles }
+export default registerComponent(
+  "CollectionsCard", CollectionsCard, { styles }
 );
 
 

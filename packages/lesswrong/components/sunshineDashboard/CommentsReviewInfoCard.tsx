@@ -7,9 +7,9 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { COMMENT_MODERATOR_ACTION_TYPES } from "@/lib/collections/commentModeratorActions/constants";
-import { CommentWithReplies } from "../comments/CommentWithReplies";
-import { LWTooltip } from "../common/LWTooltip";
-import { Loading } from "../vulcan-core/Loading";
+import CommentWithReplies from "../comments/CommentWithReplies";
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -117,7 +117,7 @@ export interface CommentWithModeratorActions {
   actions: Omit<CommentModeratorActionDisplay, 'comment'>[];
 }
 
-export const CommentsReviewInfoCardInner = ({ commentModeratorAction, classes }: {
+export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   commentModeratorAction: CommentWithModeratorActions,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -210,7 +210,7 @@ export const CommentsReviewInfoCardInner = ({ commentModeratorAction, classes }:
   </div>;
 }
 
-export const CommentsReviewInfoCard = registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCardInner, {styles});
+export default registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCard, {styles});
 
 
 

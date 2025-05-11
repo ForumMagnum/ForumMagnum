@@ -2,10 +2,10 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import { CommentsNode } from "./CommentsNode";
-import { Loading } from "../vulcan-core/Loading";
-import { LoadMore } from "../common/LoadMore";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import CommentsNodeInner from "./CommentsNode";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) =>  ({
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) =>  ({
 })
 
 
-const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
+const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
@@ -46,7 +46,7 @@ const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, tru
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -65,7 +65,7 @@ const ModeratorCommentsInner = ({classes, terms={view: "moderatorComments"}, tru
   )
 }
 
-export const ModeratorComments = registerComponent('ModeratorComments', ModeratorCommentsInner, {styles});
+export default registerComponent('ModeratorComments', ModeratorComments, {styles});
 
 
 

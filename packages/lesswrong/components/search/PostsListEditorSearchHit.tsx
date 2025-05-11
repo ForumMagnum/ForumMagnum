@@ -4,10 +4,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { PostsTitle } from "../posts/PostsTitle";
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import PostsTitle from "../posts/PostsTitle";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsListEditorSearchHitInner = ({hit, classes}: {
+const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -61,6 +61,6 @@ const PostsListEditorSearchHitInner = ({hit, classes}: {
   );
 }
 
-export const PostsListEditorSearchHit = registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHitInner, {styles});
+export default registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, {styles});
 
 

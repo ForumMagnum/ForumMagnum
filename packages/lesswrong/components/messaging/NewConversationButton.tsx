@@ -5,7 +5,7 @@ import { useDialog } from '../common/withDialog';
 import { useNavigate } from '../../lib/routeUtil';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
-import { LoginPopup } from "../users/LoginPopup";
+import LoginPopup from "../users/LoginPopup";
 
 export interface TemplateQueryStrings {
   templateId: string;
@@ -13,7 +13,7 @@ export interface TemplateQueryStrings {
 }
 
 // Button used to start a new conversation for a given user
-const NewConversationButtonInner = ({
+const NewConversationButton = ({
   user,
   currentUser,
   children,
@@ -88,6 +88,6 @@ const NewConversationButtonInner = ({
   )
 }
 
-export const NewConversationButton = registerComponent('NewConversationButton', NewConversationButtonInner);
+export default registerComponent('NewConversationButton', NewConversationButton);
 
 

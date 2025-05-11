@@ -8,10 +8,10 @@ import type {
 } from "../../lib/collections/users/recommendationSettings";
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import DeferRender from "../common/DeferRender";
-import { SectionTitle } from "../common/SectionTitle";
-import { RecommendationsList } from "./RecommendationsList";
-import { PostsPageRecommendationItem } from "./PostsPageRecommendationItem";
-import { PostsLoading } from "../posts/PostsLoading";
+import SectionTitle from "../common/SectionTitle";
+import RecommendationsList from "./RecommendationsList";
+import PostsPageRecommendationItem from "./PostsPageRecommendationItem";
+import PostsLoading from "../posts/PostsLoading";
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPageRecommendationsListInner = ({
+const PostsPageRecommendationsList = ({
   title = "More posts like this",
   strategy = "moreFromTag",
   bias,
@@ -105,9 +105,9 @@ const PostsPageRecommendationsListInner = ({
   );
 }
 
-export const PostsPageRecommendationsList = registerComponent(
+export default registerComponent(
   "PostsPageRecommendationsList",
-  PostsPageRecommendationsListInner,
+  PostsPageRecommendationsList,
   {styles},
 );
 

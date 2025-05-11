@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { SunshineListTitle } from "./SunshineListTitle";
-import { OmegaIcon } from "../icons/OmegaIcon";
-import { AFSuggestCommentsItem } from "./AFSuggestCommentsItem";
-import { LoadMore } from "../common/LoadMore";
+import SunshineListTitle from "./SunshineListTitle";
+import OmegaIcon from "../icons/OmegaIcon";
+import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const AFSuggestCommentsListInner = ({ classes }: {
+const AFSuggestCommentsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
@@ -40,7 +40,7 @@ const AFSuggestCommentsListInner = ({ classes }: {
   }
 }
 
-export const AFSuggestCommentsList = registerComponent('AFSuggestCommentsList', AFSuggestCommentsListInner, {styles});
+export default registerComponent('AFSuggestCommentsList', AFSuggestCommentsList, {styles});
 
 
 

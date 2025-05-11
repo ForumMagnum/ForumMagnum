@@ -7,10 +7,10 @@ import { useMessages } from '../../common/withMessages';
 import { Paper }from '@/components/widgets/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownMenu } from "../DropdownMenu";
-import { DropdownItem } from "../DropdownItem";
-import { DropdownDivider } from "../DropdownDivider";
-import { SocialMediaIcon } from "../../icons/SocialMediaIcon";
+import DropdownMenu from "../DropdownMenu";
+import DropdownItem from "../DropdownItem";
+import DropdownDivider from "../DropdownDivider";
+import SocialMediaIcon from "../../icons/SocialMediaIcon";
 
 const styles = (_theme: ThemeType) => ({
   icon: {
@@ -19,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const SharePostActionsInner = ({post, onClick, classes}: {
+const SharePostActions = ({post, onClick, classes}: {
   post: PostsBase,
   onClick?: () => void,
   classes: ClassesType<typeof styles>,
@@ -86,6 +86,6 @@ const SharePostActionsInner = ({post, onClick, classes}: {
   </Paper></div>
 }
 
-export const SharePostActions = registerComponent('SharePostActions', SharePostActionsInner, {styles});
+export default registerComponent('SharePostActions', SharePostActions, {styles});
 
 

@@ -9,8 +9,8 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
-import { ContentItemBody } from "../common/ContentItemBody";
-import { BasicFormStyles } from "../form-components/BasicFormStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import BasicFormStyles from "../form-components/BasicFormStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CurationNoticesItemInner = ({curationNotice, classes}: {
+export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -194,7 +194,7 @@ export const CurationNoticesItemInner = ({curationNotice, classes}: {
   </div>
 }
 
-export const CurationNoticesItem = registerComponent('CurationNoticesItem', CurationNoticesItemInner, {styles});
+export default registerComponent('CurationNoticesItem', CurationNoticesItem, {styles});
 
 
 

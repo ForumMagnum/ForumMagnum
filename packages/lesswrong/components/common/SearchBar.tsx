@@ -15,8 +15,8 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { createPortal } from 'react-dom';
-import { SearchBarResults } from "../search/SearchBarResults";
-import { ForumIcon } from "./ForumIcon";
+import SearchBarResults from "../search/SearchBarResults";
+import ForumIcon from "./ForumIcon";
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -109,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SearchBarInner = ({onSetIsActive, searchResultsArea, classes}: {
+const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
   classes: ClassesType<typeof styles>
@@ -210,7 +210,7 @@ const SearchBarInner = ({onSetIsActive, searchResultsArea, classes}: {
   </div>
 }
 
-export const SearchBar = registerComponent("SearchBar", SearchBarInner, {
+export default registerComponent("SearchBar", SearchBar, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: "auto",

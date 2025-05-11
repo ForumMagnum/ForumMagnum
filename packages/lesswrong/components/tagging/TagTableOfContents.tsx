@@ -3,9 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagUrlBaseSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
-import { TableOfContents } from "../posts/TableOfContents/TableOfContents";
-import { TableOfContentsRow } from "../posts/TableOfContents/TableOfContentsRow";
-import { TagContributorsList } from "./TagContributorsList";
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
+import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
+import TagContributorsList from "./TagContributorsList";
 
 export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
@@ -26,7 +26,7 @@ export const styles = (theme: ThemeType) => ({
 });
 
 
-const TagTableOfContentsInner = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
+const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
   tag: TagPageFragment|AllTagsPageFragment
   expandAll?: () => void,
   showContributors: boolean,
@@ -58,6 +58,6 @@ const TagTableOfContentsInner = ({tag, expandAll, showContributors, onHoverContr
   );
 }
 
-export const TagTableOfContents = registerComponent("TagTableOfContents", TagTableOfContentsInner, {styles});
+export default registerComponent("TagTableOfContents", TagTableOfContents, {styles});
 
 

@@ -42,11 +42,11 @@ import { PostSubmit } from "./PostSubmit";
 import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { userCanCommentLock } from "@/lib/collections/users/helpers";
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { FormGroupPostTopBar } from "../form-components/FormGroupPostTopBar";
-import { FooterTagList } from "../tagging/FooterTagList";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
+import FooterTagList from "../tagging/FooterTagList";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -104,7 +104,7 @@ const STICKY_PRIORITIES = {
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
-const PostFormInner = ({
+const PostForm = ({
   initialData,
   onSuccess,
 }: {
@@ -1198,6 +1198,6 @@ const PostFormInner = ({
   );
 };
 
-export const PostForm = registerComponent("PostForm", PostFormInner);
+export default registerComponent("PostForm", PostForm);
 
 

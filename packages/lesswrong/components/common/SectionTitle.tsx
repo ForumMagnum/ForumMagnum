@@ -71,7 +71,7 @@ export type SectionTitleProps = {
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitleInner = ({
+const SectionTitle = ({
   title,
   noTopMargin,
   noBottomPadding,
@@ -100,6 +100,6 @@ const SectionTitleInner = ({
   )
 }
 
-export const SectionTitle = registerComponent('SectionTitle', SectionTitleInner, {styles, stylePriority: -1});
+export default registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
 
 

@@ -7,9 +7,9 @@ import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { SectionTitle } from "../common/SectionTitle";
-import { PeopleDirectoryFilterDropdown } from "../peopleDirectory/PeopleDirectoryFilterDropdown";
-import { PeopleDirectorySelectOption } from "../peopleDirectory/PeopleDirectorySelectOption";
+import SectionTitle from "../common/SectionTitle";
+import PeopleDirectoryFilterDropdown from "../peopleDirectory/PeopleDirectoryFilterDropdown";
+import PeopleDirectorySelectOption from "../peopleDirectory/PeopleDirectorySelectOption";
 import { MenuItem } from "../common/Menus";
 import { Typography } from "../common/Typography";
 

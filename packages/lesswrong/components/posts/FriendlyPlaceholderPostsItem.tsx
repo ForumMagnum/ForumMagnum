@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const FriendlyPlaceholderPostsItemInner = ({viewType = "list", classes}: {
+const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
   viewType?: PostsListViewType,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -138,6 +138,6 @@ const FriendlyPlaceholderPostsItemInner = ({viewType = "list", classes}: {
   );
 }
 
-export const FriendlyPlaceholderPostsItem = registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItemInner, {styles});
+export default registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItem, {styles});
 
 

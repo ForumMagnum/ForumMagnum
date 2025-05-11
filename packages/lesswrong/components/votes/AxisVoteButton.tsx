@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
-import { LoginPopup } from "../users/LoginPopup";
-import { VoteButton } from "./VoteButton";
+import LoginPopup from "../users/LoginPopup";
+import VoteButton from "./VoteButton";
 
-const AxisVoteButtonInner = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
+const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
   vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent}) => void,
   document: T,
@@ -53,6 +53,6 @@ const AxisVoteButtonInner = <T extends VoteableTypeClient>({VoteIconComponent, v
   />
 }
 
-export const AxisVoteButton = registerComponent('AxisVoteButton', AxisVoteButtonInner);
+export default registerComponent('AxisVoteButton', AxisVoteButton);
 
 

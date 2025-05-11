@@ -4,11 +4,11 @@ import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getUserFromResults } from '../users/UsersProfile';
 import { slugify } from '@/lib/utils/slugify';
-import { CommentsNode } from "./CommentsNode";
-import { LoadMore } from "../common/LoadMore";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
+import CommentsNodeInner from "./CommentsNode";
+import LoadMore from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) =>  ({
   }
 })
 
-const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
@@ -48,7 +48,7 @@ const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof sty
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -69,6 +69,6 @@ const UserCommentsRepliesInner = ({ classes }: { classes: ClassesType<typeof sty
   )
 };
 
-export const UserCommentsReplies = registerComponent('UserCommentsReplies', UserCommentsRepliesInner, { styles });
+export default registerComponent('UserCommentsReplies', UserCommentsReplies, { styles });
 
 

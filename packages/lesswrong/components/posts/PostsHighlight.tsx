@@ -10,10 +10,10 @@ import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { ContentStyles } from "../common/ContentStyles";
-import { LinkPostMessage } from "./LinkPostMessage";
-import { ContentItemTruncated } from "../common/ContentItemTruncated";
-import { Loading } from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "./LinkPostMessage";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
@@ -203,7 +203,7 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
   }} />
 };
 
-const PostsHighlightInner = ({post, ...rest}: {
+const PostsHighlight = ({post, ...rest}: {
   post: PostsList,
   maxLengthWords: number,
   forceSeeMore?: boolean,
@@ -213,6 +213,6 @@ const PostsHighlightInner = ({post, ...rest}: {
   ? <ForeignPostsHighlight post={post} {...rest} />
   : <LocalPostsHighlight post={post} {...rest} />;
 
-export const PostsHighlight = registerComponent('PostsHighlight', PostsHighlightInner, {styles});
+export default registerComponent('PostsHighlight', PostsHighlight, {styles});
 
 

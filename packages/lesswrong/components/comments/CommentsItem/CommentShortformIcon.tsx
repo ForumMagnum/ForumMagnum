@@ -6,8 +6,8 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import { LWTooltip } from "../../common/LWTooltip";
-import { ForumIcon } from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = defineStyles("CommentShortformIcon", (theme: ThemeType) => ({
   smallIcon: isFriendlyUI ? {
@@ -30,7 +30,7 @@ const styles = defineStyles("CommentShortformIcon", (theme: ThemeType) => ({
   },
 }));
 
-const CommentShortformIconInner = ({comment, post, simple, iconClassName}: {
+const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
   simple?: boolean,
@@ -51,8 +51,8 @@ const CommentShortformIconInner = ({comment, post, simple, iconClassName}: {
   )
 }
 
-export const CommentShortformIcon = registerComponent(
-  'CommentShortformIcon', CommentShortformIconInner
+export default registerComponent(
+  'CommentShortformIcon', CommentShortformIcon
 );
 
 

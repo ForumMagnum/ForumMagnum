@@ -9,8 +9,8 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
-import { MetaInfo } from "../../common/MetaInfo";
-import { LWTooltip } from "../../common/LWTooltip";
+import MetaInfo from "../../common/MetaInfo";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModeratorActionItemInner = ({classes, user, moderatorAction, comments, posts }: {
+export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
   moderatorAction: ModeratorActionDisplay,
@@ -147,7 +147,7 @@ export const ModeratorActionItemInner = ({classes, user, moderatorAction, commen
   </div>;
 }
 
-export const ModeratorActionItem = registerComponent('ModeratorActionItem', ModeratorActionItemInner, {styles});
+export default registerComponent('ModeratorActionItem', ModeratorActionItem, {styles});
 
 
 

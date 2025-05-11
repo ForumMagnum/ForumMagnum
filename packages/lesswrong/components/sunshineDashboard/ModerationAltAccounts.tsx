@@ -7,13 +7,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useQuery, gql } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
-import { ContentStyles } from "../common/ContentStyles";
-import { Loading } from "../vulcan-core/Loading";
-import { FormatDate } from "../common/FormatDate";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import FormatDate from "../common/FormatDate";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   selectUser: {
@@ -54,7 +54,7 @@ const accountIdentifierTypes = [
   { key: "ip", label: "IP Address" },
 ];
 
-const ModerationAltAccountsInner = ({classes}: {
+const ModerationAltAccounts = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
@@ -314,7 +314,7 @@ const CensoredUserName = ({user, classes}: {
   }
 }
 
-export const ModerationAltAccounts = registerComponent('ModerationAltAccounts', ModerationAltAccountsInner, {styles});
+export default registerComponent('ModerationAltAccounts', ModerationAltAccounts, {styles});
 
 
 

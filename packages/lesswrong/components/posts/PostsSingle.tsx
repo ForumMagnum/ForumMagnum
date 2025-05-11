@@ -2,10 +2,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { PostsPageWrapper } from "./PostsPage/PostsPageWrapper";
+import PermanentRedirect from "../common/PermanentRedirect";
+import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
 
-const PostsSingleInner = () => {
+const PostsSingle = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
@@ -17,7 +17,7 @@ const PostsSingleInner = () => {
   return <PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
-export const PostsSingle = registerComponent('PostsSingle', PostsSingleInner);
+export default registerComponent('PostsSingle', PostsSingle);
 
 
 

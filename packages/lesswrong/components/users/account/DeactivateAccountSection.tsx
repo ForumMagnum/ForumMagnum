@@ -2,9 +2,9 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
-import { ActionButtonSection } from "./ActionButtonSection";
+import ActionButtonSection from "./ActionButtonSection";
 
-const DeactivateAccountSectionInner = ({
+const DeactivateAccountSection = ({
   user,
 }: {
   user: UsersEdit,
@@ -33,7 +33,7 @@ const DeactivateAccountSectionInner = ({
   );
 };
 
-export const DeactivateAccountSection = registerComponent('DeactivateAccountSection', DeactivateAccountSectionInner);
+export default registerComponent('DeactivateAccountSection', DeactivateAccountSection);
 
 
 

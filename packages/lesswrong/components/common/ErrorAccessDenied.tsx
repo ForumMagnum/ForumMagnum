@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LoginForm } from "../users/LoginForm";
-import { SingleColumnSection } from "./SingleColumnSection";
+import LoginForm from "../users/LoginForm";
+import SingleColumnSection from "./SingleColumnSection";
 import { Typography } from "./Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
  * However, for pages that are normally meant to be publicly accessible (like the post page),
  * we skip the login prompt and just display the "you don't have access" message.
  */
-const ErrorAccessDeniedInner = ({explanation, skipLoginPrompt, classes}: {
+const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
   explanation?: string,
   skipLoginPrompt?: boolean,
   classes: ClassesType<typeof styles>,
@@ -54,9 +54,9 @@ const ErrorAccessDeniedInner = ({explanation, skipLoginPrompt, classes}: {
   }
 }
 
-export const ErrorAccessDenied = registerComponent(
+export default registerComponent(
   "ErrorAccessDenied",
-  ErrorAccessDeniedInner,
+  ErrorAccessDenied,
   {styles},
 );
 

@@ -7,13 +7,13 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { ForumWrappedProvider, isWrappedYear, useForumWrapped } from "./hooks";
 import moment from "moment";
-import { HeadTags } from "../../common/HeadTags";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { LoginForm } from "../../users/LoginForm";
-import { WrappedApp } from "./WrappedApp";
-import { Loading } from "../../vulcan-core/Loading";
-import { WrappedWelcomeMessage } from "./WrappedWelcomeMessage";
+import HeadTags from "../../common/HeadTags";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import LoginForm from "../../users/LoginForm";
+import WrappedApp from "./WrappedApp";
+import Loading from "../../vulcan-core/Loading";
+import WrappedWelcomeMessage from "./WrappedWelcomeMessage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAForumWrappedPageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {params} = useLocation();
   const currentUser = useCurrentUser();
 
@@ -115,9 +115,9 @@ const EAForumWrappedPageInner = ({classes}: {classes: ClassesType<typeof styles>
   )
 }
 
-export const EAForumWrappedPage = registerComponent(
+export default registerComponent(
   "EAForumWrappedPage",
-  EAForumWrappedPageInner,
+  EAForumWrappedPage,
   {styles},
 );
 

@@ -6,9 +6,9 @@ import ChatBubbleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ChatBubbl
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import type { SearchHitComponentProps } from './types';
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
-import { LWTooltip } from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +36,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const comment = (hit as SearchComment);
   let url = "";
   if (comment.postId && comment.postSlug) {
@@ -69,7 +69,7 @@ const CommentsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: Sea
   </div>
 }
 
-export const CommentsSearchHit = registerComponent("CommentsSearchHit", CommentsSearchHitInner, {styles});
+export default registerComponent("CommentsSearchHit", CommentsSearchHit, {styles});
 
 
 

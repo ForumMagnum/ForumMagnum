@@ -5,8 +5,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import ErrorBoundary from "../common/ErrorBoundary";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const LatestReviewInner = ({classes}: { classes: ClassesType<typeof styles> }) => {
+const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
     collectionName: "Comments",
@@ -74,6 +74,6 @@ const LatestReviewInner = ({classes}: { classes: ClassesType<typeof styles> }) =
   );
 }
 
-export const LatestReview = registerComponent('LatestReview', LatestReviewInner, {styles});
+export default registerComponent('LatestReview', LatestReview, {styles});
 
 

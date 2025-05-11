@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
-import { VotingPatternsWarningPopup } from "./VotingPatternsWarningPopup";
+import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;

@@ -15,27 +15,27 @@ import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
-import { ForumIcon } from "../common/ForumIcon";
-import { HeadTags } from "../common/HeadTags";
-import { CommunityMapWrapper } from "./CommunityMapWrapper";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "../posts/PostsList2";
-import { Loading } from "../vulcan-core/Loading";
-import { SectionButton } from "../common/SectionButton";
-import { NotifyMeButton } from "../notifications/NotifyMeButton";
-import { SectionFooter } from "../common/SectionFooter";
-import { GroupFormLink } from "./GroupFormLink";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { Error404 } from "../common/Error404";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { EventCards } from "../events/modules/EventCards";
-import { LoadMore } from "../common/LoadMore";
-import { ContentStyles } from "../common/ContentStyles";
+import ForumIcon from "../common/ForumIcon";
+import HeadTags from "../common/HeadTags";
+import CommunityMapWrapper from "./CommunityMapWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import Loading from "../vulcan-core/Loading";
+import SectionButton from "../common/SectionButton";
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import SectionFooter from "../common/SectionFooter";
+import GroupFormLink from "./GroupFormLink";
+import ContentItemBody from "../common/ContentItemBody";
+import Error404 from "../common/Error404";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import EventCards from "../events/modules/EventCards";
+import LoadMore from "../common/LoadMore";
+import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
-import { HoverOver } from "../common/HoverOver";
-import { LocalGroupSubscribers } from "./LocalGroupSubscribers";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import HoverOver from "../common/HoverOver";
+import LocalGroupSubscribers from "./LocalGroupSubscribers";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -246,7 +246,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupPageInner = ({ classes, documentId: groupId }: {
+const LocalGroupPage = ({ classes, documentId: groupId }: {
   classes: ClassesType<typeof styles>,
   documentId: string,
   groupId?: string,
@@ -574,6 +574,6 @@ const LocalGroupPageInner = ({ classes, documentId: groupId }: {
   )
 }
 
-export const LocalGroupPage = registerComponent('LocalGroupPage', LocalGroupPageInner, {styles});
+export default registerComponent('LocalGroupPage', LocalGroupPage, {styles});
 
 

@@ -11,7 +11,7 @@ import type { VotingSystem } from '../../../lib/voting/votingSystems';
 import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { CommentBottomCaveats } from "./CommentBottomCaveats";
+import CommentBottomCaveats from "./CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   bottom: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const CommentBottomInner = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
+const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo|undefined,
   treeOptions: CommentTreeOptions,
@@ -84,7 +84,7 @@ const CommentBottomInner = ({comment, treeOptions, votingSystem, voteProps, comm
   );
 }
 
-export const CommentBottom = registerComponent('CommentBottom', CommentBottomInner, {styles});
+export default registerComponent('CommentBottom', CommentBottom, {styles});
 
 
 

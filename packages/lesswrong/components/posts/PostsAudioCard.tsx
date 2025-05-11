@@ -2,9 +2,9 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { PostsPodcastPlayer } from "./PostsPage/PostsPodcastPlayer";
+import PostsPodcastPlayer from "./PostsPage/PostsPodcastPlayer";
 
-const PostsAudioCardInner = ({post}: {post: PostsBestOfList}) => {
+const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
   const {eventHandlers} = useHover({
     eventProps: {
       pageElementContext: "audioCard",
@@ -29,9 +29,9 @@ const PostsAudioCardInner = ({post}: {post: PostsBestOfList}) => {
   );
 }
 
-export const PostsAudioCard = registerComponent(
+export default registerComponent(
   "PostsAudioCard",
-  PostsAudioCardInner,
+  PostsAudioCard,
 );
 
 

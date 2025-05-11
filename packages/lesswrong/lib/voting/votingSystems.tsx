@@ -11,13 +11,13 @@ import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import { TagLens } from '../arbital/useTagLenses';
-import { EAEmojisVoteOnComment } from '@/components/votes/EAEmojisVoteOnComment';
-import { EAEmojisVoteOnPost } from '@/components/votes/EAEmojisVoteOnPost';
-import { EAEmojisVoteOnPostSecondary } from '@/components/votes/EAEmojisVoteOnPostSecondary';
-import { EmojiReactionVoteOnComment } from '@/components/votes/EmojiReactionVoteOnComment';
-import { ReactBallotVoteOnComment } from '@/components/votes/ReactBallotVoteOnComment';
-import { TwoAxisVoteOnComment } from '@/components/votes/TwoAxisVoteOnComment';
-import { VoteOnComment } from '@/components/votes/VoteOnComment';
+import EAEmojisVoteOnComment from '@/components/votes/EAEmojisVoteOnComment';
+import EAEmojisVoteOnPost from '@/components/votes/EAEmojisVoteOnPost';
+import EAEmojisVoteOnPostSecondary from '@/components/votes/EAEmojisVoteOnPostSecondary';
+import EmojiReactionVoteOnComment from '@/components/votes/EmojiReactionVoteOnComment';
+import ReactBallotVoteOnComment from '@/components/votes/ReactBallotVoteOnComment';
+import TwoAxisVoteOnComment from '@/components/votes/TwoAxisVoteOnComment';
+import VoteOnComment from '@/components/votes/VoteOnComment';
 import { defineVotingSystem } from './defineVotingSystem';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo

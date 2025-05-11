@@ -10,13 +10,13 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { SortButton } from "../icons/SortButton";
-import { SettingsButton } from "../icons/SettingsButton";
-import { PostsListSettings } from "./PostsListSettings";
-import { HeadTags } from "../common/HeadTags";
-import { AllPostsList } from "./AllPostsList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SortButton from "../icons/SortButton";
+import SettingsButton from "../icons/SettingsButton";
+import PostsListSettings from "./PostsListSettings";
+import HeadTags from "../common/HeadTags";
+import AllPostsList from "./AllPostsList";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -45,7 +45,7 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPageInner = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
+const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
@@ -123,9 +123,9 @@ const AllPostsPageInner = ({classes, defaultHideSettings}: {classes: ClassesType
   );
 }
 
-export const AllPostsPage = registerComponent(
+export default registerComponent(
   "AllPostsPage",
-  AllPostsPageInner,
+  AllPostsPage,
   {styles},
 );
 

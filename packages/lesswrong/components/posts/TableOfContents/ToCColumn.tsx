@@ -6,7 +6,7 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { ForumIcon } from "../../common/ForumIcon";
+import ForumIcon from "../../common/ForumIcon";
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -145,7 +145,7 @@ const shouldHideToggleContentsButton = () => {
   return scrollY > 0 && scrollY < scrollEnd * 0.99;
 }
 
-export const ToCColumnInner = ({
+export const ToCColumn = ({
   tableOfContents,
   header,
   rightColumnChildren,
@@ -229,6 +229,6 @@ export const ToCColumnInner = ({
   );
 }
 
-export const ToCColumn = registerComponent("ToCColumn", ToCColumnInner, {styles});
+export default registerComponent("ToCColumn", ToCColumn, {styles});
 
 

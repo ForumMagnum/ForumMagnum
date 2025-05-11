@@ -6,8 +6,8 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { LWTooltip } from "../../common/LWTooltip";
-import { LWPopper } from "../../common/LWPopper";
+import LWTooltip from "../../common/LWTooltip";
+import LWPopper from "../../common/LWPopper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +54,7 @@ const AddToCalendarIcon = ({className=''}) => {
   </svg>
 }
 
-const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
+const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
   post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision,
   label?: string,
   hideTooltip?: boolean,
@@ -156,6 +156,6 @@ const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClass
   )
 };
 
-export const AddToCalendarButton = registerComponent('AddToCalendarButton', AddToCalendarButtonInner, {styles});
+export default registerComponent('AddToCalendarButton', AddToCalendarButton, {styles});
 
 

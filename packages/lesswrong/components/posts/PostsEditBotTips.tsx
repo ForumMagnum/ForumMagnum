@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import { useTracking } from "../../lib/analyticsEvents";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 // For large screens, we show the card on the right-hand side of the editor.
 const MIN_WIDTH_RHS_CARD = '1670px'
@@ -95,7 +95,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsEditBotTipsInner = ({handleDismiss, postId, className, nodeRef, classes}: {
+const PostsEditBotTips = ({handleDismiss, postId, className, nodeRef, classes}: {
   handleDismiss: () => void,
   postId?: string,
   className?: string,
@@ -132,6 +132,6 @@ const PostsEditBotTipsInner = ({handleDismiss, postId, className, nodeRef, class
   </aside>
 }
 
-export const PostsEditBotTips = registerComponent("PostsEditBotTips", PostsEditBotTipsInner, {styles, stylePriority: -1});
+export default registerComponent("PostsEditBotTips", PostsEditBotTips, {styles, stylePriority: -1});
 
 

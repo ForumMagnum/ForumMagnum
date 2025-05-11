@@ -5,8 +5,8 @@ import { useCurrentUser } from "../../common/withUser";
 import { useImageUpload } from "../../hooks/useImageUpload";
 import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
-import { ForumIcon } from "../../common/ForumIcon";
-import { UsersProfileImage } from "../../users/UsersProfileImage";
+import ForumIcon from "../../common/ForumIcon";
+import UsersProfileImage from "../../users/UsersProfileImage";
 
 const SIZE = 96;
 
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersProfileImageInner = ({user, classes}: {
+const EAUsersProfileImage = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -71,9 +71,9 @@ const EAUsersProfileImageInner = ({user, classes}: {
   );
 }
 
-export const EAUsersProfileImage = registerComponent(
+export default registerComponent(
   "EAUsersProfileImage",
-  EAUsersProfileImageInner,
+  EAUsersProfileImage,
   {styles},
 );
 

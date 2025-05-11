@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { DebateResponse } from "./DebateResponse";
+import DebateResponse from "./DebateResponse";
 
 const styles = (theme: ThemeType) => ({
   divider: {
@@ -26,7 +26,7 @@ export interface DebateResponseWithReplies {
   replies: CommentsList[];
 }
 
-export const DebateResponseBlockInner = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
+export const DebateResponseBlock = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
@@ -50,6 +50,6 @@ export const DebateResponseBlockInner = ({ responses, post, orderedParticipantLi
   </div>;
 }
 
-export const DebateResponseBlock = registerComponent('DebateResponseBlock', DebateResponseBlockInner, {styles, stylePriority: 200});
+export default registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
 
 

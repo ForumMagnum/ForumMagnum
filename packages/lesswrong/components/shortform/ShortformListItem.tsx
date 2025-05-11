@@ -8,12 +8,12 @@ import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
-import { LWPopper } from "../common/LWPopper";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { UsersName } from "../users/UsersName";
-import { FooterTag } from "../tagging/FooterTag";
-import { CommentsNode } from "../comments/CommentsNode";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import UsersName from "../users/UsersName";
+import FooterTag from "../tagging/FooterTag";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,7 +85,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ShortformListItemInner = ({comment, hideTag, classes}: {
+const ShortformListItem = ({comment, hideTag, classes}: {
   comment: ShortformComments,
   hideTag?: boolean,
   classes: ClassesType<typeof styles>,
@@ -113,7 +113,7 @@ const ShortformListItemInner = ({comment, hideTag, classes}: {
   if (expanded) {
     return (
       <div className={classes.expandedRoot}>
-        <CommentsNode
+        <CommentsNodeInner
           treeOptions={treeOptions}
           comment={comment}
           loadChildrenSeparately
@@ -174,7 +174,7 @@ const ShortformListItemInner = ({comment, hideTag, classes}: {
         clickable={false}
       >
         <div className={classes.hoverOver}>
-          <CommentsNode
+          <CommentsNodeInner
             truncated
             nestingLevel={1}
             comment={comment}
@@ -192,9 +192,9 @@ const ShortformListItemInner = ({comment, hideTag, classes}: {
   );
 }
 
-export const ShortformListItem = registerComponent(
+export default registerComponent(
   "ShortformListItem",
-  ShortformListItemInner, {
+  ShortformListItem, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {

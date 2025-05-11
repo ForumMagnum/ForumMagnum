@@ -8,12 +8,12 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { twoLineEventsSidebarABTest } from '../../lib/abTests';
 import { useABTest } from '../../lib/abTestImpl';
 import classNames from 'classnames';
-import { LWTooltip } from "../common/LWTooltip";
-import { TabNavigationSubItem } from "../common/TabNavigationMenu/TabNavigationSubItem";
+import LWTooltip from "../common/LWTooltip";
+import TabNavigationSubItem from "../common/TabNavigationMenu/TabNavigationSubItem";
 import { MenuItemLink } from "../common/Menus";
-import { TimeTag } from "../common/TimeTag";
-import { FormatDate } from "../common/FormatDate";
-import { EventTime } from "./EventTime";
+import TimeTag from "../common/TimeTag";
+import FormatDate from "../common/FormatDate";
+import EventTime from "./EventTime";
 
 const YESTERDAY_STRING = "[Yesterday]"
 const TODAY_STRING = "[Today]"
@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TabNavigationEventsListInner = ({ terms, onClick, classes }: {
+const TabNavigationEventsList = ({ terms, onClick, classes }: {
   terms: PostsViewTerms,
   onClick: () => void,
   classes: ClassesType<typeof styles>,
@@ -234,6 +234,6 @@ const EventSidebarTooltip = ({event, classes}: {
   </div>
 }
 
-export const TabNavigationEventsList = registerComponent('TabNavigationEventsList', TabNavigationEventsListInner, {styles});
+export default registerComponent('TabNavigationEventsList', TabNavigationEventsList, {styles});
 
 

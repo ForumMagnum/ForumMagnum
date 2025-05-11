@@ -5,8 +5,8 @@ import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import { getTotalReactsReceived } from "./wrappedHelpers";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 type ReceivedReact = {
   top: string,
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedReceivedReactsSectionInner = ({classes}: {
+const WrappedReceivedReactsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -137,9 +137,9 @@ const WrappedReceivedReactsSectionInner = ({classes}: {
   );
 }
 
-export const WrappedReceivedReactsSection = registerComponent(
+export default registerComponent(
   "WrappedReceivedReactsSection",
-  WrappedReceivedReactsSectionInner,
+  WrappedReceivedReactsSection,
   {styles},
 );
 

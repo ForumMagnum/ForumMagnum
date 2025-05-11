@@ -2,11 +2,11 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { LoadMore } from "../common/LoadMore";
-import { TagsListItem } from "./TagsListItem";
-import { FormatDate } from "../common/FormatDate";
-import { MetaInfo } from "../common/MetaInfo";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import LoadMore from "../common/LoadMore";
+import TagsListItem from "./TagsListItem";
+import FormatDate from "../common/FormatDate";
+import MetaInfo from "../common/MetaInfo";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewTagsListInner = ({classes, showHeaders = true}: {
+const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
@@ -72,7 +72,7 @@ const NewTagsListInner = ({classes, showHeaders = true}: {
   </div>
 }
 
-export const NewTagsList = registerComponent("NewTagsList", NewTagsListInner, {styles});
+export default registerComponent("NewTagsList", NewTagsList, {styles});
 
 
 

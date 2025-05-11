@@ -6,16 +6,16 @@ import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardA
 import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { SunshineNewUsersList } from "./SunshineNewUsersList";
-import { SunshineNewCommentsList } from "./SunshineNewCommentsList";
-import { SunshineNewTagsList } from "./SunshineNewTagsList";
-import { SunshineNewPostsList } from "./SunshineNewPostsList";
-import { SunshineReportedContentList } from "./SunshineReportedContentList";
-import { SunshineCuratedSuggestionsList } from "./SunshineCuratedSuggestionsList";
-import { AFSuggestUsersList } from "./AFSuggestUsersList";
-import { AFSuggestPostsList } from "./AFSuggestPostsList";
-import { AFSuggestCommentsList } from "./AFSuggestCommentsList";
-import { SunshineGoogleServiceAccount } from "./SunshineGoogleServiceAccount";
+import SunshineNewUsersList from "./SunshineNewUsersList";
+import SunshineNewCommentsList from "./SunshineNewCommentsList";
+import SunshineNewTagsList from "./SunshineNewTagsList";
+import SunshineNewPostsList from "./SunshineNewPostsList";
+import SunshineReportedContentList from "./SunshineReportedContentList";
+import SunshineCuratedSuggestionsList from "./SunshineCuratedSuggestionsList";
+import AFSuggestUsersList from "./AFSuggestUsersList";
+import AFSuggestPostsList from "./AFSuggestPostsList";
+import AFSuggestCommentsList from "./AFSuggestCommentsList";
+import SunshineGoogleServiceAccount from "./SunshineGoogleServiceAccount";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineSidebarInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
   if (!currentUser) return null
@@ -96,7 +96,7 @@ const SunshineSidebarInner = ({classes}: {classes: ClassesType<typeof styles>}) 
   )
 }
 
-export const SunshineSidebar = registerComponent("SunshineSidebar", SunshineSidebarInner, {
+export default registerComponent("SunshineSidebar", SunshineSidebar, {
   styles,
   hocs: [withErrorBoundary]
 });

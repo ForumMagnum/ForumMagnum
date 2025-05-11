@@ -4,7 +4,7 @@ import { subscriptionTypes } from "../../../lib/collections/subscriptions/helper
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments } from "../../../lib/betas";
-import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
+import CombinedSubscriptionsDropdownItem from "../CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -58,7 +58,7 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const CommentSubscriptionsDropdownItemInner = ({comment, post}: {
+export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
 }) => {
@@ -76,9 +76,9 @@ export const CommentSubscriptionsDropdownItemInner = ({comment, post}: {
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
-export const CommentSubscriptionsDropdownItem = registerComponent(
+export default registerComponent(
   "CommentSubscriptionsDropdownItem",
-  CommentSubscriptionsDropdownItemInner,
+  CommentSubscriptionsDropdownItem,
 );
 
 

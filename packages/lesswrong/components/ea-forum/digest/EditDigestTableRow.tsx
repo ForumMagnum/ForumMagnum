@@ -8,10 +8,10 @@ import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../li
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
-import { OverallVoteButton } from "../../votes/OverallVoteButton";
-import { ForumIcon } from "../../common/ForumIcon";
-import { LWTooltip } from "../../common/LWTooltip";
-import { PostsItemDate } from "../../posts/PostsItemDate";
+import OverallVoteButton from "../../votes/OverallVoteButton";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import PostsItemDate from "../../posts/PostsItemDate";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -162,7 +162,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 }
 
 
-const EditDigestTableRowInner = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
   postStatus: Partial<DigestPost>,
   statusIconsDisabled: boolean,
@@ -287,6 +287,6 @@ const EditDigestTableRowInner = ({post, postStatus, statusIconsDisabled, handleC
   </tr>
 }
 
-export const EditDigestTableRow = registerComponent('EditDigestTableRow', EditDigestTableRowInner, {styles});
+export default registerComponent('EditDigestTableRow', EditDigestTableRow, {styles});
 
 

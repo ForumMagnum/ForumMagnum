@@ -6,8 +6,8 @@ import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { isLWorAF } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { PostReadCheckbox } from "../posts/PostReadCheckbox";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import PostReadCheckbox from "../posts/PostReadCheckbox";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const SequencesSmallPostLinkInner = ({classes, post, sequenceId, large, placement="left-start"}: {
+const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   sequenceId: string,
@@ -67,6 +67,6 @@ const SequencesSmallPostLinkInner = ({classes, post, sequenceId, large, placemen
   </div>
 }
 
-export const SequencesSmallPostLink = registerComponent("SequencesSmallPostLink", SequencesSmallPostLinkInner, {styles});
+export default registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
 
 

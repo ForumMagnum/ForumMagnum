@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
-import { TagsChecklist } from "./TagsChecklist";
-import { Loading } from "../vulcan-core/Loading";
+import TagsChecklist from "./TagsChecklist";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   }
 }); 
 
-const CoreTagsChecklistInner = ({onTagSelected, classes, existingTagIds=[] }: {
+const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>) => void,
   classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
@@ -51,6 +51,6 @@ const CoreTagsChecklistInner = ({onTagSelected, classes, existingTagIds=[] }: {
 }
 
 
-export const CoreTagsChecklist = registerComponent("CoreTagsChecklist", CoreTagsChecklistInner, {styles});
+export default registerComponent("CoreTagsChecklist", CoreTagsChecklist, {styles});
 
 

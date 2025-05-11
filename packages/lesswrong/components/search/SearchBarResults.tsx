@@ -6,12 +6,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
 import { Index } from '../../lib/utils/componentsWithChildren';
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { PostsSearchHit } from "./PostsSearchHit";
-import { SequencesSearchHit } from "./SequencesSearchHit";
-import { UsersSearchHit } from "./UsersSearchHit";
-import { TagsSearchHit } from "./TagsSearchHit";
-import { CommentsSearchHit } from "./CommentsSearchHit";
+import ErrorBoundary from "../common/ErrorBoundary";
+import PostsSearchHit from "./PostsSearchHit";
+import SequencesSearchHit from "./SequencesSearchHit";
+import UsersSearchHit from "./UsersSearchHit";
+import TagsSearchHit from "./TagsSearchHit";
+import CommentsSearchHit from "./CommentsSearchHit";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SearchBarResultsInner = ({closeSearch, currentQuery, classes}: {
+const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   closeSearch: () => void,
   currentQuery: string,
   classes: ClassesType<typeof styles>
@@ -110,6 +110,6 @@ const SearchBarResultsInner = ({closeSearch, currentQuery, classes}: {
   </div>
 }
 
-export const SearchBarResults = registerComponent("SearchBarResults", SearchBarResultsInner, {styles});
+export default registerComponent("SearchBarResults", SearchBarResults, {styles});
 
 

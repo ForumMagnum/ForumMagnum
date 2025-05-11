@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { ContentStyleType, ContentStyles } from "../ContentStyles";
+import ContentStyles, { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
-import { ContentItemBody } from "../ContentItemBody";
+import ContentItemBody from "../ContentItemBody";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -90,7 +90,7 @@ export type CommonExcerptProps = {
   className?: string,
 }
 
-const ContentExcerptInner = ({
+const ContentExcerpt = ({
   contentHtml,
   moreLink,
   hideMoreLink,
@@ -165,9 +165,9 @@ const ContentExcerptInner = ({
   );
 }
 
-export const ContentExcerpt = registerComponent(
+export default registerComponent(
   "ContentExcerpt",
-  ContentExcerptInner,
+  ContentExcerpt,
   {styles, stylePriority: -1},
 );
 

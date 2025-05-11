@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Loading } from "../vulcan-core/Loading";
-import { ChaptersItem } from "./ChaptersItem";
+import Loading from "../vulcan-core/Loading";
+import ChaptersItem from "./ChaptersItem";
 
-const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
+const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   sequenceId: string,
   canEdit: boolean,
   nextSuggestedNumberRef: React.MutableRefObject<number>,
@@ -38,6 +38,6 @@ const ChaptersListInner = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   </div>
 }
 
-export const ChaptersList = registerComponent('ChaptersList', ChaptersListInner)
+export default registerComponent('ChaptersList', ChaptersList);
 
 

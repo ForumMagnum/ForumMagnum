@@ -14,13 +14,13 @@ import { Paper }from '@/components/widgets/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';
-import { UsersName } from "../users/UsersName";
-import { UserMetaInfo } from "../users/UserMetaInfo";
-import { LWPopper } from "../common/LWPopper";
-import { FollowUserSearch } from "./FollowUserSearch";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { ForumIcon } from "../common/ForumIcon";
-import { Loading } from "../vulcan-core/Loading";
+import UsersName from "../users/UsersName";
+import UserMetaInfo from "../users/UserMetaInfo";
+import LWPopper from "../common/LWPopper";
+import FollowUserSearch from "./FollowUserSearch";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import ForumIcon from "../common/ForumIcon";
+import Loading from "../vulcan-core/Loading";
 
 const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;
@@ -356,7 +356,7 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptionsInner = ({ refetchFeed, settingsButton, existingSubscriptions, classes }: {
+export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existingSubscriptions, classes }: {
   refetchFeed: () => void,
   settingsButton: React.ReactNode,
   existingSubscriptions?: SubscriptionState[],
@@ -449,6 +449,6 @@ export const SuggestedFeedSubscriptionsInner = ({ refetchFeed, settingsButton, e
   </div>;
 }
 
-export const SuggestedFeedSubscriptions = registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptionsInner, {styles});
+export default registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptions, {styles});
 
 

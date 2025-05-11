@@ -4,12 +4,12 @@ import React from 'react';
 import classNames from 'classnames';
 
 // Share styles with SequencesGrid
-import { styles, SequencesGrid } from './SequencesGrid';
-import { LoadMore } from "../common/LoadMore";
-import { Loading } from "../vulcan-core/Loading";
+import SequencesGrid, { styles } from './SequencesGrid';
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 
-const SequencesGridWrapperInner = ({
+const SequencesGridWrapper = ({
   terms,
   className,
   classes,
@@ -52,7 +52,7 @@ const SequencesGridWrapperInner = ({
   }
 };
 
-export const SequencesGridWrapper = registerComponent('SequencesGridWrapper', SequencesGridWrapperInner, {
+export default registerComponent('SequencesGridWrapper', SequencesGridWrapper, {
   styles,
   areEqual: {
     terms: "deep"

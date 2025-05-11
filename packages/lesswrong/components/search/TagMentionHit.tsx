@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = () => ({
   root: {
@@ -20,7 +20,7 @@ const styles = () => ({
   },
 });
 
-const TagMentionHitInner = ({hit, classes}: {
+const TagMentionHit = ({hit, classes}: {
   hit: SearchTag,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -34,9 +34,9 @@ const TagMentionHitInner = ({hit, classes}: {
   );
 }
 
-export const TagMentionHit = registerComponent(
+export default registerComponent(
   "TagMentionHit",
-  TagMentionHitInner,
+  TagMentionHit,
   {styles},
 );
 

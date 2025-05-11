@@ -5,11 +5,11 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
-import { Loading } from "../vulcan-core/Loading";
-import { PostsTitle } from "../posts/PostsTitle";
-import { ReviewPostButton } from "./ReviewPostButton";
-import { LWTooltip } from "../common/LWTooltip";
-import { ContentStyles } from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import PostsTitle from "../posts/PostsTitle";
+import ReviewPostButton from "./ReviewPostButton";
+import LWTooltip from "../common/LWTooltip";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostNominatedNotificationInner = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
+const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -53,6 +53,6 @@ const PostNominatedNotificationInner = ({classes, postId}: {classes: ClassesType
   </div>
 }
 
-export const PostNominatedNotification = registerComponent('PostNominatedNotification', PostNominatedNotificationInner, {styles});
+export default registerComponent('PostNominatedNotification', PostNominatedNotification, {styles});
 
 

@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CollectionsCardContainerInner = ({ classes, children }: {
+const CollectionsCardContainer = ({ classes, children }: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
@@ -24,7 +24,7 @@ const CollectionsCardContainerInner = ({ classes, children }: {
   </div>
 }
 
-export const CollectionsCardContainer = registerComponent(
-  "CollectionsCardContainer", CollectionsCardContainerInner, { styles });
+export default registerComponent(
+  "CollectionsCardContainer", CollectionsCardContainer, { styles });
 
 

@@ -219,7 +219,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const BookAnimationInner = ({ classes, children, successContent }: {
+const BookAnimation = ({ classes, children, successContent }: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
   successContent?: any
@@ -273,7 +273,7 @@ const BookAnimationInner = ({ classes, children, successContent }: {
 }
 
 
-export const BookAnimation = registerComponent('BookAnimation', BookAnimationInner, {
+export default registerComponent('BookAnimation', BookAnimation, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode

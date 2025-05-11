@@ -6,8 +6,8 @@ import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnC
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
-import { ReactOrAntireactVote } from "./ReactOrAntireactVote";
-import { UsersWhoReacted } from "./UsersWhoReacted";
+import ReactOrAntireactVote from "./ReactOrAntireactVote";
+import UsersWhoReacted from "./UsersWhoReacted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ReactionQuotesHoverInfoInner = ({react, quote, voteProps, commentBodyRef, classes}: {
+const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}: {
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -113,7 +113,7 @@ const ReactionQuotesHoverInfoInner = ({react, quote, voteProps, commentBodyRef, 
 }
 
 
-export const ReactionQuotesHoverInfo = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfoInner, {styles});
+export default registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});
 
 
 

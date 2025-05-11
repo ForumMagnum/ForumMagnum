@@ -9,7 +9,7 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
 import Confetti from 'react-confetti';
-import { LWTooltip } from "./LWTooltip";
+import LWTooltip from "./LWTooltip";
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -320,7 +320,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FundraisingThermometerInner: React.FC<
+const FundraisingThermometer: React.FC<
   FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
   // First, second, and third goal amounts
@@ -501,9 +501,9 @@ const FundraisingThermometerInner: React.FC<
   );
 };
 
-export const FundraisingThermometer = registerComponent(
+export default registerComponent(
   'FundraisingThermometer',
-  FundraisingThermometerInner,
+  FundraisingThermometer,
   { styles }
 );
 

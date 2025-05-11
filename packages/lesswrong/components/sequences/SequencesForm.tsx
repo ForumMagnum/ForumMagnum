@@ -17,9 +17,9 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {

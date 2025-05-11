@@ -9,9 +9,9 @@ import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { PopperCard } from "../../common/PopperCard";
-import { PostActions } from "./PostActions";
-import { LWClickAwayListener } from "../../common/LWClickAwayListener";
+import PopperCard from "../../common/PopperCard";
+import PostActions from "./PostActions";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -28,7 +28,7 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
 }));
 
-const PostActionsButtonInner = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -89,7 +89,7 @@ const PostActionsButtonInner = ({post, vertical, popperGap, autoPlace, flip, inc
 }
 
 
-export const PostActionsButton = registerComponent('PostActionsButton', PostActionsButtonInner);
+export default registerComponent('PostActionsButton', PostActionsButton);
 
 
 

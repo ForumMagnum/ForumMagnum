@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SettingsButtonInner = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
@@ -63,7 +63,7 @@ const SettingsButtonInner = ({classes, className, onClick, showIcon=true, label=
   return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
 }
 
-export const SettingsButton = registerComponent('SettingsButton', SettingsButtonInner, {
+export default registerComponent('SettingsButton', SettingsButton, {
   styles,
   stylePriority: -1,
 });

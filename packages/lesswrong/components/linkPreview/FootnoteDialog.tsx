@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { ContentStyles } from "../common/ContentStyles";
-import { LWDialog } from "../common/LWDialog";
+import ContentStyles from "../common/ContentStyles";
+import LWDialog from "../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dialogPaper: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const FootnoteDialogInner = ({ footnoteHTML, onClose, classes }: {
+const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
   footnoteHTML: string,
   onClose: () => void,
   classes: ClassesType<typeof styles>
@@ -35,7 +35,7 @@ const FootnoteDialogInner = ({ footnoteHTML, onClose, classes }: {
 }
 
 
-export const FootnoteDialog = registerComponent('FootnoteDialog', FootnoteDialogInner, {styles});
+export default registerComponent('FootnoteDialog', FootnoteDialog, {styles});
 
 
 

@@ -4,7 +4,7 @@ import { useHover } from '../common/withHover';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 /**
  * Username for a deleted user. Ordinarily, looks like "[anonymous]" and
@@ -12,7 +12,7 @@ import { LWTooltip } from "../common/LWTooltip";
  * provided and the current user is an admin, then this will reveal the name on
  * hover-over and work as a link.
  */
-const UserNameDeletedInner = ({userShownToAdmins}: {
+const UserNameDeleted = ({userShownToAdmins}: {
   userShownToAdmins?: UsersMinimumInfo|null
 }) => {
   const currentUser = useCurrentUser();
@@ -52,6 +52,6 @@ const UserNameDeletedWithAdminHover = ({user}: {
   </span>
 }
 
-export const UserNameDeleted = registerComponent('UserNameDeleted', UserNameDeletedInner);
+export default registerComponent('UserNameDeleted', UserNameDeleted);
 
 

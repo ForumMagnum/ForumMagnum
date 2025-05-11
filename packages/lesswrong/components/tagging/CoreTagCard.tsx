@@ -4,8 +4,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '@/lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { SubscribeButton } from "./SubscribeButton";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import SubscribeButton from "./SubscribeButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CoreTagCardInner = ({tag, classes}: {
+const CoreTagCard = ({tag, classes}: {
   tag: TagDetailsFragment
   classes: ClassesType<typeof styles>,
 }) => {
@@ -89,6 +89,6 @@ const CoreTagCardInner = ({tag, classes}: {
   );
 }
 
-export const CoreTagCard = registerComponent("CoreTagCard", CoreTagCardInner, {styles});
+export default registerComponent("CoreTagCard", CoreTagCard, {styles});
 
 

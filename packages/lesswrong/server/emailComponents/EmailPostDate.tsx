@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTimezone } from '../../components/common/withTimezone';
 import { EmailFormatDate } from './EmailFormatDate';
-import { PrettyEventDateTime } from '@/components/events/modules/PrettyEventDateTime';
+import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
 export const EmailPostDate = ({post}: {
   post: PostsBase

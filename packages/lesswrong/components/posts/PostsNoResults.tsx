@@ -10,14 +10,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsNoResultsInner = ({classes}: {
+const PostsNoResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) =>
   <Typography variant="body2" className={classes.root}>
     No posts to display.
   </Typography>;
 
-export const PostsNoResults = registerComponent('PostsNoResults', PostsNoResultsInner, {styles});
+export default registerComponent('PostsNoResults', PostsNoResults, {styles});
 
 
 

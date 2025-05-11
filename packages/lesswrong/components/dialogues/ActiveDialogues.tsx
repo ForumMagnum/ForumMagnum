@@ -11,9 +11,9 @@ import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import Visibility from '@/lib/vendor/@material-ui/icons/src/Visibility';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import isEqual from 'lodash/isEqual';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { Typography } from "../common/Typography";
-import { UsersName } from "../users/UsersName";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,7 +86,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-export const ActiveDialoguesInner = ({classes}: {
+export const ActiveDialogues = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -162,6 +162,6 @@ export const ActiveDialoguesInner = ({classes}: {
   );
 }
 
-export const ActiveDialogues = registerComponent('ActiveDialogues', ActiveDialoguesInner, {styles});
+export default registerComponent('ActiveDialogues', ActiveDialogues, {styles});
 
 

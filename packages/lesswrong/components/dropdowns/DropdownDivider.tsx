@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { SimpleDivider } from "../widgets/SimpleDivider";
+import SimpleDivider from "../widgets/SimpleDivider";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -10,7 +10,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const DropdownDividerInner = ({className, classes}: {
+const DropdownDivider = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -19,9 +19,9 @@ const DropdownDividerInner = ({className, classes}: {
   );
 }
 
-export const DropdownDivider = registerComponent(
+export default registerComponent(
   "DropdownDivider",
-  DropdownDividerInner,
+  DropdownDivider,
   {styles},
 );
 

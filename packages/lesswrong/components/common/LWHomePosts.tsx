@@ -15,7 +15,7 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { TabRecord, TabPicker } from './TabPicker';
+import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
@@ -29,21 +29,21 @@ import isEqual from 'lodash/isEqual';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { FeedPostCommentsCard } from "../recentDiscussion/FeedPostCommentsCard";
-import { SettingsButton } from "../icons/SettingsButton";
-import { SingleColumnSection } from "./SingleColumnSection";
-import { PostsList2 } from "../posts/PostsList2";
-import { TagFilterSettings } from "../tagging/TagFilterSettings";
-import { RecombeePostsList } from "../posts/RecombeePostsList";
-import { CuratedPostsList } from "../recommendations/CuratedPostsList";
-import { RecombeePostsListSettings } from "../posts/RecombeePostsListSettings";
-import { BookmarksList } from "../bookmarks/BookmarksList";
-import { ContinueReadingList } from "../recommendations/ContinueReadingList";
-import { VertexPostsList } from "../posts/VertexPostsList";
-import { WelcomePostItem } from "../recommendations/WelcomePostItem";
-import { MixedTypeFeed } from "./MixedTypeFeed";
-import { SuggestedFeedSubscriptions } from "../subscriptions/SuggestedFeedSubscriptions";
-import { PostsItem } from "../posts/PostsItem";
+import FeedPostCommentsCard from "../recentDiscussion/FeedPostCommentsCard";
+import SettingsButton from "../icons/SettingsButton";
+import SingleColumnSection from "./SingleColumnSection";
+import PostsList2 from "../posts/PostsList2";
+import TagFilterSettings from "../tagging/TagFilterSettings";
+import RecombeePostsList from "../posts/RecombeePostsList";
+import CuratedPostsList from "../recommendations/CuratedPostsList";
+import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
+import BookmarksList from "../bookmarks/BookmarksList";
+import ContinueReadingList from "../recommendations/ContinueReadingList";
+import VertexPostsList from "../posts/VertexPostsList";
+import WelcomePostItem from "../recommendations/WelcomePostItem";
+import MixedTypeFeed from "./MixedTypeFeed";
+import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
+import PostsItem from "../posts/PostsItem";
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -413,7 +413,7 @@ const FrontpageSettingsButton = ({
   </>;
 }
 
-const LWHomePostsInner = ({ children, classes }: {
+const LWHomePosts = ({ children, classes }: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
@@ -720,6 +720,6 @@ const LWHomePostsInner = ({ children, classes }: {
 
 }
 
-export const LWHomePosts = registerComponent('LWHomePosts', LWHomePostsInner, {styles});
+export default registerComponent('LWHomePosts', LWHomePosts, {styles});
 
 

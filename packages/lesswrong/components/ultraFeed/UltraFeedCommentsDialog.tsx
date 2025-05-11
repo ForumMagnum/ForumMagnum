@@ -6,9 +6,9 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { DialogContent } from "../widgets/DialogContent";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import { LWDialog } from "../common/LWDialog";
-import { CommentsListSection } from "../comments/CommentsListSection";
-import { Loading } from "../vulcan-core/Loading";
+import LWDialog from "../common/LWDialog";
+import CommentsListSection from "../comments/CommentsListSection";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -54,7 +54,7 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   }
 }));
 
-const UltraFeedCommentsDialogInner = ({
+const UltraFeedCommentsDialog = ({
   document,
   collectionName,
   onClose
@@ -183,7 +183,7 @@ const UltraFeedCommentsDialogInner = ({
   );
 };
 
-export const UltraFeedCommentsDialog = registerComponent("UltraFeedCommentsDialog", UltraFeedCommentsDialogInner);
+export default registerComponent("UltraFeedCommentsDialog", UltraFeedCommentsDialog);
 
 
 

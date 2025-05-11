@@ -3,14 +3,14 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { usePostsList } from '../../posts/usePostsList';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { SingleColumnSection } from "../../common/SingleColumnSection";
-import { SectionFooter } from "../../common/SectionFooter";
-import { LoadMore } from "../../common/LoadMore";
-import { PostsHighlight } from "../../posts/PostsHighlight";
-import { RejectedReasonDisplay } from "../RejectedReasonDisplay";
-import { FormatDate } from "../../common/FormatDate";
-import { MetaInfo } from "../../common/MetaInfo";
-import { Row } from "../../common/Row";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import SectionFooter from "../../common/SectionFooter";
+import LoadMore from "../../common/LoadMore";
+import PostsHighlight from "../../posts/PostsHighlight";
+import RejectedReasonDisplay from "../RejectedReasonDisplay";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import Row from "../../common/Row";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectedPostsListInner = ({classes}: {
+export const RejectedPostsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -65,7 +65,7 @@ export const RejectedPostsListInner = ({classes}: {
   </SingleColumnSection>;
 }
 
-export const RejectedPostsList = registerComponent('RejectedPostsList', RejectedPostsListInner, {styles});
+export default registerComponent('RejectedPostsList', RejectedPostsList, {styles});
 
 
 

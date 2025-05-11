@@ -5,13 +5,13 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
-import { SunshineListTitle } from "./SunshineListTitle";
-import { SunshineCuratedSuggestionsItem } from "./SunshineCuratedSuggestionsItem";
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
-import { LoadMore } from "../common/LoadMore";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineCuratedSuggestionsItem from "./SunshineCuratedSuggestionsItem";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   loadMorePadding: {
@@ -58,7 +58,7 @@ const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): bo
   return results.some(post => post.curationNotices && post.curationNotices.length > 0);
 }
 
-const SunshineCuratedSuggestionsListInner = ({ terms, atBottom, classes, setCurationPost, setHasDrafts }: {
+const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationPost, setHasDrafts }: {
   terms: PostsViewTerms,
   atBottom?: boolean,
   classes: ClassesType<typeof styles>,
@@ -140,6 +140,6 @@ const SunshineCuratedSuggestionsListInner = ({ terms, atBottom, classes, setCura
   )
 }
 
-export const SunshineCuratedSuggestionsList = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsListInner, {styles})
+export default registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles});
 
 

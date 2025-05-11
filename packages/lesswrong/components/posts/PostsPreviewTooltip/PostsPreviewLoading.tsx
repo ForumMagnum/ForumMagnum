@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from './helpers';
-import { Loading } from "../../vulcan-core/Loading";
+import Loading from "../../vulcan-core/Loading";
 
 export const notificationLoadingStyles = (theme: ThemeType) => ({
   width: POST_PREVIEW_WIDTH,
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsPreviewLoadingInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PostsPreviewLoading = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.loading}>
       <Loading/>
@@ -27,9 +27,9 @@ const PostsPreviewLoadingInner = ({classes}: {classes: ClassesType<typeof styles
   );
 }
 
-export const PostsPreviewLoading = registerComponent(
+export default registerComponent(
   'PostsPreviewLoading',
-  PostsPreviewLoadingInner,
+  PostsPreviewLoading,
   {styles},
 );
 

@@ -6,12 +6,12 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag'
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
-import { SunshineNewUsersInfo } from "./SunshineNewUsersInfo";
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
-import { FirstContentIcons } from "./FirstContentIcons";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import FirstContentIcons from "./FirstContentIcons";
 
 const styles = (theme: ThemeType) => ({
   negativeKarma: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
-const SunshineNewUsersItemInner = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   refetch: () => void,
@@ -68,7 +68,7 @@ const SunshineNewUsersItemInner = ({ user, classes, refetch, currentUser }: {
   )
 }
 
-export const SunshineNewUsersItem = registerComponent('SunshineNewUsersItem', SunshineNewUsersItemInner, {
+export default registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, {
   styles,
   hocs: [
     withErrorBoundary,

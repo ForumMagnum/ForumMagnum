@@ -6,10 +6,10 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { MenuItem } from "../common/Menus";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { RecentComments } from "./RecentComments";
-import { SectionTitle } from "../common/SectionTitle";
-import { SettingsButton } from "../icons/SettingsButton";
+import SingleColumnSection from "../common/SingleColumnSection";
+import RecentComments from "./RecentComments";
+import SectionTitle from "../common/SectionTitle";
+import SettingsButton from "../icons/SettingsButton";
 
 const styles = defineStyles('AllComments', theme => ({
   settings: {
@@ -66,7 +66,7 @@ const AllCommentsSettings = ({ expanded, settings, setSettings }: {
 }
 
 
-const AllCommentsInner = () => {
+const AllComments = () => {
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(defaultCommentsViewSettings);
@@ -95,7 +95,7 @@ const AllCommentsInner = () => {
   )
 };
 
-export const AllComments = registerComponent('AllComments', AllCommentsInner);
+export default registerComponent('AllComments', AllComments);
 
 
 

@@ -14,8 +14,8 @@ import classNames from 'classnames';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
-import { LWTooltip } from "../../common/LWTooltip";
-import { SectionTitle } from "../../common/SectionTitle";
+import LWTooltip from "../../common/LWTooltip";
+import SectionTitle from "../../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -328,7 +328,7 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
         {children}
     </Typography>;
 
-const ContentTypeInner = ({classes, className, type, label}: {
+const ContentType = ({classes, className, type, label}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   type: ContentTypeString,
@@ -366,6 +366,6 @@ const ContentTypeInner = ({classes, className, type, label}: {
   );
 }
 
-export const ContentType = registerComponent('ContentType', ContentTypeInner, {styles});
+export default registerComponent('ContentType', ContentType, {styles});
 
 

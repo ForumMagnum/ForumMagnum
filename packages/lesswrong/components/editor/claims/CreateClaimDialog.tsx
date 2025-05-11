@@ -4,7 +4,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { LWDialog } from "../../common/LWDialog";
+import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 
 const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
@@ -28,7 +28,7 @@ const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   },
 }))
 
-const CreateClaimDialogInner = ({initialTitle, onSubmit, onCancel, onClose}: CreateClaimDialogProps & {
+const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateClaimDialogProps & {
   onClose: () => void,
 }) => {
   const classes = useStyles(styles);
@@ -81,7 +81,7 @@ const CreateClaimDialogInner = ({initialTitle, onSubmit, onCancel, onClose}: Cre
   </LWDialog>
 }
 
-export const CreateClaimDialog = registerComponent('CreateClaimDialog', CreateClaimDialogInner);
+export default registerComponent('CreateClaimDialog', CreateClaimDialog);
 
 
 

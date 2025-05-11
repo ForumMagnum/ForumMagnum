@@ -55,7 +55,7 @@ export interface FormGroupLayoutProps {
  * can be overriden by specifying a `layoutComponent` on the form group, or by setting the `formComponents` prop
  * on a form.
  */
-const FormGroupLayoutInner = ({
+const FormGroupLayout = ({
   children,
   label,
   heading,
@@ -92,6 +92,6 @@ const FormGroupLayoutInner = ({
   );
 };
 
-export const FormGroupLayout = registerComponent('FormGroupLayout', FormGroupLayoutInner, {styles});
+export default registerComponent('FormGroupLayout', FormGroupLayout, {styles});
 
 

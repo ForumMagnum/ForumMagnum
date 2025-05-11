@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { CloudinaryPropsType, CloudinaryImage2 } from "../common/CloudinaryImage2";
+import CloudinaryImage2, { CloudinaryPropsType } from "../common/CloudinaryImage2";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
@@ -11,8 +11,8 @@ import { REVIEW_YEAR, eligibleToNominate, reviewElectionName } from "../../lib/r
 import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -281,7 +281,7 @@ const Heart: FC<{
   );
 }
 
-const ReviewVotingCanvasInner = ({
+const ReviewVotingCanvas = ({
   classes,
 }: {
   classes: ClassesType<typeof styles>,
@@ -489,9 +489,9 @@ const ReviewVotingCanvasInner = ({
   );
 }
 
-export const ReviewVotingCanvas = registerComponent(
+export default registerComponent(
   "ReviewVotingCanvas",
-  ReviewVotingCanvasInner,
+  ReviewVotingCanvas,
   {styles},
 );
 

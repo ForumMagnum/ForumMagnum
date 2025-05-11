@@ -1,12 +1,12 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { ForumIcon } from "../../common/ForumIcon";
-import { WrappedPost } from "./WrappedPost";
-import { Loading } from "../../vulcan-core/Loading";
-import { LoadMore } from "../../common/LoadMore";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import ForumIcon from "../../common/ForumIcon";
+import WrappedPost from "./WrappedPost";
+import Loading from "../../vulcan-core/Loading";
+import LoadMore from "../../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   textRow: {
@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const WrappedMostValuablePostsSectionInner = ({classes}: {
+const WrappedMostValuablePostsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -95,9 +95,9 @@ const WrappedMostValuablePostsSectionInner = ({classes}: {
   );
 }
 
-export const WrappedMostValuablePostsSection = registerComponent(
+export default registerComponent(
   "WrappedMostValuablePostsSection",
-  WrappedMostValuablePostsSectionInner,
+  WrappedMostValuablePostsSection,
   {styles},
 );
 

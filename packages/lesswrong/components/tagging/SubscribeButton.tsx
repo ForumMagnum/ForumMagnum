@@ -14,12 +14,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
-import { LoginPopup } from "../users/LoginPopup";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { LWPopper } from "../common/LWPopper";
+import LoginPopup from "../users/LoginPopup";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType) => ({
 
 export const taggedPostWording = taggingNameIsSet.get() ? `posts on this ${taggingNameSetting.get()}` : "posts with this tag"
 
-const SubscribeButtonInner = ({
+const SubscribeButton = ({
   tag,
   subscribeMessage,
   unsubscribeMessage,
@@ -246,6 +246,6 @@ const SubscribeButtonInner = ({
   );
 }
 
-export const SubscribeButton = registerComponent('SubscribeButton', SubscribeButtonInner, {styles});
+export default registerComponent('SubscribeButton', SubscribeButton, {styles});
 
 

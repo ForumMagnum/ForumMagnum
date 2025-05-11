@@ -13,10 +13,10 @@ import {
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import moment from "moment";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
-import { LWTooltip } from "../../common/LWTooltip";
-import { EAReactsSection } from "../../votes/EAReactsSection";
-import { UserTooltip } from "../../users/UserTooltip";
-import { ContentStyles } from "../../common/ContentStyles";
+import LWTooltip from "../../common/LWTooltip";
+import EAReactsSection from "../../votes/EAReactsSection";
+import UserTooltip from "../../users/UserTooltip";
+import ContentStyles from "../../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * A single comment item, used in TopCommentSection and TopShortformSection
  */
-const WrappedCommentInner = ({comment, classes}: {
+const WrappedComment = ({comment, classes}: {
   comment: WrappedTopComment | WrappedTopShortform,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -142,9 +142,9 @@ const WrappedCommentInner = ({comment, classes}: {
   );
 }
 
-export const WrappedComment = registerComponent(
+export default registerComponent(
   "WrappedComment",
-  WrappedCommentInner,
+  WrappedComment,
   {styles},
 );
 

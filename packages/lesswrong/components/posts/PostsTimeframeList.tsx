@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
-import { PostsTimeBlockShortformOption, PostsTimeBlock } from './PostsTimeBlock';
+import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 import { Typography } from "../common/Typography";
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsTimeframeListInner = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
+const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
   after: Date|string,
   before: Date|string,
   timeframe: TimeframeType,
@@ -153,6 +153,6 @@ export const getTimeBlockTitle = (
   return result;
 }
 
-export const PostsTimeframeList = registerComponent('PostsTimeframeList', PostsTimeframeListInner, {styles});
+export default registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
 
 

@@ -7,10 +7,10 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import { Paper }from '@/components/widgets/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
-import { LoginPopup } from "../users/LoginPopup";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { LWPopper } from "../common/LWPopper";
-import { ForumIcon } from "../common/ForumIcon";
+import LoginPopup from "../users/LoginPopup";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const WriteNewButtonInner = ({
+const WriteNewButton = ({
   tag,
   isSubscribed,
   setNewShortformOpen,
@@ -143,6 +143,6 @@ const WriteNewButtonInner = ({
   );
 }
 
-export const WriteNewButton = registerComponent('WriteNewButton', WriteNewButtonInner, {styles});
+export default registerComponent('WriteNewButton', WriteNewButton, {styles});
 
 

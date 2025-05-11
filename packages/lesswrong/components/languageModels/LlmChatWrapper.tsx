@@ -145,7 +145,7 @@ export const useLlmChat = (): LlmChatContextType => {
 }
 
 
-const LlmChatWrapperInner = ({children}: {
+const LlmChatWrapper = ({children}: {
   children: React.ReactNode
 }) => {
 
@@ -573,6 +573,6 @@ const LlmChatWrapperInner = ({children}: {
   </LlmChatContext.Provider>
 }
 
-export const LlmChatWrapper = registerComponent("LlmChatWrapper", LlmChatWrapperInner);
+export default registerComponent("LlmChatWrapper", LlmChatWrapper);
 
 

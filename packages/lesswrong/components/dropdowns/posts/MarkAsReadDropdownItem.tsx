@@ -4,9 +4,9 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useNamedMutation } from "../../../lib/crud/withMutation";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const MarkAsReadDropdownItemInner = ({post}: {post: PostsBase}) => {
+const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   const {postsRead, setPostRead} = useItemsRead();
   const {mutate: markAsReadOrUnread} = useNamedMutation<{
     postId: string, isRead: boolean,
@@ -33,9 +33,9 @@ const MarkAsReadDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const MarkAsReadDropdownItem = registerComponent(
+export default registerComponent(
   "MarkAsReadDropdownItem",
-  MarkAsReadDropdownItemInner,
+  MarkAsReadDropdownItem,
 );
 
 

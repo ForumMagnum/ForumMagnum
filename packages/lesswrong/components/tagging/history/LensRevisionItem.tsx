@@ -5,11 +5,11 @@ import { TagLens } from '@/lib/arbital/useTagLenses';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { tagHistoryStyles } from './TagHistoryPage';
-import { SingleLineFeedEvent } from "../../common/SingleLineFeedEvent";
-import { CompareRevisions } from "../../revisions/CompareRevisions";
-import { TagRevisionItemShortMetadata } from "../TagRevisionItemShortMetadata";
-import { ForumIcon } from "../../common/ForumIcon";
-import { ContentStyles } from "../../common/ContentStyles";
+import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
+import CompareRevisions from "../../revisions/CompareRevisions";
+import TagRevisionItemShortMetadata from "../TagRevisionItemShortMetadata";
+import ForumIcon from "../../common/ForumIcon";
+import ContentStyles from "../../common/ContentStyles";
 
 const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   contentStyle: {
@@ -18,7 +18,7 @@ const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   },
 }));
 
-const LensRevisionItemInner = ({tag, collapsed, lens, revision, noContainer = false, showIcon = false}: {
+const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false, showIcon = false}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
   lens: MultiDocumentContentDisplay | TagLens,
@@ -70,7 +70,7 @@ const LensRevisionItemInner = ({tag, collapsed, lens, revision, noContainer = fa
   );
 }
 
-export const LensRevisionItem = registerComponent('LensRevisionItem', LensRevisionItemInner, {
+export default registerComponent('LensRevisionItem', LensRevisionItem, {
   hocs: [withErrorBoundary]
 });
 

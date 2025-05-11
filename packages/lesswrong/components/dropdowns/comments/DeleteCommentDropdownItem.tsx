@@ -7,10 +7,10 @@ import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
-import { DeleteCommentDialog } from "./DeleteCommentDialog";
-import { DropdownItem } from "../DropdownItem";
+import DeleteCommentDialog from "./DeleteCommentDialog";
+import DropdownItem from "../DropdownItem";
 
-const DeleteCommentDropdownItemInner = ({comment, post, tag}: {
+const DeleteCommentDropdownItem = ({comment, post, tag}: {
   comment: CommentsList,
   post?: PostsBase,
   tag?: TagBasicInfo,
@@ -78,8 +78,8 @@ const DeleteCommentDropdownItemInner = ({comment, post, tag}: {
   }
 }
 
-export const DeleteCommentDropdownItem = registerComponent(
-  'DeleteCommentDropdownItem', DeleteCommentDropdownItemInner,
+export default registerComponent(
+  'DeleteCommentDropdownItem', DeleteCommentDropdownItem,
 );
 
 

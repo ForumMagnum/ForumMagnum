@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql } from '@apollo/client';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   indexesTable: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AdminMetadataInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const AdminMetadata = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { data, loading } = useQuery(gql`query AdminMetadataQuery {
     AdminMetadata
   }`, { ssr: true });
@@ -35,7 +35,7 @@ const AdminMetadataInner = ({ classes }: { classes: ClassesType<typeof styles> }
   </ul>
 }
 
-export const AdminMetadata = registerComponent('AdminMetadata', AdminMetadataInner, {styles});
+export default registerComponent('AdminMetadata', AdminMetadata, {styles});
 
 
 

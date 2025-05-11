@@ -15,10 +15,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
-import { PopperCard } from "../common/PopperCard";
-import { TagPreview } from "./TagPreview";
-import { ContentStyles } from "../common/ContentStyles";
+import LWTooltip from "../common/LWTooltip";
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
+import ContentStyles from "../common/ContentStyles";
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -149,7 +149,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FilterModeRawComponentInner = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
+const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
   mode: FilterModeType,
@@ -393,6 +393,6 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-export const FilterMode = registerComponent("FilterMode", FilterModeRawComponentInner, {styles});
+export default registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
 

@@ -7,9 +7,9 @@ import { gql, useMutation } from "@apollo/client";
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
-import { LoginForm } from "./LoginForm";
-import { SiteLogo } from "../ea-forum/SiteLogo";
-import { Loading } from "../vulcan-core/Loading";
+import LoginForm from "./LoginForm";
+import SiteLogo from "../ea-forum/SiteLogo";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CrosspostLoginPageInner = ({classes}: {
+const CrosspostLoginPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [connectCrossposter, loading] = useMutation(gql`
@@ -102,6 +102,6 @@ const CrosspostLoginPageInner = ({classes}: {
   );
 }
 
-export const CrosspostLoginPage = registerComponent("CrosspostLoginPage", CrosspostLoginPageInner, {styles});
+export default registerComponent("CrosspostLoginPage", CrosspostLoginPage, {styles});
 
 

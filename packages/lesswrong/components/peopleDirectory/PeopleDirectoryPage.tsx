@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { PeopleDirectoryProvider } from "./usePeopleDirectory";
 import { Link } from "../../lib/reactRouterWrapper";
-import { PeopleDirectoryMainSearch } from "./PeopleDirectoryMainSearch";
-import { PeopleDirectoryFilters } from "./PeopleDirectoryFilters";
-import { PeopleDirectoryResults } from "./PeopleDirectoryResults";
+import PeopleDirectoryMainSearch from "./PeopleDirectoryMainSearch";
+import PeopleDirectoryFilters from "./PeopleDirectoryFilters";
+import PeopleDirectoryResults from "./PeopleDirectoryResults";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryPageInner = ({classes}: {
+const PeopleDirectoryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -66,9 +66,9 @@ const PeopleDirectoryPageInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryPage = registerComponent(
+export default registerComponent(
   "PeopleDirectoryPage",
-  PeopleDirectoryPageInner,
+  PeopleDirectoryPage,
   {styles},
 );
 

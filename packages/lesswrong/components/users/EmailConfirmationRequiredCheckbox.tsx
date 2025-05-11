@@ -3,9 +3,9 @@ import React from 'react';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import type { FormComponentCheckboxProps } from '@/components/form-components/FormComponentCheckbox';
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
-const EmailConfirmationRequiredCheckboxInner = (props: FormComponentCheckboxProps) => {
+const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) => {
   const currentUser = useCurrentUser();
   let { label, ...otherProps } = props;
   
@@ -26,6 +26,6 @@ const EmailConfirmationRequiredCheckboxInner = (props: FormComponentCheckboxProp
   }
 }
 
-export const EmailConfirmationRequiredCheckbox = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckboxInner);
+export default registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox);
 
 

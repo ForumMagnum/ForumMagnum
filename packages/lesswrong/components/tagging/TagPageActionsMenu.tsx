@@ -11,12 +11,12 @@ import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
 import { tagGetHistoryUrl, tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
-import { ForumIcon } from "../common/ForumIcon";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { DropdownItem } from "../dropdowns/DropdownItem";
+import ForumIcon from "../common/ForumIcon";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
 import { MenuItem } from "../common/Menus";
-import { LWTooltip } from "../common/LWTooltip";
-import { AnalyticsTracker } from "../common/AnalyticsTracker";
+import LWTooltip from "../common/LWTooltip";
+import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {
@@ -45,7 +45,7 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
 }))
 
-const TagPageActionsMenuButtonInner = ({tagOrLens, createLens, handleEditClick}: {
+export const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
   tagOrLens: TagLens|undefined
   createLens: (() => void)|null,
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
@@ -77,7 +77,7 @@ const TagPageActionsMenuButtonInner = ({tagOrLens, createLens, handleEditClick}:
       anchorEl={anchorEl}
       className={classes.menu}
     >
-      {everOpened && <TagPageActionsMenuInner
+      {everOpened && <TagPageActionsMenu
         tagOrLens={tagOrLens}
         createLens={createLens}
         handleEditClick={handleEditClick}
@@ -86,7 +86,7 @@ const TagPageActionsMenuButtonInner = ({tagOrLens, createLens, handleEditClick}:
   </>
 }
 
-const TagPageActionsMenuInner = ({tagOrLens, handleEditClick, createLens}: {
+const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
   tagOrLens: TagLens
   handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
   createLens: (() => void)|null,
@@ -148,9 +148,3 @@ const TagPageActionsMenuInner = ({tagOrLens, handleEditClick, createLens}: {
     </DropdownMenu>
   </AnalyticsTracker>
 }
-
-export const TagPageActionsMenuButton = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButtonInner);
-export const TagPageActionsMenu = registerComponent('TagPageActionsMenu', TagPageActionsMenuInner);
-
-
-

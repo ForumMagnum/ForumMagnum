@@ -11,7 +11,7 @@ import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
-import { ForumEventVoteDisplay, ForumEventResultIcon } from "./ForumEventResultIcon";
+import ForumEventResultIcon, { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
@@ -20,11 +20,11 @@ import { PartialDeep } from "type-fest";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { useMessages } from "../common/withMessages";
 import { useSingle } from "@/lib/crud/withSingle";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { UsersProfileImage } from "../users/UsersProfileImage";
-import { ForumEventCommentForm } from "./ForumEventCommentForm";
-import { Loading } from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import UsersProfileImage from "../users/UsersProfileImage";
+import ForumEventCommentForm from "./ForumEventCommentForm";
+import Loading from "../vulcan-core/Loading";
 
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
@@ -475,7 +475,7 @@ function footnotesToTooltips({
  * If a postId is provided (because we are on the post page), we record the postId as part of the vote,
  * currently this isn't used for anything directly.
  */
-export const ForumEventPollInner = ({
+export const ForumEventPoll = ({
   postId,
   hideViewResults,
   classes,
@@ -957,9 +957,9 @@ export const ForumEventPollInner = ({
   );
 }
 
-export const ForumEventPoll = registerComponent(
+export default registerComponent(
   "ForumEventPoll",
-  ForumEventPollInner,
+  ForumEventPoll,
   {styles}
 );
 

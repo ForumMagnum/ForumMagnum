@@ -1,7 +1,7 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../withUser';
-import { iconWidth, TabNavigationItem } from './TabNavigationItem'
+import TabNavigationItem, { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
@@ -9,7 +9,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { EventsListInner } from './EventsList';
+import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => {
   }
 }
 
-const TabNavigationMenuInner = ({
+const TabNavigationMenu = ({
   onClickSection,
   transparentBackground,
   noTopMargin,
@@ -88,7 +88,7 @@ const TabNavigationMenuInner = ({
             if ('customComponentName' in tab) {
               switch (tab.customComponentName) {
                 case 'EventsList':
-                  return <EventsListInner
+                  return <EventsList
                     key={tab.id}
                     onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                     currentUser={currentUser}
@@ -110,8 +110,8 @@ const TabNavigationMenuInner = ({
     </AnalyticsContext>  )
 };
 
-export const TabNavigationMenu = registerComponent(
-  'TabNavigationMenu', TabNavigationMenuInner, {styles}
+export default registerComponent(
+  'TabNavigationMenu', TabNavigationMenu, {styles}
 );
 
 

@@ -6,9 +6,9 @@ import moment from "moment";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
-import { PostsItem } from "../posts/PostsItem";
+import PostsItem from "../posts/PostsItem";
 
-const WelcomePostItemInner = () => {
+const WelcomePostItem = () => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const welcomePostId = aboutPostIdSetting.get();
@@ -40,6 +40,6 @@ const WelcomePostItemInner = () => {
   return <PostsItem post={post} />
 }
 
-export const WelcomePostItem = registerComponent("WelcomePostItem", WelcomePostItemInner, {});
+export default registerComponent("WelcomePostItem", WelcomePostItem, {});
 
 

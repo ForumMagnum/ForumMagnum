@@ -1,10 +1,10 @@
 import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { UserNameDeleted } from "../../users/UserNameDeleted";
-import { UsersName } from "../../users/UsersName";
-import { UserCommentMarkers } from "../../users/UserCommentMarkers";
-import { PostsCoauthor } from "./PostsCoauthor";
+import UserNameDeleted from "../../users/UserNameDeleted";
+import UsersName from "../../users/UsersName";
+import UserCommentMarkers from "../../users/UserCommentMarkers";
+import PostsCoauthor from "./PostsCoauthor";
 import { Typography } from "../../common/Typography";
 
 export const AUTHOR_MARKER_STYLES = {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   authorMarkers: AUTHOR_MARKER_STYLES,
 })
 
-const PostsAuthorsInner = ({classes, post, pageSectionContext}: {
+const PostsAuthors = ({classes, post, pageSectionContext}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   pageSectionContext?: string,
@@ -47,6 +47,6 @@ const PostsAuthorsInner = ({classes, post, pageSectionContext}: {
   </Typography>
 }
 
-export const PostsAuthors = registerComponent('PostsAuthors', PostsAuthorsInner, {styles});
+export default registerComponent('PostsAuthors', PostsAuthors, {styles});
 
 

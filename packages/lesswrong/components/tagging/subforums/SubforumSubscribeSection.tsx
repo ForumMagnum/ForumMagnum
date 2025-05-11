@@ -8,8 +8,8 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { LoginPopup } from "../../users/LoginPopup";
-import { LWTooltip } from "../../common/LWTooltip";
+import LoginPopup from "../../users/LoginPopup";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -28,7 +28,7 @@ const styles = (_theme: ThemeType) => ({
   }
 })
 
-const SubforumSubscribeSectionInner = ({
+const SubforumSubscribeSection = ({
   tag,
   joinCallback = () => {},
   leaveCallback = () => {},
@@ -100,6 +100,6 @@ const SubforumSubscribeSectionInner = ({
   </div>
 }
 
-export const SubforumSubscribeSection = registerComponent('SubforumSubscribeSection', SubforumSubscribeSectionInner, {styles, stylePriority: 1});
+export default registerComponent('SubforumSubscribeSection', SubforumSubscribeSection, {styles, stylePriority: 1});
 
 

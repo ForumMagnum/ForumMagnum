@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ReadTimeInner = ({classes, post, dialogueResponses}: {
+export const ReadTime = ({classes, post, dialogueResponses}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   dialogueResponses: CommentsList[],
@@ -46,6 +46,6 @@ export const ReadTimeInner = ({classes, post, dialogueResponses}: {
       </LWTooltip>
 }
 
-export const ReadTime = registerComponent('ReadTime', ReadTimeInner, {styles});
+export default registerComponent('ReadTime', ReadTime, {styles});
 
 

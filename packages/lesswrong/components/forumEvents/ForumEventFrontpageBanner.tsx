@@ -7,12 +7,12 @@ import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { ForumIcon } from "../common/ForumIcon";
-import { ForumEventPoll } from "./ForumEventPoll";
-import { ForumEventStickers } from "./ForumEventStickers";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import ForumIcon from "../common/ForumIcon";
+import ForumEventPoll from "./ForumEventPoll";
+import ForumEventStickers from "./ForumEventStickers";
 
 const POLL_MIN_WIDTH = 800;
 
@@ -403,7 +403,7 @@ const customComponents: Partial<Record<Exclude<DbForumEvent['customComponent'], 
   // GivingSeason2024Banner,
 };
 
-export const ForumEventFrontpageBannerInner = ({classes}: {
+export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
@@ -436,9 +436,9 @@ export const ForumEventFrontpageBannerInner = ({classes}: {
   }
 }
 
-export const ForumEventFrontpageBanner = registerComponent(
+export default registerComponent(
   "ForumEventFrontpageBanner",
-  ForumEventFrontpageBannerInner,
+  ForumEventFrontpageBanner,
   {styles},
 );
 

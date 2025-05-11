@@ -8,9 +8,9 @@ import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent.ts
 import qs from 'qs'
 import range from 'lodash/range'
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { SingleColumnSection } from "./SingleColumnSection";
-import { ForumIcon } from "./ForumIcon";
-import { LWTooltip } from "./LWTooltip";
+import SingleColumnSection from "./SingleColumnSection";
+import ForumIcon from "./ForumIcon";
+import LWTooltip from "./LWTooltip";
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -189,7 +189,7 @@ export type TopicsBarTab = {
  * @param frontpageTab - Description for "show everything" tab
  * @param sortTopics - you can define custom ordering/additional filtering for the tabs
  */
-const HomeTagBarInner = (
+const HomeTagBar = (
   {
     classes,
     onTagSelectionUpdated,
@@ -386,6 +386,6 @@ const HomeTagBarInner = (
   )
 }
 
-export const HomeTagBar = registerComponent('HomeTagBar', HomeTagBarInner, {styles})
+export default registerComponent('HomeTagBar', HomeTagBar, {styles});
 
 

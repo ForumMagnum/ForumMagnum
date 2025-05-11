@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import { CommentsNewFormProps, CommentsNewForm } from './CommentsNewForm';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
  *   specifying what post the comment is on, and prefilling props.
  * onClose: Called when the window is closed.
  */
-const PopupCommentEditorInner = ({title, guidelines, commentFormProps, onClose, classes}: {
+const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
@@ -92,6 +92,6 @@ const PopupCommentEditorInner = ({title, guidelines, commentFormProps, onClose, 
   </Card>
 }
 
-export const PopupCommentEditor = registerComponent('PopupCommentEditor', PopupCommentEditorInner, {styles});
+export default registerComponent('PopupCommentEditor', PopupCommentEditor, {styles});
 
 

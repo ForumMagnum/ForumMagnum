@@ -4,10 +4,10 @@ import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
 import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
-import { Loading } from "../vulcan-core/Loading";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
 
-const EmailTokenPageInner = () => {
+const EmailTokenPage = () => {
   const [useTokenResult, setUseTokenResult] = useState<UseEmailTokenResult | null>(null)
   const { params: { token } } = useLocation()
   const { mutate: emailTokenMutation, loading: emailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
@@ -26,6 +26,6 @@ const EmailTokenPageInner = () => {
   </SingleColumnSection>
 }
 
-export const EmailTokenPage = registerComponent("EmailTokenPage", EmailTokenPageInner);
+export default registerComponent("EmailTokenPage", EmailTokenPage);
 
 

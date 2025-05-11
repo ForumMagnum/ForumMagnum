@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { ShortformThreadList } from "./ShortformThreadList";
-import { SectionTitle } from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ShortformThreadList from "./ShortformThreadList";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   column: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShortformPageInner = ({classes}: {
+const ShortformPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -25,6 +25,6 @@ const ShortformPageInner = ({classes}: {
   )
 }
 
-export const ShortformPage = registerComponent('ShortformPage', ShortformPageInner, {styles});
+export default registerComponent('ShortformPage', ShortformPage, {styles});
 
 

@@ -3,9 +3,9 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
 import { gql, useMutation } from '@apollo/client';
-import { SplashImageEditingOptions } from "./SplashImageEditingOptions";
-import { ImageCropPreview } from "./ImageCropPreview";
-import { LWPopper } from "../../../common/LWPopper";
+import SplashImageEditingOptions from "./SplashImageEditingOptions";
+import ImageCropPreview from "./ImageCropPreview";
+import LWPopper from "../../../common/LWPopper";
 
 const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 
   root: {
@@ -46,7 +46,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
   },
 }));
 
-const SplashImageEditingInner = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement|null>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
+const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement|null>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -75,8 +75,4 @@ const SplashImageEditingInner = ({ imgRef, imageFlipped, setImageFlipped, post }
   </div>
 }
 
-export const SplashImageEditing = registerComponent('SplashImageEditing', SplashImageEditingInner);
-
-
-
-export default SplashImageEditingInner;
+export default SplashImageEditing;

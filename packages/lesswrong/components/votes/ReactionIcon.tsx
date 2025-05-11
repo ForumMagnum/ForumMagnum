@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReactionIconInner = ({react, inverted=false, size=18, classes}: {
+const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   react: string,
   inverted?: boolean,
   size?: number,
@@ -53,7 +53,7 @@ const ReactionIconInner = ({react, inverted=false, size=18, classes}: {
 }
 
 
-export const ReactionIcon = registerComponent('ReactionIcon', ReactionIconInner, {styles});
+export default registerComponent('ReactionIcon', ReactionIcon, {styles});
 
 
 

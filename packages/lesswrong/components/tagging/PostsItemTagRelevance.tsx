@@ -7,8 +7,8 @@ import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
-import { OverallVoteButton } from "../votes/OverallVoteButton";
-import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
+import OverallVoteButton from "../votes/OverallVoteButton";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsItemTagRelevanceInner = ({tagRel, classes}: {
+const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -96,6 +96,6 @@ const PostsItemTagRelevanceInner = ({tagRel, classes}: {
   </PostsItem2MetaInfo>
 }
 
-export const PostsItemTagRelevance = registerComponent("PostsItemTagRelevance", PostsItemTagRelevanceInner, {styles});
+export default registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
 
 

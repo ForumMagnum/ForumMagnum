@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from '../tagging/FooterTag';
 import classNames from 'classnames';
-import { Loading } from "../vulcan-core/Loading";
-import { ForumIcon } from "../common/ForumIcon";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   tag: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SingleTagItemInner = ({documentId, onDelete, className, classes}: {
+const SingleTagItem = ({documentId, onDelete, className, classes}: {
   documentId: string,
   onDelete: (id: string) => void,
   className?: string,
@@ -60,9 +60,9 @@ const SingleTagItemInner = ({documentId, onDelete, className, classes}: {
   return null
 };
 
-export const SingleTagItem = registerComponent(
+export default registerComponent(
   'SingleTagItem',
-  SingleTagItemInner,
+  SingleTagItem,
   {styles, stylePriority: -1},
 );
 

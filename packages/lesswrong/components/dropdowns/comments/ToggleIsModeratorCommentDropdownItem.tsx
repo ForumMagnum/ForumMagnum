@@ -4,9 +4,9 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const ToggleIsModeratorCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => {
+const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
@@ -54,8 +54,8 @@ const ToggleIsModeratorCommentDropdownItemInner = ({comment}: {comment: Comments
   );
 }
 
-export const ToggleIsModeratorCommentDropdownItem = registerComponent(
-  "ToggleIsModeratorCommentDropdownItem", ToggleIsModeratorCommentDropdownItemInner,
+export default registerComponent(
+  "ToggleIsModeratorCommentDropdownItem", ToggleIsModeratorCommentDropdownItem,
 );
 
 

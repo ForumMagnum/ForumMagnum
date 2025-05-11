@@ -132,7 +132,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentFrameInner = ({
+const CommentFrame = ({
   comment,
   treeOptions,
   onClick,
@@ -222,6 +222,6 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof s
 }
 
 
-export const CommentFrame = registerComponent('CommentFrame', CommentFrameInner, {styles, stylePriority: -1});
+export default registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
 
 

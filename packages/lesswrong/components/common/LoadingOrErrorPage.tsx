@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { SingleColumnSection } from "./SingleColumnSection";
-import { Loading } from "../vulcan-core/Loading";
-import { ErrorPage } from "./ErrorPage";
-import { Error404 } from "./Error404";
+import SingleColumnSection from "./SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import ErrorPage from "./ErrorPage";
+import Error404 from "./Error404";
 
 /**
  * A component for handling the case where you have a page that loads something
@@ -20,7 +20,7 @@ import { Error404 } from "./Error404";
  *   }
  *
  */
-const LoadingOrErrorPageInner = ({loading, error}: {
+const LoadingOrErrorPage = ({loading, error}: {
   loading: boolean
   error: any
 }) => {
@@ -35,7 +35,7 @@ const LoadingOrErrorPageInner = ({loading, error}: {
   }
 }
 
-export const LoadingOrErrorPage = registerComponent('LoadingOrErrorPage', LoadingOrErrorPageInner);
+export default registerComponent('LoadingOrErrorPage', LoadingOrErrorPage);
 
 
 

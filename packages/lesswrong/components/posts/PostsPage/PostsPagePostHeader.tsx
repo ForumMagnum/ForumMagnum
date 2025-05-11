@@ -9,24 +9,24 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { PostsPageTitle } from "./PostsPageTitle";
-import { PostsAuthors } from "./PostsAuthors";
-import { LWTooltip } from "../../common/LWTooltip";
-import { PostsPageDate } from "./PostsPageDate";
-import { CrosspostHeaderIcon } from "./CrosspostHeaderIcon";
-import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
-import { PostsVote } from "../../votes/PostsVote";
-import { PostsGroupDetails } from "../PostsGroupDetails";
-import { PostsTopSequencesNav } from "./PostsTopSequencesNav";
-import { PostsPageEventData } from "./PostsPageEventData";
-import { FooterTagList } from "../../tagging/FooterTagList";
-import { AddToCalendarButton } from "../AddToCalendar/AddToCalendarButton";
-import { BookmarkButton } from "../BookmarkButton";
-import { ForumIcon } from "../../common/ForumIcon";
-import { GroupLinks } from "../../localGroups/GroupLinks";
-import { SharePostButton } from "../SharePostButton";
-import { AudioToggle } from "./AudioToggle";
-import { ReadTime } from "./ReadTime";
+import PostsPageTitle from "./PostsPageTitle";
+import PostsAuthors from "./PostsAuthors";
+import LWTooltip from "../../common/LWTooltip";
+import PostsPageDate from "./PostsPageDate";
+import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import PostsVote from "../../votes/PostsVote";
+import PostsGroupDetails from "../PostsGroupDetails";
+import PostsTopSequencesNav from "./PostsTopSequencesNav";
+import PostsPageEventData from "./PostsPageEventData";
+import FooterTagList from "../../tagging/FooterTagList";
+import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
+import BookmarkButton from "../BookmarkButton";
+import ForumIcon from "../../common/ForumIcon";
+import GroupLinks from "../../localGroups/GroupLinks";
+import SharePostButton from "../SharePostButton";
+import AudioToggle from "./AudioToggle";
+import ReadTime from "./ReadTime";
 
 const SECONDARY_SPACING = 20;
 
@@ -231,7 +231,7 @@ export const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeaderInner = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
@@ -350,8 +350,8 @@ const PostsPagePostHeaderInner = ({post, answers = [], dialogueResponses = [], s
   </>
 }
 
-export const PostsPagePostHeader = registerComponent(
-  'PostsPagePostHeader', PostsPagePostHeaderInner, {styles}
+export default registerComponent(
+  'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
 
 

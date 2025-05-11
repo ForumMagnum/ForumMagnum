@@ -1,9 +1,9 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useBookmarkPost } from "../../hooks/useBookmarkPost";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const BookmarkDropdownItemInner = ({post}: {post: PostsBase}) => {
+const BookmarkDropdownItem = ({post}: {post: PostsBase}) => {
   const {icon, labelText, toggleBookmark} = useBookmarkPost(post);
   return (
     <DropdownItem
@@ -14,9 +14,9 @@ const BookmarkDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const BookmarkDropdownItem = registerComponent(
+export default registerComponent(
   "BookmarkDropdownItem",
-  BookmarkDropdownItemInner,
+  BookmarkDropdownItem,
 );
 
 

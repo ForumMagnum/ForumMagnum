@@ -6,7 +6,7 @@ import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ChaptersForm } from './ChaptersForm';
-import { AddDraftPostDialog } from "./AddDraftPostDialog";
+import AddDraftPostDialog from "./AddDraftPostDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
 })
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersEditFormInner = ({classes, chapter, successCallback, cancelCallback}: {
+const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
   classes: ClassesType<typeof styles>,
   chapter: ChaptersEdit,
   successCallback: any,
@@ -74,7 +74,7 @@ const ChaptersEditFormInner = ({classes, chapter, successCallback, cancelCallbac
   )
 }
 
-export const ChaptersEditForm = registerComponent('ChaptersEditForm', ChaptersEditFormInner, {styles});
+export default registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
 
 
 

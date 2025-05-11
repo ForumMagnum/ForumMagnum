@@ -7,7 +7,7 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   boxesRoot: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-export const SpotlightStartOrContinueReadingInner = ({classes, spotlight, className}: {
+export const SpotlightStartOrContinueReading = ({classes, spotlight, className}: {
   spotlight: SpotlightDisplay,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -89,9 +89,9 @@ export const SpotlightStartOrContinueReadingInner = ({classes, spotlight, classN
   }
 }
 
-export const SpotlightStartOrContinueReading = registerComponent(
+export default registerComponent(
   'SpotlightStartOrContinueReading',
-  SpotlightStartOrContinueReadingInner,
+  SpotlightStartOrContinueReading,
   {styles, stylePriority: -2}
 );
 

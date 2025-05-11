@@ -4,11 +4,11 @@ import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import { CommentsNewFormProps, CommentsNewForm } from './CommentsNewForm';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { CantCommentExplanation } from "./CantCommentExplanation";
-import { CommentsList } from "./CommentsList";
-import { PostsPageCrosspostComments } from "../posts/PostsPage/PostsPageCrosspostComments";
+import CantCommentExplanation from "./CantCommentExplanation";
+import CommentsList from "./CommentsList";
+import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   debateCommentsList: {}
 })
 
-const DebateCommentsListSectionInner = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
+const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
   post: PostsDetails,
   totalComments: number,
   comments: CommentsList[],
@@ -118,7 +118,7 @@ const DebateCommentsListSectionInner = ({post, totalComments, comments, newForm=
   );
 }
 
-export const DebateCommentsListSection = registerComponent("DebateCommentsListSection", DebateCommentsListSectionInner, {styles});
+export default registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
 
 
 

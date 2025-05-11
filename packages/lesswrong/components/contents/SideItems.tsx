@@ -226,7 +226,7 @@ const SideItemsSidebarInner = ({classes}: {
   />, [classes]);
 }
 
-const SideItemInner = ({options, children}: {
+export const SideItem = ({options, children}: {
   options?: Partial<SideItemOptions>,
   children: React.ReactNode
 }) => {
@@ -263,6 +263,5 @@ export const useHasSideItemsSidebar = (): boolean => {
 
 export const SideItemsContainer = registerComponent('SideItemsContainer', SideItemsContainerInner, {styles});
 export const SideItemsSidebar = registerComponent('SideItemsSidebar', SideItemsSidebarInner, {styles});
-export const SideItem = registerComponent('SideItem', SideItemInner, {});
 
 

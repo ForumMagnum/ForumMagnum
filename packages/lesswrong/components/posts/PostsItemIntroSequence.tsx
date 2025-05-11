@@ -8,12 +8,12 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { KarmaDisplay } from "../common/KarmaDisplay";
-import { PostsTitle } from "./PostsTitle";
-import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
-import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
-import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
-import { AnalyticsTracker } from "../common/AnalyticsTracker";
+import KarmaDisplay from "../common/KarmaDisplay";
+import PostsTitle from "./PostsTitle";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
@@ -132,7 +132,7 @@ export const styles = (theme: ThemeType)=> ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const PostsItemIntroSequenceInner = ({
+const PostsItemIntroSequence = ({
   post,
   sequence,
   showBottomBorder=true,
@@ -214,7 +214,7 @@ const PostsItemIntroSequenceInner = ({
   )
 };
 
-export const PostsItemIntroSequence = registerComponent('PostsItemIntroSequence', PostsItemIntroSequenceInner, {
+export default registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
   styles,
   hocs: [withErrorBoundary],
 });

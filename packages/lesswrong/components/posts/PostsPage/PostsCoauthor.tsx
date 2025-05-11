@@ -3,15 +3,15 @@ import { useCurrentUser } from '../../common/withUser';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
-import { UsersNamePending } from "../../users/UsersNamePending";
-import { UsersName } from "../../users/UsersName";
-import { UserCommentMarkers } from "../../users/UserCommentMarkers";
+import UsersNamePending from "../../users/UsersNamePending";
+import UsersName from "../../users/UsersName";
+import UserCommentMarkers from "../../users/UserCommentMarkers";
 
 const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 });
 
-const PostsCoauthorInner = ({ post, coauthor, pageSectionContext, classes }: {
+const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   post: PostsList,
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
@@ -37,9 +37,9 @@ const PostsCoauthorInner = ({ post, coauthor, pageSectionContext, classes }: {
   );
 }
 
-export const PostsCoauthor = registerComponent(
+export default registerComponent(
   'PostsCoauthor',
-  PostsCoauthorInner,
+  PostsCoauthor,
   {styles},
 );
 

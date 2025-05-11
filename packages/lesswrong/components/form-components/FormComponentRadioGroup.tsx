@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FormComponentRadioGroupInner = ({ path, value, options, name, label, updateCurrentValues, classes }: {
+const FormComponentRadioGroup = ({ path, value, options, name, label, updateCurrentValues, classes }: {
   path: string,
   value: string,
   options: Array<{ value: string, label: string }>,
@@ -45,7 +45,7 @@ const FormComponentRadioGroupInner = ({ path, value, options, name, label, updat
   </FormControl>
 }
 
-export const FormComponentRadioGroup = registerComponent("FormComponentRadioGroup", FormComponentRadioGroupInner, {styles});
+export default registerComponent("FormComponentRadioGroup", FormComponentRadioGroup, {styles});
 
 
 

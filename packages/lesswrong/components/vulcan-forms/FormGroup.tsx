@@ -48,7 +48,7 @@ export const FormGroupHeader = registerComponent('FormGroupHeader', FormGroupHea
   styles: headerStyles
 });
 
-const IconRightInner = ({ width = 24, height = 24 }) => (
+export const IconRight = ({ width = 24, height = 24 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -68,9 +68,7 @@ const IconRightInner = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-export const IconRight = registerComponent('IconRight', IconRightInner);
-
-const IconDownInner = ({ width = 24, height = 24 }) => (
+export const IconDown = ({ width = 24, height = 24 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -89,7 +87,4 @@ const IconDownInner = ({ width = 24, height = 24 }) => (
     <rect fill="none" width="24" height="24" id="Frames-24px" />
   </svg>
 );
-
-export const IconDown = registerComponent('IconDown', IconDownInner);
-
 

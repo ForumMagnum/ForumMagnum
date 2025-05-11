@@ -15,17 +15,17 @@ import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useSingle } from '@/lib/crud/withSingle';
-import { PostsListSortDropdown } from "../../posts/PostsListSortDropdown";
-import { PostsList2 } from "../../posts/PostsList2";
-import { ContentItemBody } from "../../common/ContentItemBody";
-import { AddPostsToTag } from "../AddPostsToTag";
-import { UsersNameDisplay } from "../../users/UsersNameDisplay";
-import { TagDiscussionSection } from "../TagDiscussionSection";
-import { TagPageButtonRow } from "../TagPageButtonRow";
-import { TagIntroSequence } from "../TagIntroSequence";
-import { SectionTitle } from "../../common/SectionTitle";
-import { ContentStyles } from "../../common/ContentStyles";
-import { Loading } from "../../vulcan-core/Loading";
+import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
+import PostsList2 from "../../posts/PostsList2";
+import ContentItemBody from "../../common/ContentItemBody";
+import AddPostsToTag from "../AddPostsToTag";
+import UsersNameDisplay from "../../users/UsersNameDisplay";
+import TagDiscussionSection from "../TagDiscussionSection";
+import TagPageButtonRow from "../TagPageButtonRow";
+import TagIntroSequence from "../TagIntroSequence";
+import SectionTitle from "../../common/SectionTitle";
+import ContentStyles from "../../common/ContentStyles";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   ...tagPageHeaderStyles(theme),
 });
 
-const SubforumWikiTabInner = ({tag, revision, truncated, setTruncated, classes}: {
+const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   revision?: string,
   truncated: boolean,
@@ -151,8 +151,8 @@ const SubforumWikiTabInner = ({tag, revision, truncated, setTruncated, classes}:
     </>
 }
 
-export const SubforumWikiTab = registerComponent(
-  'SubforumWikiTab', SubforumWikiTabInner, {styles}
+export default registerComponent(
+  'SubforumWikiTab', SubforumWikiTab, {styles}
 );
 
 

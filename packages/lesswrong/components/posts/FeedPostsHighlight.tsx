@@ -11,9 +11,9 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { Loading } from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -123,7 +123,7 @@ const FeedPostHighlightBody = ({
   </ContentStyles>
 }
 
-const FeedPostsHighlightInner = ({post, ...rest}: {
+const FeedPostsHighlight = ({post, ...rest}: {
   post: PostsList,
   maxCollapsedLengthWords: number,
   initiallyExpanded?: boolean,
@@ -162,7 +162,7 @@ const FeedPostsHighlightInner = ({post, ...rest}: {
       }}/>;
 }
 
-export const FeedPostsHighlight = registerComponent('FeedPostsHighlight', FeedPostsHighlightInner, {styles});
+export default registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
 
 
 

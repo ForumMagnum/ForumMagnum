@@ -41,7 +41,7 @@ const commentEditorToolbarConfig = {
   ],
 };
 
-const CKCommentEditorInner = ({
+const CKCommentEditor = ({
   data,
   collectionName,
   fieldName,
@@ -116,7 +116,7 @@ const CKCommentEditorInner = ({
   </div>
 }
 
-export const CKCommentEditor = registerComponent("CKCommentEditor", CKCommentEditorInner, {
+export default registerComponent("CKCommentEditor", CKCommentEditor, {
   debugRerenders: true
 });
 

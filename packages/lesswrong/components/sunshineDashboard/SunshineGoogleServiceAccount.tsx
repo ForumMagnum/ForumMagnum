@@ -22,7 +22,7 @@ const getExpiryMessage = (estimatedExpiry: Date) => {
   return `The session for the service account used to handle Google Doc imports will expire soon (${estimatedExpiry} estimated), log in again to ensure the feature keeps working`
 }
 
-const SunshineGoogleServiceAccountInner = ({ classes }: {
+const SunshineGoogleServiceAccount = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -53,6 +53,6 @@ const SunshineGoogleServiceAccountInner = ({ classes }: {
   )
 }
 
-export const SunshineGoogleServiceAccount = registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccountInner, {styles})
+export default registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles});
 
 

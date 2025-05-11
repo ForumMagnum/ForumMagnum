@@ -4,11 +4,11 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
-import { SectionTitle } from "../common/SectionTitle";
-import { RecommendationsList } from "../recommendations/RecommendationsList";
-import { PostsItem } from "../posts/PostsItem";
+import SectionTitle from "../common/SectionTitle";
+import RecommendationsList from "../recommendations/RecommendationsList";
+import PostsItem from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,7 +67,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   excludeDefaultRecommendations: true
 }
 
-export const FrontpageBestOfLWWidgetInner = ({classes, reviewYear}: {
+export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
@@ -88,7 +88,7 @@ export const FrontpageBestOfLWWidgetInner = ({classes, reviewYear}: {
   </div>;
 }
 
-export const FrontpageBestOfLWWidget = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidgetInner, {
+export default registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
   styles,
   allowNonThemeColors: true, // Overlayed on an image
 });

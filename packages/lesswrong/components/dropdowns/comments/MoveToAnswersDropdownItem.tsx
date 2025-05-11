@@ -6,9 +6,9 @@ import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const MoveToAnswersDropdownItemInner = ({comment, post}: {
+const MoveToAnswersDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsBase,
 }) => {
@@ -67,8 +67,8 @@ const MoveToAnswersDropdownItemInner = ({comment, post}: {
   );
 }
 
-export const MoveToAnswersDropdownItem = registerComponent(
-  'MoveToAnswersDropdownItem', MoveToAnswersDropdownItemInner,
+export default registerComponent(
+  'MoveToAnswersDropdownItem', MoveToAnswersDropdownItem,
 );
 
 

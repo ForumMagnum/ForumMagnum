@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
-import { LWPopper } from "../common/LWPopper";
+import LWPopper from "../common/LWPopper";
 
-const EventVicinityInner = ({post}: {
+const EventVicinity = ({post}: {
   post: PostsBase
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
@@ -25,7 +25,7 @@ const EventVicinityInner = ({post}: {
   }
 };
 
-export const EventVicinity = registerComponent('EventVicinity', EventVicinityInner, {})
+export default registerComponent('EventVicinity', EventVicinity, {});
 
 
 

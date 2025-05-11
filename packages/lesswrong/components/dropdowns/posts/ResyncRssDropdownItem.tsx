@@ -8,11 +8,11 @@ import RssFeed from "@/lib/vendor/@material-ui/icons/src/RssFeed";
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { DropdownItem } from "../DropdownItem";
-import { ContentStyles } from "../../common/ContentStyles";
-import { ContentItemBody } from "../../common/ContentItemBody";
-import { LWDialog } from "../../common/LWDialog";
-import { Loading } from "../../vulcan-core/Loading";
+import DropdownItem from "../DropdownItem";
+import ContentStyles from "../../common/ContentStyles";
+import ContentItemBody from "../../common/ContentItemBody";
+import LWDialog from "../../common/LWDialog";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   diffExplanation: {
@@ -59,7 +59,7 @@ const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
     closeMenu();
     openDialog({
       name: "ResyncRssDialog",
-      contents: ({onClose}) => <ResyncRssDialog onClose={onClose} post={post} />
+      contents: ({onClose}) => <ResyncRssDialog onClose={onClose} post={post} classes={classes} />
     });
   }
 
@@ -70,7 +70,7 @@ const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
   />
 }
 
-const ResyncRssDialogInner = ({onClose, post, classes}: {
+const ResyncRssDialog = ({onClose, post, classes}: {
   onClose: () => void,
   post: PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
@@ -169,7 +169,5 @@ const ResyncRssDialogInner = ({onClose, post, classes}: {
 }
 
 export const ResyncRssDropdownItem = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItemInner, {styles});
-export const ResyncRssDialog = registerComponent('ResyncRssDialog', ResyncRssDialogInner, {styles});
-
 
 

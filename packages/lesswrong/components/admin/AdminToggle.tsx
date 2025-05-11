@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AdminToggleInner = ({classes}: {
+export const AdminToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -110,7 +110,7 @@ export const AdminToggleInner = ({classes}: {
   return null
 }
 
-export const AdminToggle = registerComponent('AdminToggle', AdminToggleInner, {styles});
+export default registerComponent('AdminToggle', AdminToggle, {styles});
 
 
 

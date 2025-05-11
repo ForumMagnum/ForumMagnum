@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   readTime: {
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
 
 
 
-const PostFixedPositionToCHeadingInner = ({post, classes}: {
+const PostFixedPositionToCHeading = ({post, classes}: {
   post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,7 +28,7 @@ const PostFixedPositionToCHeadingInner = ({post, classes}: {
   </LWTooltip>
 }
 
-export const FixedPositionToCHeading = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeadingInner, {styles});
+export default registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
 
 
 

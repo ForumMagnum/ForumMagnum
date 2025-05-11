@@ -4,7 +4,7 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
-import { LWCommentCount } from "./LWCommentCount";
+import LWCommentCount from "./LWCommentCount";
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
@@ -169,7 +169,7 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayoutInner = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
@@ -243,7 +243,7 @@ const MultiToCLayoutInner = ({segments, classes, tocRowMap = [], showSplashPageH
   </div>
 }
 
-export const MultiToCLayout = registerComponent('MultiToCLayout', MultiToCLayoutInner, {styles});
+export default registerComponent('MultiToCLayout', MultiToCLayout, {styles});
 
 
 

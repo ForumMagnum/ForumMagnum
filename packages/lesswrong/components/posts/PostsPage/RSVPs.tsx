@@ -4,7 +4,7 @@ import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { useLocation } from '../../../lib/routeUtil';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
-import { responseToText, RsvpResponse, RSVPForm } from './RSVPForm';
+import RSVPForm, { responseToText, RsvpResponse } from './RSVPForm';
 import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
@@ -14,7 +14,7 @@ import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { ContentStyles } from "../../common/ContentStyles";
+import ContentStyles from "../../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   body: {
@@ -106,7 +106,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-const RSVPsInner = ({post, classes}: {
+const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
@@ -200,7 +200,7 @@ const responseIconStyles = (theme: ThemeType) => ({
   },
 });
 
-export function ResponseIconInner({response, classes}: {
+function ResponseIconInner({response, classes}: {
   response: RsvpResponse
   classes: ClassesType<typeof responseIconStyles>
 }) {
@@ -216,7 +216,8 @@ export function ResponseIconInner({response, classes}: {
   }
 }
 
-export const RSVPs = registerComponent('RSVPs', RSVPsInner, {styles});
 export const ResponseIcon = registerComponent('ResponseIcon', ResponseIconInner, {styles: responseIconStyles});
+
+export default registerComponent('RSVPs', RSVPs, {styles});
 
 

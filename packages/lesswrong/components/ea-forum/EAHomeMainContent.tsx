@@ -3,14 +3,14 @@ import { registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
 import {tagPostTerms} from '../tagging/TagPageUtils'
 import {Link} from '../../lib/reactRouterWrapper'
-import {TopicsBarTab, HomeTagBar } from '../common/HomeTagBar'
+import HomeTagBar, {TopicsBarTab } from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
 import { isFriendlyUI } from '../../themes/forumTheme'
 import { PostsListViewProvider } from '../hooks/usePostsListView'
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "../posts/PostsList2";
-import { PostsListViewToggle } from "../posts/PostsListViewToggle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import PostsListViewToggle from "../posts/PostsListViewToggle";
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
@@ -58,7 +58,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContentInner = ({FrontpageNode, classes}: {
+const EAHomeMainContent = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
   classes: ClassesType<typeof styles>
 }) => {
@@ -121,6 +121,6 @@ const EAHomeMainContentInner = ({FrontpageNode, classes}: {
   )
 }
 
-export const EAHomeMainContent = registerComponent('EAHomeMainContent', EAHomeMainContentInner, {styles});
+export default registerComponent('EAHomeMainContent', EAHomeMainContent, {styles});
 
 

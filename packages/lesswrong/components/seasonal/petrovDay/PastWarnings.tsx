@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PastWarningsInner = ({classes, petrovDayActions, side, general}: {
+export const PastWarnings = ({classes, petrovDayActions, side, general}: {
   classes: ClassesType<typeof styles>,
   petrovDayActions: PetrovDayActionInfo[],
   side: 'east' | 'west',
@@ -52,6 +52,6 @@ export const PastWarningsInner = ({classes, petrovDayActions, side, general}: {
   </div>;
 }
 
-export const PastWarnings = registerComponent('PastWarnings', PastWarningsInner, {styles});
+export default registerComponent('PastWarnings', PastWarnings, {styles});
 
 

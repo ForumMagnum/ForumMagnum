@@ -4,11 +4,11 @@ import RejectedIcon from "@/lib/vendor/@material-ui/icons/src/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
-import { LWPopper } from "../common/LWPopper";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { RejectContentDialog } from "./RejectContentDialog";
-import { LWTooltip } from "../common/LWTooltip";
-import { MetaInfo } from "../common/MetaInfo";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import RejectContentDialog from "./RejectContentDialog";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectContentButtonInner = ({contentWrapper, classes}: {
+export const RejectContentButton = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -67,7 +67,7 @@ export const RejectContentButtonInner = ({contentWrapper, classes}: {
   </span>
 }
 
-export const RejectContentButton = registerComponent('RejectContentButton', RejectContentButtonInner, {styles});
+export default registerComponent('RejectContentButton', RejectContentButton, {styles});
 
 
 

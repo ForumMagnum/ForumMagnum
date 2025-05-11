@@ -4,14 +4,14 @@ import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { PostsItem } from "../posts/PostsItem";
-import { ReviewVotingExpandedPost } from "./ReviewVotingExpandedPost";
-import { FrontpageReviewWidget } from "./FrontpageReviewWidget";
-import { SectionFooter } from "../common/SectionFooter";
-import { Loading } from "../vulcan-core/Loading";
-import { ReviewPhaseInformation } from "./ReviewPhaseInformation";
-import { ReviewDashboardButtons } from "./ReviewDashboardButtons";
-import { PostInteractionStripe } from "./PostInteractionStripe";
+import PostsItem from "../posts/PostsItem";
+import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
+import FrontpageReviewWidget from "./FrontpageReviewWidget";
+import SectionFooter from "../common/SectionFooter";
+import Loading from "../vulcan-core/Loading";
+import ReviewPhaseInformation from "./ReviewPhaseInformation";
+import ReviewDashboardButtons from "./ReviewDashboardButtons";
+import PostInteractionStripe from "./PostInteractionStripe";
 
 const styles = (theme: ThemeType) => ({
   grid: {
@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const QuickReviewPage2022Inner = ({classes}: {
+export const QuickReviewPage2022 = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const reviewYear = REVIEW_YEAR
@@ -173,6 +173,6 @@ export const QuickReviewPage2022Inner = ({classes}: {
   </div>;
 }
 
-export const QuickReviewPage2022 = registerComponent('QuickReviewPage2022', QuickReviewPage2022Inner, {styles});
+export default registerComponent('QuickReviewPage2022', QuickReviewPage2022, {styles});
 
 

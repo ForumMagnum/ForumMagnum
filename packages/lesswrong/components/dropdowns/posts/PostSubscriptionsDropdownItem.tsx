@@ -4,7 +4,7 @@ import { subscriptionTypes } from "../../../lib/collections/subscriptions/helper
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "@/lib/collections/posts/helpers";
-import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
+import CombinedSubscriptionsDropdownItem from "../CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -61,7 +61,7 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const PostSubscriptionsDropdownItemInner = ({post}: {
+export const PostSubscriptionsDropdownItem = ({post}: {
   post: PostsList|SunshinePostsList,
 }) => {
   const currentUser = useCurrentUser();
@@ -75,9 +75,9 @@ export const PostSubscriptionsDropdownItemInner = ({post}: {
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
-export const PostSubscriptionsDropdownItem = registerComponent(
+export default registerComponent(
   "PostSubscriptionsDropdownItem",
-  PostSubscriptionsDropdownItemInner,
+  PostSubscriptionsDropdownItem,
 );
 
 

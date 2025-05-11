@@ -3,8 +3,8 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { FormatDate } from "../common/FormatDate";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostKarmaWithPreviewInner = ({ post, classes, displayTitle, reviewedAt }: {
+const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
@@ -71,6 +71,6 @@ const PostKarmaWithPreviewInner = ({ post, classes, displayTitle, reviewedAt }: 
   );
 }
 
-export const PostKarmaWithPreview = registerComponent('PostKarmaWithPreview', PostKarmaWithPreviewInner, {styles});
+export default registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
 
 

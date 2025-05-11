@@ -3,10 +3,10 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
-import { CommentsItem } from "./CommentsItem/CommentsItem";
-import { Loading } from "../vulcan-core/Loading";
+import CommentsItem from "./CommentsItem/CommentsItem";
+import Loading from "../vulcan-core/Loading";
 
-const ParentCommentSingleInner = ({
+const ParentCommentSingle = ({
   documentId,
   nestingLevel,
   post,
@@ -51,7 +51,7 @@ const ParentCommentSingleInner = ({
   }
 }
 
-export const ParentCommentSingle = registerComponent('ParentCommentSingle', ParentCommentSingleInner, {});
+export default registerComponent('ParentCommentSingle', ParentCommentSingle, {});
 
 
 

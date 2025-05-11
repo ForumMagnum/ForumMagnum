@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { ForumDropdownMultiselect } from "./ForumDropdownMultiselect";
+import ForumDropdownMultiselect from "./ForumDropdownMultiselect";
 
-const ForumDropdownInner = ({
+const ForumDropdown = ({
   value,
   options,
   queryParam,
@@ -34,6 +34,6 @@ const ForumDropdownInner = ({
   />
 }
 
-export const ForumDropdown = registerComponent('ForumDropdown', ForumDropdownInner);
+export default registerComponent('ForumDropdown', ForumDropdown);
 
 

@@ -5,11 +5,11 @@ import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
 import { HashLink } from '@/components/common/HashLink';
 import { hideScrollBars } from '@/themes/styleUtils';
-import { UsersName } from "../../../users/UsersName";
-import { CommentBody } from "../../../comments/CommentsItem/CommentBody";
-import { SmallSideVote } from "../../../votes/SmallSideVote";
-import { LWTooltip } from "../../../common/LWTooltip";
-import { UsersNameDisplay } from "../../../users/UsersNameDisplay";
+import UsersName from "../../../users/UsersName";
+import CommentBody from "../../../comments/CommentsItem/CommentBody";
+import SmallSideVote from "../../../votes/SmallSideVote";
+import LWTooltip from "../../../common/LWTooltip";
+import UsersNameDisplay from "../../../users/UsersNameDisplay";
 
 const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({ 
   root: {
@@ -86,7 +86,7 @@ const ReviewPreview = ({review}: {review: CommentsList}) => {
   </div>
 }
 
-const ReviewPillContainerInner = ({postId}: {postId: string}) => {
+const ReviewPillContainer = ({postId}: {postId: string}) => {
   const classes = useStyles(styles);
 
   const { results: reviews } = useMulti({
@@ -118,8 +118,4 @@ const ReviewPillContainerInner = ({postId}: {postId: string}) => {
   </AnalyticsContext>
 }
 
-export const ReviewPillContainer = registerComponent('ReviewPillContainer', ReviewPillContainerInner);
-
-
-
-export default ReviewPillContainerInner;
+export default ReviewPillContainer;

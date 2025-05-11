@@ -4,7 +4,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
-import { tagStyle, smallTagTextStyle, FooterTag } from './FooterTag';
+import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -18,12 +18,12 @@ import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReview
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { HoverOver } from "../common/HoverOver";
-import { ContentStyles } from "../common/ContentStyles";
-import { Loading } from "../vulcan-core/Loading";
-import { AddTagButton } from "./AddTagButton";
-import { CoreTagsChecklist } from "./CoreTagsChecklist";
-import { PostsAnnualReviewMarketTag } from "../posts/PostsAnnualReviewMarketTag";
+import HoverOver from "../common/HoverOver";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import AddTagButton from "./AddTagButton";
+import CoreTagsChecklist from "./CoreTagsChecklist";
+import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -121,7 +121,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FooterTagListInner = ({
+const FooterTagList = ({
   post,
   hideScore,
   hideAddTag,
@@ -386,6 +386,6 @@ const FooterTagListInner = ({
   </>
 };
 
-export const FooterTagList = registerComponent("FooterTagList", FooterTagListInner, {styles});
+export default registerComponent("FooterTagList", FooterTagList, {styles});
 
 

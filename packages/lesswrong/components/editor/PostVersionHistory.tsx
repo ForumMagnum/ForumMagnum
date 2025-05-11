@@ -15,14 +15,14 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { EAButton } from "../ea-forum/EAButton";
-import { LWDialog } from "../common/LWDialog";
-import { Loading } from "../vulcan-core/Loading";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { FormatDate } from "../common/FormatDate";
-import { LoadMore } from "../common/LoadMore";
-import { ChangeMetricsDisplay } from "../tagging/ChangeMetricsDisplay";
-import { LWTooltip } from "../common/LWTooltip";
+import EAButton from "../ea-forum/EAButton";
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
+import ContentItemBody from "../common/ContentItemBody";
+import FormatDate from "../common/FormatDate";
+import LoadMore from "../common/LoadMore";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
+import LWTooltip from "../common/LWTooltip";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostVersionHistoryButtonInner = ({post, postId, classes}: {
+const PostVersionHistoryButton = ({post, postId, classes}: {
   post: PostsBase,
   postId: string,
   classes: ClassesType<typeof styles>
@@ -120,6 +120,7 @@ const PostVersionHistoryButtonInner = ({post, postId, classes}: {
           onClose={onClose}
           post={post}
           postId={postId}
+          classes={classes}
         />
       })
     }}
@@ -134,7 +135,7 @@ const LIVE_REVISION_TOOLTIP = "This version is currently live"
 const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
-const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
+const PostVersionHistory = ({post, postId, onClose, classes}: {
   post: PostsBase,
   postId: string,
   onClose: () => void,
@@ -298,7 +299,6 @@ const PostVersionHistoryInner = ({post, postId, onClose, classes}: {
   );
 }
 
-export const PostVersionHistoryButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButtonInner, {styles});
-export const PostVersionHistory = registerComponent("PostVersionHistory", PostVersionHistoryInner, {styles});
+export default registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
 
 

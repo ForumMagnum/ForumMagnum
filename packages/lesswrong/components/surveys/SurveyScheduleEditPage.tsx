@@ -18,11 +18,11 @@ import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/constan
 import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { z } from "zod";
-import { Error404 } from "../common/Error404";
-import { LWTooltip } from "../common/LWTooltip";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
+import Error404 from "../common/Error404";
+import LWTooltip from "../common/LWTooltip";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = defineStyles('SurveyScheduleEditPage', (theme: ThemeType) => ({
   root: {
@@ -270,16 +270,16 @@ const SurveyScheduleEditor = () => {
   );
 }
 
-const SurveyScheduleEditPageInner = () => {
+const SurveyScheduleEditPage = () => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyScheduleEditor />
     : <Error404 />;
 }
 
-export const SurveyScheduleEditPage = registerComponent(
+export default registerComponent(
   "SurveyScheduleEditPage",
-  SurveyScheduleEditPageInner,
+  SurveyScheduleEditPage,
 );
 
 

@@ -25,7 +25,7 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
-import { postHasAudioPlayer, PostsAudioPlayerWrapper } from './PostsAudioPlayerWrapper';
+import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
@@ -37,55 +37,55 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
-import { LW_POST_PAGE_PADDING, LWPostsPageHeader } from './LWPostsPageHeader';
+import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
-import { SharePostPopup } from "../SharePostPopup";
-import { ReplyCommentDialog } from "../../comments/ReplyCommentDialog";
+import SharePostPopup from "../SharePostPopup";
+import ReplyCommentDialog from "../../comments/ReplyCommentDialog";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
-import { MultiToCLayout } from "../TableOfContents/MultiToCLayout";
-import { HeadTags } from "../../common/HeadTags";
-import { CitationTags } from "../../common/CitationTags";
-import { PostsPagePostHeader } from "./PostsPagePostHeader";
-import { PostsPagePostFooter } from "./PostsPagePostFooter";
-import { PostBodyPrefix } from "./PostBodyPrefix";
-import { PostCoauthorRequest } from "./PostCoauthorRequest";
-import { CommentPermalink } from "../../comments/CommentPermalink";
-import { ToCColumn } from "../TableOfContents/ToCColumn";
-import { WelcomeBox } from "./WelcomeBox";
-import { TableOfContents } from "../TableOfContents/TableOfContents";
-import { RSVPs } from "./RSVPs";
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
-import { ContentStyles } from "../../common/ContentStyles";
-import { PostBody } from "./PostBody";
+import MultiToCLayout from "../TableOfContents/MultiToCLayout";
+import HeadTags from "../../common/HeadTags";
+import CitationTags from "../../common/CitationTags";
+import PostsPagePostHeader from "./PostsPagePostHeader";
+import PostsPagePostFooter from "./PostsPagePostFooter";
+import PostBodyPrefix from "./PostBodyPrefix";
+import PostCoauthorRequest from "./PostCoauthorRequest";
+import CommentPermalink from "../../comments/CommentPermalink";
+import ToCColumn from "../TableOfContents/ToCColumn";
+import WelcomeBox from "./WelcomeBox";
+import TableOfContents from "../TableOfContents/TableOfContents";
+import RSVPs from "./RSVPs";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import ContentStyles from "../../common/ContentStyles";
+import PostBody from "./PostBody";
 import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
-import { PermanentRedirect } from "../../common/PermanentRedirect";
-import { DebateBody } from "../../comments/DebateBody";
-import { PostsPageRecommendationsList } from "../../recommendations/PostsPageRecommendationsList";
-import { PostSideRecommendations } from "../../recommendations/PostSideRecommendations";
-import { PostBottomRecommendations } from "../../recommendations/PostBottomRecommendations";
-import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
-import { Row } from "../../common/Row";
-import { AnalyticsInViewTracker } from "../../common/AnalyticsInViewTracker";
-import { PostsPageQuestionContent } from "../../questions/PostsPageQuestionContent";
-import { AFUnreviewedCommentCount } from "../../alignment-forum/AFUnreviewedCommentCount";
-import { CommentsListSection } from "../../comments/CommentsListSection";
-import { CommentsTableOfContents } from "../../comments/CommentsTableOfContents";
-import { StickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
-import { AttributionInViewTracker } from "../../common/AttributionInViewTracker";
-import { ForumEventPostPagePollSection } from "../../forumEvents/ForumEventPostPagePollSection";
-import { NotifyMeButton } from "../../notifications/NotifyMeButton";
-import { LWTooltip } from "../../common/LWTooltip";
-import { PostsPageDate } from "./PostsPageDate";
-import { SingleColumnSection } from "../../common/SingleColumnSection";
-import { FundraisingThermometer } from "../../common/FundraisingThermometer";
-import { PostPageReviewButton } from "./PostPageReviewButton";
-import { HoveredReactionContextProvider } from "../../votes/lwReactions/HoveredReactionContextProvider";
-import { FixedPositionToCHeading } from '../TableOfContents/PostFixedPositionToCHeading';
+import PermanentRedirect from "../../common/PermanentRedirect";
+import DebateBody from "../../comments/DebateBody";
+import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
+import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
+import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
+import NotifyMeDropdownItem from "../../dropdowns/NotifyMeDropdownItem";
+import Row from "../../common/Row";
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
+import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
+import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
+import CommentsListSection from "../../comments/CommentsListSection";
+import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
+import StickyDigestAd from "../../ea-forum/digestAd/StickyDigestAd";
+import AttributionInViewTracker from "../../common/AttributionInViewTracker";
+import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
+import NotifyMeButton from "../../notifications/NotifyMeButton";
+import LWTooltip from "../../common/LWTooltip";
+import PostsPageDate from "./PostsPageDate";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import FundraisingThermometer from "../../common/FundraisingThermometer";
+import PostPageReviewButton from "./PostPageReviewButton";
+import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
+import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
@@ -456,7 +456,7 @@ export const postsCommentsThreadMultiOptions = {
   enableTotal: true,
 }
 
-const PostsPageInner = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
+const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
   classes: ClassesType<typeof styles>,
@@ -1079,7 +1079,7 @@ const PostsPageInner = ({fullPost, postPreload, eagerPostComments, refetch, clas
   </AnalyticsContext>
 }
 
-export const PostsPage = registerComponent('PostsPage', PostsPageInner, {
+export default registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",
 });

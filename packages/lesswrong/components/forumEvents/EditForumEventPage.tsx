@@ -2,9 +2,9 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { ForumEventForm } from "./ForumEventForm";
-import { PermanentRedirect } from "../common/PermanentRedirect";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ForumEventForm from "./ForumEventForm";
+import PermanentRedirect from "../common/PermanentRedirect";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EditForumEventPageInner = ({classes}: {
+export const EditForumEventPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params: {documentId}} = useLocation();
@@ -30,9 +30,9 @@ export const EditForumEventPageInner = ({classes}: {
   );
 }
 
-export const EditForumEventPage = registerComponent(
+export default registerComponent(
   "EditForumEventPage",
-  EditForumEventPageInner,
+  EditForumEventPage,
   {styles},
 );
 

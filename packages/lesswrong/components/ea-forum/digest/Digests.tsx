@@ -5,8 +5,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { getDigestInfo } from '../../../lib/collections/digests/helpers';
-import { Error404 } from "../../common/Error404";
-import { SectionTitle } from "../../common/SectionTitle";
+import Error404 from "../../common/Error404";
+import SectionTitle from "../../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const DigestsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
   const { results } = useMulti({
     terms: {
@@ -71,6 +71,6 @@ const DigestsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export const Digests = registerComponent('Digests', DigestsInner, {styles});
+export default registerComponent('Digests', Digests, {styles});
 
 

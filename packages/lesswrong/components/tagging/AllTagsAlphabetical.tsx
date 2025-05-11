@@ -8,10 +8,10 @@ import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { TagsListItem } from "./TagsListItem";
-import { SectionTitle } from "../common/SectionTitle";
-import { SectionButton } from "../common/SectionButton";
-import { Loading } from "../vulcan-core/Loading";
+import TagsListItem from "./TagsListItem";
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AllTagsAlphabeticalInner = ({classes}: {
+const AllTagsAlphabetical = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = useMulti({
@@ -67,6 +67,6 @@ const AllTagsAlphabeticalInner = ({classes}: {
   );
 }
 
-export const AllTagsAlphabetical = registerComponent("AllTagsAlphabetical", AllTagsAlphabeticalInner, {styles});
+export default registerComponent("AllTagsAlphabetical", AllTagsAlphabetical, {styles});
 
 

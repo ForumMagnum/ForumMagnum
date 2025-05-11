@@ -5,7 +5,7 @@ import { useLocation } from '../../lib/routeUtil';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }, 
 })
 
-const PasswordResetPageInner = ({classes}: {
+const PasswordResetPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
@@ -56,6 +56,6 @@ const PasswordResetPageInner = ({classes}: {
   </SingleColumnSection>
 }
 
-export const PasswordResetPage = registerComponent("PasswordResetPage", PasswordResetPageInner, { styles });
+export default registerComponent("PasswordResetPage", PasswordResetPage, { styles });
 
 

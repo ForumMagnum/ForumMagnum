@@ -2,8 +2,8 @@ import { OpenDialogContextType } from '@/components/common/withDialog';
 import React from 'react';
 import { CkEditorPortalContextType } from '../CKEditorPortalProvider';
 import type { ClaimsPluginConfiguration, CreateClaimDialogProps } from './claimsConfigType';
-import { CreateClaimDialog } from "./CreateClaimDialog";
-import { ElicitBlock } from "../../posts/ElicitBlock";
+import CreateClaimDialog from "./CreateClaimDialog";
+import ElicitBlock from "../../posts/ElicitBlock";
 
 export const claimsConfig = (portalContext: CkEditorPortalContextType|null, openDialog: OpenDialogContextType['openDialog']): ClaimsPluginConfiguration => ({
   openNewClaimDialog: (props: CreateClaimDialogProps) => {

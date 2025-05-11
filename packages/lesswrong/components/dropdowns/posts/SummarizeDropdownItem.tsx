@@ -3,10 +3,10 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
-import { PostSummaryDialog } from "../../languageModels/PostSummaryDialog";
-import { DropdownItem } from "../DropdownItem";
+import PostSummaryDialog from "../../languageModels/PostSummaryDialog";
+import DropdownItem from "../DropdownItem";
 
-const SummarizeDropdownItemInner = ({post, closeMenu}: {
+const SummarizeDropdownItem = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
   closeMenu?: () => void,
 }) => {
@@ -34,9 +34,9 @@ const SummarizeDropdownItemInner = ({post, closeMenu}: {
   );
 }
 
-export const SummarizeDropdownItem = registerComponent(
+export default registerComponent(
   "SummarizeDropdownItem",
-  SummarizeDropdownItemInner,
+  SummarizeDropdownItem,
 );
 
 

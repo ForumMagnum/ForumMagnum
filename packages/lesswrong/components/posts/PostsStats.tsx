@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { MetaInfo } from "../common/MetaInfo";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsStatsInner = ({post, classes}: {
+const PostsStats = ({post, classes}: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -30,6 +30,6 @@ const PostsStatsInner = ({post, classes}: {
   )
 }
 
-export const PostsStats = registerComponent('PostsStats', PostsStatsInner, {styles});
+export default registerComponent('PostsStats', PostsStats, {styles});
 
 

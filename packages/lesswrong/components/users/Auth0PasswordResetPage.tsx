@@ -3,8 +3,8 @@ import { useLocation } from '../../lib/routeUtil';
 import { useAuth0Client } from '../hooks/useAuth0Client';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { lightbulbIcon } from '../icons/lightbulbIcon';
-import { EAButton } from "../ea-forum/EAButton";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import EAButton from "../ea-forum/EAButton";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const Auth0PasswordResetPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const Auth0PasswordResetPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
   const client = useAuth0Client();
 
@@ -131,6 +131,6 @@ const Auth0PasswordResetPageInner = ({ classes }: { classes: ClassesType<typeof 
   );
 };
 
-export const Auth0PasswordResetPage = registerComponent('Auth0PasswordResetPage', Auth0PasswordResetPageInner, { styles });
+export default registerComponent('Auth0PasswordResetPage', Auth0PasswordResetPage, { styles });
 
 

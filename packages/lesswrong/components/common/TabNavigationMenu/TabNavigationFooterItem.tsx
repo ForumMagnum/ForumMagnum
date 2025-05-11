@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TooltipRef } from '../FMTooltip';
-import { TabNavigationSubItem } from "./TabNavigationSubItem";
+import TabNavigationSubItem from "./TabNavigationSubItem";
 
 const smallIconSize = 23
 
@@ -76,7 +76,7 @@ type TabNavigationFooterItemProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationFooterItemInner = ({tab, classes}: TabNavigationFooterItemProps) => {
+const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {
   const { pathname } = useLocation()
   // React router links don't handle external URLs, so use a
   // normal HTML a tag if the URL is external
@@ -118,8 +118,8 @@ const TabNavigationFooterItemInner = ({tab, classes}: TabNavigationFooterItemPro
   </TooltipRef>
 }
 
-export const TabNavigationFooterItem = registerComponent(
-  'TabNavigationFooterItem', TabNavigationFooterItemInner, {styles}
+export default registerComponent(
+  'TabNavigationFooterItem', TabNavigationFooterItem, {styles}
 );
 
 

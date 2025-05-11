@@ -20,11 +20,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { COMMENTS_NEW_FORM_PADDING } from '@/lib/collections/comments/constants';
 import { CommentForm } from './CommentForm';
-import { NewUserGuidelinesDialog } from "./NewUserGuidelinesDialog";
-import { ModerationGuidelinesBox } from "./ModerationGuidelines/ModerationGuidelinesBox";
-import { RecaptchaWarning } from "../common/RecaptchaWarning";
-import { NewCommentModerationWarning } from "../sunshineDashboard/NewCommentModerationWarning";
-import { RateLimitWarning } from "../editor/RateLimitWarning";
+import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
+import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
+import RecaptchaWarning from "../common/RecaptchaWarning";
+import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
+import RateLimitWarning from "../editor/RateLimitWarning";
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -140,7 +140,7 @@ export type CommentsNewFormProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const CommentsNewFormInner = ({
+const CommentsNewForm = ({
   prefilledProps={},
   post,
   tag,
@@ -392,7 +392,7 @@ const CommentsNewFormInner = ({
   );
 };
 
-export const CommentsNewForm = registerComponent('CommentsNewForm', CommentsNewFormInner, {
+export default registerComponent('CommentsNewForm', CommentsNewForm, {
   styles,
   hocs: [withErrorBoundary]
 });

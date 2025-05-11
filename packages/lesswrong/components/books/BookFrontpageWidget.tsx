@@ -5,10 +5,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { LoginPopup } from "../users/LoginPopup";
-import { BookCheckout } from "../review/BookCheckout";
-import { BookAnimation } from "./BookAnimation";
-import { ContentStyles } from "../common/ContentStyles";
+import LoginPopup from "../users/LoginPopup";
+import BookCheckout from "../review/BookCheckout";
+import BookAnimation from "./BookAnimation";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -124,7 +124,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const BookFrontpageWidgetInner = ({ classes }: {
+const BookFrontpageWidget = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -213,6 +213,6 @@ const BookFrontpageWidgetInner = ({ classes }: {
 }
 
 
-export const BookFrontpageWidget = registerComponent('BookFrontpageWidget', BookFrontpageWidgetInner, { styles });
+export default registerComponent('BookFrontpageWidget', BookFrontpageWidget, { styles });
 
 

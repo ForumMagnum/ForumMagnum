@@ -7,10 +7,10 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useDialog } from '../common/withDialog';
-import { LWDialog } from "../common/LWDialog";
-import { SequenceDraftsList } from "./SequenceDraftsList";
+import LWDialog from "../common/LWDialog";
+import SequenceDraftsList from "./SequenceDraftsList";
 
-const AddDraftPostDialogInner = ({documentId, postIds, onClose}: {
+const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   documentId: string,
   postIds: string[],
   onClose?: () => void,
@@ -52,8 +52,8 @@ const AddDraftPostDialogInner = ({documentId, postIds, onClose}: {
   )
 }
 
-export const AddDraftPostDialog = registerComponent(
-  'AddDraftPostDialog', AddDraftPostDialogInner
+export default registerComponent(
+  'AddDraftPostDialog', AddDraftPostDialog
 );
 
 

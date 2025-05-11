@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { FormatDate } from "../common/FormatDate";
-import { UsersName } from "../users/UsersName";
-import { ChangeMetricsDisplay } from "./ChangeMetricsDisplay";
-import { SmallSideVote } from "../votes/SmallSideVote";
+import FormatDate from "../common/FormatDate";
+import UsersName from "../users/UsersName";
+import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
+import SmallSideVote from "../votes/SmallSideVote";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagRevisionItemFullMetadataInner = ({tag, revision, classes}: {
+const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
   classes: ClassesType<typeof styles>,
@@ -103,6 +103,6 @@ const TagRevisionItemFullMetadataInner = ({tag, revision, classes}: {
   </div>;
 }
 
-export const TagRevisionItemFullMetadata = registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadataInner, {styles});
+export default registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
 
 

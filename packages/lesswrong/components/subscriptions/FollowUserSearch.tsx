@@ -10,8 +10,8 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import classNames from 'classnames';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,7 +77,7 @@ const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes
 }
 
 // Modeled off and modified from AddTag.tsx
-const FollowUserSearchInner = ({onUserSelected, currentUser, classes}: {
+const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
   onUserSelected: (user: UsersMinimumInfo ) => void,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -164,6 +164,6 @@ const FollowUserSearchInner = ({onUserSelected, currentUser, classes}: {
   </div>
 }
 
-export const FollowUserSearch = registerComponent("FollowUserSearch", FollowUserSearchInner, {styles});
+export default registerComponent("FollowUserSearch", FollowUserSearch, {styles});
 
 

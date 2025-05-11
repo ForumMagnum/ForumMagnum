@@ -5,9 +5,9 @@ import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
-import { PopperCard } from "../common/PopperCard";
-import { TagPreview } from "./TagPreview";
-import { Loading } from "../vulcan-core/Loading";
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagSearchHitInner = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
+const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
   hit: any,
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
@@ -74,7 +74,7 @@ const TagSearchHitInner = ({hit, onClick, hidePostCount=false, isVotingContext, 
   );
 }
 
-export const TagSearchHit = registerComponent("TagSearchHit", TagSearchHitInner, {styles});
+export default registerComponent("TagSearchHit", TagSearchHit, {styles});
 
 
 

@@ -11,28 +11,28 @@ import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import { CommentsItemMeta } from './CommentsItemMeta';
+import CommentsItemMeta from './CommentsItemMeta';
 import { metaNoticeStyles } from "./metaNoticeStyles";
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
-import { CommentsEditForm } from "../CommentsEditForm";
-import { CommentExcerpt } from "../../common/excerpts/CommentExcerpt";
-import { CommentBody } from "./CommentBody";
-import { CommentsNewForm } from "../CommentsNewForm";
-import { ParentCommentSingle } from "../ParentCommentSingle";
-import { ForumIcon } from "../../common/ForumIcon";
-import { CommentDiscussionIcon } from "./CommentDiscussionIcon";
-import { LWTooltip } from "../../common/LWTooltip";
-import { PostsTooltip } from "../../posts/PostsPreviewTooltip/PostsTooltip";
-import { ReviewVotingWidget } from "../../review/ReviewVotingWidget";
-import { LWHelpIcon } from "../../common/LWHelpIcon";
-import { CoreTagIcon } from "../../tagging/CoreTagIcon";
-import { RejectedReasonDisplay } from "../../sunshineDashboard/RejectedReasonDisplay";
-import { HoveredReactionContextProvider } from "../../votes/lwReactions/HoveredReactionContextProvider";
-import { CommentBottom } from "./CommentBottom";
+import CommentsEditForm from "../CommentsEditForm";
+import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
+import CommentBody from "./CommentBody";
+import CommentsNewForm from "../CommentsNewForm";
+import ParentCommentSingle from "../ParentCommentSingle";
+import ForumIcon from "../../common/ForumIcon";
+import CommentDiscussionIcon from "./CommentDiscussionIcon";
+import LWTooltip from "../../common/LWTooltip";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import ReviewVotingWidget from "../../review/ReviewVotingWidget";
+import LWHelpIcon from "../../common/LWHelpIcon";
+import CoreTagIcon from "../../tagging/CoreTagIcon";
+import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
+import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
+import CommentBottom from "./CommentBottom";
 
 
 const styles = (theme: ThemeType) => ({
@@ -167,7 +167,7 @@ const styles = (theme: ThemeType) => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItemInner = ({
+export const CommentsItem = ({
   treeOptions,
   comment,
   nestingLevel=1,
@@ -422,8 +422,8 @@ export const CommentsItemInner = ({
   )
 }
 
-export const CommentsItem = registerComponent(
-  'CommentsItem', CommentsItemInner, {
+export default registerComponent(
+  'CommentsItem', CommentsItem, {
     styles,
     stylePriority: -1,
     hocs: [withErrorBoundary],

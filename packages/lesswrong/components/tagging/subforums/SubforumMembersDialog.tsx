@@ -2,10 +2,10 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { LWDialog } from "../../common/LWDialog";
-import { SubforumSubscribeSection } from "./SubforumSubscribeSection";
-import { SubforumMember } from "./SubforumMember";
-import { Loading } from "../../vulcan-core/Loading";
+import LWDialog from "../../common/LWDialog";
+import SubforumSubscribeSection from "./SubforumSubscribeSection";
+import SubforumMember from "./SubforumMember";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   titleRow: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SubforumMembersDialogInner = ({classes, onClose, tag}: {
+const SubforumMembersDialog = ({classes, onClose, tag}: {
   classes: ClassesType<typeof styles>,
   onClose: () => void,
   tag: TagSubforumFragment,
@@ -78,6 +78,6 @@ const SubforumMembersDialogInner = ({classes, onClose, tag}: {
   )
 }
 
-export const SubforumMembersDialog = registerComponent('SubforumMembersDialog', SubforumMembersDialogInner, { styles })
+export default registerComponent('SubforumMembersDialog', SubforumMembersDialog, { styles });
 
 

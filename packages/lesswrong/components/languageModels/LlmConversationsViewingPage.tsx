@@ -11,13 +11,13 @@ import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
-import { LWTooltip } from "../common/LWTooltip";
-import { FormatDate } from "../common/FormatDate";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import LWTooltip from "../common/LWTooltip";
+import FormatDate from "../common/FormatDate";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 import { LlmChatMessage } from "./LanguageModelChat";
-import { SectionTitle } from "../common/SectionTitle";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -258,7 +258,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
 }
 
 
-export const LlmConversationsViewingPageInner = ({classes}: {
+export const LlmConversationsViewingPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -285,6 +285,6 @@ export const LlmConversationsViewingPageInner = ({classes}: {
   </AnalyticsContext>
 }
 
-export const LlmConversationsViewingPage = registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPageInner, {styles});
+export default registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
 
 

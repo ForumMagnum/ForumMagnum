@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { ForumIcon } from "./ForumIcon";
+import ForumIcon from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WarningBannerInner = ({message, classes}: {
+const WarningBanner = ({message, classes}: {
   message: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -40,6 +40,6 @@ const WarningBannerInner = ({message, classes}: {
   </div>
 }
 
-export const WarningBanner = registerComponent('WarningBanner', WarningBannerInner, {styles});
+export default registerComponent('WarningBanner', WarningBanner, {styles});
 
 

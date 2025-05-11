@@ -6,8 +6,8 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
-import { PresenceList } from "./PresenceList";
-import { LWTooltip } from "../common/LWTooltip";
+import PresenceList from "./PresenceList";
+import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
-const EditorTopBarInner = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
+const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode) => void,
@@ -116,6 +116,6 @@ const EditorTopBarInner = ({accessLevel, collaborationMode, setCollaborationMode
   </div>
 }
 
-export const EditorTopBar = registerComponent("EditorTopBar", EditorTopBarInner, {styles});
+export default registerComponent("EditorTopBar", EditorTopBar, {styles});
 
 

@@ -6,13 +6,13 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
-import { SunshineCuratedSuggestionsList } from "../sunshineDashboard/SunshineCuratedSuggestionsList";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { BasicFormStyles } from "../form-components/BasicFormStyles";
-import { SectionTitle } from "../common/SectionTitle";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { CurationNoticesItem } from "./CurationNoticesItem";
-import { CommentsList } from "../comments/CommentsList";
+import SunshineCuratedSuggestionsList from "../sunshineDashboard/SunshineCuratedSuggestionsList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import SectionTitle from "../common/SectionTitle";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import CurationNoticesItem from "./CurationNoticesItem";
+import CommentsList from "../comments/CommentsList";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CurationPageInner = ({classes}: {
+export const CurationPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -85,6 +85,6 @@ export const CurationPageInner = ({classes}: {
   </div>;
 }
 
-export const CurationPage = registerComponent('CurationPage', CurationPageInner, {styles});
+export default registerComponent('CurationPage', CurationPage, {styles});
 
 

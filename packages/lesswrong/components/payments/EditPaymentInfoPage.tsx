@@ -14,10 +14,10 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { SectionTitle } from "../common/SectionTitle";
-import { ContentStyles } from "../common/ContentStyles";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = defineStyles('EditPaymentInfoPage', (theme: ThemeType) => ({
   root: {
@@ -124,7 +124,7 @@ const UserPaymentInfoForm = ({
   );
 };
 
-export const EditPaymentInfoPageInner = () => {
+export const EditPaymentInfoPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
@@ -147,7 +147,7 @@ export const EditPaymentInfoPageInner = () => {
   </ContentStyles>;
 }
 
-export const EditPaymentInfoPage = registerComponent('EditPaymentInfoPage', EditPaymentInfoPageInner);
+export default registerComponent('EditPaymentInfoPage', EditPaymentInfoPage);
 
 
 

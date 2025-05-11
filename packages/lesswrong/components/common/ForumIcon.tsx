@@ -630,7 +630,7 @@ type ForumIconProps = IconProps & {
  *     }
  * Note that you must specify the unit (px); a number alone will not work.
  */
-const ForumIconInner = ({
+const ForumIcon = ({
   icon,
   noDefaultStyles,
   className,
@@ -656,7 +656,7 @@ const ForumIconInner = ({
   return <Icon className={fullClassName} {...props} />;
 }
 
-export const ForumIcon = registerComponent("ForumIcon", ForumIconInner, {
+export default registerComponent("ForumIcon", ForumIcon, {
   areEqual: "auto",
 });
 

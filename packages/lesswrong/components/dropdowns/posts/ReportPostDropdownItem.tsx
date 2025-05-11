@@ -3,10 +3,10 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
-import { ReportForm } from "../../sunshineDashboard/ReportForm";
-import { DropdownItem } from "../DropdownItem";
+import ReportForm from "../../sunshineDashboard/ReportForm";
+import DropdownItem from "../DropdownItem";
 
-const ReportPostDropdownItemInner = ({post}: {post: PostsBase}) => {
+const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
@@ -37,9 +37,9 @@ const ReportPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 };
 
-export const ReportPostDropdownItem = registerComponent(
+export default registerComponent(
   'ReportPostDropdownItem',
-  ReportPostDropdownItemInner,
+  ReportPostDropdownItem,
 );
 
 

@@ -4,7 +4,7 @@ import { objectKeys } from "../../lib/utils/typeGuardUtils";
 import { useTracking } from "../../lib/analyticsEvents";
 import { EMPTY_TEXT_PLACEHOLDER, emptyTextCellStyles } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { SocialMediaIcon } from "../icons/SocialMediaIcon";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const styles = defineStyles('PeopleDirectorySocialMediaCell', (theme: ThemeType) => ({
   root: {

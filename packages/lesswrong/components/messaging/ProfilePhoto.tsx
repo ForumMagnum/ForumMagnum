@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import AccountCircleIcon from '@/lib/vendor/@material-ui/icons/src/AccountCircle';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 export const PROFILE_IMG_DIAMETER = 36
 export const PROFILE_IMG_DIAMETER_MOBILE = 26
@@ -62,7 +62,7 @@ const getUserInitials = (displayName: string) => {
  * where we didn't like how the layout looked with that empty space.
  * So this component includes a couple fallbacks in case the user has no photo.
  */
-const ProfilePhotoInner = ({user, noLink=false, from, className, classes}: {
+const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   user: {
     slug: string,
     profileImageId: string | null,
@@ -109,7 +109,7 @@ const ProfilePhotoInner = ({user, noLink=false, from, className, classes}: {
 }
 
 
-export const ProfilePhoto = registerComponent('ProfilePhoto', ProfilePhotoInner, {styles});
+export default registerComponent('ProfilePhoto', ProfilePhoto, {styles});
 
 
 

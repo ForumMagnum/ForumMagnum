@@ -4,9 +4,9 @@ import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/hel
 import { useCurrentUser } from "../../common/withUser";
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { isLWorAF } from "../../../lib/instanceSettings";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const MoveToAlignmentPostDropdownItemInner = ({post}: {post: PostsBase}) => {
+const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
 
@@ -45,9 +45,9 @@ const MoveToAlignmentPostDropdownItemInner = ({post}: {post: PostsBase}) => {
     );
 }
 
-export const MoveToAlignmentPostDropdownItem = registerComponent(
+export default registerComponent(
   "MoveToAlignmentPostDropdownItem",
-  MoveToAlignmentPostDropdownItemInner,
+  MoveToAlignmentPostDropdownItem,
 );
 
 

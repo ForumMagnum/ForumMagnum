@@ -18,18 +18,18 @@ import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
-import { Loading } from "../../vulcan-core/Loading";
-import { Error404 } from "../../common/Error404";
-import { PermanentRedirect } from "../../common/PermanentRedirect";
-import { HeadTags } from "../../common/HeadTags";
-import { TagFlagItem } from "../TagFlagItem";
-import { SubforumLayout } from "./SubforumLayout";
-import { WriteNewButton } from "../WriteNewButton";
-import { SubscribeButton } from "../SubscribeButton";
-import { TagTableOfContents } from "../TagTableOfContents";
-import { SidebarSubtagsBox } from "./SidebarSubtagsBox";
-import { SubforumWikiTab } from "./SubforumWikiTab";
-import { SubforumSubforumTab } from "./SubforumSubforumTab";
+import Loading from "../../vulcan-core/Loading";
+import Error404 from "../../common/Error404";
+import PermanentRedirect from "../../common/PermanentRedirect";
+import HeadTags from "../../common/HeadTags";
+import TagFlagItem from "../TagFlagItem";
+import SubforumLayout from "./SubforumLayout";
+import WriteNewButton from "../WriteNewButton";
+import SubscribeButton from "../SubscribeButton";
+import TagTableOfContents from "../TagTableOfContents";
+import SidebarSubtagsBox from "./SidebarSubtagsBox";
+import SubforumWikiTab from "./SubforumWikiTab";
+import SubforumSubforumTab from "./SubforumSubforumTab";
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {
@@ -123,7 +123,7 @@ const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
-const TagSubforumPage2Inner = ({classes}: {
+const TagSubforumPage2 = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
@@ -370,6 +370,6 @@ const TagSubforumPage2Inner = ({classes}: {
   );
 }
 
-export const TagSubforumPage2 = registerComponent("TagSubforumPage2", TagSubforumPage2Inner, {styles});
+export default registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
 
 

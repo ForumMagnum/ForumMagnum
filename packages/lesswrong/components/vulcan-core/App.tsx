@@ -19,18 +19,18 @@ import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
 import { onUserChanged } from '@/client/logging';
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { Loading } from "./Loading";
-import { HeadTags } from "../common/HeadTags";
-import { ScrollToTop } from "./ScrollToTop";
-import { Layout } from "../Layout";
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "./Loading";
+import HeadTags from "../common/HeadTags";
+import ScrollToTop from "./ScrollToTop";
+import Layout from "../Layout";
 
 interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
 }
 
-const AppInner = ({serverRequestStatus}: ExternalProps) => {
+const App = ({serverRequestStatus}: ExternalProps) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
   const history = useHistory();
@@ -121,6 +121,6 @@ const AppInner = ({serverRequestStatus}: ExternalProps) => {
   );
 }
 
-export default registerComponent('App', AppInner);
+export default registerComponent('App', App);
 
 

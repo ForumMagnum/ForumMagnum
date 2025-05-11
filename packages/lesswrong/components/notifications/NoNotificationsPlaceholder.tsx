@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import { ForumIcon } from "../common/ForumIcon";
-import { EAOnboardingInput } from "../ea-forum/onboarding/EAOnboardingInput";
-import { EAButton } from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -114,7 +114,7 @@ const NotSubscribedPlaceholder = ({classes}: {
   );
 }
 
-const NoNotificationsPlaceholderInner = ({subscribedToDigest, classes}: {
+const NoNotificationsPlaceholder = ({subscribedToDigest, classes}: {
   subscribedToDigest: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -125,9 +125,9 @@ const NoNotificationsPlaceholderInner = ({subscribedToDigest, classes}: {
     );
 }
 
-export const NoNotificationsPlaceholder = registerComponent(
+export default registerComponent(
   "NoNotificationsPlaceholder",
-  NoNotificationsPlaceholderInner,
+  NoNotificationsPlaceholder,
   {styles},
 );
 

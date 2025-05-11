@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsPostItemInner = ({post, className, classes}: {
+export const AnalyticsPostItem = ({post, className, classes}: {
   post: PostAnalytics2Result,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -91,9 +91,9 @@ export const AnalyticsPostItemInner = ({post, className, classes}: {
   );
 }
 
-export const AnalyticsPostItem = registerComponent(
+export default registerComponent(
   "AnalyticsPostItem",
-  AnalyticsPostItemInner,
+  AnalyticsPostItem,
   {styles, stylePriority: -1},
 );
 

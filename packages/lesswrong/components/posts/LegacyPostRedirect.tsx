@@ -3,11 +3,11 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 
-const LegacyPostRedirectInner = () => {
+const LegacyPostRedirect = () => {
   const { params } = useLocation();
   const legacyId = params.id;
   const { post, loading } = usePostByLegacyId({ legacyId });
@@ -20,7 +20,7 @@ const LegacyPostRedirectInner = () => {
   }
 };
 
-export const LegacyPostRedirect = registerComponent('LegacyPostRedirect', LegacyPostRedirectInner);
+export default registerComponent('LegacyPostRedirect', LegacyPostRedirect);
 
 
 

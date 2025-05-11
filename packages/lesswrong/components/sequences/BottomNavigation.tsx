@@ -4,7 +4,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { BottomNavigationItem } from "./BottomNavigationItem";
+import BottomNavigationItem from "./BottomNavigationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +68,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const BottomNavigationInner = ({post, classes}: {
+const BottomNavigation = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -102,7 +102,7 @@ const BottomNavigationInner = ({post, classes}: {
 };
 
 
-export const BottomNavigation = registerComponent('BottomNavigation', BottomNavigationInner, {
+export default registerComponent('BottomNavigation', BottomNavigation, {
   styles,
   hocs: [withErrorBoundary]
 });

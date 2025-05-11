@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SortButtonInner = ({classes, className, onClick, showIcon=true, label=""}: {
+const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
@@ -40,6 +40,6 @@ const SortButtonInner = ({classes, className, onClick, showIcon=true, label=""}:
   return <SwapVert className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-export const SortButton = registerComponent('SortButton', SortButtonInner, {styles});
+export default registerComponent('SortButton', SortButton, {styles});
 
 

@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ReactOrAntireactVoteInner = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
+const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
   reactionName: string
   quote: QuoteLocator|null,
   netReactionCount: number
@@ -104,7 +104,7 @@ const ReactionVoteArrow = ({orientation, onClick, className, classes}: {
 }
 
 
-export const ReactOrAntireactVote = registerComponent('ReactOrAntireactVote', ReactOrAntireactVoteInner, {styles});
+export default registerComponent('ReactOrAntireactVote', ReactOrAntireactVote, {styles});
 
 
 

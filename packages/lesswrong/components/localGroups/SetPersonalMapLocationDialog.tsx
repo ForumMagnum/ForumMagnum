@@ -13,9 +13,9 @@ import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   ...sharedStyles(theme),
 });
 
-const SetPersonalMapLocationDialogInner = ({ onClose, classes }: {
+const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -107,7 +107,7 @@ const SetPersonalMapLocationDialogInner = ({ onClose, classes }: {
   )
 }
 
-export const SetPersonalMapLocationDialog = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialogInner, {styles});
+export default registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
 
 
 

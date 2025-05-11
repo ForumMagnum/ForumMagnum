@@ -6,7 +6,7 @@ import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } 
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 
-const HeadTagsInner = ({
+const HeadTags = ({
   ogUrl: ogUrlProp,
   canonicalUrl: canonicalUrlProp,
   description: descriptionProp,
@@ -87,6 +87,6 @@ const HeadTagsInner = ({
     );
 }
 
-export const HeadTags = registerComponent('HeadTags', HeadTagsInner);
+export default registerComponent('HeadTags', HeadTags);
 
 

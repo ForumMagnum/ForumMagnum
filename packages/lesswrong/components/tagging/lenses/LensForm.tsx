@@ -16,9 +16,9 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useCallback, useState } from "react";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { Error404 } from "../../common/Error404";
-import { SummariesEditForm } from "../SummariesEditForm";
-import { FormComponentCheckbox } from "../../form-components/FormComponentCheckbox";
+import Error404 from "../../common/Error404";
+import SummariesEditForm from "../SummariesEditForm";
+import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('MultiDocumentsForm', (theme: ThemeType) => ({
   fieldWrapper: {

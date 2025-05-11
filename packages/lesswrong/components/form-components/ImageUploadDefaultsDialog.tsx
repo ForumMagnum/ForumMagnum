@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogTitle } from '../widgets/DialogTitle';
-import { LWDialog } from "../common/LWDialog";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import LWDialog from "../common/LWDialog";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   images: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ImageUploadDefaultsDialogInner = ({ onSelect, onClose, classes, type }: {
+const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -140,6 +140,6 @@ const ImageUploadDefaultsDialogInner = ({ onSelect, onClose, classes, type }: {
   )
 }
 
-export const ImageUploadDefaultsDialog = registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialogInner, {styles});
+export default registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialog, {styles});
 
 

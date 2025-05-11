@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
 const ExternalLink: FC<PropsWithChildren<{href: string}>> = ({href, children}) =>
   <a href={href} target="_blank" rel="noreferrer">{children}</a>
 
-const EATermsOfUsePageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.root}>
       <Typography variant="display1" className={classes.title}>Effective Ventures Foundation - Terms of Use – EA FORUM ADDENDUM</Typography>
@@ -95,6 +95,6 @@ const EATermsOfUsePageInner = ({classes}: {classes: ClassesType<typeof styles>})
   );
 }
 
-export const EATermsOfUsePage = registerComponent('EATermsOfUsePage', EATermsOfUsePageInner, {styles})
+export default registerComponent('EATermsOfUsePage', EATermsOfUsePage, {styles});
 
 

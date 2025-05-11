@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getRecommendationSettings, RecommendationsAlgorithmPicker } from './RecommendationsAlgorithmPicker'
+import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { isLW, isEAForum } from '../../lib/instanceSettings';
@@ -10,17 +10,17 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SettingsButton } from "../icons/SettingsButton";
-import { ContinueReadingList } from "./ContinueReadingList";
-import { RecommendationsList } from "./RecommendationsList";
-import { SectionTitle } from "../common/SectionTitle";
-import { SectionSubtitle } from "../common/SectionSubtitle";
-import { BookmarksList } from "../bookmarks/BookmarksList";
-import { LWTooltip } from "../common/LWTooltip";
-import { CuratedPostsList } from "./CuratedPostsList";
-import { ForumIcon } from "../common/ForumIcon";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SettingsButton from "../icons/SettingsButton";
+import ContinueReadingList from "./ContinueReadingList";
+import RecommendationsList from "./RecommendationsList";
+import SectionTitle from "../common/SectionTitle";
+import SectionSubtitle from "../common/SectionSubtitle";
+import BookmarksList from "../bookmarks/BookmarksList";
+import LWTooltip from "../common/LWTooltip";
+import CuratedPostsList from "./CuratedPostsList";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: isFriendlyUI ? {} : {
@@ -123,7 +123,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 // NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
 // more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
 // create an EARecommendations component, or we can just delete it.
-const RecommendationsAndCuratedInner = ({
+const RecommendationsAndCurated = ({
   configName,
   classes,
 }: {
@@ -321,6 +321,6 @@ const RecommendationsAndCuratedInner = ({
   return render();
 }
 
-export const RecommendationsAndCurated = registerComponent("RecommendationsAndCurated", RecommendationsAndCuratedInner, {styles});
+export default registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
 
 

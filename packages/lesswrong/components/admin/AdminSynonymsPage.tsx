@@ -4,10 +4,10 @@ import { gql, useQuery, useMutation } from "@apollo/client";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
-import { Error404 } from "../common/Error404";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,7 +99,7 @@ const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes
   );
 }
 
-const AdminSynonymsPageInner = ({classes}: {
+const AdminSynonymsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -108,9 +108,9 @@ const AdminSynonymsPageInner = ({classes}: {
     : <Error404 />;
 }
 
-export const AdminSynonymsPage = registerComponent(
+export default registerComponent(
   "AdminSynonymsPage",
-  AdminSynonymsPageInner,
+  AdminSynonymsPage,
   {styles},
 );
 

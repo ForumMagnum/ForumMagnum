@@ -6,14 +6,14 @@ import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
-import { PostsItem } from "../posts/PostsItem";
-import { LWTooltip } from "../common/LWTooltip";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { SectionFooter } from "../common/SectionFooter";
-import { LoadMore } from "../common/LoadMore";
+import PostsItem from "../posts/PostsItem";
+import LWTooltip from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
 
-const DialoguesPageInner = () => {
+const DialoguesPage = () => {
   const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
     fragmentName: "PostsPage",
     resolverName: "RecentlyActiveDialogues",
@@ -86,7 +86,7 @@ const DialoguesPageInner = () => {
   </AnalyticsContext>
 }
 
-export const DialoguesPage = registerComponent('DialoguesPage', DialoguesPageInner, {
+export default registerComponent('DialoguesPage', DialoguesPage, {
   hocs: [withErrorBoundary]
 });
 

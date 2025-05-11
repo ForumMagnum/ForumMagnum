@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { UserNameDeleted } from "../users/UserNameDeleted";
-import { LWTooltip } from "../common/LWTooltip";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import UserNameDeleted from "../users/UserNameDeleted";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -55,7 +55,7 @@ const reformatAuthorPlaceholder = (
   );
 }
 
-const TruncatedAuthorsListInner = ({
+const TruncatedAuthorsList = ({
   post,
   expandContainer,
   className,
@@ -124,9 +124,9 @@ const TruncatedAuthorsListInner = ({
     );
 }
 
-export const TruncatedAuthorsList = registerComponent(
+export default registerComponent(
   "TruncatedAuthorsList",
-  TruncatedAuthorsListInner,
+  TruncatedAuthorsList,
   {styles, stylePriority: -2},
 );
 

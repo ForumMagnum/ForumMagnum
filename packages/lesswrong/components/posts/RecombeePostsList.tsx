@@ -10,10 +10,10 @@ import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { LoadMore } from "../common/LoadMore";
-import { PostsItem } from "./PostsItem";
-import { SectionFooter } from "../common/SectionFooter";
-import { PostsLoading } from "./PostsLoading";
+import LoadMore from "../common/LoadMore";
+import PostsItem from "./PostsItem";
+import SectionFooter from "../common/SectionFooter";
+import PostsLoading from "./PostsLoading";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -123,7 +123,7 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsListInner = ({ algorithm, settings, limit = 15, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
@@ -237,6 +237,6 @@ export const RecombeePostsListInner = ({ algorithm, settings, limit = 15, classe
   </div>;
 }
 
-export const RecombeePostsList = registerComponent('RecombeePostsList', RecombeePostsListInner, {styles});
+export default registerComponent('RecombeePostsList', RecombeePostsList, {styles});
 
 

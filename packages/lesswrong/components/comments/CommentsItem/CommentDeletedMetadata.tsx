@@ -1,7 +1,7 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
-import { CalendarDate } from "../../common/CalendarDate";
+import CalendarDate from "../../common/CalendarDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentDeletedMetadataInner = ({documentId, classes}: {
+const CommentDeletedMetadata = ({documentId, classes}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -44,8 +44,8 @@ const CommentDeletedMetadataInner = ({documentId, classes}: {
   }
 };
 
-export const CommentDeletedMetadata = registerComponent(
-  'CommentDeletedMetadata', CommentDeletedMetadataInner, {styles}
+export default registerComponent(
+  'CommentDeletedMetadata', CommentDeletedMetadata, {styles}
 );
 
 

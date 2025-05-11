@@ -7,10 +7,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { defaultSequenceBannerIdSetting } from './SequencesPage';
 import { isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
-import { CloudinaryImage } from "../common/CloudinaryImage";
-import { UsersName } from "../users/UsersName";
-import { LinkCard } from "../common/LinkCard";
-import { SequencesSummary } from "./SequencesSummary";
+import CloudinaryImage from "../common/CloudinaryImage";
+import UsersName from "../users/UsersName";
+import LinkCard from "../common/LinkCard";
+import SequencesSummary from "./SequencesSummary";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -127,7 +127,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
+const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
   classes: ClassesType<typeof styles>,
@@ -174,7 +174,7 @@ const SequencesGridItemInner = ({ sequence, showAuthor=false, classes, bookItemS
   </div>
 }
 
-export const SequencesGridItem = registerComponent('SequencesGridItem', SequencesGridItemInner, {styles});
+export default registerComponent('SequencesGridItem', SequencesGridItem, {styles});
 
 
 

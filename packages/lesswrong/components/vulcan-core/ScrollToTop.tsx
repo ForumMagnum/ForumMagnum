@@ -1,11 +1,10 @@
 import {useEffect, useRef} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { isLWorAF } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
-export default function ScrollToTopInner() {
+export default function ScrollToTop() {
   const location = useSubscribedLocation();
   const { pathname, query, currentRoute } = location;
   const isNotFirstMountRef = useRef(false)
@@ -36,7 +35,4 @@ export default function ScrollToTopInner() {
 
   return null;
 }
-
-export const ScrollToTop = registerComponent('ScrollToTop', ScrollToTopInner);
-
 

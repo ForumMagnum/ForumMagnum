@@ -3,10 +3,10 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
 import { preferredHeadingCase } from "../../themes/forumTheme";
-import { ExpandableSection } from "../common/ExpandableSection";
-import { PopularCommentsList } from "../comments/PopularCommentsList";
+import ExpandableSection from "../common/ExpandableSection";
+import PopularCommentsList from "../comments/PopularCommentsList";
 
-const EAPopularCommentsSectionInner = () => {
+const EAPopularCommentsSection = () => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "popularComments",
     defaultExpanded: "all",
@@ -26,9 +26,9 @@ const EAPopularCommentsSectionInner = () => {
   );
 }
 
-export const EAPopularCommentsSection = registerComponent(
+export default registerComponent(
   "EAPopularCommentsSection",
-  EAPopularCommentsSectionInner,
+  EAPopularCommentsSection,
 );
 
 

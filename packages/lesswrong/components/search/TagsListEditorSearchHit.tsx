@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Hit } from 'react-instantsearch-core';
-import { MetaInfo } from "../common/MetaInfo";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsListEditorSearchHitInner = ({hit, classes}: {
+const TagsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,7 +28,7 @@ const TagsListEditorSearchHitInner = ({hit, classes}: {
 }
 
 
-export const TagsListEditorSearchHit = registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHitInner, {styles});
+export default registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHit, {styles});
 
 
 

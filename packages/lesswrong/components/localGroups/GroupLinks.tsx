@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import SvgIcon from '../icons/SvgIcon';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { TooltipSpan } from '../common/FMTooltip';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 // just the "f", used for the FB Group link
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -137,7 +137,7 @@ const tooltips: Partial<Record<string,string>> = {
   'MIRIx': "This is a MIRIx group"
 }
 
-const GroupLinksInner = ({ document, noMargin, classes }: {
+const GroupLinks = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
   noMargin?: Boolean,
   classes: ClassesType<typeof styles>,
@@ -208,6 +208,6 @@ const GroupLinksInner = ({ document, noMargin, classes }: {
   )
 }
 
-export const GroupLinks = registerComponent("GroupLinks", GroupLinksInner, {styles});
+export default registerComponent("GroupLinks", GroupLinks, {styles});
 
 

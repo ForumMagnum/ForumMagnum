@@ -6,17 +6,17 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
-import { coreTagIconMap, CoreTagIcon } from '../tagging/CoreTagIcon';
+import CoreTagIcon, { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { FormatDate } from "../common/FormatDate";
-import { ShowParentComment } from "./ShowParentComment";
-import { CommentUserName } from "./CommentsItem/CommentUserName";
-import { CommentShortformIcon } from "./CommentsItem/CommentShortformIcon";
-import { PostsItemComments } from "../posts/PostsItemComments";
-import { ContentStyles } from "../common/ContentStyles";
-import { LWPopper } from "../common/LWPopper";
-import { CommentsNode } from "./CommentsNode";
+import FormatDate from "../common/FormatDate";
+import ShowParentComment from "./ShowParentComment";
+import CommentUserName from "./CommentsItem/CommentUserName";
+import CommentShortformIcon from "./CommentsItem/CommentShortformIcon";
+import PostsItemComments from "../posts/PostsItemComments";
+import ContentStyles from "../common/ContentStyles";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "./CommentsNode";
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -158,7 +158,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SingleLineCommentInner = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, classes }: {
+const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
@@ -236,7 +236,7 @@ const SingleLineCommentInner = ({treeOptions, comment, nestingLevel, parentComme
         clickable={false}
       >
           <div className={classes.preview}>
-            <CommentsNode
+            <CommentsNodeInner
               truncated
               nestingLevel={1}
               comment={comment}
@@ -255,7 +255,7 @@ const SingleLineCommentInner = ({treeOptions, comment, nestingLevel, parentComme
   )
 };
 
-export const SingleLineComment = registerComponent('SingleLineComment', SingleLineCommentInner, {
+export default registerComponent('SingleLineComment', SingleLineComment, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: {

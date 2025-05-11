@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { InboxNavigation } from "./InboxNavigation";
-import { FriendlyInbox } from "./FriendlyInbox";
+import InboxNavigation from "./InboxNavigation";
+import FriendlyInbox from "./FriendlyInbox";
 
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
@@ -13,7 +13,7 @@ export type InboxComponentProps = {
   isModInbox?: boolean;
 };
 
-const InboxWrapperInner = () => {
+const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
   if (!currentUser) {
@@ -37,6 +37,6 @@ const InboxWrapperInner = () => {
   return <InboxComponent terms={terms} currentUser={currentUser}/>
 }
 
-export const InboxWrapper = registerComponent('InboxWrapper', InboxWrapperInner);
+export default registerComponent('InboxWrapper', InboxWrapper);
 
 

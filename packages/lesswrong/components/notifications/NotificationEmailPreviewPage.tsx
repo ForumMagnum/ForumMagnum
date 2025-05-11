@@ -4,16 +4,16 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useQuery, gql } from '@apollo/client';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { Loading } from "../vulcan-core/Loading";
-import { EmailPreview } from "./EmailPreview";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import EmailPreview from "./EmailPreview";
 
 const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
   return urlStr.split(",");
 }
 
-const NotificationEmailPreviewPageInner = () => {
+const NotificationEmailPreviewPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const notificationIds = parseIds(query?.notificationIds);
@@ -58,7 +58,7 @@ const NotificationEmailPreviewPageInner = () => {
   );
 }
 
-export const NotificationEmailPreviewPage = registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPageInner);
+export default registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
 
 
 

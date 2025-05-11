@@ -12,11 +12,11 @@ import classNames from 'classnames';
 import { communityPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { AddToCalendarButton } from "../../posts/AddToCalendar/AddToCalendarButton";
-import { PostsItemTooltipWrapper } from "../../posts/PostsItemTooltipWrapper";
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
-import { VirtualProgramCard } from "./VirtualProgramCard";
-import { PrettyEventDateTime } from "./PrettyEventDateTime";
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import VirtualProgramCard from "./VirtualProgramCard";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -122,7 +122,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EventCardsInner = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
+const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
   events: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
@@ -212,6 +212,6 @@ const EventCardsInner = ({events, loading, numDefaultCards, hideSpecialCards, hi
   </>
 }
 
-export const EventCards = registerComponent('EventCards', EventCardsInner, {styles});
+export default registerComponent('EventCards', EventCards, {styles});
 
 

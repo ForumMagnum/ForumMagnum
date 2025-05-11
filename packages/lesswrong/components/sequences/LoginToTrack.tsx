@@ -2,9 +2,9 @@ import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import startCase from "lodash/startCase";
-import { LoginPopupButton } from "../users/LoginPopupButton";
+import LoginPopupButton from "../users/LoginPopupButton";
 
-const LoginToTrackInner = ({className, children = "Log in to save where you left off"}: {
+const LoginToTrack = ({className, children = "Log in to save where you left off"}: {
   className?: string,
   children?: ReactNode,
 }) => {
@@ -15,6 +15,6 @@ const LoginToTrackInner = ({className, children = "Log in to save where you left
   );
 }
 
-export const LoginToTrack = registerComponent("LoginToTrack", LoginToTrackInner, {})
+export default registerComponent("LoginToTrack", LoginToTrack, {});
 
 

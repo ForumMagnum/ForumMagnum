@@ -8,14 +8,14 @@ import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
-import { DocumentDeletion, AllPostsPageTagDocDeletionItem } from './AllPostsPageTagDocDeletionItem';
-import { ChangeMetricsDisplay } from "./ChangeMetricsDisplay";
-import { PostsItemComments } from "../posts/PostsItemComments";
-import { AllPostsPageTagRevisionItem } from "./AllPostsPageTagRevisionItem";
-import { CommentById } from "../comments/CommentById";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
-import { UsersName } from "../users/UsersName";
+import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
+import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
+import PostsItemComments from "../posts/PostsItemComments";
+import AllPostsPageTagRevisionItem from "./AllPostsPageTagRevisionItem";
+import CommentById from "../comments/CommentById";
+import LWTooltip from "../common/LWTooltip";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import UsersName from "../users/UsersName";
 
 export const POSTED_AT_WIDTH = 38
 
@@ -111,7 +111,7 @@ const styles = (theme: ThemeType) => ({
   tagRevision: {},
 });
 
-const SingleLineTagUpdatesInner = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
   tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
@@ -211,6 +211,6 @@ const SingleLineTagUpdatesInner = ({tag, revisionIds, commentCount, commentIds, 
   </div>
 }
 
-export const SingleLineTagUpdates = registerComponent('SingleLineTagUpdates', SingleLineTagUpdatesInner, {styles});
+export default registerComponent('SingleLineTagUpdates', SingleLineTagUpdates, {styles});
 
 

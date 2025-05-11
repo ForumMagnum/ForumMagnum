@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
-import { ForumIconName, ForumIcon } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import { useDismissable } from "../hooks/useDismissable";
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
 
@@ -76,7 +76,7 @@ const guides: HowToGuide[] = [
   },
 ];
 
-export const NewPostHowToGuidesInner = ({classes}: {
+export const NewPostHowToGuides = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {dismissed, dismiss} = useDismissable(HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE);
@@ -104,9 +104,9 @@ export const NewPostHowToGuidesInner = ({classes}: {
   );
 }
 
-export const NewPostHowToGuides = registerComponent(
+export default registerComponent(
   "NewPostHowToGuides",
-  NewPostHowToGuidesInner,
+  NewPostHowToGuides,
   {styles},
 );
 

@@ -6,7 +6,7 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PostReadCheckboxInner = ({classes, post, width=12}: {
+export const PostReadCheckbox = ({classes, post, width=12}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   width?: number
@@ -66,7 +66,7 @@ export const PostReadCheckboxInner = ({classes, post, width=12}: {
   }
 }
 
-export const PostReadCheckbox = registerComponent('PostReadCheckbox', PostReadCheckboxInner, {styles});
+export default registerComponent('PostReadCheckbox', PostReadCheckbox, {styles});
 
 
 

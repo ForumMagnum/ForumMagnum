@@ -11,9 +11,9 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
-import { ContentStyles } from "../common/ContentStyles";
+import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 export type ExternalPostImportData = {
   alreadyExists: boolean;
@@ -223,7 +223,7 @@ const CommentEditor = ({
   );
 };
 
-const ExternalPostImporterInner = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
+const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
   const [value, setValue] = useState('');
   const [post, setPost] = useState<ExternalPostImportData['post'] | null>(null);
   const [postContent, setPostContent] = useState<string>('');
@@ -412,7 +412,7 @@ const ExternalPostImporterInner = ({ classes, defaultPostedAt }: { classes: Clas
   );
 };
 
-export const ExternalPostImporter = registerComponent('ExternalPostImporter', ExternalPostImporterInner, {
+export default registerComponent('ExternalPostImporter', ExternalPostImporter, {
   styles,
 });
 

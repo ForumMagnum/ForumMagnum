@@ -4,7 +4,7 @@ import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { CommentsList } from "../comments/CommentsList";
+import CommentsList from "../comments/CommentsList";
 
 const styles = (theme: ThemeType) => ({
   commentsList: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const AnswerCommentsListInner = ({post, parentAnswer, commentTree, treeOptions, classes}: {
+const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, classes}: {
   post: PostsList,
   commentTree: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
@@ -66,7 +66,7 @@ const AnswerCommentsListInner = ({post, parentAnswer, commentTree, treeOptions, 
   </div>
 }
 
-export const AnswerCommentsList = registerComponent('AnswerCommentsList', AnswerCommentsListInner, {styles});
+export default registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
 
 
 

@@ -3,8 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { LWDialog } from "../../common/LWDialog";
-import { EAButton } from "../EAButton";
+import LWDialog from "../../common/LWDialog";
+import EAButton from "../EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ConfirmPublishDialogInner = ({ digest, onClose, classes }: {
+const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   digest: DigestsMinimumInfo,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -68,6 +68,6 @@ const ConfirmPublishDialogInner = ({ digest, onClose, classes }: {
   )
 }
 
-export const ConfirmPublishDialog = registerComponent('ConfirmPublishDialog', ConfirmPublishDialogInner, {styles});
+export default registerComponent('ConfirmPublishDialog', ConfirmPublishDialog, {styles});
 
 

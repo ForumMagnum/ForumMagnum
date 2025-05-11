@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMulti } from '@/lib/crud/withMulti';
-import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
-import { Row } from "../../common/Row";
+import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
+import Row from "../../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PetrovAdminConsoleInner = ({classes, currentUser}: {
+export const PetrovAdminConsole = ({classes, currentUser}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent
 }) => {
@@ -61,6 +61,6 @@ export const PetrovAdminConsoleInner = ({classes, currentUser}: {
   </PetrovWorldmapWrapper>
 }
 
-export const PetrovAdminConsole = registerComponent('PetrovAdminConsole', PetrovAdminConsoleInner, {styles});
+export default registerComponent('PetrovAdminConsole', PetrovAdminConsole, {styles});
 
 

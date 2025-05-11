@@ -5,11 +5,11 @@ import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isMobile } from '@/lib/utils/isMobile';
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { PopperCard } from "../common/PopperCard";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { SharePostActions } from "../dropdowns/posts/SharePostActions";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import PopperCard from "../common/PopperCard";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import SharePostActions from "../dropdowns/posts/SharePostActions";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SharePostButtonInner = ({
+const SharePostButton = ({
   post,
   className,
   classes,
@@ -77,7 +77,7 @@ const SharePostButtonInner = ({
   </div>
 }
 
-export const SharePostButton = registerComponent('SharePostButton', SharePostButtonInner, {
+export default registerComponent('SharePostButton', SharePostButton, {
   styles,
   hocs: [withErrorBoundary],
 });

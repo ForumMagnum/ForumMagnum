@@ -13,22 +13,22 @@ import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
 import DeferRender from '@/components/common/DeferRender';
-import { ErrorPage } from "../../common/ErrorPage";
-import { Error404 } from "../../common/Error404";
-import { SettingsButton } from "../../icons/SettingsButton";
-import { UsersName } from "../../users/UsersName";
-import { SingleColumnSection } from "../../common/SingleColumnSection";
-import { MixedTypeFeed } from "../../common/MixedTypeFeed";
-import { TagRevisionItem } from "../TagRevisionItem";
-import { LensRevisionItem } from "./LensRevisionItem";
-import { SummaryRevisionItem } from "./SummaryRevisionItem";
-import { FormatDate } from "../../common/FormatDate";
-import { CommentsNode } from "../../comments/CommentsNode";
-import { Loading } from "../../vulcan-core/Loading";
-import { LinkToPost } from "../../linkPreview/LinkToPost";
-import { SingleLineFeedEvent } from "../../common/SingleLineFeedEvent";
-import { SectionTitle } from "../../common/SectionTitle";
-import { ForumIcon } from "../../common/ForumIcon";
+import ErrorPage from "../../common/ErrorPage";
+import Error404 from "../../common/Error404";
+import SettingsButton from "../../icons/SettingsButton";
+import UsersName from "../../users/UsersName";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import MixedTypeFeed from "../../common/MixedTypeFeed";
+import TagRevisionItem from "../TagRevisionItem";
+import LensRevisionItem from "./LensRevisionItem";
+import SummaryRevisionItem from "./SummaryRevisionItem";
+import FormatDate from "../../common/FormatDate";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import Loading from "../../vulcan-core/Loading";
+import LinkToPost from "../../linkPreview/LinkToPost";
+import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
+import SectionTitle from "../../common/SectionTitle";
+import ForumIcon from "../../common/ForumIcon";
 import { MenuItem } from "../../common/Menus";
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
@@ -88,7 +88,7 @@ export const defaultTagHistorySettings: TagHistorySettings = {
   lensId: "all",
 };
 
-const TagHistoryPageInner = () => {
+const TagHistoryPage = () => {
   const classes = useStyles(tagHistoryStyles);
   const { params, query } = useLocation();
   const { slug } = params;
@@ -218,7 +218,7 @@ const TagHistoryPageInner = () => {
               return null;
             return <div>
               <SingleLineFeedEvent icon={<ForumIcon className={classNames(classes.feedIcon, classes.commentIcon)} icon="Comment"/>}>
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{ tag, forceSingleLine: collapseAll }}
                   comment={comment}
                   loadChildrenSeparately={true}
@@ -342,6 +342,6 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   </div>
 }
 
-export const TagHistoryPage = registerComponent("TagHistoryPage", TagHistoryPageInner);
+export default registerComponent("TagHistoryPage", TagHistoryPage);
 
 

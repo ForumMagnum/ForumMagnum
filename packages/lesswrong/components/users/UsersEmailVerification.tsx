@@ -17,7 +17,7 @@ const styles = defineStyles('UsersEmailVerification', (theme: ThemeType) => ({
   }
 }));
 
-const UsersEmailVerificationInner = ({ resend = false }: { resend?: boolean }) => {
+const UsersEmailVerification = ({ resend = false }: { resend?: boolean }) => {
   const classes = useStyles(styles);
   const [emailSent, setEmailSent] = useState(false);
 
@@ -61,7 +61,7 @@ const UsersEmailVerificationInner = ({ resend = false }: { resend?: boolean }) =
 }
 
 
-export const UsersEmailVerification = registerComponent('UsersEmailVerification', UsersEmailVerificationInner, {
+export default registerComponent('UsersEmailVerification', UsersEmailVerification, {
   hocs: [withErrorBoundary],
 });
 

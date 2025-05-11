@@ -3,7 +3,7 @@ import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { TimeTag } from "../common/TimeTag";
+import TimeTag from "../common/TimeTag";
 
 function getDateFormat(dense: boolean, isThisYear: boolean): string {
   if (dense) {
@@ -21,7 +21,7 @@ function getDateFormat(dense: boolean, isThisYear: boolean): string {
   }
 }
 
-const EventTimeInner = ({post, dense=false}: {
+const EventTime = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,
 }) => {
@@ -81,7 +81,7 @@ const EventTimeInner = ({post, dense=false}: {
   }
 };
 
-export const EventTime = registerComponent('EventTime', EventTimeInner);
+export default registerComponent('EventTime', EventTime);
 
 
 

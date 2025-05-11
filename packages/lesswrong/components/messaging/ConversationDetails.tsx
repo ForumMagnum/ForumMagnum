@@ -3,10 +3,10 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { ConversationTitleEditForm } from "./ConversationTitleEditForm";
-import { Loading } from "../vulcan-core/Loading";
-import { MetaInfo } from "../common/MetaInfo";
-import { UsersName } from "../users/UsersName";
+import ConversationTitleEditForm from "./ConversationTitleEditForm";
+import Loading from "../vulcan-core/Loading";
+import MetaInfo from "../common/MetaInfo";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // Component for displaying details about currently selected conversation
-const ConversationDetailsInner = ({conversation, hideOptions = false, classes}: {
+const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   conversation: ConversationsList,
   hideOptions?: boolean,
   classes: ClassesType<typeof styles>,
@@ -54,6 +54,6 @@ const ConversationDetailsInner = ({conversation, hideOptions = false, classes}: 
   )
 }
 
-export const ConversationDetails = registerComponent('ConversationDetails', ConversationDetailsInner, {styles});
+export default registerComponent('ConversationDetails', ConversationDetails, {styles});
 
 

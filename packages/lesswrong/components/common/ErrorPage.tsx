@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { SingleColumnSection } from "./SingleColumnSection";
-import { ErrorMessage } from "./ErrorMessage";
+import SingleColumnSection from "./SingleColumnSection";
+import ErrorMessage from "./ErrorMessage";
 
-const ErrorPageInner = ({error}: {
+const ErrorPage = ({error}: {
   error: any
 }) => {
   const message = error?.message ?? error ?? "Error";
@@ -13,7 +13,7 @@ const ErrorPageInner = ({error}: {
   </SingleColumnSection>
 }
 
-export const ErrorPage = registerComponent('ErrorPage', ErrorPageInner);
+export default registerComponent('ErrorPage', ErrorPage);
 
 
 

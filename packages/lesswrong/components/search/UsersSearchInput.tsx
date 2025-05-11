@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const UsersSearchInputInner = ({ inputProps, classes }: {
+const UsersSearchInput = ({ inputProps, classes }: {
   inputProps: InputBaseComponentProps;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -28,7 +28,7 @@ const UsersSearchInputInner = ({ inputProps, classes }: {
   />
 };
 
-export const UsersSearchInput = registerComponent("UsersSearchInput", UsersSearchInputInner, {styles});
+export default registerComponent("UsersSearchInput", UsersSearchInput, {styles});
 
 
 

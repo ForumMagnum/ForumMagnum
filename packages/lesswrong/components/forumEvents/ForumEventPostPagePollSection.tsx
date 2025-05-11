@@ -6,7 +6,7 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
-import { getForumEventVoteForUser, ForumEventPoll } from "./ForumEventPoll";
+import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
@@ -62,7 +62,7 @@ const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-
  * and allow users to update their vote to show that the post changed their minds.
  * This uses the theme name to set the root element's colors so you should NoSSR it.
  */
-export const ForumEventPostPagePollSectionInner = ({postId, forumEventId, classes, ...divProps}: {
+export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ...divProps}: {
   postId?: string,
   forumEventId?: string,
   classes: ClassesType<typeof styles>,
@@ -148,9 +148,9 @@ export const ForumEventPostPagePollSectionInner = ({postId, forumEventId, classe
   );
 }
 
-export const ForumEventPostPagePollSection = registerComponent(
+export default registerComponent(
   "ForumEventPostPagePollSection",
-  ForumEventPostPagePollSectionInner,
+  ForumEventPostPagePollSection,
   {styles},
 );
 

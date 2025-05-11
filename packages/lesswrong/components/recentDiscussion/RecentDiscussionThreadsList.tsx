@@ -5,16 +5,16 @@ import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { RecentDiscussionThread } from "./RecentDiscussionThread";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { SectionButton } from "../common/SectionButton";
-import { ShortformSubmitForm } from "../shortform/ShortformSubmitForm";
-import { Loading } from "../vulcan-core/Loading";
-import { AnalyticsInViewTracker } from "../common/AnalyticsInViewTracker";
-import { LoadMore } from "../common/LoadMore";
+import RecentDiscussionThread from "./RecentDiscussionThread";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
+import Loading from "../vulcan-core/Loading";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import LoadMore from "../common/LoadMore";
 
-const RecentDiscussionThreadsListInner = ({
+const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }: {
@@ -97,7 +97,7 @@ const RecentDiscussionThreadsListInner = ({
   )
 }
 
-export const RecentDiscussionThreadsList = registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsListInner, {
+export default registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, {
   areEqual: {
     terms: "deep",
   },

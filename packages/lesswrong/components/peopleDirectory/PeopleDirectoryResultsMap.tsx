@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryResultsMapInner = ({classes}: {
+const PeopleDirectoryResultsMap = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = usePeopleDirectory();
@@ -22,9 +22,9 @@ const PeopleDirectoryResultsMapInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryResultsMap = registerComponent(
+export default registerComponent(
   "PeopleDirectoryResultsMap",
-  PeopleDirectoryResultsMapInner,
+  PeopleDirectoryResultsMap,
   {styles},
 );
 

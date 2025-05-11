@@ -10,15 +10,15 @@ import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
 import { eligibleToNominate, getReviewPeriodEnd, getReviewPeriodStart, REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
-import { SectionTitle } from "../common/SectionTitle";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { PostsByVoteWrapper } from "../posts/PostsByVoteWrapper";
-import { ReadHistoryTab } from "../bookmarks/ReadHistoryTab";
-import { PostsListUserCommentedOn } from "./PostsListUserCommentedOn";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsByVoteWrapper from "../posts/PostsByVoteWrapper";
+import ReadHistoryTab from "../bookmarks/ReadHistoryTab";
+import PostsListUserCommentedOn from "./PostsListUserCommentedOn";
 import { Typography } from "../common/Typography";
-import { LWTooltip } from "../common/LWTooltip";
-import { AllPostsPage } from "../posts/AllPostsPage";
-import { ExternalPostImporter } from "../posts/ExternalPostImporter";
+import LWTooltip from "../common/LWTooltip";
+import AllPostsPage from "../posts/AllPostsPage";
+import ExternalPostImporter from "../posts/ExternalPostImporter";
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -85,7 +85,7 @@ export const allPostsParams = (reviewYear: ReviewYear=REVIEW_YEAR) => {
   return {after: dateStr(startDate), before: dateStr(endDate), sortedBy: 'top', timeframe: 'yearly', frontpage: 'true', unnominated: 'true', limit: "100"}
 }  
 
-const NominationsPageInner = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
+const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {location, query} = useLocation()
@@ -179,7 +179,7 @@ const NominationsPageInner = ({classes, reviewYear}: { classes: ClassesType<type
   </AnalyticsContext>
 }
 
-export const NominationsPage = registerComponent("NominationsPage", NominationsPageInner, {
+export default registerComponent("NominationsPage", NominationsPage, {
   hocs: [withErrorBoundary],
   styles
 });

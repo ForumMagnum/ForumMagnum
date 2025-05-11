@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { CommentsNode } from "../comments/CommentsNode";
-import { RejectContentButton } from "./RejectContentButton";
-import { RejectedReasonDisplay } from "./RejectedReasonDisplay";
+import CommentsNodeInner from "../comments/CommentsNode";
+import RejectContentButton from "./RejectContentButton";
+import RejectedReasonDisplay from "./RejectedReasonDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewUserCommentsListInner = ({comments, user, classes}: {
+const SunshineNewUserCommentsList = ({comments, user, classes}: {
   comments?: Array<CommentsListWithParentMetadata>,
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
@@ -43,7 +43,7 @@ const SunshineNewUserCommentsListInner = ({comments, user, classes}: {
           {comment.rejected && <RejectedReasonDisplay reason={comment.rejectedReason}/>}
           <RejectContentButton contentWrapper={{collectionName:"Comments", content:comment}}/>
         </div>}
-        <CommentsNode 
+        <CommentsNodeInner 
           treeOptions={{
             condensed: false,
             post: comment.post || undefined,
@@ -58,6 +58,6 @@ const SunshineNewUserCommentsListInner = ({comments, user, classes}: {
   )
 }
 
-export const SunshineNewUserCommentsList = registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsListInner, {styles});
+export default registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsList, {styles});
 
 

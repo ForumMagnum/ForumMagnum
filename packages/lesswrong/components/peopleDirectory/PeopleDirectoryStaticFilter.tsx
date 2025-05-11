@@ -1,9 +1,9 @@
 import React, { ReactNode, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { MultiSelectResult } from "../hooks/useMultiSelect";
-import { PeopleDirectoryFilterDropdown } from "./PeopleDirectoryFilterDropdown";
-import { PeopleDirectorySelectOption } from "./PeopleDirectorySelectOption";
-import { PeopleDirectoryClearAll } from "./PeopleDirectoryClearAll";
+import PeopleDirectoryFilterDropdown from "./PeopleDirectoryFilterDropdown";
+import PeopleDirectorySelectOption from "./PeopleDirectorySelectOption";
+import PeopleDirectoryClearAll from "./PeopleDirectoryClearAll";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -16,7 +16,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryStaticFilterInner = ({
+const PeopleDirectoryStaticFilter = ({
   filter: {state, selectedValues, clear, summary},
   justContent,
   classes,
@@ -55,9 +55,9 @@ const PeopleDirectoryStaticFilterInner = ({
   );
 }
 
-export const PeopleDirectoryStaticFilter = registerComponent(
+export default registerComponent(
   "PeopleDirectoryStaticFilter",
-  PeopleDirectoryStaticFilterInner,
+  PeopleDirectoryStaticFilter,
   {styles},
 );
 

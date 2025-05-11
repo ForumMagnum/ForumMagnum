@@ -7,19 +7,19 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
-import { MetaInfo } from "../common/MetaInfo";
-import { SunshineNewUserPostsList } from "./SunshineNewUserPostsList";
-import { SunshineNewUserCommentsList } from "./SunshineNewUserCommentsList";
-import { ContentSummaryRows } from "./ModeratorUserInfo/ContentSummaryRows";
-import { LWTooltip } from "../common/LWTooltip";
-import { UserAutoRateLimitsDisplay } from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import MetaInfo from "../common/MetaInfo";
+import SunshineNewUserPostsList from "./SunshineNewUserPostsList";
+import SunshineNewUserCommentsList from "./SunshineNewUserCommentsList";
+import ContentSummaryRows from "./ModeratorUserInfo/ContentSummaryRows";
+import LWTooltip from "../common/LWTooltip";
+import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
 import { Typography } from "../common/Typography";
-import { SunshineSendMessageWithDefaults } from "./SunshineSendMessageWithDefaults";
-import { UserReviewStatus } from "./ModeratorUserInfo/UserReviewStatus";
-import { ModeratorMessageCount } from "./ModeratorMessageCount";
-import { UserReviewMetadata } from "./ModeratorUserInfo/UserReviewMetadata";
-import { ModeratorActions } from "./ModeratorActions";
-import { NewUserDMSummary } from "./ModeratorUserInfo/NewUserDMSummary";
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
+import UserReviewStatus from "./ModeratorUserInfo/UserReviewStatus";
+import ModeratorMessageCount from "./ModeratorMessageCount";
+import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
+import ModeratorActions from "./ModeratorActions";
+import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SunshineNewUsersInfoInner = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   refetch: () => void,
@@ -170,7 +170,7 @@ const SunshineNewUsersInfoInner = ({ user, classes, refetch, currentUser }: {
   )
 }
 
-export const SunshineNewUsersInfo = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfoInner, {
+export default registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
   styles,
   hocs: [
     withErrorBoundary,

@@ -9,8 +9,8 @@ import classNames from "classnames";
 import moment from "moment";
 import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
 import { useUpdate } from "@/lib/crud/withUpdate";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { NotificationsPageItem } from "./NotificationsPage/NotificationsPageItem";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import NotificationsPageItem from "./NotificationsPage/NotificationsPageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,7 +91,7 @@ const formatNotificationType = (type: string): string => {
   }
 }
 
-const NotificationsPopoverNotificationInner = ({notification, refetch, classes}: {
+const NotificationsPopoverNotification = ({notification, refetch, classes}: {
   notification: NotificationDisplay,
   refetch?: () => void,
   classes: ClassesType<typeof styles>,
@@ -172,9 +172,9 @@ const NotificationsPopoverNotificationInner = ({notification, refetch, classes}:
   );
 }
 
-export const NotificationsPopoverNotification = registerComponent(
+export default registerComponent(
   "NotificationsPopoverNotification",
-  NotificationsPopoverNotificationInner,
+  NotificationsPopoverNotification,
   {styles},
 );
 

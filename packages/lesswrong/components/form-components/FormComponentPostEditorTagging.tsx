@@ -4,10 +4,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TagsChecklist } from "../tagging/TagsChecklist";
-import { TagMultiselect } from "./TagMultiselect";
-import { FooterTagList } from "../tagging/FooterTagList";
-import { Loading } from "../vulcan-core/Loading";
+import TagsChecklist from "../tagging/TagsChecklist";
+import TagMultiselect from "./TagMultiselect";
+import FooterTagList from "../tagging/FooterTagList";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('FormComponentPostEditorTagging', (_theme: ThemeType) => ({
   root: {

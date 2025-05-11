@@ -10,15 +10,15 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
-import { CommentBody } from "../comments/CommentsItem/CommentBody";
-import { SunshineCommentsItemOverview } from "./SunshineCommentsItemOverview";
-import { SidebarActionMenu } from "./SidebarActionMenu";
-import { SidebarAction } from "./SidebarAction";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarAction from "./SidebarAction";
 
-const SunshineNewCommentsItemInner = ({comment}: {
+const SunshineNewCommentsItem = ({comment}: {
   comment: CommentsListWithParentMetadata
 }) => {
   const currentUser = useCurrentUser();
@@ -75,7 +75,7 @@ const SunshineNewCommentsItemInner = ({comment}: {
   )
 }
 
-export const SunshineNewCommentsItem = registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItemInner, {
+export default registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, {
   hocs: [withErrorBoundary]
 });
 

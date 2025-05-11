@@ -11,10 +11,10 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { TooltipSpan } from '../common/FMTooltip';
 import { Typography } from "../common/Typography";
-import { LinkCard } from "../common/LinkCard";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
+import LinkCard from "../common/LinkCard";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,7 +101,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CollectionsItemInner = ({classes, showCloseIcon, collection}: {
+export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
   classes: ClassesType<typeof styles>,
@@ -159,7 +159,7 @@ export const CollectionsItemInner = ({classes, showCloseIcon, collection}: {
   </div>
 }
 
-export const CollectionsItem = registerComponent('CollectionsItem', CollectionsItemInner, {styles});
+export default registerComponent('CollectionsItem', CollectionsItem, {styles});
 
 
 

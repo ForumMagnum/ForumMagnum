@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import moment from '../../../lib/moment-timezone';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { TimeTag } from "../../common/TimeTag";
+import TimeTag from "../../common/TimeTag";
 
 /**
  * Returns the event datetimes in a user-friendly format,
@@ -13,7 +13,7 @@ import { TimeTag } from "../../common/TimeTag";
  * @param {string} [dense] - (Optional) Exclude the day of the week.
  * @returns {string} The formatted event datetimes.
  */
-export const PrettyEventDateTimeInner = ({
+export const PrettyEventDateTime = ({
   post,
   timezone,
   dense = false,
@@ -89,6 +89,6 @@ export const PrettyEventDateTimeInner = ({
   );
 };
 
-export const PrettyEventDateTime = registerComponent("PrettyEventDateTime", PrettyEventDateTimeInner);
+export default registerComponent("PrettyEventDateTime", PrettyEventDateTime);
 
 

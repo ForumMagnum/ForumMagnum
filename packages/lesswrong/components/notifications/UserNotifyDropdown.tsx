@@ -5,12 +5,12 @@ import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { EAButton } from "../ea-forum/EAButton";
-import { ForumIcon } from "../common/ForumIcon";
-import { PopperCard } from "../common/PopperCard";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { NotifyMeToggleDropdownItem } from "../dropdowns/NotifyMeToggleDropdownItem";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import PopperCard from "../common/PopperCard";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -36,7 +36,7 @@ const styles = (_theme: ThemeType) => ({
  * when the given user has published a new post or a new comment.
  * Currently only used in the FriendlyUsersProfile.
  */
-const UserNotifyDropdownInner = ({
+const UserNotifyDropdown = ({
   user,
   popperPlacement="bottom-start",
   className,
@@ -116,6 +116,6 @@ const UserNotifyDropdownInner = ({
   );
 }
 
-export const UserNotifyDropdown = registerComponent('UserNotifyDropdown', UserNotifyDropdownInner, {styles});
+export default registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
 
 

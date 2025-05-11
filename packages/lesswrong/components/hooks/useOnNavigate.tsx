@@ -10,7 +10,7 @@ let lastLocation: RouterLocation|null = null;
 type LocationChange = {oldLocation: RouterLocation|null, newLocation: RouterLocation};
 let onNavigateFunctions: Array<(locationChange: LocationChange) => void> = [];
 
-const NavigationEventSenderInner = () => {
+const NavigationEventSender = () => {
   const location = useSubscribedLocation();
   
   useEffect(() => {
@@ -51,6 +51,6 @@ export function useOnNavigate(fn: (change: LocationChange) => void) {
   }, [fn]);
 }
 
-export const NavigationEventSender = registerComponent("NavigationEventSender", NavigationEventSenderInner);
+export default registerComponent("NavigationEventSender", NavigationEventSender);
 
 

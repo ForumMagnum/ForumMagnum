@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SidebarActionMenuInner = ({children, classes}: {
+const SidebarActionMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -24,7 +24,7 @@ const SidebarActionMenuInner = ({children, classes}: {
   </div>
 };
 
-export const SidebarActionMenu = registerComponent('SidebarActionMenu', SidebarActionMenuInner, {styles});
+export default registerComponent('SidebarActionMenu', SidebarActionMenu, {styles});
 
 
 

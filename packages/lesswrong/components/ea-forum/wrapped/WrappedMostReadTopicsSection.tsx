@@ -3,8 +3,8 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (_theme: ThemeType) => ({
   chart: {
@@ -19,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
 /**
  * Section that displays a list of the user's most-read topics
  */
-const WrappedMostReadTopicsSectionInner = ({classes}: {
+const WrappedMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {mostReadTopics}} = useForumWrappedContext();
@@ -65,9 +65,9 @@ const WrappedMostReadTopicsSectionInner = ({classes}: {
   );
 }
 
-export const WrappedMostReadTopicsSection = registerComponent(
+export default registerComponent(
   "WrappedMostReadTopicsSection",
-  WrappedMostReadTopicsSectionInner,
+  WrappedMostReadTopicsSection,
   {styles},
 );
 

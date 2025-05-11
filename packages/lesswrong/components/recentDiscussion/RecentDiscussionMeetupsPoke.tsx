@@ -9,7 +9,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecentDiscussionMeetupsPokeInner = ({classes}: {
+const RecentDiscussionMeetupsPoke = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [mapsLoaded, googleMaps] = useGoogleMaps()
@@ -210,8 +210,8 @@ const RecentDiscussionMeetupsPokeInner = ({classes}: {
   </div>
 }
 
-export const RecentDiscussionMeetupsPoke = registerComponent(
-  'RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPokeInner, {
+export default registerComponent(
+  'RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPoke, {
     styles,
     hocs: [withErrorBoundary],
   }

@@ -5,7 +5,7 @@ import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { CommentActions } from "./CommentActions";
+import CommentActions from "./CommentActions";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -21,7 +21,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const CommentsMenuInner = ({classes, className, comment, post, tag, showEdit, icon}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
@@ -74,7 +74,7 @@ const CommentsMenuInner = ({classes, className, comment, post, tag, showEdit, ic
   )
 }
 
-export const CommentsMenu = registerComponent('CommentsMenu', CommentsMenuInner, {styles});
+export default registerComponent('CommentsMenu', CommentsMenu, {styles});
 
 
 

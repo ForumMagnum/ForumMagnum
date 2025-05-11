@@ -8,10 +8,10 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { ApolloError } from '@apollo/client';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { Error404 } from "../common/Error404";
+import ContentStyles from "../common/ContentStyles";
+import Error404 from "../common/Error404";
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -103,7 +103,7 @@ export const inferRedLinkTitle = (tag: TagBasicInfo|null, slug: string|null): st
   return tag?.name ?? derivedTitle ?? null;
 }
 
-const RedlinkTagPageInner = ({tag, slug}: {
+const RedlinkTagPage = ({tag, slug}: {
   tag: TagPageFragment|TagPageWithRevisionFragment|null
   slug?: string
 }) => {
@@ -154,7 +154,7 @@ const RedlinkTagPageInner = ({tag, slug}: {
   </SingleColumnSection>
 }
 
-export const RedlinkTagPage = registerComponent('RedlinkTagPage', RedlinkTagPageInner);
+export default registerComponent('RedlinkTagPage', RedlinkTagPage);
 
 
 

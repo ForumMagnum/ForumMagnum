@@ -15,9 +15,9 @@ import { captureException } from "@sentry/core";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { NotifPopoverLink } from "../useNotificationsPopoverContext";
 import type { TagCommentType } from "@/lib/collections/comments/types";
-import { NotificationsPageItem } from "./NotificationsPageItem";
-import { PostsTooltip } from "../../posts/PostsPreviewTooltip/PostsTooltip";
-import { LWTooltip } from "../../common/LWTooltip";
+import NotificationsPageItem from "./NotificationsPageItem";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const logAndCaptureError = (error: Error) => {
   // eslint-disable-next-line no-console
@@ -124,7 +124,7 @@ const getAddedReactions = (addedReactions?: EAReactionChanges): AddedReactions[]
   });
 }
 
-export const NotificationsPageKarmaChangeInner = ({
+export const NotificationsPageKarmaChange = ({
   postKarmaChange,
   commentKarmaChange,
   tagRevisionKarmaChange,
@@ -252,9 +252,9 @@ export const NotificationsPageKarmaChangeInner = ({
   );
 }
 
-export const NotificationsPageKarmaChange = registerComponent(
+export default registerComponent(
   "NotificationsPageKarmaChange",
-  NotificationsPageKarmaChangeInner,
+  NotificationsPageKarmaChange,
   {styles},
 );
 

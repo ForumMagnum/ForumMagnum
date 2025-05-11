@@ -5,9 +5,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
-import { PostsLoading } from "../posts/PostsLoading";
-import { PostsItem } from "../posts/PostsItem";
-import { LoadMore } from "../common/LoadMore";
+import PostsLoading from "../posts/PostsLoading";
+import PostsItem from "../posts/PostsItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BookmarksListInner = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, classes}: {
+const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, classes}: {
   showMessageIfEmpty?: boolean,
   limit?: number,
   hideLoadMore?: boolean,
@@ -63,7 +63,7 @@ const BookmarksListInner = ({showMessageIfEmpty=false, limit=20, hideLoadMore=fa
   </AnalyticsContext>
 }
 
-export const BookmarksList = registerComponent('BookmarksList', BookmarksListInner, {
+export default registerComponent('BookmarksList', BookmarksList, {
   styles,
   hocs: [withErrorBoundary]
 });

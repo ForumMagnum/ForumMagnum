@@ -5,9 +5,9 @@ import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const ApproveNewUserDropdownItemInner = ({post}: {post: PostsBase}) => {
+const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -40,9 +40,9 @@ const ApproveNewUserDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const ApproveNewUserDropdownItem = registerComponent(
+export default registerComponent(
   "ApproveNewUserDropdownItem",
-  ApproveNewUserDropdownItemInner,
+  ApproveNewUserDropdownItem,
 );
 
 

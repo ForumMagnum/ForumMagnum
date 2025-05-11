@@ -13,19 +13,19 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 import { WithMessagesFunctions } from '../common/FlashMessages';
-import { SetPersonalMapLocationDialog } from "./SetPersonalMapLocationDialog";
-import { LoginPopup } from "../users/LoginPopup";
-import { EventNotificationsDialog } from "./EventNotificationsDialog";
-import { CommunityMapWrapper } from "./CommunityMapWrapper";
-import { LocalGroupsList } from "./LocalGroupsList";
-import { Loading } from "../vulcan-core/Loading";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "../posts/PostsList2";
-import { GroupFormLink } from "./GroupFormLink";
-import { SectionFooter } from "../common/SectionFooter";
+import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
+import LoginPopup from "../users/LoginPopup";
+import EventNotificationsDialog from "./EventNotificationsDialog";
+import CommunityMapWrapper from "./CommunityMapWrapper";
+import LocalGroupsList from "./LocalGroupsList";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import GroupFormLink from "./GroupFormLink";
+import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
-import { SectionButton } from "../common/SectionButton";
+import SectionButton from "../common/SectionButton";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -50,7 +50,7 @@ interface CommunityHomeState {
   currentUserLocation: any,
 }
 
-const CommunityHomeInner = ({classes}: {
+const CommunityHome = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -277,6 +277,6 @@ const CommunityHomeInner = ({classes}: {
   return render();
 }
 
-export const CommunityHome = registerComponent('CommunityHome', CommunityHomeInner, {styles});
+export default registerComponent('CommunityHome', CommunityHome, {styles});
 
 

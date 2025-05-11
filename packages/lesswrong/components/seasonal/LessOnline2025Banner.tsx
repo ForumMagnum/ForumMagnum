@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   root: {
@@ -103,7 +103,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   },
 }));
 
-export const LessOnline2025BannerInner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
+export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
   const classes = useStyles(styles);
   const timeRemaining = priceIncreaseDate.getTime() - new Date().getTime();
   const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
@@ -134,7 +134,7 @@ export const LessOnline2025BannerInner = ({priceIncreaseDate}: {priceIncreaseDat
   );
 }
 
-export const LessOnline2025Banner = registerComponent('LessOnline2025Banner', LessOnline2025BannerInner);
+export default registerComponent('LessOnline2025Banner', LessOnline2025Banner);
 
 
 

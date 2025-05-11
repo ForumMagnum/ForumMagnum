@@ -4,9 +4,9 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const ExcludeFromRecommendationsDropdownItemInner = ({post}: {
+const ExcludeFromRecommendationsDropdownItem = ({post}: {
   post: PostsList|SunshinePostsList,
 }) => {
   const currentUser = useCurrentUser();
@@ -39,9 +39,9 @@ const ExcludeFromRecommendationsDropdownItemInner = ({post}: {
   );
 }
 
-export const ExcludeFromRecommendationsDropdownItem = registerComponent(
+export default registerComponent(
   'ExcludeFromRecommendationsDropdownItem',
-  ExcludeFromRecommendationsDropdownItemInner,
+  ExcludeFromRecommendationsDropdownItem,
 );
 
 

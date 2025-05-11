@@ -4,16 +4,16 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { RevisionSelect } from "./RevisionSelect";
-import { Loading } from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
+import RevisionSelect from "./RevisionSelect";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   revisionList: {
   },
 });
 
-const PostsRevisionSelectInner = ({ classes }: {
+const PostsRevisionSelect = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { params } = useLocation();
@@ -60,6 +60,6 @@ const PostsRevisionSelectInner = ({ classes }: {
   </SingleColumnSection>
 }
 
-export const PostsRevisionSelect = registerComponent("PostsRevisionSelect", PostsRevisionSelectInner, {styles});
+export default registerComponent("PostsRevisionSelect", PostsRevisionSelect, {styles});
 
 

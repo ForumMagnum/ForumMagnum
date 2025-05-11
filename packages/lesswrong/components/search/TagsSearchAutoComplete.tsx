@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
-import { SearchAutoComplete } from "./SearchAutoComplete";
-import { TagSearchHit } from "../tagging/TagSearchHit";
+import SearchAutoComplete from "./SearchAutoComplete";
+import TagSearchHit from "../tagging/TagSearchHit";
 
-const TagsSearchAutoCompleteInner = ({
+const TagsSearchAutoComplete = ({
   clickAction,
   placeholder='Search for posts',
   hidePostCount=false,
@@ -27,7 +27,7 @@ const TagsSearchAutoCompleteInner = ({
   />
 }
 
-export const TagsSearchAutoComplete = registerComponent("TagsSearchAutoComplete", TagsSearchAutoCompleteInner);
+export default registerComponent("TagsSearchAutoComplete", TagsSearchAutoComplete);
 
 
 

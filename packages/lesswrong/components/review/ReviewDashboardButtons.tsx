@@ -4,9 +4,9 @@ import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { Row } from "../common/Row";
-import { SectionFooter } from "../common/SectionFooter";
-import { LWTooltip } from "../common/LWTooltip";
+import Row from "../common/Row";
+import SectionFooter from "../common/SectionFooter";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   actionButton: {
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ReviewDashboardButtonsInner = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
+export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
@@ -94,7 +94,7 @@ export const ReviewDashboardButtonsInner = ({classes, reviewYear, reviewPhase, s
   </div>;
 }
 
-export const ReviewDashboardButtons = registerComponent('ReviewDashboardButtons', ReviewDashboardButtonsInner, {styles});
+export default registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
 
 
 

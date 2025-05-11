@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { QueryLink } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
-import { FormatDate } from "../../common/FormatDate";
+import FormatDate from "../../common/FormatDate";
 import { MenuItem } from "../../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsRevisionsListInner = ({post, classes}: {
+const PostsRevisionsList = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -40,8 +40,8 @@ const PostsRevisionsListInner = ({post, classes}: {
   </React.Fragment>
 }
 
-export const PostsRevisionsList = registerComponent(
-  'PostsRevisionsList', PostsRevisionsListInner, {styles}
+export default registerComponent(
+  'PostsRevisionsList', PostsRevisionsList, {styles}
 );
 
 

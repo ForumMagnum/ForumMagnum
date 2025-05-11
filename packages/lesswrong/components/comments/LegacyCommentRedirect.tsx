@@ -5,11 +5,11 @@ import { usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from './useComment';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 
-const LegacyCommentRedirectInner = () => {
+const LegacyCommentRedirect = () => {
   const { params } = useLocation();
   const legacyPostId = params.id;
   const legacyCommentId = params.commentId;
@@ -30,7 +30,7 @@ const LegacyCommentRedirectInner = () => {
   }
 };
 
-export const LegacyCommentRedirect = registerComponent('LegacyCommentRedirect', LegacyCommentRedirectInner);
+export default registerComponent('LegacyCommentRedirect', LegacyCommentRedirect);
 
 
 

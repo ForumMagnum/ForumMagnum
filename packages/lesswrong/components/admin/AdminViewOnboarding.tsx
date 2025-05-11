@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { EAOnboardingFlow } from "../ea-forum/onboarding/EAOnboardingFlow";
-import { BasicOnboardingFlow } from "../onboarding/BasicOnboardingFlow";
-import { Error404 } from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import EAOnboardingFlow from "../ea-forum/onboarding/EAOnboardingFlow";
+import BasicOnboardingFlow from "../onboarding/BasicOnboardingFlow";
+import Error404 from "../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
  * This page lets admins on the EA Forum view the onboarding flow,
  * so that we don't have to keep making new users to test it.
  */
-const AdminViewOnboardingInner = ({classes}: {
+const AdminViewOnboarding = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -35,8 +35,8 @@ const AdminViewOnboardingInner = ({classes}: {
   </SingleColumnSection>
 }
 
-export const AdminViewOnboarding = registerComponent(
-  "AdminViewOnboarding", AdminViewOnboardingInner, {styles}
+export default registerComponent(
+  "AdminViewOnboarding", AdminViewOnboarding, {styles}
 );
 
 

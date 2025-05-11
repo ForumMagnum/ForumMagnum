@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { LoadMore } from "../common/LoadMore";
-import { FriendlyPopularComment } from "./FriendlyPopularComment";
-import { LWPopularComment } from "./LWPopularComment";
+import LoadMore from "../common/LoadMore";
+import FriendlyPopularComment from "./FriendlyPopularComment";
+import LWPopularComment from "./LWPopularComment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PopularCommentsListInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
     resolverName: "PopularComments",
@@ -42,9 +42,9 @@ const PopularCommentsListInner = ({classes}: {classes: ClassesType<typeof styles
   );
 }
 
-export const PopularCommentsList = registerComponent(
+export default registerComponent(
   "PopularCommentsList",
-  PopularCommentsListInner,
+  PopularCommentsList,
   {styles},
 );
 

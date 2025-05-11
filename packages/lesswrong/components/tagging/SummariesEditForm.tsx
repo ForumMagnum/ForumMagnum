@@ -6,11 +6,11 @@ import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { SummaryForm } from "./SummaryForm";
-import { LWTooltip } from "../common/LWTooltip";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { ForumIcon } from "../common/ForumIcon";
-import { Loading } from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import ForumIcon from "../common/ForumIcon";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -260,7 +260,7 @@ interface SummariesEditFormProps {
   collectionName: 'Tags' | 'MultiDocuments',
 }
 
-const SummariesEditFormInner = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
+const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
@@ -350,8 +350,4 @@ const SummariesEditFormInner = ({ parentDocumentId, collectionName }: SummariesE
   </span>;
 };
 
-export const SummariesEditForm = registerComponent("SummariesEditForm", SummariesEditFormInner);
-
-
-
-export default SummariesEditFormInner;
+export default SummariesEditForm;

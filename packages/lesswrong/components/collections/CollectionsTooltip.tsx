@@ -4,10 +4,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
-import { HoverOver } from "../common/HoverOver";
-import { UsersName } from "../users/UsersName";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemTruncated } from "../common/ContentItemTruncated";
+import HoverOver from "../common/HoverOver";
+import UsersName from "../users/UsersName";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemTruncated from "../common/ContentItemTruncated";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CollectionsTooltipInner = ({collection, children, classes}: {
+const CollectionsTooltip = ({collection, children, classes}: {
   collection: CollectionsBestOfFragment,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
@@ -77,9 +77,9 @@ const CollectionsTooltipInner = ({collection, children, classes}: {
   );
 }
 
-export const CollectionsTooltip = registerComponent(
+export default registerComponent(
   "CollectionsTooltip",
-  CollectionsTooltipInner,
+  CollectionsTooltip,
   {styles},
 );
 

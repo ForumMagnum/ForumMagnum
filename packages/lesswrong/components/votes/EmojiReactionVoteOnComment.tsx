@@ -7,9 +7,9 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { VotingProps } from './votingProps';
-import { LoginPopup } from "../users/LoginPopup";
-import { PopperCard } from "../common/PopperCard";
-import { OverallVoteAxis } from "./OverallVoteAxis";
+import LoginPopup from "../users/LoginPopup";
+import PopperCard from "../common/PopperCard";
+import OverallVoteAxis from "./OverallVoteAxis";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -152,7 +152,7 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
   </span>
 }
 
-const EmojiReactionVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
+const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem)
   return <span className={classes.root}>
     <OverallVoteAxis
@@ -165,7 +165,7 @@ const EmojiReactionVoteOnCommentInner = ({document, hideKarma=false, collectionN
 }
 
 
-export const EmojiReactionVoteOnComment = registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnCommentInner, {styles});
+export default registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnComment, {styles});
 
 
 

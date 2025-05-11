@@ -3,30 +3,30 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
-import { MoveToDraftDropdownItem } from "./MoveToDraftDropdownItem";
-import { BookmarkDropdownItem } from "./BookmarkDropdownItem";
-import { SuggestCuratedDropdownItem } from "./SuggestCuratedDropdownItem";
-import { SuggestAlignmentPostDropdownItem } from "./SuggestAlignmentPostDropdownItem";
-import { ReportPostDropdownItem } from "./ReportPostDropdownItem";
-import { DeleteDraftDropdownItem } from "./DeleteDraftDropdownItem";
-import { SetSideItemVisibility } from "./SetSideItemVisibility";
+import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
+import BookmarkDropdownItem from "./BookmarkDropdownItem";
+import SuggestCuratedDropdownItem from "./SuggestCuratedDropdownItem";
+import SuggestAlignmentPostDropdownItem from "./SuggestAlignmentPostDropdownItem";
+import ReportPostDropdownItem from "./ReportPostDropdownItem";
+import DeleteDraftDropdownItem from "./DeleteDraftDropdownItem";
+import SetSideItemVisibility from "./SetSideItemVisibility";
 import { ResyncRssDropdownItem } from "./ResyncRssDropdownItem";
-import { MarkAsReadDropdownItem } from "./MarkAsReadDropdownItem";
-import { SummarizeDropdownItem } from "./SummarizeDropdownItem";
-import { MoveToFrontpageDropdownItem } from "./MoveToFrontpageDropdownItem";
-import { MoveToAlignmentPostDropdownItem } from "./MoveToAlignmentPostDropdownItem";
-import { ShortformDropdownItem } from "./ShortformDropdownItem";
-import { DropdownMenu } from "../DropdownMenu";
-import { EditTagsDropdownItem } from "./EditTagsDropdownItem";
-import { EditPostDropdownItem } from "./EditPostDropdownItem";
-import { DuplicateEventDropdownItem } from "./DuplicateEventDropdownItem";
-import { PostAnalyticsDropdownItem } from "./PostAnalyticsDropdownItem";
-import { ExcludeFromRecommendationsDropdownItem } from "./ExcludeFromRecommendationsDropdownItem";
-import { ApproveNewUserDropdownItem } from "./ApproveNewUserDropdownItem";
-import { SharePostSubmenu } from "./SharePostSubmenu";
-import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
-import { DislikeRecommendationDropdownItem } from "./DislikeRecommendationDropdownItem";
-import { HideFrontPageButton } from './HideFrontpagePostDropdownItem';
+import MarkAsReadDropdownItem from "./MarkAsReadDropdownItem";
+import SummarizeDropdownItem from "./SummarizeDropdownItem";
+import MoveToFrontpageDropdownItem from "./MoveToFrontpageDropdownItem";
+import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
+import ShortformDropdownItem from "./ShortformDropdownItem";
+import DropdownMenu from "../DropdownMenu";
+import EditTagsDropdownItem from "./EditTagsDropdownItem";
+import EditPostDropdownItem from "./EditPostDropdownItem";
+import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
+import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
+import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
+import ApproveNewUserDropdownItem from "./ApproveNewUserDropdownItem";
+import SharePostSubmenu from "./SharePostSubmenu";
+import PostSubscriptionsDropdownItem from "./PostSubscriptionsDropdownItem";
+import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
+import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -42,7 +42,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const PostActionsInner = ({post, closeMenu, includeBookmark=true, classes}: {
+const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   includeBookmark?: boolean,
@@ -92,6 +92,6 @@ const PostActionsInner = ({post, closeMenu, includeBookmark=true, classes}: {
   );
 }
 
-export const PostActions = registerComponent('PostActions', PostActionsInner, {styles});
+export default registerComponent('PostActions', PostActions, {styles});
 
 

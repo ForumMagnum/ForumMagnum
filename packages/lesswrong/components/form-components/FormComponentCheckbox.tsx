@@ -32,7 +32,7 @@ export interface FormComponentCheckboxProps {
   className?: string;
 }
 
-const FormComponentCheckboxInner = ({
+const FormComponentCheckbox = ({
   field,
   label,
   disabled = false,
@@ -65,6 +65,6 @@ const FormComponentCheckboxInner = ({
   );
 }
 
-export const FormComponentCheckbox = registerComponent('FormComponentCheckbox', FormComponentCheckboxInner);
+export default registerComponent('FormComponentCheckbox', FormComponentCheckbox);
 
 

@@ -2,8 +2,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
-import { PostsItem } from "../posts/PostsItem";
-import { SectionTitle } from "../common/SectionTitle";
+import PostsItem from "../posts/PostsItem";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const RelatedQuestionsListInner = ({ post, classes }: {
+const RelatedQuestionsList = ({ post, classes }: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -90,7 +90,7 @@ const RelatedQuestionsListInner = ({ post, classes }: {
   )
 }
 
-export const RelatedQuestionsList = registerComponent('RelatedQuestionsList', RelatedQuestionsListInner, {
+export default registerComponent('RelatedQuestionsList', RelatedQuestionsList, {
   styles,
   hocs: [withErrorBoundary]
 });

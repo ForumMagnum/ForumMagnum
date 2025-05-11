@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { FormatDate } from "../../common/FormatDate";
-import { UsersNameWrapper } from "../../users/UsersNameWrapper";
-import { AltAccountInfo } from "./AltAccountInfo";
+import FormatDate from "../../common/FormatDate";
+import UsersNameWrapper from "../../users/UsersNameWrapper";
+import AltAccountInfo from "./AltAccountInfo";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -19,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-export const UserReviewStatusInner = ({classes, user}: {
+export const UserReviewStatus = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
@@ -52,6 +52,6 @@ export const UserReviewStatusInner = ({classes, user}: {
   </div>;
 }
 
-export const UserReviewStatus = registerComponent('UserReviewStatus', UserReviewStatusInner, {styles});
+export default registerComponent('UserReviewStatus', UserReviewStatus, {styles});
 
 

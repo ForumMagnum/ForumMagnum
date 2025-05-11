@@ -2,16 +2,14 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import Fullscreen from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
-import FullscreenExit from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
 import { useLlmChat } from './LlmChatWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
-import { LanguageModelChat } from "./LanguageModelChat";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LanguageModelChat from "./LanguageModelChat";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -84,7 +82,7 @@ const styles = (theme: ThemeType) => ({
 
 const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
 
-const PopupLanguageModelChatInner = ({onClose, classes}: {
+const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
@@ -126,6 +124,6 @@ const PopupLanguageModelChatInner = ({onClose, classes}: {
   </Card>
 }
 
-export const PopupLanguageModelChat = registerComponent('PopupLanguageModelChat', PopupLanguageModelChatInner, {styles});
+export default registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
 
 

@@ -6,9 +6,9 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { TagDiscussionSection } from "./TagDiscussionSection";
-import { ContentStyles } from "../common/ContentStyles";
+import SingleColumnSection from "../common/SingleColumnSection";
+import TagDiscussionSection from "./TagDiscussionSection";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagDiscussionPageInner = ({classes}: {
+const TagDiscussionPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation();
@@ -43,7 +43,7 @@ const TagDiscussionPageInner = ({classes}: {
   );
 }
 
-export const TagDiscussionPage = registerComponent("TagDiscussionPage", TagDiscussionPageInner, {styles});
+export default registerComponent("TagDiscussionPage", TagDiscussionPage, {styles});
 
 
 

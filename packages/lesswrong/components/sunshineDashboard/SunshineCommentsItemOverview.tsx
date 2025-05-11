@@ -4,8 +4,8 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { Typography } from "../common/Typography";
-import { SidebarInfo } from "./SidebarInfo";
-import { CommentsItemDate } from "../comments/CommentsItem/CommentsItemDate";
+import SidebarInfo from "./SidebarInfo";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 
 const styles = (theme: ThemeType) => ({
   comment: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineCommentsItemOverviewInner = ({ comment, classes }: {
+const SunshineCommentsItemOverview = ({ comment, classes }: {
   comment: any,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -46,7 +46,7 @@ const SunshineCommentsItemOverviewInner = ({ comment, classes }: {
   )
 }
 
-export const SunshineCommentsItemOverview = registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverviewInner, {styles});
+export default registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, {styles});
 
 
 

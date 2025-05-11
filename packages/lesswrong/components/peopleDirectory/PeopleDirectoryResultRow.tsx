@@ -57,7 +57,7 @@ const Column: FC<{
   );
 }
 
-const PeopleDirectoryResultRowInner = ({result, classes}: {
+const PeopleDirectoryResultRow = ({result, classes}: {
   result?: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -81,9 +81,9 @@ const PeopleDirectoryResultRowInner = ({result, classes}: {
   );
 }
 
-export const PeopleDirectoryResultRow = registerComponent(
+export default registerComponent(
   "PeopleDirectoryResultRow",
-  PeopleDirectoryResultRowInner,
+  PeopleDirectoryResultRow,
   {styles},
 );
 

@@ -4,9 +4,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import {useLocation} from "../../lib/routeUtil";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { DraftsList } from "./DraftsList";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SingleColumnSection from "../common/SingleColumnSection";
+import DraftsList from "./DraftsList";
 
 const styles = (theme: ThemeType) => ({
   checkbox: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const DraftsPageInner = ({classes}: {
+const DraftsPage = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   const currentUser = useCurrentUser()
@@ -41,7 +41,7 @@ const DraftsPageInner = ({classes}: {
 }
 
 
-export const DraftsPage = registerComponent('DraftsPage', DraftsPageInner, {
+export default registerComponent('DraftsPage', DraftsPage, {
   hocs: [withErrorBoundary], styles
 });
 

@@ -6,9 +6,9 @@ import { eaForumDigestSubscribeURL } from '../../recentDiscussion/RecentDiscussi
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useDigestAd } from './useDigestAd';
-import { AnalyticsInViewTracker } from "../../common/AnalyticsInViewTracker";
-import { ForumIcon } from "../../common/ForumIcon";
-import { EAButton } from "../EAButton";
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
+import ForumIcon from "../../common/ForumIcon";
+import EAButton from "../EAButton";
 
 export const DIGEST_AD_HEADLINE_TEXT = 'Sign up for the weekly EA Forum Digest'
 export const DIGEST_AD_BODY_TEXT = 'A curated reading list of Forum posts, every Wednesday'
@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
  */
-const SidebarDigestAdInner = ({className, classes}: {
+const SidebarDigestAd = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -154,6 +154,6 @@ const SidebarDigestAdInner = ({className, classes}: {
   </AnalyticsContext>
 }
 
-export const SidebarDigestAd = registerComponent("SidebarDigestAd", SidebarDigestAdInner, {styles, stylePriority: -1});
+export default registerComponent("SidebarDigestAd", SidebarDigestAd, {styles, stylePriority: -1});
 
 

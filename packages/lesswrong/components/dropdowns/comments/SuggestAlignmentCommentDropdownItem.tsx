@@ -6,8 +6,8 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import ExposurePlus1 from '@/lib/vendor/@material-ui/icons/src/ExposurePlus1';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
-import { DropdownItem } from "../DropdownItem";
-import { OmegaIcon } from "../../icons/OmegaIcon";
+import DropdownItem from "../DropdownItem";
+import OmegaIcon from "../../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SuggestAlignmentCommentDropdownItemInner = ({ comment, post, classes }: {
+const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   comment: CommentsList,
   post?: PostsDetails,
   classes: ClassesType<typeof styles>,
@@ -87,8 +87,8 @@ const SuggestAlignmentCommentDropdownItemInner = ({ comment, post, classes }: {
   );
 }
 
-export const SuggestAlignmentCommentDropdownItem = registerComponent(
-  'SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItemInner, {styles}
+export default registerComponent(
+  'SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItem, {styles}
 );
 
 

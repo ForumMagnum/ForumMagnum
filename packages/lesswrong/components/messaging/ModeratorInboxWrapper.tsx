@@ -4,10 +4,10 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { InboxNavigation } from "./InboxNavigation";
-import { FriendlyInbox } from "./FriendlyInbox";
+import InboxNavigation from "./InboxNavigation";
+import FriendlyInbox from "./FriendlyInbox";
 
-const ModeratorInboxWrapperInner = () => {
+const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
   if (!currentUser) {
@@ -34,6 +34,6 @@ const ModeratorInboxWrapperInner = () => {
   );
 }
 
-export const ModeratorInboxWrapper = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapperInner);
+export default registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);
 
 

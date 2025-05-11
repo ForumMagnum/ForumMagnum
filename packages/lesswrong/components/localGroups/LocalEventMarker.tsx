@@ -6,8 +6,8 @@ import { ArrowSVG } from './Icons';
 import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import { GroupLinks } from "./GroupLinks";
-import { StyledMapPopup } from "./StyledMapPopup";
+import GroupLinks from "./GroupLinks";
+import StyledMapPopup from "./StyledMapPopup";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LocalEventMarkerInner = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   event: PostsList,
   handleMarkerClick: (eventId: string) => void,
   handleInfoWindowClose: (eventId: string) => void,
@@ -72,7 +72,7 @@ const LocalEventMarkerInner = ({ event, handleMarkerClick, handleInfoWindowClose
   </React.Fragment>
 }
 
-export const LocalEventMarker = registerComponent("LocalEventMarker", LocalEventMarkerInner, {styles});
+export default registerComponent("LocalEventMarker", LocalEventMarker, {styles});
 
 
 

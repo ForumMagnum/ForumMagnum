@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeSortableListComponent } from '../form-components/sortableList';
-import { SingleUsersItem } from "../form-components/SingleUsersItem";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
+import SingleUsersItem from "../form-components/SingleUsersItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('EditableUsersList', theme => ({

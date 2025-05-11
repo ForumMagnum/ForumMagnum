@@ -4,15 +4,15 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
-import { EARecentDiscussionItemProps, EARecentDiscussionItem } from "./EARecentDiscussionItem";
+import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
-import { EAPostMeta } from "../ea-forum/EAPostMeta";
-import { ForumIcon } from "../common/ForumIcon";
-import { CommentsNode } from "../comments/CommentsNode";
-import { PostExcerpt } from "../common/excerpts/PostExcerpt";
-import { LinkPostMessage } from "../posts/LinkPostMessage";
-import { EAKarmaDisplay } from "../common/EAKarmaDisplay";
-import { PostsTitle } from "../posts/PostsTitle";
+import EAPostMeta from "../ea-forum/EAPostMeta";
+import ForumIcon from "../common/ForumIcon";
+import CommentsNodeInner from "../comments/CommentsNode";
+import PostExcerpt from "../common/excerpts/PostExcerpt";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import EAKarmaDisplay from "../common/EAKarmaDisplay";
+import PostsTitle from "../posts/PostsTitle";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -96,7 +96,7 @@ const getItemProps = (
  * comments on posts, and new events. See `getItemProps` for the logic deciding
  * which variant we choose.
  */
-const EARecentDiscussionThreadInner = ({
+const EARecentDiscussionThread = ({
   post,
   comments,
   refetch,
@@ -159,7 +159,7 @@ const EARecentDiscussionThreadInner = ({
       />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
-          <CommentsNode
+          <CommentsNodeInner
             treeOptions={treeOptions}
             startThreadTruncated={true}
             expandAllThreads={expandAllThreads}
@@ -174,9 +174,9 @@ const EARecentDiscussionThreadInner = ({
   );
 }
 
-export const EARecentDiscussionThread = registerComponent(
+export default registerComponent(
   "EARecentDiscussionThread",
-  EARecentDiscussionThreadInner,
+  EARecentDiscussionThread,
   {styles},
 );
 

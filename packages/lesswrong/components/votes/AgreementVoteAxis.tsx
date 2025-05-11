@@ -6,9 +6,9 @@ import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-import { VoteAgreementIcon } from "./VoteAgreementIcon";
-import { AxisVoteButton } from "./AxisVoteButton";
-import { LWTooltip } from "../common/LWTooltip";
+import VoteAgreementIcon from "./VoteAgreementIcon";
+import AxisVoteButton from "./AxisVoteButton";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   root: {
@@ -34,7 +34,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   },
 }));
 
-const AgreementVoteAxisInner = ({ document, hideKarma=false, voteProps, agreementScoreClassName, }: {
+const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScoreClassName, }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -126,7 +126,7 @@ const AgreementVoteAxisInner = ({ document, hideKarma=false, voteProps, agreemen
 }
 
 
-export const AgreementVoteAxis = registerComponent('AgreementVoteAxis', AgreementVoteAxisInner);
+export default registerComponent('AgreementVoteAxis', AgreementVoteAxis);
 
 
 

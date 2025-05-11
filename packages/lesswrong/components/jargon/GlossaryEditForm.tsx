@@ -5,7 +5,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { formStyles, JargonEditorRow } from './JargonEditorRow';
+import JargonEditorRow, { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -15,14 +15,14 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { JargonTermForm } from './JargonTermForm';
 import { EditablePost } from '@/lib/collections/posts/helpers';
-import { LoadMore } from "../common/LoadMore";
-import { Loading } from "../vulcan-core/Loading";
-import { LWTooltip } from "../common/LWTooltip";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
 import { IconRight, IconDown } from "../vulcan-forms/FormGroup";
-import { Row } from "../common/Row";
-import { MetaInfo } from "../common/MetaInfo";
-import { EditUserJargonSettings } from "./EditUserJargonSettings";
-import { ForumIcon } from "../common/ForumIcon";
+import Row from "../common/Row";
+import MetaInfo from "../common/MetaInfo";
+import EditUserJargonSettings from "./EditUserJargonSettings";
+import ForumIcon from "../common/ForumIcon";
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -289,7 +289,7 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
   return rowCount;
 }
 
-export const GlossaryEditFormInner = ({ classes, document, showTitle = true }: {
+export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
   document: EditablePost,
   showTitle?: boolean,
@@ -591,7 +591,7 @@ export const GlossaryEditFormInner = ({ classes, document, showTitle = true }: {
   </div>;
 }
 
-export const GlossaryEditForm = registerComponent('GlossaryEditForm', GlossaryEditFormInner, {styles});
+export default registerComponent('GlossaryEditForm', GlossaryEditForm, {styles});
 
 
 

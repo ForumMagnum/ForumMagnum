@@ -4,12 +4,12 @@ import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';
-import { SectionTitle } from "../common/SectionTitle";
-import { SettingsButton } from "../icons/SettingsButton";
-import { DraftsListSettings } from "../posts/DraftsListSettings";
-import { PostsItemWrapper } from "../posts/PostsItemWrapper";
-import { LoadMore } from "../common/LoadMore";
-import { Loading } from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import SettingsButton from "../icons/SettingsButton";
+import DraftsListSettings from "../posts/DraftsListSettings";
+import PostsItemWrapper from "../posts/PostsItemWrapper";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   item: {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SequenceDraftsListInner = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
+const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
   classes: ClassesType<typeof styles>,
   limit: number,
   title?: string,
@@ -84,8 +84,8 @@ const SequenceDraftsListInner = ({limit, title="My Drafts", userId, classes, add
   </>
 }
 
-export const SequenceDraftsList = registerComponent(
-  'SequenceDraftsList', SequenceDraftsListInner, {styles}
+export default registerComponent(
+  'SequenceDraftsList', SequenceDraftsList, {styles}
 );
 
 

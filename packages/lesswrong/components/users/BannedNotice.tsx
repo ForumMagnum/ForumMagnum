@@ -2,7 +2,7 @@ import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BannedNoticeInner = ({classes}: {
+const BannedNotice = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   return <SingleColumnSection>
@@ -38,8 +38,8 @@ const BannedNoticeInner = ({classes}: {
   </SingleColumnSection>
 }
 
-export const BannedNotice = registerComponent(
-  'BannedNotice', BannedNoticeInner, {styles}
+export default registerComponent(
+  'BannedNotice', BannedNotice, {styles}
 );
 
 

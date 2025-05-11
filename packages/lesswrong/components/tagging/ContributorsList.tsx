@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { FieldsNotNull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/arbital/useTagLenses';
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { LWTooltip } from "../common/LWTooltip";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
@@ -54,7 +53,7 @@ export function useDisplayedContributors(contributorsInfo: DocumentContributorsI
   return { topContributors, smallContributors };
 }
 
-const ContributorsListInner = ({ contributors, onHoverContributor, endWithComma }: {
+const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   contributors: NonnullDocumentContributorWithStats[],
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
@@ -67,7 +66,7 @@ const ContributorsListInner = ({ contributors, onHoverContributor, endWithComma 
   </span>))}</>;
 }
 
-function ToCContributorsListInner({
+export function ToCContributorsList({
   contributors,
   onHoverContributor,
 }: {
@@ -105,7 +104,7 @@ function ToCContributorsListInner({
   );
 }
 
-const HeadingContributorsListInner = ({topContributors, smallContributors, onHoverContributor}: {
+export const HeadingContributorsList = ({topContributors, smallContributors, onHoverContributor}: {
   topContributors: NonnullDocumentContributorWithStats[]
   smallContributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string|null) => void
@@ -113,13 +112,13 @@ const HeadingContributorsListInner = ({topContributors, smallContributors, onHov
   const classes = useStyles(styles);
   return <span className={classes.contributorNameWrapper}>
     <span>Written by </span>
-    <ContributorsListInner
+    <ContributorsList
       contributors={topContributors}
       onHoverContributor={onHoverContributor}
       endWithComma={smallContributors.length > 0}
     />
     {smallContributors.length > 0 && <LWTooltip
-      title={<ContributorsListInner contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />}
+      title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />}
       clickable
       placement="top"
     >
@@ -127,10 +126,3 @@ const HeadingContributorsListInner = ({topContributors, smallContributors, onHov
     </LWTooltip>}
   </span>
 }
-
-export const ContributorsList = registerComponent('ContributorsList', ContributorsListInner);
-export const ToCContributorsList = registerComponent('ToCContributorsList', ToCContributorsListInner);
-export const HeadingContributorsList = registerComponent('HeadingContributorsList', HeadingContributorsListInner);
-
-
-

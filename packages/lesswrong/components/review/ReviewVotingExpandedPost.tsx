@@ -7,11 +7,11 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
-import { PostPageReviewButton } from "../posts/PostsPage/PostPageReviewButton";
-import { ReviewPostComments } from "./ReviewPostComments";
-import { PostsHighlight } from "../posts/PostsHighlight";
-import { PingbacksList } from "../posts/PingbacksList";
-import { Loading } from "../vulcan-core/Loading";
+import PostPageReviewButton from "../posts/PostsPage/PostPageReviewButton";
+import ReviewPostComments from "./ReviewPostComments";
+import PostsHighlight from "../posts/PostsHighlight";
+import PingbacksList from "../posts/PingbacksList";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingExpandedPostInner = ({classes, post, setExpandedPost}: {
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   classes: ClassesType<typeof styles>,
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
@@ -117,6 +117,6 @@ const ReviewVotingExpandedPostInner = ({classes, post, setExpandedPost}: {
   </div>
 }
 
-export const ReviewVotingExpandedPost = registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPostInner, {styles});
+export default registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
 
 

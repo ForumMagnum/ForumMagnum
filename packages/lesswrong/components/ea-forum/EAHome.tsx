@@ -2,23 +2,23 @@ import React, { useCallback } from 'react'
 import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { useCurrentUser } from '../common/withUser'
-import { maintenanceTime, MaintenanceBanner } from '../common/MaintenanceBanner'
+import MaintenanceBanner, { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
-import { RecentDiscussionFeed } from "../recentDiscussion/RecentDiscussionFeed";
-import { QuickTakesSection } from "../quickTakes/QuickTakesSection";
-import { DismissibleSpotlightItem } from "../spotlights/DismissibleSpotlightItem";
-import { HomeLatestPosts } from "../common/HomeLatestPosts";
-import { EAHomeCommunityPosts } from "./EAHomeCommunityPosts";
-import { EAPopularCommentsSection } from "./EAPopularCommentsSection";
-import { EAHomeMainContent } from "./EAHomeMainContent";
-import { SmallpoxBanner } from "./SmallpoxBanner";
-import { EventBanner } from "./EventBanner";
-import { HeadTags } from "../common/HeadTags";
-import { BotSiteBanner } from "../common/BotSiteBanner";
-import { EAGBanner } from "./EAGBanner";
+import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
+import QuickTakesSection from "../quickTakes/QuickTakesSection";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import HomeLatestPosts from "../common/HomeLatestPosts";
+import EAHomeCommunityPosts from "./EAHomeCommunityPosts";
+import EAPopularCommentsSection from "./EAPopularCommentsSection";
+import EAHomeMainContent from "./EAHomeMainContent";
+import SmallpoxBanner from "./SmallpoxBanner";
+import EventBanner from "./EventBanner";
+import HeadTags from "../common/HeadTags";
+import BotSiteBanner from "../common/BotSiteBanner";
+import EAGBanner from "./EAGBanner";
 
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
@@ -84,7 +84,7 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 };
 
-const EAHomeInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderSmallpox = showSmallpoxSetting.get()
   // Only show the maintenance banner if the the current time is before the maintenance time (plus 5 minutes leeway),
@@ -111,6 +111,6 @@ const EAHomeInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export const EAHome = registerComponent('EAHome', EAHomeInner, {styles});
+export default registerComponent('EAHome', EAHome, {styles});
 
 

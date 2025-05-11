@@ -15,17 +15,17 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
-import { MixedTypeFeed } from "../common/MixedTypeFeed";
-import { UltraFeedPostItem } from "./UltraFeedPostItem";
-import { FeedItemWrapper } from "./FeedItemWrapper";
-import { SectionTitle } from "../common/SectionTitle";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SettingsButton } from "../icons/SettingsButton";
-import { SpotlightFeedItem } from "../spotlights/SpotlightFeedItem";
-import { UltraFeedSettings } from "./UltraFeedSettings";
-import { UltraFeedThreadItem } from "./UltraFeedThreadItem";
-import { SpotlightItem } from "../spotlights/SpotlightItem";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import MixedTypeFeed from "../common/MixedTypeFeed";
+import UltraFeedPostItem from "./UltraFeedPostItem";
+import FeedItemWrapper from "./FeedItemWrapper";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SettingsButton from "../icons/SettingsButton";
+import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
+import UltraFeedSettings from "./UltraFeedSettings";
+import UltraFeedThreadItem from "./UltraFeedThreadItem";
+import SpotlightItem from "../spotlights/SpotlightItem";
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -335,7 +335,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   );
 };
 
-const UltraFeedInner = ({alwaysShow = false}: {
+const UltraFeed = ({alwaysShow = false}: {
   alwaysShow?: boolean
 }) => {
   return (
@@ -345,6 +345,6 @@ const UltraFeedInner = ({alwaysShow = false}: {
   );
 };
 
-export const UltraFeed = registerComponent('UltraFeed', UltraFeedInner);
+export default registerComponent('UltraFeed', UltraFeed);
 
  

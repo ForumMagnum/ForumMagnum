@@ -4,8 +4,8 @@ import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { generateTextFragment } from './textFragmentHelpers'
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
@@ -137,7 +137,7 @@ export interface FeedContentBodyProps {
   resetSignal?: number;
 }
 
-const FeedContentBodyInner = ({
+const FeedContentBody = ({
   html,
   breakpoints = [],
   initialExpansionLevel = 0,
@@ -317,7 +317,7 @@ const FeedContentBodyInner = ({
   );
 };
 
-export const FeedContentBody = registerComponent('FeedContentBody', FeedContentBodyInner);
+export default registerComponent('FeedContentBody', FeedContentBody);
 
 
 

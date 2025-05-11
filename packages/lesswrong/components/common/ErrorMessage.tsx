@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ErrorMessageInner = ({message, classes}: {
+const ErrorMessage = ({message, classes}: {
   message: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -29,6 +29,6 @@ const ErrorMessageInner = ({message, classes}: {
   </Typography>
 }
 
-export const ErrorMessage = registerComponent("ErrorMessage", ErrorMessageInner, {styles});
+export default registerComponent("ErrorMessage", ErrorMessage, {styles});
 
 

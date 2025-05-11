@@ -29,7 +29,7 @@ export function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: Cloud
 }
 
 // Cloudinary image without using cloudinary-react. Allows SSR.
-const CloudinaryImage2Inner = ({
+const CloudinaryImage2 = ({
   width,
   height,
   objectFit,
@@ -146,6 +146,6 @@ const CloudinaryImage2Inner = ({
   </picture>
 };
 
-export const CloudinaryImage2 = registerComponent('CloudinaryImage2', CloudinaryImage2Inner);
+export default registerComponent('CloudinaryImage2', CloudinaryImage2);
 
 

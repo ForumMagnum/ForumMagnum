@@ -11,10 +11,10 @@ import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 import { useDialog } from "../common/withDialog";
-import { bookmarkableCollectionNames, BookmarkButton } from "../posts/BookmarkButton";
-import { UltraFeedCommentsDialog } from "./UltraFeedCommentsDialog";
-import { OverallVoteAxis } from "../votes/OverallVoteAxis";
-import { AgreementVoteAxis } from "../votes/AgreementVoteAxis";
+import BookmarkButton, { bookmarkableCollectionNames } from "../posts/BookmarkButton";
+import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import OverallVoteAxis from "../votes/OverallVoteAxis";
+import AgreementVoteAxis from "../votes/AgreementVoteAxis";
 import { AddReactionButton } from "../votes/lwReactions/NamesAttachedReactionsVoteOnComment";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
@@ -379,7 +379,7 @@ interface UltraFeedCommentFooterProps {
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooterInner = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
     return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} />;
   } else if (collectionName === "Comments") {
@@ -389,7 +389,7 @@ const UltraFeedItemFooterInner = ({ document, collectionName, metaInfo, classNam
 };
 
 
-export const UltraFeedItemFooter = registerComponent("UltraFeedItemFooter", UltraFeedItemFooterInner);
+export default registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
 
  
 

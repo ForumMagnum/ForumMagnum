@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ChangeMetricsDisplayInner = ({changeMetrics, showCharacters, className, classes}: {
+const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes}: {
   changeMetrics: ChangeMetrics,
   showCharacters?: boolean,
   className?: string,
@@ -34,9 +34,9 @@ const ChangeMetricsDisplayInner = ({changeMetrics, showCharacters, className, cl
   </span>
 }
 
-export const ChangeMetricsDisplay = registerComponent(
+export default registerComponent(
   "ChangeMetricsDisplay",
-  ChangeMetricsDisplayInner,
+  ChangeMetricsDisplay,
   {styles, stylePriority: -1},
 );
 

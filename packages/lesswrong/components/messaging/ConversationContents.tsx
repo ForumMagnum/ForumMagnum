@@ -8,11 +8,11 @@ import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
-import { MessagesNewForm } from "./MessagesNewForm";
-import { Error404 } from "../common/Error404";
-import { Loading } from "../vulcan-core/Loading";
-import { MessageItem } from "./MessageItem";
-import { Divider } from "../common/Divider";
+import MessagesNewForm from "./MessagesNewForm";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import MessageItem from "./MessageItem";
+import Divider from "../common/Divider";
 
 const styles = (theme: ThemeType) => ({
   conversationTitle: {
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ConversationContentsInner = ({
+const ConversationContents = ({
   conversation,
   currentUser,
   scrollRef,
@@ -165,7 +165,7 @@ const ConversationContentsInner = ({
   );
 };
 
-export const ConversationContents = registerComponent("ConversationContents", ConversationContentsInner, {
+export default registerComponent("ConversationContents", ConversationContents, {
   styles,
   hocs: [withErrorBoundary],
 });

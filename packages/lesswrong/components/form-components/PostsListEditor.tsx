@@ -2,8 +2,8 @@ import React from 'react';
 import { makeSortableListComponent } from '../form-components/sortableList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { PostsItemWrapper } from "../posts/PostsItemWrapper";
-import { PostsSearchAutoComplete } from "../search/PostsSearchAutoComplete";
+import PostsItemWrapper from "../posts/PostsItemWrapper";
+import PostsSearchAutoComplete from "../search/PostsSearchAutoComplete";
 
 const styles = defineStyles('PostsListEditor', (theme: ThemeType) => ({
   editor: {

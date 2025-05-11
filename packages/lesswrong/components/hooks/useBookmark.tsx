@@ -6,7 +6,7 @@ import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { useMulti } from "@/lib/crud/withMulti";
-import { LoginPopup } from "../users/LoginPopup";
+import LoginPopup from "../users/LoginPopup";
 
 export interface UseBookmarkResult {
   isBookmarked: boolean;

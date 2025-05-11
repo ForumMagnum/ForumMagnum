@@ -8,8 +8,8 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import ArrowRightAlt from '@/lib/vendor/@material-ui/icons/src/ArrowRightAlt';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
-import { DropdownItem } from "../DropdownItem";
-import { OmegaIcon } from "../../icons/OmegaIcon";
+import DropdownItem from "../DropdownItem";
+import OmegaIcon from "../../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const MoveToAlignmentCommentDropdownItemInner = ({comment, post, classes}: {
+const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsBase,
   classes: ClassesType<typeof styles>,
@@ -105,8 +105,8 @@ const MoveToAlignmentCommentDropdownItemInner = ({comment, post, classes}: {
   );
 }
 
-export const MoveToAlignmentCommentDropdownItem = registerComponent(
-  'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItemInner, {styles}
+export default registerComponent(
+  'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItem, {styles}
 );
 
 

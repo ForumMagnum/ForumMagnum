@@ -8,8 +8,8 @@ import {
   wrappedSecondaryColor,
   wrappedWhiteColor,
 } from "./wrappedHelpers";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays the user's overall karma change and accompanying chart
  */
-const WrappedKarmaChangeSectionInner = ({classes}: {
+const WrappedKarmaChangeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -109,9 +109,9 @@ const WrappedKarmaChangeSectionInner = ({classes}: {
   );
 }
 
-export const WrappedKarmaChangeSection = registerComponent(
+export default registerComponent(
   "WrappedKarmaChangeSection",
-  WrappedKarmaChangeSectionInner,
+  WrappedKarmaChangeSection,
   {styles},
 );
 

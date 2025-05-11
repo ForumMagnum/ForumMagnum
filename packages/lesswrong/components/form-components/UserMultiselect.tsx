@@ -3,9 +3,9 @@ import { makeSortableListComponent } from './sortableList';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { SingleUsersItem } from "./SingleUsersItem";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
+import SingleUsersItem from "./SingleUsersItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
 
 const styles = defineStyles('UserMultiselect', (theme: ThemeType) => ({
   root: {
@@ -31,7 +31,7 @@ export const SortableList = makeSortableListComponent({
   }
 });
 
-const UserMultiselectInner = ({value, setValue, label}: {
+const UserMultiselect = ({value, setValue, label}: {
   value: string[],
   setValue: (newValue: string[]) => void
   label: string,
@@ -76,6 +76,6 @@ export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) 
   />
 };
 
-export const UserMultiselect = registerComponent("UserMultiselect", UserMultiselectInner);
+export default registerComponent("UserMultiselect", UserMultiselect);
 
 

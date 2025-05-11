@@ -10,12 +10,13 @@ import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 import { SideItem } from "../contents/SideItems";
-import { SideItemLine } from "../contents/SideItemLine";
-import { LWPopper } from "../common/LWPopper";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { CommentWithReplies } from "./CommentWithReplies";
+import SideItemLine from "../contents/SideItemLine";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import CommentWithReplies from "./CommentWithReplies";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
@@ -114,16 +115,18 @@ const SideCommentIconInner = ({commentIds, post, classes}: {
   if (isMobile) {
     return <SideCommentIconMobile commentIds={commentIds} post={post} classes={classes} />;
   } else {
-    return <SideCommentIconDesktop commentIds={commentIds} post={post} classes={classes} />;
+    return <SideCommentIconDesktop commentIds={commentIds} post={post} />;
   }
 }
 
-const SideCommentDialogInner = ({ commentIds, post, onClose, classes }: {
+const sideCommentDialogStyles = defineStyles('SideCommentDialog', dialogStyles);
+
+export const SideCommentDialog = ({ commentIds, post, onClose }: {
   commentIds: string[]
   post: PostsList,
   onClose: () => void,
-  classes: ClassesType<typeof dialogStyles>
 }) => {
+  const classes = useStyles(sideCommentDialogStyles);
   return <LWDialog open onClose={onClose} paperClassName={classes.dialogPaper}>
     <SideCommentHover commentIds={commentIds} post={post} closeDialog={onClose} />
   </LWDialog>;
@@ -158,11 +161,13 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentIconDesktop = ({commentIds, post, classes}: {
+const sideCommentIconDesktopStyles = defineStyles('SideCommentIconDesktop', styles);
+
+const SideCommentIconDesktop = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(sideCommentIconDesktopStyles);
   const {eventHandlers, hover, anchorEl} = useHover();
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -228,12 +233,14 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentHoverInner = ({commentIds, post, closeDialog, classes}: {
+const sideCommentHoverStyles = defineStyles('SideCommentHover', styles);
+
+const SideCommentHover = ({commentIds, post, closeDialog}: {
   commentIds: string[],
   post: PostsList,
   closeDialog?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(sideCommentHoverStyles);
   // If there's only one comment (not counting replies to that comment), don't
   // truncate it with a read more.
   const dontTruncateRoot = (commentIds.length === 1); 
@@ -246,12 +253,13 @@ const SideCommentHoverInner = ({commentIds, post, closeDialog, classes}: {
         post={post}
         dontTruncateRoot={dontTruncateRoot}
         closeDialog={closeDialog}
+        classes={classes}
       />
     )}
   </div>
 }
 
-const SideCommentSingleInner = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
+const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
   commentId: string,
   post: PostsList,
   dontTruncateRoot?: boolean,
@@ -338,8 +346,4 @@ const SideCommentSingleInner = ({commentId, post, dontTruncateRoot=false, closeD
 }
 
 export const SideCommentIcon = registerComponent('SideCommentIcon', SideCommentIconInner, {styles});
-export const SideCommentDialog = registerComponent('SideCommentDialog', SideCommentDialogInner, { styles: dialogStyles });
-export const SideCommentHover = registerComponent('SideCommentHover', SideCommentHoverInner, {styles});
-export const SideCommentSingle = registerComponent('SideCommentSingle', SideCommentSingleInner, {styles});
-
 

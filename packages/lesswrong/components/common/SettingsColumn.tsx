@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from './FMTooltip';
-import { MetaInfo } from "./MetaInfo";
+import MetaInfo from "./MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   selectionList: {
@@ -60,7 +60,7 @@ interface Props {
   nofollow?: boolean;
 }
 
-const SettingsColumnInner = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
+const SettingsColumn = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
       {title}
@@ -91,6 +91,6 @@ const SettingsColumnInner = ({type, title, options, currentOption, classes, setS
   </div>
 }
 
-export const SettingsColumn = registerComponent('SettingsColumn', SettingsColumnInner, {styles});
+export default registerComponent('SettingsColumn', SettingsColumn, {styles});
 
 

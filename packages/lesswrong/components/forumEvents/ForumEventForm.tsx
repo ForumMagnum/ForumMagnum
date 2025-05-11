@@ -19,10 +19,10 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { useSingle } from "@/lib/crud/withSingle";
 import { EVENT_FORMATS } from "@/lib/collections/forumEvents/types";
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
@@ -420,7 +420,7 @@ const InnerForumEventForm = ({
   );
 };
 
-export const ForumEventFormInner = ({ documentId }: {
+export const ForumEventForm = ({ documentId }: {
   documentId?: string,
 }) => {
   const classes = useStyles(styles);
@@ -459,9 +459,9 @@ export const ForumEventFormInner = ({ documentId }: {
   );
 }
 
-export const ForumEventForm = registerComponent(
+export default registerComponent(
   "ForumEventForm",
-  ForumEventFormInner,
+  ForumEventForm,
 );
 
 

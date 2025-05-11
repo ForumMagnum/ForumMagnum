@@ -4,8 +4,8 @@ import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { drawnArrow } from "@/components/icons/drawnArrow";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
  * Section that displays a list of the core topics that the user has read more 
  * relative to the avg
  */
-const WrappedRelativeMostReadTopicsSectionInner = ({classes}: {
+const WrappedRelativeMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {relativeMostReadCoreTopics}} = useForumWrappedContext();
@@ -105,9 +105,9 @@ const WrappedRelativeMostReadTopicsSectionInner = ({classes}: {
   );
 }
 
-export const WrappedRelativeMostReadTopicsSection = registerComponent(
+export default registerComponent(
   "WrappedRelativeMostReadTopicsSection",
-  WrappedRelativeMostReadTopicsSectionInner,
+  WrappedRelativeMostReadTopicsSection,
   {styles},
 );
 

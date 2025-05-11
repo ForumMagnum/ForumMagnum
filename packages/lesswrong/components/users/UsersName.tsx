@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Placement as PopperPlacementType } from "popper.js"
 import React from 'react';
-import { UsersNameDisplay } from "./UsersNameDisplay";
-import { UsersNameWrapper } from "./UsersNameWrapper";
-import { UserNameDeleted } from "./UserNameDeleted";
+import UsersNameDisplay from "./UsersNameDisplay";
+import UsersNameWrapper from "./UsersNameWrapper";
+import UserNameDeleted from "./UserNameDeleted";
 
 /**
  * A user name, with styling, tooltip, etc. Takes either a user object or a
@@ -11,7 +11,7 @@ import { UserNameDeleted } from "./UserNameDeleted";
  * with deleted accounts, where the user object that comes back in a query is
  * null for non-admins).
  */
-const UsersNameInner = ({
+const UsersName = ({
   user,
   documentId,
   nofollow=false,
@@ -46,6 +46,6 @@ const UsersNameInner = ({
   }
 }
 
-export const UsersName = registerComponent('UsersName', UsersNameInner);
+export default registerComponent('UsersName', UsersName);
 
 

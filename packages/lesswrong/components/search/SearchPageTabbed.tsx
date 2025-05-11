@@ -27,16 +27,16 @@ import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { SearchFilters } from "./SearchFilters";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { ExpandedUsersSearchHit } from "./ExpandedUsersSearchHit";
-import { ExpandedPostsSearchHit } from "./ExpandedPostsSearchHit";
-import { ExpandedCommentsSearchHit } from "./ExpandedCommentsSearchHit";
-import { ExpandedTagsSearchHit } from "./ExpandedTagsSearchHit";
-import { ExpandedSequencesSearchHit } from "./ExpandedSequencesSearchHit";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWDialog } from '../common/LWDialog';
+import SearchFilters from "./SearchFilters";
+import ErrorBoundary from "../common/ErrorBoundary";
+import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
+import ExpandedPostsSearchHit from "./ExpandedPostsSearchHit";
+import ExpandedCommentsSearchHit from "./ExpandedCommentsSearchHit";
+import ExpandedTagsSearchHit from "./ExpandedTagsSearchHit";
+import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import LWDialog from '../common/LWDialog';
 
 const hitsPerPage = 10
 
@@ -240,7 +240,7 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbedInner = ({classes}: {
+const SearchPageTabbed = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
@@ -455,6 +455,6 @@ const SearchPageTabbedInner = ({classes}: {
   </div>
 }
 
-export const SearchPageTabbed = registerComponent("SearchPageTabbed", SearchPageTabbedInner, {styles})
+export default registerComponent("SearchPageTabbed", SearchPageTabbed, {styles});
 
 

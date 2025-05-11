@@ -2,7 +2,7 @@ import React, { FC, ReactNode, createContext, useCallback, useContext, useState 
 import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useTracking } from "../../../lib/analyticsEvents";
-import { LoginForm } from "../../users/LoginForm";
+import LoginForm from "../../users/LoginForm";
 
 export type OnboardingStage = string
 

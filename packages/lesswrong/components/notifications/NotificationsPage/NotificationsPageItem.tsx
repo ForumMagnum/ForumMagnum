@@ -2,11 +2,11 @@ import React, { FC, ReactNode } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { ForumIconName, ForumIcon } from "../../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
-import { LWTooltip } from "../../common/LWTooltip";
-import { CommentsNode } from "../../comments/CommentsNode";
-import { Loading } from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import Loading from "../../vulcan-core/Loading";
 
 const ICON_WIDTH = 24;
 
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
 
 export type IconVariant = "primary" | "grey" | "yellow" | "clear" | "wrapped";
 
-export const NotificationsPageItemInner = ({
+export const NotificationsPageItem = ({
   Icon,
   iconVariant,
   iconTooltip,
@@ -172,7 +172,7 @@ export const NotificationsPageItemInner = ({
             <div className={classes.preview}>
               {previewCommentLoading && <Loading />}
               {previewComment &&
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{
                     scrollOnExpand: true,
                     condensed: true,
@@ -194,9 +194,9 @@ export const NotificationsPageItemInner = ({
   );
 }
 
-export const NotificationsPageItem = registerComponent(
+export default registerComponent(
   "NotificationsPageItem",
-  NotificationsPageItemInner,
+  NotificationsPageItem,
   {styles},
 );
 

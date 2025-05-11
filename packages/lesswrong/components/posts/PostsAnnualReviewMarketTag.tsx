@@ -7,9 +7,9 @@ import { tagStyle } from '../tagging/FooterTag';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { HoverOver } from "../common/HoverOver";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
+import HoverOver from "../common/HoverOver";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
 const sharedStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.fontFamily,
@@ -56,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAnnualReviewMarketTagInner = ({ annualReviewMarketInfo, classes }: {
+const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -92,6 +92,6 @@ const PostsAnnualReviewMarketTagInner = ({ annualReviewMarketInfo, classes }: {
   </span>
 };
 
-export const PostsAnnualReviewMarketTag = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTagInner, { styles });
+export default registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
 
 

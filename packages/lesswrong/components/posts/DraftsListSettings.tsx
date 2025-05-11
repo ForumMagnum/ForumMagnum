@@ -10,8 +10,8 @@ import { useCurrentUser } from '../common/withUser';
 import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
-import { MetaInfo } from "../common/MetaInfo";
-import { SettingsColumn } from "../common/SettingsColumn";
+import MetaInfo from "../common/MetaInfo";
+import SettingsColumn from "../common/SettingsColumn";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -47,7 +47,7 @@ const USER_SETTING_NAMES = {
   showShared: 'draftsListShowShared'
 }
 
-const DraftsListSettingsInner = ({
+const DraftsListSettings = ({
   persistentSettings, 
   hidden, 
   currentSorting, 
@@ -122,8 +122,8 @@ const DraftsListSettingsInner = ({
   );
 };
 
-export const DraftsListSettings = registerComponent(
-  'DraftsListSettings', DraftsListSettingsInner, { styles }
+export default registerComponent(
+  'DraftsListSettings', DraftsListSettings, { styles }
 );
 
 

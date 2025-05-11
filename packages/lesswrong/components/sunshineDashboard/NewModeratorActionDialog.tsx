@@ -12,7 +12,7 @@ import { FormComponentSelect } from '@/components/form-components/FormComponentS
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { FormUserSelect } from '@/components/form-components/UserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 
 const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -27,7 +27,7 @@ const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-const NewModeratorActionDialogInner = ({ onClose, userId }: {
+const NewModeratorActionDialog = ({ onClose, userId }: {
   onClose: () => void,
   userId: string
 }) => {
@@ -139,6 +139,6 @@ const NewModeratorActionDialogInner = ({ onClose, userId }: {
   )
 };
 
-export const NewModeratorActionDialog = registerComponent('NewModeratorActionDialog', NewModeratorActionDialogInner);
+export default registerComponent('NewModeratorActionDialog', NewModeratorActionDialog);
 
 

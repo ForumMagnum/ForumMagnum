@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPodcastPlayerInner = ({ podcastEpisode, postId, hideIconList = false, classes }: {
+const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
   podcastEpisode: PostsDetails_podcastEpisode,
   postId: string,
   hideIconList?: boolean,
@@ -72,6 +72,6 @@ const PostsPodcastPlayerInner = ({ podcastEpisode, postId, hideIconList = false,
   </>;
 };
 
-export const PostsPodcastPlayer = registerComponent('PostsPodcastPlayer', PostsPodcastPlayerInner, { styles });
+export default registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
 
 

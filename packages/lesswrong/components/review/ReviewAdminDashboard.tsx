@@ -6,12 +6,12 @@ import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useLocation } from '../../lib/routeUtil';
-import { FormatDate } from "../common/FormatDate";
-import { PostsItemMetaInfo } from "../posts/PostsItemMetaInfo";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
+import FormatDate from "../common/FormatDate";
+import PostsItemMetaInfo from "../posts/PostsItemMetaInfo";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewAdminDashboardInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()
   
@@ -171,6 +171,6 @@ const ReviewAdminDashboardInner = ({classes}: {classes: ClassesType<typeof style
   </div>
 }
 
-export const ReviewAdminDashboard = registerComponent('ReviewAdminDashboard', ReviewAdminDashboardInner, {styles});
+export default registerComponent('ReviewAdminDashboard', ReviewAdminDashboard, {styles});
 
 

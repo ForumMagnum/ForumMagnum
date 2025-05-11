@@ -15,7 +15,7 @@ interface AttributionEventProps {
   vertexAttributionId?: string;
 }
 
-const AttributionInViewTrackerInner = ({eventProps, observerProps, children}: {
+const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   eventProps: AttributionEventProps,
   observerProps?: Record<string,any>,
   children?: React.ReactNode
@@ -69,6 +69,6 @@ const AttributionInViewTrackerInner = ({eventProps, observerProps, children}: {
   )
 }
 
-export const AttributionInViewTracker = registerComponent('AttributionInViewTracker', AttributionInViewTrackerInner)
+export default registerComponent('AttributionInViewTracker', AttributionInViewTracker);
 
 

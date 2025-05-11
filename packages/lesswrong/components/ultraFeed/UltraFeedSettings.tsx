@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { 
   UltraFeedSettingsType, 
   DEFAULT_SOURCE_WEIGHTS, 
@@ -122,7 +121,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedSettingsInner = ({
+const UltraFeedSettings = ({
   settings,
   updateSettings,
   resetSettingsToDefault,
@@ -498,8 +497,6 @@ const UltraFeedSettingsInner = ({
   );
 };
 
-export const UltraFeedSettings = registerComponent('UltraFeedSettings', UltraFeedSettingsInner);
-
-export default UltraFeedSettingsInner;
+export default UltraFeedSettings;
 
  

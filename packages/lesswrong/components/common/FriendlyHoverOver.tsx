@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import { LWTooltip } from "./LWTooltip";
+import LWTooltip from "./LWTooltip";
 
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;
@@ -43,7 +43,7 @@ export type FriendlyHoverOverProps = {
  * will switch between the correct styles depending on whether or not the
  * current site is using friendly UI.
  */
-const FriendlyHoverOverInner = ({
+const FriendlyHoverOver = ({
   title,
   placement,
   inlineBlock,
@@ -81,9 +81,9 @@ const FriendlyHoverOverInner = ({
   );
 }
 
-export const FriendlyHoverOver = registerComponent(
+export default registerComponent(
   "FriendlyHoverOver",
-  FriendlyHoverOverInner,
+  FriendlyHoverOver,
   {styles, stylePriority: -1},
 );
 

@@ -6,12 +6,12 @@ import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { UsersName } from "../users/UsersName";
-import { FormatDate } from "../common/FormatDate";
-import { PostsList2 } from "../posts/PostsList2";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { TagDiscussionButton } from "./TagDiscussionButton";
-import { ContentStyles } from "../common/ContentStyles";
+import UsersName from "../users/UsersName";
+import FormatDate from "../common/FormatDate";
+import PostsList2 from "../posts/PostsList2";
+import ContentItemBody from "../common/ContentItemBody";
+import TagDiscussionButton from "./TagDiscussionButton";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const NewTagItemInner = ({tag, classes}: {
+const NewTagItem = ({tag, classes}: {
   tag: TagCreationHistoryFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -96,6 +96,6 @@ const NewTagItemInner = ({tag, classes}: {
   </div>;
 }
 
-export const NewTagItem = registerComponent("NewTagItem", NewTagItemInner, {styles});
+export default registerComponent("NewTagItem", NewTagItem, {styles});
 
 

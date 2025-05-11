@@ -11,10 +11,10 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
-import { CommentsNode } from "../comments/CommentsNode";
-import { FeedPostsHighlight } from "../posts/FeedPostsHighlight";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
-import { FeedPostCardMeta } from "../posts/FeedPostCardMeta";
+import CommentsNodeInner from "../comments/CommentsNode";
+import FeedPostsHighlight from "../posts/FeedPostsHighlight";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import FeedPostCardMeta from "../posts/FeedPostCardMeta";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -151,7 +151,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
     ) : null;
 
   return <div key={comment.item._id}>
-    <CommentsNode
+    <CommentsNodeInner
       treeOptions={treeOptions}
       startThreadTruncated={true}
       showExtraChildrenButton={showExtraChildrenButton}
@@ -164,7 +164,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   </div>
 };
 
-const FeedPostCommentsCardInner = ({
+const FeedPostCommentsCard = ({
   post,
   comments,
   refetch,
@@ -237,7 +237,7 @@ const FeedPostCommentsCardInner = ({
   )
 };
 
-export const FeedPostCommentsCard = registerComponent('FeedPostCommentsCard', FeedPostCommentsCardInner, {
+export default registerComponent('FeedPostCommentsCard', FeedPostCommentsCard, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {

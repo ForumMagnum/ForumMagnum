@@ -10,12 +10,12 @@ import { DialogContentText } from '../../widgets/DialogContentText';
 import { DialogActions } from '../../widgets/DialogActions';
 import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from "@/components/common/withUser";
-import { EAButton } from "../EAButton";
-import { LWDialog } from "../../common/LWDialog";
+import EAButton from "../EAButton";
+import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
-import { Loading } from "../../vulcan-core/Loading";
-import { LWTooltip } from "../../common/LWTooltip";
-import { ForumIcon } from "../../common/ForumIcon";
+import Loading from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -167,7 +167,7 @@ const LogoutConfirmationDialog = (
   </LWDialog>
 };
 
-export const EAOnboardingStageInner = ({
+export const EAOnboardingStage = ({
   stageName,
   title,
   skippable,
@@ -290,9 +290,9 @@ export const EAOnboardingStageInner = ({
   );
 }
 
-export const EAOnboardingStage = registerComponent(
+export default registerComponent(
   "EAOnboardingStage",
-  EAOnboardingStageInner,
+  EAOnboardingStage,
   {styles, stylePriority: -1},
 );
 

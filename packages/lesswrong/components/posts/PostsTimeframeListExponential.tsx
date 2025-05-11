@@ -6,7 +6,7 @@ import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { loadMoreTimeframeMessages, TimeframeType } from './timeframeUtils';
-import { PostsTimeBlock } from "./PostsTimeBlock";
+import PostsTimeBlock from "./PostsTimeBlock";
 import { Typography } from "../common/Typography";
 
 interface TimeBlockRange {
@@ -18,7 +18,7 @@ interface TimeBlockRange {
   getTitle: (size: 'xsDown' | 'smUp' | null) => string
 }
 
-const PostsTimeframeListExponentialInner = ({postListParameters}: {
+const PostsTimeframeListExponential = ({postListParameters}: {
   postListParameters: PostsViewTerms,
 }) => {
   const now = useCurrentTime();
@@ -108,7 +108,7 @@ const PostsTimeframeListExponentialInner = ({postListParameters}: {
   </div>
 }
 
-export const PostsTimeframeListExponential = registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponentialInner);
+export default registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponential);
 
 
 

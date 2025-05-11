@@ -2,10 +2,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
-import { Option, InlineSelect } from '../common/InlineSelect';
+import InlineSelect, { Option } from '../common/InlineSelect';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 
-export const CommentsSortBySelectorInner = ({setRestoreScrollPos}: {
+export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   setRestoreScrollPos?: (pos: number) => void
 }) => {
   const navigate = useNavigate();
@@ -34,6 +34,6 @@ export const CommentsSortBySelectorInner = ({setRestoreScrollPos}: {
   return <InlineSelect options={sortByOptions} selected={selectedOption} handleSelect={handleViewClick}/>
 };
 
-export const CommentsSortBySelector = registerComponent('CommentsSortBySelector', CommentsSortBySelectorInner);
+export default registerComponent('CommentsSortBySelector', CommentsSortBySelector);
 
 

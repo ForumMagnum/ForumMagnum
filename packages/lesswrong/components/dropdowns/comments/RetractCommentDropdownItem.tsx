@@ -3,9 +3,9 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const RetractCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => {
+const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
@@ -48,8 +48,8 @@ const RetractCommentDropdownItemInner = ({comment}: {comment: CommentsList}) => 
   );
 }
 
-export const RetractCommentDropdownItem = registerComponent(
-  'RetractCommentDropdownItem', RetractCommentDropdownItemInner,
+export default registerComponent(
+  'RetractCommentDropdownItem', RetractCommentDropdownItem,
 );
 
 

@@ -12,14 +12,14 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
-import { ContentStyles } from "../common/ContentStyles";
-import { CKCommentEditor } from "./CKCommentEditor";
-import { CKPostEditor } from "./CKPostEditor";
-import { WarningBanner } from "../common/WarningBanner";
+import ContentStyles from "../common/ContentStyles";
+import CKCommentEditor from "./CKCommentEditor";
+import CKPostEditor from "./CKPostEditor";
+import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
-import { Loading } from "../vulcan-core/Loading";
-import { SectionTitle } from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
 
 const postEditorHeight = isEAForum ? 250 : 400;
 const questionEditorHeight = isEAForum ? 150 : 400;
@@ -764,7 +764,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 // can call its methods, which means it can't have any HoCs. In particular, it
 // can't have 'styles' (since that would add a HoC); instead, it exports its
 // styles, and has classes provided by whatever wraps it.
-export const EditorComponent = registerComponent('Editor', Editor, {
+export default registerComponent('Editor', Editor, {
   allowRef: true,
 });
 

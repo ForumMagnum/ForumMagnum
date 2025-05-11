@@ -2,10 +2,10 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
-import { ConfirmPublishDialog } from "./ConfirmPublishDialog";
-import { EAButton } from "../EAButton";
-import { LWTooltip } from "../../common/LWTooltip";
-import { ForumIcon } from "../../common/ForumIcon";
+import ConfirmPublishDialog from "./ConfirmPublishDialog";
+import EAButton from "../EAButton";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   questionMark: {
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const EditDigestActionButtonsInner = ({digest, classes}: {
+const EditDigestActionButtons = ({digest, classes}: {
   digest: DigestsMinimumInfo,
   classes: ClassesType<typeof styles>
 }) => {
@@ -100,6 +100,6 @@ const EditDigestActionButtonsInner = ({digest, classes}: {
   </>
 }
 
-export const EditDigestActionButtons = registerComponent('EditDigestActionButtons', EditDigestActionButtonsInner, {styles});
+export default registerComponent('EditDigestActionButtons', EditDigestActionButtons, {styles});
 
 

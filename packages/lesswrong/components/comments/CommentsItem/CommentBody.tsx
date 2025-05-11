@@ -4,12 +4,12 @@ import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import { ContentStyleType, ContentStyles } from '../../common/ContentStyles';
+import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import { ContentItemBody, type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import ContentItemBody, { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import { CommentDeletedMetadata } from "./CommentDeletedMetadata";
-import { InlineReactSelectionWrapper } from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import CommentDeletedMetadata from "./CommentDeletedMetadata";
+import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const CommentBodyInner = ({
+const CommentBody = ({
   comment,
   commentBodyRef,
   collapsed,
@@ -109,7 +109,7 @@ const CommentBodyInner = ({
   }
 }
 
-export const CommentBody = registerComponent('CommentBody', CommentBodyInner, {styles});
+export default registerComponent('CommentBody', CommentBody, {styles});
 
 
 

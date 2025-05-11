@@ -19,16 +19,16 @@ import { Chip } from "@/components/widgets/Chip";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { EventNotificationsDialog } from "../localGroups/EventNotificationsDialog";
-import { LoginPopup } from "../users/LoginPopup";
-import { SetPersonalMapLocationDialog } from "../localGroups/SetPersonalMapLocationDialog";
-import { CommunityBanner } from "./modules/CommunityBanner";
-import { LocalGroups } from "./modules/LocalGroups";
-import { OnlineGroups } from "./modules/OnlineGroups";
-import { CommunityMembers } from "./modules/CommunityMembers";
-import { GroupFormLink } from "../localGroups/GroupFormLink";
-import { DistanceUnitToggle } from "./modules/DistanceUnitToggle";
-import { ForumIcon } from "../common/ForumIcon";
+import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
+import LoginPopup from "../users/LoginPopup";
+import SetPersonalMapLocationDialog from "../localGroups/SetPersonalMapLocationDialog";
+import CommunityBanner from "./modules/CommunityBanner";
+import LocalGroups from "./modules/LocalGroups";
+import OnlineGroups from "./modules/OnlineGroups";
+import CommunityMembers from "./modules/CommunityMembers";
+import GroupFormLink from "../localGroups/GroupFormLink";
+import DistanceUnitToggle from "./modules/DistanceUnitToggle";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -202,7 +202,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommunityInner = ({classes}: {
+const Community = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -545,6 +545,6 @@ const CommunityInner = ({classes}: {
   )
 }
 
-export const Community = registerComponent('Community', CommunityInner, {styles});
+export default registerComponent('Community', Community, {styles});
 
 

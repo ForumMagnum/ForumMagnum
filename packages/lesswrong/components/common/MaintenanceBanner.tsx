@@ -6,7 +6,7 @@ import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isMobile } from "../../lib/utils/isMobile";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
-import { SingleColumnSection } from "./SingleColumnSection";
+import SingleColumnSection from "./SingleColumnSection";
 
 export const maintenanceTime = new DatabasePublicSetting<string | null>("maintenanceBannerTime", null);
 const explanationText = new DatabasePublicSetting<string>("maintenanceBannerExplanationText", "");
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const MaintenanceBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const MaintenanceBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const maintenanceTimeValue = maintenanceTime.get();
   if (!maintenanceTimeValue) return <></>;
   const isUrgent = new Date(maintenanceTimeValue).getTime() - Date.now() < urgentCutoff;
@@ -56,6 +56,6 @@ const MaintenanceBannerInner = ({ classes }: { classes: ClassesType<typeof style
   );
 };
 
-export const MaintenanceBanner = registerComponent("MaintenanceBanner", MaintenanceBannerInner, { styles });
+export default registerComponent("MaintenanceBanner", MaintenanceBanner, { styles });
 
 

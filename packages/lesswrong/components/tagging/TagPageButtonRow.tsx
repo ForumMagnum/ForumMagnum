@@ -15,13 +15,13 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
-import { LoginPopup } from "../users/LoginPopup";
-import { NewLensDialog } from "./lenses/NewLensDialog";
-import { LWTooltip } from "../common/LWTooltip";
-import { NotifyMeButton } from "../notifications/NotifyMeButton";
-import { TagDiscussionButton } from "./TagDiscussionButton";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ForumIcon } from "../common/ForumIcon";
+import LoginPopup from "../users/LoginPopup";
+import NewLensDialog from "./lenses/NewLensDialog";
+import LWTooltip from "../common/LWTooltip";
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import TagDiscussionButton from "./TagDiscussionButton";
+import ContentItemBody from "../common/ContentItemBody";
+import ForumIcon from "../common/ForumIcon";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
 
@@ -140,7 +140,7 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
-const TagPageButtonRowInner = ({
+const TagPageButtonRow = ({
   tag,
   selectedLens,
   editing,
@@ -323,6 +323,6 @@ const TagPageButtonRowInner = ({
   </AnalyticsContext>
 }
 
-export const TagPageButtonRow = registerComponent("TagPageButtonRow", TagPageButtonRowInner, { styles });
+export default registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
 
 

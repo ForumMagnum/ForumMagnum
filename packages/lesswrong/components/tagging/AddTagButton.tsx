@@ -7,10 +7,10 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { LWPopper } from "../common/LWPopper";
-import { AddTagOrWikiPage } from "./AddTagOrWikiPage";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { LWTooltip } from "../common/LWTooltip";
+import LWPopper from "../common/LWPopper";
+import AddTagOrWikiPage from "./AddTagOrWikiPage";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   addTagButton: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AddTagButtonInner = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
   menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
@@ -85,6 +85,6 @@ const AddTagButtonInner = ({onTagSelected, menuPlacement="bottom-start", isVotin
   return button;
 }
 
-export const AddTagButton = registerComponent("AddTagButton", AddTagButtonInner, {styles});
+export default registerComponent("AddTagButton", AddTagButton, {styles});
 
 

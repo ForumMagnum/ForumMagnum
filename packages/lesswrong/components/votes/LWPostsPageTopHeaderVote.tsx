@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { TooltipSpan } from '../common/FMTooltip';
-import { OverallVoteButton } from "./OverallVoteButton";
+import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LWPostsPageTopHeaderVoteInner = ({
+const LWPostsPageTopHeaderVote = ({
   post,
   votingSystem,
   classes,
@@ -134,9 +134,9 @@ const LWPostsPageTopHeaderVoteInner = ({
   );
 }
 
-export const LWPostsPageTopHeaderVote = registerComponent(
+export default registerComponent(
   "LWPostsPageTopHeaderVote",
-  LWPostsPageTopHeaderVoteInner,
+  LWPostsPageTopHeaderVote,
   {styles},
 );
 

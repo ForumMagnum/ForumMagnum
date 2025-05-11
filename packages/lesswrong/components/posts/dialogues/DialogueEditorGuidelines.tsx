@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const DialogueEditorGuidelinesInner = ({classes}: {
+export const DialogueEditorGuidelines = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
@@ -46,6 +46,6 @@ export const DialogueEditorGuidelinesInner = ({classes}: {
   </div>;
 }
 
-export const DialogueEditorGuidelines = registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelinesInner, {styles});
+export default registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
 
 

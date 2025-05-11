@@ -10,16 +10,16 @@ import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { ObservableQuery } from '@apollo/client';
-import { CommentPermalink } from "../../comments/CommentPermalink";
-import { MixedTypeFeed } from "../../common/MixedTypeFeed";
-import { RecentDiscussionThread } from "../../recentDiscussion/RecentDiscussionThread";
-import { CommentWithReplies } from "../../comments/CommentWithReplies";
-import { PostsList2 } from "../../posts/PostsList2";
-import { CommentsListCondensed } from "../../common/CommentsListCondensed";
-import { ShortformSubmitForm } from "../../shortform/ShortformSubmitForm";
-import { LoginForm } from "../../users/LoginForm";
-import { PostsListSortDropdown } from "../../posts/PostsListSortDropdown";
-import { PostsLayoutDropdown } from "../../posts/PostsLayoutDropdown";
+import CommentPermalink from "../../comments/CommentPermalink";
+import MixedTypeFeed from "../../common/MixedTypeFeed";
+import RecentDiscussionThread from "../../recentDiscussion/RecentDiscussionThread";
+import CommentWithReplies from "../../comments/CommentWithReplies";
+import PostsList2 from "../../posts/PostsList2";
+import CommentsListCondensed from "../../common/CommentsListCondensed";
+import ShortformSubmitForm from "../../shortform/ShortformSubmitForm";
+import LoginForm from "../../users/LoginForm";
+import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
+import PostsLayoutDropdown from "../../posts/PostsLayoutDropdown";
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SubforumSubforumTabInner = ({
+const SubforumSubforumTab = ({
   tag,
   userTagRel,
   layout,
@@ -277,8 +277,8 @@ const SubforumSubforumTabInner = ({
   );
 }
 
-export const SubforumSubforumTab = registerComponent(
-  'SubforumSubforumTab', SubforumSubforumTabInner, {styles}
+export default registerComponent(
+  'SubforumSubforumTab', SubforumSubforumTab, {styles}
 );
 
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 
-const SmallSideVoteInner = ({document, hideKarma=false, collectionName}: {
+const SmallSideVote = ({document, hideKarma=false, collectionName}: {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
@@ -23,6 +23,6 @@ const SmallSideVoteInner = ({document, hideKarma=false, collectionName}: {
     : null;
 }
 
-export const SmallSideVote = registerComponent('SmallSideVote', SmallSideVoteInner, {areEqual: "auto"});
+export default registerComponent('SmallSideVote', SmallSideVote, {areEqual: "auto"});
 
 

@@ -4,9 +4,9 @@ import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnC
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
 import classNames from "classnames";
-import { LWTooltip } from "../../common/LWTooltip";
-import { ForumIcon } from "../../common/ForumIcon";
-import { ReactionsPalette } from "../ReactionsPalette";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
+import ReactionsPalette from "../ReactionsPalette";
 
 const styles = (theme: ThemeType) => ({
   tooltip: {
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AddInlineReactionButtonInner = ({voteProps, classes, quote, disabled}: {
+const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
   quote: QuoteLocator|null,
@@ -82,6 +82,6 @@ const AddInlineReactionButtonInner = ({voteProps, classes, quote, disabled}: {
   </LWTooltip>
 }
 
-export const AddInlineReactionButton = registerComponent('AddInlineReactionButton', AddInlineReactionButtonInner, {styles});
+export default registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
 
 

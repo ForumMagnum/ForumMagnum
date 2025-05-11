@@ -6,11 +6,11 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TagForm } from './TagForm';
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { ContentStyles } from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
   tag: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] },
@@ -29,7 +29,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   </ContentStyles>
 }
 
-const EditTagPageInner = () => {
+const EditTagPage = () => {
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading } = useTagBySlug(slug, "TagEditFragment");
@@ -55,6 +55,6 @@ const EditTagPageInner = () => {
   );
 }
 
-export const EditTagPage = registerComponent('EditTagPage', EditTagPageInner);
+export default registerComponent('EditTagPage', EditTagPage);
 
 

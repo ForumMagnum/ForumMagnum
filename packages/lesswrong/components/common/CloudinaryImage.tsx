@@ -11,7 +11,7 @@ type ImgPropsType = {
   background?: string,
 }
 
-const CloudinaryImageInner = ({width, height, publicId, imgProps = {}}: {
+const CloudinaryImage = ({width, height, publicId, imgProps = {}}: {
   width?: number|string,
   height?: number|string,
   publicId: string,
@@ -38,6 +38,6 @@ const CloudinaryImageInner = ({width, height, publicId, imgProps = {}}: {
   />
 };
 
-export const CloudinaryImage = registerComponent('CloudinaryImage', CloudinaryImageInner);
+export default registerComponent('CloudinaryImage', CloudinaryImage);
 
 

@@ -6,8 +6,8 @@ import classNames from "classnames";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { Loading } from "../vulcan-core/Loading";
-import { IntercomFeedbackButton } from "../common/IntercomFeedbackButton";
+import Loading from "../vulcan-core/Loading";
+import IntercomFeedbackButton from "../common/IntercomFeedbackButton";
 
 const WIDTH = 250;
 
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostSideRecommendationsInner = ({post, className, classes}: {
+const PostSideRecommendations = ({post, className, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -115,9 +115,9 @@ const PostSideRecommendationsInner = ({post, className, classes}: {
   );
 }
 
-export const PostSideRecommendations = registerComponent(
+export default registerComponent(
   "PostSideRecommendations",
-  PostSideRecommendationsInner,
+  PostSideRecommendations,
   {styles},
 );
 

@@ -10,8 +10,8 @@ import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
-import { TableOfContentsRow } from "./TableOfContentsRow";
-import { AnswerTocRow } from "./AnswerTocRow";
+import TableOfContentsRow from "./TableOfContentsRow";
+import AnswerTocRow from "./AnswerTocRow";
 
 export interface ToCDisplayOptions {
   /**
@@ -37,7 +37,7 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const TableOfContentsListInner = ({tocSections, title, onClickSection, displayOptions}: {
+const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
   tocSections: ToCSection[],
   title: string|null,
   onClickSection?: () => void,
@@ -248,8 +248,8 @@ export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDi
   }
 }
 
-export const TableOfContentsList = registerComponent(
-  "TableOfContentsList", TableOfContentsListInner, {
+export default registerComponent(
+  "TableOfContentsList", TableOfContentsList, {
     hocs: [withErrorBoundary]
   }
 );

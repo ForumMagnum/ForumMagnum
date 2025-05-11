@@ -6,8 +6,8 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { CommunityMapWrapper } from "../../localGroups/CommunityMapWrapper";
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
+import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -160,7 +160,7 @@ export const distance = (
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
 const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
-const LocalGroupsInner = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
+const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
     lat: number,
@@ -270,6 +270,6 @@ const LocalGroupsInner = ({keywordSearch, userLocation, distanceUnit='km', inclu
   )
 }
 
-export const LocalGroups = registerComponent('LocalGroups', LocalGroupsInner, {styles});
+export default registerComponent('LocalGroups', LocalGroups, {styles});
 
 

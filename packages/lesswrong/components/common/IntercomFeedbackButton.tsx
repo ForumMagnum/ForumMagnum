@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "./withUser";
 import classNames from "classnames";
-import { LWTooltip } from "./LWTooltip";
+import LWTooltip from "./LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const IntercomFeedbackButtonInner = ({
+const IntercomFeedbackButton = ({
   title = "Give feedback",
   eventName,
   className,
@@ -49,9 +49,9 @@ const IntercomFeedbackButtonInner = ({
   );
 }
 
-export const IntercomFeedbackButton = registerComponent(
+export default registerComponent(
   "IntercomFeedbackButton",
-  IntercomFeedbackButtonInner,
+  IntercomFeedbackButton,
   {styles, stylePriority: -5},
 );
 

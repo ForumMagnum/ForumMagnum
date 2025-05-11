@@ -7,7 +7,7 @@ import '../lib/index';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { PrettyEventDateTime } from '@/components/events/modules/PrettyEventDateTime';
+import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
 describe('PrettyEventDateTime', () => {
   it('renders correctly with no start time', () => {

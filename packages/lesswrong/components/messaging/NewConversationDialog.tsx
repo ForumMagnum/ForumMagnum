@@ -9,12 +9,12 @@ import { useNavigate } from "../../lib/routeUtil";
 import type { Hit } from "react-instantsearch-core";
 import { Chip } from "@/components/widgets/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
-import { LWDialog } from "../common/LWDialog";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { ExpandedUsersConversationSearchHit } from "../search/ExpandedUsersConversationSearchHit";
-import { ForumIcon } from "../common/ForumIcon";
+import LWDialog from "../common/LWDialog";
+import ErrorBoundary from "../common/ErrorBoundary";
+import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversationSearchHit";
+import ForumIcon from "../common/ForumIcon";
 import { Typography } from "../common/Typography";
-import { EAButton } from "../ea-forum/EAButton";
+import EAButton from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   paper: {
@@ -157,7 +157,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NewConversationDialogInner = ({
+const NewConversationDialog = ({
   isModInbox = false,
   classes,
   onClose,
@@ -276,6 +276,6 @@ const NewConversationDialogInner = ({
   );
 };
 
-export const NewConversationDialog = registerComponent("NewConversationDialog", NewConversationDialogInner, { styles });
+export default registerComponent("NewConversationDialog", NewConversationDialog, { styles });
 
 

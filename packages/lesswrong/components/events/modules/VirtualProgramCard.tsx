@@ -7,7 +7,7 @@ import moment from 'moment';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { useEAVirtualPrograms } from '@/components/hooks/useEAVirtualPrograms';
-import { FormatDate } from "../../common/FormatDate";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   eventCard: {
@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const VirtualProgramCardInner = ({program, classes}: {
+const VirtualProgramCard = ({program, classes}: {
   program: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -193,7 +193,7 @@ const VirtualProgramCardInner = ({program, classes}: {
   return null
 }
 
-export const VirtualProgramCard = registerComponent('VirtualProgramCard', VirtualProgramCardInner, {
+export default registerComponent('VirtualProgramCard', VirtualProgramCard, {
   styles,
   
   // This is based around an image, which doesn't get inverted in dark mode

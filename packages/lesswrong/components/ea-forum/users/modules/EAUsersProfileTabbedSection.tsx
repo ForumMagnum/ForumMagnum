@@ -98,7 +98,7 @@ export type UserProfileTabType = {
   collapsable?: boolean
 }
 
-const EAUsersProfileTabbedSectionInner = ({tabs, id, classes}: {
+const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   tabs: Array<UserProfileTabType>,
   id?: string,
   classes: ClassesType<typeof styles>,
@@ -162,8 +162,8 @@ const EAUsersProfileTabbedSectionInner = ({tabs, id, classes}: {
   )
 }
 
-export const EAUsersProfileTabbedSection = registerComponent(
-  'EAUsersProfileTabbedSection', EAUsersProfileTabbedSectionInner, {styles}
+export default registerComponent(
+  'EAUsersProfileTabbedSection', EAUsersProfileTabbedSection, {styles}
 );
 
 

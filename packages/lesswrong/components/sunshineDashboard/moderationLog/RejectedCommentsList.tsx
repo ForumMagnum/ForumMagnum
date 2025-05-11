@@ -3,14 +3,14 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { LoadMore } from "../../common/LoadMore";
-import { RejectedReasonDisplay } from "../RejectedReasonDisplay";
-import { FormatDate } from "../../common/FormatDate";
-import { MetaInfo } from "../../common/MetaInfo";
-import { PostsTooltip } from "../../posts/PostsPreviewTooltip/PostsTooltip";
-import { CommentBody } from "../../comments/CommentsItem/CommentBody";
-import { Row } from "../../common/Row";
-import { ForumIcon } from "../../common/ForumIcon";
+import LoadMore from "../../common/LoadMore";
+import RejectedReasonDisplay from "../RejectedReasonDisplay";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import CommentBody from "../../comments/CommentsItem/CommentBody";
+import Row from "../../common/Row";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   commentPadding: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RejectedCommentsListInner = ({classes}: {
+export const RejectedCommentsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
@@ -73,7 +73,7 @@ export const RejectedCommentsListInner = ({classes}: {
   </div>;
 }
 
-export const RejectedCommentsList = registerComponent('RejectedCommentsList', RejectedCommentsListInner, {styles});
+export default registerComponent('RejectedCommentsList', RejectedCommentsList, {styles});
 
 
 

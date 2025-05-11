@@ -8,10 +8,10 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
 import { TagForm } from './TagForm';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { NewTagInfoBox } from "./NewTagInfoBox";
-import { Loading } from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import NewTagInfoBox from "./NewTagInfoBox";
+import Loading from "../vulcan-core/Loading";
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -27,7 +27,7 @@ export const styles = (_theme: ThemeType) => ({
   },
 });
 
-const NewTagPageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const {mutate: updateTag} = useUpdate({
@@ -107,6 +107,6 @@ const NewTagPageInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-export const NewTagPage = registerComponent('NewTagPage', NewTagPageInner, {styles});
+export default registerComponent('NewTagPage', NewTagPage, {styles});
 
 

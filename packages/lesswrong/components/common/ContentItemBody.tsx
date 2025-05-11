@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { captureException } from '@sentry/core';
-import { linkIsExcludedFromPreview, HoverPreviewLink } from '../linkPreview/HoverPreviewLink';
+import HoverPreviewLink, { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 import { captureEvent } from '../../lib/analyticsEvents';
@@ -10,14 +10,14 @@ import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBl
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
-import { JargonTooltip } from '../jargon/JargonTooltip';
-import { InlineReactHoverableHighlight } from '../votes/lwReactions/InlineReactHoverableHighlight';
-import { ConditionalVisibilityBlockDisplay } from "../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
-import { HorizScrollBlock } from "./HorizScrollBlock";
-import { CollapsedFootnotes } from "../posts/PostsPage/CollapsedFootnotes";
-import { ElicitBlock } from "../posts/ElicitBlock";
-import { WrappedStrawPoll } from "./WrappedStrawPoll";
-import { ForumEventPostPagePollSection } from "../forumEvents/ForumEventPostPagePollSection";
+import JargonTooltip from '../jargon/JargonTooltip';
+import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
+import ConditionalVisibilityBlockDisplay from "../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
+import HorizScrollBlock from "./HorizScrollBlock";
+import CollapsedFootnotes from "../posts/PostsPage/CollapsedFootnotes";
+import ElicitBlock from "../posts/ElicitBlock";
+import WrappedStrawPoll from "./WrappedStrawPoll";
+import ForumEventPostPagePollSection from "../forumEvents/ForumEventPostPagePollSection";
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
 
 const replacementComponentMap = {
@@ -124,7 +124,7 @@ interface ElementReplacement {
   container: HTMLElement
 }
 
-const ContentItemBodyInner = forwardRef((props: ContentItemBodyProps, ref) => {
+const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
   const [lastProps, setLastProps] = useState(() => props);
   const [lastRenderIndex, setLastRenderIndex] = useState(0);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -695,7 +695,7 @@ function insertElement(replacements: ElementReplacement[], container: HTMLElemen
   container.prepend(insertionContainer);
 }
 
-export const ContentItemBody = registerComponent("ContentItemBody", ContentItemBodyInner, {
+export default registerComponent("ContentItemBody", ContentItemBody, {
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
   allowRef: true,
 });

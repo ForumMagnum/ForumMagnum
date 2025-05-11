@@ -21,9 +21,9 @@ import { FormUserMultiselect } from "@/components/form-components/UserMultiselec
 import SummariesEditForm from "./SummariesEditForm";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {

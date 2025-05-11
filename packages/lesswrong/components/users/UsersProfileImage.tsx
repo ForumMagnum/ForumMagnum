@@ -2,7 +2,7 @@ import React, { FC, memo } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 export type ProfileImageFallback = "initials";
 
@@ -110,7 +110,7 @@ export type UserWithProfileImage = {
   profileImageId?: string | null,
 }
 
-const UsersProfileImageInner = ({user, size, fallback="initials", className, classes}: {
+const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
   user?: UserWithProfileImage|null,
   size: number,
   fallback?: ProfileImageFallback,
@@ -165,9 +165,9 @@ const UsersProfileImageInner = ({user, size, fallback="initials", className, cla
   return null;
 }
 
-export const UsersProfileImage = registerComponent(
+export default registerComponent(
   "UsersProfileImage",
-  UsersProfileImageInner,
+  UsersProfileImage,
   {styles, stylePriority: -1},
 );
 

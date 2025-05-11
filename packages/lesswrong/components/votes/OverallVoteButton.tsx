@@ -6,9 +6,9 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { recombeeApi } from '../../lib/recombee/client';
 import { RecombeeRecommendationsContext } from '../recommendations/RecombeeRecommendationsContextWrapper';
 import { recombeeEnabledSetting } from '../../lib/publicSettings';
-import { LoginPopup } from "../users/LoginPopup";
-import { VoteButton } from "./VoteButton";
-import { VoteArrowIcon } from "./VoteArrowIcon";
+import LoginPopup from "../users/LoginPopup";
+import VoteButton from "./VoteButton";
+import VoteArrowIcon from "./VoteArrowIcon";
 
 export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   vote?: (props: {
@@ -27,7 +27,7 @@ export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   largeArrow?: boolean
 }
 
-const OverallVoteButtonInner = <T extends VoteableTypeClient>({
+const OverallVoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
   color = "secondary",
   orientation = "up",
@@ -78,6 +78,6 @@ const OverallVoteButtonInner = <T extends VoteableTypeClient>({
   />
 }
 
-export const OverallVoteButton = registerComponent('OverallVoteButton', OverallVoteButtonInner);
+export default registerComponent('OverallVoteButton', OverallVoteButton);
 
 

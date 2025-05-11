@@ -5,9 +5,9 @@ import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { ContentType } from "../posts/PostsPage/ContentType";
-import { SingleLineTagUpdates } from "./SingleLineTagUpdates";
-import { LoadMore } from "../common/LoadMore";
+import ContentType from "../posts/PostsPage/ContentType";
+import SingleLineTagUpdates from "./SingleLineTagUpdates";
+import LoadMore from "../common/LoadMore";
 
 const INITIAL_LIMIT = 5
 
@@ -18,7 +18,7 @@ const styles = (_: ThemeType) => ({
   },
 });
 
-const TagEditsTimeBlockInner = ({before, after, reportEmpty, classes}: {
+const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
   reportEmpty: () => void,
@@ -108,7 +108,7 @@ const TagEditsTimeBlockInner = ({before, after, reportEmpty, classes}: {
   </div>
 }
 
-export const TagEditsTimeBlock = registerComponent('TagEditsTimeBlock', TagEditsTimeBlockInner, {
+export default registerComponent('TagEditsTimeBlock', TagEditsTimeBlock, {
   styles, hocs: [withErrorBoundary]
 });
 

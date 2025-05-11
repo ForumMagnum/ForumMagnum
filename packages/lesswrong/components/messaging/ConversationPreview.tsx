@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
-import { Loading } from "../vulcan-core/Loading";
-import { MessageItem } from "./MessageItem";
+import Loading from "../vulcan-core/Loading";
+import MessageItem from "./MessageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ConversationPreviewInner = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
+const ConversationPreview = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
   conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -58,6 +58,6 @@ const ConversationPreviewInner = ({conversationId, currentUser, classes, showTit
   </div>
 }
 
-export const ConversationPreview = registerComponent('ConversationPreview', ConversationPreviewInner, {styles});
+export default registerComponent('ConversationPreview', ConversationPreview, {styles});
 
 

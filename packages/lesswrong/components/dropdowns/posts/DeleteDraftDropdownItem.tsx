@@ -4,9 +4,9 @@ import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const DeleteDraftDropdownItemInner = ({ post }: {
+const DeleteDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
@@ -35,9 +35,9 @@ const DeleteDraftDropdownItemInner = ({ post }: {
   }
 }
 
-export const DeleteDraftDropdownItem = registerComponent(
+export default registerComponent(
   'DeleteDraftDropdownItem',
-  DeleteDraftDropdownItemInner,
+  DeleteDraftDropdownItem,
 );
 
 

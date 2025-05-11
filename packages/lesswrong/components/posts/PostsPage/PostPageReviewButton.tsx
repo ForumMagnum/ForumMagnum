@@ -4,9 +4,9 @@ import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUti
 import { useCurrentUser } from "@/components/common/withUser";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { ReviewVotingWidget } from "../../review/ReviewVotingWidget";
-import { ReviewPostButton } from "../../review/ReviewPostButton";
-import { LWTooltip } from "../../common/LWTooltip";
+import ReviewVotingWidget from "../../review/ReviewVotingWidget";
+import ReviewPostButton from "../../review/ReviewPostButton";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
@@ -29,7 +29,7 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   }
 }))
 
-function PostPageReviewButtonInner({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList}) {
+function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList}) {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -44,6 +44,6 @@ function PostPageReviewButtonInner({post}: {post: PostsWithNavigation|PostsWithN
   )
 }
 
-export const PostPageReviewButton = registerComponent('PostPageReviewButton', PostPageReviewButtonInner);
+export default registerComponent('PostPageReviewButton', PostPageReviewButton);
 
 

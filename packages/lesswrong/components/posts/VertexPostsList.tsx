@@ -5,10 +5,10 @@ import { useOnMountTracking } from '../../lib/analyticsEvents';
 import { isServer } from '../../lib/executionEnvironment';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { LoadMore } from "../common/LoadMore";
-import { PostsItem } from "./PostsItem";
-import { SectionFooter } from "../common/SectionFooter";
-import { PostsLoading } from "./PostsLoading";
+import LoadMore from "../common/LoadMore";
+import PostsItem from "./PostsItem";
+import SectionFooter from "../common/SectionFooter";
+import PostsLoading from "./PostsLoading";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface VertexRecommendedPost {
@@ -57,7 +57,7 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const VertexPostsListInner = ({ limit = 100, classes }: {
+export const VertexPostsList = ({ limit = 100, classes }: {
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -116,6 +116,6 @@ export const VertexPostsListInner = ({ limit = 100, classes }: {
   </div>;
 }
 
-export const VertexPostsList = registerComponent('VertexPostsList', VertexPostsListInner, {styles});
+export default registerComponent('VertexPostsList', VertexPostsList, {styles});
 
 

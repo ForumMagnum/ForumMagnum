@@ -2,9 +2,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { Loading } from "../vulcan-core/Loading";
-import { UsersNameDisplay } from "./UsersNameDisplay";
-import { UserNameDeleted } from "./UserNameDeleted";
+import Loading from "../vulcan-core/Loading";
+import UsersNameDisplay from "./UsersNameDisplay";
+import UserNameDeleted from "./UserNameDeleted";
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.
@@ -13,7 +13,7 @@ import { UserNameDeleted } from "./UserNameDeleted";
  * display their name. If the nofollow attribute is true OR the user has a
  * spam-risk score below 0.8, the user-page link will be marked nofollow.
  */
-const UsersNameWrapperInner = ({documentId, nofollow=false, simple=false, nowrap=false, className, ...otherProps}: {
+const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=false, className, ...otherProps}: {
   documentId: string,
   nofollow?: boolean,
   simple?: boolean,
@@ -35,6 +35,6 @@ const UsersNameWrapperInner = ({documentId, nofollow=false, simple=false, nowrap
   }
 };
 
-export const UsersNameWrapper = registerComponent('UsersNameWrapper', UsersNameWrapperInner);
+export default registerComponent('UsersNameWrapper', UsersNameWrapper);
 
 

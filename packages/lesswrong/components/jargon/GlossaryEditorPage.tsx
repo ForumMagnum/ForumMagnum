@@ -4,15 +4,15 @@ import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
-import { GlossaryEditForm } from "./GlossaryEditForm";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { PostsTitle } from "../posts/PostsTitle";
-import { LoadMore } from "../common/LoadMore";
-import { SectionTitle } from "../common/SectionTitle";
-import { ContentStyles } from "../common/ContentStyles";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { Row } from "../common/Row";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import GlossaryEditForm from "./GlossaryEditForm";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsTitle from "../posts/PostsTitle";
+import LoadMore from "../common/LoadMore";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import Row from "../common/Row";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const GlossaryEditorPageInner = ({classes}: {
+export const GlossaryEditorPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -79,6 +79,6 @@ export const GlossaryEditorPageInner = ({classes}: {
   </div>;
 }
 
-export const GlossaryEditorPage = registerComponent('GlossaryEditorPage', GlossaryEditorPageInner, {styles});
+export default registerComponent('GlossaryEditorPage', GlossaryEditorPage, {styles});
 
 

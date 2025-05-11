@@ -17,12 +17,12 @@ import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYea
 import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { SectionTitle } from "../common/SectionTitle";
-import { HeadTags } from "../common/HeadTags";
-import { ContentStyles } from "../common/ContentStyles";
-import { Loading } from "../vulcan-core/Loading";
-import { SpotlightItem } from "../spotlights/SpotlightItem";
-import { LWTooltip } from "../common/LWTooltip";
+import SectionTitle from "../common/SectionTitle";
+import HeadTags from "../common/HeadTags";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import SpotlightItem from "../spotlights/SpotlightItem";
+import LWTooltip from "../common/LWTooltip";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -688,7 +688,7 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
   return newState;
 }
 
-const TopPostsPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const location = useLocation();
   const { query } = location;
 
@@ -1241,9 +1241,9 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   </Link>;
 }
 
-export const TopPostsPage = registerComponent(
+export default registerComponent(
   "TopPostsPage",
-  TopPostsPageInner,
+  TopPostsPage,
   { styles },
 );
 

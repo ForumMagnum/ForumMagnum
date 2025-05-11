@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
-import { LWTooltip } from "./LWTooltip";
-import { SingleColumnSection } from "./SingleColumnSection";
-import { ForumIcon } from "./ForumIcon";
+import LWTooltip from "./LWTooltip";
+import SingleColumnSection from "./SingleColumnSection";
+import ForumIcon from "./ForumIcon";
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -181,7 +181,7 @@ export interface TabRecord {
 /**
  * A horizontal bar of clickable tabs as alternative to a dropdown
  */
-const TabPickerInner = <T extends TabRecord[]>(
+const TabPicker = <T extends TabRecord[]>(
   {
     classes,
     sortedTabs,
@@ -333,6 +333,6 @@ const TabPickerInner = <T extends TabRecord[]>(
   );
 }
 
-export const TabPicker = registerComponent('TabPicker', TabPickerInner, {styles})
+export default registerComponent('TabPicker', TabPicker, {styles});
 
 

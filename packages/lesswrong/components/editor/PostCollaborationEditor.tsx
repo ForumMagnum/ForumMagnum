@@ -9,17 +9,17 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
-import { Error404 } from "../common/Error404";
-import { PostsAuthors } from "../posts/PostsPage/PostsAuthors";
-import { CollabEditorPermissionsNotices } from "./CollabEditorPermissionsNotices";
-import { CKPostEditor } from "./CKPostEditor";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { Loading } from "../vulcan-core/Loading";
-import { ContentStyles } from "../common/ContentStyles";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { ForeignCrosspostEditForm } from "../posts/ForeignCrosspostEditForm";
-import { PostVersionHistoryButton } from './PostVersionHistory';
+import Error404 from "../common/Error404";
+import PostsAuthors from "../posts/PostsPage/PostsAuthors";
+import CollabEditorPermissionsNotices from "./CollabEditorPermissionsNotices";
+import CKPostEditor from "./CKPostEditor";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import PermanentRedirect from "../common/PermanentRedirect";
+import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
+import PostVersionHistoryButton from './PostVersionHistory';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
-const PostCollaborationEditorInner = ({ classes }: {
+const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -131,6 +131,6 @@ const PostCollaborationEditorInner = ({ classes }: {
   </SingleColumnSection>
 };
 
-export const PostCollaborationEditor = registerComponent('PostCollaborationEditor', PostCollaborationEditorInner, {styles});
+export default registerComponent('PostCollaborationEditor', PostCollaborationEditor, {styles});
 
 

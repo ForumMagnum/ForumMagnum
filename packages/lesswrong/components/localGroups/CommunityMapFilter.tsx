@@ -22,11 +22,11 @@ import { RouterLocation } from "../../lib/vulcan-lib/routes";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';
-import { LoginPopup } from "../users/LoginPopup";
-import { GroupFormDialog } from "./GroupFormDialog";
-import { SetPersonalMapLocationDialog } from "./SetPersonalMapLocationDialog";
-import { EventNotificationsDialog } from "./EventNotificationsDialog";
-import { SimpleDivider } from "../widgets/SimpleDivider";
+import LoginPopup from "../users/LoginPopup";
+import GroupFormDialog from "./GroupFormDialog";
+import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
+import EventNotificationsDialog from "./EventNotificationsDialog";
+import SimpleDivider from "../widgets/SimpleDivider";
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
@@ -211,7 +211,7 @@ const getInitialFilters = ({query}: RouterLocation) => {
   return [];
 }
 
-const CommunityMapFilterInner = ({
+const CommunityMapFilter = ({
   setShowMap,
   showHideMap,
   toggleGroups,
@@ -425,9 +425,9 @@ const CommunityMapFilterInner = ({
   );
 }
 
-export const CommunityMapFilter = registerComponent(
+export default registerComponent(
   'CommunityMapFilter',
-  CommunityMapFilterInner,
+  CommunityMapFilter,
   {styles},
 );
 

@@ -5,11 +5,11 @@ import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
-import { Loading } from "../vulcan-core/Loading";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
-import { EAButton } from "../ea-forum/EAButton";
+import EAButton from "../ea-forum/EAButton";
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const NotifyMeButtonInner = ({
+const NotifyMeButton = ({
   document,
   subscriptionType: overrideSubscriptionType,
   subscribeMessage, unsubscribeMessage,
@@ -142,9 +142,9 @@ const NotifyMeButtonInner = ({
     : maybeToolipButton;
 }
 
-export const NotifyMeButton = registerComponent(
+export default registerComponent(
   'NotifyMeButton',
-  NotifyMeButtonInner,
+  NotifyMeButton,
   {styles},
 );
 

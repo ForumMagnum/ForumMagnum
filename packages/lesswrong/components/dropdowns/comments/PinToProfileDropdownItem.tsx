@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
 const styles = (_: ThemeType) => ({
   icon: isFriendlyUI
@@ -11,7 +11,7 @@ const styles = (_: ThemeType) => ({
     : {},
 });
 
-const PinToProfileDropdownItemInner = ({comment, post, classes}: {
+const PinToProfileDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
@@ -52,9 +52,9 @@ const PinToProfileDropdownItemInner = ({comment, post, classes}: {
   );
 };
 
-export const PinToProfileDropdownItem = registerComponent(
+export default registerComponent(
   "PinToProfileDropdownItem",
-  PinToProfileDropdownItemInner,
+  PinToProfileDropdownItem,
   {styles},
 );
 

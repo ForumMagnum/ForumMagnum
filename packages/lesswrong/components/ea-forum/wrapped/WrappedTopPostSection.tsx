@@ -2,9 +2,9 @@ import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { WrappedPost } from "./WrappedPost";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import WrappedPost from "./WrappedPost";
 
 const styles = (_theme: ThemeType) => ({
   topPost: {
@@ -36,7 +36,7 @@ const styles = (_theme: ThemeType) => ({
 /**
  * Section that displays the user's highest-karma post plus other data on their posts
  */
-const WrappedTopPostSectionInner = ({classes}: {
+const WrappedTopPostSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
@@ -72,9 +72,9 @@ const WrappedTopPostSectionInner = ({classes}: {
   );
 }
 
-export const WrappedTopPostSection = registerComponent(
+export default registerComponent(
   "WrappedTopPostSection",
-  WrappedTopPostSectionInner,
+  WrappedTopPostSection,
   {styles},
 );
 

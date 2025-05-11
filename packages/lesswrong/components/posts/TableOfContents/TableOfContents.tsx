@@ -3,14 +3,14 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
-import { ToCDisplayOptions, TableOfContentsList } from './TableOfContentsList';
+import TableOfContentsList, { ToCDisplayOptions } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { FixedPositionToc } from './FixedPositionToC';
+import FixedPositionToc from './FixedPositionToC';
 
 const styles = (theme: ThemeType) => ({
 });
 
-const TableOfContentsInner = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
+const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
   sectionData: ToCData,
   title: string,
   heading?: React.ReactNode,
@@ -62,8 +62,8 @@ const TableOfContentsInner = ({sectionData, title, heading, onClickSection, disp
   );
 }
 
-export const TableOfContents = registerComponent(
-  "TableOfContents", TableOfContentsInner, {
+export default registerComponent(
+  "TableOfContents", TableOfContents, {
     styles,
     hocs: [withErrorBoundary]
   }

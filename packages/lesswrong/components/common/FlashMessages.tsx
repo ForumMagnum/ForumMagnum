@@ -135,7 +135,7 @@ export const MessageContextProvider = ({children}: {
   </MessageFunctionsContext.Provider>
 }
 
-const FlashMessagesInner = () => {
+const FlashMessages = () => {
   const messagesState = useContext(MessagesStateContext);
   const messagesFunctions = useContext(MessageFunctionsContext);
   const clear = messagesFunctions?.clear;
@@ -181,6 +181,6 @@ const FlashMessagesInner = () => {
   );
 }
 
-export const FlashMessages = registerComponent('FlashMessages', FlashMessagesInner);
+export default registerComponent('FlashMessages', FlashMessages);
 
 

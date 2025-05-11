@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SideItemLineInner = ({colorClass, classes}: {
+const SideItemLine = ({colorClass, classes}: {
   colorClass: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,7 +28,7 @@ const SideItemLineInner = ({colorClass, classes}: {
   </span>
 }
 
-export const SideItemLine = registerComponent('SideItemLine', SideItemLineInner, {styles});
+export default registerComponent('SideItemLine', SideItemLine, {styles});
 
 
 

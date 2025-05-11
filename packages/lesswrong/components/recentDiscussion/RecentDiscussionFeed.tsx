@@ -8,19 +8,19 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';
-import { RecentDiscussionThread } from "./RecentDiscussionThread";
-import { RecentDiscussionTag } from "./RecentDiscussionTag";
-import { RecentDiscussionTagRevisionItem } from "./RecentDiscussionTagRevisionItem";
-import { RecentDiscussionSubscribeReminder } from "./RecentDiscussionSubscribeReminder";
-import { RecentDiscussionMeetupsPoke } from "./RecentDiscussionMeetupsPoke";
-import { EARecentDiscussionThread } from "./EARecentDiscussionThread";
-import { EARecentDiscussionQuickTake } from "./EARecentDiscussionQuickTake";
-import { EARecentDiscussionTagCommented } from "./EARecentDiscussionTagCommented";
-import { EARecentDiscussionTagRevision } from "./EARecentDiscussionTagRevision";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { MixedTypeFeed } from "../common/MixedTypeFeed";
-import { AnalyticsInViewTracker } from "../common/AnalyticsInViewTracker";
+import RecentDiscussionThread from "./RecentDiscussionThread";
+import RecentDiscussionTag from "./RecentDiscussionTag";
+import RecentDiscussionTagRevisionItem from "./RecentDiscussionTagRevisionItem";
+import RecentDiscussionSubscribeReminder from "./RecentDiscussionSubscribeReminder";
+import RecentDiscussionMeetupsPoke from "./RecentDiscussionMeetupsPoke";
+import EARecentDiscussionThread from "./EARecentDiscussionThread";
+import EARecentDiscussionQuickTake from "./EARecentDiscussionQuickTake";
+import EARecentDiscussionTagCommented from "./EARecentDiscussionTagCommented";
+import EARecentDiscussionTagRevision from "./EARecentDiscussionTagRevision";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import MixedTypeFeed from "../common/MixedTypeFeed";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 
 const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
@@ -41,7 +41,7 @@ const recentDisucssionFeedComponents = () => forumSelect({
   },
 });
 
-const RecentDiscussionFeedInner = ({
+const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }: {
@@ -169,7 +169,7 @@ const RecentDiscussionFeedInner = ({
   )
 }
 
-export const RecentDiscussionFeed = registerComponent('RecentDiscussionFeed', RecentDiscussionFeedInner, {
+export default registerComponent('RecentDiscussionFeed', RecentDiscussionFeed, {
   areEqual: "auto",
 });
 

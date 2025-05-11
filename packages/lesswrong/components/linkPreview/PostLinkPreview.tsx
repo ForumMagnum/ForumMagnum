@@ -15,11 +15,11 @@ import classNames from 'classnames';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { AnalyticsTracker } from "../common/AnalyticsTracker";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { SequencesTooltip } from "../sequences/SequencesTooltip";
-import { LWPopper } from "../common/LWPopper";
-import { ContentStyles } from "../common/ContentStyles";
+import AnalyticsTracker from "../common/AnalyticsTracker";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import SequencesTooltip from "../sequences/SequencesTooltip";
+import LWPopper from "../common/LWPopper";
+import ContentStyles from "../common/ContentStyles";
 
 let missingLinkPreviewsLogged = new Set<string>();
 

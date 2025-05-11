@@ -5,9 +5,9 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JargonTermForm } from './JargonTermForm';
-import { JargonTooltip } from "./JargonTooltip";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { LWTooltip } from "../common/LWTooltip";
+import JargonTooltip from "./JargonTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import LWTooltip from "../common/LWTooltip";
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -156,7 +156,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 // Jargon editor row
-export const JargonEditorRowInner = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
+export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
@@ -243,6 +243,6 @@ export const JargonEditorRowInner = ({classes, jargonTerm, instancesOfJargonCoun
   </div>
 }
 
-export const JargonEditorRow = registerComponent('JargonEditorRow', JargonEditorRowInner, {styles});
+export default registerComponent('JargonEditorRow', JargonEditorRow, {styles});
 
 

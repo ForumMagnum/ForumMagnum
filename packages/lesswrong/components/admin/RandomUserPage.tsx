@@ -5,11 +5,11 @@ import { gql, useLazyQuery } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 import { Typography } from "../common/Typography";
-import { Error404 } from "../common/Error404";
-import { Loading } from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RandomUserPageInner = ({classes}: {
+const RandomUserPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -103,8 +103,8 @@ const RandomUserPageInner = ({classes}: {
   </SingleColumnSection>
 }
 
-export const RandomUserPage = registerComponent(
-  "RandomUserPage", RandomUserPageInner, {styles}
+export default registerComponent(
+  "RandomUserPage", RandomUserPage, {styles}
 );
 
 

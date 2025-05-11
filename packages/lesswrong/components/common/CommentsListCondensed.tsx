@@ -4,12 +4,12 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { isEAForum } from '../../lib/instanceSettings';
-import { Loading } from "../vulcan-core/Loading";
-import { SectionTitle } from "./SectionTitle";
-import { ShortformListItem } from "../shortform/ShortformListItem";
-import { LoadMore } from "./LoadMore";
-import { SectionButton } from "./SectionButton";
-import { ShortformSubmitForm } from "../shortform/ShortformSubmitForm";
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "./SectionTitle";
+import ShortformListItem from "../shortform/ShortformListItem";
+import LoadMore from "./LoadMore";
+import SectionButton from "./SectionButton";
+import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 
 const styles = (_: ThemeType) => ({
   subheader: {
@@ -21,7 +21,7 @@ const styles = (_: ThemeType) => ({
   }
 });
 
-const CommentsListCondensedInner = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
+const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
   label: string,
   terms: CommentsViewTerms
   initialLimit?: number,
@@ -79,9 +79,9 @@ const CommentsListCondensedInner = ({label, terms, initialLimit, itemsPerPage, s
   </>;
 }
 
-export const CommentsListCondensed = registerComponent(
+export default registerComponent(
   'CommentsListCondensed',
-  CommentsListCondensedInner,
+  CommentsListCondensed,
   {styles, stylePriority: 1},
 );
 

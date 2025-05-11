@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "../posts/PostsList2";
-import { RecentDiscussionThreadsList } from "../recentDiscussion/RecentDiscussionThreadsList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Nominations2018Inner = ({classes}: {
+const Nominations2018 = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [sortByMost, setSortBy] = useState(false);
@@ -45,7 +45,7 @@ const Nominations2018Inner = ({classes}: {
   )
 }
 
-export const Nominations2018 = registerComponent('Nominations2018', Nominations2018Inner, {styles});
+export default registerComponent('Nominations2018', Nominations2018, {styles});
 
 
 

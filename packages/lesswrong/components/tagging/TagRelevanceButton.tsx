@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { LoginPopup } from "../users/LoginPopup";
+import LoginPopup from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TagRelevanceButtonInner = ({document, voteType, vote, label, classes, cancelVote }: {
+const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVote }: {
   document: TagRelMinimumFragment,
   voteType: string,
   vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent}) => void,
@@ -60,7 +60,7 @@ const TagRelevanceButtonInner = ({document, voteType, vote, label, classes, canc
   </a>
 }
 
-export const TagRelevanceButton = registerComponent('TagRelevanceButton', TagRelevanceButtonInner, {styles});
+export default registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
 
 
 

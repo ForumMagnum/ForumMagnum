@@ -2,9 +2,9 @@ import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { WrappedComment } from "./WrappedComment";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import WrappedComment from "./WrappedComment";
 
 const styles = (_theme: ThemeType) => ({
   topComment: {
@@ -21,7 +21,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedTopCommentSectionInner = ({classes}: {
+const WrappedTopCommentSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
@@ -45,9 +45,9 @@ const WrappedTopCommentSectionInner = ({classes}: {
   );
 }
 
-export const WrappedTopCommentSection = registerComponent(
+export default registerComponent(
   "WrappedTopCommentSection",
-  WrappedTopCommentSectionInner,
+  WrappedTopCommentSection,
   {styles},
 );
 

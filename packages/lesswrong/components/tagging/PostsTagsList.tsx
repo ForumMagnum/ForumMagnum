@@ -4,7 +4,7 @@ import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +46,7 @@ type TagWithCount = TagBasicInfo & {count: number}
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 
 // those tags.
-export const PostsTagsListInner = (
+export const PostsTagsList = (
   {
     classes, 
     posts, 
@@ -97,7 +97,7 @@ export const PostsTagsListInner = (
   </div>;
 }
 
-export const PostsTagsList = registerComponent('PostsTagsList', PostsTagsListInner, {styles});
+export default registerComponent('PostsTagsList', PostsTagsList, {styles});
 
 
 

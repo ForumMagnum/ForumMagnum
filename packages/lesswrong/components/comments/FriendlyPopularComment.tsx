@@ -10,11 +10,11 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { UsersName } from "../users/UsersName";
-import { LWTooltip } from "../common/LWTooltip";
-import { SmallSideVote } from "../votes/SmallSideVote";
-import { CommentBody } from "./CommentsItem/CommentBody";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import SmallSideVote from "../votes/SmallSideVote";
+import CommentBody from "./CommentsItem/CommentBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -122,7 +122,7 @@ const PopularCommentTitle: FC<{
   );
 }
 
-const FriendlyPopularCommentInner = ({comment, classes}: {
+const FriendlyPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -185,9 +185,9 @@ const FriendlyPopularCommentInner = ({comment, classes}: {
   );
 }
 
-export const FriendlyPopularComment = registerComponent(
+export default registerComponent(
   "FriendlyPopularComment",
-  FriendlyPopularCommentInner,
+  FriendlyPopularComment,
   {styles},
 );
 

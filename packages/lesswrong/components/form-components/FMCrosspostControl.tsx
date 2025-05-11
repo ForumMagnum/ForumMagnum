@@ -17,7 +17,7 @@ import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
   root: {

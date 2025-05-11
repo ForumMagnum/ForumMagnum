@@ -5,7 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
 import moment from "moment";
-import { ForumDropdown } from "../common/ForumDropdown";
+import ForumDropdown from "../common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -70,7 +70,7 @@ const getCookieData = (data: unknown): ViewToggleCookieData => {
   }
 }
 
-const PostsListViewToggleInner = ({classes}: {
+const PostsListViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
@@ -136,9 +136,9 @@ const PostsListViewToggleInner = ({classes}: {
   );
 }
 
-export const PostsListViewToggle = registerComponent(
+export default registerComponent(
   "PostsListViewToggle",
-  PostsListViewToggleInner,
+  PostsListViewToggle,
   {styles},
 );
 

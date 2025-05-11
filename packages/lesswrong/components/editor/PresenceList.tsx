@@ -5,7 +5,7 @@ import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
-import { UsersName } from "../users/UsersName";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   user: {
@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
  * This is used inside fo EditorTopBar. If alwaysShownUserIds is provided, those
  * users will be shown even if they're not connected (but grayed out).
  */
-const PresenceListInner = ({connectedUsers, alwaysShownUserIds, classes}: {
+const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
   classes: ClassesType<typeof styles>,
@@ -101,6 +101,6 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   </span>
 }
 
-export const PresenceList = registerComponent('PresenceList', PresenceListInner, {styles});
+export default registerComponent('PresenceList', PresenceList, {styles});
 
 

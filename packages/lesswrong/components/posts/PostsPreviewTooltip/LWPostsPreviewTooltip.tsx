@@ -9,15 +9,15 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
-import { PostsUserAndCoauthors } from "../PostsUserAndCoauthors";
-import { PostsTitle } from "../PostsTitle";
-import { ContentItemBody } from "../../common/ContentItemBody";
-import { CommentsNode } from "../../comments/CommentsNode";
-import { BookmarkButton } from "../BookmarkButton";
-import { FormatDate } from "../../common/FormatDate";
-import { Loading } from "../../vulcan-core/Loading";
-import { ContentStyles } from "../../common/ContentStyles";
-import { EventTime } from "../../localGroups/EventTime";
+import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
+import PostsTitle from "../PostsTitle";
+import ContentItemBody from "../../common/ContentItemBody";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import BookmarkButton from "../BookmarkButton";
+import FormatDate from "../../common/FormatDate";
+import Loading from "../../vulcan-core/Loading";
+import ContentStyles from "../../common/ContentStyles";
+import EventTime from "../../localGroups/EventTime";
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -143,7 +143,7 @@ type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
 
-const LWPostsPreviewTooltipInner = ({
+const LWPostsPreviewTooltip = ({
   postsList,
   post,
   hash,
@@ -238,7 +238,7 @@ const LWPostsPreviewTooltipInner = ({
         </div>
         {renderedComment
           ? <div className={classes.comment}>
-              <CommentsNode
+              <CommentsNodeInner
                 treeOptions={{
                   post,
                   hideReply: true,
@@ -269,6 +269,6 @@ const LWPostsPreviewTooltipInner = ({
 
 }
 
-export const LWPostsPreviewTooltip = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltipInner, {styles});
+export default registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
 
 

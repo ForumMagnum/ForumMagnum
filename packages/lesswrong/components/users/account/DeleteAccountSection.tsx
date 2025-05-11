@@ -5,9 +5,9 @@ import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
-import { DeleteAccountConfirmationModal } from "./DeleteAccountConfirmationModal";
-import { ActionButtonSection } from "./ActionButtonSection";
-import { FormatDate } from "../../common/FormatDate";
+import DeleteAccountConfirmationModal from "./DeleteAccountConfirmationModal";
+import ActionButtonSection from "./ActionButtonSection";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const DeleteAccountSectionInner = ({
+const DeleteAccountSection = ({
   user,
   classes,
 }: {
@@ -100,7 +100,7 @@ const DeleteAccountSectionInner = ({
   );
 };
 
-export const DeleteAccountSection = registerComponent('DeleteAccountSection', DeleteAccountSectionInner, { styles });
+export default registerComponent('DeleteAccountSection', DeleteAccountSection, { styles });
 
 
 

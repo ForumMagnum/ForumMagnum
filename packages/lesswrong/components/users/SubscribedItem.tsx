@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useSingle } from "@/lib/crud/withSingle";
-import { Loading } from "../vulcan-core/Loading";
-import { NotifyMeButton } from "../notifications/NotifyMeButton";
+import Loading from "../vulcan-core/Loading";
+import NotifyMeButton from "../notifications/NotifyMeButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SubscribedItemInner = ({
+const SubscribedItem = ({
   collectionName,
   fragmentName,
   subscription,
@@ -68,9 +68,9 @@ const SubscribedItemInner = ({
   );
 }
 
-export const SubscribedItem = registerComponent(
+export default registerComponent(
   "SubscribedItem",
-  SubscribedItemInner,
+  SubscribedItem,
   {styles},
 );
 

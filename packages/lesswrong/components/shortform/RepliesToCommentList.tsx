@@ -2,10 +2,10 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
-import { CommentsList } from "../comments/CommentsList";
-import { Loading } from "../vulcan-core/Loading";
+import CommentsList from "../comments/CommentsList";
+import Loading from "../vulcan-core/Loading";
 
-const RepliesToCommentListInner = ({ post, parentCommentId, directReplies = false }: {
+const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: {
   post: PostsBase,
   parentCommentId: string,
   directReplies?: boolean
@@ -42,7 +42,7 @@ const RepliesToCommentListInner = ({ post, parentCommentId, directReplies = fals
 }
 
 
-export const RepliesToCommentList = registerComponent('RepliesToCommentList', RepliesToCommentListInner)
+export default registerComponent('RepliesToCommentList', RepliesToCommentList);
 
 
 

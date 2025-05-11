@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 
-const AnalyticsTrackerInner = ({eventType, eventProps, children, captureOnClick=true, captureOnMount, skip}: {
+const AnalyticsTracker = ({eventType, eventProps, children, captureOnClick=true, captureOnMount, skip}: {
   eventType: string,
   eventProps?: Record<string,any>,
   children?: React.ReactNode,
@@ -23,6 +23,6 @@ const AnalyticsTrackerInner = ({eventType, eventProps, children, captureOnClick=
   )
 };
 
-export const AnalyticsTracker = registerComponent('AnalyticsTracker', AnalyticsTrackerInner)
+export default registerComponent('AnalyticsTracker', AnalyticsTracker);
 
 

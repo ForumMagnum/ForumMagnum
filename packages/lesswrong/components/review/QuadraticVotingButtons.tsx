@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const QuadraticVotingButtonsInner = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType<typeof styles>, postId: string, vote: any, voteForCurrentPost: SyntheticQuadraticVote|null}) => {
+const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType<typeof styles>, postId: string, vote: any, voteForCurrentPost: SyntheticQuadraticVote|null}) => {
   const clickHandler = (type: 'buy' | 'sell') => {
     vote({
       postId,
@@ -37,6 +37,6 @@ const QuadraticVotingButtonsInner = ({classes, postId, vote, voteForCurrentPost 
   </div>
 }
 
-export const QuadraticVotingButtons = registerComponent("QuadraticVotingButtons", QuadraticVotingButtonsInner, {styles});
+export default registerComponent("QuadraticVotingButtons", QuadraticVotingButtons, {styles});
 
 

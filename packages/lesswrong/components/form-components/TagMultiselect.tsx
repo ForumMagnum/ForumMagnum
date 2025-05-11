@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
-import { SingleTagItem } from "./SingleTagItem";
-import { TagsSearchAutoComplete } from "../search/TagsSearchAutoComplete";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { SectionTitle } from "../common/SectionTitle";
+import SingleTagItem from "./SingleTagItem";
+import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
+import ErrorBoundary from "../common/ErrorBoundary";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   label: {
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagMultiselectInner = ({
+const TagMultiselect = ({
   value,
   label,
   placeholder,
@@ -147,6 +147,6 @@ const TagMultiselectInner = ({
   )
 }
 
-export const TagMultiselect = registerComponent('TagMultiselect', TagMultiselectInner, {styles});
+export default registerComponent('TagMultiselect', TagMultiselect, {styles});
 
 

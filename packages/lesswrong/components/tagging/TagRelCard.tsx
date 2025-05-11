@@ -5,10 +5,10 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
-import { TagPreview } from "./TagPreview";
-import { OverallVoteButton } from "../votes/OverallVoteButton";
-import { TagRelevanceButton } from "./TagRelevanceButton";
-import { LWTooltip } from "../common/LWTooltip";
+import TagPreview from "./TagPreview";
+import OverallVoteButton from "../votes/OverallVoteButton";
+import TagRelevanceButton from "./TagRelevanceButton";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   relevance: {
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagRelCardInner = ({tagRel, classes}: {
+const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -131,6 +131,6 @@ const TagRelCardInner = ({tagRel, classes}: {
   </div>
 }
 
-export const TagRelCard = registerComponent("TagRelCard", TagRelCardInner, {styles});
+export default registerComponent("TagRelCard", TagRelCard, {styles});
 
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
-import { SearchAutoComplete } from "./SearchAutoComplete";
-import { PostsListEditorSearchHit } from "./PostsListEditorSearchHit";
+import SearchAutoComplete from "./SearchAutoComplete";
+import PostsListEditorSearchHit from "./PostsListEditorSearchHit";
 
-const PostsSearchAutoCompleteInner = ({clickAction, placeholder='Search for posts'}: {
+const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}: {
   clickAction: (id: string) => void,
   placeholder?: string
 }) => {
@@ -17,7 +17,7 @@ const PostsSearchAutoCompleteInner = ({clickAction, placeholder='Search for post
   />
 }
 
-export const PostsSearchAutoComplete = registerComponent("PostsSearchAutoComplete", PostsSearchAutoCompleteInner);
+export default registerComponent("PostsSearchAutoComplete", PostsSearchAutoComplete);
 
 
 

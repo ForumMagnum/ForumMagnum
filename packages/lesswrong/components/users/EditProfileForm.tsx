@@ -27,13 +27,13 @@ import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import { useSingle } from '@/lib/crud/withSingle';
 import { FormComponentFriendlyDisplayNameInput } from '../form-components/FormComponentFriendlyDisplayNameInput';
-import { Error404 } from "../common/Error404";
-import { FormGroupFriendlyUserProfile } from "../form-components/FormGroupFriendlyUserProfile";
-import { TagMultiselect } from "../form-components/TagMultiselect";
-import { PrefixedInput } from "../form-components/PrefixedInput";
+import Error404 from "../common/Error404";
+import FormGroupFriendlyUserProfile from "../form-components/FormGroupFriendlyUserProfile";
+import TagMultiselect from "../form-components/TagMultiselect";
+import PrefixedInput from "../form-components/PrefixedInput";
 import { Typography } from "../common/Typography";
-import { ForumIcon } from "../common/ForumIcon";
-import { Loading } from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -480,7 +480,7 @@ const UserProfileForm = ({
   );
 };
 
-const EditProfileFormInner = () => {
+const EditProfileForm = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const navigate = useNavigate();
@@ -587,6 +587,6 @@ const EditProfileFormInner = () => {
 }
 
 
-export const EditProfileForm = registerComponent('EditProfileForm', EditProfileFormInner);
+export default registerComponent('EditProfileForm', EditProfileForm);
 
 

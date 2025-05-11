@@ -3,17 +3,17 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { getSpotlightDisplayTitle, SpotlightItem } from './SpotlightItem';
+import SpotlightItem, { getSpotlightDisplayTitle } from './SpotlightItem';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SpotlightForm } from './SpotlightForm';
-import { Loading } from "../vulcan-core/Loading";
-import { SectionTitle } from "../common/SectionTitle";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { SpotlightEditorStyles } from "./SpotlightEditorStyles";
-import { ToCColumn } from "../posts/TableOfContents/ToCColumn";
-import { TableOfContents } from "../posts/TableOfContents/TableOfContents";
-import { LoadMore } from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SpotlightEditorStyles from "./SpotlightEditorStyles";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const SpotlightsPageInner = ({classes}: {
+export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -125,7 +125,7 @@ export const SpotlightsPageInner = ({classes}: {
   </ToCColumn>
 }
 
-export const SpotlightsPage = registerComponent('SpotlightsPage', SpotlightsPageInner, {styles});
+export default registerComponent('SpotlightsPage', SpotlightsPage, {styles});
 
 
 

@@ -5,9 +5,9 @@ import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const BanUserFromPostDropdownItemInner = ({comment, post}: {
+const BanUserFromPostDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsDetails,
 }) => {
@@ -47,8 +47,8 @@ const BanUserFromPostDropdownItemInner = ({comment, post}: {
   );
 };
 
-export const BanUserFromPostDropdownItem = registerComponent(
-  'BanUserFromPostDropdownItem', BanUserFromPostDropdownItemInner,
+export default registerComponent(
+  'BanUserFromPostDropdownItem', BanUserFromPostDropdownItem,
 );
 
 

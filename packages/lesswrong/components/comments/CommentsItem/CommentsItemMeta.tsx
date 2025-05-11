@@ -11,19 +11,19 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
-import { CommentShortformIcon } from "./CommentShortformIcon";
-import { CommentDiscussionIcon } from "./CommentDiscussionIcon";
-import { ShowParentComment } from "../ShowParentComment";
-import { CommentUserName } from "./CommentUserName";
-import { CommentsItemDate } from "./CommentsItemDate";
-import { SmallSideVote } from "../../votes/SmallSideVote";
-import { CommentOutdatedWarning } from "./CommentOutdatedWarning";
-import { FooterTag } from "../../tagging/FooterTag";
-import { LoadMore } from "../../common/LoadMore";
-import { ForumIcon } from "../../common/ForumIcon";
-import { CommentsMenu } from "../../dropdowns/comments/CommentsMenu";
-import { UserCommentMarkers } from "../../users/UserCommentMarkers";
-import { CommentPollVote } from "./CommentPollVote";
+import CommentShortformIcon from "./CommentShortformIcon";
+import CommentDiscussionIcon from "./CommentDiscussionIcon";
+import ShowParentComment from "../ShowParentComment";
+import CommentUserName from "./CommentUserName";
+import CommentsItemDate from "./CommentsItemDate";
+import SmallSideVote from "../../votes/SmallSideVote";
+import CommentOutdatedWarning from "./CommentOutdatedWarning";
+import FooterTag from "../../tagging/FooterTag";
+import LoadMore from "../../common/LoadMore";
+import ForumIcon from "../../common/ForumIcon";
+import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
+import UserCommentMarkers from "../../users/UserCommentMarkers";
+import CommentPollVote from "./CommentPollVote";
 import { metaNoticeStyles } from "./metaNoticeStyles";
 
 const styles = (theme: ThemeType) => ({
@@ -142,7 +142,7 @@ const styles = (theme: ThemeType) => ({
     }
 });
 
-export const CommentsItemMetaInner = ({
+export const CommentsItemMeta = ({
   treeOptions,
   comment,
   showCommentTitle,
@@ -357,9 +357,9 @@ export const CommentsItemMetaInner = ({
   );
 }
 
-export const CommentsItemMeta = registerComponent(
+export default registerComponent(
   "CommentsItemMeta",
-  CommentsItemMetaInner,
+  CommentsItemMeta,
   {styles},
 );
 

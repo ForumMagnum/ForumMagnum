@@ -26,21 +26,21 @@ import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
 import { slugify } from '@/lib/utils/slugify';
-import { LoginPopup } from "../../users/LoginPopup";
-import { ReactOrAntireactVote } from "./ReactOrAntireactVote";
-import { UsersWhoReacted } from "./UsersWhoReacted";
-import { OverallVoteAxis } from "../OverallVoteAxis";
-import { AgreementVoteAxis } from "../AgreementVoteAxis";
-import { ReactionIcon } from "../ReactionIcon";
-import { LWPopper } from "../../common/LWPopper";
-import { Row } from "../../common/Row";
-import { LWTooltip } from "../../common/LWTooltip";
-import { ReactionDescription } from "./ReactionDescription";
-import { ReactionHoverTopRow } from "./ReactionHoverTopRow";
-import { ReactionQuotesHoverInfo } from "./ReactionQuotesHoverInfo";
-import { PopperCard } from "../../common/PopperCard";
-import { LWClickAwayListener } from "../../common/LWClickAwayListener";
-import { ReactionsPalette } from "../ReactionsPalette";
+import LoginPopup from "../../users/LoginPopup";
+import ReactOrAntireactVote from "./ReactOrAntireactVote";
+import UsersWhoReacted from "./UsersWhoReacted";
+import OverallVoteAxis from "../OverallVoteAxis";
+import AgreementVoteAxis from "../AgreementVoteAxis";
+import ReactionIcon from "../ReactionIcon";
+import LWPopper from "../../common/LWPopper";
+import Row from "../../common/Row";
+import LWTooltip from "../../common/LWTooltip";
+import ReactionDescription from "./ReactionDescription";
+import ReactionHoverTopRow from "./ReactionHoverTopRow";
+import ReactionQuotesHoverInfo from "./ReactionQuotesHoverInfo";
+import PopperCard from "../../common/PopperCard";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
+import ReactionsPalette from "../ReactionsPalette";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -355,7 +355,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
       {hideKarma && <AddReactionIcon />}
     </span>}
     {(hiddenReacts.length > 0 || alwaysShowReactionOverviewButton) && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
-    {showReactButton && <AddReactionButtonInner voteProps={voteProps} classes={classes}/>}
+    {showReactButton && <AddReactionButton voteProps={voteProps} />}
   </span>
 }
 
@@ -518,7 +518,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   </div>
 }
 
-export const AddReactionButtonInner = ({voteProps, classes}: {
+const AddReactionButtonInner = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>
 }) => {

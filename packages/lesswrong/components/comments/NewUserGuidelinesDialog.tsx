@@ -8,10 +8,10 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
 import { DialogActions } from '../widgets/DialogActions';
-import { LWDialog } from "../common/LWDialog";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { Loading } from "../vulcan-core/Loading";
+import LWDialog from "../common/LWDialog";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const NewUserGuidelinesDialogInner = ({classes, onClose, post, user}: {
+const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   classes: ClassesType<typeof styles>,
   onClose: () => void,
   post: PostsMinimumInfo,
@@ -84,6 +84,6 @@ const NewUserGuidelinesDialogInner = ({classes, onClose, post, user}: {
   )
 };
 
-export const NewUserGuidelinesDialog = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialogInner, { styles });
+export default registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
 
 

@@ -2,10 +2,10 @@ import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import classNames from "classnames";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { ForumIcon } from "../common/ForumIcon";
-import { PeopleDirectorySearchableFilter } from "./PeopleDirectorySearchableFilter";
-import { PeopleDirectoryStaticFilter } from "./PeopleDirectoryStaticFilter";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import ForumIcon from "../common/ForumIcon";
+import PeopleDirectorySearchableFilter from "./PeopleDirectorySearchableFilter";
+import PeopleDirectoryStaticFilter from "./PeopleDirectoryStaticFilter";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryAllFiltersDropdownInner = ({classes}: {
+const PeopleDirectoryAllFiltersDropdown = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {filters} = usePeopleDirectory();
@@ -159,9 +159,9 @@ const PeopleDirectoryAllFiltersDropdownInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryAllFiltersDropdown = registerComponent(
+export default registerComponent(
   "PeopleDirectoryAllFiltersDropdown",
-  PeopleDirectoryAllFiltersDropdownInner,
+  PeopleDirectoryAllFiltersDropdown,
   {styles},
 );
 

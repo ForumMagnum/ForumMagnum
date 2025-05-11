@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { CommentWithModeratorActions, CommentsReviewInfoCard } from './CommentsReviewInfoCard';
+import CommentsReviewInfoCard, { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CommentsReviewTabInner = ({commentsWithActions, classes}: {
+export const CommentsReviewTab = ({commentsWithActions, classes}: {
   commentsWithActions: CommentWithModeratorActions[],
   classes: ClassesType<typeof styles>,
 }) => {
@@ -22,6 +22,6 @@ export const CommentsReviewTabInner = ({commentsWithActions, classes}: {
   </div>;
 }
 
-export const CommentsReviewTab = registerComponent('CommentsReviewTab', CommentsReviewTabInner, {styles});
+export default registerComponent('CommentsReviewTab', CommentsReviewTab, {styles});
 
 

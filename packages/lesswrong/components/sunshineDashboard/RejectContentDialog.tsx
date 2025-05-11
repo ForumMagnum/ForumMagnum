@@ -8,10 +8,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
-import { LWTooltip } from "../common/LWTooltip";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { LoadMore } from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RejectContentDialogInner = ({classes, rejectContent}: {
+const RejectContentDialog = ({classes, rejectContent}: {
   classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
@@ -149,6 +149,6 @@ const RejectContentDialogInner = ({classes, rejectContent}: {
   )
 };
 
-export const RejectContentDialog = registerComponent('RejectContentDialog', RejectContentDialogInner, { styles });
+export default registerComponent('RejectContentDialog', RejectContentDialog, { styles });
 
 

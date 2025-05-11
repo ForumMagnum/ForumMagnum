@@ -5,12 +5,12 @@ import { useInitiateConversation } from "@/components/hooks/useInitiateConversat
 import { getTopAuthor, getUserProfileLink } from "./wrappedHelpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { UsersProfileImage } from "../../users/UsersProfileImage";
-import { MessagesNewForm } from "../../messaging/MessagesNewForm";
-import { Loading } from "../../vulcan-core/Loading";
-import { ForumIcon } from "../../common/ForumIcon";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import UsersProfileImage from "../../users/UsersProfileImage";
+import MessagesNewForm from "../../messaging/MessagesNewForm";
+import Loading from "../../vulcan-core/Loading";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const WrappedThankAuthorSectionInner = ({classes}: {
+const WrappedThankAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data, currentUser} = useForumWrappedContext();
@@ -148,9 +148,9 @@ const WrappedThankAuthorSectionInner = ({classes}: {
   );
 }
 
-export const WrappedThankAuthorSection = registerComponent(
+export default registerComponent(
   "WrappedThankAuthorSection",
-  WrappedThankAuthorSectionInner,
+  WrappedThankAuthorSection,
   {styles},
 );
 

@@ -9,7 +9,7 @@ import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CrosspostHeaderIconInner = ({post, classes}: {
+const CrosspostHeaderIcon = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -48,8 +48,8 @@ const CrosspostHeaderIconInner = ({post, classes}: {
   );
 }
 
-export const CrosspostHeaderIcon = registerComponent(
-  "CrosspostHeaderIcon", CrosspostHeaderIconInner, {styles}
+export default registerComponent(
+  "CrosspostHeaderIcon", CrosspostHeaderIcon, {styles}
 );
 
 

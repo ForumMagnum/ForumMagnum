@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const NoContentInner = ({children, classes}: {
+const NoContent = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -18,6 +18,6 @@ const NoContentInner = ({children, classes}: {
   </Typography>
 }
 
-export const NoContent = registerComponent('NoContent', NoContentInner, {styles});
+export default registerComponent('NoContent', NoContent, {styles});
 
 

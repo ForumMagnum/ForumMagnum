@@ -8,8 +8,8 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
-import { TabNavigationSubItem } from "./TabNavigationSubItem";
-import { LWTooltip } from "../LWTooltip";
+import TabNavigationSubItem from "./TabNavigationSubItem";
+import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
 
 export const iconWidth = 30
@@ -187,7 +187,7 @@ const useFlag = (tab: MenuTabRegular): {
   return {flag};
 }
 
-const TabNavigationItemInner = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
+const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
@@ -253,8 +253,8 @@ const TabNavigationItemInner = ({tab, onClick, className, classes}: TabNavigatio
   </LWTooltip>
 }
 
-export const TabNavigationItem = registerComponent(
-  'TabNavigationItem', TabNavigationItemInner, {styles}
+export default registerComponent(
+  'TabNavigationItem', TabNavigationItem, {styles}
 );
 
 

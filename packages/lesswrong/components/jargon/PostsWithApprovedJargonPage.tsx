@@ -5,14 +5,14 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { PostsItem } from "../posts/PostsItem";
-import { JargonTooltip } from "./JargonTooltip";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { ContentStyles } from "../common/ContentStyles";
-import { LoadMore } from "../common/LoadMore";
-import { Loading } from "../vulcan-core/Loading";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
+import PostsItem from "../posts/PostsItem";
+import JargonTooltip from "./JargonTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +68,7 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
   </div>
 };
 
-export const PostsWithApprovedJargonPageInner = ({classes}: {
+export const PostsWithApprovedJargonPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(15);
@@ -162,6 +162,6 @@ export const PostsWithApprovedJargonPageInner = ({classes}: {
   </div>;
 }
 
-export const PostsWithApprovedJargonPage = registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPageInner, {styles});
+export default registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPage, {styles});
 
 

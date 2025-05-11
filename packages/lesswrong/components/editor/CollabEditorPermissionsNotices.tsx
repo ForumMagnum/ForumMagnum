@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { UsersName } from "../users/UsersName";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CollabEditorPermissionsNoticesInner = ({post, classes}: {
+const CollabEditorPermissionsNotices = ({post, classes}: {
   post: PostsPage,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -42,6 +42,6 @@ const CollabEditorPermissionsNoticesInner = ({post, classes}: {
   </div>;
 }
 
-export const CollabEditorPermissionsNotices = registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNoticesInner, {styles});
+export default registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNotices, {styles});
 
 

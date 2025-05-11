@@ -8,10 +8,10 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
-import { ContentStyles } from "../../common/ContentStyles";
-import { FooterTag } from "../FooterTag";
-import { AddTagButton } from "../AddTagButton";
-import { Loading } from "../../vulcan-core/Loading";
+import ContentStyles from "../../common/ContentStyles";
+import FooterTag from "../FooterTag";
+import AddTagButton from "../AddTagButton";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SidebarSubtagsBoxInner = ({ tag, className, classes }: {
+const SidebarSubtagsBox = ({ tag, className, classes }: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -152,6 +152,6 @@ const SidebarSubtagsBoxInner = ({ tag, className, classes }: {
   );
 };
 
-export const SidebarSubtagsBox = registerComponent("SidebarSubtagsBox", SidebarSubtagsBoxInner, { styles });
+export default registerComponent("SidebarSubtagsBox", SidebarSubtagsBox, { styles });
 
 

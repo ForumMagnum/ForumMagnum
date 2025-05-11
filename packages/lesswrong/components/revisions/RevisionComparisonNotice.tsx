@@ -5,7 +5,7 @@ const styles = (theme: ThemeType) => ({
   root: {
   }
 });
-const RevisionComparisonNoticeInner = ({before, after, classes}: {
+const RevisionComparisonNotice = ({before, after, classes}: {
   before: string,
   after: string,
   classes: ClassesType<typeof styles>,
@@ -13,6 +13,6 @@ const RevisionComparisonNoticeInner = ({before, after, classes}: {
   return <p className={classes.root}>You are comparing revision {before} to revision {after}.</p>
 }
 
-export const RevisionComparisonNotice = registerComponent("RevisionComparisonNotice", RevisionComparisonNoticeInner, {styles});
+export default registerComponent("RevisionComparisonNotice", RevisionComparisonNotice, {styles});
 
 

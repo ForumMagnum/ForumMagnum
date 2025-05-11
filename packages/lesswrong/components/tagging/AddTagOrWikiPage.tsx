@@ -10,8 +10,8 @@ import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../.
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
-import { TagSearchHit } from "./TagSearchHit";
-import { DropdownDivider } from "../dropdowns/DropdownDivider";
+import TagSearchHit from "./TagSearchHit";
+import DropdownDivider from "../dropdowns/DropdownDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
+const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
   onlyTags: boolean,
@@ -139,6 +139,6 @@ const AddTagOrWikiPageInner = ({onTagSelected, isVotingContext, onlyTags, numSug
   </div>
 }
 
-export const AddTagOrWikiPage = registerComponent("AddTagOrWikiPage", AddTagOrWikiPageInner, {styles});
+export default registerComponent("AddTagOrWikiPage", AddTagOrWikiPage, {styles});
 
 

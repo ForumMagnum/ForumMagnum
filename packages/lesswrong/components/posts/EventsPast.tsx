@@ -3,16 +3,16 @@ import React from 'react';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { forumAllPostsNumDaysSetting } from '../../lib/publicSettings';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsTimeframeList } from "./PostsTimeframeList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsTimeframeList from "./PostsTimeframeList";
 
 const styles = (theme: ThemeType) => ({
   daily: {
     padding: theme.spacing.unit
   }
 })
-const EventsPastInner = ({ classes }: {
+const EventsPast = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
@@ -44,7 +44,7 @@ const EventsPastInner = ({ classes }: {
   )
 }
 
-export const EventsPast = registerComponent('EventsPast', EventsPastInner, {styles});
+export default registerComponent('EventsPast', EventsPast, {styles});
 
 
 

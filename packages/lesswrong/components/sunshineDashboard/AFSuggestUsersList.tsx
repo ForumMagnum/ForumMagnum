@@ -1,10 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { SunshineListTitle } from "./SunshineListTitle";
-import { OmegaIcon } from "../icons/OmegaIcon";
-import { LoadMore } from "../common/LoadMore";
-import { AFSuggestUsersItem } from "./AFSuggestUsersItem";
+import SunshineListTitle from "./SunshineListTitle";
+import OmegaIcon from "../icons/OmegaIcon";
+import LoadMore from "../common/LoadMore";
+import AFSuggestUsersItem from "./AFSuggestUsersItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AFSuggestUsersListInner = ({ classes }: {
+const AFSuggestUsersList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
@@ -39,7 +39,7 @@ const AFSuggestUsersListInner = ({ classes }: {
   }
 }
 
-export const AFSuggestUsersList = registerComponent('AFSuggestUsersList', AFSuggestUsersListInner, {styles});
+export default registerComponent('AFSuggestUsersList', AFSuggestUsersList, {styles});
 
 
 

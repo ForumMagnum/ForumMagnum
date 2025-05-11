@@ -7,8 +7,8 @@ import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { requireCssVar } from '../../themes/cssVars';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
-import { FormatDate } from "../common/FormatDate";
-import { UserNameDeleted } from "../users/UserNameDeleted";
+import FormatDate from "../common/FormatDate";
+import UserNameDeleted from "../users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,7 +71,7 @@ const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
 const greyBackground = requireCssVar("palette", "grey", 0);
 
-const ExpandedSequencesSearchHitInner = ({hit, classes}: {
+const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -106,7 +106,7 @@ const ExpandedSequencesSearchHitInner = ({hit, classes}: {
   </div>
 }
 
-export const ExpandedSequencesSearchHit = registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHitInner, {styles});
+export default registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHit, {styles});
 
 
 

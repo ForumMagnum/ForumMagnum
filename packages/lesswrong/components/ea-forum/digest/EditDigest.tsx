@@ -13,15 +13,15 @@ import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
-import { Loading } from "../../vulcan-core/Loading";
-import { EditDigestHeader } from "./EditDigestHeader";
-import { ForumDropdown } from "../../common/ForumDropdown";
-import { ForumDropdownMultiselect } from "../../common/ForumDropdownMultiselect";
-import { ForumIcon } from "../../common/ForumIcon";
-import { LWTooltip } from "../../common/LWTooltip";
-import { EditDigestActionButtons } from "./EditDigestActionButtons";
-import { EditDigestTableRow } from "./EditDigestTableRow";
-import { Error404 } from "../../common/Error404";
+import Loading from "../../vulcan-core/Loading";
+import EditDigestHeader from "./EditDigestHeader";
+import ForumDropdown from "../../common/ForumDropdown";
+import ForumDropdownMultiselect from "../../common/ForumDropdownMultiselect";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import EditDigestActionButtons from "./EditDigestActionButtons";
+import EditDigestTableRow from "./EditDigestTableRow";
+import Error404 from "../../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -162,7 +162,7 @@ type TagUsage = {
 }
 
 
-const EditDigestInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {params} = useLocation()
   const {flash} = useMessages()
   const currentUser = useCurrentUser()
@@ -574,6 +574,6 @@ const EditDigestInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export const EditDigest = registerComponent('EditDigest', EditDigestInner, {styles});
+export default registerComponent('EditDigest', EditDigest, {styles});
 
 

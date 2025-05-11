@@ -19,19 +19,19 @@ import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
-import { SearchBar } from "./SearchBar";
-import { UsersMenu } from "../users/UsersMenu";
-import { UsersAccountMenu } from "../users/UsersAccountMenu";
-import { NotificationsMenuButton } from "../notifications/NotificationsMenuButton";
-import { NavigationDrawer } from "./TabNavigationMenu/NavigationDrawer";
-import { NotificationsMenu } from "../notifications/NotificationsMenu";
-import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
-import { HeaderSubtitle } from "./HeaderSubtitle";
+import SearchBar from "./SearchBar";
+import UsersMenu from "../users/UsersMenu";
+import UsersAccountMenu from "../users/UsersAccountMenu";
+import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
+import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
+import NotificationsMenu from "../notifications/NotificationsMenu";
+import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
-import { ForumIcon } from "./ForumIcon";
-import { ActiveDialogues } from "../dialogues/ActiveDialogues";
-import { SiteLogo } from "../ea-forum/SiteLogo";
-import { MessagesMenuButton } from "../messaging/MessagesMenuButton";
+import ForumIcon from "./ForumIcon";
+import ActiveDialogues from "../dialogues/ActiveDialogues";
+import SiteLogo from "../ea-forum/SiteLogo";
+import MessagesMenuButton from "../messaging/MessagesMenuButton";
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -286,7 +286,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const HeaderInner = ({
+const Header = ({
   standaloneNavigationPresent,
   sidebarHidden,
   toggleStandaloneNavigation,
@@ -558,7 +558,7 @@ const HeaderInner = ({
   )
 }
 
-export const Header = registerComponent('Header', HeaderInner, {
+export default registerComponent('Header', Header, {
   styles,
   hocs: [withErrorBoundary]
 });

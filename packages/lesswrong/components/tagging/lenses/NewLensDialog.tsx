@@ -5,7 +5,7 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogContentText } from "@/components/widgets/DialogContentText";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { LensForm } from './LensForm';
-import { LWDialog } from "../../common/LWDialog";
+import LWDialog from "../../common/LWDialog";
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
@@ -43,7 +43,7 @@ const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   },
 }));
 
-export const NewLensDialogInner = ({ tag, refetchTag, updateSelectedLens, onClose }: {
+export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
   refetchTag: () => Promise<void>,
   updateSelectedLens: (lensId: string) => void,
@@ -74,6 +74,6 @@ export const NewLensDialogInner = ({ tag, refetchTag, updateSelectedLens, onClos
   </LWDialog>;
 }
 
-export const NewLensDialog = registerComponent('NewLensDialog', NewLensDialogInner);
+export default registerComponent('NewLensDialog', NewLensDialog);
 
 

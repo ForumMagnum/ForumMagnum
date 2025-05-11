@@ -3,8 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { commentIsHidden } from '../../../lib/collections/comments/helpers';
 import moment from 'moment';
-import { CalendarDate } from "../../common/CalendarDate";
-import { MetaInfo } from "../../common/MetaInfo";
+import CalendarDate from "../../common/CalendarDate";
+import MetaInfo from "../../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   caveatText: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentBottomCaveatsInner = ({comment, classes}: {
+const CommentBottomCaveats = ({comment, classes}: {
   comment: CommentsList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -48,6 +48,6 @@ const CommentBottomCaveatsInner = ({comment, classes}: {
   </>
 }
 
-export const CommentBottomCaveats = registerComponent("CommentBottomCaveats", CommentBottomCaveatsInner, {styles});
+export default registerComponent("CommentBottomCaveats", CommentBottomCaveats, {styles});
 
 

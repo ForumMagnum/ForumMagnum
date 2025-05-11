@@ -14,10 +14,10 @@ import {
 } from '../../lib/search/searchUtil';
 import { communityPath } from '@/lib/pathConstants';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import { TagMultiselect } from "../form-components/TagMultiselect";
+import TagMultiselect from "../form-components/TagMultiselect";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {
@@ -107,7 +107,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 }
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
-const SearchFiltersInner = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
+const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
   classes: ClassesType<typeof styles>
   tab: SearchIndexCollectionName
   tagsFilter: Array<string>
@@ -192,6 +192,6 @@ const SearchFiltersInner = ({classes, tab, tagsFilter, handleUpdateTagsFilter, o
 }
 
 
-export const SearchFilters = registerComponent("SearchFilters", SearchFiltersInner, {styles})
+export default registerComponent("SearchFilters", SearchFilters, {styles});
 
 

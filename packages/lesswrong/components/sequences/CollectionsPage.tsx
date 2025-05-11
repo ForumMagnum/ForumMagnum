@@ -5,22 +5,22 @@ import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { BooksForm } from './BooksForm';
-import { Loading } from "../vulcan-core/Loading";
-import { CollectionsEditForm } from "./CollectionsEditForm";
-import { BooksItem } from "./BooksItem";
-import { SectionFooter } from "../common/SectionFooter";
-import { SectionButton } from "../common/SectionButton";
-import { ContentItemBody } from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import CollectionsEditForm from "./CollectionsEditForm";
+import BooksItem from "./BooksItem";
+import SectionFooter from "../common/SectionFooter";
+import SectionButton from "../common/SectionButton";
+import ContentItemBody from "../common/ContentItemBody";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { CollectionTableOfContents } from "./CollectionTableOfContents";
-import { ToCColumn } from "../posts/TableOfContents/ToCColumn";
-import { HeadTags } from "../common/HeadTags";
+import ContentStyles from "../common/ContentStyles";
+import ErrorBoundary from "../common/ErrorBoundary";
+import CollectionTableOfContents from "./CollectionTableOfContents";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import HeadTags from "../common/HeadTags";
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CollectionsPageInner = ({ documentId, classes }: {
+const CollectionsPage = ({ documentId, classes }: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -190,7 +190,7 @@ const CollectionsPageInner = ({ documentId, classes }: {
   }
 }
 
-export const CollectionsPage = registerComponent('CollectionsPage', CollectionsPageInner, {styles});
+export default registerComponent('CollectionsPage', CollectionsPage, {styles});
 
 
 

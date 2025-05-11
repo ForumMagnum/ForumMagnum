@@ -66,7 +66,7 @@ export const styles = defineStyles("MenuItem", theme => ({
 }),  {stylePriority: -1});
 
 
-const MenuItemInner = ({value, disabled, disableRipple, dense, onClick, className, children}: {
+export const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, children}: {
   value?: string|number,
   disabled?: boolean,
   disableRipple?: boolean,
@@ -97,7 +97,7 @@ const MenuItemInner = ({value, disabled, disableRipple, dense, onClick, classNam
   </ButtonBase>;
 }
 
-const MenuItemLinkInner = ({to, className, disabled, disableTouchRipple, children}: {
+export const MenuItemLink = ({to, className, disabled, disableTouchRipple, children}: {
   to: string,
   className?: string,
   disabled?: boolean,
@@ -124,7 +124,5 @@ const MenuItemLinkInner = ({to, className, disabled, disableTouchRipple, childre
   </ButtonBaseUntyped>;
 }
 
-export const MenuItem = registerComponent("MenuItem", MenuItemInner);
-export const MenuItemLink = registerComponent("MenuItemLink", MenuItemLinkInner);
 
 

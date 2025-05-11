@@ -1,21 +1,21 @@
 import React from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import { isPostWithForeignId, PostsPageCrosspostWrapper } from "./PostsPageCrosspostWrapper";
+import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
-import { postsCommentsThreadMultiOptions, PostsPage } from './PostsPage';
+import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
 import { useApolloClient } from '@apollo/client';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
-import { ErrorAccessDenied } from "../../common/ErrorAccessDenied";
-import { Error404 } from "../../common/Error404";
-import { Loading } from "../../vulcan-core/Loading";
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import Error404 from "../../common/Error404";
+import Loading from "../../vulcan-core/Loading";
 
-const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
+const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,
@@ -103,6 +103,6 @@ const PostsPageWrapperInner = ({ sequenceId, version, documentId }: {
   );
 }
 
-export const PostsPageWrapper = registerComponent("PostsPageWrapper", PostsPageWrapperInner);
+export default registerComponent("PostsPageWrapper", PostsPageWrapper);
 
 

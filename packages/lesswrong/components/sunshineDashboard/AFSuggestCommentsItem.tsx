@@ -11,17 +11,17 @@ import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { SunshineSendMessageWithDefaults } from "./SunshineSendMessageWithDefaults";
-import { CommentBody } from "../comments/CommentsItem/CommentBody";
-import { SunshineCommentsItemOverview } from "./SunshineCommentsItemOverview";
-import { SidebarInfo } from "./SidebarInfo";
-import { SidebarActionMenu } from "./SidebarActionMenu";
-import { SidebarAction } from "./SidebarAction";
-import { OmegaIcon } from "../icons/OmegaIcon";
+import ContentStyles from "../common/ContentStyles";
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
+import SidebarInfo from "./SidebarInfo";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarAction from "./SidebarAction";
+import OmegaIcon from "../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   afSubmissionHeader: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AFSuggestCommentsItemInner = ({comment, classes}: {
+const AFSuggestCommentsItem = ({comment, classes}: {
   comment: SuggestAlignmentComment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -112,7 +112,7 @@ const AFSuggestCommentsItemInner = ({comment, classes}: {
   );
 }
 
-export const AFSuggestCommentsItem = registerComponent('AFSuggestCommentsItem', AFSuggestCommentsItemInner, {
+export default registerComponent('AFSuggestCommentsItem', AFSuggestCommentsItem, {
   styles,
   hocs: [withErrorBoundary]
 });

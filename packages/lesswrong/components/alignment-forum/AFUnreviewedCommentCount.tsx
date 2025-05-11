@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useMulti } from "../../lib/crud/withMulti";
-import { ContentStyles } from '../common/ContentStyles';
+import ContentStyles from '../common/ContentStyles';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const AFUnreviewedCommentCountInner = ({ post, classes }: {
+const AFUnreviewedCommentCount = ({ post, classes }: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -41,6 +41,6 @@ const AFUnreviewedCommentCountInner = ({ post, classes }: {
  }
 }
 
-export const AFUnreviewedCommentCount = registerComponent('AFUnreviewedCommentCount', AFUnreviewedCommentCountInner, {styles});
+export default registerComponent('AFUnreviewedCommentCount', AFUnreviewedCommentCount, {styles});
 
 

@@ -2,13 +2,13 @@ import React, { useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useSingle } from '@/lib/crud/withSingle';
-import { ChaptersEditForm } from "./ChaptersEditForm";
-import { ChapterTitle } from "./ChapterTitle";
-import { SectionFooter } from "../common/SectionFooter";
-import { SectionButton } from "../common/SectionButton";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { PostsItem } from "../posts/PostsItem";
+import ChaptersEditForm from "./ChaptersEditForm";
+import ChapterTitle from "./ChapterTitle";
+import SectionFooter from "../common/SectionFooter";
+import SectionButton from "../common/SectionButton";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import PostsItem from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ChaptersItemInner = ({ chapter, canEdit, classes }: {
+const ChaptersItem = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
   classes: ClassesType<typeof styles>,
@@ -91,6 +91,6 @@ const ChaptersItemInner = ({ chapter, canEdit, classes }: {
   )
 }
 
-export const ChaptersItem = registerComponent('ChaptersItem', ChaptersItemInner, {styles});
+export default registerComponent('ChaptersItem', ChaptersItem, {styles});
 
 

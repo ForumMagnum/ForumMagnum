@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { MetaInfo } from "../common/MetaInfo";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   overflow: {
@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListCountInner = ({ count, classes }: {
+const SunshineListCount = ({ count, classes }: {
   count: number|undefined,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -19,7 +19,7 @@ const SunshineListCountInner = ({ count, classes }: {
   }
 }
 
-export const SunshineListCount = registerComponent('SunshineListCount', SunshineListCountInner, {styles});
+export default registerComponent('SunshineListCount', SunshineListCount, {styles});
 
 
 

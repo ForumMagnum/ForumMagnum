@@ -1,12 +1,12 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { CollectionsPage } from "./CollectionsPage";
+import CollectionsPage from "./CollectionsPage";
 
-const BooksInner = () => {
+const Books = () => {
   return <CollectionsPage documentId={'nmk3nLpQE89dMRzzN'} />
 };
 
-export const Books = registerComponent('Books', BooksInner);
+export default registerComponent('Books', Books);
 
 
 

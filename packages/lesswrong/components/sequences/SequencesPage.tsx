@@ -14,22 +14,22 @@ import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
 import { ChaptersForm } from './ChaptersForm';
-import { Error404 } from "../common/Error404";
-import { Loading } from "../vulcan-core/Loading";
-import { SequencesEditForm } from "./SequencesEditForm";
-import { HeadTags } from "../common/HeadTags";
-import { CloudinaryImage } from "../common/CloudinaryImage";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionSubtitle } from "../common/SectionSubtitle";
-import { ChaptersList } from "./ChaptersList";
-import { FormatDate } from "../common/FormatDate";
-import { SectionFooter } from "../common/SectionFooter";
-import { UsersName } from "../users/UsersName";
-import { ContentItemBody } from "../common/ContentItemBody";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import SequencesEditForm from "./SequencesEditForm";
+import HeadTags from "../common/HeadTags";
+import CloudinaryImage from "../common/CloudinaryImage";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionSubtitle from "../common/SectionSubtitle";
+import ChaptersList from "./ChaptersList";
+import FormatDate from "../common/FormatDate";
+import SectionFooter from "../common/SectionFooter";
+import UsersName from "../users/UsersName";
+import ContentItemBody from "../common/ContentItemBody";
 import { Typography } from "../common/Typography";
-import { SectionButton } from "../common/SectionButton";
-import { ContentStyles } from "../common/ContentStyles";
-import { NotifyMeButton } from "../notifications/NotifyMeButton";
+import SectionButton from "../common/SectionButton";
+import ContentStyles from "../common/ContentStyles";
+import NotifyMeButton from "../notifications/NotifyMeButton";
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -170,7 +170,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SequencesPageInner = ({ documentId, classes }: {
+const SequencesPage = ({ documentId, classes }: {
   documentId: string,
   classes: ClassesType<typeof styles>
 }) => {
@@ -341,6 +341,6 @@ const SequencesPageInner = ({ documentId, classes }: {
   </AnalyticsContext>
 }
 
-export const SequencesPage = registerComponent('SequencesPage', SequencesPageInner, {styles});
+export default registerComponent('SequencesPage', SequencesPage, {styles});
 
 

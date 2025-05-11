@@ -34,16 +34,16 @@ import { FormComponentCheckboxGroup } from '@/components/form-components/FormCom
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { HIGHLIGHT_DURATION } from '@/components/comments/CommentFrame';
-import { Loading } from "../../vulcan-core/Loading";
-import { LWTooltip } from "../../common/LWTooltip";
-import { Error404 } from "../../common/Error404";
-import { PrefixedInput } from "../../form-components/PrefixedInput";
-import { NotificationTypeSettingsWidget } from "../../notifications/NotificationTypeSettings";
-import { KarmaChangeNotifierSettings } from "../KarmaChangeNotifierSettings";
-import { UsersEmailVerification } from "../UsersEmailVerification";
-import { EmailConfirmationRequiredCheckbox } from "../EmailConfirmationRequiredCheckbox";
-import { FormComponentCheckbox } from "../../form-components/FormComponentCheckbox";
-import { ErrorAccessDenied } from "../../common/ErrorAccessDenied";
+import Loading from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
+import Error404 from "../../common/Error404";
+import PrefixedInput from "../../form-components/PrefixedInput";
+import NotificationTypeSettingsWidget from "../../notifications/NotificationTypeSettings";
+import KarmaChangeNotifierSettings from "../KarmaChangeNotifierSettings";
+import UsersEmailVerification from "../UsersEmailVerification";
+import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheckbox";
+import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -1296,7 +1296,7 @@ const UsersForm = ({
   );
 };
 
-const UsersEditFormInner = ({ terms }: {
+const UsersEditForm = ({ terms }: {
   terms: { slug: string },
 }) => {
   const classes = useStyles(styles);
@@ -1376,6 +1376,6 @@ const UsersEditFormInner = ({ terms }: {
 };
 
 
-export const UsersEditForm = registerComponent('UsersEditForm', UsersEditFormInner);
+export default registerComponent('UsersEditForm', UsersEditForm);
 
 

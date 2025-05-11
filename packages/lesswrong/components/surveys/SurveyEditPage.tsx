@@ -8,15 +8,15 @@ import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/s
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
-import { Error404 } from "../common/Error404";
-import { EAOnboardingInput } from "../ea-forum/onboarding/EAOnboardingInput";
-import { EAButton } from "../ea-forum/EAButton";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumDropdown } from "../common/ForumDropdown";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import Error404 from "../common/Error404";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumDropdown from "../common/ForumDropdown";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -291,7 +291,7 @@ const SurveyEditor = ({classes}: {
   );
 }
 
-const SurveyEditPageInner = ({classes}: {
+const SurveyEditPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -300,9 +300,9 @@ const SurveyEditPageInner = ({classes}: {
     : <Error404 />;
 }
 
-export const SurveyEditPage = registerComponent(
+export default registerComponent(
   "SurveyEditPage",
-  SurveyEditPageInner,
+  SurveyEditPage,
   {styles},
 );
 

@@ -17,8 +17,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { Typography } from "../../common/Typography";
-import { EventTime } from "../../localGroups/EventTime";
-import { SmallMapPreview } from "../../localGroups/SmallMapPreview";
+import EventTime from "../../localGroups/EventTime";
+import SmallMapPreview from "../../localGroups/SmallMapPreview";
 
 const styles = (theme: ThemeType) => ({
   metadata: {
@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsPageEventDataInner = ({classes, post}: {
+const PostsPageEventData = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
@@ -238,6 +238,6 @@ const PostsPageEventDataInner = ({classes, post}: {
   </Typography>
 }
 
-export const PostsPageEventData = registerComponent('PostsPageEventData', PostsPageEventDataInner, {styles});
+export default registerComponent('PostsPageEventData', PostsPageEventData, {styles});
 
 

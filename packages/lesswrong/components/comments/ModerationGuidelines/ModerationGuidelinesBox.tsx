@@ -12,8 +12,8 @@ import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuideli
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { TooltipSpan } from '@/components/common/FMTooltip';
-import { ModerationGuidelinesEditForm } from "./ModerationGuidelinesEditForm";
-import { ContentStyles } from "../../common/ContentStyles";
+import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
+import ContentStyles from "../../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -102,7 +102,7 @@ const getSubforumModerationGuidelines = (tag: TagFragment) => {
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBoxInner = ({classes, commentType = "post", documentId}: {
+const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
   classes: ClassesType<typeof styles>,
   commentType?: "post" | "subforum",
   documentId: string,
@@ -199,7 +199,7 @@ const moderationStyleLookup: Partial<Record<string,string>> = {
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-export const ModerationGuidelinesBox = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBoxInner, {
+export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   styles,
   hocs: [withErrorBoundary]
 });

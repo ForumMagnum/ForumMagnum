@@ -12,9 +12,9 @@ import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { useMulti } from '@/lib/crud/withMulti';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { Loading } from "../vulcan-core/Loading";
-import { WikiTagGroup } from "./WikiTagGroup";
-import { NewWikiTagButton } from "./NewWikiTagButton";
+import Loading from "../vulcan-core/Loading";
+import WikiTagGroup from "./WikiTagGroup";
+import NewWikiTagButton from "./NewWikiTagButton";
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -239,7 +239,7 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   );
 }
 
-const AllWikiTagsPageInner = () => {
+const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const { query } = useLocation();
@@ -349,7 +349,7 @@ const AllWikiTagsPageInner = () => {
   );
 };
 
-export const AllWikiTagsPage = registerComponent("AllWikiTagsPage", AllWikiTagsPageInner);
+export default registerComponent("AllWikiTagsPage", AllWikiTagsPage);
 
 
 

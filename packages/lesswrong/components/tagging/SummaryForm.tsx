@@ -11,8 +11,8 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
   defaultFormSection: {

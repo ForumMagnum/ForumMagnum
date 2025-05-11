@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { Loading } from "../vulcan-core/Loading";
-import { EmailPreview } from "../notifications/EmailPreview";
+import Loading from "../vulcan-core/Loading";
+import EmailPreview from "../notifications/EmailPreview";
 
-export const EmailHistoryPageInner = () => {
+export const EmailHistoryPage = () => {
   const currentUser = useCurrentUser();
   if (!currentUser) return <div/>
   
@@ -14,10 +13,8 @@ export const EmailHistoryPageInner = () => {
   />
 }
 
-export const EmailHistoryPage = registerComponent('EmailHistoryPage', EmailHistoryPageInner);
 
-
-export const EmailHistoryInner = ({terms}: {terms: LWEventsViewTerms}) => {
+export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   const { results } = useMulti({
     terms,
     collectionName: 'LWEvents',
@@ -30,7 +27,3 @@ export const EmailHistoryInner = ({terms}: {terms: LWEventsViewTerms}) => {
     <EmailPreview key={lwEvent._id} email={lwEvent.properties} sentDate={lwEvent.createdAt ?? undefined}/>)
   }</>
 }
-
-export const EmailHistory = registerComponent('EmailHistory', EmailHistoryInner);
-
-

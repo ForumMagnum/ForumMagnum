@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Chip } from '@/components/widgets/Chip';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   chip: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SingleUsersItemInner = ({userId, removeItem, classes }: {
+const SingleUsersItem = ({userId, removeItem, classes }: {
   userId: string,
   removeItem: (id: string) => void,
   classes: ClassesType<typeof styles>
@@ -41,6 +41,6 @@ const SingleUsersItemInner = ({userId, removeItem, classes }: {
   }
 };
 
-export const SingleUsersItem = registerComponent('SingleUsersItem', SingleUsersItemInner, {styles});
+export default registerComponent('SingleUsersItem', SingleUsersItem, {styles});
 
 

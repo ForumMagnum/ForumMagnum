@@ -6,10 +6,10 @@ import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { ReviewVotingWidget } from "./ReviewVotingWidget";
-import { LWPopper } from "../common/LWPopper";
-import { LWTooltip } from "../common/LWTooltip";
-import { ReviewPostButton } from "./ReviewPostButton";
+import ReviewVotingWidget from "./ReviewVotingWidget";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ReviewPostButton from "./ReviewPostButton";
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsItemReviewVoteInner = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
+const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
@@ -120,6 +120,6 @@ const PostsItemReviewVoteInner = ({classes, post, marginRight=true}: {classes: C
   </div>
 }
 
-export const PostsItemReviewVote = registerComponent('PostsItemReviewVote', PostsItemReviewVoteInner, {styles});
+export default registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
 
 

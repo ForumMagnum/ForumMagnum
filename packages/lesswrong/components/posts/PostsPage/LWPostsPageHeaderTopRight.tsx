@@ -5,10 +5,10 @@ import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
-import { FooterTagList } from "../../tagging/FooterTagList";
-import { LWPostsPageTopHeaderVote } from "../../votes/LWPostsPageTopHeaderVote";
-import { AudioToggle } from "./AudioToggle";
-import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
+import FooterTagList from "../../tagging/FooterTagList";
+import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
+import AudioToggle from "./AudioToggle";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
@@ -84,6 +84,6 @@ export const LWPostsPageHeaderTopRightInner = ({classes, post, toggleEmbeddedPla
   </div>;
 }
 
-export const LWPostsPageHeaderTopRight = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRightInner, {styles});
+export default registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
 
 

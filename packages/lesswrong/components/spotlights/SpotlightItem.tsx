@@ -19,17 +19,17 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useSingle } from '@/lib/crud/withSingle';
 import { SpotlightForm } from './SpotlightForm';
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
-import { AnalyticsTracker } from "../common/AnalyticsTracker";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { SpotlightEditorStyles } from "./SpotlightEditorStyles";
-import { SpotlightStartOrContinueReading } from "./SpotlightStartOrContinueReading";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import AnalyticsTracker from "../common/AnalyticsTracker";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import SpotlightEditorStyles from "./SpotlightEditorStyles";
+import SpotlightStartOrContinueReading from "./SpotlightStartOrContinueReading";
 import { Typography } from "../common/Typography";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { CommentsNode } from "../comments/CommentsNode";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const TEXT_WIDTH = 350;
 
@@ -420,7 +420,7 @@ function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
   return [];
 }
 
-export const SpotlightItemInner = ({
+export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
   hideBanner,
@@ -577,7 +577,7 @@ export const SpotlightItemInner = ({
           </div>
           <div className={classes.reviews}>
             {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-              <CommentsNode comment={review} treeOptions={{
+              <CommentsNodeInner comment={review} treeOptions={{
                 singleLineCollapse: true,
                 forceSingleLine: true,
                 hideSingleLineMeta: true,
@@ -647,7 +647,7 @@ export const SpotlightItemInner = ({
   </AnalyticsContext>
 }
 
-export const SpotlightItem = registerComponent('SpotlightItem', SpotlightItemInner, {
+export default registerComponent('SpotlightItem', SpotlightItem, {
   styles,
   stylePriority: -1,
 });

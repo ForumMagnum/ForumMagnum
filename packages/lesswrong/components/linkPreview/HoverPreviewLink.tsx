@@ -11,7 +11,7 @@ import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStyles';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from './PostLinkPreview';
-import { FootnotePreview } from "./FootnotePreview";
+import FootnotePreview from "./FootnotePreview";
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -48,7 +48,7 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLinkInner = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, children }: {
+const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, children }: {
   href: string,
   contentSourceDescription?: string,
   id?: string,
@@ -172,6 +172,6 @@ const HoverPreviewLinkInner = ({ href, contentSourceDescription, id, rel, noPref
 
 }
 
-export const HoverPreviewLink = registerComponent('HoverPreviewLink', HoverPreviewLinkInner, { hocs: [withErrorBoundary] });
+export default registerComponent('HoverPreviewLink', HoverPreviewLink, { hocs: [withErrorBoundary] });
 
 

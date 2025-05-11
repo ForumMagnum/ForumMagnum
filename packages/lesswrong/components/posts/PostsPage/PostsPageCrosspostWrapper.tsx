@@ -3,9 +3,9 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
-import { EagerPostComments, PostsPage } from "./PostsPage";
-import { Error404 } from "../../common/Error404";
-import { Loading } from "../../vulcan-core/Loading";
+import PostsPage, { EagerPostComments } from "./PostsPage";
+import Error404 from "../../common/Error404";
+import Loading from "../../vulcan-core/Loading";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -34,7 +34,7 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
   typeof post.fmCrosspost.hostedHere === "boolean" &&
   !!post.fmCrosspost.foreignPostId;
 
-const PostsPageCrosspostWrapperInner = ({post, eagerPostComments, refetch, fetchProps}: {
+const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
   eagerPostComments?: EagerPostComments,
   refetch: () => Promise<void>,
@@ -76,6 +76,6 @@ const PostsPageCrosspostWrapperInner = ({post, eagerPostComments, refetch, fetch
   );
 }
 
-export const PostsPageCrosspostWrapper = registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapperInner);
+export default registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapper);
 
 

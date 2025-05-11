@@ -11,17 +11,17 @@ import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
 import classNames from "classnames";
-import { SectionTitle } from "../common/SectionTitle";
-import { NotificationsPageKarmaChangeList } from "./NotificationsPage/NotificationsPageKarmaChangeList";
-import { NoNotificationsPlaceholder } from "./NoNotificationsPlaceholder";
-import { LoadMore } from "../common/LoadMore";
-import { NotificationsPopoverNotification } from "./NotificationsPopoverNotification";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { PopperCard } from "../common/PopperCard";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { DropdownItem } from "../dropdowns/DropdownItem";
-import { Loading } from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import NotificationsPageKarmaChangeList from "./NotificationsPage/NotificationsPageKarmaChangeList";
+import NoNotificationsPlaceholder from "./NoNotificationsPlaceholder";
+import LoadMore from "../common/LoadMore";
+import NotificationsPopoverNotification from "./NotificationsPopoverNotification";
+import ForumIcon from "../common/ForumIcon";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import PopperCard from "../common/PopperCard";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import Loading from "../vulcan-core/Loading";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -110,7 +110,7 @@ const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
 
 const defaultLimit = 20;
 
-const NotificationsPopoverInner = ({
+const NotificationsPopover = ({
   karmaChanges,
   onOpenNotificationsPopover,
   closePopover,
@@ -322,9 +322,9 @@ const NotificationsPopoverInner = ({
   );
 }
 
-export const NotificationsPopover = registerComponent(
+export default registerComponent(
   "NotificationsPopover",
-  NotificationsPopoverInner,
+  NotificationsPopover,
   {styles},
 );
 

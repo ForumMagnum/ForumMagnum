@@ -5,10 +5,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
-import { SpotlightItem } from "./SpotlightItem";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import SpotlightItem from "./SpotlightItem";
+import SingleColumnSection from "../common/SingleColumnSection";
 
-export const DismissibleSpotlightItemInner = ({
+export const DismissibleSpotlightItem = ({
   current,
   spotlight,
   standaloneSection,
@@ -67,6 +67,6 @@ export const DismissibleSpotlightItemInner = ({
   return null
 }
 
-export const DismissibleSpotlightItem = registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItemInner);
+export default registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItem);
 
 

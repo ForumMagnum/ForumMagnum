@@ -4,7 +4,7 @@ import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { COLUMN_HORIZONTAL_PADDING } from "./PeopleDirectoryResultRow";
 import classNames from "classnames";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryHeadingInner = ({column, classes}: {
+const PeopleDirectoryHeading = ({column, classes}: {
   column: PeopleDirectoryColumn,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -71,9 +71,9 @@ const PeopleDirectoryHeadingInner = ({column, classes}: {
   );
 }
 
-export const PeopleDirectoryHeading = registerComponent(
+export default registerComponent(
   "PeopleDirectoryHeading",
-  PeopleDirectoryHeadingInner,
+  PeopleDirectoryHeading,
   {styles},
 );
 

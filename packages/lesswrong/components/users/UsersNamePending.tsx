@@ -6,7 +6,7 @@ import {
   userGetDisplayName,
   userGetProfileUrl,
 } from '../../lib/collections/users/helpers';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   userName: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UsersNamePendingInner = ({ user, classes }: {
+const UsersNamePending = ({ user, classes }: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -41,8 +41,8 @@ const UsersNamePendingInner = ({ user, classes }: {
   );
 }
 
-export const UsersNamePending = registerComponent(
-  'UsersNamePending', UsersNamePendingInner, {styles}
+export default registerComponent(
+  'UsersNamePending', UsersNamePending, {styles}
 );
 
 

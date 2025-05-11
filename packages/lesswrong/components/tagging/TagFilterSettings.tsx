@@ -7,9 +7,9 @@ import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { AddTagButton } from "./AddTagButton";
-import { LWTooltip } from "../common/LWTooltip";
-import { filteringStyles, FilterMode } from './FilterMode';
+import AddTagButton from "./AddTagButton";
+import LWTooltip from "../common/LWTooltip";
+import FilterMode, { filteringStyles } from './FilterMode';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
  * See the documentation for useFilterSettings for more information about the
  * behavior of filter settings.
  */
-const TagFilterSettingsInner = ({
+const TagFilterSettings = ({
   filterSettings,
   setPersonalBlogFilter,
   setTagFilter,
@@ -129,6 +129,6 @@ const TagFilterSettingsInner = ({
   </span>
 }
 
-export const TagFilterSettings = registerComponent("TagFilterSettings", TagFilterSettingsInner, {styles});
+export default registerComponent("TagFilterSettings", TagFilterSettings, {styles});
 
 

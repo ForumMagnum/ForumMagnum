@@ -7,8 +7,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock'
 import LockOpenIcon from '@/lib/vendor/@material-ui/icons/src/LockOpen'
 import flatMap from 'lodash/flatMap';
-import { Loading } from "../../vulcan-core/Loading";
-import { LWTooltip } from "../../common/LWTooltip";
+import Loading from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AltAccountInfoInner = ({classes, user}: {
+export const AltAccountInfo = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
@@ -70,7 +70,7 @@ export const AltAccountInfoInner = ({classes, user}: {
   </div>;
 }
 
-export const AltAccountInfo = registerComponent('AltAccountInfo', AltAccountInfoInner, {styles});
+export default registerComponent('AltAccountInfo', AltAccountInfo, {styles});
 
 
 

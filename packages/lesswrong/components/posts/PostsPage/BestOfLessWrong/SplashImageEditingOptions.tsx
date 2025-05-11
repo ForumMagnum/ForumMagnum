@@ -4,7 +4,7 @@ import { useMulti } from '../../../../lib/crud/withMulti';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
-import { Loading } from "../../../vulcan-core/Loading";
+import Loading from "../../../vulcan-core/Loading";
 
 const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => ({
   root: { 
@@ -33,7 +33,7 @@ const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => (
   },
 }));
 
-export const SplashImageEditingOptionsInner = ({ post }: {
+export const SplashImageEditingOptions = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
 }) => {
   const classes = useStyles(styles);
@@ -57,6 +57,6 @@ export const SplashImageEditingOptionsInner = ({ post }: {
   );
 };
 
-export const SplashImageEditingOptions = registerComponent('SplashImageEditingOptions', SplashImageEditingOptionsInner);
+export default registerComponent('SplashImageEditingOptions', SplashImageEditingOptions);
 
 

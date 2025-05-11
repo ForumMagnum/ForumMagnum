@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
@@ -118,7 +118,7 @@ export const styles = (theme: ThemeType) => ({
   gap2: { gridArea: 'gap2' }
 });
 
-export const SubforumLayoutInner = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
+export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
   titleComponent: React.ReactNode,
   bannerImageId: string,
   headerComponent: React.ReactNode,
@@ -202,6 +202,6 @@ export const SubforumLayoutInner = ({titleComponent, bannerImageId, headerCompon
   );
 }
 
-export const SubforumLayout = registerComponent("SubforumLayout", SubforumLayoutInner, {styles});
+export default registerComponent("SubforumLayout", SubforumLayout, {styles});
 
 

@@ -5,7 +5,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
-import { LoginToTrack } from "./LoginToTrack";
+import LoginToTrack from "./LoginToTrack";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const BottomNavigationItemInner = ({direction, post, sequence, classes}: {
+const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
   sequence: HasIdType|null,
@@ -93,7 +93,7 @@ const BottomNavigationItemInner = ({direction, post, sequence, classes}: {
   )
 };
 
-export const BottomNavigationItem = registerComponent('BottomNavigationItem', BottomNavigationItemInner, {styles})
+export default registerComponent('BottomNavigationItem', BottomNavigationItem, {styles});
 
 
 

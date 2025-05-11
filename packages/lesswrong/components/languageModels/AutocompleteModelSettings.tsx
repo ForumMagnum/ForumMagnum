@@ -9,12 +9,12 @@ import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import LinearProgress from "@/lib/vendor/@material-ui/core/src/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
-import { PostsItem } from "../posts/PostsItem";
-import { CommentsNode } from "../comments/CommentsNode";
-import { ForumIcon } from "../common/ForumIcon";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { Loading } from "../vulcan-core/Loading";
-import { LoadMore } from "../common/LoadMore";
+import PostsItem from "../posts/PostsItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import ForumIcon from "../common/ForumIcon";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -316,7 +316,7 @@ const AuthorSection = ({
             onToggle={onToggle}
             onSelectAll={onSelectAll}
             ItemComponent={({ item }) => (
-              <CommentsNode
+              <CommentsNodeInner
                 treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                 comment={item as CommentsList}
               />
@@ -353,7 +353,7 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
   localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
-const AutocompleteModelSettingsInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
     const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
@@ -469,7 +469,7 @@ const AutocompleteModelSettingsInner = ({ classes }: { classes: ClassesType<type
               onToggle={setSelectedItems}
               onSelectAll={handleSelectAll}
               ItemComponent={({ item }) => (
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                   comment={item as CommentsList}
                 />
@@ -494,7 +494,7 @@ const AutocompleteModelSettingsInner = ({ classes }: { classes: ClassesType<type
   );
 };
 
-export const AutocompleteModelSettings = registerComponent("AutocompleteModelSettings", AutocompleteModelSettingsInner, {
+export default registerComponent("AutocompleteModelSettings", AutocompleteModelSettings, {
   styles,
 });
 

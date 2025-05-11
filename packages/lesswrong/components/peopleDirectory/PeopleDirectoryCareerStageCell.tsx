@@ -6,8 +6,8 @@ import {
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = defineStyles('PeopleDirectoryCareerStageCell', (theme: ThemeType) => ({
   root: {

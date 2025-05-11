@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { PostsItem } from "../posts/PostsItem";
+import PostsItem from "../posts/PostsItem";
 
-const SequencesPostsListInner = ({posts, chapter}: {
+const SequencesPostsList = ({posts, chapter}: {
   posts: Array<PostsListWithVotes>,
   chapter?: ChaptersFragment,
 }) => {
@@ -11,6 +11,6 @@ const SequencesPostsListInner = ({posts, chapter}: {
   </div>
 }
 
-export const SequencesPostsList = registerComponent('SequencesPostsList', SequencesPostsListInner)
+export default registerComponent('SequencesPostsList', SequencesPostsList);
 
 

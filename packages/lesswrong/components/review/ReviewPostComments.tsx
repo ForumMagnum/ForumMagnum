@@ -4,12 +4,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
-import { Loading } from "../vulcan-core/Loading";
-import { CommentsList } from "../comments/CommentsList";
-import { SubSection } from "../common/SubSection";
-import { CommentOnPostWithReplies } from "../comments/CommentOnPostWithReplies";
-import { LoadMore } from "../common/LoadMore";
-import { ContentStyles } from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import CommentsList from "../comments/CommentsList";
+import SubSection from "../common/SubSection";
+import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
+import LoadMore from "../common/LoadMore";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewPostCommentsInner = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
+const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   title?: string,
@@ -97,6 +97,6 @@ const ReviewPostCommentsInner = ({ terms, classes, title, post, singleLine, plac
   );
 };
 
-export const ReviewPostComments = registerComponent('ReviewPostComments', ReviewPostCommentsInner, {styles});
+export default registerComponent('ReviewPostComments', ReviewPostComments, {styles});
 
 

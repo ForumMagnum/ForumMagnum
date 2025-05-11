@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { LoadMore } from "../common/LoadMore";
-import { ConceptItem } from "./ConceptItem";
-import { Loading } from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
+import ConceptItem from "./ConceptItem";
+import Loading from "../vulcan-core/Loading";
 
 // TODO: single source for here and ConceptItem, must be kept in sync
 const CONCEPT_ITEM_WIDTH = 280;
@@ -62,7 +62,7 @@ function splitItemsIntoColumns<T>(items: T[], itemsPerColumn: number): T[][] {
   return columns;
 }
 
-const WikiTagGroupInner = ({
+const WikiTagGroup = ({
   coreTag,
   searchTagIds,
   initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
@@ -183,7 +183,7 @@ const WikiTagGroupInner = ({
 };
 
 
-export const WikiTagGroup = registerComponent("WikiTagGroup", WikiTagGroupInner);
+export default registerComponent("WikiTagGroup", WikiTagGroup);
 
 
 

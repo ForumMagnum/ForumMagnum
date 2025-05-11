@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
-const PeopleDirectoryViewToggleInner = ({classes}: {
+const PeopleDirectoryViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {view, setView} = usePeopleDirectory();
@@ -26,9 +26,9 @@ const PeopleDirectoryViewToggleInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryViewToggle = registerComponent(
+export default registerComponent(
   "PeopleDirectoryViewToggle",
-  PeopleDirectoryViewToggleInner,
+  PeopleDirectoryViewToggle,
   {styles},
 );
 

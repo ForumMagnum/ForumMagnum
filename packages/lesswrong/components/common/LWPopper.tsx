@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 
 // This is a wrapper around the Popper library so we can easily replace it with different versions and
 // implementations
-const LWPopperInner = ({
+const LWPopper = ({
   classes,
   children,
   className,
@@ -143,6 +143,6 @@ const LWPopperInner = ({
   }</>
 };
 
-export const LWPopper = registerComponent('LWPopper', LWPopperInner, {styles});
+export default registerComponent('LWPopper', LWPopper, {styles});
 
 

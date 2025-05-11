@@ -3,7 +3,7 @@ import React from 'react';
 import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
-import { SearchResultsMap } from "./SearchResultsMap";
+import SearchResultsMap from "./SearchResultsMap";
 
 const styles = (theme: ThemeType) => ({
   map: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommunityMembersFullMapInner = ({classes}: {
+const CommunityMembersFullMap = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <InstantSearch
@@ -27,7 +27,7 @@ const CommunityMembersFullMapInner = ({classes}: {
   </InstantSearch>
 }
 
-export const CommunityMembersFullMap = registerComponent('CommunityMembersFullMap', CommunityMembersFullMapInner, {styles});
+export default registerComponent('CommunityMembersFullMap', CommunityMembersFullMap, {styles});
 
 
 

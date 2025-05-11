@@ -4,11 +4,11 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
-import { PetrovAdminConsole } from "./PetrovAdminConsole";
-import { PetrovWarningConsole } from "./PetrovWarningConsole";
-import { PetrovLaunchConsole } from "./PetrovLaunchConsole";
-import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
-import { PetrovDayLossScreen } from "../PetrovDayLossScreen";
+import PetrovAdminConsole from "./PetrovAdminConsole";
+import PetrovWarningConsole from "./PetrovWarningConsole";
+import PetrovLaunchConsole from "./PetrovLaunchConsole";
+import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
+import PetrovDayLossScreen from "../PetrovDayLossScreen";
 
 const styles = (theme: ThemeType) => ({
   citizenEast: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PetrovGameWrapperInner = ({classes}: {
+export const PetrovGameWrapper = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -108,6 +108,6 @@ export const PetrovGameWrapperInner = ({classes}: {
   // return <DismissibleSpotlightItem spotlight={spotlight}/>
 }
 
-export const PetrovGameWrapper = registerComponent('PetrovGameWrapper', PetrovGameWrapperInner, {styles});
+export default registerComponent('PetrovGameWrapper', PetrovGameWrapper, {styles});
 
 

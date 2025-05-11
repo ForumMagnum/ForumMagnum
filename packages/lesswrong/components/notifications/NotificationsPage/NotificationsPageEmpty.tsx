@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NotificationsPageEmptyInner = ({tabName, classes}: {
+const NotificationsPageEmpty = ({tabName, classes}: {
   tabName: NotificationsPageTabName,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -64,9 +64,9 @@ const NotificationsPageEmptyInner = ({tabName, classes}: {
   }
 }
 
-export const NotificationsPageEmpty = registerComponent(
+export default registerComponent(
   "NotificationsPageEmpty",
-  NotificationsPageEmptyInner,
+  NotificationsPageEmpty,
   {styles},
 );
 

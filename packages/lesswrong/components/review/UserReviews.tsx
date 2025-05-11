@@ -2,13 +2,13 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { RecentComments } from "../comments/RecentComments";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import RecentComments from "../comments/RecentComments";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 
-const UserReviewsInner = () => {
+const UserReviews = () => {
   const { params: { slug, year } } = useLocation();
   const { results, loading } = useMulti({
     collectionName: "Users",
@@ -68,7 +68,7 @@ const UserReviewsInner = () => {
 
 };
 
-export const UserReviews = registerComponent('UserReviews', UserReviewsInner);
+export default registerComponent('UserReviews', UserReviews);
 
 
 

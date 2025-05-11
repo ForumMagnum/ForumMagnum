@@ -4,8 +4,8 @@ import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useSubscribeUserToTag } from "@/lib/filterSettings";
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
-import { ForumIcon } from "../../common/ForumIcon";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import ForumIcon from "../../common/ForumIcon";
 
 const TAG_SIZE = 103;
 
@@ -68,7 +68,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingTagInner = ({tag, onSubscribed, classes}: {
+export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   tag: UserOnboardingTag,
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -118,9 +118,9 @@ export const EAOnboardingTagInner = ({tag, onSubscribed, classes}: {
   );
 }
 
-export const EAOnboardingTag = registerComponent(
+export default registerComponent(
   "EAOnboardingTag",
-  EAOnboardingTagInner,
+  EAOnboardingTag,
   {styles},
 );
 

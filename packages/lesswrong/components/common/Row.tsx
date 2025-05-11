@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RowInner = ({classes, justifyContent="space-between", alignItems="center", children}: {
+export const Row = ({classes, justifyContent="space-between", alignItems="center", children}: {
   classes: ClassesType<typeof styles>,
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch",
   justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch",
@@ -19,7 +19,7 @@ export const RowInner = ({classes, justifyContent="space-between", alignItems="c
   </div>;
 }
 
-export const Row = registerComponent('Row', RowInner, {styles});
+export default registerComponent('Row', Row, {styles});
 
 
 

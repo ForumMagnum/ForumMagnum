@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineListItemInner = ({children, classes, hover=false}: {
+const SunshineListItem = ({children, classes, hover=false}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
@@ -35,7 +35,7 @@ const SunshineListItemInner = ({children, classes, hover=false}: {
   </div>
 };
 
-export const SunshineListItem = registerComponent('SunshineListItem', SunshineListItemInner, {styles});
+export default registerComponent('SunshineListItem', SunshineListItem, {styles});
 
 
 

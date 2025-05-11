@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsItemCommentsInner = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
   commentCount: number,
   small: boolean,
   onClick?: () => void,
@@ -80,7 +80,7 @@ const PostsItemCommentsInner = ({ commentCount, small, onClick, unreadComments, 
   )
 }
 
-export const PostsItemComments = registerComponent('PostsItemComments', PostsItemCommentsInner, {styles});
+export default registerComponent('PostsItemComments', PostsItemComments, {styles});
 
 
 

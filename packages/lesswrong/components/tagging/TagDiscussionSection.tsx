@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { CommentsListSection } from "../comments/CommentsListSection";
+import CommentsListSection from "../comments/CommentsListSection";
 
 const styles = (theme: ThemeType) => ({
 });
 
-const TagDiscussionSectionInner = ({classes, tag}: {
+const TagDiscussionSection = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagBasicInfo
 }) => {
@@ -43,7 +43,7 @@ const TagDiscussionSectionInner = ({classes, tag}: {
   );
 }
 
-export const TagDiscussionSection = registerComponent("TagDiscussionSection", TagDiscussionSectionInner, {styles});
+export default registerComponent("TagDiscussionSection", TagDiscussionSection, {styles});
 
 
 

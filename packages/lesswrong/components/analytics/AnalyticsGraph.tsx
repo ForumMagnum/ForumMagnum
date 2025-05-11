@@ -8,12 +8,12 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
 import { useDialog } from "../common/withDialog";
-import { DateRangeModal } from "./DateRangeModal";
+import DateRangeModal from "./DateRangeModal";
 import { Typography } from "../common/Typography";
-import { ForumDropdown } from "../common/ForumDropdown";
-import { LWTooltip } from "../common/LWTooltip";
-import { AnalyticsGraphSkeleton } from "./AnalyticsGraphSkeleton";
-import { AnalyticsDisclaimers } from "./AnalyticsDisclaimers";
+import ForumDropdown from "../common/ForumDropdown";
+import LWTooltip from "../common/LWTooltip";
+import AnalyticsGraphSkeleton from "./AnalyticsGraphSkeleton";
+import AnalyticsDisclaimers from "./AnalyticsDisclaimers";
 
 const CONTROLS_BREAKPOINT = 650;
 
@@ -246,7 +246,7 @@ const ColoredCheckbox: React.FC<ColoredCheckboxProps> = ({ fillColor, classes, .
   );
 };
 
-export const AnalyticsGraphInner = ({
+export const AnalyticsGraph = ({
   userId,
   postIds,
   initialDisplayFields = ["views", "reads"],
@@ -434,9 +434,9 @@ export const AnalyticsGraphInner = ({
   );
 };
 
-export const AnalyticsGraph = registerComponent(
+export default registerComponent(
   "AnalyticsGraph",
-  AnalyticsGraphInner,
+  AnalyticsGraph,
   {styles},
 );
 

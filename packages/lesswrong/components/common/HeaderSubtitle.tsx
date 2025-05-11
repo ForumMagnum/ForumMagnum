@@ -4,7 +4,7 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
-import { HeaderEventSubtitle } from "./HeaderEventSubtitle";
+import HeaderEventSubtitle from "./HeaderEventSubtitle";
 
 export const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -16,7 +16,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const HeaderSubtitleInner = ({classes}: {
+const HeaderSubtitle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { currentRoute } = useSubscribedLocation();
@@ -43,7 +43,7 @@ const HeaderSubtitleInner = ({classes}: {
   }
 }
 
-export const HeaderSubtitle = registerComponent("HeaderSubtitle", HeaderSubtitleInner, {
+export default registerComponent("HeaderSubtitle", HeaderSubtitle, {
   styles,
 });
 

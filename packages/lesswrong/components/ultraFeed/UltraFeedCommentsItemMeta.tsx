@@ -6,11 +6,11 @@ import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { CommentsMenu } from "../dropdowns/comments/CommentsMenu";
-import { CommentsItemDate } from "../comments/CommentsItem/CommentsItemDate";
-import { CommentUserName } from "../comments/CommentsItem/CommentUserName";
-import { CommentShortformIcon } from "../comments/CommentsItem/CommentShortformIcon";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import CommentUserName from "../comments/CommentsItem/CommentUserName";
+import CommentShortformIcon from "../comments/CommentsItem/CommentShortformIcon";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -174,7 +174,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
   )
 }
 
-const UltraFeedCommentsItemMetaInner = ({
+const UltraFeedCommentsItemMeta = ({
   comment,
   setShowEdit,
   hideDate,
@@ -241,9 +241,9 @@ const UltraFeedCommentsItemMetaInner = ({
   );
 };
 
-export const UltraFeedCommentsItemMeta = registerComponent(
+export default registerComponent(
   "UltraFeedCommentsItemMeta",
-  UltraFeedCommentsItemMetaInner
+  UltraFeedCommentsItemMeta
 );
 
 

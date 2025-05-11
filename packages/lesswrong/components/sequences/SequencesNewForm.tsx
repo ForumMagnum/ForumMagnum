@@ -157,7 +157,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesNewFormInner = ({ redirect, cancelCallback, removeSuccessCallback, classes }: {
+const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, classes }: {
   redirect: any,
   cancelCallback: any,
   removeSuccessCallback: any,
@@ -185,6 +185,6 @@ const SequencesNewFormInner = ({ redirect, cancelCallback, removeSuccessCallback
   }
 }
 
-export const SequencesNewForm = registerComponent('SequencesNewForm', SequencesNewFormInner, {styles});
+export default registerComponent('SequencesNewForm', SequencesNewForm, {styles});
 
 

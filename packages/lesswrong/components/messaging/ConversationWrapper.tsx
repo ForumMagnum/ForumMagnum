@@ -2,12 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { ConversationPage } from "./ConversationPage";
+import ConversationPage from "./ConversationPage";
 
 /**
  * A page with a private mesage conversation, with URL parameter parsing.
  */
-const ConversationWrapperInner = () => {
+const ConversationWrapper = () => {
   const currentUser = useCurrentUser()
   const { params } = useLocation();
   
@@ -16,7 +16,7 @@ const ConversationWrapperInner = () => {
   return <ConversationPage conversationId={params._id} currentUser={currentUser} />
 }
 
-export const ConversationWrapper = registerComponent('ConversationWrapper', ConversationWrapperInner);
+export default registerComponent('ConversationWrapper', ConversationWrapper);
 
 
 

@@ -10,8 +10,8 @@ import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { ContentItemBody } from "../common/ContentItemBody";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { Typography } from "../common/Typography";
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
@@ -202,7 +202,7 @@ const useSpotlightFeedItemStyles = defineStyles(
   { stylePriority: -1 }
 );
 
-const SpotlightFeedItemInner = ({
+const SpotlightFeedItem = ({
   spotlight,
   index,
   showSubtitle=true,
@@ -313,7 +313,7 @@ const SpotlightFeedItemInner = ({
   )
 }
 
-export const SpotlightFeedItem = registerComponent('SpotlightFeedItem', SpotlightFeedItemInner)
+export default registerComponent('SpotlightFeedItem', SpotlightFeedItem);
 
 
 

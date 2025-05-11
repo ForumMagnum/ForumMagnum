@@ -5,9 +5,9 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';
-import { LWDialog } from "../../common/LWDialog";
-import { EAButton } from "../../ea-forum/EAButton";
-import { Loading } from "../../vulcan-core/Loading";
+import LWDialog from "../../common/LWDialog";
+import EAButton from "../../ea-forum/EAButton";
+import Loading from "../../vulcan-core/Loading";
 import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const DeleteAccountConfirmationModalInner = ({onClose, confirmAction, classes}: {
+const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
   onClose: () => void,
   confirmAction: () => Promise<void>,
   classes: ClassesType<typeof styles>,
@@ -102,9 +102,9 @@ const DeleteAccountConfirmationModalInner = ({onClose, confirmAction, classes}: 
   );
 }
 
-export const DeleteAccountConfirmationModal = registerComponent(
+export default registerComponent(
   'DeleteAccountConfirmationModal',
-  DeleteAccountConfirmationModalInner,
+  DeleteAccountConfirmationModal,
   {styles},
 );
 

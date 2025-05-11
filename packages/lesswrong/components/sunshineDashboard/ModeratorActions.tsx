@@ -20,11 +20,11 @@ import { getSignature, getSignatureWithNote } from '../../lib/collections/users/
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
-import { NewModeratorActionDialog } from "./NewModeratorActionDialog";
-import { LWTooltip } from "../common/LWTooltip";
-import { ModeratorActionItem } from "./ModeratorUserInfo/ModeratorActionItem";
+import NewModeratorActionDialog from "./NewModeratorActionDialog";
+import LWTooltip from "../common/LWTooltip";
+import ModeratorActionItem from "./ModeratorUserInfo/ModeratorActionItem";
 import { MenuItem } from "../common/Menus";
-import { UserRateLimitItem } from "./UserRateLimitItem";
+import UserRateLimitItem from "./UserRateLimitItem";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -86,7 +86,7 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
-export const ModeratorActionsInner = ({classes, user, currentUser, refetch, comments, posts}: {
+export const ModeratorActions = ({classes, user, currentUser, refetch, comments, posts}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
@@ -409,7 +409,7 @@ export const ModeratorActionsInner = ({classes, user, currentUser, refetch, comm
   </div>
 }
 
-export const ModeratorActions = registerComponent('ModeratorActions', ModeratorActionsInner, {styles});
+export default registerComponent('ModeratorActions', ModeratorActions, {styles});
 
 
 

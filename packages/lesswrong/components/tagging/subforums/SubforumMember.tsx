@@ -9,11 +9,11 @@ import {
 } from '../../../lib/collections/users/helpers';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import { ProfilePhoto } from "../../messaging/ProfilePhoto";
-import { ContentStyles } from "../../common/ContentStyles";
-import { ContentItemBody } from "../../common/ContentItemBody";
+import ProfilePhoto from "../../messaging/ProfilePhoto";
+import ContentStyles from "../../common/ContentStyles";
+import ContentItemBody from "../../common/ContentItemBody";
 import { Typography } from "../../common/Typography";
-import { SocialMediaLink } from "../../users/SocialMediaLink";
+import SocialMediaLink from "../../users/SocialMediaLink";
 
 const COLLAPSED_SECTION_HEIGHT = 70
 
@@ -138,7 +138,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const SubforumMemberInner = ({user, isOrganizer, classes}: {
+const SubforumMember = ({user, isOrganizer, classes}: {
   user: UsersProfile,
   isOrganizer?: boolean,
   classes: ClassesType<typeof styles>,
@@ -224,8 +224,8 @@ const SubforumMemberInner = ({user, isOrganizer, classes}: {
   </div>
 }
 
-export const SubforumMember = registerComponent(
-  'SubforumMember', SubforumMemberInner, {styles}
+export default registerComponent(
+  'SubforumMember', SubforumMember, {styles}
 );
 
 

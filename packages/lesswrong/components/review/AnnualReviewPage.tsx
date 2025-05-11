@@ -7,14 +7,14 @@ import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import qs from 'qs'
 import classNames from 'classnames';
-import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
-import { allPostsParams, NominationsPage } from './NominationsPage';
-import { FrontpageReviewWidget } from "./FrontpageReviewWidget";
-import { ReviewVotingPage } from "./ReviewVotingPage";
-import { ReviewVotingExpandedPost } from "./ReviewVotingExpandedPost";
-import { ReviewsPage } from "./ReviewsPage";
-import { ReviewPhaseInformation } from "./ReviewPhaseInformation";
-import { QuickReviewPage } from "./QuickReviewPage";
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
+import NominationsPage, { allPostsParams } from './NominationsPage';
+import FrontpageReviewWidget from "./FrontpageReviewWidget";
+import ReviewVotingPage from "./ReviewVotingPage";
+import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
+import ReviewsPage from "./ReviewsPage";
+import ReviewPhaseInformation from "./ReviewPhaseInformation";
+import QuickReviewPage from "./QuickReviewPage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -128,7 +128,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AnnualReviewPageInner = ({classes}: {
+export const AnnualReviewPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -230,6 +230,6 @@ export const AnnualReviewPageInner = ({classes}: {
   </div>
 }
 
-export const AnnualReviewPage = registerComponent('AnnualReviewPage', AnnualReviewPageInner, {styles});
+export default registerComponent('AnnualReviewPage', AnnualReviewPage, {styles});
 
 

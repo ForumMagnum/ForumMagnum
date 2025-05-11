@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
-import { LWTooltip } from "../../common/LWTooltip";
-import { FormatDate } from "../../common/FormatDate";
+import LWTooltip from "../../common/LWTooltip";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AnswerTocRowInner = ({classes, answer}: {
+const AnswerTocRow = ({classes, answer}: {
   classes: ClassesType<typeof styles>,
   answer: ToCAnswer,
 }) => {
@@ -71,6 +71,6 @@ const AnswerTocRowInner = ({classes, answer}: {
   </div>
 }
 
-export const AnswerTocRow = registerComponent('AnswerTocRow', AnswerTocRowInner, {styles});
+export default registerComponent('AnswerTocRow', AnswerTocRow, {styles});
 
 

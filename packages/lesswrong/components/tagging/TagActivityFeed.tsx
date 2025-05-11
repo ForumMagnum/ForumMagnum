@@ -1,14 +1,14 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { MixedTypeFeed } from "../common/MixedTypeFeed";
-import { TagRevisionItem } from "./TagRevisionItem";
-import { CommentsNode } from "../comments/CommentsNode";
-import { NewTagItem } from "./NewTagItem";
-import { SectionTitle } from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import MixedTypeFeed from "../common/MixedTypeFeed";
+import TagRevisionItem from "./TagRevisionItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import NewTagItem from "./NewTagItem";
+import SectionTitle from "../common/SectionTitle";
 
-const TagActivityFeedInner = ({pageSize = 50}: {
+const TagActivityFeed = ({pageSize = 50}: {
   pageSize?: number
 }) => {
   return <SingleColumnSection>
@@ -37,7 +37,7 @@ const TagActivityFeedInner = ({pageSize = 50}: {
         tagDiscussionComment: {
           fragmentName: "CommentsListWithParentMetadata",
           render: (comment: CommentsListWithParentMetadata) => <div>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={{
                 showPostTitle: true,
                 tag: comment.tag || undefined,
@@ -52,6 +52,6 @@ const TagActivityFeedInner = ({pageSize = 50}: {
   </SingleColumnSection>
 }
 
-export const TagActivityFeed = registerComponent("TagActivityFeed", TagActivityFeedInner);
+export default registerComponent("TagActivityFeed", TagActivityFeed);
 
 

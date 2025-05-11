@@ -6,8 +6,8 @@ import { getActiveRateLimitNames, getDownvoteRatio, getStrictestActiveRateLimitN
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
 import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
-import { MetaInfo } from "../../common/MetaInfo";
-import { LWTooltip } from "../../common/LWTooltip";
+import MetaInfo from "../../common/MetaInfo";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   padding: {
@@ -58,7 +58,7 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
   </div>
 }
 
-export const UserAutoRateLimitsDisplayInner = ({user, showKarmaMeta=false, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
@@ -107,6 +107,6 @@ export const UserAutoRateLimitsDisplayInner = ({user, showKarmaMeta=false, class
   </div>;
 }
 
-export const UserAutoRateLimitsDisplay = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplayInner, {styles});
+export default registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
 
 

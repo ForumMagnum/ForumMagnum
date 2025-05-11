@@ -5,8 +5,8 @@ import { Helmet, componentWithChildren } from '../../lib/utils/componentsWithChi
 import { useMapStyle } from '../hooks/useMapStyle';
 import BadlyTypedReactMapGL from 'react-map-gl';
 import without from 'lodash/without';
-import { LocalEventMarker } from "./LocalEventMarker";
-import { LocalGroupMarker } from "./LocalGroupMarker";
+import LocalEventMarker from "./LocalEventMarker";
+import LocalGroupMarker from "./LocalGroupMarker";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 
@@ -18,7 +18,7 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-const SmallMapPreviewInner = ({post, group, zoom, classes}: {
+const SmallMapPreview = ({post, group, zoom, classes}: {
   post: PostsList,
   group?: AnyBecauseTodo,
   zoom?: number,
@@ -86,6 +86,6 @@ const SmallMapPreviewInner = ({post, group, zoom, classes}: {
   );
 }
 
-export const SmallMapPreview = registerComponent("SmallMapPreview", SmallMapPreviewInner, {styles});
+export default registerComponent("SmallMapPreview", SmallMapPreview, {styles});
 
 

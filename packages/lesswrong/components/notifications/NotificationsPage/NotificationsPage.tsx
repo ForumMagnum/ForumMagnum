@@ -5,8 +5,8 @@ import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
-import { LoginForm } from "../../users/LoginForm";
-import { NotificationsPageFeed } from "./NotificationsPageFeed";
+import LoginForm from "../../users/LoginForm";
+import NotificationsPageFeed from "./NotificationsPageFeed";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const NotificationsPageInner = ({classes}: {
+export const NotificationsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -72,9 +72,9 @@ export const NotificationsPageInner = ({classes}: {
   );
 }
 
-export const NotificationsPage = registerComponent(
+export default registerComponent(
   "NotificationsPage",
-  NotificationsPageInner,
+  NotificationsPage,
   {styles},
 );
 

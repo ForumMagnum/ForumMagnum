@@ -10,13 +10,13 @@ import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { NewConversationDialog } from "./NewConversationDialog";
-import { ConversationTitleEditForm } from "./ConversationTitleEditForm";
-import { FriendlyInboxNavigation } from "./FriendlyInboxNavigation";
-import { ConversationContents } from "./ConversationContents";
-import { ForumIcon } from "../common/ForumIcon";
-import { ConversationDetails } from "./ConversationDetails";
-import { EAButton } from "../ea-forum/EAButton";
+import NewConversationDialog from "./NewConversationDialog";
+import ConversationTitleEditForm from "./ConversationTitleEditForm";
+import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
+import ConversationContents from "./ConversationContents";
+import ForumIcon from "../common/ForumIcon";
+import ConversationDetails from "./ConversationDetails";
+import EAButton from "../ea-forum/EAButton";
 
 const MAX_WIDTH = 1100;
 
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FriendlyInboxInner = ({
+const FriendlyInbox = ({
   currentUser,
   terms,
   conversationId,
@@ -340,6 +340,6 @@ const FriendlyInboxInner = ({
   );
 };
 
-export const FriendlyInbox = registerComponent("FriendlyInbox", FriendlyInboxInner, { styles });
+export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
 
 

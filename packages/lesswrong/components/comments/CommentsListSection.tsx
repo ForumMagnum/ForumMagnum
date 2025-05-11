@@ -9,25 +9,25 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import { filter } from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
-import { CommentsNewFormProps, CommentsNewForm } from './CommentsNewForm';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { CommentsViews } from "./CommentsViews";
-import { Loading } from "../vulcan-core/Loading";
-import { CalendarDate } from "../common/CalendarDate";
-import { LastVisitList } from "./LastVisitList";
-import { CantCommentExplanation } from "./CantCommentExplanation";
-import { LWTooltip } from "../common/LWTooltip";
-import { CommentsList } from "./CommentsList";
-import { PostsPageCrosspostComments } from "../posts/PostsPage/PostsPageCrosspostComments";
-import { MetaInfo } from "../common/MetaInfo";
-import { Row } from "../common/Row";
-import { QuickTakesEntry } from "../quickTakes/QuickTakesEntry";
-import { SimpleDivider } from "../widgets/SimpleDivider";
-import { CommentsListMeta } from "./CommentsListMeta";
+import CommentsViews from "./CommentsViews";
+import Loading from "../vulcan-core/Loading";
+import CalendarDate from "../common/CalendarDate";
+import LastVisitList from "./LastVisitList";
+import CantCommentExplanation from "./CantCommentExplanation";
+import LWTooltip from "../common/LWTooltip";
+import CommentsList from "./CommentsList";
+import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
+import MetaInfo from "../common/MetaInfo";
+import Row from "../common/Row";
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
+import SimpleDivider from "../widgets/SimpleDivider";
+import CommentsListMeta from "./CommentsListMeta";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
@@ -93,7 +93,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CommentsListSectionInner = ({
+const CommentsListSection = ({
   post,
   tag,
   commentCount,
@@ -305,6 +305,6 @@ const CommentsListSectionInner = ({
   );
 }
 
-export const CommentsListSection = registerComponent("CommentsListSection", CommentsListSectionInner, {styles});
+export default registerComponent("CommentsListSection", CommentsListSection, {styles});
 
 

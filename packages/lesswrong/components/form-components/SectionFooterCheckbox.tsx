@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionFooterCheckboxInner = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
+const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
   classes: ClassesType<typeof styles>,
   label: string|React.ReactNode,
   onClick: (ev: React.MouseEvent) => void,
@@ -65,6 +65,6 @@ const SectionFooterCheckboxInner = ({ classes, label, onClick, value, disabled, 
   }
 }
 
-export const SectionFooterCheckbox = registerComponent("SectionFooterCheckbox", SectionFooterCheckboxInner, {styles});
+export default registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
 
 

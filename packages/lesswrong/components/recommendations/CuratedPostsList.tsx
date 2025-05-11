@@ -5,9 +5,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isEAForum } from "../../lib/instanceSettings";
 import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
-import { PostsList2 } from "../posts/PostsList2";
+import PostsList2 from "../posts/PostsList2";
 
-const CuratedPostsListInner = ({overrideLimit}: {overrideLimit?: number}) => {
+const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
 
@@ -33,6 +33,6 @@ const CuratedPostsListInner = ({overrideLimit}: {overrideLimit?: number}) => {
   );
 }
 
-export const CuratedPostsList = registerComponent("CuratedPostsList", CuratedPostsListInner, {});
+export default registerComponent("CuratedPostsList", CuratedPostsList, {});
 
 

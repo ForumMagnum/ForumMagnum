@@ -2,13 +2,13 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isLWorAF } from '@/lib/instanceSettings';
-import { PostsByVote } from "./PostsByVote";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { Loading } from "../vulcan-core/Loading";
+import PostsByVote from "./PostsByVote";
+import ErrorBoundary from "../common/ErrorBoundary";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { LWPostsByVote } from "./LWPostsByVote";
+import LWPostsByVote from "./LWPostsByVote";
 
-const PostsByVoteWrapperInner = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   voteType: string,
   year: number | '≤2020',
   limit?: number,
@@ -55,6 +55,6 @@ const PostsByVoteWrapperInner = ({voteType, year, limit, showMostValuableCheckbo
   </ErrorBoundary>
 }
 
-export const PostsByVoteWrapper = registerComponent("PostsByVoteWrapper", PostsByVoteWrapperInner);
+export default registerComponent("PostsByVoteWrapper", PostsByVoteWrapper);
 
 

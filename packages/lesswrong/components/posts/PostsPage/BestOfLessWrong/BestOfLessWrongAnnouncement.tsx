@@ -7,7 +7,7 @@ import groupBy from 'lodash/groupBy';
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { SingleColumnSection } from "../../../common/SingleColumnSection";
+import SingleColumnSection from "../../../common/SingleColumnSection";
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
   titleContainer: {
@@ -243,7 +243,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   },
 }), { allowNonThemeColors: true });
 
-const BestOfLessWrongAnnouncementInner = () => {
+const BestOfLessWrongAnnouncement = () => {
   const classes = useStyles(styles);
 
   const { results } = useMulti({
@@ -325,8 +325,4 @@ const BestOfLessWrongAnnouncementInner = () => {
   )
 }
 
-export const BestOfLessWrongAnnouncement = registerComponent('BestOfLessWrongAnnouncement', BestOfLessWrongAnnouncementInner);
-
-
-
-export default BestOfLessWrongAnnouncementInner;
+export default BestOfLessWrongAnnouncement;

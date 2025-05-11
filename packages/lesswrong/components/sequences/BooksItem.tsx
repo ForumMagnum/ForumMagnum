@@ -4,15 +4,15 @@ import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { BooksForm } from './BooksForm';
 import { useSingle } from '@/lib/crud/withSingle';
-import { Loading } from "../vulcan-core/Loading";
-import { BooksProgressBar } from "./BooksProgressBar";
-import { SectionTitle } from "../common/SectionTitle";
-import { SectionButton } from "../common/SectionButton";
-import { LargeSequencesItem } from "./LargeSequencesItem";
-import { SequencesPostsList } from "./SequencesPostsList";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { SequencesGrid } from "./SequencesGrid";
+import Loading from "../vulcan-core/Loading";
+import BooksProgressBar from "./BooksProgressBar";
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import LargeSequencesItem from "./LargeSequencesItem";
+import SequencesPostsList from "./SequencesPostsList";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import SequencesGrid from "./SequencesGrid";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BooksItemInner = ({ book, canEdit, classes }: {
+const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,
   canEdit: boolean,
   classes: ClassesType<typeof styles>,
@@ -100,7 +100,7 @@ const BooksItemInner = ({ book, canEdit, classes }: {
   }
 }
 
-export const BooksItem = registerComponent('BooksItem', BooksItemInner, {styles});
+export default registerComponent('BooksItem', BooksItem, {styles});
 
 
 

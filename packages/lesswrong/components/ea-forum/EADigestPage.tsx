@@ -11,14 +11,14 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { Error404 } from "../common/Error404";
-import { HeadTags } from "../common/HeadTags";
-import { PostsLoading } from "../posts/PostsLoading";
-import { EAPostsItem } from "../posts/EAPostsItem";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { EAButton } from "./EAButton";
+import Error404 from "../common/Error404";
+import HeadTags from "../common/HeadTags";
+import PostsLoading from "../posts/PostsLoading";
+import EAPostsItem from "../posts/EAPostsItem";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import EAButton from "./EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -167,7 +167,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EADigestPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { params } = useLocation()
@@ -320,9 +320,9 @@ const EADigestPageInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const EADigestPage = registerComponent(
+export default registerComponent(
   "EADigestPage",
-  EADigestPageInner,
+  EADigestPage,
   {styles},
 );
 

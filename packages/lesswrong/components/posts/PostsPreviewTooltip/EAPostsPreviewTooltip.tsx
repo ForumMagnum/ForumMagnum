@@ -3,10 +3,10 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from "./helpers";
 import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
-import { PostExcerpt } from "../../common/excerpts/PostExcerpt";
-import { EAPostMeta } from "../../ea-forum/EAPostMeta";
-import { TruncatedTagsList } from "../../tagging/TruncatedTagsList";
-import { CommentsNode } from "../../comments/CommentsNode";
+import PostExcerpt from "../../common/excerpts/PostExcerpt";
+import EAPostMeta from "../../ea-forum/EAPostMeta";
+import TruncatedTagsList from "../../tagging/TruncatedTagsList";
+import CommentsNodeInner from "../../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,7 +58,7 @@ type EAPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
 
-const EAPostsPreviewTooltipInner = ({
+const EAPostsPreviewTooltip = ({
   post,
   postsList,
   hash,
@@ -96,7 +96,7 @@ const EAPostsPreviewTooltipInner = ({
           </div>
           {comment
             ? (
-              <CommentsNode
+              <CommentsNodeInner
                 treeOptions={{
                   post,
                   hideReply: true,
@@ -130,9 +130,9 @@ const EAPostsPreviewTooltipInner = ({
   );
 }
 
-export const EAPostsPreviewTooltip = registerComponent(
+export default registerComponent(
   "EAPostsPreviewTooltip",
-  EAPostsPreviewTooltipInner,
+  EAPostsPreviewTooltip,
   {styles},
 );
 

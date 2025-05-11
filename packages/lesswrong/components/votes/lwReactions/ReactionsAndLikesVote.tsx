@@ -9,10 +9,10 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
 import { isMobile } from '@/lib/utils/isMobile';
-import { LoginPopup } from "../../users/LoginPopup";
+import LoginPopup from "../../users/LoginPopup";
 import { NamesAttachedReactionsCommentBottom } from "./NamesAttachedReactionsVoteOnComment";
-import { LWTooltip } from "../../common/LWTooltip";
-import { ForumIcon } from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
@@ -55,21 +55,21 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   },
 }));
 
-const ReactionsAndLikesVoteOnCommentInner  = ({document, hideKarma=false, collectionName, votingSystem, isSelected=false}: {
+export const ReactionsAndLikesVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, isSelected=false}: {
   document: VotingPropsDocument,
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
   isSelected?: boolean,
 }) => {
-  return <ReactionsAndLikesVoteInner
+  return <ReactionsAndLikesVote
     document={document} hideKarma={hideKarma}
     collectionName={collectionName} votingSystem={votingSystem}
     isSelected={isSelected}
   />
 }
 
-const ReactionsAndLikesVoteInner  = ({
+export const ReactionsAndLikesVote = ({
   document,
   hideKarma=false,
   collectionName,
@@ -146,7 +146,7 @@ const ReactionsAndLikesVoteInner  = ({
   </div>
 }
 
-const ReactionsAndLikesCommentBottomInner = ({
+export const ReactionsAndLikesCommentBottom = ({
   document, hideKarma=false, commentBodyRef, voteProps, post, collectionName, votingSystem
 }: NamesAttachedReactionsCommentBottomProps) => {
   return <NamesAttachedReactionsCommentBottom
@@ -155,10 +155,5 @@ const ReactionsAndLikesCommentBottomInner = ({
     collectionName={collectionName} votingSystem={votingSystem}
   />
 }
-
-export const ReactionsAndLikesVote = registerComponent('ReactionsAndLikesVote', ReactionsAndLikesVoteInner);
-export const ReactionsAndLikesVoteOnComment = registerComponent('ReactionsAndLikesVoteOnComment', ReactionsAndLikesVoteOnCommentInner);
-export const ReactionsAndLikesCommentBottom = registerComponent('ReactionsAndLikesCommentBottom', ReactionsAndLikesCommentBottomInner);
-
 
 

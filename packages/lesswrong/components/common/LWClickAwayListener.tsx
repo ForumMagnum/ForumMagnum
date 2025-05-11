@@ -7,7 +7,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
  * Without it, this would be a "onMouseUp" event, which happens BEFORE "onClick",
  * and resulted in some annoying behavior. Also MUI v5 defaults this to "onClick".
  */
-const LWClickAwayListenerInner = ({onClickAway, children}: {
+const LWClickAwayListener = ({onClickAway, children}: {
   onClickAway: (ev: ClickAwayEvent) => void,
   children: React.ReactNode,
 }) => {
@@ -24,6 +24,6 @@ const LWClickAwayListenerInner = ({onClickAway, children}: {
   );
 }
 
-export const LWClickAwayListener = registerComponent('LWClickAwayListener', LWClickAwayListenerInner);
+export default registerComponent('LWClickAwayListener', LWClickAwayListener);
 
 

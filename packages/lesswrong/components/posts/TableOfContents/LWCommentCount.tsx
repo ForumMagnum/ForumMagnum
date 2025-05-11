@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { ForumIcon } from "../../common/ForumIcon";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWCommentCountInner = ({classes, answerCount, commentCount, label=true}: {
+export const LWCommentCount = ({classes, answerCount, commentCount, label=true}: {
   classes: ClassesType<typeof styles>,
   answerCount?: number,
   commentCount?: number,
@@ -68,6 +68,6 @@ export const LWCommentCountInner = ({classes, answerCount, commentCount, label=t
       </div>
 }
 
-export const LWCommentCount = registerComponent('LWCommentCount', LWCommentCountInner, {styles});
+export default registerComponent('LWCommentCount', LWCommentCount, {styles});
 
 

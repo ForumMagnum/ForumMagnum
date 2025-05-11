@@ -4,9 +4,9 @@ import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
-import { LWPopper } from "../common/LWPopper";
-import { CommentsNode } from "../comments/CommentsNode";
-import { FormatDate } from "../common/FormatDate";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "../comments/CommentsNode";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const CommentKarmaWithPreviewInner = ({ comment, classes, displayTitle, reviewedAt }: {
+const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
@@ -68,13 +68,13 @@ const CommentKarmaWithPreviewInner = ({ comment, classes, displayTitle, reviewed
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
+        <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>
   </span>
 }
 
-export const CommentKarmaWithPreview = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreviewInner, {styles});
+export default registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
 
 
 

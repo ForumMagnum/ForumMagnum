@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
-import { ForumDropdown } from "../common/ForumDropdown";
+import ForumDropdown from "../common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {}
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
 
 const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS) as (keyof typeof TAG_POSTS_SORT_ORDER_OPTIONS)[];
 
-const PostsListSortDropdownInner = ({value, options=defaultOptions, sortingParam="sortedBy", classes}: {
+const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sortedBy", classes}: {
   value: string
   options?: string[],
   sortingParam?: string,
@@ -27,6 +27,6 @@ const PostsListSortDropdownInner = ({value, options=defaultOptions, sortingParam
   return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} />;
 }
 
-export const PostsListSortDropdown = registerComponent('PostsListSortDropdown', PostsListSortDropdownInner, {styles});
+export default registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});
 
 

@@ -10,10 +10,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import type { CareerStageValue } from "@/lib/collections/users/helpers";
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { TooltipSpan } from '../common/FMTooltip';
-import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { EAButton } from "./EAButton";
+import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import EAButton from "./EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -315,7 +315,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
 /**
  * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
  */
-const TargetedJobAdInner = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
+const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
   jobName: string,
   userJobAd?: UserJobAdsMinimumInfo,
   onDismiss: () => void,
@@ -426,6 +426,6 @@ const TargetedJobAdInner = ({jobName, userJobAd, onDismiss, onApply, onRemindMe,
   </AnalyticsContext>
 }
 
-export const TargetedJobAd = registerComponent("TargetedJobAd", TargetedJobAdInner, {styles});
+export default registerComponent("TargetedJobAd", TargetedJobAd, {styles});
 
 

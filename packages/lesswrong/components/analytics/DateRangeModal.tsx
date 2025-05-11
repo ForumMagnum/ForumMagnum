@@ -1,8 +1,8 @@
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useState } from "react";
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 import { DatePicker } from "../form-components/FormComponentDateTime";
-import { EAButton } from "../ea-forum/EAButton";
+import EAButton from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   paper: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const DateRangeModalInner = ({
+const DateRangeModal = ({
   onClose,
   startDate,
   endDate,
@@ -76,6 +76,6 @@ const DateRangeModalInner = ({
   );
 };
 
-export const DateRangeModal = registerComponent("DateRangeModal", DateRangeModalInner, { styles });
+export default registerComponent("DateRangeModal", DateRangeModal, { styles });
 
 

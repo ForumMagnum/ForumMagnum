@@ -27,7 +27,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesNavigationLinkInner = ({ post, direction, classes }: {
+const SequencesNavigationLink = ({ post, direction, classes }: {
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
   classes: ClassesType<typeof styles>,
@@ -60,7 +60,7 @@ const SequencesNavigationLinkInner = ({ post, direction, classes }: {
   }
 };
 
-export const SequencesNavigationLink = registerComponent('SequencesNavigationLink', SequencesNavigationLinkInner, {styles});
+export default registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
 
 
 

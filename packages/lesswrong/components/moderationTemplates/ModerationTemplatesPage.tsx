@@ -6,14 +6,14 @@ import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderatio
 import classNames from 'classnames';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ModerationTemplatesForm } from './ModerationTemplateForm';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { ModerationTemplateItem } from "./ModerationTemplateItem";
-import { BasicFormStyles } from "../form-components/BasicFormStyles";
-import { Loading } from "../vulcan-core/Loading";
-import { Row } from "../common/Row";
-import { ToCColumn } from "../posts/TableOfContents/ToCColumn";
-import { TableOfContents } from "../posts/TableOfContents/TableOfContents";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import ModerationTemplateItem from "./ModerationTemplateItem";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import Loading from "../vulcan-core/Loading";
+import Row from "../common/Row";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 //a page for creating and viewing moderation templates
-export const ModerationTemplatesPageInner = ({classes}: {
+export const ModerationTemplatesPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -122,7 +122,7 @@ export const ModerationTemplatesPageInner = ({classes}: {
 }
   
 
-export const ModerationTemplatesPage = registerComponent('ModerationTemplatesPage', ModerationTemplatesPageInner, {styles});
+export default registerComponent('ModerationTemplatesPage', ModerationTemplatesPage, {styles});
 
 
 

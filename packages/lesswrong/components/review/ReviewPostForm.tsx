@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
-import { PopupCommentEditor } from "../comments/PopupCommentEditor";
+import PopupCommentEditor from "../comments/PopupCommentEditor";
 
 const styles = (theme: ThemeType) => ({
   guidelines: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewPostFormInner = ({classes, post, onClose}: {
+const ReviewPostForm = ({classes, post, onClose}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   onClose: () => void,
@@ -72,6 +72,6 @@ const ReviewPostFormInner = ({classes, post, onClose}: {
   />
 }
 
-export const ReviewPostForm = registerComponent('ReviewPostForm', ReviewPostFormInner, {styles});
+export default registerComponent('ReviewPostForm', ReviewPostForm, {styles});
 
 

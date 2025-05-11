@@ -8,13 +8,13 @@ import { useMulti } from "../../lib/crud/withMulti";
 import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
-import { Loading } from "../vulcan-core/Loading";
-import { HeadTags } from "../common/HeadTags";
-import { EASequenceCard } from "./EASequenceCard";
-import { EACollectionCard } from "./EACollectionCard";
-import { EAPostsItem } from "../posts/EAPostsItem";
-import { PostsAudioCard } from "../posts/PostsAudioCard";
-import { PostsVideoCard } from "../posts/PostsVideoCard";
+import Loading from "../vulcan-core/Loading";
+import HeadTags from "../common/HeadTags";
+import EASequenceCard from "./EASequenceCard";
+import EACollectionCard from "./EACollectionCard";
+import EAPostsItem from "../posts/EAPostsItem";
+import PostsAudioCard from "../posts/PostsAudioCard";
+import PostsVideoCard from "../posts/PostsVideoCard";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -146,7 +146,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { results: posts, loading } = useMulti({
@@ -306,9 +306,9 @@ const EABestOfPageInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const EABestOfPage = registerComponent(
+export default registerComponent(
   "EABestOfPage",
-  EABestOfPageInner,
+  EABestOfPage,
   {styles, stylePriority: 2},
 );
 

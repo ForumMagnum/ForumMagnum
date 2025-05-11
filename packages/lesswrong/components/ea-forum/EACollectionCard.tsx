@@ -4,8 +4,8 @@ import { useHover } from "../common/withHover";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { CollectionsTooltip } from "../collections/CollectionsTooltip";
-import { EASequenceOrCollectionCard } from "./EASequenceOrCollectionCard";
+import CollectionsTooltip from "../collections/CollectionsTooltip";
+import EASequenceOrCollectionCard from "./EASequenceOrCollectionCard";
 
 const defaultImageId = forumSelect({
   EAForum: "Banner/yeldubyolqpl3vqqy0m6.jpg",
@@ -39,7 +39,7 @@ const getCardDetails = ({
   };
 }
 
-const EACollectionCardInner = ({collection}: {collection: CollectionsBestOfFragment}) => {
+const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
   const {eventHandlers} = useHover({
     eventProps: {
       pageElementContext: "collectionCard",
@@ -74,9 +74,9 @@ const EACollectionCardInner = ({collection}: {collection: CollectionsBestOfFragm
   );
 }
 
-export const EACollectionCard = registerComponent(
+export default registerComponent(
   "EACollectionCard",
-  EACollectionCardInner,
+  EACollectionCard,
 );
 
 

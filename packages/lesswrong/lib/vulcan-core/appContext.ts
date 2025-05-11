@@ -7,7 +7,7 @@ import { isClient } from '../executionEnvironment';
 import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
 import type { History } from 'history'
 import { getRouteMatchingPathname, userCanAccessRoute } from "../vulcan-lib/routes";
-import { Error404 } from '@/components/common/Error404';
+import Error404 from '@/components/common/Error404';
 
 export interface ServerRequestStatusContextType {
   status?: number

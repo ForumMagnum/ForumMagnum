@@ -16,10 +16,10 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
-import { Loading } from "../vulcan-core/Loading";
-import { ForumIcon } from "../common/ForumIcon";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
-import { Error404 } from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -227,7 +227,7 @@ const InnerMessagesNewForm = ({
   );
 };
 
-export const MessagesNewFormInner = ({
+export const MessagesNewForm = ({
   conversationId,
   templateQueries,
   successEvent,
@@ -280,6 +280,6 @@ export const MessagesNewFormInner = ({
   );
 };
 
-export const MessagesNewForm = registerComponent("MessagesNewForm", MessagesNewFormInner, { styles });
+export default registerComponent("MessagesNewForm", MessagesNewForm, { styles });
 
 

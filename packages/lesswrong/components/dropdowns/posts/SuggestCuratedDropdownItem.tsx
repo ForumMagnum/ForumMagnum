@@ -6,9 +6,9 @@ import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
 import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const SuggestCuratedDropdownItemInner = ({post}: {post: PostsBase}) => {
+const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
@@ -73,9 +73,9 @@ const SuggestCuratedDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const SuggestCuratedDropdownItem = registerComponent(
+export default registerComponent(
   'SuggestCuratedDropdownItem',
-  SuggestCuratedDropdownItemInner,
+  SuggestCuratedDropdownItem,
 );
 
 

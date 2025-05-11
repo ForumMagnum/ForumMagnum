@@ -16,8 +16,8 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { LWDialog } from "../common/LWDialog";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import LWDialog from "../common/LWDialog";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -31,7 +31,7 @@ const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) 
  * Form for editing the title of a private messages conversation and also for
  * adding additional participants.
  */
-const ConversationTitleEditFormInner = ({ onClose, conversation }: {
+const ConversationTitleEditForm = ({ onClose, conversation }: {
   onClose?: () => void,
   conversation: UpdateConversationDataInput & { _id: string },
 }) => {
@@ -139,6 +139,6 @@ const ConversationTitleEditFormInner = ({ onClose, conversation }: {
   </LWDialog>
 }
 
-export const ConversationTitleEditForm = registerComponent('ConversationTitleEditForm', ConversationTitleEditFormInner);
+export default registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
 
 

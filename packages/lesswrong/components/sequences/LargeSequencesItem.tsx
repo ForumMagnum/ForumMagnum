@@ -4,12 +4,12 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { UsersName } from "../users/UsersName";
-import { ContentStyles } from "../common/ContentStyles";
-import { SequencesSmallPostLink } from "./SequencesSmallPostLink";
-import { ContentItemTruncated } from "../common/ContentItemTruncated";
-import { LWTooltip } from "../common/LWTooltip";
-import { ChapterTitle } from "./ChapterTitle";
+import UsersName from "../users/UsersName";
+import ContentStyles from "../common/ContentStyles";
+import SequencesSmallPostLink from "./SequencesSmallPostLink";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import LWTooltip from "../common/LWTooltip";
+import ChapterTitle from "./ChapterTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -148,7 +148,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LargeSequencesItemInner = ({sequence, showAuthor=false, showChapters=false, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   showChapters?: boolean,
@@ -233,7 +233,7 @@ export const LargeSequencesItemInner = ({sequence, showAuthor=false, showChapter
   </div>
 }
 
-export const LargeSequencesItem = registerComponent('LargeSequencesItem', LargeSequencesItemInner, {styles});
+export default registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
 
 
 

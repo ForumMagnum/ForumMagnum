@@ -5,9 +5,9 @@ import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const ShortformDropdownItemInner = ({post}: {post: PostsBase}) => {
+const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -36,9 +36,9 @@ const ShortformDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const ShortformDropdownItem = registerComponent(
+export default registerComponent(
   "ShortformDropdownItem",
-  ShortformDropdownItemInner,
+  ShortformDropdownItem,
 );
 
 

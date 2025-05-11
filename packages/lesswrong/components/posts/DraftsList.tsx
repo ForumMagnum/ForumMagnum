@@ -9,13 +9,13 @@ import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
 import DescriptionIcon from "@/lib/vendor/@material-ui/icons/src/Description";
 import ListIcon from '@/lib/vendor/@material-ui/icons/src/List';
-import { SectionTitle } from "../common/SectionTitle";
-import { SectionButton } from "../common/SectionButton";
-import { SettingsButton } from "../icons/SettingsButton";
-import { DraftsListSettings } from "./DraftsListSettings";
-import { LoadMore } from "../common/LoadMore";
-import { PostsItem } from "./PostsItem";
-import { Loading } from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import SettingsButton from "../icons/SettingsButton";
+import DraftsListSettings from "./DraftsListSettings";
+import LoadMore from "../common/LoadMore";
+import PostsItem from "./PostsItem";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {
@@ -36,7 +36,7 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsListInner = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
+const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
   limit: number,
   title?: string,
   userId?: string,
@@ -129,7 +129,7 @@ const DraftsListInner = ({limit, title="My Drafts", userId, showAllDraftsLink=tr
   </>
 }
 
-export const DraftsList = registerComponent('DraftsList', DraftsListInner, {
+export default registerComponent('DraftsList', DraftsList, {
   hocs: [withErrorBoundary], styles
 });
 

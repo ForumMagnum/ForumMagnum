@@ -17,7 +17,7 @@ export interface Option {
   label: string;
 }
 
-function InlineSelectInner({
+function InlineSelect({
   options,
   selected,
   handleSelect,
@@ -61,6 +61,6 @@ function InlineSelectInner({
   );
 }
 
-export const InlineSelect = registerComponent("InlineSelect", InlineSelectInner, { styles });
+export default registerComponent("InlineSelect", InlineSelect, { styles });
 
 

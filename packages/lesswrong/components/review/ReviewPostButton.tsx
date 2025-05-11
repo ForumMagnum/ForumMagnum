@@ -4,8 +4,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewPostForm } from "./ReviewPostForm";
-import { LoginPopup } from "../users/LoginPopup";
+import ReviewPostForm from "./ReviewPostForm";
+import LoginPopup from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewPostButtonInner = ({classes, post, reviewMessage="Review", year}: {
+const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   classes: ClassesType<typeof styles>,
   post: PostsBase,
   reviewMessage?: any,
@@ -57,7 +57,7 @@ const ReviewPostButtonInner = ({classes, post, reviewMessage="Review", year}: {
   )
 }
 
-export const ReviewPostButton = registerComponent('ReviewPostButton', ReviewPostButtonInner, {styles});
+export default registerComponent('ReviewPostButton', ReviewPostButton, {styles});
 
 
 

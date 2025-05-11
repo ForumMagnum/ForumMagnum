@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { SunshineListCount } from "./SunshineListCount";
-import { SunshineNewCommentsItem } from "./SunshineNewCommentsItem";
-import { SunshineListTitle } from "./SunshineListTitle";
+import SunshineListCount from "./SunshineListCount";
+import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
+import SunshineListTitle from "./SunshineListTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewCommentsListInner = ({ terms, classes }: {
+const SunshineNewCommentsList = ({ terms, classes }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -39,7 +39,7 @@ const SunshineNewCommentsListInner = ({ terms, classes }: {
   }
 }
 
-export const SunshineNewCommentsList = registerComponent('SunshineNewCommentsList', SunshineNewCommentsListInner, {styles});
+export default registerComponent('SunshineNewCommentsList', SunshineNewCommentsList, {styles});
 
 
 

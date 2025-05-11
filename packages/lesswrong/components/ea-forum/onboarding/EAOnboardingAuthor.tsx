@@ -5,7 +5,7 @@ import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
-import { UsersProfileImage } from "../../users/UsersProfileImage";
+import UsersProfileImage from "../../users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingAuthorInner = ({user, onSubscribed, classes}: {
+export const EAOnboardingAuthor = ({user, onSubscribed, classes}: {
   user: UserOnboardingAuthor,
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -100,9 +100,9 @@ export const EAOnboardingAuthorInner = ({user, onSubscribed, classes}: {
   );
 }
 
-export const EAOnboardingAuthor = registerComponent(
+export default registerComponent(
   "EAOnboardingAuthor",
-  EAOnboardingAuthorInner,
+  EAOnboardingAuthor,
   {styles},
 );
 

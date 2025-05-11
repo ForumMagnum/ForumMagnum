@@ -10,10 +10,10 @@ import { Badge } from "@/components/widgets/Badge";
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { ForumIcon } from "../common/ForumIcon";
-import { LWPopper } from "../common/LWPopper";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { NotificationsPopover } from "./NotificationsPopover";
+import ForumIcon from "../common/ForumIcon";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import NotificationsPopover from "./NotificationsPopover";
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -260,7 +260,7 @@ const FriendlyNotificationsMenuButton = ({
   );
 }
 
-export const NotificationsMenuButton = registerComponent(
+export default registerComponent(
   "NotificationsMenuButton",
   isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
   {

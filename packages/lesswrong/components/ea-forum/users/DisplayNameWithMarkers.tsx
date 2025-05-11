@@ -1,6 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { LWTooltip } from "../../common/LWTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 export const tenPercentPledgeDiamond = "🔸";
 export const trialPledgeDiamond = "🔹";
@@ -26,7 +26,7 @@ const MARKERS: Marker[] = [
  * Wrap certain special characters with a tooltip explaining them. Currently only allows one tooltip, preferring
  * the one closest to the end of their name.
  */
-const DisplayNameWithMarkersInner = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
+const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
   const markerIndices = MARKERS.map(marker => name.lastIndexOf(marker.text)).filter(i => i !== -1);
 
   const lastMarkerIndex = Math.max(...markerIndices);
@@ -57,7 +57,7 @@ const DisplayNameWithMarkersInner = ({ name, classes }: { name: string; classes:
   );
 };
 
-export const DisplayNameWithMarkers = registerComponent("DisplayNameWithMarkers", DisplayNameWithMarkersInner, {
+export default registerComponent("DisplayNameWithMarkers", DisplayNameWithMarkers, {
   styles,
   areEqual: "auto",
 });

@@ -6,13 +6,13 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
-import { jargonTermsToTextReplacements, JargonTooltip } from './JargonTooltip';
+import JargonTooltip, { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { useHover } from '../common/withHover';
 import { SideItem } from "../contents/SideItems";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const lowOpacity = .4;
 const highOpacity = .85;
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
+const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
@@ -330,6 +330,6 @@ const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTerm
   </SideItem></div>
 }
 
-export const GlossarySidebar = registerComponent('GlossarySidebar', GlossarySidebarInner, {styles});
+export default registerComponent('GlossarySidebar', GlossarySidebar, {styles});
 
 

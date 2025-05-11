@@ -5,9 +5,9 @@ import {
   profileFieldToSocialMediaHref,
 } from "../../lib/collections/users/helpers";
 import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
-import { SocialMediaIcon } from "../icons/SocialMediaIcon";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
-const SocialMediaLinkInner = ({user, field, className}: {
+const SocialMediaLink = ({user, field, className}: {
   user: UsersProfile,
   field: SocialMediaProfileField,
   className?: string,
@@ -28,9 +28,9 @@ const SocialMediaLinkInner = ({user, field, className}: {
   );
 }
 
-export const SocialMediaLink = registerComponent(
+export default registerComponent(
   "SocialMediaLink",
-  SocialMediaLinkInner,
+  SocialMediaLink,
 );
 
 

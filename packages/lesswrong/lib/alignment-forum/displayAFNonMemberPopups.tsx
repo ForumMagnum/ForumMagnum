@@ -3,8 +3,8 @@ import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {commentSuggestForAlignment} from "./comments/helpers";
 import {postSuggestForAlignment} from "./posts/helpers";
 import {OpenDialogContextType} from "../../components/common/withDialog";
-import { AFNonMemberInitialPopup } from '@/components/alignment-forum/AFNonMemberInitialPopup';
-import { AFNonMemberSuccessPopup } from '@/components/alignment-forum/AFNonMemberSuccessPopup';
+import AFNonMemberInitialPopup from '@/components/alignment-forum/AFNonMemberInitialPopup';
+import AFNonMemberSuccessPopup from '@/components/alignment-forum/AFNonMemberSuccessPopup';
 
 
 const isComment = (document: PostsBase | CommentsList): document is CommentsList => {

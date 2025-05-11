@@ -4,10 +4,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { UsersName } from "../users/UsersName";
-import { MetaInfo } from "../common/MetaInfo";
-import { KarmaDisplay } from "../common/KarmaDisplay";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "../users/UsersName";
+import MetaInfo from "../common/MetaInfo";
+import KarmaDisplay from "../common/KarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagSmallPostLinkInner = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
+const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   hideMeta?: boolean,
@@ -99,6 +99,6 @@ const TagSmallPostLinkInner = ({classes, post, hideMeta, hideAuthor, wrap, wider
   );
 }
 
-export const TagSmallPostLink = registerComponent("TagSmallPostLink", TagSmallPostLinkInner, {styles});
+export default registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
 
 

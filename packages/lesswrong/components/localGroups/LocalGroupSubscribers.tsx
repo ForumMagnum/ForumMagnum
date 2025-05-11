@@ -3,8 +3,8 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useMulti } from '@/lib/crud/withMulti';
 import { Typography } from "../common/Typography";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { LoadMore } from "../common/LoadMore";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const LocalGroupSubscribersInner = ({groupId, classes}: {
+const LocalGroupSubscribers = ({groupId, classes}: {
   groupId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -49,7 +49,7 @@ const LocalGroupSubscribersInner = ({groupId, classes}: {
   </div>
 }
 
-export const LocalGroupSubscribers = registerComponent('LocalGroupSubscribers', LocalGroupSubscribersInner, {styles});
+export default registerComponent('LocalGroupSubscribers', LocalGroupSubscribers, {styles});
 
 
 

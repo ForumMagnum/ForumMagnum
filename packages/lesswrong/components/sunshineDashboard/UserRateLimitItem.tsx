@@ -16,11 +16,11 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { Error404 } from "../common/Error404";
+import Error404 from "../common/Error404";
 import { MenuItem } from "../common/Menus";
-import { Loading } from "../vulcan-core/Loading";
-import { MetaInfo } from "../common/MetaInfo";
-import { LWTooltip } from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
+import MetaInfo from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -326,7 +326,7 @@ export const UserRateLimitsForm = ({
   );
 };
 
-export const UserRateLimitItemInner = ({ userId, classes }: {
+export const UserRateLimitItem = ({ userId, classes }: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -432,7 +432,7 @@ export const UserRateLimitItemInner = ({ userId, classes }: {
   </div>;
 }
 
-export const UserRateLimitItem = registerComponent('UserRateLimitItem', UserRateLimitItemInner, { styles });
+export default registerComponent('UserRateLimitItem', UserRateLimitItem, { styles });
 
 
 

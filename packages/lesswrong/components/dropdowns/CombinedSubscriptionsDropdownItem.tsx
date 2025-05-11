@@ -2,11 +2,11 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Card } from "@/components/widgets/Paper";
-import { NotifyMeDropdownItemProps, NotifyMeDropdownItem } from "./NotifyMeDropdownItem";
-import { NotifyMeToggleDropdownItemPropsExternal, NotifyMeToggleDropdownItem } from "./NotifyMeToggleDropdownItem";
-import { LWTooltip } from "../common/LWTooltip";
-import { DropdownMenu } from "./DropdownMenu";
-import { DropdownItem } from "./DropdownItem";
+import NotifyMeDropdownItem, { NotifyMeDropdownItemProps } from "./NotifyMeDropdownItem";
+import NotifyMeToggleDropdownItem, { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdownItem";
+import LWTooltip from "../common/LWTooltip";
+import DropdownMenu from "./DropdownMenu";
+import DropdownItem from "./DropdownItem";
 
 const styles = (_theme: ThemeType) => ({
   dropdownWrapper: {
@@ -19,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const CombinedSubscriptionsDropdownItemInner = ({notifyMeItems, classes}: {
+export const CombinedSubscriptionsDropdownItem = ({notifyMeItems, classes}: {
   notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemPropsExternal>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -61,9 +61,9 @@ export const CombinedSubscriptionsDropdownItemInner = ({notifyMeItems, classes}:
     );
 }
 
-export const CombinedSubscriptionsDropdownItem = registerComponent(
+export default registerComponent(
   "CombinedSubscriptionsDropdownItem",
-  CombinedSubscriptionsDropdownItemInner,
+  CombinedSubscriptionsDropdownItem,
   {styles},
 );
 

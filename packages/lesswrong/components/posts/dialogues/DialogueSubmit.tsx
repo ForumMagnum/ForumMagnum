@@ -10,7 +10,7 @@ import { useNavigate } from '../../../lib/routeUtil';
 import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '@/lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
-import { Row } from "../../common/Row";
+import Row from "../../common/Row";
 
 export const styles = defineStyles('DialogueSubmit', (theme: ThemeType) => ({
   formButton: {

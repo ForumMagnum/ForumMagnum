@@ -27,12 +27,12 @@ import { useDialog } from "../common/withDialog";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
-import { LoginPopup } from "../users/LoginPopup";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
-import { FormGroupNoStyling } from "../form-components/FormGroupNoStyling";
-import { FormGroupQuickTakes } from "../form-components/FormGroupQuickTakes";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import LoginPopup from "../users/LoginPopup";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
+import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {

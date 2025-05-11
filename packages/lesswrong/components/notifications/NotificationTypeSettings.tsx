@@ -12,14 +12,14 @@ import {
   legacyToNewNotificationTypeSettings
 } from "@/lib/collections/users/notificationFieldHelpers";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
-import { PickedTime, BatchTimePicker } from '../common/BatchTimePicker';
+import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
-import { ToggleSwitch } from "../common/ToggleSwitch";
+import ToggleSwitch from "../common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,7 +86,7 @@ const getChannelLabel = (channel: NotificationChannel): string => {
   }
 }
 
-const NotificationTypeSettingsWidgetInner = ({
+const NotificationTypeSettingsWidget = ({
   field,
   label,
   classes
@@ -164,7 +164,7 @@ const NotificationTypeSettingsWidgetInner = ({
   );
 }
 
-export const NotificationTypeSettingsWidget = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidgetInner, {
+export default registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
   styles,
   hocs: [withErrorBoundary]
 });

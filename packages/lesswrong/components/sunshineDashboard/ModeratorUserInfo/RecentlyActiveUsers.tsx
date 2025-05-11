@@ -6,19 +6,19 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { downvoterTooltip, recentKarmaTooltip, UserAutoRateLimitsDisplay } from './UserAutoRateLimitsDisplay';
+import UserAutoRateLimitsDisplay, { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { useLocation } from '../../../lib/routeUtil';
-import { UsersReviewInfoCard } from "../UsersReviewInfoCard";
-import { LoadMore } from "../../common/LoadMore";
-import { LWTooltip } from "../../common/LWTooltip";
-import { UsersName } from "../../users/UsersName";
-import { FormatDate } from "../../common/FormatDate";
-import { MetaInfo } from "../../common/MetaInfo";
-import { SectionFooterCheckbox } from "../../form-components/SectionFooterCheckbox";
-import { Row } from "../../common/Row";
+import UsersReviewInfoCard from "../UsersReviewInfoCard";
+import LoadMore from "../../common/LoadMore";
+import LWTooltip from "../../common/LWTooltip";
+import UsersName from "../../users/UsersName";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
+import Row from "../../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -121,7 +121,7 @@ const styles = (theme: ThemeType) => ({
 type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
 
 
-const RecentlyActiveUsersInner = ({ classes }: {
+const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
@@ -337,6 +337,6 @@ const RecentlyActiveUsersInner = ({ classes }: {
   );
 };
 
-export const RecentlyActiveUsers = registerComponent('RecentlyActiveUsers', RecentlyActiveUsersInner, { styles });
+export default registerComponent('RecentlyActiveUsers', RecentlyActiveUsers, { styles });
 
 

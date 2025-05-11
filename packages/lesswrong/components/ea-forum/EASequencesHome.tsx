@@ -1,13 +1,13 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { SequencesGridWrapper } from "../sequences/SequencesGridWrapper";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { SequencesNewButton } from "../sequences/SequencesNewButton";
+import SequencesGridWrapper from "../sequences/SequencesGridWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SequencesNewButton from "../sequences/SequencesNewButton";
 import { Typography } from "../common/Typography";
-import { EACoreReading } from "../sequences/EACoreReading";
-import { ContentStyles } from "../common/ContentStyles";
+import EACoreReading from "../sequences/EACoreReading";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 
 export const eaSequencesHomeDescription = "Featured readings and collections of posts on specific topics.";
 
-const EASequencesHomeInner = ({classes}: {
+const EASequencesHome = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   return <AnalyticsContext pageContext="eaSequencesHome">
@@ -47,6 +47,6 @@ const EASequencesHomeInner = ({classes}: {
   </AnalyticsContext>
 };
 
-export const EASequencesHome = registerComponent('EASequencesHome', EASequencesHomeInner, {styles});
+export default registerComponent('EASequencesHome', EASequencesHome, {styles});
 
 

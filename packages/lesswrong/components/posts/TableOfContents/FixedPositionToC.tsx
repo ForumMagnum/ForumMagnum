@@ -18,9 +18,9 @@ import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { getClassName } from '@/components/hooks/useStyles';
-import { TableOfContentsRowStyles, TableOfContentsRow } from './TableOfContentsRow';
+import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
-import { AnswerTocRow } from "./AnswerTocRow";
+import AnswerTocRow from "./AnswerTocRow";
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -236,7 +236,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionTocInner = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
@@ -465,8 +465,8 @@ function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
   });
 }
 
-export const FixedPositionToc = registerComponent(
-  "FixedPositionToC", FixedPositionTocInner, {
+export default registerComponent(
+  "FixedPositionToC", FixedPositionToc, {
     hocs: [withErrorBoundary],
     styles
   }

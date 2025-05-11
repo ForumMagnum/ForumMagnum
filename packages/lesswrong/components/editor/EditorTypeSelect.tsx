@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useConvertDocument } from './useConvertDocument';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EditorTypeSelectInner = ({value, setValue, isCollaborative, classes}: {
+const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
   isCollaborative?: boolean,
@@ -57,6 +57,6 @@ const EditorTypeSelectInner = ({value, setValue, isCollaborative, classes}: {
   </>
 }
 
-export const EditorTypeSelect = registerComponent("EditorTypeSelect", EditorTypeSelectInner, {styles});
+export default registerComponent("EditorTypeSelect", EditorTypeSelect, {styles});
 
 

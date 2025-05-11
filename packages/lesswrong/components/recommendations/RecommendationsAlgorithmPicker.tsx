@@ -9,7 +9,7 @@ import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../..
 import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
 export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -73,7 +73,7 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
 }
 const includeExtra = forumSelect(forumIncludeExtra)
 
-const RecommendationsAlgorithmPickerInner = ({ settings, configName, onChange, showAdvanced=false, classes }: {
+const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
@@ -225,6 +225,6 @@ const RecommendationsAlgorithmPickerInner = ({ settings, configName, onChange, s
   </div>;
 }
 
-export const RecommendationsAlgorithmPicker = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPickerInner, {styles});
+export default registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
 
 

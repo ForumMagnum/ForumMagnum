@@ -16,8 +16,8 @@ import {
 } from "../../lib/petrovHelpers";
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';
-import { LWTooltip } from "../common/LWTooltip";
-import { LoginPopupButton } from "../users/LoginPopupButton";
+import LWTooltip from "../common/LWTooltip";
+import LoginPopupButton from "../users/LoginPopupButton";
 import { Typography } from "../common/Typography";
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
@@ -143,7 +143,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PetrovDayButtonInner = ({classes, alreadyLaunched }: {
+const PetrovDayButton = ({classes, alreadyLaunched }: {
   classes: ClassesType<typeof styles>,
   refetch?: any,
   alreadyLaunched?: boolean,
@@ -277,7 +277,7 @@ const PetrovDayButtonInner = ({classes, alreadyLaunched }: {
   )
 }
 
-export const PetrovDayButton = registerComponent('PetrovDayButton', PetrovDayButtonInner, {styles});
+export default registerComponent('PetrovDayButton', PetrovDayButton, {styles});
 
 
 

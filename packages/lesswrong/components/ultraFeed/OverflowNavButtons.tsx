@@ -74,7 +74,7 @@ interface Props {
   applyCommentStyle?: boolean;
 }
 
-export const OverflowNavButtonsInner = ({ nav, onCollapse, applyCommentStyle }: Props) => {
+export const OverflowNavButtons = ({ nav, onCollapse, applyCommentStyle }: Props) => {
   const { showUp, showDown, scrollToTop: onTop, scrollToBottom: onBottom } = nav;
   const classes = useStyles(styles);
 
@@ -102,7 +102,7 @@ export const OverflowNavButtonsInner = ({ nav, onCollapse, applyCommentStyle }: 
   );
 };
 
-export const OverflowNavButtons = registerComponent("OverflowNavButtons", OverflowNavButtonsInner);
+export default registerComponent("OverflowNavButtons", OverflowNavButtons);
 
 
 

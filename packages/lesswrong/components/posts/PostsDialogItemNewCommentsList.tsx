@@ -2,12 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
-import { NoContent } from "../common/NoContent";
-import { PostsItemNewCommentsListNode } from "./PostsItemNewCommentsListNode";
+import NoContent from "../common/NoContent";
+import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
 
 const styles = (theme: ThemeType) => ({})
 
-const PostsDialogItemNewCommentsListInner = ({ terms, post, treeOptions }: {
+const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   post: PostsList & { debate: true },
@@ -62,8 +62,8 @@ const PostsDialogItemNewCommentsListInner = ({ terms, post, treeOptions }: {
   }
 };
 
-export const PostsDialogItemNewCommentsList = registerComponent(
-  'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsListInner, {
+export default registerComponent(
+  'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsList, {
     styles,
   }
 );

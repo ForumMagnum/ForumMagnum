@@ -4,8 +4,8 @@ import { defaultPostsLayout, PostsLayout, SettingsOption } from '../../lib/colle
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames';
-import { ForumIcon } from "../common/ForumIcon";
-import { ForumDropdown } from "../common/ForumDropdown";
+import ForumIcon from "../common/ForumIcon";
+import ForumDropdown from "../common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   optionIcon: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsLayoutDropdownInner = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
+const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
   classes: ClassesType<typeof styles>,
   value?: PostsLayout
   queryParam?: string,
@@ -64,6 +64,6 @@ const PostsLayoutDropdownInner = ({classes, value=defaultPostsLayout, queryParam
   return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} />;
 }
 
-export const PostsLayoutDropdown = registerComponent('PostsLayoutDropdown', PostsLayoutDropdownInner, {styles});
+export default registerComponent('PostsLayoutDropdown', PostsLayoutDropdown, {styles});
 
 

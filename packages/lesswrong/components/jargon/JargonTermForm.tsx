@@ -9,9 +9,9 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { Loading } from "../vulcan-core/Loading";
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {

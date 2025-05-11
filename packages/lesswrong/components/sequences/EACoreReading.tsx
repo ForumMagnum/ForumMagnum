@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CoreReadingCollection } from './LWCoreReading';
-import { CollectionsCardContainer } from "../collections/CollectionsCardContainer";
-import { BigCollectionsCard } from "../collections/BigCollectionsCard";
-import { CollectionsCard } from "../collections/CollectionsCard";
+import CollectionsCardContainer from "../collections/CollectionsCardContainer";
+import BigCollectionsCard from "../collections/BigCollectionsCard";
+import CollectionsCard from "../collections/CollectionsCard";
 
 const styles = (theme: ThemeType) => ({
   razLargeVersion: {
@@ -52,7 +52,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const EACoreReadingInner = ({minimal=false, classes}: {
+const EACoreReading = ({minimal=false, classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => (
@@ -69,6 +69,6 @@ const EACoreReadingInner = ({minimal=false, classes}: {
   </CollectionsCardContainer>
 );
 
-export const EACoreReading = registerComponent("EACoreReading", EACoreReadingInner, {styles});
+export default registerComponent("EACoreReading", EACoreReading, {styles});
 
 

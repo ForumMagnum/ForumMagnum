@@ -3,7 +3,7 @@ import { isEAForum } from "../../lib/instanceSettings"
 import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { TagRevisionItem } from "../tagging/TagRevisionItem";
+import TagRevisionItem from "../tagging/TagRevisionItem";
 
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
@@ -33,7 +33,7 @@ const onlyStyleEditors = ['pkJTc4xXhsCbNqkZM']
  * This component's only job is to filter out tag edits that shouldn't be shown.
  * Otherwise it's just a wrapper around TagRevisionItem.
  */
-function RecentDiscussionTagRevisionItemInner({
+function RecentDiscussionTagRevisionItem({
   tag,
   collapsed=false,
   headingStyle,
@@ -75,8 +75,8 @@ function RecentDiscussionTagRevisionItemInner({
   </div>
 }
 
-export const RecentDiscussionTagRevisionItem = registerComponent(
-  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItemInner
-)
+export default registerComponent(
+  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
+);
 
 

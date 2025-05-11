@@ -1,8 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
-import { Loading } from "../vulcan-core/Loading";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const UsersAutoCompleteHitInner = ({document, classes}: {
+const UsersAutoCompleteHit = ({document, classes}: {
   document: SearchUser
   classes: ClassesType<typeof styles>
 }) => {
@@ -31,7 +31,7 @@ const UsersAutoCompleteHitInner = ({document, classes}: {
   }
 };
 
-export const UsersAutoCompleteHit = registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHitInner, {styles});
+export default registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
 
 
 

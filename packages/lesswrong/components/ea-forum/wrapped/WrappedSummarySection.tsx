@@ -8,10 +8,10 @@ import { formatPercentile, getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
-import { WrappedSection } from "./WrappedSection";
-import { UsersProfileImage } from "../../users/UsersProfileImage";
-import { CoreTagIcon } from "../../tagging/CoreTagIcon";
-import { WrappedShareButton } from "./WrappedShareButton";
+import WrappedSection from "./WrappedSection";
+import UsersProfileImage from "../../users/UsersProfileImage";
+import CoreTagIcon from "../../tagging/CoreTagIcon";
+import WrappedShareButton from "./WrappedShareButton";
 
 const TOP_PADDING = 12;
 const BOTTOM_PADDING = 14;
@@ -187,7 +187,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays a screenshottable summary of the user's Wrapped data
  */
-const WrappedSummarySectionInner = ({classes}: {
+const WrappedSummarySection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -324,9 +324,9 @@ const WrappedSummarySectionInner = ({classes}: {
   );
 }
 
-export const WrappedSummarySection = registerComponent(
+export default registerComponent(
   "WrappedSummarySection",
-  WrappedSummarySectionInner,
+  WrappedSummarySection,
   {styles},
 );
 

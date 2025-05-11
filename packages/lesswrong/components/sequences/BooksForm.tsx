@@ -13,8 +13,8 @@ import { PostsListEditor } from "@/components/form-components/PostsListEditor";
 import { SequencesListEditor } from "@/components/form-components/SequencesListEditor";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
   fieldWrapper: {

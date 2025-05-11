@@ -4,8 +4,8 @@ import { WrappedYear, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import moment from "moment";
 import classNames from "classnames";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const MOBILE_SIZE = 6;
 const DESKTOP_SIZE = 8;
@@ -79,7 +79,7 @@ const Month: FC<{
  * Section that displays the calendar of days that the user visited the forum,
  * visualized as 12 rows of dots, with the visited days' dots being white
  */
-const WrappedDaysVisitedSectionInner = ({classes}: {
+const WrappedDaysVisitedSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {daysVisited}} = useForumWrappedContext();
@@ -98,9 +98,9 @@ const WrappedDaysVisitedSectionInner = ({classes}: {
   );
 }
 
-export const WrappedDaysVisitedSection = registerComponent(
+export default registerComponent(
   "WrappedDaysVisitedSection",
-  WrappedDaysVisitedSectionInner,
+  WrappedDaysVisitedSection,
   {styles},
 );
 

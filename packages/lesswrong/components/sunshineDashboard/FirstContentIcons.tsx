@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const FirstContentIconsInner = ({user, classes}: {
+export const FirstContentIcons = ({user, classes}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -28,7 +28,7 @@ export const FirstContentIconsInner = ({user, classes}: {
   </span>;
 }
 
-export const FirstContentIcons = registerComponent('FirstContentIcons', FirstContentIconsInner, {styles});
+export default registerComponent('FirstContentIcons', FirstContentIcons, {styles});
 
 
 

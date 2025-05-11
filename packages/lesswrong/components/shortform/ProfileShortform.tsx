@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { PostsItem } from "../posts/PostsItem";
+import PostsItem from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ProfileShortformInner = ({classes, user}: {
+export const ProfileShortform = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
@@ -25,7 +25,7 @@ export const ProfileShortformInner = ({classes, user}: {
   </div>;
 }
 
-export const ProfileShortform = registerComponent('ProfileShortform', ProfileShortformInner, {styles});
+export default registerComponent('ProfileShortform', ProfileShortform, {styles});
 
 
 

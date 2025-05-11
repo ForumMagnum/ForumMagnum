@@ -8,7 +8,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
-import { OverallVoteButton } from "./OverallVoteButton";
+import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -86,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsVoteDefaultInner = ({
+const PostsVoteDefault = ({
   post,
   useHorizontalLayout,
   votingSystem,
@@ -191,9 +191,9 @@ const PostsVoteDefaultInner = ({
   );
 }
 
-export const PostsVoteDefault = registerComponent(
+export default registerComponent(
   "PostsVoteDefault",
-  PostsVoteDefaultInner,
+  PostsVoteDefault,
   {styles},
 );
 

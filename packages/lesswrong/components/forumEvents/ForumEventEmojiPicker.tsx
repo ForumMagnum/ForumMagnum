@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { registerComponent } from '@/lib/vulcan-lib/components'
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 /** Hack: Inlined styling for the emoji-picker shadow DOM */
 const pickerStyles = `
@@ -57,7 +57,7 @@ const styles = defineStyles("ForumEventEmojiPicker", (theme: ThemeType) => ({
   },
 }));
 
-const ForumEventEmojiPickerInner: FC<{ onSelect: (value: string) => void }> = ({ onSelect }) => {
+const ForumEventEmojiPicker: FC<{ onSelect: (value: string) => void }> = ({ onSelect }) => {
   const classes = useStyles(styles);
 
   const [emoji, setEmoji] = useState<string | null>(null);
@@ -136,7 +136,7 @@ const ForumEventEmojiPickerInner: FC<{ onSelect: (value: string) => void }> = ({
   );
 };
 
-export const ForumEventEmojiPicker = registerComponent('ForumEventEmojiPicker', ForumEventEmojiPickerInner)
+export default registerComponent('ForumEventEmojiPicker', ForumEventEmojiPicker);
 
 
 

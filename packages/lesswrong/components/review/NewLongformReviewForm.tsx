@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { PostsNewForm } from "../posts/PostsNewForm";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { Row } from "../common/Row";
+import PostsNewForm from "../posts/PostsNewForm";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Row from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   text: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const NewLongformReviewFormInner = ({classes}: {
+export const NewLongformReviewForm = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [showText, setShowText] = useState(true)
@@ -50,7 +50,7 @@ export const NewLongformReviewFormInner = ({classes}: {
   </div>;
 }
 
-export const NewLongformReviewForm = registerComponent('NewLongformReviewForm', NewLongformReviewFormInner, {styles});
+export default registerComponent('NewLongformReviewForm', NewLongformReviewForm, {styles});
 
 
 

@@ -5,9 +5,9 @@ import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const MoveToFrontpageDropdownItemInner = ({post}: {post: PostsBase}) => {
+const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
@@ -69,9 +69,9 @@ const MoveToFrontpageDropdownItemInner = ({post}: {post: PostsBase}) => {
   return null;
 }
 
-export const MoveToFrontpageDropdownItem = registerComponent(
+export default registerComponent(
   "MoveToFrontpageDropdownItem",
-  MoveToFrontpageDropdownItemInner,
+  MoveToFrontpageDropdownItem,
 );
 
 

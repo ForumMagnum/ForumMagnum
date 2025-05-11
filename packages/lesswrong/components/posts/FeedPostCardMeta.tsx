@@ -5,10 +5,10 @@ import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
 import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import { TruncatedAuthorsList } from "./TruncatedAuthorsList";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { FormatDate } from "../common/FormatDate";
+import TruncatedAuthorsList from "./TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const FeedPostCardMetaInner = ({post, className, classes}: {
+const FeedPostCardMeta = ({post, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   className?: string,
@@ -158,9 +158,9 @@ const FeedPostCardMetaInner = ({post, className, classes}: {
   );
 }
 
-export const FeedPostCardMeta = registerComponent(
+export default registerComponent(
   "FeedPostCardMeta",
-  FeedPostCardMetaInner,
+  FeedPostCardMeta,
   {styles, stylePriority: -1},
 );
 

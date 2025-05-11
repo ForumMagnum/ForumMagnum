@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { FooterTagList } from "./FooterTagList";
-import { LWDialog } from "../common/LWDialog";
+import FooterTagList from "./FooterTagList";
+import LWDialog from "../common/LWDialog";
 
-const EditTagsDialogInner = ({post, onClose }: {
+const EditTagsDialog = ({post, onClose }: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void
 }) => {
@@ -20,6 +20,6 @@ const EditTagsDialogInner = ({post, onClose }: {
   </LWDialog>
 }
 
-export const EditTagsDialog = registerComponent('EditTagsDialog', EditTagsDialogInner);
+export default registerComponent('EditTagsDialog', EditTagsDialog);
 
 

@@ -86,7 +86,7 @@ const getBatchingTimeLocalTZ = (settings: KarmaChangeSettingsType, timezone: any
   return { timeOfDay, dayOfWeek };
 };
 
-const KarmaChangeNotifierSettingsInner = ({
+const KarmaChangeNotifierSettings = ({
   field,
 }: {
   field: TypedFieldApi<KarmaChangeSettingsType>;
@@ -223,7 +223,7 @@ const KarmaChangeNotifierSettingsInner = ({
   </div>
 };
 
-export const KarmaChangeNotifierSettings = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettingsInner, {
+export default registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings, {
   hocs: [withErrorBoundary]
 });
 

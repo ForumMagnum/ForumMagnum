@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { CommentsNodeProps, CommentsNode } from './CommentsNode';
+import CommentsNodeInner, { CommentsNodeProps } from './CommentsNode';
 
 const styles = (theme: ThemeType) => ({
   showChildren: {
@@ -27,7 +27,7 @@ export interface CommentWithRepliesProps {
   classes: ClassesType<typeof styles>;
 }
 
-const CommentWithRepliesInner = ({
+const CommentWithReplies = ({
   comment,
   post,
   lastRead,
@@ -68,7 +68,7 @@ const CommentWithRepliesInner = ({
     ) : null;
 
   return (
-    <CommentsNode
+    <CommentsNodeInner
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}
@@ -86,8 +86,8 @@ const CommentWithRepliesInner = ({
   );
 };
 
-export const CommentWithReplies = registerComponent(
-  'CommentWithReplies', CommentWithRepliesInner, {
+export default registerComponent(
+  'CommentWithReplies', CommentWithReplies, {
     styles,
     hocs: [withErrorBoundary]
   }

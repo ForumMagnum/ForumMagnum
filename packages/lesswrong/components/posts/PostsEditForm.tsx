@@ -15,17 +15,17 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditorContext } from './EditorContext';
-import { Loading } from "../vulcan-core/Loading";
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { Error404 } from "../common/Error404";
-import { PostsAcceptTos } from "./PostsAcceptTos";
-import { HeadTags } from "../common/HeadTags";
-import { ForeignCrosspostEditForm } from "./ForeignCrosspostEditForm";
-import { RateLimitWarning } from "../editor/RateLimitWarning";
-import { PostForm } from "./PostForm";
-import { DynamicTableOfContents } from "./TableOfContents/DynamicTableOfContents";
-import { NewPostModerationWarning } from "../sunshineDashboard/NewPostModerationWarning";
-import { NewPostHowToGuides } from "./NewPostHowToGuides";
+import Loading from "../vulcan-core/Loading";
+import PermanentRedirect from "../common/PermanentRedirect";
+import Error404 from "../common/Error404";
+import PostsAcceptTos from "./PostsAcceptTos";
+import HeadTags from "../common/HeadTags";
+import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
+import RateLimitWarning from "../editor/RateLimitWarning";
+import PostForm from "./PostForm";
+import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
+import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
+import NewPostHowToGuides from "./NewPostHowToGuides";
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -122,7 +122,7 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-const PostsEditFormInner = ({ documentId, version }: {
+const PostsEditForm = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
@@ -253,6 +253,6 @@ const PostsEditFormInner = ({ documentId, version }: {
   );
 }
 
-export const PostsEditForm = registerComponent('PostsEditForm', PostsEditFormInner);
+export default registerComponent('PostsEditForm', PostsEditForm);
 
 

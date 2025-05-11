@@ -9,9 +9,9 @@ import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { TableOfContentsDivider } from "../posts/TableOfContents/TableOfContentsDivider";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { TableOfContentsRow } from "../posts/TableOfContents/TableOfContentsRow";
+import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const CommentsTableOfContentsInner = ({commentTree, answersTree, post, highlightDate, classes}: {
+const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
   commentTree?: CommentTreeNode<CommentsList>[],
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
@@ -238,6 +238,6 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 }
 
 
-export const CommentsTableOfContents = registerComponent('CommentsTableOfContents', CommentsTableOfContentsInner, { styles });
+export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
 
 

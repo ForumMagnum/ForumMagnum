@@ -8,9 +8,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
-import { LWPopper } from "../common/LWPopper";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
+import LWPopper from "../common/LWPopper";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
-const TagFlagItemInner = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
+const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
   documentId?: string,
   itemType?: ItemTypeName,
   showNumber?: boolean,
@@ -111,6 +111,6 @@ const TagFlagItemInner = ({documentId, itemType = "tagFlagId", showNumber = true
   </span>
 }
 
-export const TagFlagItem = registerComponent('TagFlagItem', TagFlagItemInner, { styles } );
+export default registerComponent('TagFlagItem', TagFlagItem, { styles } );
 
 

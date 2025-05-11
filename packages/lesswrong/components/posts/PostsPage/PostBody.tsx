@@ -5,15 +5,15 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import { ContentItemBody, type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import ContentItemBody, { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
 import { SideCommentIcon } from "../../comments/SideCommentIcon";
-import { InlineReactSelectionWrapper } from "../../votes/lwReactions/InlineReactSelectionWrapper";
-import { GlossarySidebar } from "../../jargon/GlossarySidebar";
+import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import GlossarySidebar from "../../jargon/GlossarySidebar";
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -55,7 +55,7 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
   return { showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount };
 }
 
-const PostBodyInner = ({post, html, isOldVersion, voteProps}: {
+const PostBody = ({post, html, isOldVersion, voteProps}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   html: string,
   isOldVersion: boolean
@@ -136,6 +136,6 @@ const PostBodyInner = ({post, html, isOldVersion, voteProps}: {
   }
 }
 
-export const PostBody = registerComponent('PostBody', PostBodyInner);
+export default registerComponent('PostBody', PostBody);
 
 

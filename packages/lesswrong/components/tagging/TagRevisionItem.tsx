@@ -5,14 +5,14 @@ import classNames from 'classnames';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagHistoryStyles } from './history/TagHistoryPage';
-import { SingleLineFeedEvent } from "../common/SingleLineFeedEvent";
-import { CompareRevisions } from "../revisions/CompareRevisions";
-import { TagRevisionItemFullMetadata } from "./TagRevisionItemFullMetadata";
-import { TagRevisionItemShortMetadata } from "./TagRevisionItemShortMetadata";
-import { TagDiscussionButton } from "./TagDiscussionButton";
-import { ContentStyles } from "../common/ContentStyles";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
+import SingleLineFeedEvent from "../common/SingleLineFeedEvent";
+import CompareRevisions from "../revisions/CompareRevisions";
+import TagRevisionItemFullMetadata from "./TagRevisionItemFullMetadata";
+import TagRevisionItemShortMetadata from "./TagRevisionItemShortMetadata";
+import TagDiscussionButton from "./TagDiscussionButton";
+import ContentStyles from "../common/ContentStyles";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("TagRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -24,7 +24,7 @@ const styles = defineStyles("TagRevisionItem", (theme: ThemeType) => ({
   }
 }));
 
-const TagRevisionItemInner = ({
+const TagRevisionItem = ({
   tag,
   collapsed=false,
   headingStyle,
@@ -89,6 +89,6 @@ const TagRevisionItemInner = ({
       </SingleLineFeedEvent>
 }
 
-export const TagRevisionItem = registerComponent("TagRevisionItem", TagRevisionItemInner, {hocs: [withErrorBoundary]});
+export default registerComponent("TagRevisionItem", TagRevisionItem, {hocs: [withErrorBoundary]});
 
 

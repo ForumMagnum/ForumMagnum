@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import { ReportForm } from "../sunshineDashboard/ReportForm";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import ReportForm from "../sunshineDashboard/ReportForm";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   reportUserSection: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ReportUserButtonInner = ({user, classes}: {
+const ReportUserButton = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -57,6 +57,6 @@ const ReportUserButtonInner = ({user, classes}: {
   }
 }
 
-export const ReportUserButton = registerComponent('ReportUserButton', ReportUserButtonInner, {styles});
+export default registerComponent('ReportUserButton', ReportUserButton, {styles});
 
 

@@ -10,7 +10,7 @@ import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {

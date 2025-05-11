@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { NotificationsItem } from "./NotificationsItem";
-import { Loading } from "../vulcan-core/Loading";
+import NotificationsItem from "./NotificationsItem";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NotificationsListInner = ({ terms, currentUser, classes }: {
+const NotificationsList = ({ terms, currentUser, classes }: {
   terms: NotificationsViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -85,6 +85,6 @@ const NotificationsListInner = ({ terms, currentUser, classes }: {
   }
 }
 
-export const NotificationsList = registerComponent('NotificationsList', NotificationsListInner, {styles});
+export default registerComponent('NotificationsList', NotificationsList, {styles});
 
 

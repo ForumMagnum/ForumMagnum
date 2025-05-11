@@ -26,37 +26,37 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
-import { postListSettingUrlParameterNames, PostsListSettings } from '../posts/PostsListSettings';
+import PostsListSettings, { postListSettingUrlParameterNames } from '../posts/PostsListSettings';
 import { TooltipSpan } from '../common/FMTooltip';
-import { MetaInfo } from "../common/MetaInfo";
-import { OmegaIcon } from "../icons/OmegaIcon";
-import { Error404 } from "../common/Error404";
-import { NewFeedButton } from "../rss/NewFeedButton";
-import { NewDialogueDialog } from "../posts/NewDialogueDialog";
-import { SequencesGridWrapper } from "../sequences/SequencesGridWrapper";
-import { DraftsList } from "../posts/DraftsList";
-import { PostsList2 } from "../posts/PostsList2";
-import { LocalGroupsList } from "../localGroups/LocalGroupsList";
-import { LWTooltip } from "../common/LWTooltip";
-import { ProfileShortform } from "../shortform/ProfileShortform";
-import { RecentComments } from "../comments/RecentComments";
-import { SunshineNewUsersProfileInfo } from "../sunshineDashboard/SunshineNewUsersProfileInfo";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { SequencesNewButton } from "../sequences/SequencesNewButton";
-import { NewConversationButton } from "../messaging/NewConversationButton";
-import { TagEditsByUser } from "../tagging/TagEditsByUser";
-import { DialogGroup } from "../common/DialogGroup";
-import { SettingsButton } from "../icons/SettingsButton";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { Loading } from "../vulcan-core/Loading";
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { HeadTags } from "../common/HeadTags";
+import MetaInfo from "../common/MetaInfo";
+import OmegaIcon from "../icons/OmegaIcon";
+import Error404 from "../common/Error404";
+import NewFeedButton from "../rss/NewFeedButton";
+import NewDialogueDialog from "../posts/NewDialogueDialog";
+import SequencesGridWrapper from "../sequences/SequencesGridWrapper";
+import DraftsList from "../posts/DraftsList";
+import PostsList2 from "../posts/PostsList2";
+import LocalGroupsList from "../localGroups/LocalGroupsList";
+import LWTooltip from "../common/LWTooltip";
+import ProfileShortform from "../shortform/ProfileShortform";
+import RecentComments from "../comments/RecentComments";
+import SunshineNewUsersProfileInfo from "../sunshineDashboard/SunshineNewUsersProfileInfo";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SequencesNewButton from "../sequences/SequencesNewButton";
+import NewConversationButton from "../messaging/NewConversationButton";
+import TagEditsByUser from "../tagging/TagEditsByUser";
+import DialogGroup from "../common/DialogGroup";
+import SettingsButton from "../icons/SettingsButton";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import PermanentRedirect from "../common/PermanentRedirect";
+import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { ReportUserButton } from "./ReportUserButton";
-import { UserNotifyDropdown } from "../notifications/UserNotifyDropdown";
-import { CommentsSortBySelector } from "../comments/CommentsSortBySelector";
+import ContentStyles from "../common/ContentStyles";
+import ReportUserButton from "./ReportUserButton";
+import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
+import CommentsSortBySelector from "../comments/CommentsSortBySelector";
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -147,7 +147,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFnInner = ({terms, slug, classes}: {
+const UsersProfileFn = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
   classes: ClassesType<typeof styles>,
@@ -473,8 +473,8 @@ const UsersProfileFnInner = ({terms, slug, classes}: {
   return render();
 }
 
-export const UsersProfile = registerComponent(
-  'UsersProfile', UsersProfileFnInner, {styles}
+export default registerComponent(
+  'UsersProfile', UsersProfileFn, {styles}
 );
 
 

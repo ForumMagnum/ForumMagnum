@@ -4,12 +4,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { SpotlightItem } from "./SpotlightItem";
-import { LoadMore } from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SpotlightItem from "./SpotlightItem";
+import LoadMore from "../common/LoadMore";
 
-export const SpotlightHistoryInner = () => {
+export const SpotlightHistory = () => {
   const currentUser = useCurrentUser()
 
   const { results: spotlights = [], loadMoreProps } = useMulti({
@@ -33,7 +33,7 @@ export const SpotlightHistoryInner = () => {
   </SingleColumnSection>;
 }
 
-export const SpotlightHistory = registerComponent('SpotlightHistory', SpotlightHistoryInner);
+export default registerComponent('SpotlightHistory', SpotlightHistory);
 
 
 

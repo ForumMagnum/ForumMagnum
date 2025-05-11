@@ -1,13 +1,13 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { PostsItem } from "./PostsItem";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { Loading } from "../vulcan-core/Loading";
+import PostsItem from "./PostsItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { LoadMore } from "../common/LoadMore";
+import LoadMore from "../common/LoadMore";
 
-const PostsByVoteInner = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   postIds: Array<string>,
   year: number | '≤2020',
   limit?: number,
@@ -52,6 +52,6 @@ const PostsByVoteInner = ({postIds, year, limit, showMostValuableCheckbox=false,
   </ErrorBoundary>
 }
 
-export const PostsByVote = registerComponent("PostsByVote", PostsByVoteInner);
+export default registerComponent("PostsByVote", PostsByVote);
 
 

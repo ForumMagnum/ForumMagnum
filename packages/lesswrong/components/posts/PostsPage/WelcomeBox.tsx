@@ -74,7 +74,7 @@ const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | nu
   default: null
 };
 
-const WelcomeBoxInner = ({ classes }: {
+const WelcomeBox = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
@@ -120,6 +120,6 @@ const WelcomeBoxInner = ({ classes }: {
 };
 
 
-export const WelcomeBox = registerComponent('WelcomeBox', WelcomeBoxInner, { styles });
+export default registerComponent('WelcomeBox', WelcomeBox, { styles });
 
 

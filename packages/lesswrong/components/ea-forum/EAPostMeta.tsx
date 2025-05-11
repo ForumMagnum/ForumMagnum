@@ -3,11 +3,11 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { DateWithoutTime } from "../posts/PostsItemMeta";
 import classNames from "classnames";
-import { TruncatedAuthorsList } from "../posts/TruncatedAuthorsList";
-import { PostsItemDate } from "../posts/PostsItemDate";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { EventTime } from "../localGroups/EventTime";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import PostsItemDate from "../posts/PostsItemDate";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import EventTime from "../localGroups/EventTime";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const EAPostMetaInner = ({post, useEventStyles, useCuratedDate=true, className, classes}: {
+const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   useCuratedDate?: boolean,
@@ -106,9 +106,9 @@ const EAPostMetaInner = ({post, useEventStyles, useCuratedDate=true, className, 
   );
 }
 
-export const EAPostMeta = registerComponent(
+export default registerComponent(
   "EAPostMeta",
-  EAPostMetaInner,
+  EAPostMeta,
   {styles, stylePriority: -1},
 );
 

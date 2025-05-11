@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { editorTypeToDisplay, EditorTypeString, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LastEditedInWarningInner = ({autoConvert, initialType, currentType, defaultType, value, setValue, classes}: {
+const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType, value, setValue, classes}: {
   autoConvert: boolean,
   initialType: LegacyEditorTypeString,
   currentType: LegacyEditorTypeString,
@@ -65,6 +65,6 @@ const LastEditedInWarningInner = ({autoConvert, initialType, currentType, defaul
   </div>
 }
 
-export const LastEditedInWarning = registerComponent('LastEditedInWarning', LastEditedInWarningInner, {styles});
+export default registerComponent('LastEditedInWarning', LastEditedInWarning, {styles});
 
 

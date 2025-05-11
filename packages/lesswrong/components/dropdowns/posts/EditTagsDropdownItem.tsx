@@ -4,10 +4,10 @@ import { useDialog } from "../../common/withDialog";
 
 import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { EditTagsDialog } from "../../tagging/EditTagsDialog";
-import { DropdownItem } from "../DropdownItem";
+import EditTagsDialog from "../../tagging/EditTagsDialog";
+import DropdownItem from "../DropdownItem";
 
-const EditTagsDropdownItemInner = ({post, closeMenu}: {
+const EditTagsDropdownItem = ({post, closeMenu}: {
   post: PostsList | SunshinePostsList,
   closeMenu?: () => void,
 }) => {
@@ -29,9 +29,9 @@ const EditTagsDropdownItemInner = ({post, closeMenu}: {
   );
 }
 
-export const EditTagsDropdownItem = registerComponent(
+export default registerComponent(
   "EditTagsDropdownItem",
-  EditTagsDropdownItemInner,
+  EditTagsDropdownItem,
 );
 
 

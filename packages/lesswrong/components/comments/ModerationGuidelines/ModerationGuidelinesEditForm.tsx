@@ -15,9 +15,9 @@ import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useSingle } from '@/lib/crud/withSingle';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { LWDialog } from "../../common/LWDialog";
+import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
-import { Loading } from "../../vulcan-core/Loading";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = defineStyles('ModerationGuidelinesEditForm', (theme: ThemeType) => ({
   formButton: {
@@ -149,7 +149,7 @@ const PostModerationGuidelinesForm = ({
   </form>);
 };
 
-export const ModerationGuidelinesEditFormInner = ({ commentType = "post", documentId, onClose }: {
+export const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose }: {
   commentType?: "post" | "subforum",
   documentId: string,
   onClose?: () => void,
@@ -197,6 +197,6 @@ export const ModerationGuidelinesEditFormInner = ({ commentType = "post", docume
   )
 }
 
-export const ModerationGuidelinesEditForm = registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditFormInner);
+export default registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm);
 
 

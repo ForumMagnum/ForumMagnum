@@ -1,17 +1,17 @@
 import React from 'react';
-import { CommentWithRepliesProps, CommentWithReplies } from "./CommentWithReplies";
+import CommentWithReplies, { CommentWithRepliesProps } from "./CommentWithReplies";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 
 type CommentOnPostWithRepliesProps = CommentWithRepliesProps & {
   post: PostsBase;
 }
 
-const CommentOnPostWithRepliesInner = ({post, ...otherProps}: CommentOnPostWithRepliesProps) => {
+const CommentOnPostWithReplies = ({post, ...otherProps}: CommentOnPostWithRepliesProps) => {
   return <CommentWithReplies post={post} {...otherProps} />
 };
 
-export const CommentOnPostWithReplies = registerComponent(
-  'CommentOnPostWithReplies', CommentOnPostWithRepliesInner
+export default registerComponent(
+  'CommentOnPostWithReplies', CommentOnPostWithReplies
 );
 
 

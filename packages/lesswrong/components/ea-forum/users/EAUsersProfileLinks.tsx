@@ -8,10 +8,10 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { separatorBulletStyles } from "../../common/SectionFooter";
 import CopyToClipboard from "react-copy-to-clipboard";
 import CopyIcon from "@/lib/vendor/@material-ui/icons/src/FileCopy";
-import { NewFeedButton } from "../../rss/NewFeedButton";
+import NewFeedButton from "../../rss/NewFeedButton";
 import { Typography } from "../../common/Typography";
-import { LWTooltip } from "../../common/LWTooltip";
-import { DialogGroup } from "../../common/DialogGroup";
+import LWTooltip from "../../common/LWTooltip";
+import DialogGroup from "../../common/DialogGroup";
 
 const styles = (theme: ThemeType) => ({
   links: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersProfileLinksInner = ({user, classes}: {
+const EAUsersProfileLinks = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -94,9 +94,9 @@ const EAUsersProfileLinksInner = ({user, classes}: {
   );
 }
 
-export const EAUsersProfileLinks = registerComponent(
+export default registerComponent(
   "EAUsersProfileLinks",
-  EAUsersProfileLinksInner,
+  EAUsersProfileLinks,
   {styles},
 );
 

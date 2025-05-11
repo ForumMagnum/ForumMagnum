@@ -3,11 +3,11 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';
-import { Loading } from "../vulcan-core/Loading";
-import { FriendlyPlaceholderPostsItem } from "./FriendlyPlaceholderPostsItem";
-import { LWPlaceholderPostsItem } from "./LWPlaceholderPostsItem";
+import Loading from "../vulcan-core/Loading";
+import FriendlyPlaceholderPostsItem from "./FriendlyPlaceholderPostsItem";
+import LWPlaceholderPostsItem from "./LWPlaceholderPostsItem";
 
-const PostsLoadingInner = ({
+const PostsLoading = ({
   placeholderCount,
   showFinalBottomBorder,
   viewType = "list",
@@ -39,6 +39,6 @@ const PostsLoadingInner = ({
   }
 };
 
-export const PostsLoading = registerComponent('PostsLoading', PostsLoadingInner);
+export default registerComponent('PostsLoading', PostsLoading);
 
 

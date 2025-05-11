@@ -9,12 +9,12 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 import { Typography } from "../common/Typography";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { DropdownItem } from "../dropdowns/DropdownItem";
-import { DropdownDivider } from "../dropdowns/DropdownDivider";
-import { ForumIcon } from "../common/ForumIcon";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import DropdownDivider from "../dropdowns/DropdownDivider";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (_theme: ThemeType) => ({
   check: {
@@ -34,7 +34,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const ThemePickerMenuInner = ({children, classes}: {
+const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -147,6 +147,6 @@ const ThemePickerMenuInner = ({children, classes}: {
 }
 
 
-export const ThemePickerMenu = registerComponent('ThemePickerMenu', ThemePickerMenuInner, {styles});
+export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
 
 

@@ -4,11 +4,11 @@ import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { ContinueReading } from './withContinueReading';
-import { PostsItem } from "../posts/PostsItem";
-import { PostsLoading } from "../posts/PostsLoading";
-import { SectionFooter } from "../common/SectionFooter";
+import PostsItem from "../posts/PostsItem";
+import PostsLoading from "../posts/PostsLoading";
+import SectionFooter from "../common/SectionFooter";
 
-const ContinueReadingListInner = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
+const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
   continueReading: ContinueReading[],
   continueReadingLoading?: boolean,
   limit?: number,
@@ -83,7 +83,7 @@ const ContinueReadingListInner = ({ continueReading, continueReadingLoading, lim
   </div>
 }
 
-export const ContinueReadingList = registerComponent('ContinueReadingList', ContinueReadingListInner);
+export default registerComponent('ContinueReadingList', ContinueReadingList);
 
 
 

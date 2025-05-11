@@ -9,8 +9,8 @@ import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
-import { StyledMapPopup } from "../../localGroups/StyledMapPopup";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import StyledMapPopup from "../../localGroups/StyledMapPopup";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -64,7 +64,7 @@ interface LatLng {
   lng: number;
 }
 
-const SearchResultsMapInner = ({
+const SearchResultsMap = ({
   center = defaultCenter,
   zoom = 2,
   from = "community_members_tab",
@@ -176,8 +176,9 @@ type SearchResultsMapProps = {
   hits?: Array<Hit<SearchUser>>,
   className?: string
 }
-const ConnectedSearchResultsMapInner: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMapInner)
-export const SearchResultsMap = registerComponent("SearchResultsMap", ConnectedSearchResultsMapInner, { styles });
-export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMapInner, { styles });
+const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
+
+export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
+export default registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
 
 

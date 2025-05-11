@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const ImageUpload2Inner = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
+const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
   value: string | null | undefined,
   updateValue: (value: string) => void,
@@ -112,6 +112,6 @@ const ImageUpload2Inner = ({name, value, updateValue, clearField, label, croppin
   );
 };
 
-export const ImageUpload2 = registerComponent("ImageUpload2", ImageUpload2Inner, {styles});
+export default registerComponent("ImageUpload2", ImageUpload2, {styles});
 
 

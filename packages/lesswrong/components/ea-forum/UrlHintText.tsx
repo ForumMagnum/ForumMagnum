@@ -6,7 +6,7 @@ import { useNavigate } from "../../lib/routeUtil";
 const linkPostPostPath = '/posts/8yDsenRQhNF4HEDwu/link-posting-is-an-act-of-community-service'
 
 /** Need a whole damn component to insert a link */
-const UrlHintTextInner = () => {
+const UrlHintText = () => {
   const navigate = useNavigate();
 
   return <>
@@ -35,6 +35,6 @@ const UrlHintTextInner = () => {
   </>;
 }
 
-export const UrlHintText = registerComponent("UrlHintText", UrlHintTextInner);
+export default registerComponent("UrlHintText", UrlHintText);
 
 

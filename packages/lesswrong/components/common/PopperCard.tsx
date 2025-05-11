@@ -2,9 +2,9 @@ import React, { CSSProperties } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { LWPopper } from "./LWPopper";
+import LWPopper from "./LWPopper";
 
-const PopperCardInner = ({
+const PopperCard = ({
   children,
   placement="bottom-start",
   open,
@@ -30,6 +30,6 @@ const PopperCardInner = ({
   </LWPopper>
 }
 
-export const PopperCard = registerComponent("PopperCard", PopperCardInner, {stylePriority: -1});
+export default registerComponent("PopperCard", PopperCard, {stylePriority: -1});
 
 

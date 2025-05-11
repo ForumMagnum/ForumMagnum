@@ -10,11 +10,11 @@ import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
 import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ReactionIcon } from "../ReactionIcon";
-import { InlineReactHoverInfo } from "./InlineReactHoverInfo";
+import ReactionIcon from "../ReactionIcon";
+import InlineReactHoverInfo from "./InlineReactHoverInfo";
 import { SideItem } from "../../contents/SideItems";
-import { LWTooltip } from "../../common/LWTooltip";
-import { SideItemLine } from "../../contents/SideItemLine";
+import LWTooltip from "../../common/LWTooltip";
+import SideItemLine from "../../contents/SideItemLine";
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
 
 const inlineReactHoverableHighlightStyles = defineStyles('InlineReactHoverableHighlight', styles);
 
-export const InlineReactHoverableHighlightInner = ({quote, reactions, isSplitContinuation=false, children}: {
+export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   isSplitContinuation?: boolean
@@ -165,7 +165,7 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
   return false;
 }
 
-export const InlineReactHoverableHighlight = registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlightInner);
+export default registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlight);
 
 
 

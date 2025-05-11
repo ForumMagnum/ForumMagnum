@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CoreTagIconInner = ({tag, fallbackNode, className, classes}: {
+const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
   className?: string,
@@ -64,6 +64,6 @@ const CoreTagIconInner = ({tag, fallbackNode, className, classes}: {
   return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
 }
 
-export const CoreTagIcon = registerComponent("CoreTagIcon", CoreTagIconInner, {styles});
+export default registerComponent("CoreTagIcon", CoreTagIcon, {styles});
 
 

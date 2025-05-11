@@ -3,7 +3,7 @@ import React from 'react';
 import SubdirectoryArrowLeft from '@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShowParentCommentInner = ({ comment, active, onClick, classes }: {
+const ShowParentComment = ({ comment, active, onClick, classes }: {
   comment: CommentsList,
   active?: boolean,
   onClick?: any,
@@ -59,7 +59,7 @@ const ShowParentCommentInner = ({ comment, active, onClick, classes }: {
   )
 };
 
-export const ShowParentComment = registerComponent('ShowParentComment', ShowParentCommentInner, {styles});
+export default registerComponent('ShowParentComment', ShowParentComment, {styles});
 
 
 

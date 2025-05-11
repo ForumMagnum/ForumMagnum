@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsPageCrosspostCommentsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const context = useCrosspostContext();
   if (!context?.foreignPost) {
     return null;
@@ -46,6 +46,6 @@ const PostsPageCrosspostCommentsInner = ({classes}: {classes: ClassesType<typeof
   );
 }
 
-export const PostsPageCrosspostComments = registerComponent("PostsPageCrosspostComments", PostsPageCrosspostCommentsInner, {styles});
+export default registerComponent("PostsPageCrosspostComments", PostsPageCrosspostComments, {styles});
 
 

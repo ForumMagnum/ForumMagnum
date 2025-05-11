@@ -6,11 +6,11 @@ import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
-import { SunshineSendMessageWithDefaults } from "./SunshineSendMessageWithDefaults";
-import { MessagesNewForm } from "../messaging/MessagesNewForm";
-import { UsersName } from "../users/UsersName";
-import { LWTooltip } from "../common/LWTooltip";
-import { MetaInfo } from "../common/MetaInfo";
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
+import MessagesNewForm from "../messaging/MessagesNewForm";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (_theme: ThemeType) => ({
   row: {
@@ -26,7 +26,7 @@ const styles = (_theme: ThemeType) => ({
   }
 })
 
-export const SunshineUserMessagesInner = ({classes, user, currentUser}: {
+export const SunshineUserMessages = ({classes, user, currentUser}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
@@ -88,6 +88,6 @@ export const SunshineUserMessagesInner = ({classes, user, currentUser}: {
   </div>;
 }
 
-export const SunshineUserMessages = registerComponent('SunshineUserMessages', SunshineUserMessagesInner, {styles});
+export default registerComponent('SunshineUserMessages', SunshineUserMessages, {styles});
 
 

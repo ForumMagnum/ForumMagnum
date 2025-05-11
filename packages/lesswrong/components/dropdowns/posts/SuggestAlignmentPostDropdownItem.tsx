@@ -5,9 +5,9 @@ import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../../lib
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isLWorAF } from '../../../lib/instanceSettings';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const SuggestAlignmentPostDropdownItemInner = ({post}: {post: PostsBase}) => {
+const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
@@ -41,9 +41,9 @@ const SuggestAlignmentPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const SuggestAlignmentPostDropdownItem = registerComponent(
+export default registerComponent(
   'SuggestAlignmentPostDropdownItem',
-  SuggestAlignmentPostDropdownItemInner,
+  SuggestAlignmentPostDropdownItem,
 );
 
 

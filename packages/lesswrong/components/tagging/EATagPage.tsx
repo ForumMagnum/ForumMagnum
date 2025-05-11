@@ -24,28 +24,28 @@ import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useSingle } from "@/lib/crud/withSingle";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsListSortDropdown } from "../posts/PostsListSortDropdown";
-import { PostsList2 } from "../posts/PostsList2";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { Loading } from "../vulcan-core/Loading";
-import { AddPostsToTag } from "./AddPostsToTag";
-import { Error404 } from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import PostsListSortDropdown from "../posts/PostsListSortDropdown";
+import PostsList2 from "../posts/PostsList2";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import AddPostsToTag from "./AddPostsToTag";
+import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { HeadTags } from "../common/HeadTags";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { TagFlagItem } from "./TagFlagItem";
-import { TagDiscussionSection } from "./TagDiscussionSection";
-import { TagPageButtonRow } from "./TagPageButtonRow";
-import { ToCColumn } from "../posts/TableOfContents/ToCColumn";
-import { SubscribeButton } from "./SubscribeButton";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { TagIntroSequence } from "./TagIntroSequence";
-import { TagTableOfContents } from "./TagTableOfContents";
-import { TagVersionHistoryButton } from "../editor/TagVersionHistory";
-import { ContentStyles } from "../common/ContentStyles";
-import { CommentsListCondensed } from "../common/CommentsListCondensed";
+import PermanentRedirect from "../common/PermanentRedirect";
+import HeadTags from "../common/HeadTags";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TagFlagItem from "./TagFlagItem";
+import TagDiscussionSection from "./TagDiscussionSection";
+import TagPageButtonRow from "./TagPageButtonRow";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import SubscribeButton from "./SubscribeButton";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import TagIntroSequence from "./TagIntroSequence";
+import TagTableOfContents from "./TagTableOfContents";
+import TagVersionHistoryButton from "../editor/TagVersionHistory";
+import ContentStyles from "../common/ContentStyles";
+import CommentsListCondensed from "../common/CommentsListCondensed";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -209,7 +209,7 @@ const PostsListHeading: FC<{
   );
 }
 
-const EATagPageInner = ({classes}: {
+const EATagPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
@@ -493,6 +493,6 @@ const EATagPageInner = ({classes}: {
   </AnalyticsContext>
 }
 
-export const EATagPage = registerComponent("EATagPage", EATagPageInner, {styles});
+export default registerComponent("EATagPage", EATagPage, {styles});
 
 

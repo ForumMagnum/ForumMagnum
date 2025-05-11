@@ -7,8 +7,8 @@ import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { UserNameDeleted } from "./UserNameDeleted";
-import { UserTooltip } from "./UserTooltip";
+import UserNameDeleted from "./UserNameDeleted";
+import UserTooltip from "./UserTooltip";
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -32,7 +32,7 @@ export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >
  * Given a user (which may not be null), render the user name as a link with a
  * tooltip. This should not be used directly; use UsersName instead.
  */
-const UsersNameDisplayInner = ({
+const UsersNameDisplay = ({
   user,
   color=false,
   nofollow=false,
@@ -135,8 +135,8 @@ const UsersNameDisplayInner = ({
   </span>
 }
 
-export const UsersNameDisplay = registerComponent(
-  'UsersNameDisplay', UsersNameDisplayInner, {styles}
+export default registerComponent(
+  'UsersNameDisplay', UsersNameDisplay, {styles}
 );
 
 

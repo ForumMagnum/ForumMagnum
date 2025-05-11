@@ -10,15 +10,15 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
-import { SidebarActionMenu } from "./SidebarActionMenu";
-import { TagSmallPostLink } from "../tagging/TagSmallPostLink";
-import { SidebarAction } from "./SidebarAction";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
-import { SidebarInfo } from "./SidebarInfo";
-import { Loading } from "../vulcan-core/Loading";
-import { ContentStyles } from "../common/ContentStyles";
+import SidebarActionMenu from "./SidebarActionMenu";
+import TagSmallPostLink from "../tagging/TagSmallPostLink";
+import SidebarAction from "./SidebarAction";
+import ContentItemBody from "../common/ContentItemBody";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import Loading from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   tagInfo: {
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewTagsItemInner = ({tag, classes}: {
+const SunshineNewTagsItem = ({tag, classes}: {
   tag: SunshineTagFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -130,7 +130,7 @@ const SunshineNewTagsItemInner = ({tag, classes}: {
   )
 }
 
-export const SunshineNewTagsItem = registerComponent('SunshineNewTagsItem', SunshineNewTagsItemInner, {styles, 
+export default registerComponent('SunshineNewTagsItem', SunshineNewTagsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 

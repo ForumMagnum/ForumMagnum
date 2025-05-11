@@ -3,13 +3,13 @@ import React, { FC } from 'react';
 import classNames from 'classnames';
 import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import { EventTime } from "../localGroups/EventTime";
-import { EventVicinity } from "../localGroups/EventVicinity";
-import { FormatDate } from "../common/FormatDate";
-import { FooterTagList } from "../tagging/FooterTagList";
-import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
-import { LWTooltip } from "../common/LWTooltip";
-import { AddToCalendarButton } from "./AddToCalendar/AddToCalendarButton";
+import EventTime from "../localGroups/EventTime";
+import EventVicinity from "../localGroups/EventVicinity";
+import FormatDate from "../common/FormatDate";
+import FooterTagList from "../tagging/FooterTagList";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import LWTooltip from "../common/LWTooltip";
+import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
 
 const styles = (theme: ThemeType) => ({
   read: {
@@ -36,7 +36,7 @@ export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
-const PostsItemMetaInner = ({post, read, hideTags, classes}: {
+const PostsItemMeta = ({post, read, hideTags, classes}: {
   post: PostsList,
   read?: boolean,
   hideTags?: boolean,
@@ -101,6 +101,6 @@ const PostsItemMetaInner = ({post, read, hideTags, classes}: {
     </span>
 };
 
-export const PostsItemMeta = registerComponent('PostsItemMeta', PostsItemMetaInner, {styles});
+export default registerComponent('PostsItemMeta', PostsItemMeta, {styles});
 
 

@@ -15,9 +15,9 @@ import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFor
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { Error404 } from "../common/Error404";
-import { LWDialog } from "../common/LWDialog";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
+import LWDialog from "../common/LWDialog";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -27,7 +27,7 @@ const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   submitButton: submitButtonStyles(theme),
 }));
 
-const TagFlagEditAndNewFormInner = ({ initialData, onClose }: {
+const TagFlagEditAndNewForm = ({ initialData, onClose }: {
   initialData?: UpdateTagFlagDataInput & { _id: string };
   onClose?: () => void,
 }) => {
@@ -203,6 +203,6 @@ const TagFlagEditAndNewFormInner = ({ initialData, onClose }: {
   )
 }
 
-export const TagFlagEditAndNewForm = registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewFormInner);
+export default registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewForm);
 
 

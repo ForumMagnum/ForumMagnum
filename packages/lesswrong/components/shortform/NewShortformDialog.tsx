@@ -3,8 +3,8 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
-import { ShortformSubmitForm } from "./ShortformSubmitForm";
-import { LWDialog } from "../common/LWDialog";
+import ShortformSubmitForm from "./ShortformSubmitForm";
+import LWDialog from "../common/LWDialog";
 
 const styles = (_theme: ThemeType) => ({
   content: {
@@ -19,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const NewShortformDialogInner = ({onClose, classes}: {
+const NewShortformDialog = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -53,9 +53,9 @@ const NewShortformDialogInner = ({onClose, classes}: {
   );
 }
 
-export const NewShortformDialog = registerComponent(
+export default registerComponent(
   'NewShortformDialog',
-  NewShortformDialogInner,
+  NewShortformDialog,
   {styles},
 );
 

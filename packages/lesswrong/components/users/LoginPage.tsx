@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { LoginForm } from "./LoginForm";
+import LoginForm from "./LoginForm";
 
 const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
   root: {
@@ -14,7 +14,7 @@ const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
   },
 }));
 
-const LoginPageInner = () => {
+const LoginPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
@@ -38,6 +38,6 @@ const LoginPageInner = () => {
   }
 }
 
-export const LoginPage = registerComponent('LoginPage', LoginPageInner);
+export default registerComponent('LoginPage', LoginPage);
 
 

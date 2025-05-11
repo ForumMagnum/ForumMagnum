@@ -8,9 +8,9 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { Typography } from "../Typography";
-import { ForumIcon } from "../ForumIcon";
-import { CookieTable } from "./CookieTable";
-import { LWDialog } from "../LWDialog";
+import ForumIcon from "../ForumIcon";
+import CookieTable from "./CookieTable";
+import LWDialog from "../LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -166,7 +166,7 @@ const CookieCategory = ({
   );
 };
 
-const CookieDialogInner = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
+const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(cookiePreferences);
 
@@ -228,7 +228,7 @@ const CookieDialogInner = ({ onClose, classes }: { onClose?: () => void; classes
   );
 };
 
-export const CookieDialog = registerComponent("CookieDialog", CookieDialogInner, {
+export default registerComponent("CookieDialog", CookieDialog, {
   styles,
 });
 

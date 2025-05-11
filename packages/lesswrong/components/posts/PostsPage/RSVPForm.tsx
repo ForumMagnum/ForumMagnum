@@ -11,7 +11,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { LWDialog } from "../../common/LWDialog";
+import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
 
 export type RsvpResponse = "yes"|"maybe"|"no";
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-const RSVPFormInner = ({ post, onClose, initialResponse = "yes", classes }: {
+const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: () => void,
@@ -115,6 +115,6 @@ const RSVPFormInner = ({ post, onClose, initialResponse = "yes", classes }: {
   )
 }
 
-export const RSVPForm = registerComponent('RSVPForm', RSVPFormInner, {styles});
+export default registerComponent('RSVPForm', RSVPForm, {styles});
 
 

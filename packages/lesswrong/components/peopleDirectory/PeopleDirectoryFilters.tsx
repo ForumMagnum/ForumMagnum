@@ -3,14 +3,14 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { formatStat } from "../users/EAUserTooltipContent";
 import sum from "lodash/sum";
-import { PeopleDirectoryFilterDropdown } from "./PeopleDirectoryFilterDropdown";
-import { PeopleDirectorySelectOption } from "./PeopleDirectorySelectOption";
-import { PeopleDirectoryStaticFilter } from "./PeopleDirectoryStaticFilter";
-import { PeopleDirectorySearchableFilter } from "./PeopleDirectorySearchableFilter";
-import { PeopleDirectoryClearAll } from "./PeopleDirectoryClearAll";
-import { PeopleDirectoryViewToggle } from "./PeopleDirectoryViewToggle";
-import { PeopleDirectoryCheckOption } from "./PeopleDirectoryCheckOption";
-import { PeopleDirectoryAllFiltersDropdown } from "./PeopleDirectoryAllFiltersDropdown";
+import PeopleDirectoryFilterDropdown from "./PeopleDirectoryFilterDropdown";
+import PeopleDirectorySelectOption from "./PeopleDirectorySelectOption";
+import PeopleDirectoryStaticFilter from "./PeopleDirectoryStaticFilter";
+import PeopleDirectorySearchableFilter from "./PeopleDirectorySearchableFilter";
+import PeopleDirectoryClearAll from "./PeopleDirectoryClearAll";
+import PeopleDirectoryViewToggle from "./PeopleDirectoryViewToggle";
+import PeopleDirectoryCheckOption from "./PeopleDirectoryCheckOption";
+import PeopleDirectoryAllFiltersDropdown from "./PeopleDirectoryAllFiltersDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryFiltersInner = ({classes}: {
+const PeopleDirectoryFilters = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -164,9 +164,9 @@ const PeopleDirectoryFiltersInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryFilters = registerComponent(
+export default registerComponent(
   "PeopleDirectoryFilters",
-  PeopleDirectoryFiltersInner,
+  PeopleDirectoryFilters,
   {styles},
 );
 

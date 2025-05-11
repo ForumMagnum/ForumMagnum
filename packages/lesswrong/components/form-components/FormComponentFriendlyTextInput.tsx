@@ -4,7 +4,7 @@ import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardi
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { SectionTitle } from "../common/SectionTitle";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = defineStyles('FormComponentFriendlyTextInput', (theme: ThemeType) => ({
   label: {

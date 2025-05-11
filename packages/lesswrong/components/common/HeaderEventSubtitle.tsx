@@ -50,7 +50,7 @@ const useCurrentEvent = (): CurrentEvent | null => {
   };
 }
 
-const HeaderEventSubtitleInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentEvent = useCurrentEvent();
   return currentEvent
     ? (
@@ -65,9 +65,9 @@ const HeaderEventSubtitleInner = ({classes}: {classes: ClassesType<typeof styles
     : null;
 }
 
-export const HeaderEventSubtitle = registerComponent(
+export default registerComponent(
   "HeaderEventSubtitle",
-  HeaderEventSubtitleInner,
+  HeaderEventSubtitle,
   {styles},
 );
 

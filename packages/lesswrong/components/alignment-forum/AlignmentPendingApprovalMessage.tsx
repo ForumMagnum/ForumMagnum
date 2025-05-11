@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const AlignmentPendingApprovalMessageInner = ({post, classes}: {
+const AlignmentPendingApprovalMessage = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -39,6 +39,6 @@ const AlignmentPendingApprovalMessageInner = ({post, classes}: {
   }
 }
 
-export const AlignmentPendingApprovalMessage = registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessageInner, {styles});
+export default registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
 
 

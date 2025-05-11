@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CookieTableInner = ({
+const CookieTable = ({
   type,
   thirdPartyName,
   className,
@@ -93,6 +93,6 @@ const CookieTableInner = ({
   );
 };
 
-export const CookieTable = registerComponent("CookieTable", CookieTableInner, { styles });
+export default registerComponent("CookieTable", CookieTable, { styles });
 
 

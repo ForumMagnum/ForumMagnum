@@ -2,16 +2,16 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
-import { Column, Datatable } from '../vulcan-core/Datatable';
+import Datatable, { Column } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
-import { UsersName } from "../users/UsersName";
-import { FormatDate } from "../common/FormatDate";
-import { Error404 } from "../common/Error404";
-import { SectionTitle } from "../common/SectionTitle";
+import UsersName from "../users/UsersName";
+import FormatDate from "../common/FormatDate";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,7 +99,7 @@ const columns: Column[] = [
 ]
 
 
-const ModGPTDashboardInner = ({classes}: {
+const ModGPTDashboard = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
@@ -123,6 +123,6 @@ const ModGPTDashboardInner = ({classes}: {
   )
 }
 
-export const ModGPTDashboard = registerComponent('ModGPTDashboard', ModGPTDashboardInner, {styles});
+export default registerComponent('ModGPTDashboard', ModGPTDashboard, {styles});
 
 

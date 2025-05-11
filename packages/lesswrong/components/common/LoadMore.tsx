@@ -8,7 +8,7 @@ import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
  * from the return value of `useMulti` and spread it into this component's
  * props.
  */
-const LoadMoreInner = ({
+const LoadMore = ({
   loadMore,
   count,
   totalCount,
@@ -128,6 +128,6 @@ const LoadMoreInner = ({
   )
 }
 
-export const LoadMore = registerComponent('LoadMore', LoadMoreInner, {styles, stylePriority: -1});
+export default registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
 
 

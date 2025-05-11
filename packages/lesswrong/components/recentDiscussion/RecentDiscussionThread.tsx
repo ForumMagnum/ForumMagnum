@@ -14,11 +14,11 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
-import { PostsGroupDetails } from "../posts/PostsGroupDetails";
-import { PostsItemMeta } from "../posts/PostsItemMeta";
-import { CommentsNode } from "../comments/CommentsNode";
-import { PostsHighlight } from "../posts/PostsHighlight";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
+import PostsGroupDetails from "../posts/PostsGroupDetails";
+import PostsItemMeta from "../posts/PostsItemMeta";
+import CommentsNodeInner from "../comments/CommentsNode";
+import PostsHighlight from "../posts/PostsHighlight";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -150,7 +150,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const RecentDiscussionThreadInner = ({
+const RecentDiscussionThread = ({
   post,
   comments,
   refetch,
@@ -240,7 +240,7 @@ const RecentDiscussionThreadInner = ({
           <div className={classes.commentsList}>
             {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={treeOptions}
                   startThreadTruncated={true}
                   expandAllThreads={expandAllThreads}
@@ -259,8 +259,8 @@ const RecentDiscussionThreadInner = ({
   )
 };
 
-export const RecentDiscussionThread = registerComponent(
-  'RecentDiscussionThread', RecentDiscussionThreadInner, {
+export default registerComponent(
+  'RecentDiscussionThread', RecentDiscussionThread, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {

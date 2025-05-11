@@ -2,10 +2,10 @@ import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { HoverOver } from "../common/HoverOver";
-import { SequencesSummary } from "./SequencesSummary";
+import HoverOver from "../common/HoverOver";
+import SequencesSummary from "./SequencesSummary";
 
-export const SequencesTooltipInner = ({
+export const SequencesTooltip = ({
   sequence,
   showAuthor = true,
   allowOverflow,
@@ -38,9 +38,9 @@ export const SequencesTooltipInner = ({
   );
 }
 
-export const SequencesTooltip = registerComponent(
+export default registerComponent(
   "SequencesTooltip",
-  SequencesTooltipInner,
+  SequencesTooltip,
 );
 
 

@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EmailPreviewInner = ({email, sentDate, classes}: {
+export const EmailPreview = ({email, sentDate, classes}: {
   email: any,
   sentDate?: Date,
   classes: ClassesType<typeof styles>,
@@ -46,7 +46,7 @@ export const EmailPreviewInner = ({email, sentDate, classes}: {
   </div>;
 }
 
-export const EmailPreview = registerComponent('EmailPreview', EmailPreviewInner, {styles});
+export default registerComponent('EmailPreview', EmailPreview, {styles});
 
 
 

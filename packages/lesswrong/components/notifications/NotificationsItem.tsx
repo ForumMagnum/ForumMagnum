@@ -10,11 +10,11 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { LWTooltip } from "../common/LWTooltip";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { ConversationPreview } from "../messaging/ConversationPreview";
-import { PostNominatedNotification } from "../review/PostNominatedNotification";
-import { TagRelNotificationItem } from "./TagRelNotificationItem";
+import LWTooltip from "../common/LWTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import ConversationPreview from "../messaging/ConversationPreview";
+import PostNominatedNotification from "../review/PostNominatedNotification";
+import TagRelNotificationItem from "./TagRelNotificationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -93,7 +93,7 @@ const TooltipWrapper: FC<{
   );
 }
 
-const NotificationsItemInner = ({notification, lastNotificationsCheck, currentUser, classes}: {
+const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
@@ -259,7 +259,7 @@ const NotificationsItemInner = ({notification, lastNotificationsCheck, currentUs
   );
 }
 
-export const NotificationsItem = registerComponent('NotificationsItem', NotificationsItemInner, {
+export default registerComponent('NotificationsItem', NotificationsItem, {
   styles,
   hocs: [withErrorBoundary]
 });

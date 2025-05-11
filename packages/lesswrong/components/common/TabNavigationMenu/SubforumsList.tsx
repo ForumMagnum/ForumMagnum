@@ -4,8 +4,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
-import { TabNavigationSubItem } from "./TabNavigationSubItem";
-import { MenuItem, MenuItemLink } from "../Menus";
+import TabNavigationSubItem from "./TabNavigationSubItem";
+import { MenuItemLink, MenuItem } from "../Menus";
 
 const styles = ((theme: ThemeType) => ({
   menuItem: {
@@ -37,7 +37,7 @@ const styles = ((theme: ThemeType) => ({
 
 const INITIAL_LIMIT = 3
 
-const SubforumsListInner = ({ onClick, classes }: {
+const SubforumsList = ({ onClick, classes }: {
   onClick: () => void
   classes: ClassesType<typeof styles>
 }) => {
@@ -91,6 +91,6 @@ const SubforumsListInner = ({ onClick, classes }: {
   );
 }
 
-export const SubforumsList = registerComponent("SubforumsList", SubforumsListInner, {styles})
+export default registerComponent("SubforumsList", SubforumsList, {styles});
 
 

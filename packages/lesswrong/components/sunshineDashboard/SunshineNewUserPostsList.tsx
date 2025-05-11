@@ -6,16 +6,16 @@ import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 import { useDialog } from '../common/withDialog';
 import { DialogContent } from '../widgets/DialogContent';
 import { highlightHtmlWithLlmDetectionScores } from './helpers';
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
-import { PostsTitle } from "../posts/PostsTitle";
-import { SmallSideVote } from "../votes/SmallSideVote";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
-import { ContentStyles } from "../common/ContentStyles";
-import { LinkPostMessage } from "../posts/LinkPostMessage";
-import { RejectContentButton } from "./RejectContentButton";
-import { RejectedReasonDisplay } from "./RejectedReasonDisplay";
-import { LWDialog } from "../common/LWDialog";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import PostsTitle from "../posts/PostsTitle";
+import SmallSideVote from "../votes/SmallSideVote";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import RejectContentButton from "./RejectContentButton";
+import RejectedReasonDisplay from "./RejectedReasonDisplay";
+import LWDialog from "../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const SunshineNewUserPostsListInner = ({posts, user, classes}: {
+const SunshineNewUserPostsList = ({posts, user, classes}: {
   posts?: SunshinePostsList[],
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
@@ -181,6 +181,6 @@ const SunshineNewUserPostsListInner = ({posts, user, classes}: {
   )
 }
 
-export const SunshineNewUserPostsList = registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsListInner, {styles});
+export default registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
 
 

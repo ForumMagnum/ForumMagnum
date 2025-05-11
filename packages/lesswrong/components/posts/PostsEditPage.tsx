@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil'
-import { PostsEditForm } from "./PostsEditForm";
+import PostsEditForm from "./PostsEditForm";
 
-const PostsEditPageInner = () => {
+const PostsEditPage = () => {
   const { query } = useLocation();
   const postId = query.postId;
   const version = query.version;
@@ -13,7 +13,7 @@ const PostsEditPageInner = () => {
   </div>
 }
 
-export const PostsEditPage = registerComponent('PostsEditPage', PostsEditPageInner);
+export default registerComponent('PostsEditPage', PostsEditPage);
 
 
 

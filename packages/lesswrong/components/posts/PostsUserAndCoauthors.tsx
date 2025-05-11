@@ -4,9 +4,9 @@ import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
-import { UsersName } from "../users/UsersName";
-import { UserNameDeleted } from "../users/UserNameDeleted";
-import { UserCommentMarkers } from "../users/UserCommentMarkers";
+import UsersName from "../users/UsersName";
+import UserNameDeleted from "../users/UserNameDeleted";
+import UserCommentMarkers from "../users/UserCommentMarkers";
 
 const styles = (theme: ThemeType) => ({
   lengthLimited: {
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsUserAndCoauthorsInner = ({
+const PostsUserAndCoauthors = ({
   post,
   abbreviateIfLong=false,
   classes,
@@ -82,6 +82,6 @@ const PostsUserAndCoauthorsInner = ({
   </div>;
 };
 
-export const PostsUserAndCoauthors = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthorsInner, {styles});
+export default registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
 
 

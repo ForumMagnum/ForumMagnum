@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useCallback } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { styles as inputStyles } from "./EAOnboardingInput";
-import { ForumIcon } from "../../common/ForumIcon";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingSelectInner = ({
+export const EAOnboardingSelect = ({
   value,
   setValue,
   options,
@@ -52,9 +52,9 @@ export const EAOnboardingSelectInner = ({
   );
 }
 
-export const EAOnboardingSelect = registerComponent(
+export default registerComponent(
   "EAOnboardingSelect",
-  EAOnboardingSelectInner,
+  EAOnboardingSelect,
   {styles},
 );
 

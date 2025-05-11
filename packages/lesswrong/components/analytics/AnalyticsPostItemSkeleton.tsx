@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsPostItemSkeletonInner = ({className, classes}: {
+export const AnalyticsPostItemSkeleton = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -40,9 +40,9 @@ export const AnalyticsPostItemSkeletonInner = ({className, classes}: {
   );
 }
 
-export const AnalyticsPostItemSkeleton = registerComponent(
+export default registerComponent(
   "AnalyticsPostItemSkeleton",
-  AnalyticsPostItemSkeletonInner,
+  AnalyticsPostItemSkeleton,
   {styles, stylePriority: -1},
 );
 

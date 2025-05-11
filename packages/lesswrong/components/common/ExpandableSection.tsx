@@ -1,12 +1,12 @@
 import React, { ComponentType } from "react";
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { SectionTitleProps, SectionTitle } from "./SectionTitle";
+import SectionTitle, { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
-import { SingleColumnSection } from "./SingleColumnSection";
-import { LWTooltip } from "./LWTooltip";
-import { ForumIcon } from "./ForumIcon";
+import SingleColumnSection from "./SingleColumnSection";
+import LWTooltip from "./LWTooltip";
+import ForumIcon from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -53,7 +53,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   children: React.ReactNode,
 }
 
-const ExpandableSectionInner = ({
+const ExpandableSection = ({
   pageSectionContext,
   expanded,
   toggleExpanded,
@@ -107,9 +107,9 @@ const ExpandableSectionInner = ({
   );
 }
 
-export const ExpandableSection = registerComponent(
+export default registerComponent(
   "ExpandableSection",
-  ExpandableSectionInner,
+  ExpandableSection,
   {styles},
 );
 

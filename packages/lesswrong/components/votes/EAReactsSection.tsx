@@ -17,10 +17,10 @@ import type { VotingProps } from "./votingProps";
 import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
-import { LoginPopup } from "../users/LoginPopup";
-import { EAEmojiPalette } from "./EAEmojiPalette";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
+import LoginPopup from "../users/LoginPopup";
+import EAEmojiPalette from "./EAEmojiPalette";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -225,7 +225,7 @@ type EAReactsSectionOptions = {
   voteProps: VotingProps<VoteableTypeClient>,
 };
 
-const EAReactsSectionInner: FC<{
+const EAReactsSection: FC<{
   large?: boolean,
   classes: ClassesType<typeof styles>,
 } & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly, classes}) => {
@@ -361,9 +361,9 @@ const EAReactsSectionInner: FC<{
   );
 }
 
-export const EAReactsSection = registerComponent(
+export default registerComponent(
   "EAReactsSection",
-  EAReactsSectionInner,
+  EAReactsSection,
   {styles},
 );
 

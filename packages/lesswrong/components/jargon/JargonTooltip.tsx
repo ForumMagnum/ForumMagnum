@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { ContentReplacedSubstringComponentInfo, ContentItemBody } from '../common/ContentItemBody';
+import ContentItemBody, { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import LWClickAwayListener from "../common/LWClickAwayListener";
 
 const styles = defineStyles('JargonTooltip', (theme: ThemeType) => ({
   card: {
@@ -120,7 +120,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltipInner = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   term: string,
   definitionHTML: string,
   approved: boolean,
@@ -203,6 +203,6 @@ export const JargonTooltipInner = ({term, definitionHTML, approved, deleted, hum
   </AnalyticsContext>;
 }
 
-export const JargonTooltip = registerComponent('JargonTooltip', JargonTooltipInner);
+export default registerComponent('JargonTooltip', JargonTooltip);
 
 

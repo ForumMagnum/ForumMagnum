@@ -6,7 +6,7 @@ import { Snippet } from 'react-instantsearch-dom';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { SearchHitComponentProps } from './types';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +36,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const tag = hit as SearchTag;
 
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
@@ -56,7 +56,7 @@ const TagsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchH
   </div>
 }
 
-export const TagsSearchHit = registerComponent("TagsSearchHit", TagsSearchHitInner, {styles});
+export default registerComponent("TagsSearchHit", TagsSearchHit, {styles});
 
 
 

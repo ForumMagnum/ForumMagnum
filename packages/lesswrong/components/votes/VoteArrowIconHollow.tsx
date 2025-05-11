@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const VoteArrowIconHollowInner = ({
+const VoteArrowIconHollow = ({
   orientation,
   enabled = true,
   color,
@@ -113,9 +113,9 @@ const VoteArrowIconHollowInner = ({
   );
 };
 
-export const VoteArrowIconHollow = registerComponent(
+export default registerComponent(
   'VoteArrowIconHollow',
-  VoteArrowIconHollowInner,
+  VoteArrowIconHollow,
   { styles }
 );
 

@@ -5,11 +5,11 @@ import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import { isEmpty } from 'underscore';
-import { Option, InlineSelect } from '../common/InlineSelect';
+import InlineSelect, { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
-const CommentsViewsInner = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
+const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +47,6 @@ const CommentsViewsInner = ({post, setRestoreScrollPos}: {post?: PostsDetails, s
 
 };
 
-export const CommentsViews = registerComponent('CommentsViews', CommentsViewsInner);
+export default registerComponent('CommentsViews', CommentsViews);
 
 

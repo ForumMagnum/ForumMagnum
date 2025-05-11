@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedItemDisplayStatus } from '../ultraFeed/ultraFeedTypes';
@@ -7,14 +6,14 @@ import { DEFAULT_SETTINGS, UltraFeedSettingsType } from '../ultraFeed/ultraFeedS
 import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
 import { useMulti } from '../../lib/crud/withMulti';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { FeedItemWrapper } from "../ultraFeed/FeedItemWrapper";
-import { UltraFeedPostItem } from "../ultraFeed/UltraFeedPostItem";
-import { UltraFeedThreadItem } from "../ultraFeed/UltraFeedThreadItem";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
+import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
+import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
 
-const BookmarksFeedInner = () => {
+const BookmarksFeed = () => {
   const currentUser = useCurrentUser();
 
   const { results: bookmarks = [], loading, error } = useMulti({
@@ -110,8 +109,6 @@ const BookmarksFeedInner = () => {
   );
 };
 
-export const BookmarksFeed = registerComponent('BookmarksFeed', BookmarksFeedInner);
-
-export default BookmarksFeedInner;
+export default BookmarksFeed;
 
  

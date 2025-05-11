@@ -5,7 +5,7 @@ import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUt
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { CollaborationMode, EditorTopBar } from './EditorTopBar';
+import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
@@ -31,9 +31,9 @@ import { claimsConfig } from './claims/claimsConfig';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isClient } from '@/lib/executionEnvironment';
 import { useCkEditorInspector } from '@/client/useCkEditorInspector';
-import { EditConditionalVisibility } from "./conditionalVisibilityBlock/EditConditionalVisibility";
-import { DialogueEditorGuidelines } from "../posts/dialogues/DialogueEditorGuidelines";
-import { DialogueEditorFeedback } from "../posts/dialogues/DialogueEditorFeedback";
+import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
+import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
+import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -382,7 +382,7 @@ const postEditorToolbarConfig = {
   },
 };
 
-const CKPostEditorInner = ({
+const CKPostEditor = ({
   data,
   collectionName,
   fieldName,
@@ -738,5 +738,5 @@ const CKPostEditorInner = ({
   </div>
 }
 
-export const CKPostEditor = registerComponent("CKPostEditor", CKPostEditorInner, {styles});
+export default registerComponent("CKPostEditor", CKPostEditor, {styles});
 

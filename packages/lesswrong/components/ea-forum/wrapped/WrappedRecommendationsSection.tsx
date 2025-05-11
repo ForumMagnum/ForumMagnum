@@ -2,9 +2,9 @@ import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { drawnArrow } from "@/components/icons/drawnArrow";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { WrappedPost } from "./WrappedPost";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import WrappedPost from "./WrappedPost";
 
 const styles = (theme: ThemeType) => ({
   posts: {
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays some recommended posts to the user
  */
-const WrappedRecommendationsSectionInner = ({classes}: {
+const WrappedRecommendationsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {recommendations} = useForumWrappedContext();
@@ -69,9 +69,9 @@ const WrappedRecommendationsSectionInner = ({classes}: {
   );
 }
 
-export const WrappedRecommendationsSection = registerComponent(
+export default registerComponent(
   "WrappedRecommendationsSection",
-  WrappedRecommendationsSectionInner,
+  WrappedRecommendationsSection,
   {styles},
 );
 

@@ -15,9 +15,9 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { LoginPopup } from "../users/LoginPopup";
-import { SearchPagination } from "../search/SearchPagination";
-import { PostsListEditorSearchHit } from "../search/PostsListEditorSearchHit";
+import LoginPopup from "../users/LoginPopup";
+import SearchPagination from "../search/SearchPagination";
+import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
 
 
 
-const AddPostsToTagInner = ({classes, tag}: {
+const AddPostsToTag = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagPreviewFragment
 }) => {
@@ -174,6 +174,6 @@ const AddPostsToTagInner = ({classes, tag}: {
   </div>
 }
 
-export const AddPostsToTag = registerComponent("AddPostsToTag", AddPostsToTagInner, {styles})
+export default registerComponent("AddPostsToTag", AddPostsToTag, {styles});
 
 

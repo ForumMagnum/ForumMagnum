@@ -1,10 +1,10 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import {taggingNameSetting} from '../../lib/instanceSettings'
-import { EARecentDiscussionItem } from "./EARecentDiscussionItem";
-import { TagRevisionItem } from "../tagging/TagRevisionItem";
+import EARecentDiscussionItem from "./EARecentDiscussionItem";
+import TagRevisionItem from "../tagging/TagRevisionItem";
 
-const EARecentDiscussionTagRevisionInner = ({
+const EARecentDiscussionTagRevision = ({
   tag,
   revision,
   collapsed,
@@ -39,9 +39,9 @@ const EARecentDiscussionTagRevisionInner = ({
   );
 }
 
-export const EARecentDiscussionTagRevision = registerComponent(
+export default registerComponent(
   "EARecentDiscussionTagRevision",
-  EARecentDiscussionTagRevisionInner,
+  EARecentDiscussionTagRevision,
 );
 
 

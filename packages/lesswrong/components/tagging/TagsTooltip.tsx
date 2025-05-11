@@ -11,13 +11,13 @@ import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
 import { MAIN_TAB_ID } from "@/lib/arbital/useTagLenses";
 import { TagHoverPreview } from "./TagHoverPreview";
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { HoverOver } from "../common/HoverOver";
-import { TagRelCard } from "./TagRelCard";
-import { TagPreview } from "./TagPreview";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import ContentStyles from "../common/ContentStyles";
+import HoverOver from "../common/HoverOver";
+import TagRelCard from "./TagRelCard";
+import TagPreview from "./TagPreview";
+import LWClickAwayListener from "../common/LWClickAwayListener";
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
@@ -192,7 +192,7 @@ const RedLinkTooltip = ({ tag, slug }: {
   );
 };
 
-const TagsTooltipInner = ({
+const TagsTooltip = ({
   tagRel,
   hash,
   previewPostCount = 6,
@@ -271,6 +271,6 @@ const TagsTooltipInner = ({
   );
 }
 
-export const TagsTooltip = registerComponent("TagsTooltip", TagsTooltipInner);
+export default registerComponent("TagsTooltip", TagsTooltip);
 
 

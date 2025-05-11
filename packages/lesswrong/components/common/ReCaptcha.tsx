@@ -110,7 +110,7 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
 (ReCaptchaInner as any).propTypes = propTypes;
 (ReCaptchaInner as any).defaultProps = defaultProps;
 
-export const ReCaptcha = registerComponent("ReCaptcha", ReCaptchaInner)
+export default registerComponent("ReCaptcha", ReCaptchaInner);
 
 
 

@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
 import { RouterLocation } from "../../lib/vulcan-lib/routes";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TagsTooltip } from "./TagsTooltip";
+import TagsTooltip from "./TagsTooltip";
 
 const styles = defineStyles('TagHoverPreview', (theme: ThemeType) => ({
   ...linkStyle(theme),

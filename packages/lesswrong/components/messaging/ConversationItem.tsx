@@ -8,10 +8,10 @@ import UnarchiveIcon from '@/lib/vendor/@material-ui/icons/src/Unarchive';
 import classNames from 'classnames'
 import * as _ from 'underscore';
 import { TooltipSpan } from '../common/FMTooltip';
-import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
-import { UsersName } from "../users/UsersName";
-import { FormatDate } from "../common/FormatDate";
-import { ConversationPreview } from "./ConversationPreview";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import UsersName from "../users/UsersName";
+import FormatDate from "../common/FormatDate";
+import ConversationPreview from "./ConversationPreview";
 
 const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ConversationItemInner = ({conversation, updateConversation, currentUser, classes, expanded}: {
+const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
   conversation: ConversationsList,
   updateConversation: any,
   currentUser: UsersCurrent,
@@ -87,7 +87,7 @@ const ConversationItemInner = ({conversation, updateConversation, currentUser, c
   )
 }
 
-export const ConversationItem = registerComponent('ConversationItem', ConversationItemInner, {styles});
+export default registerComponent('ConversationItem', ConversationItem, {styles});
 
 
 

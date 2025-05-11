@@ -59,7 +59,7 @@ const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
 const greyBackground = requireCssVar("palette", "grey", 0);
 
-const ExpandedTagsSearchHitInner = ({hit, classes}: {
+const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -87,7 +87,7 @@ const ExpandedTagsSearchHitInner = ({hit, classes}: {
   </div>
 }
 
-export const ExpandedTagsSearchHit = registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHitInner, {styles});
+export default registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
 
 
 

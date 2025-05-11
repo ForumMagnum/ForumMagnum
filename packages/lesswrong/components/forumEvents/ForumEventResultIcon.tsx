@@ -4,9 +4,9 @@ import { useHover } from '../common/withHover';
 import { useIsAboveBreakpoint, useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { LWTooltip } from "../common/LWTooltip";
-import { UsersProfileImage } from "../users/UsersProfileImage";
-import { ForumEventResultPopper } from "./ForumEventResultPopper";
+import LWTooltip from "../common/LWTooltip";
+import UsersProfileImage from "../users/UsersProfileImage";
+import ForumEventResultPopper from "./ForumEventResultPopper";
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
@@ -54,7 +54,7 @@ export type ForumEventVoteDisplay = {
   comment: ShortformComments | null
 }
 
-const ForumEventResultIconInner = ({
+const ForumEventResultIcon = ({
   vote,
   tooltipDisabled,
   classes,
@@ -117,9 +117,9 @@ const ForumEventResultIconInner = ({
   );
 };
 
-export const ForumEventResultIcon = registerComponent(
+export default registerComponent(
   'ForumEventResultIcon',
-  ForumEventResultIconInner,
+  ForumEventResultIcon,
   { styles }
 );
 

@@ -1,13 +1,13 @@
 import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { LocalGroupsItem } from "./LocalGroupsItem";
-import { Loading } from "../vulcan-core/Loading";
-import { PostsNoResults } from "../posts/PostsNoResults";
-import { SectionFooter } from "../common/SectionFooter";
-import { LoadMore } from "../common/LoadMore";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
+import LocalGroupsItem from "./LocalGroupsItem";
+import Loading from "../vulcan-core/Loading";
+import PostsNoResults from "../posts/PostsNoResults";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   localGroups: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupsListInner = ({terms, children, classes, showNoResults=true, heading}: {
+const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
@@ -60,6 +60,6 @@ const LocalGroupsListInner = ({terms, children, classes, showNoResults=true, hea
   </MaybeTitleWrapper>;
 }
 
-export const LocalGroupsList = registerComponent('LocalGroupsList', LocalGroupsListInner, {styles})
+export default registerComponent('LocalGroupsList', LocalGroupsList, {styles});
 
 

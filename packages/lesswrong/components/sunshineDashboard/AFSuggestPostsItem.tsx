@@ -12,17 +12,17 @@ import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import {DatabasePublicSetting} from "../../lib/publicSettings";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
-import { ContentStyles } from "../common/ContentStyles";
-import { SunshineSendMessageWithDefaults } from "./SunshineSendMessageWithDefaults";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import ContentStyles from "../common/ContentStyles";
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
 import { Typography } from "../common/Typography";
-import { PostsHighlight } from "../posts/PostsHighlight";
-import { SidebarInfo } from "./SidebarInfo";
-import { FormatDate } from "../common/FormatDate";
-import { SidebarActionMenu } from "./SidebarActionMenu";
-import { SidebarAction } from "./SidebarAction";
-import { OmegaIcon } from "../icons/OmegaIcon";
+import PostsHighlight from "../posts/PostsHighlight";
+import SidebarInfo from "./SidebarInfo";
+import FormatDate from "../common/FormatDate";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarAction from "./SidebarAction";
+import OmegaIcon from "../icons/OmegaIcon";
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const AFSuggestPostsItemInner = ({post, classes}: {
+const AFSuggestPostsItem = ({post, classes}: {
   post: SuggestAlignmentPost,
   classes: ClassesType<typeof styles>
 }) => {
@@ -145,7 +145,7 @@ const AFSuggestPostsItemInner = ({post, classes}: {
   );
 }
 
-export const AFSuggestPostsItem = registerComponent('AFSuggestPostsItem', AFSuggestPostsItemInner, {
+export default registerComponent('AFSuggestPostsItem', AFSuggestPostsItem, {
   styles,
   hocs: [withErrorBoundary]
 });

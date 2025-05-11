@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarInfoInner = ({children, classes, className}: {
+const SidebarInfo = ({children, classes, className}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -27,7 +27,7 @@ const SidebarInfoInner = ({children, classes, className}: {
   </Typography>
 }
 
-export const SidebarInfo = registerComponent('SidebarInfo', SidebarInfoInner, {styles});
+export default registerComponent('SidebarInfo', SidebarInfo, {styles});
 
 
 

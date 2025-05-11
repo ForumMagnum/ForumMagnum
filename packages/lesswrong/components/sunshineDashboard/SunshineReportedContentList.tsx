@@ -2,10 +2,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { SunshineListTitle } from "./SunshineListTitle";
-import { SunshineReportedItem } from "./SunshineReportedItem";
-import { SunshineListCount } from "./SunshineListCount";
-import { LoadMore } from "../common/LoadMore";
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineReportedItem from "./SunshineReportedItem";
+import SunshineListCount from "./SunshineListCount";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineReportedContentListInner = ({ classes, currentUser }: {
+const SunshineReportedContentList = ({ classes, currentUser }: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
@@ -52,7 +52,7 @@ const SunshineReportedContentListInner = ({ classes, currentUser }: {
   }
 }
 
-export const SunshineReportedContentList = registerComponent('SunshineReportedContentList', SunshineReportedContentListInner, {styles});
+export default registerComponent('SunshineReportedContentList', SunshineReportedContentList, {styles});
 
 
 

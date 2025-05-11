@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
 type ClickState = 'unclicked' | 'success' | 'failure'
 
 
-export const DialogueEditorFeedbackInner = ({ classes, post }: {
+export const DialogueEditorFeedback = ({ classes, post }: {
   post: PostsEdit,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -52,6 +52,6 @@ export const DialogueEditorFeedbackInner = ({ classes, post }: {
   </div>
 }
 
-export const DialogueEditorFeedback = registerComponent('DialogueEditorFeedback', DialogueEditorFeedbackInner, { styles });
+export default registerComponent('DialogueEditorFeedback', DialogueEditorFeedback, { styles });
 
 

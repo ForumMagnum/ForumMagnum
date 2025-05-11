@@ -19,7 +19,7 @@ import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { ImageUpload2 } from "./ImageUpload2";
+import ImageUpload2 from "./ImageUpload2";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 

@@ -6,8 +6,8 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ExpandedDate, FormatDate } from '@/components/common/FormatDate';
-import { LWTooltip } from "../../common/LWTooltip";
+import FormatDate, { ExpandedDate } from '@/components/common/FormatDate';
+import LWTooltip from "../../common/LWTooltip";
 
 // The amount of time during which you can edit a comment, without it causing
 // the comment to be marked as edited.
@@ -69,7 +69,7 @@ type CommentsItemDateProps = UseCommentLinkProps & {
   className?: string,
 };
 
-const CommentsItemDateInner = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
   const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
@@ -131,7 +131,7 @@ const CommentDateTooltip = ({comment}: {
   }
 }
 
-export const CommentsItemDate = registerComponent('CommentsItemDate', CommentsItemDateInner);
+export default registerComponent('CommentsItemDate', CommentsItemDate);
 
 
 

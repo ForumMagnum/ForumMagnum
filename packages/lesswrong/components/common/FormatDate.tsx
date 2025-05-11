@@ -4,8 +4,8 @@ import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
-import { LWTooltip } from "./LWTooltip";
-import { TimeTag } from "./TimeTag";
+import LWTooltip from "./LWTooltip";
+import TimeTag from "./TimeTag";
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
   return <FormatDate date={date} format={"LLL z"} />
@@ -15,7 +15,7 @@ export const ExpandedDate = ({date}: {date: Date | string}) => {
  * A relative time/date, like "4d". If tooltip is true (default), hover over
  * for the actual (non-relative) date/time.
  */
-const FormatDateInner = ({date, format, includeAgo, tooltip=true, granularity="datetime", className}: {
+const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="datetime", className}: {
   date: Date | string,
   format?: string,
   includeAgo?: boolean,
@@ -60,6 +60,6 @@ const FormatDateInner = ({date, format, includeAgo, tooltip=true, granularity="d
   }
 };
 
-export const FormatDate = registerComponent('FormatDate', FormatDateInner);
+export default registerComponent('FormatDate', FormatDate);
 
 

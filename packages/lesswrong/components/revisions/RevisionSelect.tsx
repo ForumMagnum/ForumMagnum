@@ -4,11 +4,11 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import classNames from 'classnames';
-import { FormatDate } from "../common/FormatDate";
-import { UsersName } from "../users/UsersName";
-import { LoadMore } from "../common/LoadMore";
-import { LWTooltip } from "../common/LWTooltip";
-import { ChangeMetricsDisplay } from "../tagging/ChangeMetricsDisplay";
+import FormatDate from "../common/FormatDate";
+import UsersName from "../users/UsersName";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 
 const styles = (theme: ThemeType) => ({
   revisionRow: {
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RevisionSelectInner = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
+const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
@@ -132,8 +132,8 @@ const RevisionSelectInner = ({ revisions, getRevisionUrl, onPairSelected, loadMo
   </React.Fragment>
 }
 
-export const RevisionSelect = registerComponent(
-  'RevisionSelect', RevisionSelectInner, {styles}
+export default registerComponent(
+  'RevisionSelect', RevisionSelect, {styles}
 );
 
 

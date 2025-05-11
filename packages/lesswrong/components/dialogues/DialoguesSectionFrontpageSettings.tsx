@@ -6,7 +6,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
-import { MetaInfo } from "../common/MetaInfo";
+import MetaInfo from "../common/MetaInfo";
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const DialoguesSectionFrontpageSettingsInner = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
+const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
@@ -87,8 +87,8 @@ const DialoguesSectionFrontpageSettingsInner = ({hidden, currentShowDialogues, c
   );
 };
 
-export const DialoguesSectionFrontpageSettings = registerComponent(
-  'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettingsInner, { styles }
+export default registerComponent(
+  'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles }
 );
 
 

@@ -6,10 +6,10 @@ import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';
-import { PostsItem } from "../posts/PostsItem";
-import { SectionFooter } from "../common/SectionFooter";
-import { Loading } from "../vulcan-core/Loading";
-import { PostInteractionStripe } from "./PostInteractionStripe";
+import PostsItem from "../posts/PostsItem";
+import SectionFooter from "../common/SectionFooter";
+import Loading from "../vulcan-core/Loading";
+import PostInteractionStripe from "./PostInteractionStripe";
 
 const styles = (theme: ThemeType) => ({
   root: { 
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const QuickReviewPageInner = ({classes, reviewYear}: {
+export const QuickReviewPage = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
@@ -126,6 +126,6 @@ export const QuickReviewPageInner = ({classes, reviewYear}: {
     </div>
 }
 
-export const QuickReviewPage = registerComponent('QuickReviewPage', QuickReviewPageInner, {styles});
+export default registerComponent('QuickReviewPage', QuickReviewPage, {styles});
 
 

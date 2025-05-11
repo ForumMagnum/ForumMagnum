@@ -8,9 +8,9 @@ import classNames from 'classnames';
 import { useDigestAd } from './useDigestAd';
 import { DIGEST_AD_BODY_TEXT, DIGEST_AD_HEADLINE_TEXT } from './SidebarDigestAd';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import { AnalyticsInViewTracker } from "../../common/AnalyticsInViewTracker";
-import { ForumIcon } from "../../common/ForumIcon";
-import { EAButton } from "../EAButton";
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
+import ForumIcon from "../../common/ForumIcon";
+import EAButton from "../EAButton";
 
 const styles = (theme: ThemeType) => ({
   '@keyframes digest-fade-in': {
@@ -130,7 +130,7 @@ const styles = (theme: ThemeType) => ({
 /**
  * This is the Forum Digest ad that appears fixed to the bottom of the screen on the EA Forum post page.
  */
-const StickyDigestAdInner = ({className, classes}: {
+const StickyDigestAd = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -204,6 +204,6 @@ const StickyDigestAdInner = ({className, classes}: {
   </AnalyticsContext>
 }
 
-export const StickyDigestAd = registerComponent("StickyDigestAd", StickyDigestAdInner, {styles, stylePriority: -1});
+export default registerComponent("StickyDigestAd", StickyDigestAd, {styles, stylePriority: -1});
 
 

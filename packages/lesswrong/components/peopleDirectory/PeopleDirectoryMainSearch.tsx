@@ -1,9 +1,9 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { PeopleDirectoryInput } from "./PeopleDirectoryInput";
+import PeopleDirectoryInput from "./PeopleDirectoryInput";
 
-const PeopleDirectoryMainSearchInner = () => {
+const PeopleDirectoryMainSearch = () => {
   const {query, setQuery} = usePeopleDirectory();
   return (
     <PeopleDirectoryInput
@@ -15,9 +15,9 @@ const PeopleDirectoryMainSearchInner = () => {
   );
 }
 
-export const PeopleDirectoryMainSearch = registerComponent(
+export default registerComponent(
   "PeopleDirectoryMainSearch",
-  PeopleDirectoryMainSearchInner,
+  PeopleDirectoryMainSearch,
 );
 
 

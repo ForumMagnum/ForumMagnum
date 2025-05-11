@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { LWPopper } from "../common/LWPopper";
+import LWPopper from "../common/LWPopper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SidebarHoverOverInner = ({children, classes, hover, anchorEl, width=500}: {
+const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   hover: boolean,
@@ -31,7 +31,7 @@ const SidebarHoverOverInner = ({children, classes, hover, anchorEl, width=500}: 
   </LWPopper>
 };
 
-export const SidebarHoverOver = registerComponent('SidebarHoverOver', SidebarHoverOverInner, {styles});
+export default registerComponent('SidebarHoverOver', SidebarHoverOver, {styles});
 
 
 

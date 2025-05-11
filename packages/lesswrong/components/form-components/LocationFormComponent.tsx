@@ -11,8 +11,8 @@ import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
-import { Loading } from "../vulcan-core/Loading";
-import { SectionTitle } from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({
@@ -152,7 +152,7 @@ export const useGoogleMaps = (): [boolean, any] => {
  * LocationPicker: A textbox for typing in a location. This is split from LocationFormComponent
  * so that it can be used outside of vulcan-forms.
  */
-const LocationPickerInner = ({
+const LocationPicker = ({
   document,
   path,
   label,
@@ -234,7 +234,7 @@ const LocationPickerInner = ({
   );
 }
 
-export const LocationPicker = registerComponent("LocationPicker", LocationPickerInner);
+export default registerComponent("LocationPicker", LocationPicker);
 
 
 

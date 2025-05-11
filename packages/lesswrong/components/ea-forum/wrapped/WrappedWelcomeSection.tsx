@@ -1,8 +1,8 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedWelcomeMessage } from "./WrappedWelcomeMessage";
-import { ForumIcon } from "../../common/ForumIcon";
+import WrappedWelcomeMessage from "./WrappedWelcomeMessage";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedWelcomeSectionInner = ({classes}: {
+const WrappedWelcomeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, currentUser, goToNextSection} = useForumWrappedContext();
@@ -47,9 +47,9 @@ const WrappedWelcomeSectionInner = ({classes}: {
   );
 }
 
-export const WrappedWelcomeSection = registerComponent(
+export default registerComponent(
   "WrappedWelcomeSection",
-  WrappedWelcomeSectionInner,
+  WrappedWelcomeSection,
   {styles},
 );
 

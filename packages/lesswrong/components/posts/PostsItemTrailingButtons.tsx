@@ -7,8 +7,8 @@ import CloseIcon from "@/lib/vendor/@material-ui/icons/src/Close";
 import { useCurrentUser } from "../common/withUser";
 import { isBookUI } from "../../themes/forumTheme";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
+import LWTooltip from "../common/LWTooltip";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 export const MENU_WIDTH = 18;
 
@@ -72,7 +72,7 @@ export const DismissButton = ({ onDismiss }: {
   </LWTooltip>
 };
 
-const PostsItemTrailingButtonsInner = ({
+const PostsItemTrailingButtons = ({
   post,
   showTrailingButtons,
   showMostValuableCheckbox,
@@ -107,6 +107,6 @@ const PostsItemTrailingButtonsInner = ({
   );
 }
 
-export const PostsItemTrailingButtons = registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtonsInner);
+export default registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtons);
 
 

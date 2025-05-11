@@ -4,8 +4,8 @@ import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { ReviewsList } from "./ReviewsList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ReviewsList from "./ReviewsList";
 
 const styles = (theme: ThemeType) => ({
   yearLinks: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-export const ReviewsPageInner = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
+export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
   const { params } = useLocation()
 
   if (params.year !== 'all') {
@@ -49,7 +49,7 @@ export const ReviewsPageInner = ({classes, reviewYear}: {classes: ClassesType<ty
   </SingleColumnSection>;
 }
 
-export const ReviewsPage = registerComponent('ReviewsPage', ReviewsPageInner, {styles});
+export default registerComponent('ReviewsPage', ReviewsPage, {styles});
 
 
 

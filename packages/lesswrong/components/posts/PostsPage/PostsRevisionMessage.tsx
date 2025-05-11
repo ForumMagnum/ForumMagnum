@@ -1,7 +1,7 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
-import { FormatDate } from "../../common/FormatDate";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +14,7 @@ interface PostsRevisionMessageFragment {
   contents: { editedAt: Date } | null
 }
 
-const PostsRevisionMessageInner = ({post, classes}: {
+const PostsRevisionMessage = ({post, classes}: {
   post: PostsRevisionMessageFragment|PostsList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -31,6 +31,6 @@ const PostsRevisionMessageInner = ({post, classes}: {
   );
 }
 
-export const PostsRevisionMessage = registerComponent('PostsRevisionMessage', PostsRevisionMessageInner, {styles});
+export default registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
 
 

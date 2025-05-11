@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const RecaptchaWarningInner = ({ currentUser, classes, children }: {
+const RecaptchaWarning = ({ currentUser, classes, children }: {
   currentUser: UsersCurrent | null,
   classes: any,
   children: React.ReactNode
@@ -41,6 +41,6 @@ const RecaptchaWarningInner = ({ currentUser, classes, children }: {
 }
 
 
-export const RecaptchaWarning = registerComponent('RecaptchaWarning', RecaptchaWarningInner, { styles }) 
+export default registerComponent('RecaptchaWarning', RecaptchaWarning, { styles }); 
 
 

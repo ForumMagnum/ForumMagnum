@@ -6,12 +6,12 @@ import { useCurrentUser } from '../common/withUser';
 import { isAF } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import type { VotingProps } from './votingProps';
-import { OverallVoteButtonProps, OverallVoteButton } from './OverallVoteButton';
+import OverallVoteButton, { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { UsersName } from "../users/UsersName";
-import { LWTooltip } from "../common/LWTooltip";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
@@ -70,7 +70,7 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
 
 const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
 
-const OverallVoteAxisInner = ({
+const OverallVoteAxis = ({
   document,
   hideKarma = false,
   voteProps,
@@ -242,7 +242,7 @@ const OverallVoteAxisInner = ({
   </TooltipIfDisabled>
 }
 
-export const OverallVoteAxis = registerComponent('OverallVoteAxis', OverallVoteAxisInner);
+export default registerComponent('OverallVoteAxis', OverallVoteAxis);
 
 
 

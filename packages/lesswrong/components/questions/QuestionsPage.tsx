@@ -5,15 +5,15 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "../posts/PostsList2";
-import { SectionButton } from "../common/SectionButton";
-import { LWTooltip } from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import SectionButton from "../common/SectionButton";
+import LWTooltip from "../common/LWTooltip";
 
 const includeRelatedQuestionsParam = new TupleSet(['true', 'false'] as const);
 
-const QuestionsPageInner = () => {
+const QuestionsPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const includeRelatedQuestions = includeRelatedQuestionsParam.has(query.includeRelatedQuestions)
@@ -60,7 +60,7 @@ const QuestionsPageInner = () => {
   )
 }
 
-export const QuestionsPage = registerComponent('QuestionsPage', QuestionsPageInner);
+export default registerComponent('QuestionsPage', QuestionsPage);
 
 
 

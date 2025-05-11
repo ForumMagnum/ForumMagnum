@@ -5,10 +5,10 @@ import { useMutation, gql } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { LockThreadDialog } from "./LockThreadDialog";
-import { DropdownItem } from "../DropdownItem";
+import LockThreadDialog from "./LockThreadDialog";
+import DropdownItem from "../DropdownItem";
 
-const LockThreadDropdownItemInner = ({comment}: {comment: CommentsList}) => {
+const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
@@ -59,8 +59,8 @@ const LockThreadDropdownItemInner = ({comment}: {comment: CommentsList}) => {
   );
 }
 
-export const LockThreadDropdownItem = registerComponent(
-  'LockThreadDropdownItem', LockThreadDropdownItemInner,
+export default registerComponent(
+  'LockThreadDropdownItem', LockThreadDropdownItem,
 );
 
 

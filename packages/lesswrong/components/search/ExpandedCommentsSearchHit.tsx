@@ -8,8 +8,8 @@ import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
-import { FormatDate } from "../common/FormatDate";
-import { UserNameDeleted } from "../users/UserNameDeleted";
+import FormatDate from "../common/FormatDate";
+import UserNameDeleted from "../users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +68,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ExpandedCommentsSearchHitInner = ({hit, classes}: {
+const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -114,7 +114,7 @@ const ExpandedCommentsSearchHitInner = ({hit, classes}: {
   </div>
 }
 
-export const ExpandedCommentsSearchHit = registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHitInner, {styles});
+export default registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHit, {styles});
 
 
 

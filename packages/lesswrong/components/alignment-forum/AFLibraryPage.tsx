@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Divider } from "../common/Divider";
-import { SequencesNewButton } from "../sequences/SequencesNewButton";
-import { SequencesGridWrapper } from "../sequences/SequencesGridWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Divider from "../common/Divider";
+import SequencesNewButton from "../sequences/SequencesNewButton";
+import SequencesGridWrapper from "../sequences/SequencesGridWrapper";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AFLibraryPageInner = ({classes}: {
+export const AFLibraryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <div>
@@ -58,7 +58,7 @@ export const AFLibraryPageInner = ({classes}: {
   </div>;
 }
 
-export const AFLibraryPage = registerComponent('AFLibraryPage', AFLibraryPageInner, {styles});
+export default registerComponent('AFLibraryPage', AFLibraryPage, {styles});
 
 
 

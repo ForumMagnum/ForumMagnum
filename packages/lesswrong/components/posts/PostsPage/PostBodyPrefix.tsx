@@ -7,14 +7,14 @@ import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { UsersNameDisplay } from "../../users/UsersNameDisplay";
-import { AlignmentPendingApprovalMessage } from "../../alignment-forum/AlignmentPendingApprovalMessage";
-import { LinkPostMessage } from "../LinkPostMessage";
-import { PostsRevisionMessage } from "./PostsRevisionMessage";
-import { LWTooltip } from "../../common/LWTooltip";
-import { ContentItemBody } from "../../common/ContentItemBody";
-import { ContentStyles } from "../../common/ContentStyles";
-import { PostPageReviewButton } from "./PostPageReviewButton";
+import UsersNameDisplay from "../../users/UsersNameDisplay";
+import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPendingApprovalMessage";
+import LinkPostMessage from "../LinkPostMessage";
+import PostsRevisionMessage from "./PostsRevisionMessage";
+import LWTooltip from "../../common/LWTooltip";
+import ContentItemBody from "../../common/ContentItemBody";
+import ContentStyles from "../../common/ContentStyles";
+import PostPageReviewButton from "./PostPageReviewButton";
 
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -63,7 +63,7 @@ const forumNewUserProcessingTime = forumSelect({
   default: 24
 })
 
-const PostBodyPrefixInner = ({post, query, classes}: {
+const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
   classes: ClassesType<typeof styles>,
@@ -109,6 +109,6 @@ const PostBodyPrefixInner = ({post, query, classes}: {
   </>;
 }
 
-export const PostBodyPrefix = registerComponent('PostBodyPrefix', PostBodyPrefixInner, {styles});
+export default registerComponent('PostBodyPrefix', PostBodyPrefix, {styles});
 
 

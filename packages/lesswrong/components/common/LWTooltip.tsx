@@ -4,7 +4,7 @@ import { useHover } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
-import { LWPopper } from "./LWPopper";
+import LWPopper from "./LWPopper";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -43,7 +43,7 @@ export type LWTooltipProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const LWTooltipInner = ({
+const LWTooltip = ({
   title,
   placement="bottom-start",
   tooltip=true,
@@ -141,7 +141,7 @@ const LWTooltipInner = ({
   </As>
 }
 
-export const LWTooltip = registerComponent("LWTooltip", LWTooltipInner, {
+export default registerComponent("LWTooltip", LWTooltip, {
   styles,
   stylePriority: -1,
 });

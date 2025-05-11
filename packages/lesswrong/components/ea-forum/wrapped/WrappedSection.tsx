@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
  * ForumWrappedContext here as this component is also used when the page is
  * still loading.
  */
-const WrappedSectionInner = ({
+const WrappedSection = ({
   pageSectionContext,
   align = "center",
   fullWidth,
@@ -90,9 +90,9 @@ const WrappedSectionInner = ({
   );
 }
 
-export const WrappedSection = registerComponent(
+export default registerComponent(
   "WrappedSection",
-  WrappedSectionInner,
+  WrappedSection,
   {styles},
 );
 

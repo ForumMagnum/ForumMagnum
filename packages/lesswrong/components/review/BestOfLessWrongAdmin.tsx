@@ -13,7 +13,7 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import GenerateImagesButton from './GenerateImagesButton';
 import { useLocation } from '@/lib/routeUtil';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 
 const previewWidth = 300;
 
@@ -117,7 +117,7 @@ making it easier to quickly make a call for each post.
 date rather than ReviewYear, i.e. 2 years after a ReviewYear)
 
 */
-export const BestOfLessWrongAdminInner = () => { 
+export const BestOfLessWrongAdmin = () => { 
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -176,6 +176,6 @@ export const BestOfLessWrongAdminInner = () => {
   </div>
 }
 
-export const BestOfLessWrongAdmin = registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdminInner);
+export default registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdmin);
 
 

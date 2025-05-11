@@ -5,9 +5,9 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { LoginToTrack } from "./LoginToTrack";
+import LWTooltip from "../common/LWTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import LoginToTrack from "./LoginToTrack";
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -60,7 +60,7 @@ const WORDS_PER_MINUTE = 300;
 const WORDS_PER_HOUR = WORDS_PER_MINUTE * 60;
 const WORDS_PER_PAGE = 500;
 
-const BooksProgressBarInner = ({ book, classes }: {
+const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -102,7 +102,7 @@ const BooksProgressBarInner = ({ book, classes }: {
   </div>;
 };
 
-export const BooksProgressBar = registerComponent('BooksProgressBar', BooksProgressBarInner, { styles });
+export default registerComponent('BooksProgressBar', BooksProgressBar, { styles });
 
 
 

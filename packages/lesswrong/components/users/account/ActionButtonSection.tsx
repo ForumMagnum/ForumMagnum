@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { EAButton } from "../../ea-forum/EAButton";
-import { Loading } from "../../vulcan-core/Loading";
+import EAButton from "../../ea-forum/EAButton";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   blurb: {
@@ -22,7 +22,7 @@ type ActionButtonSectionProps = {
   classes: ClassesType<typeof styles>;
 };
 
-const ActionButtonSectionInner = ({
+const ActionButtonSection = ({
   buttonText,
   buttonProps,
   description,
@@ -40,7 +40,7 @@ const ActionButtonSectionInner = ({
   );
 };
 
-export const ActionButtonSection = registerComponent('ActionButtonSection', ActionButtonSectionInner, {styles});
+export default registerComponent('ActionButtonSection', ActionButtonSection, {styles});
 
 
 

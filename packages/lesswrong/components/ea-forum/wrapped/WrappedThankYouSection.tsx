@@ -2,8 +2,8 @@ import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedThankYouSectionInner = ({classes}: {
+const WrappedThankYouSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentUser} = useForumWrappedContext();
@@ -42,9 +42,9 @@ const WrappedThankYouSectionInner = ({classes}: {
   );
 }
 
-export const WrappedThankYouSection = registerComponent(
+export default registerComponent(
   "WrappedThankYouSection",
-  WrappedThankYouSectionInner,
+  WrappedThankYouSection,
   {styles},
 );
 

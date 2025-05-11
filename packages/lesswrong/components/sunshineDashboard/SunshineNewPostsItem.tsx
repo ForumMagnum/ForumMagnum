@@ -15,18 +15,18 @@ import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/Visibili
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { MetaInfo } from "../common/MetaInfo";
-import { LinkPostMessage } from "../posts/LinkPostMessage";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
-import { SidebarInfo } from "./SidebarInfo";
-import { FormatDate } from "../common/FormatDate";
-import { FooterTagList } from "../tagging/FooterTagList";
+import MetaInfo from "../common/MetaInfo";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import ContentItemBody from "../common/ContentItemBody";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import FormatDate from "../common/FormatDate";
+import FooterTagList from "../tagging/FooterTagList";
 import { Typography } from "../common/Typography";
-import { ContentStyles } from "../common/ContentStyles";
-import { SmallSideVote } from "../votes/SmallSideVote";
-import { ForumIcon } from "../common/ForumIcon";
+import ContentStyles from "../common/ContentStyles";
+import SmallSideVote from "../votes/SmallSideVote";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewPostsItemInner = ({post, refetch, classes}: {
+const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
   classes: ClassesType<typeof styles>
@@ -209,7 +209,7 @@ const SunshineNewPostsItemInner = ({post, refetch, classes}: {
   )
 }
 
-export const SunshineNewPostsItem = registerComponent('SunshineNewPostsItem', SunshineNewPostsItemInner, {styles, 
+export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 

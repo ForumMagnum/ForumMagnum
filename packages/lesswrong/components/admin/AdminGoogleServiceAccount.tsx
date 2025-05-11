@@ -6,9 +6,9 @@ import { useMessages } from '../common/withMessages';
 import { gql, useMutation } from '@apollo/client';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
-import { ErrorAccessDenied } from '../common/ErrorAccessDenied';
-import { SingleColumnSection } from '../common/SingleColumnSection';
-import { EAButton } from '../ea-forum/EAButton';
+import ErrorAccessDenied from '../common/ErrorAccessDenied';
+import SingleColumnSection from '../common/SingleColumnSection';
+import EAButton from '../ea-forum/EAButton';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AdminGoogleServiceAccountInner = ({classes}: {
+const AdminGoogleServiceAccount = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -90,8 +90,8 @@ const AdminGoogleServiceAccountInner = ({classes}: {
   );
 }
 
-export const AdminGoogleServiceAccount = registerComponent(
-  "AdminGoogleServiceAccount", AdminGoogleServiceAccountInner, {styles}
+export default registerComponent(
+  "AdminGoogleServiceAccount", AdminGoogleServiceAccount, {styles}
 );
 
 

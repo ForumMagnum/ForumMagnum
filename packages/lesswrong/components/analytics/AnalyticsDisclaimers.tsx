@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     : {},
 });
 
-const AnalyticsDisclaimersInner = ({earliestDate, classes}: {
+const AnalyticsDisclaimers = ({earliestDate, classes}: {
   earliestDate: Date,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -54,9 +54,9 @@ const AnalyticsDisclaimersInner = ({earliestDate, classes}: {
   );
 };
 
-export const AnalyticsDisclaimers = registerComponent(
+export default registerComponent(
   "AnalyticsDisclaimers",
-  AnalyticsDisclaimersInner,
+  AnalyticsDisclaimers,
   {styles},
 );
 

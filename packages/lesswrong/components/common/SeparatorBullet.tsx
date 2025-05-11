@@ -8,12 +8,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main
   }
 })
-const SeparatorBulletInner = ({classes}: {
+const SeparatorBullet = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <span className={classes.root}>{" "}•{" "}</span>;
 }
 
-export const SeparatorBullet = registerComponent("SeparatorBullet", SeparatorBulletInner, {styles});
+export default registerComponent("SeparatorBullet", SeparatorBullet, {styles});
 
 

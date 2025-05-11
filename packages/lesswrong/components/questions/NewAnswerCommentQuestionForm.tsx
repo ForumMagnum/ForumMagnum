@@ -7,7 +7,7 @@ import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displa
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { TooltipSpan } from '../common/FMTooltip';
-import { CommentsNewForm } from "../comments/CommentsNewForm";
+import CommentsNewForm from "../comments/CommentsNewForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NewAnswerCommentQuestionFormInner = ({post, classes}: {
+const NewAnswerCommentQuestionForm = ({post, classes}: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -124,6 +124,6 @@ const NewAnswerCommentQuestionFormInner = ({post, classes}: {
   </div>
 }
 
-export const NewAnswerCommentQuestionForm = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionFormInner, {styles});
+export default registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
 
 

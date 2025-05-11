@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
-import { SectionButton } from "../common/SectionButton";
+import SectionButton from "../common/SectionButton";
 
 const styles = (theme: ThemeType) => ({
   newSequence: {
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const SequencesNewButtonInner = ({ classes }: {
+export const SequencesNewButton = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   return  <Link to={"/sequencesnew"}> 
@@ -21,7 +21,7 @@ export const SequencesNewButtonInner = ({ classes }: {
   </Link>
 }
 
-export const SequencesNewButton = registerComponent('SequencesNewButton', SequencesNewButtonInner, {styles});
+export default registerComponent('SequencesNewButton', SequencesNewButton, {styles});
 
 
 

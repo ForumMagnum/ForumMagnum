@@ -4,7 +4,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { PrettyEventDateTime } from '@/components/events/modules/PrettyEventDateTime';
+import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
 const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   root: {

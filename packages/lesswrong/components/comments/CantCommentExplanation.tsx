@@ -5,7 +5,7 @@ import { userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBanne
 import classNames from 'classnames';
 import { moderationEmail } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { CalendarDate } from "../common/CalendarDate";
+import CalendarDate from "../common/CalendarDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +48,7 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: Posts
   return <>You cannot comment at this time</>
 }
 
-const CantCommentExplanationInner = ({post, classes}: {
+const CantCommentExplanation = ({post, classes}: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -68,8 +68,8 @@ const CantCommentExplanationInner = ({post, classes}: {
   );
 }
 
-export const CantCommentExplanation = registerComponent(
-  'CantCommentExplanation', CantCommentExplanationInner, {styles}
+export default registerComponent(
+  'CantCommentExplanation', CantCommentExplanation, {styles}
 );
 
 

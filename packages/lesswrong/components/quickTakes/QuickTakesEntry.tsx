@@ -1,15 +1,15 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import {
+import CommentsNewForm, {
   CommentCancelCallback,
-  CommentSuccessCallback, CommentsNewForm } from "../comments/CommentsNewForm";
+  CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
-import { LoginPopup } from "../users/LoginPopup";
+import LoginPopup from "../users/LoginPopup";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
 // TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
-const QuickTakesEntryInner = ({
+const QuickTakesEntry = ({
   currentUser,
   defaultExpanded = false,
   defaultFocus = false,
@@ -182,9 +182,9 @@ const QuickTakesEntryInner = ({
   </div>
 }
 
-export const QuickTakesEntry = registerComponent(
+export default registerComponent(
   "QuickTakesEntry",
-  QuickTakesEntryInner,
+  QuickTakesEntry,
   {styles},
 );
 

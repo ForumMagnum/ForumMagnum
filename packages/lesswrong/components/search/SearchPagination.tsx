@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
     },
   }
 })
-const SearchPaginationInner = ({classes, pagesPadding=0, showFirst=false}: {
+const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
   classes: ClassesType<typeof styles>,
   pagesPadding?: number,
   showFirst?: boolean,
@@ -63,7 +63,7 @@ const SearchPaginationInner = ({classes, pagesPadding=0, showFirst=false}: {
   </div>
 }
 
-export const SearchPagination = registerComponent("SearchPagination", SearchPaginationInner, {styles});
+export default registerComponent("SearchPagination", SearchPagination, {styles});
 
 
 

@@ -2,8 +2,8 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useVote } from "./withVote";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
-import { SectionTitle } from "../common/SectionTitle";
-import { EAReactsSection } from "./EAReactsSection";
+import SectionTitle from "../common/SectionTitle";
+import EAReactsSection from "./EAReactsSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,7 @@ interface EAEmojisVoteOnPostSecondaryProps extends PostVotingComponentProps {
   classes: ClassesType<typeof styles>,
 }
 
-const EAEmojisVoteOnPostSecondaryInner = ({
+const EAEmojisVoteOnPostSecondary = ({
   document,
   votingSystem,
   classes,
@@ -62,9 +62,9 @@ const EAEmojisVoteOnPostSecondaryInner = ({
   );
 }
 
-export const EAEmojisVoteOnPostSecondary = registerComponent(
+export default registerComponent(
   "EAEmojisVoteOnPostSecondary",
-  EAEmojisVoteOnPostSecondaryInner,
+  EAEmojisVoteOnPostSecondary,
   {styles},
 );
 

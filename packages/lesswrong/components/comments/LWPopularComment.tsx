@@ -11,13 +11,13 @@ import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
-import { LWPopper } from "../common/LWPopper";
-import { CommentById } from "./CommentById";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { UsersName } from "../users/UsersName";
-import { CommentsItemDate } from "./CommentsItem/CommentsItemDate";
-import { SmallSideVote } from "../votes/SmallSideVote";
-import { CommentBody } from "./CommentsItem/CommentBody";
+import LWPopper from "../common/LWPopper";
+import CommentById from "./CommentById";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "../users/UsersName";
+import CommentsItemDate from "./CommentsItem/CommentsItemDate";
+import SmallSideVote from "../votes/SmallSideVote";
+import CommentBody from "./CommentsItem/CommentBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -176,7 +176,7 @@ const PopularCommentPostLink = ({ post, classes }: {
   );
 };
 
-const LWPopularCommentInner = ({comment, classes}: {
+const LWPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -250,9 +250,9 @@ const LWPopularCommentInner = ({comment, classes}: {
   );
 }
 
-export const LWPopularComment = registerComponent(
+export default registerComponent(
   "LWPopularComment",
-  LWPopularCommentInner,
+  LWPopularComment,
   {styles},
 );
 

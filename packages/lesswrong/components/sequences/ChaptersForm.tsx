@@ -15,7 +15,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
-import { Error404 } from "../common/Error404";
+import Error404 from "../common/Error404";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {

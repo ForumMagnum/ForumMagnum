@@ -2,9 +2,9 @@ import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
-import { WrappedComment } from "./WrappedComment";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import WrappedComment from "./WrappedComment";
 
 const styles = (_theme: ThemeType) => ({
   topQuickTake: {
@@ -25,7 +25,7 @@ const styles = (_theme: ThemeType) => ({
  * Section that displays the user's highest-karma quick take (shortform) plus
  * other data on their quick takes
  */
-const WrappedTopQuickTakeSectionInner = ({classes}: {
+const WrappedTopQuickTakeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
@@ -49,9 +49,9 @@ const WrappedTopQuickTakeSectionInner = ({classes}: {
   );
 }
 
-export const WrappedTopQuickTakeSection = registerComponent(
+export default registerComponent(
   "WrappedTopQuickTakeSection",
-  WrappedTopQuickTakeSectionInner,
+  WrappedTopQuickTakeSection,
   {styles},
 );
 

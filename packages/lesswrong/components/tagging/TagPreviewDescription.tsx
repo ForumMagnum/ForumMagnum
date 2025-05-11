@@ -6,9 +6,9 @@ import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { TagExcerpt } from "../common/excerpts/TagExcerpt";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
+import TagExcerpt from "../common/excerpts/TagExcerpt";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +46,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   return isLWorAF ? 8 : 2;
 }
 
-const TagPreviewDescriptionInner = ({tag, hash, classes, activeTab}: {
+const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   activeTab?: number,
@@ -121,6 +121,6 @@ const TagPreviewDescriptionInner = ({tag, hash, classes, activeTab}: {
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
 
-export const TagPreviewDescription = registerComponent("TagPreviewDescription", TagPreviewDescriptionInner, {styles});
+export default registerComponent("TagPreviewDescription", TagPreviewDescription, {styles});
 
 

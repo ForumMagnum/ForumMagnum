@@ -4,8 +4,8 @@ import { useForumWrappedContext } from "./hooks";
 import { formatPercentile } from "./wrappedHelpers";
 import { HumanIcon, PathIcon } from "./wrappedIcons";
 import range from "lodash/range";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chartContainer: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedTimeSpentSectionInner = ({classes}: {
+const WrappedTimeSpentSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
@@ -72,9 +72,9 @@ const WrappedTimeSpentSectionInner = ({classes}: {
   );
 }
 
-export const WrappedTimeSpentSection = registerComponent(
+export default registerComponent(
   "WrappedTimeSpentSection",
-  WrappedTimeSpentSectionInner,
+  WrappedTimeSpentSection,
   {styles},
 );
 

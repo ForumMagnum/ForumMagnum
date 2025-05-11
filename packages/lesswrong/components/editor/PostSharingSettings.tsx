@@ -14,11 +14,11 @@ import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { EAButton } from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import EAButton from "../ea-forum/EAButton";
 import { EditableUsersList } from "./EditableUsersList";
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles('PostSharingSettings', (theme: ThemeType) => ({

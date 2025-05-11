@@ -3,12 +3,12 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { State } from '@popperjs/core/lib/types';
 import { PartialDeep } from 'type-fest';
-import { CommentsNewForm } from "../comments/CommentsNewForm";
-import { LWPopper } from "../common/LWPopper";
-import { ForumIcon } from "../common/ForumIcon";
-import { CommentsEditForm } from "../comments/CommentsEditForm";
-import { CommentBody } from "../comments/CommentsItem/CommentBody";
-import { ForumEventEmojiPicker } from "./ForumEventEmojiPicker";
+import CommentsNewForm from "../comments/CommentsNewForm";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
+import CommentsEditForm from "../comments/CommentsEditForm";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import ForumEventEmojiPicker from "./ForumEventEmojiPicker";
 
 const WIDTH = 350;
 
@@ -106,7 +106,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ForumEventCommentFormInner = ({
+const ForumEventCommentForm = ({
   open,
   comment,
   forumEvent,
@@ -232,9 +232,9 @@ const ForumEventCommentFormInner = ({
   );
 };
 
-export const ForumEventCommentForm = registerComponent(
+export default registerComponent(
   'ForumEventCommentForm',
-  ForumEventCommentFormInner,
+  ForumEventCommentForm,
   { styles, stylePriority: 1 }
 );
 

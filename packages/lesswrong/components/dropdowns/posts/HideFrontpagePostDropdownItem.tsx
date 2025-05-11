@@ -8,8 +8,8 @@ import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
-import { LoginPopup } from "../../users/LoginPopup";
-import { DropdownItem } from "../DropdownItem";
+import LoginPopup from "../../users/LoginPopup";
+import DropdownItem from "../DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const HideFrontpagePostDropdownItemInner = ({post}: {post: PostsBase}) => {
+const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
@@ -61,9 +61,9 @@ const HideFrontpagePostDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const HideFrontPageButton = registerComponent(
+export default registerComponent(
   'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItemInner,
+  HideFrontpagePostDropdownItem,
   {
     styles,
     hocs: [withErrorBoundary],

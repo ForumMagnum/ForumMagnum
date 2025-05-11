@@ -5,7 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { styles } from '../common/HeaderSubtitle';
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const ReviewHeaderTitleInner = ({classes}: {
+export const ReviewHeaderTitle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation()
@@ -15,7 +15,7 @@ export const ReviewHeaderTitleInner = ({classes}: {
   </div>;
 }
 
-export const ReviewHeaderTitle = registerComponent('ReviewHeaderTitle', ReviewHeaderTitleInner, {styles});
+export default registerComponent('ReviewHeaderTitle', ReviewHeaderTitle, {styles});
 
 
 

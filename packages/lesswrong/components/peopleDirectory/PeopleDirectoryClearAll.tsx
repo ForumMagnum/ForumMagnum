@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryClearAllInner = ({text = "Clear all", onClear, classes}: {
+const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
   text?: string,
   onClear: () => void,
   classes: ClassesType<typeof styles>,
@@ -24,9 +24,9 @@ const PeopleDirectoryClearAllInner = ({text = "Clear all", onClear, classes}: {
   );
 }
 
-export const PeopleDirectoryClearAll = registerComponent(
+export default registerComponent(
   "PeopleDirectoryClearAll",
-  PeopleDirectoryClearAllInner,
+  PeopleDirectoryClearAll,
   {styles},
 );
 

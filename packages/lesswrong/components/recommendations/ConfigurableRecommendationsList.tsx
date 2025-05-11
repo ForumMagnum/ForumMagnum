@@ -2,16 +2,16 @@ import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
-import { getRecommendationSettings, archiveRecommendationsName, RecommendationsAlgorithmPicker } from './RecommendationsAlgorithmPicker'
+import RecommendationsAlgorithmPicker, { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isLW } from '../../lib/instanceSettings';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { RecommendationsList } from "./RecommendationsList";
-import { SettingsButton } from "../icons/SettingsButton";
-import { LWTooltip } from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import RecommendationsList from "./RecommendationsList";
+import SettingsButton from "../icons/SettingsButton";
+import LWTooltip from "../common/LWTooltip";
 
-const ConfigurableRecommendationsListInner = ({configName}: {
+const ConfigurableRecommendationsList = ({configName}: {
   configName: string
 }) => {
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -51,6 +51,6 @@ const ConfigurableRecommendationsListInner = ({configName}: {
   </SingleColumnSection>
 }
 
-export const ConfigurableRecommendationsList = registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsListInner);
+export default registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList);
 
 

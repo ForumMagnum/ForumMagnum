@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
  * This is used by the EA Forum Wrapped page, to let users indicate which posts
  * they found particularly valuable.
  */
-export const PostMostValuableCheckboxInner = ({post, classes}: {
+export const PostMostValuableCheckbox = ({post, classes}: {
   post: Pick<PostsBase, "_id">,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -87,7 +87,7 @@ export const PostMostValuableCheckboxInner = ({post, classes}: {
   />
 }
 
-export const PostMostValuableCheckbox = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckboxInner, {styles});
+export default registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
 
 
 

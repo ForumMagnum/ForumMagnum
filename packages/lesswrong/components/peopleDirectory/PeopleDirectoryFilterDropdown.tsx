@@ -1,10 +1,10 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useEventListener } from "../hooks/useEventListener";
-import { ForumIconName, ForumIcon } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
-import { LWPopper } from "../common/LWPopper";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -80,7 +80,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryFilterDropdownInner = ({
+const PeopleDirectoryFilterDropdown = ({
   title,
   active,
   primary,
@@ -167,9 +167,9 @@ const PeopleDirectoryFilterDropdownInner = ({
   );
 }
 
-export const PeopleDirectoryFilterDropdown = registerComponent(
+export default registerComponent(
   "PeopleDirectoryFilterDropdown",
-  PeopleDirectoryFilterDropdownInner,
+  PeopleDirectoryFilterDropdown,
   {styles, stylePriority: -1},
 );
 

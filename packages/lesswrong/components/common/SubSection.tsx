@@ -8,7 +8,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SubSectionInner = ({children, classes, className}: {
+const SubSection = ({children, classes, className}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -18,6 +18,6 @@ const SubSectionInner = ({children, classes, className}: {
   </div>
 }
 
-export const SubSection = registerComponent('SubSection', SubSectionInner, {styles});
+export default registerComponent('SubSection', SubSection, {styles});
 
 

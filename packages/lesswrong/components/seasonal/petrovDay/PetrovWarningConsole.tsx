@@ -3,8 +3,8 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { gql, useQuery } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
-import { PetrovWorldmapWrapper } from "./PetrovWorldmapWrapper";
-import { PastWarnings } from "./PastWarnings";
+import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
+import PastWarnings from "./PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +33,7 @@ export const inWarningWindow = (currentMinute: number) => {
   return currentMinute >= STARTING_MINUTE || currentMinute < 17
 }
 
-export const PetrovWarningConsoleInner = ({classes, currentUser, side}: {
+export const PetrovWarningConsole = ({classes, currentUser, side}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   side: 'east' | 'west'
@@ -124,6 +124,6 @@ export const PetrovWarningConsoleInner = ({classes, currentUser, side}: {
   }
 }
 
-export const PetrovWarningConsole = registerComponent('PetrovWarningConsole', PetrovWarningConsoleInner, {styles});
+export default registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
 
 

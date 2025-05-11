@@ -13,9 +13,9 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
 import { createFallBackDialogHandler } from '@/components/localGroups/CommunityMapFilter';
-import { EventNotificationsDialog } from "../../localGroups/EventNotificationsDialog";
-import { LWTooltip } from "../../common/LWTooltip";
-import { SimpleDivider } from "../../widgets/SimpleDivider";
+import EventNotificationsDialog from "../../localGroups/EventNotificationsDialog";
+import LWTooltip from "../../common/LWTooltip";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const HomepageMapFilterInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
@@ -126,7 +126,7 @@ const HomepageMapFilterInner = ({classes}: {classes: ClassesType<typeof styles>}
   </Paper>
 }
 
-export const HomepageMapFilter = registerComponent('HomepageMapFilter', HomepageMapFilterInner, {styles});
+export default registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
 
 
 

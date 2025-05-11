@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
 import Button  from '@/lib/vendor/@material-ui/core/src/Button'
-import { ContentItemBody } from "../common/ContentItemBody";
-import { LWDialog } from "../common/LWDialog";
-import { ContentStyles } from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import LWDialog from "../common/LWDialog";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberSuccessPopupInner = ({_id, postId, onClose, classes}: {
+const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   _id: string,
   postId?: string,
   onClose?: () => void,
@@ -79,6 +79,6 @@ const AFNonMemberSuccessPopupInner = ({_id, postId, onClose, classes}: {
   );
 }
 
-export const AFNonMemberSuccessPopup = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopupInner, {styles});
+export default registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopup, {styles});
 
 

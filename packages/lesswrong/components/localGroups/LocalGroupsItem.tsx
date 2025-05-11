@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { PostsItemMetaInfo } from "../posts/PostsItemMetaInfo";
-import { GroupLinks } from "./GroupLinks";
+import PostsItemMetaInfo from "../posts/PostsItemMetaInfo";
+import GroupLinks from "./GroupLinks";
 
 export const postsItemLikeStyles = (theme: ThemeType) => ({
   root: {
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LocalGroupsItemInner = ({group, classes}: {
+const LocalGroupsItem = ({group, classes}: {
   group: localGroupsHomeFragment,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -95,7 +95,7 @@ const LocalGroupsItemInner = ({group, classes}: {
   )
 }
 
-export const LocalGroupsItem = registerComponent('LocalGroupsItem', LocalGroupsItemInner, {styles});
+export default registerComponent('LocalGroupsItem', LocalGroupsItem, {styles});
 
 
 

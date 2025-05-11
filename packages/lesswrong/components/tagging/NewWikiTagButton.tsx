@@ -8,12 +8,12 @@ import { useDialog } from '@/components/common/withDialog';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { LoginPopup } from "../users/LoginPopup";
-import { SectionButton } from "../common/SectionButton";
-import { LWPopper } from "../common/LWPopper";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { DropdownItem } from "../dropdowns/DropdownItem";
-import { DropdownDivider } from "../dropdowns/DropdownDivider";
+import LoginPopup from "../users/LoginPopup";
+import SectionButton from "../common/SectionButton";
+import LWPopper from "../common/LWPopper";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import DropdownDivider from "../dropdowns/DropdownDivider";
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
@@ -39,7 +39,7 @@ const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   },
 }));
 
-const NewWikiTagButtonInner = ({ hideLabel=false, className }: {
+const NewWikiTagButton = ({ hideLabel=false, className }: {
   hideLabel?: boolean,
   className?: string
 }) => {
@@ -111,7 +111,7 @@ const NewWikiTagButtonInner = ({ hideLabel=false, className }: {
   );
 };
 
-export const NewWikiTagButton = registerComponent("NewWikiTagButton", NewWikiTagButtonInner);
+export default registerComponent("NewWikiTagButton", NewWikiTagButton);
 
 
 

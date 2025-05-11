@@ -4,9 +4,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LoadMore } from "../common/LoadMore";
-import { CommentOnPostWithReplies } from "../comments/CommentOnPostWithReplies";
-import { QuickTakesEntry } from "../quickTakes/QuickTakesEntry";
+import LoadMore from "../common/LoadMore";
+import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShortformThreadListInner = ({ classes }: {
+const ShortformThreadList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -52,6 +52,6 @@ const ShortformThreadListInner = ({ classes }: {
   )
 }
 
-export const ShortformThreadList = registerComponent('ShortformThreadList', ShortformThreadListInner, {styles});
+export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
 
 

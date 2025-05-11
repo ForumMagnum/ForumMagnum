@@ -3,9 +3,9 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
-import { TabNavigationEventsList } from "../../localGroups/TabNavigationEventsList";
+import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
 
-export const EventsListInner = ({currentUser, onClick}: {
+export const EventsList = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
   onClick: (e?: React.BaseSyntheticEvent) => void
 }) => {
@@ -42,6 +42,6 @@ export const EventsListInner = ({currentUser, onClick}: {
   </span>
 }
 
-export const EventsList = registerComponent("EventsList", EventsListInner);
+export default registerComponent("EventsList", EventsList);
 
 

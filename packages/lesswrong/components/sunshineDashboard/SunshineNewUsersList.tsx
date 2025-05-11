@@ -3,10 +3,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SunshineListCount } from "./SunshineListCount";
-import { SunshineListTitle } from "./SunshineListTitle";
-import { SunshineNewUsersItem } from "./SunshineNewUsersItem";
-import { LoadMore } from "../common/LoadMore";
+import SunshineListCount from "./SunshineListCount";
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineNewUsersItem from "./SunshineNewUsersItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewUsersListInner = ({ classes, terms, currentUser }: {
+const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   terms: UsersViewTerms,
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
@@ -51,7 +51,7 @@ const SunshineNewUsersListInner = ({ classes, terms, currentUser }: {
   }
 }
 
-export const SunshineNewUsersList = registerComponent('SunshineNewUsersList', SunshineNewUsersListInner, {styles});
+export default registerComponent('SunshineNewUsersList', SunshineNewUsersList, {styles});
 
 
 

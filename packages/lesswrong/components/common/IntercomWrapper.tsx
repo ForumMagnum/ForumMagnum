@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const IntercomWrapperInner = () => {
+const IntercomWrapper = () => {
   const currentUser = useCurrentUser();
   const { currentRoute } = useLocation();
 
@@ -57,7 +57,7 @@ const IntercomWrapperInner = () => {
   }
 }
 
-export const IntercomWrapper = registerComponent('IntercomWrapper', IntercomWrapperInner, {
+export default registerComponent('IntercomWrapper', IntercomWrapper, {
   styles,
   hocs: [withErrorBoundary]
 });

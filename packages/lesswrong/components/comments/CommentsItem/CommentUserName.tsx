@@ -6,10 +6,10 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { UserNameDeleted } from "../../users/UserNameDeleted";
-import { UsersName } from "../../users/UsersName";
-import { UsersProfileImage } from "../../users/UsersProfileImage";
-import { UserTooltip } from "../../users/UserTooltip";
+import UserNameDeleted from "../../users/UserNameDeleted";
+import UsersName from "../../users/UsersName";
+import UsersProfileImage from "../../users/UsersProfileImage";
+import UserTooltip from "../../users/UserTooltip";
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const CommentUserNameInner = ({
+const CommentUserName = ({
   comment,
   classes,
   simple = false,
@@ -140,7 +140,7 @@ const CommentUserNameInner = ({
   );
 }
 
-export const CommentUserName = registerComponent('CommentUserName', CommentUserNameInner, {
+export default registerComponent('CommentUserName', CommentUserName, {
   styles,
   stylePriority: 100, //Higher than UsersName, which gets a className from us
 });

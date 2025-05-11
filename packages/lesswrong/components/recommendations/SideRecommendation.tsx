@@ -4,9 +4,9 @@ import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
-import { ForumIcon } from "../common/ForumIcon";
-import { KarmaDisplay } from "../common/KarmaDisplay";
-import { PostsItemTooltipWrapper } from "../posts/PostsItemTooltipWrapper";
+import ForumIcon from "../common/ForumIcon";
+import KarmaDisplay from "../common/KarmaDisplay";
+import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SideRecommendationInner = ({post, classes}: {
+const SideRecommendation = ({post, classes}: {
   post: PostsListWithVotesAndSequence,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -82,9 +82,9 @@ const SideRecommendationInner = ({post, classes}: {
   );
 }
 
-export const SideRecommendation = registerComponent(
+export default registerComponent(
   "SideRecommendation",
-  SideRecommendationInner,
+  SideRecommendation,
   {styles},
 );
 

@@ -6,8 +6,8 @@ import type {
   CommentSuccessCallback,
 } from '../comments/CommentsNewForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { QuickTakesEntry } from "../quickTakes/QuickTakesEntry";
-import { ForumIcon } from "../common/ForumIcon";
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ShortformSubmitFormInner = ({
+const ShortformSubmitForm = ({
   successCallback,
   cancelCallback,
   className,
@@ -80,6 +80,6 @@ const ShortformSubmitFormInner = ({
   );
 }
 
-export const ShortformSubmitForm = registerComponent('ShortformSubmitForm', ShortformSubmitFormInner, {styles});
+export default registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});
 
 

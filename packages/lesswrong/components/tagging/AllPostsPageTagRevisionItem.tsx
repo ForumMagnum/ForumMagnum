@@ -2,9 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { Loading } from "../vulcan-core/Loading";
-import { TagRevisionItem } from "./TagRevisionItem";
-import { LensRevisionItem } from "./history/LensRevisionItem";
+import Loading from "../vulcan-core/Loading";
+import TagRevisionItem from "./TagRevisionItem";
+import LensRevisionItem from "./history/LensRevisionItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AllPostsPageTagRevisionItemInner = ({tag, revisionId, documentId, classes}: {
+const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   tag: TagHistoryFragment,
   revisionId: string,
   documentId: string,
@@ -55,7 +55,7 @@ const AllPostsPageTagRevisionItemInner = ({tag, revisionId, documentId, classes}
   }
 }
 
-export const AllPostsPageTagRevisionItem = registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItemInner, {styles});
+export default registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItem, {styles});
 
 
 

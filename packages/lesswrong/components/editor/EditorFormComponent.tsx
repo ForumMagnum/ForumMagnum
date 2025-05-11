@@ -22,12 +22,12 @@ import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { LastEditedInWarning } from "./LastEditedInWarning";
-import { LocalStorageCheck } from "./LocalStorageCheck";
-import { EditorTypeSelect } from "./EditorTypeSelect";
-import { PostsEditBotTips } from "../posts/PostsEditBotTips";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { PostVersionHistoryButton } from './PostVersionHistory';
+import LastEditedInWarning from "./LastEditedInWarning";
+import LocalStorageCheck from "./LocalStorageCheck";
+import EditorTypeSelect from "./EditorTypeSelect";
+import PostsEditBotTips from "../posts/PostsEditBotTips";
+import ErrorBoundary from "../common/ErrorBoundary";
+import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds

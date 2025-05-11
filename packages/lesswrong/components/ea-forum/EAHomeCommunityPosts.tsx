@@ -9,9 +9,9 @@ import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { ExpandableSection } from "../common/ExpandableSection";
-import { PostsList2 } from "../posts/PostsList2";
-import { SectionFooter } from "../common/SectionFooter";
+import ExpandableSection from "../common/ExpandableSection";
+import PostsList2 from "../posts/PostsList2";
+import SectionFooter from "../common/SectionFooter";
 
 const styles = (theme: ThemeType) => ({
   readMoreLinkMobile: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const EAHomeCommunityPostsInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",
@@ -76,6 +76,6 @@ const EAHomeCommunityPostsInner = ({classes}: {classes: ClassesType<typeof style
   );
 }
 
-export const EAHomeCommunityPosts = registerComponent('EAHomeCommunityPosts', EAHomeCommunityPostsInner, {styles});
+export default registerComponent('EAHomeCommunityPosts', EAHomeCommunityPosts, {styles});
 
 

@@ -34,7 +34,7 @@ type DummyFormGroupProps = {
  * A component designed to mostly look and act like a default styled <FormGroup>
  * but for use outside a form.
  */
-const DummyFormGroupInner = ({
+const DummyFormGroup = ({
   label,
   startCollapsed,
   children,
@@ -56,6 +56,6 @@ const DummyFormGroupInner = ({
   );
 };
 
-export const DummyFormGroup = registerComponent('DummyFormGroup', DummyFormGroupInner, {styles});
+export default registerComponent('DummyFormGroup', DummyFormGroup, {styles});
 
 

@@ -6,22 +6,22 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { voteTextStyling, PostsItemReviewVote } from './PostsItemReviewVote';
+import PostsItemReviewVote, { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { usePostsItem } from '../posts/usePostsItem';
-import { PostsTitle } from "../posts/PostsTitle";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostsTooltip } from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { MetaInfo } from "../common/MetaInfo";
-import { ReviewVotingButtons } from "./ReviewVotingButtons";
-import { PostsItemComments } from "../posts/PostsItemComments";
-import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
-import { ReviewPostComments } from "./ReviewPostComments";
-import { PostInteractionStripe } from "./PostInteractionStripe";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { ForumIcon } from "../common/ForumIcon";
-import { PostsItemNewCommentsWrapper } from "../posts/PostsItemNewCommentsWrapper";
+import PostsTitle from "../posts/PostsTitle";
+import LWTooltip from "../common/LWTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import MetaInfo from "../common/MetaInfo";
+import ReviewVotingButtons from "./ReviewVotingButtons";
+import PostsItemComments from "../posts/PostsItemComments";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import ReviewPostComments from "./ReviewPostComments";
+import PostInteractionStripe from "./PostInteractionStripe";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import ForumIcon from "../common/ForumIcon";
+import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -216,7 +216,7 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRowInner = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   index: number,
   costTotal?: number,
@@ -376,7 +376,7 @@ const ReviewVoteTableRowInner = ({ post, index, dispatch, costTotal, classes, ex
   </AnalyticsContext>
 }
 
-export const ReviewVoteTableRow = registerComponent("ReviewVoteTableRow", ReviewVoteTableRowInner, {
+export default registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
   styles,
   //areEqual: "auto"
 });

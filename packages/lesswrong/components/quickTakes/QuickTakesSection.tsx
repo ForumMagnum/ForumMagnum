@@ -13,13 +13,13 @@ import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
 import { useMulti } from "@/lib/crud/withMulti";
-import { ExpandableSection } from "../common/ExpandableSection";
-import { LWTooltip } from "../common/LWTooltip";
-import { QuickTakesEntry } from "./QuickTakesEntry";
-import { QuickTakesListItem } from "./QuickTakesListItem";
-import { Loading } from "../vulcan-core/Loading";
-import { SectionFooter } from "../common/SectionFooter";
-import { LoadMore } from "../common/LoadMore";
+import ExpandableSection from "../common/ExpandableSection";
+import LWTooltip from "../common/LWTooltip";
+import QuickTakesEntry from "./QuickTakesEntry";
+import QuickTakesListItem from "./QuickTakesListItem";
+import Loading from "../vulcan-core/Loading";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const QuickTakesSectionInner = ({classes}: {
+const QuickTakesSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -154,7 +154,7 @@ const QuickTakesSectionInner = ({classes}: {
   );
 }
 
-export const QuickTakesSection = registerComponent("QuickTakesSection", QuickTakesSectionInner, {
+export default registerComponent("QuickTakesSection", QuickTakesSection, {
   styles,
   areEqual: "auto"
 });

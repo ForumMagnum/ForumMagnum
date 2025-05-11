@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { ErrorBoundary } from "./ErrorBoundary";
+import ErrorBoundary from "./ErrorBoundary";
 
 /// Higher-order component which adds an error boundary around a component.
 /// Unlike putting an <ErrorBoundary/> tag inside your render method, an error

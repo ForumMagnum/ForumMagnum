@@ -9,14 +9,14 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarHoverOver } from "./SidebarHoverOver";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
-import { MetaInfo } from "../common/MetaInfo";
-import { SidebarActionMenu } from "./SidebarActionMenu";
-import { SidebarAction } from "./SidebarAction";
+import MetaInfo from "../common/MetaInfo";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarAction from "./SidebarAction";
 
-const AFSuggestUsersItemInner = ({user}: {
+const AFSuggestUsersItem = ({user}: {
   user: SuggestAlignmentUser,
 }) => {
   const currentUser = useCurrentUser();
@@ -99,7 +99,7 @@ const AFSuggestUsersItemInner = ({user}: {
   }
 }
 
-export const AFSuggestUsersItem = registerComponent('AFSuggestUsersItem', AFSuggestUsersItemInner, {
+export default registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, {
   hocs: [withErrorBoundary]
 });
 

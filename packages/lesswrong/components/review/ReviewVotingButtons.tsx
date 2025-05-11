@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => {
   }
 }
 
-const ReviewVotingButtonsInner = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
+const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
   const currentUser = useCurrentUser()
 
   const [selection, setSelection] = useState(currentUserVote?.score || DEFAULT_QUALITATIVE_VOTE)
@@ -99,6 +99,6 @@ const ReviewVotingButtonsInner = ({classes, post, dispatch, currentUserVote, cos
   </AnalyticsContext>
 }
 
-export const ReviewVotingButtons = registerComponent("ReviewVotingButtons", ReviewVotingButtonsInner, {styles});
+export default registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});
 
 

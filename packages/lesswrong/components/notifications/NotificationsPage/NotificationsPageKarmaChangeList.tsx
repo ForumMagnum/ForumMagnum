@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { NotificationsPageKarmaChange } from "./NotificationsPageKarmaChange";
+import NotificationsPageKarmaChange from "./NotificationsPageKarmaChange";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-export const NotificationsPageKarmaChangeListInner = ({karmaChanges, truncateAt, classes}: {
+export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, classes}: {
   karmaChanges?: Pick<KarmaChanges, "posts" | "comments" | "tagRevisions">,
   truncateAt?: number,
   classes: ClassesType<typeof styles>,
@@ -97,9 +97,9 @@ export const NotificationsPageKarmaChangeListInner = ({karmaChanges, truncateAt,
   );
 }
 
-export const NotificationsPageKarmaChangeList = registerComponent(
+export default registerComponent(
   "NotificationsPageKarmaChangeList",
-  NotificationsPageKarmaChangeListInner,
+  NotificationsPageKarmaChangeList,
   {styles}
 );
 

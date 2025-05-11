@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { tagHistoryStyles } from './TagHistoryPage';
-import { SingleLineFeedEvent } from "../../common/SingleLineFeedEvent";
-import { CompareRevisions } from "../../revisions/CompareRevisions";
-import { ContentStyles } from "../../common/ContentStyles";
-import { ForumIcon } from "../../common/ForumIcon";
-import { TagRevisionItemShortMetadata } from "../TagRevisionItemShortMetadata";
+import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
+import CompareRevisions from "../../revisions/CompareRevisions";
+import ContentStyles from "../../common/ContentStyles";
+import ForumIcon from "../../common/ForumIcon";
+import TagRevisionItemShortMetadata from "../TagRevisionItemShortMetadata";
 
 const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -15,7 +15,7 @@ const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   },
 }));
 
-const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
+const SummaryRevisionItem = ({tag, collapsed, revision}: {
   tag: TagBasicInfo,
   collapsed: boolean,
   revision: RevisionHistorySummaryEdit,
@@ -65,7 +65,7 @@ const SummaryRevisionItemInner = ({tag, collapsed, revision}: {
   </SingleLineFeedEvent>
 }
 
-export const SummaryRevisionItem = registerComponent('SummaryRevisionItem', SummaryRevisionItemInner);
+export default registerComponent('SummaryRevisionItem', SummaryRevisionItem);
 
 
 

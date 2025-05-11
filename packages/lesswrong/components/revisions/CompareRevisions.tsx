@@ -6,10 +6,10 @@ import { Menu } from '@/components/widgets/Menu';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
-import { ErrorMessage } from "../common/ErrorMessage";
-import { Loading } from "../vulcan-core/Loading";
-import { ContentItemTruncated } from "../common/ContentItemTruncated";
-import { ForumIcon } from "../common/ForumIcon";
+import ErrorMessage from "../common/ErrorMessage";
+import Loading from "../vulcan-core/Loading";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles("CompareRevisions", (theme: ThemeType) => ({
@@ -40,7 +40,7 @@ const styles = defineStyles("CompareRevisions", (theme: ThemeType) => ({
   },
 }));
 
-const CompareRevisionsInner = ({
+const CompareRevisions = ({
   collectionName,
   fieldName,
   documentId,
@@ -167,6 +167,6 @@ const RevisionsMenuActions = ({revision}: {
 }
 
 
-export const CompareRevisions = registerComponent("CompareRevisions", CompareRevisionsInner);
+export default registerComponent("CompareRevisions", CompareRevisions);
 
 

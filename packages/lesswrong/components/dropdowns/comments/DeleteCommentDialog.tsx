@@ -8,7 +8,7 @@ import { DialogTitle } from '../../widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { LWDialog } from "../../common/LWDialog";
+import LWDialog from "../../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const DeleteCommentDialogInner = ({comment, onClose, classes}: {
+const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
@@ -100,8 +100,8 @@ const DeleteCommentDialogInner = ({comment, onClose, classes}: {
   return render();
 }
 
-export const DeleteCommentDialog = registerComponent(
-  'DeleteCommentDialog', DeleteCommentDialogInner, {styles}
+export default registerComponent(
+  'DeleteCommentDialog', DeleteCommentDialog, {styles}
 );
 
 

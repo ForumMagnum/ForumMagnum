@@ -8,11 +8,11 @@ import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
-import { ContentStyles } from "../common/ContentStyles";
-import { ReCaptcha } from "../common/ReCaptcha";
-import { Loading } from "../vulcan-core/Loading";
-import { EALoginPopover } from "../ea-forum/auth/EALoginPopover";
-import { SignupSubscribeToCurated } from "./SignupSubscribeToCurated";
+import ContentStyles from "../common/ContentStyles";
+import ReCaptcha from "../common/ReCaptcha";
+import Loading from "../vulcan-core/Loading";
+import EALoginPopover from "../ea-forum/auth/EALoginPopover";
+import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -106,7 +106,7 @@ type LoginFormProps = {
   classes: ClassesType<typeof styles>
 }
 
-const LoginFormInner = (props: LoginFormProps) => {
+const LoginForm = (props: LoginFormProps) => {
   if (isFriendlyUI) {
     return <LoginFormEA {...props} />
   }
@@ -271,6 +271,6 @@ const LoginFormEA = ({
   );
 }
 
-export const LoginForm = registerComponent('LoginForm', LoginFormInner, { styles });
+export default registerComponent('LoginForm', LoginForm, { styles });
 
 

@@ -11,7 +11,7 @@ import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => ({
   newOrEditForm: {
@@ -59,7 +59,7 @@ export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => 
   cancelButton: cancelButtonStyles(theme),
 }));
 
-const CollectionsEditFormInner = ({ initialData, successCallback, cancelCallback }: {
+const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   initialData: UpdateCollectionDataInput & { _id: string },
   successCallback: (doc: CollectionsPageFragment) => void,
   cancelCallback: () => void,
@@ -229,7 +229,7 @@ const CollectionsEditFormInner = ({ initialData, successCallback, cancelCallback
   )
 }
 
-export const CollectionsEditForm = registerComponent('CollectionsEditForm', CollectionsEditFormInner);
+export default registerComponent('CollectionsEditForm', CollectionsEditForm);
 
 
 

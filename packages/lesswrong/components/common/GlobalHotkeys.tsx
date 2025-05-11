@@ -9,7 +9,7 @@ import { userHasDarkModeHotkey } from '../../lib/betas';
 import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
 import { isLW } from '@/lib/instanceSettings';
 
-export const GlobalHotkeysInner = () => {
+export const GlobalHotkeys = () => {
   const currentThemeOptions = useConcreteThemeOptions();
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
@@ -55,6 +55,6 @@ export const GlobalHotkeysInner = () => {
   return <></>;
 }
 
-export const GlobalHotkeys = registerComponent('GlobalHotkeys', GlobalHotkeysInner);
+export default registerComponent('GlobalHotkeys', GlobalHotkeys);
 
 

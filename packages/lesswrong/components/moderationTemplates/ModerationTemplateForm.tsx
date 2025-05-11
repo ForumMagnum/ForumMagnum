@@ -13,8 +13,8 @@ import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderatio
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {

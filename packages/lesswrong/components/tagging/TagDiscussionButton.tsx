@@ -7,8 +7,8 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { isFriendlyUI } from "@/themes/forumTheme";
-import { TagDiscussion } from "./TagDiscussion";
-import { PopperCard } from "../common/PopperCard";
+import TagDiscussion from "./TagDiscussion";
+import PopperCard from "../common/PopperCard";
 
 const styles = (theme: ThemeType) => ({
   discussionButton: {
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const TagDiscussionButtonInner = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
+const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabel?: boolean,
@@ -93,6 +93,6 @@ const TagDiscussionButtonInner = ({tag, text = "Discussion", hideLabel = false, 
   </Link>
 }
 
-export const TagDiscussionButton = registerComponent("TagDiscussionButton", TagDiscussionButtonInner, {styles});
+export default registerComponent("TagDiscussionButton", TagDiscussionButton, {styles});
 
 

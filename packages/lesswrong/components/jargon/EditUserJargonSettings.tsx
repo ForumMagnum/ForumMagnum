@@ -4,8 +4,8 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { JARGON_LLM_MODEL } from './GlossaryEditForm';
-import { LWTooltip } from "../common/LWTooltip";
-import { MetaInfo } from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = () => ({
   checkboxContainer: {
@@ -18,7 +18,7 @@ const styles = () => ({
   },
 });
 
-export const EditUserJargonSettingsInner = ({classes}: {
+export const EditUserJargonSettings = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -48,6 +48,6 @@ export const EditUserJargonSettingsInner = ({classes}: {
   </>;
 }
 
-export const EditUserJargonSettings = registerComponent('EditUserJargonSettings', EditUserJargonSettingsInner, {styles});
+export default registerComponent('EditUserJargonSettings', EditUserJargonSettings, {styles});
 
 

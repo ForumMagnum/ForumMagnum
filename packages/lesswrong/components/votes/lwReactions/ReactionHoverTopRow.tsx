@@ -6,10 +6,10 @@ import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import sumBy from 'lodash/sumBy';
-import { UsersWhoReacted } from "./UsersWhoReacted";
-import { ReactOrAntireactVote } from "./ReactOrAntireactVote";
-import { ReactionDescription } from "./ReactionDescription";
-import { ReactionIcon } from "../ReactionIcon";
+import UsersWhoReacted from "./UsersWhoReacted";
+import ReactOrAntireactVote from "./ReactOrAntireactVote";
+import ReactionDescription from "./ReactionDescription";
+import ReactionIcon from "../ReactionIcon";
 
 const styles = (theme: ThemeType) => ({
   hoverBallotEntry: {
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ReactionHoverTopRowInner = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps, classes}: {
+const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps, classes}: {
   reactionName: EmojiReactName
   userReactions: UserReactInfo[],
   showNonInlineVoteButtons: boolean,
@@ -82,7 +82,7 @@ const ReactionHoverTopRowInner = ({reactionName, userReactions, showNonInlineVot
   </div>
 }
 
-export const ReactionHoverTopRow = registerComponent('ReactionHoverTopRow', ReactionHoverTopRowInner, {styles});
+export default registerComponent('ReactionHoverTopRow', ReactionHoverTopRow, {styles});
 
 
 

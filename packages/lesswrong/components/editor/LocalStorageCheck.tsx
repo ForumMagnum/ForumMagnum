@@ -4,7 +4,7 @@ import { SerializedEditorContents, deserializeEditorContents, EditorContents, no
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -89,7 +89,7 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-const LocalStorageCheckInner = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
+const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
   getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
   classes: ClassesType<typeof styles>,
@@ -143,6 +143,6 @@ const LocalStorageCheckInner = ({getLocalStorageHandlers, onRestore, classes, ge
   </div>
 }
 
-export const LocalStorageCheck = registerComponent('LocalStorageCheck', LocalStorageCheckInner, {styles});
+export default registerComponent('LocalStorageCheck', LocalStorageCheck, {styles});
 
 

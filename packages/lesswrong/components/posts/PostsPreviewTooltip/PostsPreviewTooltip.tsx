@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { isFriendlyUI } from "../../../themes/forumTheme";
-import { EAPostsPreviewTooltip } from "./EAPostsPreviewTooltip";
-import { LWPostsPreviewTooltip } from "./LWPostsPreviewTooltip";
+import EAPostsPreviewTooltip from "./EAPostsPreviewTooltip";
+import LWPostsPreviewTooltip from "./LWPostsPreviewTooltip";
 
 export interface DialogueMessageInfo {
   dialogueMessageId: string

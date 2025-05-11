@@ -3,9 +3,9 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
-import { UsersProfileImage } from "../../users/UsersProfileImage";
-import { WrappedSection } from "./WrappedSection";
-import { WrappedHeading } from "./WrappedHeading";
+import UsersProfileImage from "../../users/UsersProfileImage";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   authors: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedMostReadAuthorSectionInner = ({classes}: {
+const WrappedMostReadAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {mostReadAuthors, postsReadCount}} = useForumWrappedContext();
@@ -73,9 +73,9 @@ const WrappedMostReadAuthorSectionInner = ({classes}: {
   );
 }
 
-export const WrappedMostReadAuthorSection = registerComponent(
+export default registerComponent(
   "WrappedMostReadAuthorSection",
-  WrappedMostReadAuthorSectionInner,
+  WrappedMostReadAuthorSection,
   {styles},
 );
 

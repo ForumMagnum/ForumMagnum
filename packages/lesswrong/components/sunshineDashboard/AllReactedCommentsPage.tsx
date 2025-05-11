@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { CommentsNode } from "../comments/CommentsNode";
-import { LoadMore } from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import CommentsNodeInner from "../comments/CommentsNode";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
   }
 });
 
-export const AllReactedCommentsPageInner = ({classes}: {
+export const AllReactedCommentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const defaultLimit = 50;
@@ -30,7 +30,7 @@ export const AllReactedCommentsPageInner = ({classes}: {
       <div className={classes.root}>
         {results && results.map((comment: CommentsListWithParentMetadata) =>
           <div key={comment._id}>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -48,6 +48,6 @@ export const AllReactedCommentsPageInner = ({classes}: {
   )
 }
 
-export const AllReactedCommentsPage = registerComponent('AllReactedCommentsPage', AllReactedCommentsPageInner, {styles});
+export default registerComponent('AllReactedCommentsPage', AllReactedCommentsPage, {styles});
 
 

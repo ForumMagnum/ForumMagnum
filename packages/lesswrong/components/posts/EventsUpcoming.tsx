@@ -1,11 +1,11 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "./PostsList2";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "./PostsList2";
 
-const EventsUpcomingInner = () => {
+const EventsUpcoming = () => {
   const terms = { view: 'upcomingEvents', limit: 20 } as const;
 
   return (
@@ -16,6 +16,6 @@ const EventsUpcomingInner = () => {
   )
 }
 
-export const EventsUpcoming = registerComponent('EventsUpcoming', EventsUpcomingInner);
+export default registerComponent('EventsUpcoming', EventsUpcoming);
 
 

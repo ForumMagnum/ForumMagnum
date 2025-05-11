@@ -4,13 +4,13 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { CommonExcerptProps, ContentExcerpt } from "./ContentExcerpt";
-import { Loading } from "../../vulcan-core/Loading";
+import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
+import Loading from "../../vulcan-core/Loading";
 
 const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
   "user" in post;
 
-const PostExcerptInner = ({
+const PostExcerpt = ({
   post,
   useCustomHighlight=true,
   hash,
@@ -75,9 +75,9 @@ const PostExcerptInner = ({
   );
 }
 
-export const PostExcerpt = registerComponent(
+export default registerComponent(
   "PostExcerpt",
-  PostExcerptInner,
+  PostExcerpt,
 );
 
 

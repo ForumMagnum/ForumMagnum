@@ -6,9 +6,9 @@ import {userMentionQueryString} from '../pingback'
 import {tagUrlBaseSetting} from '@/lib/instanceSettings'
 import { filterNonnull } from '../utils/typeGuardUtils'
 import { getSiteUrl } from "../vulcan-lib/utils";
-import { UserMentionHit } from '@/components/search/UserMentionHit'
-import { PostMentionHit } from '@/components/search/PostMentionHit'
-import { TagMentionHit } from '@/components/search/TagMentionHit'
+import UserMentionHit from '@/components/search/UserMentionHit'
+import PostMentionHit from '@/components/search/PostMentionHit'
+import TagMentionHit from '@/components/search/TagMentionHit'
 
 const MARKER = "@";
 

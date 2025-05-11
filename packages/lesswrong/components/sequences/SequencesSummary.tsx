@@ -6,13 +6,13 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { UsersName } from "../users/UsersName";
-import { SequencesSmallPostLink } from "./SequencesSmallPostLink";
-import { ChapterTitle } from "./ChapterTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemTruncated } from "../common/ContentItemTruncated";
-import { LWTooltip } from "../common/LWTooltip";
+import UsersName from "../users/UsersName";
+import SequencesSmallPostLink from "./SequencesSmallPostLink";
+import ChapterTitle from "./ChapterTitle";
+import Loading from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,7 +120,7 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
   return <>{nodes}</>;
 }
 
-export const SequencesSummaryInner = ({classes, sequence, showAuthor=true, maxPosts}: {
+export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
   classes: ClassesType<typeof styles>,
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
@@ -189,6 +189,6 @@ export const SequencesSummaryInner = ({classes, sequence, showAuthor=true, maxPo
   </Card>;
 }
 
-export const SequencesSummary = registerComponent('SequencesSummary', SequencesSummaryInner, {styles});
+export default registerComponent('SequencesSummary', SequencesSummary, {styles});
 
 

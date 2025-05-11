@@ -15,15 +15,15 @@ import {
   SurveyQuestionFormat,
   surveyQuestionFormats
 } from "@/lib/collections/surveyQuestions/constants";
-import { EAButton } from "../ea-forum/EAButton";
-import { EAOnboardingInput } from "../ea-forum/onboarding/EAOnboardingInput";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { DropdownItem } from "../dropdowns/DropdownItem";
-import { PopperCard } from "../common/PopperCard";
-import { Loading } from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import PopperCard from "../common/PopperCard";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -368,7 +368,7 @@ const SurveyPostsItemInternal = ({
   );
 }
 
-const SurveyPostsItemInner = ({survey, surveyScheduleId, refetchSurvey, classes}: {
+const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   survey: SurveyMinimumInfo,
   surveyScheduleId?: string,
   refetchSurvey?: () => Promise<void>,
@@ -401,9 +401,9 @@ const SurveyPostsItemInner = ({survey, surveyScheduleId, refetchSurvey, classes}
   );
 }
 
-export const SurveyPostsItem = registerComponent(
+export default registerComponent(
   "SurveyPostsItem",
-  SurveyPostsItemInner,
+  SurveyPostsItem,
   {styles},
 );
 

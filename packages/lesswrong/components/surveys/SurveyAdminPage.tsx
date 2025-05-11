@@ -4,15 +4,15 @@ import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useMulti } from "@/lib/crud/withMulti";
 import { Link } from "@/lib/reactRouterWrapper";
-import { Error404 } from "../common/Error404";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { EAButton } from "../ea-forum/EAButton";
-import { FormatDate } from "../common/FormatDate";
-import { BlurredBackgroundModal } from "../common/BlurredBackgroundModal";
-import { EAOnboardingInput } from "../ea-forum/onboarding/EAOnboardingInput";
-import { LoadMore } from "../common/LoadMore";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
+import FormatDate from "../common/FormatDate";
+import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -197,7 +197,7 @@ const SurveysEditor = ({classes}: {
   );
 }
 
-const SurveyAdminPageInner = ({classes}: {
+const SurveyAdminPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -206,9 +206,9 @@ const SurveyAdminPageInner = ({classes}: {
     : <Error404 />;
 }
 
-export const SurveyAdminPage = registerComponent(
+export default registerComponent(
   "SurveyAdminPage",
-  SurveyAdminPageInner,
+  SurveyAdminPage,
   {styles},
 );
 

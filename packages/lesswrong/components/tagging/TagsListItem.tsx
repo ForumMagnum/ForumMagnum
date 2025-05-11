@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { PopperCard } from "../common/PopperCard";
-import { TagPreview } from "./TagPreview";
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
 
 const styles = (theme: ThemeType) => ({
   tag: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagsListItemInner = ({tag, classes, postCount=3}: {
+const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType<typeof styles>,
   postCount?: number,
@@ -56,6 +56,6 @@ const TagsListItemInner = ({tag, classes, postCount=3}: {
   </div>;
 }
 
-export const TagsListItem = registerComponent("TagsListItem", TagsListItemInner, {styles});
+export default registerComponent("TagsListItem", TagsListItem, {styles});
 
 

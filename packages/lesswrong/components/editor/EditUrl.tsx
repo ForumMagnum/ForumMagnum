@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const EditUrlInner = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
   value: string,
   path: keyof DbPost,
   classes: ClassesType<typeof styles>,
@@ -144,6 +144,6 @@ const EditUrlInner = ({ value, path, classes, document, defaultValue, label, hin
   );
 }
 
-export const EditUrl = registerComponent("EditUrl", EditUrlInner, {styles});
+export default registerComponent("EditUrl", EditUrl, {styles});
 
 

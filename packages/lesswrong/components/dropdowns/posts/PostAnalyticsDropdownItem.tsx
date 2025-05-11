@@ -4,9 +4,9 @@ import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers"
 import { useCurrentUser } from "../../common/withUser";
 import { isEAForum } from "../../../lib/instanceSettings";
 import qs from "qs";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const PostAnalyticsDropdownItemInner = ({post}: {post: PostsBase}) => {
+const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   if (!isEAForum || !isEditor) {
@@ -23,9 +23,9 @@ const PostAnalyticsDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const PostAnalyticsDropdownItem = registerComponent(
+export default registerComponent(
   "PostAnalyticsDropdownItem",
-  PostAnalyticsDropdownItemInner,
+  PostAnalyticsDropdownItem,
 );
 
 

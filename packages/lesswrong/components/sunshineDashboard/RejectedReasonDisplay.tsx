@@ -2,10 +2,10 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { htmlToText } from 'html-to-text';
-import { LWTooltip } from "../common/LWTooltip";
-import { ContentStyles } from "../common/ContentStyles";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { MetaInfo } from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const RejectedReasonDisplayInner = ({classes, reason}: {
+export const RejectedReasonDisplay = ({classes, reason}: {
   classes: ClassesType<typeof styles>,
   reason: string|null
 }) => {
@@ -52,7 +52,7 @@ export const RejectedReasonDisplayInner = ({classes, reason}: {
   </span>;
 }
 
-export const RejectedReasonDisplay = registerComponent('RejectedReasonDisplay', RejectedReasonDisplayInner, {styles});
+export default registerComponent('RejectedReasonDisplay', RejectedReasonDisplay, {styles});
 
 
 

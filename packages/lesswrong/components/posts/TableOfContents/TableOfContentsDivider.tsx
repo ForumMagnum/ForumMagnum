@@ -14,14 +14,14 @@ const styles = defineStyles("TableOfContentsDivider", (theme: ThemeType) => ({
 }))
 export type TableOfContentsDividerStyles = typeof styles;
 
-const TableOfContentsDividerInner = ({ scaleStyling }: {
+const TableOfContentsDivider = ({ scaleStyling }: {
   scaleStyling?: CSSProperties
 }) => {
   const classes = useStyles(styles);
   return <div className={classes.divider} style={scaleStyling}/>
 }
 
-export const TableOfContentsDivider = registerComponent('TableOfContentsDivider', TableOfContentsDividerInner);
+export default registerComponent('TableOfContentsDivider', TableOfContentsDivider);
 
 
 

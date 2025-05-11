@@ -2,12 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
-import { NoContent } from "../common/NoContent";
-import { PostsItemNewCommentsListNode } from "./PostsItemNewCommentsListNode";
+import NoContent from "../common/NoContent";
+import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
 
 const styles = (theme: ThemeType) => ({})
 
-const PostsItemNewCommentsListInner = ({ terms, post, treeOptions }: {
+const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
   post: PostsList,
@@ -38,8 +38,8 @@ const PostsItemNewCommentsListInner = ({ terms, post, treeOptions }: {
   }
 };
 
-export const PostsItemNewCommentsList = registerComponent(
-  'PostsItemNewCommentsList', PostsItemNewCommentsListInner, {
+export default registerComponent(
+  'PostsItemNewCommentsList', PostsItemNewCommentsList, {
     styles,
   }
 );

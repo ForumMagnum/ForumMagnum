@@ -13,9 +13,9 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
-import { StyledMapPopup } from "../../localGroups/StyledMapPopup";
-import { GroupLinks } from "../../localGroups/GroupLinks";
-import { HomepageMapFilter } from "./HomepageMapFilter";
+import StyledMapPopup from "../../localGroups/StyledMapPopup";
+import GroupLinks from "../../localGroups/GroupLinks";
+import HomepageMapFilter from "./HomepageMapFilter";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const LocalEventWrapperPopUpInner = ({localEvent, handleClose}: {
+export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
@@ -82,7 +82,6 @@ const LocalEventWrapperPopUpInner = ({localEvent, handleClose}: {
     <div dangerouslySetInnerHTML={htmlBody} />
   </StyledMapPopup>
 }
-export const LocalEventWrapperPopUp = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUpInner);
 
 
 const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
@@ -102,6 +101,7 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
     opacity: 1
   }
 })
+
 const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
@@ -142,12 +142,13 @@ const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
     })}
   </React.Fragment>
 }
+
 export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner, {
   styles: localEventMapMarkerWrappersStyles
 });
 
 
-export const HomepageCommunityMapInner = ({dontAskUserLocation = false, classes}: {
+export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -190,7 +191,7 @@ export const HomepageCommunityMapInner = ({dontAskUserLocation = false, classes}
   </div>;
 }
 
-export const HomepageCommunityMap = registerComponent('HomepageCommunityMap', HomepageCommunityMapInner, {styles});
+export default registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
 
 
 

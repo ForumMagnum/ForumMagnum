@@ -3,11 +3,11 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
 import { useEAOnboarding } from "./useEAOnboarding";
 import classNames from "classnames";
-import { EAOnboardingStage } from "./EAOnboardingStage";
-import { EAOnboardingPodcast } from "./EAOnboardingPodcast";
-import { SectionTitle } from "../../common/SectionTitle";
-import { EAButton } from "../EAButton";
-import { ToggleSwitch } from "../../common/ToggleSwitch";
+import EAOnboardingStage from "./EAOnboardingStage";
+import EAOnboardingPodcast from "./EAOnboardingPodcast";
+import SectionTitle from "../../common/SectionTitle";
+import EAButton from "../EAButton";
+import ToggleSwitch from "../../common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,7 +99,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingThankYouStageInner = ({classes}: {
+export const EAOnboardingThankYouStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentStage, goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
@@ -219,9 +219,9 @@ export const EAOnboardingThankYouStageInner = ({classes}: {
   );
 }
 
-export const EAOnboardingThankYouStage = registerComponent(
+export default registerComponent(
   "EAOnboardingThankYouStage",
-  EAOnboardingThankYouStageInner,
+  EAOnboardingThankYouStage,
   {styles},
 );
 

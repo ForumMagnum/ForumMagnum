@@ -8,19 +8,19 @@ import classNames from "classnames";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
-import { GRAPH_LEFT_MARGIN, AnalyticsGraph } from "./AnalyticsGraph";
+import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { slugify } from "@/lib/utils/slugify";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { HeadTags } from "../common/HeadTags";
+import SingleColumnSection from "../common/SingleColumnSection";
+import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
-import { LoadMore } from "../common/LoadMore";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { AnalyticsPostItem } from "./AnalyticsPostItem";
-import { AnalyticsPostItemSkeleton } from "./AnalyticsPostItemSkeleton";
+import LoadMore from "../common/LoadMore";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import AnalyticsPostItem from "./AnalyticsPostItem";
+import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -161,7 +161,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AuthorAnalyticsPageInner = ({ classes }: {
+const AuthorAnalyticsPage = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { params, query, location } = useLocation();
@@ -347,6 +347,6 @@ const AuthorAnalyticsPageInner = ({ classes }: {
   );
 };
 
-export const AuthorAnalyticsPage = registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPageInner, { styles });
+export default registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
 
 

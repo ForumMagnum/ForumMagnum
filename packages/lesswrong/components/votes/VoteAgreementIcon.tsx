@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,7 +92,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const VoteAgreementIconInner = ({
+const VoteAgreementIcon = ({
   orientation,
   enabled = true,
   color,
@@ -179,7 +179,7 @@ const VoteAgreementIconInner = ({
   )
 }
 
-export const VoteAgreementIcon = registerComponent('VoteAgreementIcon', VoteAgreementIconInner, {styles});
+export default registerComponent('VoteAgreementIcon', VoteAgreementIcon, {styles});
 
 
 

@@ -12,15 +12,15 @@ import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingName
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { LoginPopup } from "../users/LoginPopup";
-import { AllTagsAlphabetical } from "./AllTagsAlphabetical";
-import { SectionButton } from "../common/SectionButton";
-import { SectionTitle } from "../common/SectionTitle";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { Loading } from "../vulcan-core/Loading";
-import { CoreTagsSection } from "./CoreTagsSection";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import LoginPopup from "../users/LoginPopup";
+import AllTagsAlphabetical from "./AllTagsAlphabetical";
+import SectionButton from "../common/SectionButton";
+import SectionTitle from "../common/SectionTitle";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import CoreTagsSection from "./CoreTagsSection";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const EAAllTagsPageInner = ({classes}: {
+const EAAllTagsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog()
@@ -137,6 +137,6 @@ const EAAllTagsPageInner = ({classes}: {
   );
 }
 
-export const EAAllTagsPage = registerComponent("EAAllTagsPage", EAAllTagsPageInner, {styles});
+export default registerComponent("EAAllTagsPage", EAAllTagsPage, {styles});
 
 

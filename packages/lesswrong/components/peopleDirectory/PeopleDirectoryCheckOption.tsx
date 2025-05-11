@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryCheckOptionInner = ({label, selected, onSelect, classes}: {
+const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
   label: string,
   selected: boolean,
   onSelect?: () => void,
@@ -46,9 +46,9 @@ const PeopleDirectoryCheckOptionInner = ({label, selected, onSelect, classes}: {
   );
 }
 
-export const PeopleDirectoryCheckOption = registerComponent(
+export default registerComponent(
   "PeopleDirectoryCheckOption",
-  PeopleDirectoryCheckOptionInner,
+  PeopleDirectoryCheckOption,
   {styles},
 );
 

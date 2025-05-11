@@ -3,8 +3,8 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { TagsSearchAutoComplete } from "../search/TagsSearchAutoComplete";
+import ErrorBoundary from "../common/ErrorBoundary";
+import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 
 const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
   root: {

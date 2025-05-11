@@ -3,10 +3,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { SunshineListCount } from "./SunshineListCount";
-import { SunshineListTitle } from "./SunshineListTitle";
-import { SunshineNewPostsItem } from "./SunshineNewPostsItem";
-import { LoadMore } from "../common/LoadMore";
+import SunshineListCount from "./SunshineListCount";
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineNewPostsItem from "./SunshineNewPostsItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewPostsListInner = ({ terms, classes }: {
+const SunshineNewPostsList = ({ terms, classes }: {
   terms: PostsViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -50,7 +50,7 @@ const SunshineNewPostsListInner = ({ terms, classes }: {
   }
 }
 
-export const SunshineNewPostsList = registerComponent('SunshineNewPostsList', SunshineNewPostsListInner, {styles});
+export default registerComponent('SunshineNewPostsList', SunshineNewPostsList, {styles});
 
 
 

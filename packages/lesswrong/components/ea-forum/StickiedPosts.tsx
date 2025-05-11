@@ -2,9 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { PostsList2 } from "../posts/PostsList2";
-import { TargetedJobAdSection } from "./TargetedJobAdSection";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsList2 from "../posts/PostsList2";
+import TargetedJobAdSection from "./TargetedJobAdSection";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     },
 });
 
-const StickiedPostsInner = ({
+const StickiedPosts = ({
   classes,
 }: {
   classes: ClassesType<typeof styles>,
@@ -38,6 +38,6 @@ const StickiedPostsInner = ({
   </SingleColumnSection>
 }
 
-export const StickiedPosts = registerComponent("StickiedPosts", StickiedPostsInner, {styles});
+export default registerComponent("StickiedPosts", StickiedPosts, {styles});
 
 

@@ -4,7 +4,7 @@ import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
 import { captureException } from "@sentry/core";
-import { ForumIcon } from "../../common/ForumIcon";
+import ForumIcon from "../../common/ForumIcon";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedShareButtonInner = ({name, screenshotRef, onRendered, className, classes}: {
+const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes}: {
   name: string,
   screenshotRef: RefObject<HTMLElement|null>,
   onRendered?: (canvas: HTMLCanvasElement) => void,
@@ -79,9 +79,9 @@ const WrappedShareButtonInner = ({name, screenshotRef, onRendered, className, cl
   );
 }
 
-export const WrappedShareButton = registerComponent(
+export default registerComponent(
   "WrappedShareButton",
-  WrappedShareButtonInner,
+  WrappedShareButton,
   {styles},
 );
 

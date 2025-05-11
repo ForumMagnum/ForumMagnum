@@ -18,9 +18,9 @@ import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
-import { ContentItemBody } from "../common/ContentItemBody";
-import { ContentStyles } from "../common/ContentStyles";
-import { Loading } from "../vulcan-core/Loading";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -171,6 +171,8 @@ const LLMChatMessageInner = ({message, classes}: {
     />
   </ContentStyles>
 }
+
+export const LlmChatMessage = registerComponent('LlmChatMessage', LLMChatMessageInner, {styles});
 
 const LLMInputTextbox = ({onSubmit, classes}: {
   onSubmit: (message: string) => void,
@@ -472,7 +474,7 @@ export const ChatInterface = ({classes}: {
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChatInner = ({classes}: {
+const LanguageModelChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>
@@ -484,8 +486,7 @@ export const LanguageModelChatInner = ({classes}: {
   </DeferRender>;
 }
 
-export const LanguageModelChat = registerComponent('LanguageModelChat', LanguageModelChatInner, {styles});
+export default registerComponent('LanguageModelChat', LanguageModelChat, {styles});
 
-export const LlmChatMessage = registerComponent('LlmChatMessage', LLMChatMessageInner, {styles});
 
 

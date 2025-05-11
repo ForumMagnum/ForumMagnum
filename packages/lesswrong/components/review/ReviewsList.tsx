@@ -6,10 +6,10 @@ import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
 import sortBy from 'lodash/sortBy';
 import { Typography } from "../common/Typography";
-import { CommentsNode } from "../comments/CommentsNode";
-import { SectionTitle } from "../common/SectionTitle";
-import { ReviewsLeaderboard } from "./ReviewsLeaderboard";
-import { Loading } from "../vulcan-core/Loading";
+import CommentsNodeInner from "../comments/CommentsNode";
+import SectionTitle from "../common/SectionTitle";
+import ReviewsLeaderboard from "./ReviewsLeaderboard";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
 const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
-export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
+export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
   classes: ClassesType<typeof styles>,
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
@@ -66,7 +66,7 @@ export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
       {(loading) && <Loading />}
       {sortedReviews.map(comment =>
         <div key={comment._id} id={comment._id}>
-          <CommentsNode
+          <CommentsNodeInner
             treeOptions={{
               condensed: false,
               post: comment.post ?? undefined,
@@ -82,6 +82,6 @@ export const ReviewsListInner = ({classes, title, defaultSort, reviewYear}: {
   </div>;
 }
 
-export const ReviewsList = registerComponent('ReviewsList', ReviewsListInner, {styles});
+export default registerComponent('ReviewsList', ReviewsList, {styles});
 
 

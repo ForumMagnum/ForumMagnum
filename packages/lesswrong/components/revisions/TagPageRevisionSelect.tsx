@@ -6,16 +6,16 @@ import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helper
 import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { Loading } from "../vulcan-core/Loading";
-import { RevisionSelect } from "./RevisionSelect";
-import { TagRevisionItem } from "../tagging/TagRevisionItem";
-import { LoadMore } from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import RevisionSelect from "./RevisionSelect";
+import TagRevisionItem from "../tagging/TagRevisionItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
 });
 
-const TagPageRevisionSelectInner = ({ classes }: {
+const TagPageRevisionSelect = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
@@ -74,6 +74,6 @@ const TagPageRevisionSelectInner = ({ classes }: {
   </SingleColumnSection>
 }
 
-export const TagPageRevisionSelect = registerComponent("TagPageRevisionSelect", TagPageRevisionSelectInner, {styles});
+export default registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
 
 

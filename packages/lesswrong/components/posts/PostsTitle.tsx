@@ -14,8 +14,8 @@ import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
-import { ForumIcon } from "../common/ForumIcon";
-import { TagsTooltip } from "../tagging/TagsTooltip";
+import ForumIcon from "../common/ForumIcon";
+import TagsTooltip from "../tagging/TagsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -171,7 +171,7 @@ const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) =>
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitleInner = ({
+const PostsTitle = ({
   post, 
   postLink, 
   sticky, 
@@ -293,6 +293,6 @@ const PostsTitleInner = ({
   )
 }
 
-export const PostsTitle = registerComponent('PostsTitle', PostsTitleInner, {styles});
+export default registerComponent('PostsTitle', PostsTitle, {styles});
 
 

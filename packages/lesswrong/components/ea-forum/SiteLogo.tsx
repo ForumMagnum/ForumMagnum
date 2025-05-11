@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SiteLogoInner = ({eaContrast, classes}: {
+const SiteLogo = ({eaContrast, classes}: {
   eaContrast?: boolean,
   classes: ClassesType<typeof styles>;
 }) => {
@@ -43,9 +43,9 @@ const SiteLogoInner = ({eaContrast, classes}: {
   />
 }
 
-SiteLogoInner.displayName = "SiteLogo";
-export const SiteLogo = registerComponent(
-  'SiteLogo', SiteLogoInner, {styles}
-)
+SiteLogo.displayName = "SiteLogo";
+export default registerComponent(
+  'SiteLogo', SiteLogo, {styles}
+);
 
 

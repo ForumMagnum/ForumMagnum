@@ -4,9 +4,9 @@ import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
-import { LessOnline2025Banner } from './seasonal/LessOnline2025Banner';
-import { ReviewVotingCanvas } from "./review/ReviewVotingCanvas";
-import { CloudinaryImage2 } from "./common/CloudinaryImage2";
+import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
+import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
+import CloudinaryImage2 from "./common/CloudinaryImage2";
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -103,7 +103,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   }
 }));
 
-export const LWBackgroundImageInner = ({standaloneNavigation}: {
+export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -150,6 +150,6 @@ export const LWBackgroundImageInner = ({standaloneNavigation}: {
   </div>;
 }
 
-export const LWBackgroundImage = registerComponent('LWBackgroundImage', LWBackgroundImageInner);
+export default registerComponent('LWBackgroundImage', LWBackgroundImage);
 
 

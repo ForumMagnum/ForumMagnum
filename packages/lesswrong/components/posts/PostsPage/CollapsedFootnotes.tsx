@@ -64,7 +64,7 @@ const splitFootnotes = (html: string, previewCount: number) => {
     : {preview: "", rest: "", totalCount: 0};
 }
 
-const CollapsedFootnotesInner = ({
+const CollapsedFootnotes = ({
   footnotesHtml,
   attributes,
   previewCount = 3,
@@ -133,9 +133,9 @@ const CollapsedFootnotesInner = ({
   );
 }
 
-export const CollapsedFootnotes = registerComponent(
+export default registerComponent(
   "CollapsedFootnotes",
-  CollapsedFootnotesInner,
+  CollapsedFootnotes,
   {styles},
 );
 

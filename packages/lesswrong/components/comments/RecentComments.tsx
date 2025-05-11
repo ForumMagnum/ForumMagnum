@@ -3,9 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { Typography } from "../common/Typography";
-import { Loading } from "../vulcan-core/Loading";
-import { CommentsNode } from "./CommentsNode";
-import { LoadMore } from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import CommentsNodeInner from "./CommentsNode";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) =>  ({
   },
 })
 
-const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
+const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
@@ -46,7 +46,7 @@ const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfi
   return <div className={classes.root}>
     {validResults.map(comment =>
       <div key={comment._id}>
-        <CommentsNode
+        <CommentsNodeInner
           treeOptions={{
             condensed: false,
             post: comment.post || undefined,
@@ -64,7 +64,7 @@ const RecentCommentsInner = ({classes, terms, truncated=false, showPinnedOnProfi
   </div>
 }
 
-export const RecentComments = registerComponent('RecentComments', RecentCommentsInner, {styles});
+export default registerComponent('RecentComments', RecentComments, {styles});
 
 
 

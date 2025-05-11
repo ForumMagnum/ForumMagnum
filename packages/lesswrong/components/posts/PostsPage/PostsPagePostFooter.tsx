@@ -8,13 +8,13 @@ import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
-import { PostsVote } from "../../votes/PostsVote";
-import { BookmarkButton } from "../BookmarkButton";
-import { SharePostButton } from "../SharePostButton";
-import { PostActionsButton } from "../../dropdowns/posts/PostActionsButton";
-import { BottomNavigation } from "../../sequences/BottomNavigation";
-import { PingbacksList } from "../PingbacksList";
-import { FooterTagList } from "../../tagging/FooterTagList";
+import PostsVote from "../../votes/PostsVote";
+import BookmarkButton from "../BookmarkButton";
+import SharePostButton from "../SharePostButton";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import BottomNavigation from "../../sequences/BottomNavigation";
+import PingbacksList from "../PingbacksList";
+import FooterTagList from "../../tagging/FooterTagList";
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPagePostFooterInner = ({post, sequenceId, classes}: {
+const PostsPagePostFooter = ({post, sequenceId, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
@@ -140,6 +140,6 @@ const PostsPagePostFooterInner = ({post, sequenceId, classes}: {
   </>
 }
 
-export const PostsPagePostFooter = registerComponent("PostsPagePostFooter", PostsPagePostFooterInner, {styles});
+export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {styles});
 
 

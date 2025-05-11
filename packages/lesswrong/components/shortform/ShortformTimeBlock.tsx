@@ -2,10 +2,10 @@ import React, { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { QuickTakesListItem } from "../quickTakes/QuickTakesListItem";
-import { CommentsNode } from "../comments/CommentsNode";
-import { LoadMore } from "../common/LoadMore";
-import { ContentType } from "../posts/PostsPage/ContentType";
+import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import LoadMore from "../common/LoadMore";
+import ContentType from "../posts/PostsPage/ContentType";
 
 const styles = (_: ThemeType) => ({
   shortformGroup: {
@@ -30,7 +30,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
     );
   }
   return (
-    <CommentsNode
+    <CommentsNodeInner
       treeOptions={{
         post: comment.post || undefined,
         forceSingleLine: true
@@ -41,7 +41,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlockInner  = ({reportEmpty, before, after, terms, classes}: {
+const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   reportEmpty: () => void,
   before: string
   after: string
@@ -93,7 +93,7 @@ const ShortformTimeBlockInner  = ({reportEmpty, before, after, terms, classes}: 
   </div>
 }
 
-export const ShortformTimeBlock = registerComponent('ShortformTimeBlock', ShortformTimeBlockInner, {styles});
+export default registerComponent('ShortformTimeBlock', ShortformTimeBlock, {styles});
 
 
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { TAB_NAVIGATION_MENU_WIDTH, TabNavigationMenu } from './TabNavigationMenu';
+import TabNavigationMenu, { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const NavigationStandaloneInner = ({
+const NavigationStandalone = ({
   sidebarHidden,
   unspacedGridLayout,
   noTopMargin,
@@ -103,8 +103,8 @@ const Slide = ({slidIn, children}: {
   </div>
 }
 
-export const NavigationStandalone = registerComponent(
-  'NavigationStandalone', NavigationStandaloneInner, {styles}
+export default registerComponent(
+  'NavigationStandalone', NavigationStandalone, {styles}
 );
 
 

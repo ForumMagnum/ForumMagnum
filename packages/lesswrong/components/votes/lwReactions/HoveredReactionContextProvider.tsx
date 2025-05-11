@@ -43,7 +43,7 @@ function hoveredReactionsReducer(hoveredReactions: HoveredReaction[], change: Ho
   }
 }
 
-export const HoveredReactionContextProviderInner = ({voteProps, children}: {
+export const HoveredReactionContextProvider = ({voteProps, children}: {
   voteProps: VotingProps<VoteableTypeClient>
   children: React.ReactNode,
 }) => {
@@ -58,7 +58,7 @@ export const HoveredReactionContextProviderInner = ({voteProps, children}: {
   </HoveredReactionListContext.Provider>
 }
 
-export const HoveredReactionContextProvider = registerComponent('HoveredReactionContextProvider', HoveredReactionContextProviderInner);
+export default registerComponent('HoveredReactionContextProvider', HoveredReactionContextProvider);
 
 
 

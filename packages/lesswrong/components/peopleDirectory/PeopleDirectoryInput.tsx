@@ -1,6 +1,6 @@
 import React, { ChangeEvent, MutableRefObject, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { ForumIconName, ForumIcon } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryInputInner = ({
+const PeopleDirectoryInput = ({
   value,
   setValue,
   icon,
@@ -63,9 +63,9 @@ const PeopleDirectoryInputInner = ({
   );
 }
 
-export const PeopleDirectoryInput = registerComponent(
+export default registerComponent(
   "PeopleDirectoryInput",
-  PeopleDirectoryInputInner,
+  PeopleDirectoryInput,
   {styles},
 );
 

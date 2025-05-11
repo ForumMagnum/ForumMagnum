@@ -24,7 +24,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-import { LWDialog } from "./LWDialog";
+import LWDialog from "./LWDialog";
 import { MenuItem } from "./Menus";
 
 const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
@@ -130,7 +130,7 @@ type EventWithSelectTarget = {
   }
 };
 
-const SubscribeDialogInner = (props: {
+const SubscribeDialog = (props: {
   method: any,
   view: keyof typeof viewNames,
   onClose: any,
@@ -330,6 +330,6 @@ const SubscribeDialogInner = (props: {
   );
 }
 
-export const SubscribeDialog = registerComponent("SubscribeDialog", SubscribeDialogInner);
+export default registerComponent("SubscribeDialog", SubscribeDialog);
 
 

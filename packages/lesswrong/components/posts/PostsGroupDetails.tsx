@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsGroupDetailsInner = ({ documentId, post, inRecentDiscussion, classes }: {
+const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
   inRecentDiscussion?: Boolean,
@@ -61,8 +61,8 @@ const PostsGroupDetailsInner = ({ documentId, post, inRecentDiscussion, classes 
   </div>
 }
 
-export const PostsGroupDetails = registerComponent(
-  'PostsGroupDetails', PostsGroupDetailsInner, { styles }
+export default registerComponent(
+  'PostsGroupDetails', PostsGroupDetails, { styles }
 );
 
 

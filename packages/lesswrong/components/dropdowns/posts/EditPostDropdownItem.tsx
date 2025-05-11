@@ -5,9 +5,9 @@ import { userIsPodcaster } from "../../../lib/vulcan-users/permissions";
 import { userIsSharedOn } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const EditPostDropdownItemInner = ({post}: {post: PostsBase}) => {
+const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   const isPodcaster = userIsPodcaster(currentUser);
@@ -28,9 +28,9 @@ const EditPostDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const EditPostDropdownItem = registerComponent(
+export default registerComponent(
   "EditPostDropdownItem",
-  EditPostDropdownItemInner,
+  EditPostDropdownItem,
 );
 
 

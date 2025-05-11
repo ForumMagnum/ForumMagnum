@@ -10,18 +10,18 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
-import { PostsTitle } from "./PostsTitle";
-import { ForumIcon } from "../common/ForumIcon";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
-import { EAKarmaDisplay } from "../common/EAKarmaDisplay";
-import { EAPostMeta } from "../ea-forum/EAPostMeta";
-import { PostsItemTagRelevance } from "../tagging/PostsItemTagRelevance";
-import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
-import { PostsVote } from "../votes/PostsVote";
-import { PostsItemTrailingButtons } from "./PostsItemTrailingButtons";
-import { PostReadCheckbox } from "./PostReadCheckbox";
-import { PostsItemNewCommentsWrapper } from "./PostsItemNewCommentsWrapper";
-import { PostMostValuableCheckbox } from "./PostMostValuableCheckbox";
+import PostsTitle from "./PostsTitle";
+import ForumIcon from "../common/ForumIcon";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import EAKarmaDisplay from "../common/EAKarmaDisplay";
+import EAPostMeta from "../ea-forum/EAPostMeta";
+import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import PostsVote from "../votes/PostsVote";
+import PostsItemTrailingButtons from "./PostsItemTrailingButtons";
+import PostReadCheckbox from "./PostReadCheckbox";
+import PostsItemNewCommentsWrapper from "./PostsItemNewCommentsWrapper";
+import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 
 const KARMA_WIDTH = 50;
 const CARD_IMG_HEIGHT = 80;
@@ -272,7 +272,7 @@ export type EAPostsItemProps = PostsItemConfig & {
   classes: ClassesType<typeof styles>,
 };
 
-const EAPostsItemInner = ({
+const EAPostsItem = ({
   openInNewTab,
   hideSecondaryInfo,
   secondaryInfoNode,
@@ -529,9 +529,9 @@ const EAPostsItemInner = ({
   );
 }
 
-export const EAPostsItem = registerComponent(
+export default registerComponent(
   "EAPostsItem",
-  EAPostsItemInner,
+  EAPostsItem,
   {
     styles,
     stylePriority: 1,

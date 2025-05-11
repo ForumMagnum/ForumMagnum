@@ -5,10 +5,10 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
-import { ContentStyles } from "../../common/ContentStyles";
-import { NewConversationButton } from "../../messaging/NewConversationButton";
-import { NotifyMeButton } from "../../notifications/NotifyMeButton";
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
+import ContentStyles from "../../common/ContentStyles";
+import NewConversationButton from "../../messaging/NewConversationButton";
+import NotifyMeButton from "../../notifications/NotifyMeButton";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostAuthorCardInner = ({author, currentUser, classes}: {
+const PostAuthorCard = ({author, currentUser, classes}: {
   author: PostsAuthors_user,
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
@@ -122,6 +122,6 @@ const PostAuthorCardInner = ({author, currentUser, classes}: {
   </AnalyticsContext>
 }
 
-export const PostAuthorCard = registerComponent("PostAuthorCard", PostAuthorCardInner, {styles});
+export default registerComponent("PostAuthorCard", PostAuthorCard, {styles});
 
 

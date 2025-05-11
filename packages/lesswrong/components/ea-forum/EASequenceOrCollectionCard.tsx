@@ -4,8 +4,8 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import { UseHoverEventHandlers } from "../common/withHover";
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EASequenceOrCollectionCardInner = ({
+const EASequenceOrCollectionCard = ({
   title,
   author,
   TitleWrapper,
@@ -141,9 +141,9 @@ const EASequenceOrCollectionCardInner = ({
   );
 };
 
-export const EASequenceOrCollectionCard = registerComponent(
+export default registerComponent(
   "EASequenceOrCollectionCard",
-  EASequenceOrCollectionCardInner,
+  EASequenceOrCollectionCard,
   {styles, stylePriority: -1},
 );
 

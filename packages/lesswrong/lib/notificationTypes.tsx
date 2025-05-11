@@ -23,8 +23,8 @@ import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
 import keyBy from 'lodash/keyBy';
-import { ForumIcon } from '@/components/common/ForumIcon';
-import { CommentOnYourDraftNotificationHover } from '@/components/notifications/CommentOnYourDraftNotificationHover';
+import ForumIcon from '@/components/common/ForumIcon';
+import CommentOnYourDraftNotificationHover from '@/components/notifications/CommentOnYourDraftNotificationHover';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<

@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { PostsItem } from "../posts/PostsItem";
-import { PostsLoading } from "../posts/PostsLoading";
+import PostsItem from "../posts/PostsItem";
+import PostsLoading from "../posts/PostsLoading";
 import { Typography } from "../common/Typography";
 
 export type RecommendationsListItem = ComponentType<{
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecommendationsListInner = ({
+const RecommendationsList = ({
   algorithm,
   translucentBackground,
   ListItem = PostsItem,
@@ -54,9 +54,9 @@ const RecommendationsListInner = ({
   </div>
 }
 
-export const RecommendationsList = registerComponent(
+export default registerComponent(
   'RecommendationsList',
-  RecommendationsListInner,
+  RecommendationsList,
   {styles, stylePriority: -1},
 );
 

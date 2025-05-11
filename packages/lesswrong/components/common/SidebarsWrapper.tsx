@@ -21,7 +21,7 @@ type SidebarsContextType = {
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
 
-const SidebarsWrapperInner = ({children}: {
+const SidebarsWrapper = ({children}: {
   children: React.ReactNode
 }) => {
   const [tocVisible, setTocVisibleState] = useState(true);
@@ -50,6 +50,6 @@ const SidebarsWrapperInner = ({children}: {
   </SidebarsContext.Provider>
 }
 
-export const SidebarsWrapper = registerComponent("SidebarsWrapper", SidebarsWrapperInner);
+export default registerComponent("SidebarsWrapper", SidebarsWrapper);
 
 

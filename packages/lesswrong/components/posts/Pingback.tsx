@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { KARMA_WIDTH } from './LWPostsItem';
-import { PostsTooltip } from "./PostsPreviewTooltip/PostsTooltip";
-import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
-import { KarmaDisplay } from "../common/KarmaDisplay";
-import { PostsTitle } from "./PostsTitle";
+import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import KarmaDisplay from "../common/KarmaDisplay";
+import PostsTitle from "./PostsTitle";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -17,7 +17,7 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-const PingbackInner = ({classes, post}: {
+const Pingback = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
@@ -33,7 +33,7 @@ const PingbackInner = ({classes, post}: {
   );
 }
 
-export const Pingback = registerComponent("Pingback", PingbackInner, {styles});
+export default registerComponent("Pingback", Pingback, {styles});
 
 
 

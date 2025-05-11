@@ -1,10 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { LocalGroupsList } from "./LocalGroupsList";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
+import LocalGroupsList from "./LocalGroupsList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 
-const AllGroupsPageInner = () => {
+const AllGroupsPage = () => {
   return (
     <SingleColumnSection>
       <SectionTitle title="All Groups"/>
@@ -15,7 +15,7 @@ const AllGroupsPageInner = () => {
   )
 }
 
-export const AllGroupsPage = registerComponent('AllGroupsPage', AllGroupsPageInner);
+export default registerComponent('AllGroupsPage', AllGroupsPage);
 
 
 

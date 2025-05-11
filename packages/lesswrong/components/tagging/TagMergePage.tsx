@@ -9,12 +9,12 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
-import { TagsSearchAutoComplete } from "../search/TagsSearchAutoComplete";
+import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import { Typography } from "../common/Typography";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { Loading } from "../vulcan-core/Loading";
-import { EAButton } from "../ea-forum/EAButton";
-import { LWTooltip } from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagMergePageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 
@@ -230,6 +230,6 @@ const TagMergePageInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const TagMergePage = registerComponent("TagMergePage", TagMergePageInner, { styles });
+export default registerComponent("TagMergePage", TagMergePage, { styles });
 
 

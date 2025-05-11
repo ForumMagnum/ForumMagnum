@@ -2,11 +2,11 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
-import { PostsPageWrapper } from "./PostsPage/PostsPageWrapper";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
+import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 
-const PostsSingleSlugInner = () => {
+const PostsSingleSlug = () => {
   const { params, query } = useLocation();
   const version = query?.revision
   const slug = params.slug;
@@ -19,6 +19,6 @@ const PostsSingleSlugInner = () => {
   }
 };
 
-export const PostsSingleSlug = registerComponent('PostsSingleSlug', PostsSingleSlugInner);
+export default registerComponent('PostsSingleSlug', PostsSingleSlug);
 
 

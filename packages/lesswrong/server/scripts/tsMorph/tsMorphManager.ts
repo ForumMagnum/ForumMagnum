@@ -4,7 +4,7 @@ import path from 'path';
 import { Worker } from 'worker_threads';
 import os from 'os';
 
-const BATCH_SIZE = 50; // Number of files per worker batch
+const BATCH_SIZE = 1500; // Number of files per worker batch
 
 // --- Main Script ---
 async function main(workerScriptPath: string) {
@@ -44,20 +44,27 @@ async function main(workerScriptPath: string) {
           filePaths: filePathsInBatch, 
           tsConfigFilePath: tsConfigForProjectAndWorkers,
           allSourceFilePaths: sourceFilePaths // Pass the complete list of discovered files
-        }
+        },
+        // stdout: true,
+        // stderr: true,
       });
       let settled = false;
 
-      worker.on('message', (batchResultPayload: Array<{ filePath: string, status: string, error?: string }>) => {
+      // worker.stdout.pipe(process.stdout);
+      // worker.stderr.pipe(process.stderr);
+
+      worker.on('message', (batchResultPayload: Array<{ filePath: string, status: string, error?: string }> | { message: string }) => {
         if (!settled) {
-          settled = true;
           if (Array.isArray(batchResultPayload)) {
+            settled = true;
             batchResultPayload.forEach(result => {
               totalFilesProcessedCount++; // Increment only when a result for a file is processed
               console.log(`[${totalFilesProcessedCount}/${sourceFilePaths.length}] ${result.filePath}: ${result.status} ${result.error ? `- ${result.error}` : ''}`);
               allResults.push(result);
             });
             resolve(batchResultPayload); // Resolve with the array of results
+          } else if (typeof batchResultPayload === 'object' && 'message' in batchResultPayload) {
+            console.log(`[Batch ${batchNumber}]:`, batchResultPayload.message);
           } else {
             console.error(`[Batch ${batchNumber}] Unexpected message format from worker:`, batchResultPayload);
             const errorResults = filePathsInBatch.map(fp => ({ filePath: fp, status: 'error', error: 'Malformed batch result from worker' }));

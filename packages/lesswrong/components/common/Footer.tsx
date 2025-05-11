@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const FooterInner = ({classes}: {
+const Footer = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -15,6 +15,6 @@ const FooterInner = ({classes}: {
   )
 }
 
-export const Footer = registerComponent('Footer', FooterInner, {styles});
+export default registerComponent('Footer', Footer, {styles});
 
 

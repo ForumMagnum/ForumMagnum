@@ -13,9 +13,9 @@ import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { LoginPopup } from "../users/LoginPopup";
-import { UsersName } from "../users/UsersName";
-import { ContentStyles } from "../common/ContentStyles";
+import LoginPopup from "../users/LoginPopup";
+import UsersName from "../users/UsersName";
+import ContentStyles from "../common/ContentStyles";
 
 const elicitDataFragment = `
   _id
@@ -178,7 +178,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ElicitBlockInner = ({ classes, questionId = "IyWNjzc5P" }: {
+const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType<typeof styles>,
   questionId: String
 }) => {
@@ -296,7 +296,7 @@ const ElicitBlockInner = ({ classes, questionId = "IyWNjzc5P" }: {
   </ContentStyles>
 }
 
-export const ElicitBlock = registerComponent('ElicitBlock', ElicitBlockInner, {
+export default registerComponent('ElicitBlock', ElicitBlock, {
   styles,
   hocs: [withErrorBoundary],
 });

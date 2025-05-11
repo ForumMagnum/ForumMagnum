@@ -15,8 +15,8 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
 import { TooltipSpan } from '../common/FMTooltip';
-import { MetaInfo } from "../common/MetaInfo";
-import { SettingsColumn } from "../common/SettingsColumn";
+import MetaInfo from "../common/MetaInfo";
+import SettingsColumn from "../common/SettingsColumn";
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -145,7 +145,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettingsInner = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -269,8 +269,8 @@ const PostsListSettingsInner = ({persistentSettings, hidden, currentTimeframe, c
   );
 };
 
-export const PostsListSettings = registerComponent(
-  'PostsListSettings', PostsListSettingsInner, { styles }
+export default registerComponent(
+  'PostsListSettings', PostsListSettings, { styles }
 );
 
 

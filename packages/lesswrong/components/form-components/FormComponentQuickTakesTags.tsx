@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
 import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
-import { TagsChecklist } from "../tagging/TagsChecklist";
-import { Loading } from "../vulcan-core/Loading";
+import TagsChecklist from "../tagging/TagsChecklist";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('FormComponentQuickTakesTags', (_theme: ThemeType) => ({
   tagContainer: {

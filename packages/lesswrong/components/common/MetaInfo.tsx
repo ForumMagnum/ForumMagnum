@@ -23,7 +23,7 @@ export const styles = (theme: ThemeType) => ({
   }
 })
 
-const MetaInfoInner = ({children, classes, button, className}: {
+const MetaInfo = ({children, classes, button, className}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   button?: boolean,
@@ -38,6 +38,6 @@ const MetaInfoInner = ({children, classes, button, className}: {
   </Typography>
 }
 
-export const MetaInfo = registerComponent('MetaInfo', MetaInfoInner, {styles});
+export default registerComponent('MetaInfo', MetaInfo, {styles});
 
 

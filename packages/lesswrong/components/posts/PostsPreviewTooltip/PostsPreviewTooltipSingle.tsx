@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
-import { PostsPreviewLoading } from "./PostsPreviewLoading";
+import PostsPreviewLoading from "./PostsPreviewLoading";
 
 export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,

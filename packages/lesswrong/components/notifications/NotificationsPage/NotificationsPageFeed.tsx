@@ -11,12 +11,12 @@ import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { useNotificationDisplays } from "./useNotificationDisplays";
-import { NotificationsPageNotification } from "./NotificationsPageNotification";
-import { NotificationsPageKarmaChangeList } from "./NotificationsPageKarmaChangeList";
-import { NotificationsPageEmpty } from "./NotificationsPageEmpty";
-import { LoadMore } from "../../common/LoadMore";
-import { Loading } from "../../vulcan-core/Loading";
-import { SectionTitle } from "../../common/SectionTitle";
+import NotificationsPageNotification from "./NotificationsPageNotification";
+import NotificationsPageKarmaChangeList from "./NotificationsPageKarmaChangeList";
+import NotificationsPageEmpty from "./NotificationsPageEmpty";
+import LoadMore from "../../common/LoadMore";
+import Loading from "../../vulcan-core/Loading";
+import SectionTitle from "../../common/SectionTitle";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 
@@ -82,7 +82,7 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
   realtime: "Karma changes are shown in realtime",
 };
 
-const NotificationsPageFeedInner = ({karmaChanges, classes}: {
+const NotificationsPageFeed = ({karmaChanges, classes}: {
   karmaChanges?: KarmaChanges|null,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -183,9 +183,9 @@ const NotificationsPageFeedInner = ({karmaChanges, classes}: {
   );
 }
 
-export const NotificationsPageFeed = registerComponent(
+export default registerComponent(
   "NotificationsPageFeed",
-  NotificationsPageFeedInner,
+  NotificationsPageFeed,
   {styles},
 );
 

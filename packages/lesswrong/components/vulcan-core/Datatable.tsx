@@ -5,8 +5,8 @@ import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { Loading } from "./Loading";
-import { LoadMore } from "../common/LoadMore";
+import Loading from "./Loading";
+import LoadMore from "../common/LoadMore";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -24,7 +24,7 @@ const getColumnName = (column: Column) => (
     : column.label || column.name
 );
 
-export const DatatableInner = <
+export const Datatable = <
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
 >({columns, collectionName, fragmentName, limit, terms}: {
@@ -255,6 +255,6 @@ const DatatableDefaultCell = ({ column, document }: {
 }
 
 
-export const Datatable = registerComponent('Datatable', DatatableInner);
+export default registerComponent('Datatable', Datatable);
 
 

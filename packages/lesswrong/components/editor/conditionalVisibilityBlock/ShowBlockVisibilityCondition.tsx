@@ -20,7 +20,7 @@ const styles = defineStyles("ShowBlockVisibilityCondition", (theme: ThemeType) =
   },
 }));
 
-const ShowBlockVisibilityConditionInner = ({options, children}: {
+const ShowBlockVisibilityCondition = ({options, children}: {
   options: ConditionalVisibilitySettings
   children: React.ReactNode
 }) => {
@@ -41,7 +41,7 @@ const ShowBlockVisibilityConditionInner = ({options, children}: {
   </div>
 }
 
-export const ShowBlockVisibilityCondition = registerComponent('ShowBlockVisibilityCondition', ShowBlockVisibilityConditionInner);
+export default registerComponent('ShowBlockVisibilityCondition', ShowBlockVisibilityCondition);
 
 
 

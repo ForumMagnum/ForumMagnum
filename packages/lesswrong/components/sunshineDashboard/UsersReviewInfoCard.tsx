@@ -9,19 +9,19 @@ import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
-import { MetaInfo } from "../common/MetaInfo";
-import { UserReviewMetadata } from "./ModeratorUserInfo/UserReviewMetadata";
-import { LWTooltip } from "../common/LWTooltip";
-import { UserReviewStatus } from "./ModeratorUserInfo/UserReviewStatus";
-import { SunshineNewUserPostsList } from "./SunshineNewUserPostsList";
-import { ContentSummaryRows } from "./ModeratorUserInfo/ContentSummaryRows";
-import { SunshineNewUserCommentsList } from "./SunshineNewUserCommentsList";
-import { ModeratorActions } from "./ModeratorActions";
-import { UsersName } from "../users/UsersName";
-import { NewUserDMSummary } from "./ModeratorUserInfo/NewUserDMSummary";
-import { SunshineUserMessages } from "./SunshineUserMessages";
-import { FirstContentIcons } from "./FirstContentIcons";
-import { UserAutoRateLimitsDisplay } from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import MetaInfo from "../common/MetaInfo";
+import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
+import LWTooltip from "../common/LWTooltip";
+import UserReviewStatus from "./ModeratorUserInfo/UserReviewStatus";
+import SunshineNewUserPostsList from "./SunshineNewUserPostsList";
+import ContentSummaryRows from "./ModeratorUserInfo/ContentSummaryRows";
+import SunshineNewUserCommentsList from "./SunshineNewUserCommentsList";
+import ModeratorActions from "./ModeratorActions";
+import UsersName from "../users/UsersName";
+import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
+import SunshineUserMessages from "./SunshineUserMessages";
+import FirstContentIcons from "./FirstContentIcons";
+import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
 
 export const CONTENT_LIMIT = 20
 
@@ -171,7 +171,7 @@ const styles = (theme: ThemeType) => ({
 export const DEFAULT_BIO_WORDCOUNT = 250
 export const MAX_BIO_WORDCOUNT = 10000
 
-const UsersReviewInfoCardInner = ({ user, refetch, currentUser, classes }: {
+const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
@@ -270,7 +270,7 @@ const UsersReviewInfoCardInner = ({ user, refetch, currentUser, classes }: {
   )
 }
 
-export const UsersReviewInfoCard = registerComponent('UsersReviewInfoCard', UsersReviewInfoCardInner, {
+export default registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
   styles,
   hocs: [
     withErrorBoundary,

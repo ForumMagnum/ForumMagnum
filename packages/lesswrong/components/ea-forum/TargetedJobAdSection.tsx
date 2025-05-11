@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { EAGWillingToRelocateOption, JOB_AD_DATA, TargetedJobAd } from './TargetedJobAd';
+import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
 import { gql, useQuery } from '@apollo/client';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
@@ -25,7 +25,7 @@ type UserCoreTagReads = {
 /**
  * Section of a page that might display a job ad to the current user.
  */
-const TargetedJobAdSectionInner = () => {
+const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
@@ -258,6 +258,6 @@ const TargetedJobAdSectionInner = () => {
   </div>
 }
 
-export const TargetedJobAdSection = registerComponent("TargetedJobAdSection", TargetedJobAdSectionInner);
+export default registerComponent("TargetedJobAdSection", TargetedJobAdSection);
 
 

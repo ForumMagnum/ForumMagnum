@@ -10,21 +10,21 @@ import { getCostData, getReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOL
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
-import { voteTooltipType, ReviewVoteTableRow } from './ReviewVoteTableRow';
+import ReviewVoteTableRow, { voteTooltipType } from './ReviewVoteTableRow';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Link } from '@/lib/reactRouterWrapper';
-import { sortingInfo, ReviewVotingPageMenu } from './ReviewVotingPageMenu';
+import ReviewVotingPageMenu, { sortingInfo } from './ReviewVotingPageMenu';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { ReviewPostForm } from "./ReviewPostForm";
-import { PostsTagsList } from "../tagging/PostsTagsList";
-import { LWTooltip } from "../common/LWTooltip";
+import ReviewPostForm from "./ReviewPostForm";
+import PostsTagsList from "../tagging/PostsTagsList";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,7 +99,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   return result;
 }
 
-const ReviewVotingPageInner = ({classes, reviewYear, expandedPost, setExpandedPost}: {
+const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   expandedPost: PostsReviewVotingList|null,
@@ -438,6 +438,6 @@ const ReviewVotingPageInner = ({classes, reviewYear, expandedPost, setExpandedPo
   );
 }
 
-export const ReviewVotingPage = registerComponent('ReviewVotingPage', ReviewVotingPageInner, {styles});
+export default registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
 
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { VoteColor } from './voteColors';
-import { VoteArrowIconSolid } from "./VoteArrowIconSolid";
-import { VoteArrowIconHollow } from "./VoteArrowIconHollow";
+import VoteArrowIconSolid from "./VoteArrowIconSolid";
+import VoteArrowIconHollow from "./VoteArrowIconHollow";
 
 export interface BaseVoteArrowIconProps {
   strongVoteDelay: number,
@@ -27,7 +27,7 @@ export interface VoteArrowIconProps extends BaseVoteArrowIconProps {
   solidArrow?: boolean,
 }
 
-const VoteArrowIconInner = (props: VoteArrowIconProps) => {
+const VoteArrowIcon = (props: VoteArrowIconProps) => {
   const { solidArrow } = props;
   if (solidArrow) {
     return <VoteArrowIconSolid {...props} />;
@@ -36,6 +36,6 @@ const VoteArrowIconInner = (props: VoteArrowIconProps) => {
   }
 };
 
-export const VoteArrowIcon = registerComponent('VoteArrowIcon', VoteArrowIconInner);
+export default registerComponent('VoteArrowIcon', VoteArrowIcon);
 
 

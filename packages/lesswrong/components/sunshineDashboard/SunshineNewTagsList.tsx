@@ -4,10 +4,10 @@ import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { SunshineListCount } from "./SunshineListCount";
-import { SunshineListTitle } from "./SunshineListTitle";
-import { SunshineNewTagsItem } from "./SunshineNewTagsItem";
-import { LoadMore } from "../common/LoadMore";
+import SunshineListCount from "./SunshineListCount";
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineNewTagsItem from "./SunshineNewTagsItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewTagsListInner = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const { results, totalCount, loadMoreProps } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
     collectionName: "Tags",
@@ -42,6 +42,6 @@ const SunshineNewTagsListInner = ({ classes }: {classes: ClassesType<typeof styl
   }
 }
 
-export const SunshineNewTagsList = registerComponent('SunshineNewTagsList', SunshineNewTagsListInner, {styles});
+export default registerComponent('SunshineNewTagsList', SunshineNewTagsList, {styles});
 
 

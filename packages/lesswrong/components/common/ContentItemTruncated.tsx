@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
-import { ContentItemBody } from "./ContentItemBody";
+import ContentItemBody from "./ContentItemBody";
 
 const TRUNCATION_MAX_HEIGHT = 600;
 
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
-const ContentItemTruncatedInner = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
+const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
   classes: ClassesType<typeof styles>,
   maxLengthWords: number,
   graceWords?: number,
@@ -77,6 +77,6 @@ const ContentItemTruncatedInner = ({classes, maxLengthWords, graceWords=20, expa
   </>
 }
 
-export const ContentItemTruncated = registerComponent('ContentItemTruncated', ContentItemTruncatedInner, {styles});
+export default registerComponent('ContentItemTruncated', ContentItemTruncated, {styles});
 
 

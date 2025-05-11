@@ -8,10 +8,10 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
-import { LoginPopup } from "../users/LoginPopup";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostsItem2MetaInfo } from "../posts/PostsItem2MetaInfo";
-import { SeparatorBullet } from "../common/SeparatorBullet";
+import LoginPopup from "../users/LoginPopup";
+import LWTooltip from "../common/LWTooltip";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import SeparatorBullet from "../common/SeparatorBullet";
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
 
 });
 
-const TagProgressBarInner = ({ classes }: {
+const TagProgressBar = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -155,7 +155,7 @@ const TagProgressBarInner = ({ classes }: {
   </div>
 }
 
-export const TagProgressBar = registerComponent("TagProgressBar", TagProgressBarInner, { styles, hocs: [withErrorBoundary] });
+export default registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
 
 
 

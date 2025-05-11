@@ -6,8 +6,8 @@ import {
 import { Link } from "../../lib/reactRouterWrapper";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { PostsPagePostHeader } from "./PostsPage/PostsPagePostHeader";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForeignCrosspostEditFormInner = ({post, classes}: {
+const ForeignCrosspostEditForm = ({post, classes}: {
   post: PostsPage,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -51,6 +51,6 @@ const ForeignCrosspostEditFormInner = ({post, classes}: {
   );
 }
 
-export const ForeignCrosspostEditForm = registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditFormInner, {styles});
+export default registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditForm, {styles});
 
 

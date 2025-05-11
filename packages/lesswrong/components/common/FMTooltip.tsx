@@ -5,7 +5,7 @@ import { AnalyticsProps } from '@/lib/analyticsEvents';
 import { useHover } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
-import { LWPopper } from "./LWPopper";
+import LWPopper from "./LWPopper";
 
 const styles = defineStyles("TooltipRef", (theme: ThemeType) => ({
   tooltip: {

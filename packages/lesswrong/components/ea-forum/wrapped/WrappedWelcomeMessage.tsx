@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { WrappedYear } from "./hooks";
-import { WrappedSection } from "./WrappedSection";
+import WrappedSection from "./WrappedSection";
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
  *  2. When the application is loading and we don't have access to a
  *     ForumWrappedContext
  */
-const WrappedWelcomeMessageInner = ({currentUser, year, children, classes}: {
+const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
   currentUser: UsersCurrent,
   year: WrappedYear,
   children?: ReactNode,
@@ -57,9 +57,9 @@ const WrappedWelcomeMessageInner = ({currentUser, year, children, classes}: {
   );
 }
 
-export const WrappedWelcomeMessage = registerComponent(
+export default registerComponent(
   "WrappedWelcomeMessage",
-  WrappedWelcomeMessageInner,
+  WrappedWelcomeMessage,
   {styles},
 );
 

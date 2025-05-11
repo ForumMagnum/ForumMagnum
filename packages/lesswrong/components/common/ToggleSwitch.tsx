@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ToggleSwitchInner = ({value, setValue, smallVersion, className, classes}: {
+export const ToggleSwitch = ({value, setValue, smallVersion, className, classes}: {
   value: boolean,
   setValue?: (value: boolean) => void,
   smallVersion?: boolean,
@@ -75,9 +75,9 @@ export const ToggleSwitchInner = ({value, setValue, smallVersion, className, cla
   );
 }
 
-export const ToggleSwitch = registerComponent(
+export default registerComponent(
   "ToggleSwitch",
-  ToggleSwitchInner,
+  ToggleSwitch,
   {styles, stylePriority: -1},
 );
 

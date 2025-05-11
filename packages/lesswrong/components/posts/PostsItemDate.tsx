@@ -1,15 +1,15 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { ExpandedDate, FormatDate } from '../common/FormatDate';
+import FormatDate, { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '@/lib/utils/timeFormat';
-import { EventTime } from "../localGroups/EventTime";
-import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
-import { LWTooltip } from "../common/LWTooltip";
-import { TimeTag } from "../common/TimeTag";
+import EventTime from "../localGroups/EventTime";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import TimeTag from "../common/TimeTag";
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsItemDateInner = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
@@ -147,7 +147,7 @@ const PostsItemDateInner = ({post, noStyles, includeAgo, useCuratedDate, emphasi
   </LWTooltip>
 }
 
-export const PostsItemDate = registerComponent("PostsItemDate", PostsItemDateInner, {styles});
+export default registerComponent("PostsItemDate", PostsItemDate, {styles});
 
 
 

@@ -5,9 +5,9 @@ import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers"
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const DuplicateEventDropdownItemInner = ({post}: {post: PostsBase}) => {
+const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
   if (!isEditor || !post.isEvent) {
@@ -24,9 +24,9 @@ const DuplicateEventDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const DuplicateEventDropdownItem = registerComponent(
+export default registerComponent(
   "DuplicateEventDropdownItem",
-  DuplicateEventDropdownItemInner,
+  DuplicateEventDropdownItem,
 );
 
 

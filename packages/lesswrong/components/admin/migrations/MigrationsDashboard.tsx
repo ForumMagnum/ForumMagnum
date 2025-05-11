@@ -3,10 +3,10 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery, gql } from '@apollo/client';
-import { rowStyles, MigrationsDashboardRow } from './MigrationsDashboardRow';
-import { SingleColumnSection } from "../../common/SingleColumnSection";
-import { Loading } from "../../vulcan-core/Loading";
-import { SectionTitle } from "../../common/SectionTitle";
+import MigrationsDashboardRow, { rowStyles } from './MigrationsDashboardRow';
+import SingleColumnSection from "../../common/SingleColumnSection";
+import Loading from "../../vulcan-core/Loading";
+import SectionTitle from "../../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   ...rowStyles,
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const MigrationsDashboardInner = ({classes}: {
+const MigrationsDashboard = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -54,8 +54,8 @@ const MigrationsDashboardInner = ({classes}: {
   </SingleColumnSection>;
 }
 
-export const MigrationsDashboard = registerComponent(
-  "MigrationsDashboard", MigrationsDashboardInner, {styles}
+export default registerComponent(
+  "MigrationsDashboard", MigrationsDashboard, {styles}
 );
 
 

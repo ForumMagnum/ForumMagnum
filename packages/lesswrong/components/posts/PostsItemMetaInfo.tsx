@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsItemMetaInfoInner = ({children, classes, className}: {
+const PostsItemMetaInfo = ({children, classes, className}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -25,7 +25,7 @@ const PostsItemMetaInfoInner = ({children, classes, className}: {
   </Typography>
 }
 
-export const PostsItemMetaInfo = registerComponent('PostsItemMetaInfo', PostsItemMetaInfoInner, {styles});
+export default registerComponent('PostsItemMetaInfo', PostsItemMetaInfo, {styles});
 
 
 

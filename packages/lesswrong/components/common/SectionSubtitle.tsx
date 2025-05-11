@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionSubtitleInner = ({children, classes, className}: {
+const SectionSubtitle = ({children, classes, className}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   className?: string,
@@ -25,6 +25,6 @@ const SectionSubtitleInner = ({children, classes, className}: {
   </Typography>
 }
 
-export const SectionSubtitle = registerComponent('SectionSubtitle', SectionSubtitleInner, {styles})
+export default registerComponent('SectionSubtitle', SectionSubtitle, {styles});
 
 

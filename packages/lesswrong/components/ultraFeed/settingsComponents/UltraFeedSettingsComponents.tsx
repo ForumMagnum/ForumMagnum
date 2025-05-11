@@ -211,7 +211,7 @@ interface SourceWeightsSettingsProps {
   onChange: (key: FeedItemSourceType, value: string | number) => void;
 }
 
-const SourceWeightsSettingsInner: React.FC<SourceWeightsSettingsProps> = ({
+export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   weights,
   errors,
   onChange,
@@ -263,7 +263,6 @@ const SourceWeightsSettingsInner: React.FC<SourceWeightsSettingsProps> = ({
     </div>
   );
 };
-export const SourceWeightsSettings = registerComponent('SourceWeightsSettings', SourceWeightsSettingsInner);
 
 const getCommentLevelLabel = (level: TruncationLevel): string => {
   if (level === 'Very Short') return `${level} (2 lines)`;
@@ -347,7 +346,7 @@ interface TruncationGridSettingsProps {
   originalSettings: UltraFeedSettingsType;
 }
 
-const TruncationGridSettingsInner: React.FC<TruncationGridSettingsProps> = ({
+export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   levels,
   onChange,
   originalSettings,
@@ -395,8 +394,6 @@ const TruncationGridSettingsInner: React.FC<TruncationGridSettingsProps> = ({
   );
 };
 
-export const TruncationGridSettings = registerComponent('TruncationGridSettings', TruncationGridSettingsInner);
-
 interface AdvancedTruncationSettingsProps {
   values: {
     lineClampNumberOfLines: number | '';
@@ -412,7 +409,7 @@ interface AdvancedTruncationSettingsProps {
   onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
 }
 
-const AdvancedTruncationSettingsInner: React.FC<AdvancedTruncationSettingsProps> = ({
+export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   values,
   errors,
   onLineClampChange,
@@ -499,7 +496,6 @@ const AdvancedTruncationSettingsInner: React.FC<AdvancedTruncationSettingsProps>
     </div>
   );
 };
-export const AdvancedTruncationSettings = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettingsInner);
 
 interface MultipliersSettingsProps {
   quickTakeBoost: {
@@ -514,7 +510,7 @@ interface MultipliersSettingsProps {
   };
 }
 
-const MultipliersSettingsInner: React.FC<MultipliersSettingsProps> = ({
+export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
   quickTakeBoost,
   seenPenalty,
 }) => {
@@ -585,14 +581,13 @@ const MultipliersSettingsInner: React.FC<MultipliersSettingsProps> = ({
     </div>
   );
 };
-export const MultipliersSettings = registerComponent('MultipliersSettings', MultipliersSettingsInner);
 
 interface MiscSettingsProps {
   formValues: Pick<SettingsFormState, 'postTitlesAreModals' | 'incognitoMode'>;
   onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
 }
 
-const MiscSettingsInner: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
+export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
   const classes = useStyles(styles);
   return (
     <div className={classes.settingGroup}>
@@ -633,7 +628,3 @@ const MiscSettingsInner: React.FC<MiscSettingsProps> = ({ formValues, onBooleanC
     </div>
   );
 };
-
-export const MiscSettings = registerComponent('MiscSettings', MiscSettingsInner);
-
-

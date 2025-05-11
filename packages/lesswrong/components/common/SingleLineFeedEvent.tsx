@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { Paper }from '@/components/widgets/Paper';
-import { LWTooltip } from "./LWTooltip";
+import LWTooltip from "./LWTooltip";
 
 const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {
@@ -59,7 +59,7 @@ const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
 }));
 
 
-const SingleLineFeedEventInner = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
+const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
   expands?: boolean,
   expanded?: boolean,
   setExpanded?: (expanded: boolean) => void,
@@ -98,6 +98,6 @@ const SingleLineFeedEventInner = ({expands=false, expanded=false, setExpanded, f
   }
 }
 
-export const SingleLineFeedEvent = registerComponent("SingleLineFeedEvent", SingleLineFeedEventInner);
+export default registerComponent("SingleLineFeedEvent", SingleLineFeedEvent);
 
 

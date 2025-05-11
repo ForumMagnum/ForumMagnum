@@ -3,9 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import {captureEvent, useTracking} from "../../lib/analyticsEvents";
-import { BookAnimation } from "./BookAnimation";
-import { BookCheckout } from "../review/BookCheckout";
-import { HeadTags } from "../common/HeadTags";
+import BookAnimation from "./BookAnimation";
+import BookCheckout from "../review/BookCheckout";
+import HeadTags from "../common/HeadTags";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -359,7 +359,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   )
 }
 
-const Book2018LandingInner = ({classes}: {
+const Book2018Landing = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -527,7 +527,7 @@ const Book2018LandingInner = ({classes}: {
   )
 }
 
-export const Book2018Landing = registerComponent('Book2018Landing', Book2018LandingInner, {
+export default registerComponent('Book2018Landing', Book2018Landing, {
   styles,
   
   // (Manually checked that there are no horrible contrast problems in dark mode.

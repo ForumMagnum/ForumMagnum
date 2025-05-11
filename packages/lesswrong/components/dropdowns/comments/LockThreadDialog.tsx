@@ -7,7 +7,7 @@ import { DialogTitle } from '@/components/widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { LWDialog } from "../../common/LWDialog";
+import LWDialog from "../../common/LWDialog";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LockThreadDialogInner = ({commentId, onClose, classes}: {
+const LockThreadDialog = ({commentId, onClose, classes}: {
   commentId: string,
   onClose: () => void,
   classes: ClassesType<typeof styles>,
@@ -66,8 +66,8 @@ const LockThreadDialogInner = ({commentId, onClose, classes}: {
   );
 }
 
-export const LockThreadDialog = registerComponent(
-  'LockThreadDialog', LockThreadDialogInner, {styles},
+export default registerComponent(
+  'LockThreadDialog', LockThreadDialog, {styles},
 );
 
 

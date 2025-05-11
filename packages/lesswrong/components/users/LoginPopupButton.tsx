@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import { LoginPopup } from "./LoginPopup";
-import { LWTooltip } from "../common/LWTooltip";
+import LoginPopup from "./LoginPopup";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LoginPopupButtonInner = ({classes, children, title, className}: {
+const LoginPopupButton = ({classes, children, title, className}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
   title?: string,
@@ -43,6 +43,6 @@ const LoginPopupButtonInner = ({classes, children, title, className}: {
   )
 }
 
-export const LoginPopupButton = registerComponent('LoginPopupButton', LoginPopupButtonInner, {styles});
+export default registerComponent('LoginPopupButton', LoginPopupButton, {styles});
 
 

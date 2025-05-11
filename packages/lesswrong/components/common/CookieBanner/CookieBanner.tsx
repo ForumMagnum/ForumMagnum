@@ -5,7 +5,7 @@ import classNames from "classnames";
 import { useDialog } from "../withDialog";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils";
-import { CookieDialog } from "./CookieDialog";
+import CookieDialog from "./CookieDialog";
 import { Typography } from "../Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -72,7 +72,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CookieBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { openDialog } = useDialog();
   const { updateCookiePreferences } = useCookiePreferences();
   
@@ -111,7 +111,7 @@ const CookieBannerInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const CookieBanner = registerComponent("CookieBanner", CookieBannerInner, {
+export default registerComponent("CookieBanner", CookieBanner, {
   styles,
 });
 

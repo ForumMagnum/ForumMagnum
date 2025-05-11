@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { PostsPageWrapper } from "../posts/PostsPage/PostsPageWrapper";
+import PostsPageWrapper from "../posts/PostsPage/PostsPageWrapper";
 
-const SequencesPostInner = () => {
+const SequencesPost = () => {
   const { query, params } = useLocation();
   const { postId, sequenceId } = params;
   
@@ -11,7 +11,7 @@ const SequencesPostInner = () => {
   return <PostsPageWrapper documentId={postId} sequenceId={sequenceId} version={version} />
 };
 
-export const SequencesPost = registerComponent('SequencesPost', SequencesPostInner);
+export default registerComponent('SequencesPost', SequencesPost);
 
 
 

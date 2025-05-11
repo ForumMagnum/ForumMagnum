@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PetrovWorldmapWrapperInner = ({classes, children}: {
+export const PetrovWorldmapWrapper = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
@@ -62,6 +62,6 @@ export const PetrovWorldmapWrapperInner = ({classes, children}: {
   </div>;
 }
 
-export const PetrovWorldmapWrapper = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapperInner, {styles});
+export default registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
 
 

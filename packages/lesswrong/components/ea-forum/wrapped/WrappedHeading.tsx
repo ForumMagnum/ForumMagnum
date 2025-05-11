@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedHeadingInner = ({children, className, classes}: {
+const WrappedHeading = ({children, className, classes}: {
   children: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -33,9 +33,9 @@ const WrappedHeadingInner = ({children, className, classes}: {
   );
 }
 
-export const WrappedHeading = registerComponent(
+export default registerComponent(
   "WrappedHeading",
-  WrappedHeadingInner,
+  WrappedHeading,
   {styles},
 );
 

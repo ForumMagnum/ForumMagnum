@@ -8,14 +8,14 @@ import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
-import { Error404 } from "../common/Error404";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { FormatDate } from "../common/FormatDate";
-import { TruncatedAuthorsList } from "../posts/TruncatedAuthorsList";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { LoadMore } from "../common/LoadMore";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import FormatDate from "../common/FormatDate";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,7 +99,7 @@ const styles = (theme: ThemeType) => ({
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdminInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -271,6 +271,6 @@ const TwitterAdminInner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export const TwitterAdmin = registerComponent('TwitterAdmin', TwitterAdminInner, { styles });
+export default registerComponent('TwitterAdmin', TwitterAdmin, { styles });
 
 

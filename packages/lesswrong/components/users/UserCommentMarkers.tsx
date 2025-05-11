@@ -3,8 +3,8 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   iconWrapper: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const UserCommentMarkersInner = ({
+const UserCommentMarkers = ({
   user,
   isPostAuthor,
   className,
@@ -68,9 +68,9 @@ const UserCommentMarkersInner = ({
   );
 }
 
-export const UserCommentMarkers = registerComponent(
+export default registerComponent(
   "UserCommentMarkers",
-  UserCommentMarkersInner,
+  UserCommentMarkers,
   {styles},
 );
 

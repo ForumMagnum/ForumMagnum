@@ -4,7 +4,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { LWTooltip } from "../LWTooltip";
+import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
 
 const compressedIconSize = 23
@@ -43,7 +43,7 @@ type TabNavigationCompressedItemProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationCompressedItemInner = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
+const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemLink
       onClick={onClick}
@@ -60,8 +60,8 @@ const TabNavigationCompressedItemInner = ({tab, onClick, classes}: TabNavigation
   </LWTooltip>;
 }
 
-export const TabNavigationCompressedItem = registerComponent(
-  'TabNavigationCompressedItem', TabNavigationCompressedItemInner, {styles}
+export default registerComponent(
+  'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
 );
 
 

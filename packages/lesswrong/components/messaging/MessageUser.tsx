@@ -4,9 +4,9 @@ import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useGetUserBySlug } from "../hooks/useGetUserBySlug";
-import { Loading } from "../vulcan-core/Loading";
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import PermanentRedirect from "../common/PermanentRedirect";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   error: {
@@ -38,7 +38,7 @@ const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; clas
   return <PermanentRedirect url={url} status={302} />;
 };
 
-const MessageUserInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { user, loading } = useGetUserBySlug(params.slug, { fragmentName: 'UsersMinimumInfo', skip: !currentUser || !params.slug });
@@ -68,6 +68,6 @@ const MessageUserInner = ({ classes }: { classes: ClassesType<typeof styles> }) 
   return <MessageUserInnerInner user={user} classes={classes} />;
 };
 
-export const MessageUser = registerComponent("MessageUser", MessageUserInner, { styles });
+export default registerComponent("MessageUser", MessageUser, { styles });
 
 

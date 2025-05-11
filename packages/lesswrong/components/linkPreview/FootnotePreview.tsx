@@ -9,15 +9,15 @@ import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/constants';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-import { useHasSideItemsSidebar, SideItem } from '../contents/SideItems';
+import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
-import { ContentStyleType, ContentStyles } from '../common/ContentStyles';
-import { FootnoteDialog } from "./FootnoteDialog";
-import { SideItemLine } from "../contents/SideItemLine";
-import { LWPopper } from "../common/LWPopper";
-import { ContentItemBody } from "../common/ContentItemBody";
+import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
+import FootnoteDialog from "./FootnoteDialog";
+import SideItemLine from "../contents/SideItemLine";
+import LWPopper from "../common/LWPopper";
+import ContentItemBody from "../common/ContentItemBody";
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -133,7 +133,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   },
 })
 
-const FootnotePreviewInner = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
+const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
   classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
@@ -379,7 +379,7 @@ function getFootnoteIndex(href: string, html: string): string|null {
   return null;
 }
 
-export const FootnotePreview = registerComponent('FootnotePreview', FootnotePreviewInner, {
+export default registerComponent('FootnotePreview', FootnotePreview, {
   styles: footnotePreviewStyles,
 });
 

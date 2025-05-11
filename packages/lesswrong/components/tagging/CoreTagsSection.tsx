@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { CoreTagCard } from "./CoreTagCard";
+import CoreTagCard from "./CoreTagCard";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
 
 const INITIAL_LIMIT = 8;
 
-const CoreTagsSectionInner = ({classes}: {
+const CoreTagsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results } = useMulti({
@@ -58,6 +58,6 @@ const CoreTagsSectionInner = ({classes}: {
   );
 }
 
-export const CoreTagsSection = registerComponent("CoreTagsSection", CoreTagsSectionInner, {styles});
+export default registerComponent("CoreTagsSection", CoreTagsSection, {styles});
 
 

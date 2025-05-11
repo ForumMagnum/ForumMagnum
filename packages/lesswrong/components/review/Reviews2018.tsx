@@ -3,12 +3,12 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsList2 } from "../posts/PostsList2";
-import { SectionFooterCheckbox } from "../form-components/SectionFooterCheckbox";
-import { RecentComments } from "../comments/RecentComments";
-import { LWTooltip } from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import RecentComments from "../comments/RecentComments";
+import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Reviews2018Inner = ({classes}: {
+const Reviews2018 = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -110,7 +110,7 @@ const Reviews2018Inner = ({classes}: {
   )
 }
 
-export const Reviews2018 = registerComponent('Reviews2018', Reviews2018Inner, {styles});
+export default registerComponent('Reviews2018', Reviews2018, {styles});
 
 
 

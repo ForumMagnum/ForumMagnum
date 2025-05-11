@@ -8,9 +8,9 @@ import {
   PostsPreviewTooltipSingleWithComment,
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
-import { HoverOver } from "../../common/HoverOver";
+import HoverOver from "../../common/HoverOver";
 
-const PostsTooltipInner = ({
+const PostsTooltip = ({
   post,
   postId,
   comment,
@@ -117,9 +117,9 @@ const PostsTooltipInner = ({
   );
 }
 
-export const PostsTooltip = registerComponent(
+export default registerComponent(
   "PostsTooltip",
-  PostsTooltipInner,
+  PostsTooltip,
 );
 
 

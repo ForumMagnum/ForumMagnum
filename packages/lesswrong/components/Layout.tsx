@@ -20,7 +20,7 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { HEADER_HEIGHT, Header } from './common/Header';
+import Header, { HEADER_HEIGHT } from './common/Header';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
@@ -37,31 +37,31 @@ import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 
 import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
-import { NavigationStandalone } from "./common/TabNavigationMenu/NavigationStandalone";
-import { ErrorBoundary } from "./common/ErrorBoundary";
-import { Footer } from "./common/Footer";
-import { FlashMessages } from "./common/FlashMessages";
-import { AnalyticsClient } from "./common/AnalyticsClient";
-import { AnalyticsPageInitializer } from "./common/AnalyticsPageInitializer";
-import { NavigationEventSender } from "./hooks/useOnNavigate";
-import { EAOnboardingFlow } from "./ea-forum/onboarding/EAOnboardingFlow";
-import { BasicOnboardingFlow } from "./onboarding/BasicOnboardingFlow";
+import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
+import ErrorBoundary from "./common/ErrorBoundary";
+import Footer from "./common/Footer";
+import FlashMessages from "./common/FlashMessages";
+import AnalyticsClient from "./common/AnalyticsClient";
+import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
+import NavigationEventSender from "./hooks/useOnNavigate";
+import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
+import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
-import { SidebarsWrapper } from "./common/SidebarsWrapper";
-import { HomepageCommunityMap } from "./seasonal/HomepageMap/HomepageCommunityMap";
-import { AdminToggle } from "./admin/AdminToggle";
-import { SunshineSidebar } from "./sunshineDashboard/SunshineSidebar";
-import { EAHomeRightHandSide } from "./ea-forum/EAHomeRightHandSide";
-import { CloudinaryImage2 } from "./common/CloudinaryImage2";
-import { ForumEventBanner } from "./forumEvents/ForumEventBanner";
-import { GlobalHotkeys } from "./common/GlobalHotkeys";
-import { LanguageModelLauncherButton } from "./languageModels/LanguageModelLauncherButton";
-import { LlmChatWrapper } from "./languageModels/LlmChatWrapper";
-import { TabNavigationMenuFooter } from "./common/TabNavigationMenu/TabNavigationMenuFooter";
-import { ReviewVotingCanvas } from "./review/ReviewVotingCanvas";
-import { LWBackgroundImage } from "./LWBackgroundImage";
-import { IntercomWrapper } from "./common/IntercomWrapper";
-import { CookieBanner } from "./common/CookieBanner/CookieBanner";
+import SidebarsWrapper from "./common/SidebarsWrapper";
+import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
+import AdminToggle from "./admin/AdminToggle";
+import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
+import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+import CloudinaryImage2 from "./common/CloudinaryImage2";
+import ForumEventBanner from "./forumEvents/ForumEventBanner";
+import GlobalHotkeys from "./common/GlobalHotkeys";
+import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
+import LlmChatWrapper from "./languageModels/LlmChatWrapper";
+import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
+import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
+import LWBackgroundImage from "./LWBackgroundImage";
+import IntercomWrapper from "./common/IntercomWrapper";
+import CookieBanner from "./common/CookieBanner/CookieBanner";
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -254,7 +254,7 @@ const StickyWrapper: FC<{
     )
     : <>{children}</>;
 
-const LayoutInner = ({currentUser, children, classes}: {
+const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
@@ -520,6 +520,6 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   return isWrapped ? null : <IntercomWrapper />
 }
 
-export const Layout = registerComponent('Layout', LayoutInner, {styles});
+export default registerComponent('Layout', Layout, {styles});
 
 

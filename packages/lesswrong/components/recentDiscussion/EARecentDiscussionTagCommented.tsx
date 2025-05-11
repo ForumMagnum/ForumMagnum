@@ -6,9 +6,9 @@ import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameCapitalSetting } from "../../lib/instanceSettings";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import type { CommentTreeOptions } from "../comments/commentTree";
-import { EARecentDiscussionItem } from "./EARecentDiscussionItem";
-import { TagExcerpt } from "../common/excerpts/TagExcerpt";
-import { CommentsNode } from "../comments/CommentsNode";
+import EARecentDiscussionItem from "./EARecentDiscussionItem";
+import TagExcerpt from "../common/excerpts/TagExcerpt";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EARecentDiscussionTagCommentedInner = ({
+const EARecentDiscussionTagCommented = ({
   tag,
   comments,
   refetch,
@@ -81,7 +81,7 @@ const EARecentDiscussionTagCommentedInner = ({
       <TagExcerpt tag={tag} className={classes.excerpt} />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
-          <CommentsNode
+          <CommentsNodeInner
             treeOptions={treeOptions}
             startThreadTruncated={true}
             expandAllThreads={expandAllThreads}
@@ -96,9 +96,9 @@ const EARecentDiscussionTagCommentedInner = ({
   );
 }
 
-export const EARecentDiscussionTagCommented = registerComponent(
+export default registerComponent(
   "EARecentDiscussionTagCommented",
-  EARecentDiscussionTagCommentedInner,
+  EARecentDiscussionTagCommented,
   {styles},
 );
 

@@ -6,8 +6,8 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
-import { UserSelect } from "../form-components/UserSelect";
-import { LWTooltip } from "../common/LWTooltip";
+import UserSelect from "../form-components/UserSelect";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   adminOverrides: {
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const RecombeePostsListSettingsInner = ({ settings, updateSettings, classes }: {
+export const RecombeePostsListSettings = ({ settings, updateSettings, classes }: {
   settings: RecombeeConfiguration,
   updateSettings: (settings: RecombeeConfiguration) => void,
   classes: ClassesType<typeof styles>,
@@ -128,6 +128,6 @@ export const RecombeePostsListSettingsInner = ({ settings, updateSettings, class
   );
 }
  
-export const RecombeePostsListSettings = registerComponent('RecombeePostsListSettings', RecombeePostsListSettingsInner, {styles});
+export default registerComponent('RecombeePostsListSettings', RecombeePostsListSettings, {styles});
 
 

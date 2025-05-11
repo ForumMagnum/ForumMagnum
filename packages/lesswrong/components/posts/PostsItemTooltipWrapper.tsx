@@ -1,13 +1,13 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { PostsTooltip } from "./PostsPreviewTooltip/PostsTooltip";
+import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 
 /**
  * This is mostly deprecated - you should probably just use `PostsTooltip`
  * directly instead
  */
-const PostsItemTooltipWrapperInner = ({
+const PostsItemTooltipWrapper = ({
   children,
   post,
   placement="bottom-end",
@@ -38,8 +38,8 @@ const PostsItemTooltipWrapperInner = ({
   );
 }
 
-export const PostsItemTooltipWrapper = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapperInner
-)
+export default registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper
+);
 
 
 

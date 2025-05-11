@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const selectedTextToolbarStyles = (theme: ThemeType) => ({
   toolbarWrapper: {
@@ -56,7 +56,7 @@ type SelectedTextToolbarState =
  * If there's no space in the right margin (eg on mobile), adding the button
  * might introduce horizontal scrolling.
  */
-const CommentOnSelectionPageWrapperInner = ({children}: {
+export const CommentOnSelectionPageWrapper = ({children}: {
   children: React.ReactNode
 }) => {
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
@@ -182,7 +182,7 @@ const SelectedTextToolbarInner = ({onClickComment, x, y, classes}: {
  *
  * See CommentOnSelectionPageWrapper for notes on implementation details.
  */
-const CommentOnSelectionContentWrapperInner = ({onClickComment, children}: {
+export const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   onClickComment: (html: string) => void,
   children: React.ReactNode,
 }) => {
@@ -262,11 +262,9 @@ function selectionToBlockquoteHTML(selection: Selection|null): string {
 }
 
 
-export const CommentOnSelectionPageWrapper = registerComponent('CommentOnSelectionPageWrapper', CommentOnSelectionPageWrapperInner);
 export const SelectedTextToolbar = registerComponent(
   'SelectedTextToolbar', SelectedTextToolbarInner,
   {styles: selectedTextToolbarStyles}
 );
-export const CommentOnSelectionContentWrapper = registerComponent("CommentOnSelectionContentWrapper", CommentOnSelectionContentWrapperInner);
 
 

@@ -4,8 +4,8 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useDialog } from '../common/withDialog';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
-import { PopupLanguageModelChat } from "./PopupLanguageModelChat";
-import { ForumIcon } from "../common/ForumIcon";
+import PopupLanguageModelChat from "./PopupLanguageModelChat";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LanguageModelLauncherButtonInner = ({classes}: {
+export const LanguageModelLauncherButton = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -71,6 +71,6 @@ export const LanguageModelLauncherButtonInner = ({classes}: {
   </div>;
 }
 
-export const LanguageModelLauncherButton = registerComponent('LanguageModelLauncherButton', LanguageModelLauncherButtonInner, {styles});
+export default registerComponent('LanguageModelLauncherButton', LanguageModelLauncherButton, {styles});
 
 

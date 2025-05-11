@@ -2,8 +2,8 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
-import { isEAReactableDocument, EAReactsSection } from "./EAReactsSection";
-import { OverallVoteAxis } from "./OverallVoteAxis";
+import EAReactsSection, { isEAReactableDocument } from "./EAReactsSection";
+import OverallVoteAxis from "./OverallVoteAxis";
 
 const styles = (_theme: ThemeType) => ({
   overallAxis: {
@@ -24,7 +24,7 @@ interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType<typeof styles>,
 }
 
-const EAEmojisVoteOnCommentInner = ({
+const EAEmojisVoteOnComment = ({
   document,
   hideKarma = false,
   collectionName,
@@ -55,9 +55,9 @@ const EAEmojisVoteOnCommentInner = ({
   );
 }
 
-export const EAEmojisVoteOnComment = registerComponent(
+export default registerComponent(
   "EAEmojisVoteOnComment",
-  EAEmojisVoteOnCommentInner,
+  EAEmojisVoteOnComment,
   {styles},
 );
 

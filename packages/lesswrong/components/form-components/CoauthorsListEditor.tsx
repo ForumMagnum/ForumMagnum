@@ -7,10 +7,10 @@ import {isEAForum} from '../../lib/instanceSettings';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { SingleUsersItem } from "./SingleUsersItem";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
-import { LWTooltip } from "../common/LWTooltip";
+import SingleUsersItem from "./SingleUsersItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import LWTooltip from "../common/LWTooltip";
 
 const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({
   root: {

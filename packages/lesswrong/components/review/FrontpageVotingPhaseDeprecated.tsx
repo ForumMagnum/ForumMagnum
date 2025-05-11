@@ -5,11 +5,11 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { getReviewAlgorithm } from "./FrontpageReviewWidget";
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { SectionSubtitle } from "../common/SectionSubtitle";
-import { SectionFooter } from "../common/SectionFooter";
-import { RecommendationsList } from "../recommendations/RecommendationsList";
-import { HoverPreviewLink } from "../linkPreview/HoverPreviewLink";
-import { LWTooltip } from "../common/LWTooltip";
+import SectionSubtitle from "../common/SectionSubtitle";
+import SectionFooter from "../common/SectionFooter";
+import RecommendationsList from "../recommendations/RecommendationsList";
+import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   timeRemaining: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FrontpageVotingPhaseInner = ({settings, classes}: {
+const FrontpageVotingPhase = ({settings, classes}: {
   settings: DefaultRecommendationsAlgorithm,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -87,6 +87,6 @@ const FrontpageVotingPhaseInner = ({settings, classes}: {
   )
 }
 
-export const FrontpageVotingPhase = registerComponent('FrontpageVotingPhase', FrontpageVotingPhaseInner, {styles});
+export default registerComponent('FrontpageVotingPhase', FrontpageVotingPhase, {styles});
 
 

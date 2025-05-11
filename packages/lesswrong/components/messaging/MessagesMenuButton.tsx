@@ -6,10 +6,10 @@ import { Badge } from "@/components/widgets/Badge";
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
-const MessagesMenuButtonInner = ({className, classes}: {
+const MessagesMenuButton = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -50,9 +50,9 @@ const MessagesMenuButtonInner = ({className, classes}: {
   );
 }
 
-export const MessagesMenuButton = registerComponent(
+export default registerComponent(
   "MessagesMenuButton",
-  MessagesMenuButtonInner,
+  MessagesMenuButton,
   {styles},
 );
 

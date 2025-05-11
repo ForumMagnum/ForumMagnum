@@ -7,8 +7,8 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { SideItemsSidebar } from "../contents/SideItems";
-import { ContentStyles } from "../common/ContentStyles";
-import { TagsTooltip } from "./TagsTooltip";
+import ContentStyles from "../common/ContentStyles";
+import TagsTooltip from "./TagsTooltip";
 
 const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
   rightColumn: {
@@ -153,7 +153,7 @@ interface ArbitalLinkedPage {
   slug: string,
 }
 
-const LWTagPageRightColumnInner = ({tag, selectedLens}: {
+export const LWTagPageRightColumn = ({tag, selectedLens}: {
   tag: TagPageFragment
   selectedLens: TagLens|undefined,
 }) => {
@@ -166,7 +166,7 @@ const LWTagPageRightColumnInner = ({tag, selectedLens}: {
   </div>
 }
 
-const ArbitalLinkedPagesRightSidebarInner = ({ tag, selectedLens, arbitalLinkedPages }: {
+export const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
   tag: TagPageFragment,
   selectedLens?: TagLens,
   arbitalLinkedPages?: ArbitalLinkedPagesFragment,
@@ -246,7 +246,7 @@ const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPa
   </div>
 }
 
-const ArbitalRelationshipsSmallScreenInner = ({arbitalLinkedPages, selectedLens, tag}: {
+export const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}: {
   arbitalLinkedPages?: ArbitalLinkedPagesFragment
   selectedLens?: TagLens,
   tag: TagPageFragment,
@@ -295,7 +295,7 @@ const ArbitalRelationshipsSmallScreenInner = ({arbitalLinkedPages, selectedLens,
   );
 }
 
-const ParentsAndChildrenSmallScreenInner: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
+export const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
   const classes = useStyles(styles);
   const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
   const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
@@ -340,12 +340,4 @@ const ParentsAndChildrenSmallScreenInner: FC<{ arbitalLinkedPages?: ArbitalLinke
 function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] {
   return !!(list && list?.length > 0);
 }
-
-
-export const LWTagPageRightColumn = registerComponent('LWTagPageRightColumn', LWTagPageRightColumnInner);
-export const ArbitalLinkedPagesRightSidebar = registerComponent('ArbitalLinkedPagesRightSidebar', ArbitalLinkedPagesRightSidebarInner);
-export const ArbitalRelationshipsSmallScreen = registerComponent('ArbitalRelationshipsSmallScreen', ArbitalRelationshipsSmallScreenInner);
-export const ParentsAndChildrenSmallScreen = registerComponent('ParentsAndChildrenSmallScreen', ParentsAndChildrenSmallScreenInner);
-
-
 

@@ -13,12 +13,12 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { LWDialog } from "../common/LWDialog";
-import { Loading } from "../vulcan-core/Loading";
-import { ContentItemBody } from "../common/ContentItemBody";
-import { FormatDate } from "../common/FormatDate";
-import { LoadMore } from "../common/LoadMore";
-import { ChangeMetricsDisplay } from "../tagging/ChangeMetricsDisplay";
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
+import ContentItemBody from "../common/ContentItemBody";
+import FormatDate from "../common/FormatDate";
+import LoadMore from "../common/LoadMore";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const TagVersionHistoryButtonInner = ({tagId, classes}: {
+const TagVersionHistoryButton = ({tagId, classes}: {
   tagId: string,
   classes: ClassesType<typeof styles>
 }) => {
@@ -77,6 +77,7 @@ const TagVersionHistoryButtonInner = ({tagId, classes}: {
         contents: ({onClose}) => <TagVersionHistory
           onClose={onClose}
           tagId={tagId}
+          classes={classes}
         />
       })
     }}
@@ -85,7 +86,7 @@ const TagVersionHistoryButtonInner = ({tagId, classes}: {
   </Button>
 }
 
-const TagVersionHistoryInner = ({tagId, onClose, classes}: {
+const TagVersionHistory = ({tagId, onClose, classes}: {
   tagId: string,
   onClose: () => void,
   classes: ClassesType<typeof styles>
@@ -183,7 +184,6 @@ const TagVersionHistoryInner = ({tagId, onClose, classes}: {
   </LWDialog>
 }
 
-export const TagVersionHistoryButton = registerComponent("TagVersionHistoryButton", TagVersionHistoryButtonInner, {styles});
-export const TagVersionHistory = registerComponent("TagVersionHistory", TagVersionHistoryInner, {styles});
+export default registerComponent("TagVersionHistoryButton", TagVersionHistoryButton, {styles});
 
 

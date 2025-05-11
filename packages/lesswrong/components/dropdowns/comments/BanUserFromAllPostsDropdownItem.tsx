@@ -6,9 +6,9 @@ import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const BanUserFromAllPostsDropdownItemInner = ({comment, post}: {
+const BanUserFromAllPostsDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsBase,
 }) => {
@@ -47,8 +47,8 @@ const BanUserFromAllPostsDropdownItemInner = ({comment, post}: {
   );
 }
 
-export const BanUserFromAllPostsDropdownItem = registerComponent(
-  'BanUserFromAllPostsDropdownItem', BanUserFromAllPostsDropdownItemInner,
+export default registerComponent(
+  'BanUserFromAllPostsDropdownItem', BanUserFromAllPostsDropdownItem,
 );
 
 

@@ -23,11 +23,11 @@ import { GroupFormSubmit } from './GroupFormSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { LWTooltip } from "../common/LWTooltip";
-import { Error404 } from "../common/Error404";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
-import { LWDialog } from "../common/LWDialog";
-import { Loading } from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -369,7 +369,7 @@ const LocalGroupForm = ({
   );
 };
 
-const GroupFormDialogInner = ({ onClose, documentId, isOnline }: {
+const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   onClose: () => void,
   documentId?: string,
   isOnline?: boolean
@@ -415,7 +415,7 @@ const GroupFormDialogInner = ({ onClose, documentId, isOnline }: {
   </LWDialog>
 }
 
-export const GroupFormDialog = registerComponent('GroupFormDialog', GroupFormDialogInner);
+export default registerComponent('GroupFormDialog', GroupFormDialog);
 
 
 

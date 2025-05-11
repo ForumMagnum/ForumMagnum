@@ -11,7 +11,7 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 import { TooltipSpan } from '../FMTooltip';
 import { Typography } from "../Typography";
-import { SimpleDivider } from "../../widgets/SimpleDivider";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -81,7 +81,7 @@ const LinkButton = ({ resource, classes }: {
   </a>;
 };
 
-const FeaturedResourceBannerInner = ({terms, classes}: {
+const FeaturedResourceBanner = ({terms, classes}: {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -134,8 +134,8 @@ const FeaturedResourceBannerInner = ({terms, classes}: {
   </AnalyticsContext>
 }
 
-export const FeaturedResourceBanner = registerComponent(
-  'FeaturedResourceBanner', FeaturedResourceBannerInner, { styles }
-)
+export default registerComponent(
+  'FeaturedResourceBanner', FeaturedResourceBanner, { styles }
+);
 
 

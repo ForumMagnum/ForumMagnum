@@ -4,8 +4,8 @@ import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../hooks/useOptimisticToggle";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
-import { DropdownItem } from "./DropdownItem";
-import { ToggleSwitch } from "../common/ToggleSwitch";
+import DropdownItem from "./DropdownItem";
+import ToggleSwitch from "../common/ToggleSwitch";
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -70,7 +70,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
   );
 }
 
-export const NotifyMeToggleDropdownItemInner = (
+export const NotifyMeToggleDropdownItem = (
   props: NotifyMeToggleDropdownItemProps,
 ) => {
   if (!(props.enabled ?? true) || !props.document) {
@@ -83,9 +83,9 @@ export const NotifyMeToggleDropdownItemInner = (
   );
 }
 
-export const NotifyMeToggleDropdownItem = registerComponent(
+export default registerComponent(
   "NotifyMeToggleDropdownItem",
-  NotifyMeToggleDropdownItemInner,
+  NotifyMeToggleDropdownItem,
   {styles},
 );
 

@@ -5,7 +5,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { TabNavigationFooterItem } from "./TabNavigationFooterItem";
+import TabNavigationFooterItem from "./TabNavigationFooterItem";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TabNavigationMenuFooterInner = ({classes}: {
+const TabNavigationMenuFooter = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   return (
@@ -53,8 +53,8 @@ const TabNavigationMenuFooterInner = ({classes}: {
   )
 };
 
-export const TabNavigationMenuFooter = registerComponent(
-  'TabNavigationMenuFooter', TabNavigationMenuFooterInner, {styles}
+export default registerComponent(
+  'TabNavigationMenuFooter', TabNavigationMenuFooter, {styles}
 );
 
 

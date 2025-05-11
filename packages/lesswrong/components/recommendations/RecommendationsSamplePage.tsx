@@ -19,13 +19,13 @@ import moment from "moment";
 import qs from "qs";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { Error404 } from "../common/Error404";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsItem } from "../posts/PostsItem";
-import { PostsPageRecommendationsList } from "./PostsPageRecommendationsList";
-import { LoadMore } from "../common/LoadMore";
-import { Loading } from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsItem from "../posts/PostsItem";
+import PostsPageRecommendationsList from "./PostsPageRecommendationsList";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
@@ -83,7 +83,7 @@ const featureInputToFeatures = (
   return result;
 }
 
-const RecommendationsSamplePageInner = ({classes}: {
+const RecommendationsSamplePage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -246,9 +246,9 @@ const RecommendationsSamplePageInner = ({classes}: {
   );
 }
 
-export const RecommendationsSamplePage = registerComponent(
+export default registerComponent(
   "RecommendationsSamplePage",
-  RecommendationsSamplePageInner,
+  RecommendationsSamplePage,
   {styles},
 );
 

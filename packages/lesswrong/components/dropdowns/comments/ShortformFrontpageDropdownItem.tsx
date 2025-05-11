@@ -5,9 +5,9 @@ import { useCurrentUser } from "../../common/withUser";
 
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { DropdownItem } from "../DropdownItem";
+import DropdownItem from "../DropdownItem";
 
-const ShortformFrontpageDropdownItemInner = ({comment}: {comment: CommentsList}) => {
+const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -43,8 +43,8 @@ const ShortformFrontpageDropdownItemInner = ({comment}: {comment: CommentsList})
   );
 };
 
-export const ShortformFrontpageDropdownItem = registerComponent(
-  "ShortformFrontpageDropdownItem", ShortformFrontpageDropdownItemInner,
+export default registerComponent(
+  "ShortformFrontpageDropdownItem", ShortformFrontpageDropdownItem,
 );
 
 

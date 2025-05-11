@@ -2,11 +2,11 @@ import React, { useMemo, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
-import { PostsTitle } from "./PostsTitle";
-import { TruncatedAuthorsList } from "./TruncatedAuthorsList";
-import { PostsItemDate } from "./PostsItemDate";
-import { EAKarmaDisplay } from "../common/EAKarmaDisplay";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import PostsTitle from "./PostsTitle";
+import TruncatedAuthorsList from "./TruncatedAuthorsList";
+import PostsItemDate from "./PostsItemDate";
+import EAKarmaDisplay from "../common/EAKarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsVideoCardInner = ({post, classes}: {
+const PostsVideoCard = ({post, classes}: {
   post: PostsBestOfList,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -88,9 +88,9 @@ const PostsVideoCardInner = ({post, classes}: {
   );
 }
 
-export const PostsVideoCard = registerComponent(
+export default registerComponent(
   "PostsVideoCard",
-  PostsVideoCardInner,
+  PostsVideoCard,
   {styles},
 );
 

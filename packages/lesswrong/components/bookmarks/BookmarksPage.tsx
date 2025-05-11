@@ -7,12 +7,12 @@ import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { SingleColumnSection } from "../common/SingleColumnSection";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
-import { BookmarksTab } from "./BookmarksTab";
-import { ReadHistoryTab } from "./ReadHistoryTab";
-import { VoteHistoryTab } from "./VoteHistoryTab";
+import BookmarksTab from "./BookmarksTab";
+import ReadHistoryTab from "./ReadHistoryTab";
+import VoteHistoryTab from "./VoteHistoryTab";
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const BookmarksPageInner = ({ classes }: {
+const BookmarksPage = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
@@ -87,7 +87,7 @@ const BookmarksPageInner = ({ classes }: {
 }
 
 
-export const BookmarksPage = registerComponent('BookmarksPage', BookmarksPageInner, {
+export default registerComponent('BookmarksPage', BookmarksPage, {
   hocs: [withErrorBoundary],
   styles
 });

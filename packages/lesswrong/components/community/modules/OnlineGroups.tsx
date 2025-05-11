@@ -7,7 +7,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
-import { CloudinaryImage2 } from "../../common/CloudinaryImage2";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -144,7 +144,7 @@ const styles = (theme: ThemeType) => ({
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
 const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
-const OnlineGroupsInner = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
+const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
@@ -225,6 +225,6 @@ const OnlineGroupsInner = ({keywordSearch, includeInactive, toggleIncludeInactiv
   )
 }
 
-export const OnlineGroups = registerComponent('OnlineGroups', OnlineGroupsInner, {styles});
+export default registerComponent('OnlineGroups', OnlineGroups, {styles});
 
 

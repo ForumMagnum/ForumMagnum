@@ -3,10 +3,10 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
-import { EARecentDiscussionItemProps, EARecentDiscussionItem } from "./EARecentDiscussionItem";
+import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
-import { CommentsItem } from "../comments/CommentsItem/CommentsItem";
-import { CommentsNode } from "../comments/CommentsNode";
+import CommentsItem from "../comments/CommentsItem/CommentsItem";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (_theme: ThemeType) => ({
   quickTakeBody: {
@@ -78,7 +78,7 @@ const splitByTopLevelComment = (nodes: NestedComments[]): NestedComments[][] => 
   return Object.values(result);
 }
 
-const EARecentDiscussionQuickTakeInner = ({
+const EARecentDiscussionQuickTake = ({
   post,
   comments,
   refetch,
@@ -137,7 +137,7 @@ const EARecentDiscussionQuickTakeInner = ({
               })}
             />
             {hasComments && comments.map((comment) => (
-              <CommentsNode
+              <CommentsNodeInner
                 key={comment.item._id}
                 treeOptions={{
                   ...treeOptions,
@@ -158,9 +158,9 @@ const EARecentDiscussionQuickTakeInner = ({
   );
 }
 
-export const EARecentDiscussionQuickTake = registerComponent(
+export default registerComponent(
   "EARecentDiscussionQuickTake",
-  EARecentDiscussionQuickTakeInner,
+  EARecentDiscussionQuickTake,
   {styles},
 );
 

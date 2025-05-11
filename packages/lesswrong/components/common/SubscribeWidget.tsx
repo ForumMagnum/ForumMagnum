@@ -3,8 +3,8 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TabNavigationSubItem } from "./TabNavigationMenu/TabNavigationSubItem";
-import { SubscribeDialog } from "./SubscribeDialog";
+import TabNavigationSubItem from "./TabNavigationMenu/TabNavigationSubItem";
+import SubscribeDialog from "./SubscribeDialog";
 
 const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {

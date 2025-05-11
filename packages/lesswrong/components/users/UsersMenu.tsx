@@ -24,18 +24,18 @@ import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSe
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { NewDialogueDialog } from "../posts/NewDialogueDialog";
-import { NewShortformDialog } from "../shortform/NewShortformDialog";
-import { AFApplicationForm } from "../alignment-forum/AFApplicationForm";
-import { LWPopper } from "../common/LWPopper";
-import { LWTooltip } from "../common/LWTooltip";
-import { ThemePickerMenu } from "../themes/ThemePickerMenu";
-import { DropdownMenu } from "../dropdowns/DropdownMenu";
-import { DropdownItem } from "../dropdowns/DropdownItem";
-import { DropdownDivider } from "../dropdowns/DropdownDivider";
-import { UsersProfileImage } from "./UsersProfileImage";
-import { ForumIcon } from "../common/ForumIcon";
-import { NewWikiTagMenu } from "../tagging/NewWikiTagMenu";
+import NewDialogueDialog from "../posts/NewDialogueDialog";
+import NewShortformDialog from "../shortform/NewShortformDialog";
+import AFApplicationForm from "../alignment-forum/AFApplicationForm";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ThemePickerMenu from "../themes/ThemePickerMenu";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import DropdownDivider from "../dropdowns/DropdownDivider";
+import UsersProfileImage from "./UsersProfileImage";
+import ForumIcon from "../common/ForumIcon";
+import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersMenuInner = ({classes}: {
+const UsersMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -435,6 +435,6 @@ const UsersMenuInner = ({classes}: {
   );
 }
 
-export const UsersMenu = registerComponent('UsersMenu', UsersMenuInner, {styles});
+export default registerComponent('UsersMenu', UsersMenu, {styles});
 
 

@@ -6,10 +6,10 @@ import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import { SearchHitComponentProps } from './types';
-import { MetaInfo } from "../common/MetaInfo";
-import { FormatDate } from "../common/FormatDate";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
 import { Typography } from "../common/Typography";
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,7 +40,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const post = (hit as SearchPost);
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
@@ -76,7 +76,7 @@ const PostsSearchHitInner = ({hit, clickAction, classes, showIcon=false}: Search
 }
 
 
-export const PostsSearchHit = registerComponent("PostsSearchHit", PostsSearchHitInner, {styles});
+export default registerComponent("PostsSearchHit", PostsSearchHit, {styles});
 
 
 

@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { useMulti } from '../../lib/crud/withMulti'
 import { registerComponent } from '../../lib/vulcan-lib/components'
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { PostsItemIntroSequence } from "../posts/PostsItemIntroSequence";
-import { LoadMore } from "../common/LoadMore";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";
+import LoadMore from "../common/LoadMore";
 
 const PREVIEW_N = 3
 
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const TagIntroSequenceInner = ({tag, classes}: {
+const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
@@ -63,6 +63,6 @@ const TagIntroSequenceInner = ({tag, classes}: {
   </div>
 }
 
-export const TagIntroSequence = registerComponent("TagIntroSequence", TagIntroSequenceInner, {styles})
+export default registerComponent("TagIntroSequence", TagIntroSequence, {styles});
 
 

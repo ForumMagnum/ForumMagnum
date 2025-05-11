@@ -8,11 +8,11 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import chunk from 'lodash/chunk';
 import { VotingProps } from './votingProps';
-import { VoteArrowIcon } from "./VoteArrowIcon";
-import { LoginPopup } from "../users/LoginPopup";
-import { AxisVoteButton } from "./AxisVoteButton";
-import { OverallVoteAxis } from "./OverallVoteAxis";
-import { PopperCard } from "../common/PopperCard";
+import VoteArrowIcon from "./VoteArrowIcon";
+import LoginPopup from "../users/LoginPopup";
+import AxisVoteButton from "./AxisVoteButton";
+import OverallVoteAxis from "./OverallVoteAxis";
+import PopperCard from "../common/PopperCard";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -210,7 +210,7 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   </div>
 }
 
-const ReactBallotVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
+const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
   const { hover, anchorEl, eventHandlers } = useHover();
   
@@ -256,7 +256,7 @@ const ReactBallotVoteOnCommentInner = ({document, hideKarma=false, collectionNam
 }
 
 
-export const ReactBallotVoteOnComment = registerComponent('ReactBallotVoteOnComment', ReactBallotVoteOnCommentInner, {styles});
+export default registerComponent('ReactBallotVoteOnComment', ReactBallotVoteOnComment, {styles});
 
 
 

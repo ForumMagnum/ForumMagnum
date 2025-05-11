@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isPostAllowedType3Audio } from '../../../lib/collections/posts/helpers';
-import { PostsPodcastPlayer } from "./PostsPodcastPlayer";
-import { T3AudioPlayer } from "./T3AudioPlayer";
+import PostsPodcastPlayer from "./PostsPodcastPlayer";
+import T3AudioPlayer from "./T3AudioPlayer";
 
 const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
@@ -19,7 +19,7 @@ export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigation
     || isPostAllowedType3Audio(post);
 }
 
-export const PostsAudioPlayerWrapperInner = ({post, showEmbeddedPlayer, classes}: {
+export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
   classes: ClassesType<typeof styles>,
@@ -32,6 +32,6 @@ export const PostsAudioPlayerWrapperInner = ({post, showEmbeddedPlayer, classes}
   </>;
 }
 
-export const PostsAudioPlayerWrapper = registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapperInner, {styles});
+export default registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapper, {styles});
 
 

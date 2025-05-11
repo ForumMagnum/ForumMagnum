@@ -5,10 +5,10 @@ import FavoriteIcon from '@/lib/vendor/@material-ui/icons/src/Favorite';
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { SectionFooter } from "../common/SectionFooter";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import SectionFooter from "../common/SectionFooter";
 
 export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject',false) // enables UI for 2022 LW April Fools
 
@@ -80,7 +80,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AprilFools2022Inner = ({classes}: {
+export const AprilFools2022 = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = useMulti({
@@ -138,7 +138,7 @@ export const AprilFools2022Inner = ({classes}: {
   </SingleColumnSection>;
 }
 
-export const AprilFools2022 = registerComponent('AprilFools2022', AprilFools2022Inner, {styles});
+export default registerComponent('AprilFools2022', AprilFools2022, {styles});
 
 
 

@@ -2,9 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import { useSingle } from '../../lib/crud/withSingle';
-import { CommentsNode } from "./CommentsNode";
+import CommentsNodeInner from "./CommentsNode";
 
-const CommentByIdInner = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
+const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
   commentId: string,
   nestingLevel?: number,
   isChild?: boolean,
@@ -16,7 +16,7 @@ const CommentByIdInner = ({commentId, nestingLevel=0, isChild=false, treeOptions
     fragmentName: "CommentsList",
   });
   if (!comment) return null;
-  return <CommentsNode
+  return <CommentsNodeInner
     comment={comment}
     nestingLevel={nestingLevel}
     isChild={isChild}
@@ -25,6 +25,6 @@ const CommentByIdInner = ({commentId, nestingLevel=0, isChild=false, treeOptions
   />
 }
 
-export const CommentById = registerComponent('CommentById', CommentByIdInner);
+export default registerComponent('CommentById', CommentById);
 
 

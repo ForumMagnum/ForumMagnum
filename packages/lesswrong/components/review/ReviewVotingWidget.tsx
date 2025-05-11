@@ -7,9 +7,9 @@ import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { ReviewVotingButtons } from "./ReviewVotingButtons";
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { LWTooltip } from "../common/LWTooltip";
+import ReviewVotingButtons from "./ReviewVotingButtons";
+import ErrorBoundary from "../common/ErrorBoundary";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingWidgetInner = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
@@ -65,6 +65,6 @@ const ReviewVotingWidgetInner = ({classes, post, setNewVote, showTitle=true}: {c
     </ErrorBoundary>
 }
 
-export const ReviewVotingWidget = registerComponent('ReviewVotingWidget', ReviewVotingWidgetInner, {styles});
+export default registerComponent('ReviewVotingWidget', ReviewVotingWidget, {styles});
 
 

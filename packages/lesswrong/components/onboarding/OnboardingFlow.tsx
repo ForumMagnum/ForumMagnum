@@ -2,7 +2,7 @@ import React, {ReactNode, useCallback, useEffect, useState} from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import {useCurrentUser} from '../common/withUser'
 import {EAOnboardingContextProvider} from '../ea-forum/onboarding/useEAOnboarding'
-import { BlurredBackgroundModal } from "../common/BlurredBackgroundModal";
+import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -10,7 +10,7 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const OnboardingFlowInner = ({stages, viewAsAdmin, classes}: {
+const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
   stages: Record<string, ReactNode>,
   // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
   viewAsAdmin?: boolean,
@@ -43,10 +43,10 @@ const OnboardingFlowInner = ({stages, viewAsAdmin, classes}: {
   )
 }
 
-export const OnboardingFlow = registerComponent(
+export default registerComponent(
   'OnboardingFlow',
-  OnboardingFlowInner,
+  OnboardingFlow,
   {styles},
-)
+);
 
 

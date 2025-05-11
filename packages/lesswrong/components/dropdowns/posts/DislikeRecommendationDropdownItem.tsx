@@ -10,8 +10,8 @@ import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
-import { LoginPopup } from "../../users/LoginPopup";
-import { DropdownItem } from "../DropdownItem";
+import LoginPopup from "../../users/LoginPopup";
+import DropdownItem from "../DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const DislikeRecommendationDropdownItemInner = ({post}: {post: PostsBase}) => {
+const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog()
@@ -61,9 +61,9 @@ const DislikeRecommendationDropdownItemInner = ({post}: {post: PostsBase}) => {
   );
 }
 
-export const DislikeRecommendationDropdownItem = registerComponent(
+export default registerComponent(
   'DislikeRecommendationDropdownItem',
-  DislikeRecommendationDropdownItemInner,
+  DislikeRecommendationDropdownItem,
   {
     styles,
     hocs: [withErrorBoundary],

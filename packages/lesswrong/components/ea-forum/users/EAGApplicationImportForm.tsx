@@ -5,7 +5,7 @@ import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from "@
 import ArrowBack from '@/lib/vendor/@material-ui/icons/src/ArrowBack'
 import pick from 'lodash/pick';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { useGoogleMaps, LocationPicker } from '../../form-components/LocationFormComponent';
+import LocationPicker, { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
@@ -15,12 +15,13 @@ import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
-import { Loading } from "../../vulcan-core/Loading";
+import Loading from "../../vulcan-core/Loading";
 import { Typography } from "../../common/Typography";
 import { MultiSelect } from "../../form-components/FormComponentMultiSelect";
-import { PrefixedInput } from "../../form-components/PrefixedInput";
+import PrefixedInput from "../../form-components/PrefixedInput";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EAGApplicationImportForm', (theme: ThemeType) => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',
@@ -177,7 +178,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[500]
     }
   }
-})
+}));
 
 type EAGApplicationDataType = {
   jobTitle?: string,
@@ -207,7 +208,7 @@ type EditorFormComponentRefType = {
 // Wrapper around EAGApplicationImportForm which fetches the current user with
 // the UsersEdit fragment so that it will have all the fields to be able to
 // edit bio, howICanHelpOthers.
-const EAGApplicationImportFormWrapperInner = () => {
+const EAGApplicationImportFormWrapper = () => {
   const currentUser = useCurrentUser()
   const { document: currentUserEdit, loading } = useSingle({
     documentId: currentUser?._id,
@@ -225,10 +226,10 @@ const EAGApplicationImportFormWrapperInner = () => {
   />
 }
 
-const EAGApplicationImportFormInner = ({currentUser, classes}: {
+const EAGApplicationImportForm = ({currentUser}: {
   currentUser: UsersEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const { pathname } = useLocation()
   const { flash } = useMessages()
@@ -748,7 +749,6 @@ const EAGApplicationImportFormInner = ({currentUser, classes}: {
 }
 
 
-export const EAGApplicationImportFormWrapper = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapperInner);
-export const EAGApplicationImportForm = registerComponent('EAGApplicationImportForm', EAGApplicationImportFormInner, {styles});
+export default registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapper);
 
 

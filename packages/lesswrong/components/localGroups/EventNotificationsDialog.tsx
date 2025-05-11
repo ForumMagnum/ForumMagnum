@@ -17,9 +17,9 @@ import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationForm
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
-import { Loading } from "../vulcan-core/Loading";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { LWDialog } from "../common/LWDialog";
+import LWDialog from "../common/LWDialog";
 
 const MAX_NOTIFICATION_RADIUS = 300;
 
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
-const EventNotificationsDialogInner = ({ onClose, classes }: {
+const EventNotificationsDialog = ({ onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -214,7 +214,7 @@ const EventNotificationsDialogInner = ({ onClose, classes }: {
   )
 }
 
-export const EventNotificationsDialog = registerComponent('EventNotificationsDialog', EventNotificationsDialogInner, {styles});
+export default registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
 
 
 

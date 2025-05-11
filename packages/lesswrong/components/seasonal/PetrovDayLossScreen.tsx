@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PetrovDayLossScreenInner = ({classes}: {
+const PetrovDayLossScreen = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   return (
@@ -46,7 +46,7 @@ const PetrovDayLossScreenInner = ({classes}: {
   )
 }
 
-export const PetrovDayLossScreen = registerComponent('PetrovDayLossScreen', PetrovDayLossScreenInner, {
+export default registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {
   styles,
   // This is text overlayed on an image, which doesn't get inverted for dark mode
   allowNonThemeColors: true,

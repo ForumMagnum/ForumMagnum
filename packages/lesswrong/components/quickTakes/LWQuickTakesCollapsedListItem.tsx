@@ -5,11 +5,11 @@ import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
-import { ForumIcon } from "../common/ForumIcon";
-import { LWPopper } from "../common/LWPopper";
-import { CommentsNode } from "../comments/CommentsNode";
-import { CommentsItemMeta } from "../comments/CommentsItem/CommentsItemMeta";
-import { CommentBottomCaveats } from "../comments/CommentsItem/CommentBottomCaveats";
+import ForumIcon from "../common/ForumIcon";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
+import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LWQuickTakesCollapsedListItemInner = ({ quickTake, setExpanded, classes }: {
+const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -137,7 +137,7 @@ const LWQuickTakesCollapsedListItemInner = ({ quickTake, setExpanded, classes }:
       clickable={false}
     >
       <div className={classes.hoverOver}>
-        <CommentsNode
+        <CommentsNodeInner
           truncated
           nestingLevel={1}
           comment={quickTake}
@@ -190,9 +190,9 @@ const LWQuickTakesCollapsedListItemInner = ({ quickTake, setExpanded, classes }:
   );
 }
 
-export const LWQuickTakesCollapsedListItem = registerComponent(
+export default registerComponent(
   "LWQuickTakesCollapsedListItem",
-  LWQuickTakesCollapsedListItemInner,
+  LWQuickTakesCollapsedListItem,
   {styles},
 );
 

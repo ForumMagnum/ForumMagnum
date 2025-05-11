@@ -4,10 +4,10 @@ import AddLocationIcon from '@/lib/vendor/@material-ui/icons/src/AddLocation';
 import { useDialog } from '../common/withDialog'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
-import { GroupFormDialog } from "./GroupFormDialog";
-import { SectionButton } from "../common/SectionButton";
+import GroupFormDialog from "./GroupFormDialog";
+import SectionButton from "../common/SectionButton";
 
-const GroupFormLinkInner = ({documentId, isOnline}: {
+const GroupFormLink = ({documentId, isOnline}: {
   documentId?: string
   isOnline?: boolean
 }) => {
@@ -35,6 +35,6 @@ const GroupFormLinkInner = ({documentId, isOnline}: {
   }
 }
 
-export const GroupFormLink = registerComponent('GroupFormLink', GroupFormLinkInner);
+export default registerComponent('GroupFormLink', GroupFormLink);
 
 

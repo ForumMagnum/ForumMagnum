@@ -5,7 +5,7 @@ import {
   eaEmojiPalette,
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
-import { SectionTitle } from "../common/SectionTitle";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,7 +79,7 @@ const PaletteSection: FC<{
   );
 }
 
-const EAEmojiPaletteInner = ({onSelectEmoji, classes}: {
+const EAEmojiPalette = ({onSelectEmoji, classes}: {
   onSelectEmoji: (emojiOption: EmojiOption) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -102,9 +102,9 @@ const EAEmojiPaletteInner = ({onSelectEmoji, classes}: {
   );
 }
 
-export const EAEmojiPalette = registerComponent(
+export default registerComponent(
   "EAEmojiPalette",
-  EAEmojiPaletteInner,
+  EAEmojiPalette,
   {styles},
 );
 

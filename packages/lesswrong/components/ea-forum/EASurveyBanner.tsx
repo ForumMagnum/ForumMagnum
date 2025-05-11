@@ -7,7 +7,7 @@ import moment from "moment";
 import DeferRender from "../common/DeferRender";
 import { Link } from "@/lib/reactRouterWrapper";
 import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "@/lib/cookies/cookies";
-import { ForumIcon } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +68,7 @@ const styles = (theme: ThemeType) => ({
  * This banner is now disabled but the code is left here in case we want to
  * do something similar again in the future.
  */
-const EASurveyBannerInner = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
@@ -116,9 +116,9 @@ const EASurveyBannerInner = ({classes}: {classes: ClassesType<typeof styles>}) =
   );
 }
 
-export const EASurveyBanner = registerComponent(
+export default registerComponent(
   "EASurveyBanner",
-  EASurveyBannerInner,
+  EASurveyBanner,
   {styles},
 );
 

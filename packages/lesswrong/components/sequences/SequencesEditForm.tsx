@@ -3,7 +3,7 @@ import { styles } from './SequencesNewForm';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
 
-const SequencesEditFormInner = ({ sequence, currentUser, successCallback, cancelCallback, classes }: {
+const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallback, classes }: {
   sequence: SequencesEdit,
   currentUser: UsersCurrent,
   successCallback: () => void,
@@ -22,7 +22,7 @@ const SequencesEditFormInner = ({ sequence, currentUser, successCallback, cancel
   )
 }
 
-export const SequencesEditForm = registerComponent('SequencesEditForm', SequencesEditFormInner, {styles});
+export default registerComponent('SequencesEditForm', SequencesEditForm, {styles});
 
 
 

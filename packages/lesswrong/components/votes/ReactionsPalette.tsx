@@ -11,11 +11,11 @@ import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { ReactionIcon } from "./ReactionIcon";
-import { LWTooltip } from "../common/LWTooltip";
-import { Row } from "../common/Row";
-import { ReactionDescription } from "./lwReactions/ReactionDescription";
-import { MetaInfo } from "../common/MetaInfo";
+import ReactionIcon from "./ReactionIcon";
+import LWTooltip from "../common/LWTooltip";
+import Row from "../common/Row";
+import ReactionDescription from "./lwReactions/ReactionDescription";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
@@ -150,7 +150,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
 
 type paletteView = "listView"|"gridView";
 
-const ReactionsPaletteInner = ({getCurrentUserReactionVote, toggleReaction, quote}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
   quote: QuoteLocator|null,
@@ -372,7 +372,7 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
   );
 }
 
-export const ReactionsPalette = registerComponent('ReactionsPalette', ReactionsPaletteInner);
+export default registerComponent('ReactionsPalette', ReactionsPalette);
 
 
 

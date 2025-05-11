@@ -11,10 +11,10 @@ import { siteImageSetting } from '@/lib/publicSettings';
 import classNames from "classnames";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
-import { LWPopper } from "../common/LWPopper";
+import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
-import { ForumIcon } from "../common/ForumIcon";
-import { SocialMediaIcon } from "../icons/SocialMediaIcon";
+import ForumIcon from "../common/ForumIcon";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const ANIMATION_DURATION = 300;
 
@@ -199,7 +199,7 @@ const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) =>
   );
 };
 
-const SharePostPopupInner = ({
+const SharePostPopup = ({
   post,
   onClose,
   classes,
@@ -332,8 +332,6 @@ const SharePostPopupInner = ({
   );
 };
 
-export default SharePostPopupInner;
-
-export const SharePostPopup = registerComponent("SharePostPopup", SharePostPopupInner, { styles });
+export default registerComponent("SharePostPopup", SharePostPopup, { styles });
 
 

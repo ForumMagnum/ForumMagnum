@@ -4,9 +4,9 @@ import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { slugify } from '@/lib/utils/slugify';
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { FriendlyUsersProfile } from "./FriendlyUsersProfile";
-import { UsersProfile } from "./UsersProfile";
+import PermanentRedirect from "../common/PermanentRedirect";
+import FriendlyUsersProfile from "./FriendlyUsersProfile";
+import UsersProfile from "./UsersProfile";
 
 /**
  * Build structured data for a user to help with SEO.
@@ -48,7 +48,7 @@ export const getUserStructuredData = (user: UsersProfile) => {
 };
 
 
-const UsersSingleInner = () => {
+const UsersSingle = () => {
   const { params, pathname } = useLocation();
   
   const slug = slugify(params.slug);
@@ -65,6 +65,6 @@ const UsersSingleInner = () => {
   }
 };
 
-export const UsersSingle = registerComponent('UsersSingle', UsersSingleInner);
+export default registerComponent('UsersSingle', UsersSingle);
 
 

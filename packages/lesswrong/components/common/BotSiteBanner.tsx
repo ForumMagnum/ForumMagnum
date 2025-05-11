@@ -1,6 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { SingleColumnSection } from "./SingleColumnSection";
+import SingleColumnSection from "./SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const BotSiteBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   return (
     <SingleColumnSection className={classes.root}>
       <div>
@@ -36,6 +36,6 @@ const BotSiteBannerInner = ({ classes }: { classes: ClassesType<typeof styles> }
   );
 };
 
-export const BotSiteBanner = registerComponent("BotSiteBanner", BotSiteBannerInner, { styles });
+export default registerComponent("BotSiteBanner", BotSiteBanner, { styles });
 
 

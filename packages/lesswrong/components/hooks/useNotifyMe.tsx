@@ -13,7 +13,7 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
-import { LoginPopup } from "../users/LoginPopup";
+import LoginPopup from "../users/LoginPopup";
 
 export type NotifyMeDocument =
   UsersProfile |

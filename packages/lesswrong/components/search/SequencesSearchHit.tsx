@@ -6,9 +6,9 @@ import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { FormatDate } from "../common/FormatDate";
-import { LWTooltip } from "../common/LWTooltip";
-import { MetaInfo } from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const SequencesSearchHitInner = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const sequence: SearchSequence = hit;
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
@@ -81,7 +81,7 @@ const SequencesSearchHitInner = ({hit, clickAction, classes, showIcon=false}: Se
   </div>
 }
 
-export const SequencesSearchHit = registerComponent("SequencesSearchHit", SequencesSearchHitInner, {styles});
+export default registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
 
 
 

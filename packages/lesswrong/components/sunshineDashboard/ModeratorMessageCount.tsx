@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ModeratorMessageCountInner = ({classes, userId}: {
+export const ModeratorMessageCount = ({classes, userId}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -41,7 +41,7 @@ export const ModeratorMessageCountInner = ({classes, userId}: {
   </LWTooltip>
 }
 
-export const ModeratorMessageCount = registerComponent('ModeratorMessageCount', ModeratorMessageCountInner, {styles});
+export default registerComponent('ModeratorMessageCount', ModeratorMessageCount, {styles});
 
 
 

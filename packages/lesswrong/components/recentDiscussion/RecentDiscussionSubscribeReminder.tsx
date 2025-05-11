@@ -16,10 +16,10 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { LoginForm } from "../users/LoginForm";
-import { SignupSubscribeToCurated } from "../users/SignupSubscribeToCurated";
-import { Loading } from "../vulcan-core/Loading";
-import { AnalyticsInViewTracker } from "../common/AnalyticsInViewTracker";
+import LoginForm from "../users/LoginForm";
+import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
+import Loading from "../vulcan-core/Loading";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
@@ -121,7 +121,7 @@ const styles = (theme: ThemeType) => ({
  *
  * See EAHomeRightHandSide.tsx for the other component.
  */
-const RecentDiscussionSubscribeReminderInner = ({classes}: {
+const RecentDiscussionSubscribeReminder = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -427,8 +427,8 @@ const RecentDiscussionSubscribeReminderInner = ({classes}: {
   }
 }
 
-export const RecentDiscussionSubscribeReminder = registerComponent(
-  'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminderInner, {
+export default registerComponent(
+  'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminder, {
     styles,
     hocs: [withErrorBoundary],
   }

@@ -4,11 +4,11 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import * as _ from 'underscore'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
-import { LWTooltip } from "../../common/LWTooltip";
-import { PostKarmaWithPreview } from "../PostKarmaWithPreview";
-import { CommentKarmaWithPreview } from "../CommentKarmaWithPreview";
-import { Loading } from "../../vulcan-core/Loading";
-import { Row } from "../../common/Row";
+import LWTooltip from "../../common/LWTooltip";
+import PostKarmaWithPreview from "../PostKarmaWithPreview";
+import CommentKarmaWithPreview from "../CommentKarmaWithPreview";
+import Loading from "../../vulcan-core/Loading";
+import Row from "../../common/Row";
 
 const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ContentSummaryRowsInner = ({classes, comments, posts, user, loading}: {
+export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   classes: ClassesType<typeof styles>,
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
@@ -133,6 +133,6 @@ export const ContentSummaryRowsInner = ({classes, comments, posts, user, loading
   </div>;
 }
 
-export const ContentSummaryRows = registerComponent('ContentSummaryRows', ContentSummaryRowsInner, {styles});
+export default registerComponent('ContentSummaryRows', ContentSummaryRows, {styles});
 
 

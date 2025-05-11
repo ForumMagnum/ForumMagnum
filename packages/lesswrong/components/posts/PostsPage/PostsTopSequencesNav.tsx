@@ -9,8 +9,8 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { SequencesTooltip } from "../../sequences/SequencesTooltip";
-import { SequencesNavigationLink } from "../../sequences/SequencesNavigationLink";
+import SequencesTooltip from "../../sequences/SequencesTooltip";
+import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
 
 export const darkGreyAlpha = .7
 
@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsTopSequencesNavInner = ({post, classes, blackText}: {
+const PostsTopSequencesNav = ({post, classes, blackText}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
   blackText?: boolean
@@ -110,8 +110,8 @@ const PostsTopSequencesNavInner = ({post, classes, blackText}: {
   )
 }
 
-export const PostsTopSequencesNav = registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNavInner, {
+export default registerComponent(
+  'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
     hocs: [withErrorBoundary]
   }

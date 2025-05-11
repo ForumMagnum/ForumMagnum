@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SignupSubscribeToCuratedInner = ({ defaultValue, onChange, classes }: {
+const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
   onChange: (checked: boolean) => void,
   classes: ClassesType<typeof styles>,
@@ -63,6 +63,6 @@ const SignupSubscribeToCuratedInner = ({ defaultValue, onChange, classes }: {
   </div>
 }
 
-export const SignupSubscribeToCurated = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCuratedInner, {styles});
+export default registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated, {styles});
 
 

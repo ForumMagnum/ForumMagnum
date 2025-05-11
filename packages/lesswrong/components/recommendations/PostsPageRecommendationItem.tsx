@@ -6,12 +6,12 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import classNames from "classnames";
-import { PostsItemTooltipWrapper } from "../posts/PostsItemTooltipWrapper";
-import { KarmaDisplay } from "../common/KarmaDisplay";
-import { PostsTitle } from "../posts/PostsTitle";
-import { UsersName } from "../users/UsersName";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
+import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
+import KarmaDisplay from "../common/KarmaDisplay";
+import PostsTitle from "../posts/PostsTitle";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsPageRecommendationItemInner = ({
+const PostsPageRecommendationItem = ({
   post,
   disableAnalytics,
   className,
@@ -156,9 +156,9 @@ const PostsPageRecommendationItemInner = ({
   );
 }
 
-export const PostsPageRecommendationItem = registerComponent(
+export default registerComponent(
   "PostsPageRecommendationItem",
-  PostsPageRecommendationItemInner,
+  PostsPageRecommendationItem,
   {styles},
 );
 

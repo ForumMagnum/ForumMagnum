@@ -5,16 +5,16 @@ import { Link } from '../../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../../common/withUser';
 import { isMod } from '../../../lib/collections/users/helpers';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { Column, Datatable } from '../../vulcan-core/Datatable';
-import { FormatDate } from "../../common/FormatDate";
-import { UsersName } from "../../users/UsersName";
-import { UsersNameWrapper } from "../../users/UsersNameWrapper";
-import { SingleColumnSection } from "../../common/SingleColumnSection";
-import { RejectedPostsList } from "./RejectedPostsList";
-import { RejectedCommentsList } from "./RejectedCommentsList";
-import { SectionTitle } from "../../common/SectionTitle";
-import { ToCColumn } from "../../posts/TableOfContents/ToCColumn";
-import { TableOfContents } from "../../posts/TableOfContents/TableOfContents";
+import Datatable, { Column } from '../../vulcan-core/Datatable';
+import FormatDate from "../../common/FormatDate";
+import UsersName from "../../users/UsersName";
+import UsersNameWrapper from "../../users/UsersNameWrapper";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import RejectedPostsList from "./RejectedPostsList";
+import RejectedCommentsList from "./RejectedCommentsList";
+import SectionTitle from "../../common/SectionTitle";
+import ToCColumn from "../../posts/TableOfContents/ToCColumn";
+import TableOfContents from "../../posts/TableOfContents/TableOfContents";
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -198,7 +198,7 @@ const usersBannedFromUsersColumns: Column[] = [
   },
 ]
 
-const ModerationLogInner = ({classes}: {
+const ModerationLog = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
@@ -310,6 +310,6 @@ const ModerationLogInner = ({classes}: {
   )
 }
 
-export const ModerationLog = registerComponent('ModerationLog', ModerationLogInner, {styles});
+export default registerComponent('ModerationLog', ModerationLog, {styles});
 
 

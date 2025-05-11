@@ -10,9 +10,9 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { Loading } from "../vulcan-core/Loading";
-import { FormComponentCheckbox } from "../form-components/FormComponentCheckbox";
-import { MetaInfo } from "../common/MetaInfo";
+import Loading from "../vulcan-core/Loading";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -167,7 +167,7 @@ const RSSFeedsForm = ({
 //
 // Button used to add a new feed to a user profile
 //
-const NewFeedButtonInner = ({classes, user, closeModal}: {
+const NewFeedButton = ({classes, user, closeModal}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile,
   closeModal?: any
@@ -203,6 +203,6 @@ const NewFeedButtonInner = ({classes, user, closeModal}: {
   }
 }
 
-export const NewFeedButton = registerComponent('NewFeedButton', NewFeedButtonInner, {styles});
+export default registerComponent('NewFeedButton', NewFeedButton, {styles});
 
 

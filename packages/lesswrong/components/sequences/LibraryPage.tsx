@@ -1,12 +1,12 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Divider } from "../common/Divider";
-import { SequencesNewButton } from "./SequencesNewButton";
-import { LWCoreReading } from "./LWCoreReading";
-import { SequencesGridWrapper } from "./SequencesGridWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Divider from "../common/Divider";
+import SequencesNewButton from "./SequencesNewButton";
+import LWCoreReading from "./LWCoreReading";
+import SequencesGridWrapper from "./SequencesGridWrapper";
 import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const LibraryPageInner = ({classes}: {
+const LibraryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <React.Fragment>
@@ -63,7 +63,7 @@ const LibraryPageInner = ({classes}: {
   </React.Fragment>;
 };
 
-export const LibraryPage = registerComponent('LibraryPage', LibraryPageInner, {styles});
+export default registerComponent('LibraryPage', LibraryPage, {styles});
 
 
 

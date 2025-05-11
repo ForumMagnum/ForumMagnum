@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import * as _ from 'underscore';
-import { Option, InlineSelect } from '../common/InlineSelect';
+import InlineSelect, { Option } from '../common/InlineSelect';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
@@ -14,7 +14,7 @@ const sortingNames = {
   'recentComments': preferredHeadingCase('latest reply'),
 }
 
-const AnswersSortingInner = ({ post }: {
+const AnswersSorting = ({ post }: {
   post?: PostsList,
 }) => {
   const navigate = useNavigate();
@@ -39,6 +39,6 @@ const AnswersSortingInner = ({ post }: {
   return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
 };
 
-export const AnswersSorting = registerComponent('AnswersSorting', AnswersSortingInner);
+export default registerComponent('AnswersSorting', AnswersSorting);
 
 

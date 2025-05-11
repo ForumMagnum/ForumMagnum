@@ -8,13 +8,13 @@ import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { SectionTitle } from "../common/SectionTitle";
-import { Loading } from "../vulcan-core/Loading";
-import { LoadMore } from "../common/LoadMore";
-import { UserTooltip } from "../users/UserTooltip";
-import { ErrorAccessDenied } from "../common/ErrorAccessDenied";
-import { ForumIcon } from "../common/ForumIcon";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
+import UserTooltip from "../users/UserTooltip";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const AdminPaymentsPageInner = ({classes}: {
+export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading, loadMoreProps } = useMulti({
@@ -126,7 +126,7 @@ export const AdminPaymentsPageInner = ({classes}: {
   </div>;
 }
 
-export const AdminPaymentsPage = registerComponent('AdminPaymentsPage', AdminPaymentsPageInner, {styles});
+export default registerComponent('AdminPaymentsPage', AdminPaymentsPage, {styles});
 
 
 

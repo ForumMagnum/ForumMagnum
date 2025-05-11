@@ -4,11 +4,11 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import { LoginPopup } from "../users/LoginPopup";
-import { BookCheckout } from "../review/BookCheckout";
-import { Book2020Animation } from "./Book2020Animation";
-import { ContentStyles } from "../common/ContentStyles";
-import { Row } from "../common/Row";
+import LoginPopup from "../users/LoginPopup";
+import BookCheckout from "../review/BookCheckout";
+import Book2020Animation from "./Book2020Animation";
+import ContentStyles from "../common/ContentStyles";
+import Row from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const Book2020FrontpageWidgetInner = ({ classes }: {
+const Book2020FrontpageWidget = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -178,6 +178,6 @@ const Book2020FrontpageWidgetInner = ({ classes }: {
 }
 
 
-export const Book2020FrontpageWidget = registerComponent('Book2020FrontpageWidget', Book2020FrontpageWidgetInner, { styles });
+export default registerComponent('Book2020FrontpageWidget', Book2020FrontpageWidget, { styles });
 
 

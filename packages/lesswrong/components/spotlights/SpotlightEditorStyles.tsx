@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const SpotlightEditorStylesInner = ({classes, children}: {
+export const SpotlightEditorStyles = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
@@ -42,6 +42,6 @@ export const SpotlightEditorStylesInner = ({classes, children}: {
   </div>;
 }
 
-export const SpotlightEditorStyles = registerComponent('SpotlightEditorStyles', SpotlightEditorStylesInner, {styles});
+export default registerComponent('SpotlightEditorStyles', SpotlightEditorStyles, {styles});
 
 

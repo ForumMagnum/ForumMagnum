@@ -11,11 +11,11 @@ import {
   getNotificationTypeByName,
 } from "../../../lib/notificationTypes";
 import type { ForumIconName } from "../../common/ForumIcon";
-import { IconVariant, NotificationsPageItem } from "./NotificationsPageItem";
+import NotificationsPageItem, { IconVariant } from "./NotificationsPageItem";
 import { sequenceGetPageUrl } from "../../../lib/collections/sequences/helpers";
-import { UsersName } from "../../users/UsersName";
-import { PostsTooltip } from "../../posts/PostsPreviewTooltip/PostsTooltip";
-import { FormatDate } from "../../common/FormatDate";
+import UsersName from "../../users/UsersName";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   primaryText: {
@@ -57,7 +57,7 @@ export const getDisplayConfig = ({
   };
 }
 
-export const NotificationsPageNotificationInner = ({
+export const NotificationsPageNotification = ({
   notification,
   hideCommentPreviews,
   classes,
@@ -196,9 +196,9 @@ export const NotificationsPageNotificationInner = ({
   );
 }
 
-export const NotificationsPageNotification = registerComponent(
+export default registerComponent(
   "NotificationsPageNotification",
-  NotificationsPageNotificationInner,
+  NotificationsPageNotification,
   {styles},
 );
 

@@ -4,7 +4,7 @@ import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { Menu } from '@/components/widgets/Menu';
 import moment from '../../../lib/moment-timezone';
 import { TooltipSpan } from '@/components/common/FMTooltip';
-import { PostsRevisionsList } from "./PostsRevisionsList";
+import PostsRevisionsList from "./PostsRevisionsList";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsRevisionSelectorInner = ({ post, format, classes }: {
+const PostsRevisionSelector = ({ post, format, classes }: {
   post: PostsBase,
   format: string,
   classes: ClassesType<typeof styles>,
@@ -56,6 +56,6 @@ const PostsRevisionSelectorInner = ({ post, format, classes }: {
   </React.Fragment>
 }
 
-export const PostsRevisionSelector = registerComponent('PostsRevisionSelector', PostsRevisionSelectorInner, {styles});
+export default registerComponent('PostsRevisionSelector', PostsRevisionSelector, {styles});
 
 

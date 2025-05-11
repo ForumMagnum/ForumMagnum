@@ -6,8 +6,8 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
-import { LWTooltip } from "../../common/LWTooltip";
-import { LoginPopupButton } from "../../users/LoginPopupButton";
+import LWTooltip from "../../common/LWTooltip";
+import LoginPopupButton from "../../users/LoginPopupButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -138,7 +138,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const OptIntoPetrovButtonInner = ({classes }: {
+const OptIntoPetrovButton = ({classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
@@ -262,7 +262,7 @@ const OptIntoPetrovButtonInner = ({classes }: {
       </div>
 }
 
-export const OptIntoPetrovButton = registerComponent('OptIntoPetrovButton', OptIntoPetrovButtonInner, {styles});
+export default registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
 
 
 

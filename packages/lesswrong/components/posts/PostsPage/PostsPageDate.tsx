@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { ExpandedDate, FormatDate } from '../../common/FormatDate';
+import FormatDate, { ExpandedDate } from '../../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { PostsRevisionSelector } from "./PostsRevisionSelector";
-import { LWTooltip } from "../../common/LWTooltip";
+import PostsRevisionSelector from "./PostsRevisionSelector";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   date: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsPageDateInner = ({ post, hasMajorRevision, classes }: {
+const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   post: PostsBase,
   hasMajorRevision: boolean,
   classes: ClassesType<typeof styles>,
@@ -58,6 +58,6 @@ const PostsPageDateInner = ({ post, hasMajorRevision, classes }: {
   </LWTooltip>
 }
 
-export const PostsPageDate = registerComponent("PostsPageDate", PostsPageDateInner, {styles});
+export default registerComponent("PostsPageDate", PostsPageDate, {styles});
 
 

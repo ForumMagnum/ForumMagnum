@@ -23,7 +23,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAOnboardingInputInner = ({
+const EAOnboardingInput = ({
   value,
   setValue,
   placeholder,
@@ -63,9 +63,9 @@ const EAOnboardingInputInner = ({
   );
 }
 
-export const EAOnboardingInput = registerComponent(
+export default registerComponent(
   "EAOnboardingInput",
-  EAOnboardingInputInner,
+  EAOnboardingInput,
   {styles, stylePriority: -1},
 );
 

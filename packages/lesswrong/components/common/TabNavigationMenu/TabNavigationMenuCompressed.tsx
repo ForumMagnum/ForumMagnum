@@ -4,8 +4,8 @@ import React from 'react';
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { TabNavigationCompressedItem } from "./TabNavigationCompressedItem";
-import { SimpleDivider } from "../../widgets/SimpleDivider";
+import TabNavigationCompressedItem from "./TabNavigationCompressedItem";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const TabNavigationMenuCompressedInner = ({onClickSection, classes}: {
+const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
   classes: ClassesType<typeof styles>
 }) => {
@@ -42,8 +42,8 @@ const TabNavigationMenuCompressedInner = ({onClickSection, classes}: {
   )
 };
 
-export const TabNavigationMenuCompressed = registerComponent(
-  'TabNavigationMenuCompressed', TabNavigationMenuCompressedInner, {styles}
+export default registerComponent(
+  'TabNavigationMenuCompressed', TabNavigationMenuCompressed, {styles}
 );
 
 

@@ -7,12 +7,12 @@ import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { LWPopper } from "../common/LWPopper";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { ForumIcon } from "../common/ForumIcon";
-import { CommentBody } from "../comments/CommentsItem/CommentBody";
-import { CommentsNewForm } from "../comments/CommentsNewForm";
-import { UsersProfileImage } from "../users/UsersProfileImage";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import ForumIcon from "../common/ForumIcon";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import CommentsNewForm from "../comments/CommentsNewForm";
+import UsersProfileImage from "../users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
@@ -102,7 +102,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const ForumEventResultPopperInner = ({
+const ForumEventResultPopper = ({
   anchorEl,
   user,
   comment,
@@ -214,9 +214,9 @@ const ForumEventResultPopperInner = ({
   );
 };
 
-export const ForumEventResultPopper = registerComponent(
+export default registerComponent(
   'ForumEventResultPopper',
-  ForumEventResultPopperInner,
+  ForumEventResultPopper,
   { styles, stylePriority: -1 }
 );
 

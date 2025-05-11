@@ -4,9 +4,9 @@ import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
-import { UsersNameDisplay } from "../users/UsersNameDisplay";
-import { Loading } from "../vulcan-core/Loading";
-import { LWTooltip } from "../common/LWTooltip";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagContributorsListInner = ({tag, onHoverUser, classes}: {
+const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
   onHoverUser?: (userId: string|null) => void,
   classes: ClassesType<typeof styles>,
@@ -103,7 +103,7 @@ const TagContributorsListInner = ({tag, onHoverUser, classes}: {
   </div>
 }
 
-export const TagContributorsList = registerComponent("TagContributorsList", TagContributorsListInner, {
+export default registerComponent("TagContributorsList", TagContributorsList, {
   styles,
   hocs: [withErrorBoundary],
 });

@@ -19,14 +19,14 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
-import { UsersName } from "./UsersName";
+import UsersName from "./UsersName";
 import { MenuItemLink } from "../common/Menus";
 import { Typography } from "../common/Typography";
-import { LWClickAwayListener } from "../common/LWClickAwayListener";
-import { LWPopper } from "../common/LWPopper";
-import { ForumIcon } from "../common/ForumIcon";
-import { ReactionIcon } from "../votes/ReactionIcon";
-import { LWTooltip } from "../common/LWTooltip";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
+import ReactionIcon from "../votes/ReactionIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -207,7 +207,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   );
 }
 
-const KarmaChangeNotifierInner = ({currentUser, className, classes}: {
+const KarmaChangeNotifier = ({currentUser, className, classes}: {
   currentUser: UsersCurrent, //component can only be used if logged in
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -347,7 +347,7 @@ const NewReactions = ({reactionChanges, classes}: {
   </span>
 }
 
-export const KarmaChangeNotifier = registerComponent('KarmaChangeNotifier', KarmaChangeNotifierInner, {
+export default registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
   styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 

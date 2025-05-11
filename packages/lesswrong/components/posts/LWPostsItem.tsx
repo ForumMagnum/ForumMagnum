@@ -10,32 +10,32 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
-import { MENU_WIDTH, DismissButton, PostsItemTrailingButtons } from './PostsItemTrailingButtons';
+import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
 import { isLW } from '@/lib/instanceSettings';
-import { PostsItemTagRelevance } from "../tagging/PostsItemTagRelevance";
-import { EventVicinity } from "../localGroups/EventVicinity";
-import { PostsItemComments } from "./PostsItemComments";
-import { KarmaDisplay } from "../common/KarmaDisplay";
-import { PostsTitle } from "./PostsTitle";
-import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
-import { LWTooltip } from "../common/LWTooltip";
-import { PostActionsButton } from "../dropdowns/posts/PostActionsButton";
+import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
+import EventVicinity from "../localGroups/EventVicinity";
+import PostsItemComments from "./PostsItemComments";
+import KarmaDisplay from "../common/KarmaDisplay";
+import PostsTitle from "./PostsTitle";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import LWTooltip from "../common/LWTooltip";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import { PostsItemIcons } from "./PostsItemIcons";
-import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
-import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
-import { BookmarkButton } from "./BookmarkButton";
-import { PostsItemDate } from "./PostsItemDate";
-import { PostsItemNewCommentsWrapper } from "./PostsItemNewCommentsWrapper";
-import { PostsItemNewDialogueResponses } from "./PostsItemNewDialogueResponses";
-import { AnalyticsTracker } from "../common/AnalyticsTracker";
-import { AddToCalendarButton } from "./AddToCalendar/AddToCalendarButton";
-import { PostsItemReviewVote } from "../review/PostsItemReviewVote";
-import { ReviewPostButton } from "../review/ReviewPostButton";
-import { PostReadCheckbox } from "./PostReadCheckbox";
-import { PostMostValuableCheckbox } from "./PostMostValuableCheckbox";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import BookmarkButton from "./BookmarkButton";
+import PostsItemDate from "./PostsItemDate";
+import PostsItemNewCommentsWrapper from "./PostsItemNewCommentsWrapper";
+import PostsItemNewDialogueResponses from "./PostsItemNewDialogueResponses";
+import AnalyticsTracker from "../common/AnalyticsTracker";
+import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
+import PostsItemReviewVote from "../review/PostsItemReviewVote";
+import ReviewPostButton from "../review/ReviewPostButton";
+import PostReadCheckbox from "./PostReadCheckbox";
+import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
 
 export const KARMA_WIDTH = 32;
@@ -399,7 +399,7 @@ export type PostsList2Props = PostsItemConfig & {
   classes: ClassesType<typeof styles>,
 };
 
-const LWPostsItemInner = ({classes, ...props}: PostsList2Props) => {
+const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   const {
     post,
     postLink,
@@ -657,7 +657,7 @@ const LWPostsItemInner = ({classes, ...props}: PostsList2Props) => {
   )
 };
 
-export const LWPostsItem = registerComponent('LWPostsItem', LWPostsItemInner, {
+export default registerComponent('LWPostsItem', LWPostsItem, {
   styles,
   stylePriority: 1,
   hocs: [withErrorBoundary],

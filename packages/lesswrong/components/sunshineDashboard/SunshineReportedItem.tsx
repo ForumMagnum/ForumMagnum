@@ -9,19 +9,19 @@ import DeleteIcon from '@/lib/vendor/@material-ui/icons/src/Delete';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonOutlineIcon from '@/lib/vendor/@material-ui/icons/src/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
-import { SunshineListItem } from "./SunshineListItem";
-import { SidebarInfo } from "./SidebarInfo";
-import { SidebarHoverOver } from "./SidebarHoverOver";
-import { PostsTitle } from "../posts/PostsTitle";
-import { PostsHighlight } from "../posts/PostsHighlight";
-import { SidebarActionMenu } from "./SidebarActionMenu";
-import { SidebarAction } from "./SidebarAction";
-import { FormatDate } from "../common/FormatDate";
-import { CommentsNode } from "../comments/CommentsNode";
+import SunshineListItem from "./SunshineListItem";
+import SidebarInfo from "./SidebarInfo";
+import SidebarHoverOver from "./SidebarHoverOver";
+import PostsTitle from "../posts/PostsTitle";
+import PostsHighlight from "../posts/PostsHighlight";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarAction from "./SidebarAction";
+import FormatDate from "../common/FormatDate";
+import CommentsNodeInner from "../comments/CommentsNode";
 import { Typography } from "../common/Typography";
-import { SunshineCommentsItemOverview } from "./SunshineCommentsItemOverview";
-import { SunshineNewUsersInfo } from "./SunshineNewUsersInfo";
-import { UsersName } from "../users/UsersName";
+import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
+import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
+import UsersName from "../users/UsersName";
 
 const styles = (_theme: ThemeType) => ({
   reportedUser: {
@@ -35,7 +35,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const SunshineReportedItemInner = ({report, updateReport, classes, currentUser, refetch}: {
+const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
   report: UnclaimedReportsList,
   updateReport: WithUpdateFunction<"Reports">,
   classes: ClassesType<typeof styles>,
@@ -101,7 +101,7 @@ const SunshineReportedItemInner = ({report, updateReport, classes, currentUser, 
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            {comment && <CommentsNode
+            {comment && <CommentsNodeInner
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -145,7 +145,7 @@ const SunshineReportedItemInner = ({report, updateReport, classes, currentUser, 
   );
 }
 
-export const SunshineReportedItem = registerComponent('SunshineReportedItem', SunshineReportedItemInner, {
+export default registerComponent('SunshineReportedItem', SunshineReportedItem, {
   styles, hocs: [withErrorBoundary]
 });
 

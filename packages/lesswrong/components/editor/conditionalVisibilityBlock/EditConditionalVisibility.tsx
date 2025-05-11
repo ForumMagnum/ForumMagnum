@@ -24,7 +24,7 @@ const styles = defineStyles("EditConditionalVisibility", (theme: ThemeType) => (
   },
 }));
 
-export const EditConditionalVisibilityInner = ({initialState, setDocumentState}: EditConditionalVisibilityProps) => {
+export const EditConditionalVisibility = ({initialState, setDocumentState}: EditConditionalVisibilityProps) => {
   const classes = useStyles(styles);
   const [state,setState] = useState(initialState);
   const changeValue = (newState: ConditionalVisibilitySettings) => {
@@ -82,7 +82,7 @@ export const EditConditionalVisibilityInner = ({initialState, setDocumentState}:
   </div>
 }
 
-export const EditConditionalVisibility = registerComponent('EditConditionalVisibility', EditConditionalVisibilityInner);
+export default registerComponent('EditConditionalVisibility', EditConditionalVisibility);
 
 
 

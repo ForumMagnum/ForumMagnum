@@ -5,9 +5,9 @@ import { useTagBySlug } from '../tagging/useTag';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button'
-import { ContentItemBody } from "../common/ContentItemBody";
-import { LWDialog } from "../common/LWDialog";
-import { ContentStyles } from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import LWDialog from "../common/LWDialog";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberInitialPopupInner = ({onClose, classes}: {
+const AFNonMemberInitialPopup = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -72,6 +72,6 @@ const AFNonMemberInitialPopupInner = ({onClose, classes}: {
   );
 }
 
-export const AFNonMemberInitialPopup = registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopupInner, {styles});
+export default registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopup, {styles});
 
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { EAButton } from "../ea-forum/EAButton";
+import EAButton from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryNoResultsInner = ({classes}: {
+const PeopleDirectoryNoResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {clearSearch} = usePeopleDirectory();
@@ -38,9 +38,9 @@ const PeopleDirectoryNoResultsInner = ({classes}: {
   );
 }
 
-export const PeopleDirectoryNoResults = registerComponent(
+export default registerComponent(
   "PeopleDirectoryNoResults",
-  PeopleDirectoryNoResultsInner,
+  PeopleDirectoryNoResults,
   {styles},
 );
 

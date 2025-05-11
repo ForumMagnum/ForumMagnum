@@ -3,9 +3,9 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { Answer } from "./Answer";
-import { SectionTitle } from "../common/SectionTitle";
-import { AnswersSorting } from "./AnswersSorting";
+import Answer from "./Answer";
+import SectionTitle from "../common/SectionTitle";
+import AnswersSorting from "./AnswersSorting";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const AnswersListInner = ({post, answersTree, classes}: {
+const AnswersList = ({post, answersTree, classes}: {
   post: PostsList,
   answersTree: CommentTreeNode<CommentsList>[],
   classes: ClassesType<typeof styles>,
@@ -64,6 +64,6 @@ const AnswersListInner = ({post, answersTree, classes}: {
   }
 };
 
-export const AnswersList = registerComponent('AnswersList', AnswersListInner, {styles});
+export default registerComponent('AnswersList', AnswersList, {styles});
 
 

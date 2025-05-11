@@ -4,13 +4,13 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SECTION_WIDTH, SingleColumnSection } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
-import { CloudinaryImage2 } from "../common/CloudinaryImage2";
-import { Loading } from "../vulcan-core/Loading";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 
 const bannerHeight = 250
@@ -116,7 +116,7 @@ const styles = (theme: ThemeType) => ({
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
-const EAHomeHandbookInner = ({ classes, documentId }: {
+const EAHomeHandbook = ({ classes, documentId }: {
   classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
@@ -179,8 +179,8 @@ const EAHomeHandbookInner = ({ classes, documentId }: {
   </React.Fragment>
 }
 
-export const EAHomeHandbook = registerComponent(
-  'EAHomeHandbook', EAHomeHandbookInner, {styles},
-)
+export default registerComponent(
+  'EAHomeHandbook', EAHomeHandbook, {styles},
+);
 
 

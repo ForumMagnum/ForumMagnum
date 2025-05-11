@@ -5,10 +5,10 @@ import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import classNames from 'classnames';
-import { Loading } from "../vulcan-core/Loading";
-import { PostsTitle } from "./PostsTitle";
-import { PostsItem2MetaInfo } from "./PostsItem2MetaInfo";
-import { PostsUserAndCoauthors } from "./PostsUserAndCoauthors";
+import Loading from "../vulcan-core/Loading";
+import PostsTitle from "./PostsTitle";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PostsItemWrapperInner = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
+const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
   addItem?: any,
@@ -99,7 +99,7 @@ const PostsItemWrapperInner = ({documentId, classes, addItem, removeItem, disabl
   }
 };
 
-export const PostsItemWrapper = registerComponent('PostsItemWrapper', PostsItemWrapperInner, {styles});
+export default registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
 
 
 

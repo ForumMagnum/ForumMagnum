@@ -3,10 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { Pingback } from "./Pingback";
-import { LWTooltip } from "../common/LWTooltip";
-import { LoadMore } from "../common/LoadMore";
-import { Loading } from "../vulcan-core/Loading";
+import Pingback from "./Pingback";
+import LWTooltip from "../common/LWTooltip";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PingbacksListInner = ({classes, postId, limit=5}: {
+const PingbacksList = ({classes, postId, limit=5}: {
   classes: ClassesType<typeof styles>,
   postId: string,
   limit?: number
@@ -90,6 +90,6 @@ const PingbacksListInner = ({classes, postId, limit=5}: {
   return null;
 }
 
-export const PingbacksList = registerComponent("PingbacksList", PingbacksListInner, {styles});
+export default registerComponent("PingbacksList", PingbacksList, {styles});
 
 

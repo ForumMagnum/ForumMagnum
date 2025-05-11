@@ -12,13 +12,13 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
 import DeferRender from '../common/DeferRender';
-import { LWTooltip } from "../common/LWTooltip";
-import { SectionTitle } from "../common/SectionTitle";
-import { PostsItemTooltipWrapper } from "../posts/PostsItemTooltipWrapper";
-import { FormatDate } from "../common/FormatDate";
-import { PostsItemDate } from "../posts/PostsItemDate";
-import { ForumIcon } from "../common/ForumIcon";
-import { SidebarDigestAd } from "./digestAd/SidebarDigestAd";
+import LWTooltip from "../common/LWTooltip";
+import SectionTitle from "../common/SectionTitle";
+import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
+import FormatDate from "../common/FormatDate";
+import PostsItemDate from "../posts/PostsItemDate";
+import ForumIcon from "../common/ForumIcon";
+import SidebarDigestAd from "./digestAd/SidebarDigestAd";
 
 /**
  * The max screen width where the Home RHS is visible
@@ -183,7 +183,7 @@ const UpcomingEventsSection = ({classes}: {
 /**
  * This is the primary EA Forum home page right-hand side component.
  */
-export const EAHomeRightHandSideInner = ({classes}: {
+export const EAHomeRightHandSide = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
@@ -310,6 +310,6 @@ export const EAHomeRightHandSideInner = ({classes}: {
   </AnalyticsContext>
 }
 
-export const EAHomeRightHandSide = registerComponent('EAHomeRightHandSide', EAHomeRightHandSideInner, {styles});
+export default registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
 
 

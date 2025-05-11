@@ -5,14 +5,14 @@ import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { FormatDate } from "../common/FormatDate";
-import { OverallVoteButton } from "../votes/OverallVoteButton";
-import { FooterTag } from "./FooterTag";
-import { UsersName } from "../users/UsersName";
-import { TagSmallPostLink } from "./TagSmallPostLink";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { LoadMore } from "../common/LoadMore";
-import { NewTagsList } from "./NewTagsList";
+import FormatDate from "../common/FormatDate";
+import OverallVoteButton from "../votes/OverallVoteButton";
+import FooterTag from "./FooterTag";
+import UsersName from "../users/UsersName";
+import TagSmallPostLink from "./TagSmallPostLink";
+import SingleColumnSection from "../common/SingleColumnSection";
+import LoadMore from "../common/LoadMore";
+import NewTagsList from "./NewTagsList";
 
 const styles = (theme: ThemeType) => ({
   voteRow: {
@@ -103,7 +103,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   );
 }
 
-const TagVoteActivityInner = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
+const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean,
   showNewTags?: boolean,
@@ -141,6 +141,6 @@ const TagVoteActivityInner = ({classes, showHeaders = true, showNewTags = true, 
 }
 
 
-export const TagVoteActivity = registerComponent("TagVoteActivity", TagVoteActivityInner, {styles});
+export default registerComponent("TagVoteActivity", TagVoteActivity, {styles});
 
 

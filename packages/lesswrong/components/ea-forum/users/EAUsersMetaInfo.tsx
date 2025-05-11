@@ -3,12 +3,12 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "@/lib/collections/users/helpers";
 import { communityPath } from '@/lib/pathConstants';
-import { ContentStyles } from "../../common/ContentStyles";
-import { ForumIcon } from "../../common/ForumIcon";
-import { FormatDate } from "../../common/FormatDate";
-import { SocialMediaLink } from "../../users/SocialMediaLink";
-import { LWTooltip } from "../../common/LWTooltip";
-import { SocialMediaIcon } from "../../icons/SocialMediaIcon";
+import ContentStyles from "../../common/ContentStyles";
+import ForumIcon from "../../common/ForumIcon";
+import FormatDate from "../../common/FormatDate";
+import SocialMediaLink from "../../users/SocialMediaLink";
+import LWTooltip from "../../common/LWTooltip";
+import SocialMediaIcon from "../../icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconsRow: {
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersMetaInfoInner = ({user, classes}: {
+const EAUsersMetaInfo = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -130,9 +130,9 @@ const EAUsersMetaInfoInner = ({user, classes}: {
   );
 }
 
-export const EAUsersMetaInfo = registerComponent(
+export default registerComponent(
   "EAUsersMetaInfo",
-  EAUsersMetaInfoInner,
+  EAUsersMetaInfo,
   {styles},
 );
 

@@ -2,9 +2,9 @@ import React, {useCallback} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { UsersSearchAutoComplete } from "../search/UsersSearchAutoComplete";
-import { SingleUsersItem } from "./SingleUsersItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import SingleUsersItem from "./SingleUsersItem";
 
 const styles = defineStyles('FormUserSelect', (theme: ThemeType) => ({
   root: {
@@ -17,7 +17,7 @@ const styles = defineStyles('FormUserSelect', (theme: ThemeType) => ({
   },
 }));
 
-const UserSelectInner = ({ value, setValue, label }: {
+const UserSelect = ({ value, setValue, label }: {
   value: string | null,
   setValue: (newValue: string | null, result: SearchUser | null) => void,
   label: string,
@@ -59,6 +59,6 @@ export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
   />
 };
 
-export const UserSelect = registerComponent("UserSelect", UserSelectInner);
+export default registerComponent("UserSelect", UserSelect);
 
 

@@ -6,8 +6,8 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useBookmark } from '../hooks/useBookmark';
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { LWTooltip } from "../common/LWTooltip";
-import { ForumIcon } from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 export const bookmarkableCollectionNames = new TupleSet(["Posts", "Comments"] as const);
 
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const BookmarkButtonInner = ({
+const BookmarkButton = ({
   documentId,
   collectionName,
   withText,
@@ -72,7 +72,7 @@ const BookmarkButtonInner = ({
   );
 }
 
-export const BookmarkButton = registerComponent('BookmarkButton', BookmarkButtonInner, {
+export default registerComponent('BookmarkButton', BookmarkButton, {
   styles,
   hocs: [withErrorBoundary],
 });

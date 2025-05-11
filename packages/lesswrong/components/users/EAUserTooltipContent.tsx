@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
-import { UsersProfileImage } from "./UsersProfileImage";
+import UsersProfileImage from "./UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,7 +88,7 @@ export const formatStat = (value?: number): string => {
     : String(value);
 }
 
-const EAUserTooltipContentInner = ({user, classes}: {
+const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -145,9 +145,9 @@ const EAUserTooltipContentInner = ({user, classes}: {
   );
 }
 
-export const EAUserTooltipContent = registerComponent(
+export default registerComponent(
   "EAUserTooltipContent",
-  EAUserTooltipContentInner,
+  EAUserTooltipContent,
   {styles},
 );
 

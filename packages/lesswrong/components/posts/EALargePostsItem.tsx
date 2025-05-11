@@ -9,11 +9,11 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import moment from "moment";
 import classNames from "classnames";
-import { TruncatedAuthorsList } from "./TruncatedAuthorsList";
-import { ForumIcon } from "../common/ForumIcon";
-import { PostsItemTooltipWrapper } from "./PostsItemTooltipWrapper";
-import { Loading } from "../vulcan-core/Loading";
-import { TimeTag } from "../common/TimeTag";
+import TruncatedAuthorsList from "./TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import Loading from "../vulcan-core/Loading";
+import TimeTag from "../common/TimeTag";
 
 const styles = (theme: ThemeType) => ({
   postListItem: {
@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EALargePostsItemInner = ({
+const EALargePostsItem = ({
   post,
   isNarrow,
   noImagePlaceholder,
@@ -208,9 +208,9 @@ const EALargePostsItemInner = ({
   );
 };
 
-export const EALargePostsItem = registerComponent(
+export default registerComponent(
   "EALargePostsItem",
-  EALargePostsItemInner,
+  EALargePostsItem,
   {styles, stylePriority: -1,},
 );
 

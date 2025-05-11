@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { DialogActions } from '../widgets/DialogActions';
 import { DialogTitle } from '../widgets/DialogTitle';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { LWDialog } from "./LWDialog";
+import LWDialog from "./LWDialog";
 
 // Dialog group, with trigger-button and dialog-instance
-const DialogGroupInner = ({title, trigger, actions, children}: {
+const DialogGroup = ({title, trigger, actions, children}: {
   title?: string,
   trigger: React.ReactNode,
   actions: any[],
@@ -34,6 +34,6 @@ const DialogGroupInner = ({title, trigger, actions, children}: {
   );
 }
 
-export const DialogGroup = registerComponent('DialogGroup', DialogGroupInner);
+export default registerComponent('DialogGroup', DialogGroup);
 
 

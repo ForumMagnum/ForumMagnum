@@ -5,12 +5,12 @@ import { conversationGetTitle } from '../../lib/collections/conversations/helper
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { ConversationContents } from "./ConversationContents";
-import { Error404 } from "../common/Error404";
-import { Loading } from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ConversationContents from "./ConversationContents";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { ConversationDetails } from "./ConversationDetails";
+import ConversationDetails from "./ConversationDetails";
 
 const styles = (theme: ThemeType) => ({
   conversationSection: {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
  * Page for viewing a private messages conversation. Typically invoked from
  * ConversationWrapper, which takes care of the URL parsing.
  */
-const ConversationPageInner = ({ conversationId, currentUser, classes }: {
+const ConversationPage = ({ conversationId, currentUser, classes }: {
   conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
@@ -75,7 +75,7 @@ const ConversationPageInner = ({ conversationId, currentUser, classes }: {
   )
 }
 
-export const ConversationPage = registerComponent('ConversationPage', ConversationPageInner, {
+export default registerComponent('ConversationPage', ConversationPage, {
   styles,
   hocs: [withErrorBoundary]
 });

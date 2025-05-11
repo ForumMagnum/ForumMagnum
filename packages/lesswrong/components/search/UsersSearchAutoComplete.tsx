@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
-import { SearchAutoComplete } from "./SearchAutoComplete";
-import { UsersAutoCompleteHit } from "./UsersAutoCompleteHit";
-import { UsersSearchInput } from "./UsersSearchInput";
+import SearchAutoComplete from "./SearchAutoComplete";
+import UsersAutoCompleteHit from "./UsersAutoCompleteHit";
+import UsersSearchInput from "./UsersSearchInput";
 
-const UsersSearchAutoCompleteInner = ({clickAction, label}: {
+const UsersSearchAutoComplete = ({clickAction, label}: {
   clickAction: (id: string, result: SearchUser) => void;
   label?: string;
 }) => {
@@ -19,7 +19,7 @@ const UsersSearchAutoCompleteInner = ({clickAction, label}: {
   />
 }
 
-export const UsersSearchAutoComplete = registerComponent("UsersSearchAutoComplete", UsersSearchAutoCompleteInner);
+export default registerComponent("UsersSearchAutoComplete", UsersSearchAutoComplete);
 
 
 

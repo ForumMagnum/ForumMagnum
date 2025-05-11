@@ -9,7 +9,7 @@ import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
-import { SideRecommendation } from "@/components/recommendations/SideRecommendation";
+import SideRecommendation from "@/components/recommendations/SideRecommendation";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 

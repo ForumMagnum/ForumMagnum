@@ -5,14 +5,14 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
-import { HIGHLIGHT_DURATION, CommentFrame } from './CommentFrame';
+import CommentFrame, { HIGHLIGHT_DURATION } from './CommentFrame';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
-import { SingleLineComment } from "./SingleLineComment";
-import { CommentsItem } from "./CommentsItem/CommentsItem";
-import { RepliesToCommentList } from "../shortform/RepliesToCommentList";
-import { AnalyticsTracker } from "../common/AnalyticsTracker";
+import SingleLineComment from "./SingleLineComment";
+import CommentsItem from "./CommentsItem/CommentsItem";
+import RepliesToCommentList from "../shortform/RepliesToCommentList";
+import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -347,7 +347,7 @@ const CommentsNodeInner = ({
   </div>
 }
 
-export const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
+const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
   styles,
   areEqual: {
     treeOptions: "shallow",
@@ -356,4 +356,4 @@ export const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner,
   hocs: [withErrorBoundary]
 });
 
-
+export default CommentsNode;

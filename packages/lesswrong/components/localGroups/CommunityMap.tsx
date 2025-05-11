@@ -13,10 +13,10 @@ import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
 import { useMapStyle } from '../hooks/useMapStyle';
-import { CommunityMapFilter } from "./CommunityMapFilter";
-import { LocalEventMarker } from "./LocalEventMarker";
-import { LocalGroupMarker } from "./LocalGroupMarker";
-import { StyledMapPopup } from "./StyledMapPopup";
+import CommunityMapFilter from "./CommunityMapFilter";
+import LocalEventMarker from "./LocalEventMarker";
+import LocalGroupMarker from "./LocalGroupMarker";
+import StyledMapPopup from "./StyledMapPopup";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMapInner = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
@@ -205,6 +205,7 @@ const personalMapMarkerStyles = (theme: ThemeType) => ({
     opacity: 0.8
   }
 })
+
 const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openWindows, classes}: {
   users: Array<UsersMapEntry>,
   handleClick: (userId: string) => void,
@@ -300,6 +301,6 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 
 
-export const CommunityMap = registerComponent("CommunityMap", CommunityMapInner, { styles });
+export default registerComponent("CommunityMap", CommunityMap, { styles });
 
 

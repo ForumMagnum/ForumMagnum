@@ -1,12 +1,12 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { CollectionsPage } from "./CollectionsPage";
+import CollectionsPage from "./CollectionsPage";
 
-const EAIntroCurriculumInner = () => {
+const EAIntroCurriculum = () => {
   return <CollectionsPage documentId={'MobebwWs2o86cS9Rd'} />
 };
 
-export const EAIntroCurriculum = registerComponent('EAIntroCurriculum', EAIntroCurriculumInner);
+export default registerComponent('EAIntroCurriculum', EAIntroCurriculum);
 
 
 

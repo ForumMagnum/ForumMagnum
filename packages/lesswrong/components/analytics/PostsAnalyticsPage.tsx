@@ -11,13 +11,13 @@ import { TableRow } from "@/components/widgets/TableRow"
 import { TableCell } from "@/components/widgets/TableCell"
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
-import { GRAPH_LEFT_MARGIN, AnalyticsGraph } from "./AnalyticsGraph";
+import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import classNames from "classnames";
-import { SingleColumnSection } from "../common/SingleColumnSection";
-import { LoginForm } from "../users/LoginForm";
-import { HeadTags } from "../common/HeadTags";
+import SingleColumnSection from "../common/SingleColumnSection";
+import LoginForm from "../users/LoginForm";
+import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
-import { LWTooltip } from "../common/LWTooltip";
+import LWTooltip from "../common/LWTooltip";
 
 function formatBounceRate(denominator?: number, numerator?: number) {
   if (!denominator || numerator === undefined || numerator === null) return null
@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAnalyticsPageInner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
 
   const {document: post, error} = useSingle({
@@ -222,6 +222,6 @@ const PostsAnalyticsPageInner = ({ classes }: { classes: ClassesType<typeof styl
   );
 };
 
-export const PostsAnalyticsPage = registerComponent("PostsAnalyticsPage", PostsAnalyticsPageInner, { styles });
+export default registerComponent("PostsAnalyticsPage", PostsAnalyticsPage, { styles });
 
 

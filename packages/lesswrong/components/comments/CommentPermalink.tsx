@@ -8,11 +8,11 @@ import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
-import { Loading } from "../vulcan-core/Loading";
-import { Divider } from "../common/Divider";
-import { CommentOnPostWithReplies } from "./CommentOnPostWithReplies";
-import { HeadTags } from "../common/HeadTags";
-import { CommentWithReplies } from "./CommentWithReplies";
+import Loading from "../vulcan-core/Loading";
+import Divider from "../common/Divider";
+import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
+import HeadTags from "../common/HeadTags";
+import CommentWithReplies from "./CommentWithReplies";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,7 +50,7 @@ const getCommentDescription = (comment: CommentWithRepliesFragment) => {
   }- ${comment.contents?.plaintextMainText}`
 }
 
-const CommentPermalinkInner = ({
+const CommentPermalink = ({
   documentId,
   post,
   silentLoading=false,
@@ -147,7 +147,7 @@ const CommentPermalinkInner = ({
   );
 }
 
-export const CommentPermalink = registerComponent("CommentPermalink", CommentPermalinkInner, { styles });
+export default registerComponent("CommentPermalink", CommentPermalink, { styles });
 
 
 

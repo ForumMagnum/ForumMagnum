@@ -3,11 +3,11 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { PermanentRedirect } from "../common/PermanentRedirect";
-import { Loading } from "../vulcan-core/Loading";
-import { Error404 } from "../common/Error404";
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 
-const PostsSingleSlugRedirectInner = () => {
+const PostsSingleSlugRedirect = () => {
   const { params } = useLocation();
   const slug = params.slug;
   const { post, loading } = usePostBySlug({ slug });
@@ -20,6 +20,6 @@ const PostsSingleSlugRedirectInner = () => {
   }
 };
 
-export const PostsSingleSlugRedirect = registerComponent('PostsSingleSlugRedirect', PostsSingleSlugRedirectInner);
+export default registerComponent('PostsSingleSlugRedirect', PostsSingleSlugRedirect);
 
 

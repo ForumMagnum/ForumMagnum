@@ -5,7 +5,7 @@ import { useImageContext } from "../ImageContext";
 import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import { useCreate } from "@/lib/crud/withCreate";
 import classNames from "classnames";
-import { LWTooltip } from "../../../common/LWTooltip";
+import LWTooltip from "../../../common/LWTooltip";
 
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL

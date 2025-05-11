@@ -2,8 +2,8 @@ import React from 'react';
 import { makeSortableListComponent } from '../form-components/sortableList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { SequencesListEditorItem } from "./SequencesListEditorItem";
-import { SequencesSearchAutoComplete } from "../search/SequencesSearchAutoComplete";
+import SequencesListEditorItem from "./SequencesListEditorItem";
+import SequencesSearchAutoComplete from "../search/SequencesSearchAutoComplete";
 
 const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
   root: {

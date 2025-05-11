@@ -2,9 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
-import { SubforumSubscribeSection } from "./SubforumSubscribeSection";
-import { SubforumMember } from "./SubforumMember";
-import { Loading } from "../../vulcan-core/Loading";
+import SubforumSubscribeSection from "./SubforumSubscribeSection";
+import SubforumMember from "./SubforumMember";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const SidebarMembersBoxInner = ({tag, className, classes}: {
+const SidebarMembersBox = ({tag, className, classes}: {
   tag: TagSubforumFragment,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -109,6 +109,6 @@ const SidebarMembersBoxInner = ({tag, className, classes}: {
   )
 }
 
-export const SidebarMembersBox = registerComponent('SidebarMembersBox', SidebarMembersBoxInner, { styles })
+export default registerComponent('SidebarMembersBox', SidebarMembersBox, { styles });
 
 

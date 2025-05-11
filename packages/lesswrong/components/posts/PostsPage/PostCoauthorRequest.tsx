@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { Typography } from "../../common/Typography";
-import { Loading } from "../../vulcan-core/Loading";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   coauthorRequest: {
@@ -47,7 +47,7 @@ const isRequestedCoauthor = (
   currentUser: UsersCurrent|null
 ) => currentUser && post.coauthorStatuses?.find?.(({ userId, confirmed }) => userId === currentUser._id && !confirmed);
 
-const PostCoauthorRequestInner = ({post, currentUser, classes}: {
+const PostCoauthorRequest = ({post, currentUser, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
@@ -108,8 +108,8 @@ const PostCoauthorRequestInner = ({post, currentUser, classes}: {
   );
 }
 
-export const PostCoauthorRequest = registerComponent(
-  'PostCoauthorRequest', PostCoauthorRequestInner, {styles}
+export default registerComponent(
+  'PostCoauthorRequest', PostCoauthorRequest, {styles}
 );
 
 

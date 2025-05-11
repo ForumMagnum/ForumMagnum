@@ -9,11 +9,11 @@ import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
-import { UltraFeedCommentsDialog } from "./UltraFeedCommentsDialog";
-import { UltraFeedCommentsItemMeta } from "./UltraFeedCommentsItemMeta";
-import { FeedContentBody } from "./FeedContentBody";
-import { UltraFeedItemFooter } from "./UltraFeedItemFooter";
-import { OverflowNavButtons } from "./OverflowNavButtons";
+import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
+import FeedContentBody from "./FeedContentBody";
+import UltraFeedItemFooter from "./UltraFeedItemFooter";
+import OverflowNavButtons from "./OverflowNavButtons";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -125,7 +125,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
-const UltraFeedCompressedCommentsItemInner = ({
+export const UltraFeedCompressedCommentsItem = ({
   numComments, 
   setExpanded,
   isFirstComment = false,
@@ -158,8 +158,6 @@ const UltraFeedCompressedCommentsItemInner = ({
   );
 };
 
-export const UltraFeedCompressedCommentsItem = registerComponent("UltraFeedCompressedCommentsItem", UltraFeedCompressedCommentsItemInner);
-
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
   metaInfo: FeedCommentMetaInfo;
@@ -172,7 +170,7 @@ export interface UltraFeedCommentItemProps {
   settings?: UltraFeedSettingsType;
 }
 
-const UltraFeedCommentItemInner = ({
+export const UltraFeedCommentItem = ({
   comment,
   metaInfo,
   onChangeDisplayStatus,
@@ -332,8 +330,4 @@ const UltraFeedCommentItemInner = ({
     </AnalyticsContext>
   );
 };
-
-export const UltraFeedCommentItem = registerComponent("UltraFeedCommentItem", UltraFeedCommentItemInner);
-
-
 

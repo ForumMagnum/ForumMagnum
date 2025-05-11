@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { MenuItem } from "./Menus";
-import { ForumIcon } from "./ForumIcon";
+import ForumIcon from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -109,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForumDropdownMultiselectInner = ({
+const ForumDropdownMultiselect = ({
   values,
   options,
   queryParam,
@@ -186,9 +186,9 @@ const ForumDropdownMultiselectInner = ({
   );
 }
 
-export const ForumDropdownMultiselect = registerComponent(
+export default registerComponent(
   'ForumDropdownMultiselect',
-  ForumDropdownMultiselectInner,
+  ForumDropdownMultiselect,
   {styles, stylePriority: -2},
 );
 
