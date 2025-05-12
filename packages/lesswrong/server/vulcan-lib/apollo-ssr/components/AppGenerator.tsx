@@ -19,15 +19,15 @@ import { AbstractThemeOptions } from '@/themes/themeNames';
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, enableSuspense, themeOptions }: {
+const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions, enableSuspense }: {
   req: Request,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   ssrMetadata: SSRMetadata,
-  enableSuspense: boolean,
   themeOptions: AbstractThemeOptions,
+  enableSuspense: boolean,
 }) => {
   const App = (
     <EnableSuspenseContext.Provider value={enableSuspense}>
