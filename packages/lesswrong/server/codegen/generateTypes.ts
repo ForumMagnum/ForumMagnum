@@ -32,7 +32,7 @@ function enumerateFiles(dirPath: string): string[] {
   return fileList;
 }
 
-function generateAllComponentsVite(): string {
+function generateAllComponents(): string {
   return `// Generated file - run "yarn generate" to update\n` +
     enumerateFiles("packages/lesswrong/components")
       .filter(f => f.endsWith(".tsx"))
@@ -42,33 +42,6 @@ function generateAllComponentsVite(): string {
       })
       .join("\n")
       + "\n\n";
-}
-
-function generateAllComponents(): string {
-  const componentsDir = "packages/lesswrong/components";
-  const header = `// Generated file - run "yarn generate" to update
-import { importComponent } from '../vulcan-lib/components';
-
-`;
-
-  return header + enumerateFiles(componentsDir)
-    .filter(f => f.endsWith(".tsx"))
-    .map(f => {
-      const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
-      const content = fs.readFileSync(f, 'utf-8');
-      const components = extractComponentNames(content);
-      
-      if (components.length === 0) return null;
-      
-      const componentArg = components.length === 1 
-        ? `"${components[0]}"` 
-        : `[${components.map(c => `"${c}"`).join(', ')}]`;
-      
-      return `importComponent(${componentArg}, () => require("${relativePath}"));`;
-    })
-    .filter(line => line !== null)
-    .join("\n")
-    + "\n\n";
 }
 
 /**
@@ -156,11 +129,8 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateFragmentTypes(collectionNameToTypeName, typeNameToCollectionName), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
-    writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
     writeIfChanged(generateNonRegisteredComponentFiles(), "/packages/lesswrong/lib/generated/nonRegisteredComponents.ts");
-    //writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
-    //writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
     writeIfChanged(generateGraphQLAndFragmentsSchemaFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/gqlSchemaAndFragments.gql");
   } catch(e) {
     // eslint-disable-next-line no-console

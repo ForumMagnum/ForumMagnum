@@ -339,6 +339,10 @@ export const shouldSubmitContents = (editorRef: Editor) => {
   return !!ckEditorReference;
 }
 
+// HACK: This component needs to be able have a ref so that the parent component
+// can call its methods, which means it can't have any HoCs. In particular, it
+// can't have 'styles' (since that would add a HoC); instead, it exports its
+// styles, and has classes provided by whatever wraps it.
 export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor;
   debouncedCheckMarkdownImgErrs;
@@ -759,13 +763,3 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     </div>
   }
 };
-
-// HACK: This component needs to be able have a ref so that the parent component
-// can call its methods, which means it can't have any HoCs. In particular, it
-// can't have 'styles' (since that would add a HoC); instead, it exports its
-// styles, and has classes provided by whatever wraps it.
-export default registerComponent('Editor', Editor, {
-  allowRef: true,
-});
-
-
