@@ -84,7 +84,11 @@ class SelectFragmentQuery<
   }
 
   private getCommentLine() {
-    return `-- Fragment ${this.sqlFragment.getName()}\n`;
+    if (this.sqlComment) {
+      return `-- ${this.sqlComment} (fragment ${this.sqlFragment.getName()})\n`;
+    } else {
+      return `-- Fragment ${this.sqlFragment.getName()}\n`;
+    }
   }
 
   compile() {
