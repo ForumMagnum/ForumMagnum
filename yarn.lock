@@ -5119,15 +5119,6 @@
     "@types/node" "*"
     domhandler "^2.4.0"
 
-"@types/htmlparser2@^3.10.1":
-  version "3.10.2"
-  resolved "https://registry.npmjs.org/@types/htmlparser2/-/htmlparser2-3.10.2.tgz"
-  integrity sha512-81vjuO800UMoHjYbCbqtBmfC3iCsrROKpqndo0acKiN6k/cpW+YOw9FzRP0ghujHeUNCOox2AQPrrMy6+j5UpQ==
-  dependencies:
-    "@types/domutils" "*"
-    "@types/node" "*"
-    domhandler "^2.4.0"
-
 "@types/http-assert@*":
   version "1.5.1"
   resolved "https://registry.npmjs.org/@types/http-assert/-/http-assert-1.5.1.tgz"
@@ -11481,7 +11472,7 @@ htmlencode@^0.0.4:
   resolved "https://registry.npmjs.org/htmlencode/-/htmlencode-0.0.4.tgz"
   integrity sha1-9+LWr74YqHp45jujMI51N2Z0Dj8=
 
-htmlparser2@^3.9.1, htmlparser2@^3.9.2:
+htmlparser2@^3.9.1:
   version "3.10.1"
   resolved "https://registry.npmjs.org/htmlparser2/-/htmlparser2-3.10.1.tgz"
   integrity sha512-IgieNijUMbkDovyoKObU1DUhm1iwNYE/fuifEoEHfd1oZKZDaONBSkal7Y01shxsM49R4XaMdGez3WnF9UfiCQ==

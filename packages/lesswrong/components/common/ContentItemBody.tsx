@@ -12,7 +12,7 @@ import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
 
-interface ContentItemBodyProps {
+export interface ContentItemBodyProps {
   /**
    * The content to show. This MUST come from a GraphQL resolver which does 
    * sanitization, such as post.contents.html
@@ -24,7 +24,7 @@ interface ContentItemBodyProps {
    * methods. (Doing so is handled by React, not by anything inside of this
    * using the ref prop)
    */
-  ref?: React.RefObject<ContentItemBodyImperative>
+  ref?: React.RefObject<ContentItemBodyImperative|null>
 
   // className: Name of an additional CSS class to apply to this element.
   className?: string;
@@ -177,7 +177,7 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
 });
 
 
-const addNofollowToHTML = (html: string): string => {
+export const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 

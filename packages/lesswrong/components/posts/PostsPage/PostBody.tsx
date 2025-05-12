@@ -11,6 +11,7 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import { ContentItemBody2 } from '@/components/contents/ContentItemBody2';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -99,7 +100,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
 
-    content = <ContentItemBody
+    content = <ContentItemBody2
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       ref={contentRef}
       key={`${post._id}_${sideCommentMode}`}
@@ -109,7 +110,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       idInsertions={sideCommentsMap}
     />
   } else {
-    content = <ContentItemBody
+    content = <ContentItemBody2
       dangerouslySetInnerHTML={{__html: html}}
       ref={contentRef}
       description={`post ${post._id}`}
