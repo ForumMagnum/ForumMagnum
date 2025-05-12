@@ -25,7 +25,7 @@ const replacementComponentMap = {
   InlineReactHoverableHighlight,
 };
 
-interface ContentItemBodyProps {
+export interface ContentItemBodyProps {
   /**
    * The content to show. This MUST come from a GraphQL resolver which does 
    * sanitization, such as post.contents.html
@@ -37,7 +37,7 @@ interface ContentItemBodyProps {
    * methods. (Doing so is handled by React, not by anything inside of this
    * using the ref prop)
    */
-  ref?: React.RefObject<ContentItemBodyImperative>
+  ref?: React.RefObject<ContentItemBodyImperative|null>
 
   // className: Name of an additional CSS class to apply to this element.
   className?: string;
@@ -132,7 +132,9 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
     replacementElement: React.ReactNode
     container: HTMLElement
   }>>([]);
-  const html = props.dangerouslySetInnerHTML.__html;
+  const html = props.nofollow
+    ? addNofollowToHTML(props.dangerouslySetInnerHTML.__html)
+    : props.dangerouslySetInnerHTML.__html;
   
   function compareProps(oldProps: ContentItemBodyProps, newProps: ContentItemBodyProps) {
     if (!shallowEqualExcept(oldProps, newProps, ["ref", "dangerouslySetInnerHTML", "replacedSubstrings"])) {
