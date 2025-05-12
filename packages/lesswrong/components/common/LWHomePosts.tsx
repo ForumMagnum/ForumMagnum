@@ -297,7 +297,7 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
 };
 
 function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[], filterSettings: FilterSettings) {
-  const [cookies, setCookie] = useCookiesWithConsent();
+  const [cookies, setCookie] = useCookiesWithConsent([RECOMBEE_SETTINGS_COOKIE]);
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
   const currentScenarioConfig = storedActiveScenarioConfig ?? defaultRecombeeConfig;

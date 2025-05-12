@@ -162,7 +162,7 @@ const useFlag = (tab: MenuTabRegular): {
   onClickFlag?: () => void,
 } => {
   const cookieName = `${NAV_MENU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
-  const [cookies, setCookie] = useCookiesWithConsent();
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const cookie = cookies[cookieName];
   const flag = tab.flag;
   if (flag === "new") {
