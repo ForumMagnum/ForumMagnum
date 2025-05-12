@@ -4,7 +4,7 @@ import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
+import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
 let sqlBytesDownloaded = 0;
@@ -212,12 +212,19 @@ const wrapQueryMethod = <T>(
     values?: SqlQueryArgs,
     describe?: SqlDescription,
     quiet?: boolean,
-  ) => logIfSlow(
-    () => queryMethod(query, values),
-    describe ?? query,
-    query,
-    quiet,
-  ) as ReturnType<typeof queryMethod>;
+  ) => {
+    const description = describe
+      ?? (logQueryArguments
+        ? `${query}: ${JSON.stringify(values)}`
+        : query
+      )
+    return logIfSlow(
+      () => queryMethod(query, values),
+      description,
+      query,
+      quiet,
+    ) as ReturnType<typeof queryMethod>;
+  }
 }
 
 export const createSqlConnection = async (

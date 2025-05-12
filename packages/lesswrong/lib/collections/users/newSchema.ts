@@ -3363,19 +3363,6 @@ const schema = {
       },
     },
   },
-  // This is deprecated.
-  reenableDraftJs: {
-    database: {
-      type: "BOOL",
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   walledGardenInvite: {
     database: {
       type: "BOOL",

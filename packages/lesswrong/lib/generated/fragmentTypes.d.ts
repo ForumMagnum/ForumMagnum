@@ -4701,7 +4701,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly tagRevisionCount: number,
   readonly abTestKey: string|null,
   readonly abTestOverrides: any,
-  readonly reenableDraftJs: boolean|null,
   readonly walledGardenInvite: boolean|null,
   readonly hideWalledGardenUI: boolean|null,
   readonly walledGardenPortalOnboarded: boolean|null,
