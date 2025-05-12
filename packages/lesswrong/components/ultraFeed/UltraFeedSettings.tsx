@@ -457,6 +457,7 @@ const UltraFeedSettings = ({
     if (!result.success) {
       const formattedErrors = result.error.format() as UltraFeedSettingsZodErrors;
       setZodErrors(formattedErrors);
+      // eslint-disable-next-line no-console
       console.error("UltraFeed Settings Validation Errors:", formattedErrors);
       return;
     } 
