@@ -152,10 +152,6 @@ function useDelayedHide(open: boolean, delay: number): boolean {
   return delayedHide;
 }
 
-const LWDialogComponent = registerComponent('LWDialog', LWDialog);
+export default registerComponent('LWDialog', LWDialog);
 
-declare global {
-  interface ComponentTypes {
-    LWDialog: typeof LWDialogComponent
-  }
-}
+

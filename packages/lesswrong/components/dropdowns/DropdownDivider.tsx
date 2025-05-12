@@ -1,7 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import SimpleDivider from "../widgets/SimpleDivider";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -13,20 +14,15 @@ const DropdownDivider = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SimpleDivider } = Components;
   return (
     <SimpleDivider className={classNames(className, classes.root)} />
   );
 }
 
-const DropdownDividerComponent = registerComponent(
+export default registerComponent(
   "DropdownDivider",
   DropdownDivider,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownDivider: typeof DropdownDividerComponent
-  }
-}
+

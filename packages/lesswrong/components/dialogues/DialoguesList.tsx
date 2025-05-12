@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
+import PostsItem from "../posts/PostsItem";
+import SectionButton from "../common/SectionButton";
+import SettingsButton from "../icons/SettingsButton";
+import LWTooltip from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SectionSubtitle from "../common/SectionSubtitle";
+import DialoguesSectionFrontpageSettings from "./DialoguesSectionFrontpageSettings";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   content: {
@@ -80,7 +89,6 @@ const styles = (theme: ThemeType) => ({
 });
  
 const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
-  const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, Typography } = Components
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
   const currentDate = new Date();
@@ -171,13 +179,9 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   </AnalyticsContext>
 }
 
-const DialoguesListComponent = registerComponent('DialoguesList', DialoguesList, {
+export default registerComponent('DialoguesList', DialoguesList, {
   hocs: [withErrorBoundary],
   styles
 });
 
-declare global {
-  interface ComponentTypes {
-    DialoguesList: typeof DialoguesListComponent
-  }
-}
+

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
@@ -6,10 +6,12 @@ import { useCurrentUser } from '../common/withUser';
 import { isAF } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import type { VotingProps } from './votingProps';
-import type { OverallVoteButtonProps } from './OverallVoteButton';
+import OverallVoteButton, { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
@@ -94,8 +96,6 @@ const OverallVoteAxis = ({
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
-  const { OverallVoteButton, LWTooltip } = Components;
-
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
@@ -124,7 +124,7 @@ const OverallVoteAxis = ({
 
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
-      <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
+      <span>Moved to AF by <UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
     </div>
   )
 
@@ -145,7 +145,7 @@ const OverallVoteAxis = ({
     >
       {children}
     </LWTooltip>
-  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip, LWTooltip])
+  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip])
   
   const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
@@ -153,7 +153,7 @@ const OverallVoteAxis = ({
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  , [canVote, LWTooltip, classes.tooltip])
+  , [canVote, classes.tooltip])
 
 
   // Moved down here to allow for useMemo hooks
@@ -242,12 +242,8 @@ const OverallVoteAxis = ({
   </TooltipIfDisabled>
 }
 
-const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis);
+export default registerComponent('OverallVoteAxis', OverallVoteAxis);
 
-export default OverallVoteAxisComponent;
 
-declare global {
-  interface ComponentTypes {
-    OverallVoteAxis: typeof OverallVoteAxisComponent
-  }
-}
+
+

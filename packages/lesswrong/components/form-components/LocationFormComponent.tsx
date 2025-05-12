@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
@@ -11,6 +11,8 @@ import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({
@@ -208,9 +210,6 @@ const LocationPicker = ({
       })
     }
   }, [updateCurrentValues, locationFieldName, path]);
-
-  const {Loading, SectionTitle} = Components;
-
   if (!document || !mapsLoaded) {
     return <Loading />;
   }
@@ -235,13 +234,9 @@ const LocationPicker = ({
   );
 }
 
-const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker);
+export default registerComponent("LocationPicker", LocationPicker);
 
-declare global {
-  interface ComponentTypes {
-    LocationPicker: typeof LocationPickerComponent
-  }
-}
+
 
 interface LocationFormComponentProps {
   field: TypedFieldApi<AnyBecauseHard>;
@@ -295,9 +290,6 @@ export const LocationFormComponent = ({
       field.handleChange(suggestion.gmaps);
     }
   }, [field, updateSibling]);
-
-  const { Loading, SectionTitle } = Components;
-
   if (!mapsLoaded) return <Loading />;
 
   const isGrey = variant === 'grey';

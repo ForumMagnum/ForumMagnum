@@ -1,11 +1,14 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
 import { DialogContent } from "../widgets/DialogContent";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
+import LWDialog from "../common/LWDialog";
+import CommentsListSection from "../comments/CommentsListSection";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -60,7 +63,6 @@ const UltraFeedCommentsDialog = ({
   collectionName: "Posts" | "Comments",
   onClose: () => void,
 }) => {
-  const { LWDialog, CommentsListSection, Loading } = Components;
   const classes = useStyles(styles);
 
   const isPost = collectionName === "Posts";
@@ -181,12 +183,8 @@ const UltraFeedCommentsDialog = ({
   );
 };
 
-const UltraFeedCommentsDialogComponent = registerComponent("UltraFeedCommentsDialog", UltraFeedCommentsDialog);
+export default registerComponent("UltraFeedCommentsDialog", UltraFeedCommentsDialog);
 
-export default UltraFeedCommentsDialogComponent;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedCommentsDialog: typeof UltraFeedCommentsDialogComponent
-  }
-} 
+
+ 

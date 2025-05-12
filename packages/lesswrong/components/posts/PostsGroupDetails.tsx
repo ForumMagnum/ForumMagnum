@@ -61,12 +61,8 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   </div>
 }
 
-const PostsGroupDetailsComponent = registerComponent(
+export default registerComponent(
   'PostsGroupDetails', PostsGroupDetails, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsGroupDetails: typeof PostsGroupDetailsComponent
-  }
-}
+

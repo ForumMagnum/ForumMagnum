@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -24,7 +24,7 @@ const headerStyles = (theme: ThemeType) => ({
   },
 });
 
-const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
+const FormGroupHeaderInner = ({ toggle, collapsed, label, classes }: {
   toggle: () => void
   collapsed: boolean
   label?: string
@@ -36,19 +36,19 @@ const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
     <span className="form-section-heading-toggle">
       {collapsed ? (
-        <Components.IconRight height={16} width={16} />
+        <IconRight height={16} width={16} />
       ) : (
-        <Components.IconDown height={16} width={16} />
+        <IconDown height={16} width={16} />
       )}
     </span>
   </div>
 );
 
-const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader, {
+export const FormGroupHeader = registerComponent('FormGroupHeader', FormGroupHeaderInner, {
   styles: headerStyles
 });
 
-const IconRight = ({ width = 24, height = 24 }) => (
+export const IconRight = ({ width = 24, height = 24 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -68,9 +68,7 @@ const IconRight = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-const IconRightComponent = registerComponent('IconRight', IconRight);
-
-const IconDown = ({ width = 24, height = 24 }) => (
+export const IconDown = ({ width = 24, height = 24 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -90,12 +88,3 @@ const IconDown = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-const IconDownComponent = registerComponent('IconDown', IconDown);
-
-declare global {
-  interface ComponentTypes {
-    FormGroupHeader: typeof FormGroupHeaderComponent
-    IconRight: typeof IconRightComponent
-    IconDown: typeof IconDownComponent
-  }
-}

@@ -258,15 +258,11 @@ const Book2019Animation = ({ classes, children, successContent }: {
 }
 
 
-const Book2019AnimationComponent = registerComponent('Book2019Animation', Book2019Animation, {
+export default registerComponent('Book2019Animation', Book2019Animation, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Book2019Animation: typeof Book2019AnimationComponent
-  }
-}
+

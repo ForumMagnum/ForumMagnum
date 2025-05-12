@@ -4,8 +4,9 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ChaptersForm } from './ChaptersForm';
+import AddDraftPostDialog from "./AddDraftPostDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +46,7 @@ const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
     if (saved) {
       openDialog({
         name: "AddDraftPostDialog",
-        contents: ({onClose}) => <Components.AddDraftPostDialog
+        contents: ({onClose}) => <AddDraftPostDialog
           onClose={onClose}
           documentId={chapter._id}
           postIds={chapter.postIds}
@@ -73,11 +74,7 @@ const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
   )
 }
 
-const ChaptersEditFormComponent = registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
+export default registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChaptersEditForm: typeof ChaptersEditFormComponent
-  }
-}
+
 

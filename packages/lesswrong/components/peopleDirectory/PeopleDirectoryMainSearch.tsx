@@ -1,10 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import PeopleDirectoryInput from "./PeopleDirectoryInput";
 
 const PeopleDirectoryMainSearch = () => {
   const {query, setQuery} = usePeopleDirectory();
-  const {PeopleDirectoryInput} = Components;
   return (
     <PeopleDirectoryInput
       value={query}
@@ -15,13 +15,9 @@ const PeopleDirectoryMainSearch = () => {
   );
 }
 
-const PeopleDirectoryMainSearchComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryMainSearch",
   PeopleDirectoryMainSearch,
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryMainSearch: typeof PeopleDirectoryMainSearchComponent
-  }
-}
+

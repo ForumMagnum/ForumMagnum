@@ -4,13 +4,14 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => ({
   newOrEditForm: {
@@ -63,8 +64,6 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   successCallback: (doc: CollectionsPageFragment) => void,
   cancelCallback: () => void,
 }) => {
-  const { FormComponentCheckbox } = Components;
-  
   const classes = useStyles(styles);
 
   const {
@@ -230,11 +229,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   )
 }
 
-const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm);
+export default registerComponent('CollectionsEditForm', CollectionsEditForm);
 
-declare global {
-  interface ComponentTypes {
-    CollectionsEditForm: typeof CollectionsEditFormComponent
-  }
-}
+
 

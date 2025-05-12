@@ -1,16 +1,29 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { captureException } from '@sentry/core';
-import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
+import HoverPreviewLink, { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
+import JargonTooltip from '../jargon/JargonTooltip';
+import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
+import ConditionalVisibilityBlockDisplay from "../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
+import HorizScrollBlock from "./HorizScrollBlock";
+import CollapsedFootnotes from "../posts/PostsPage/CollapsedFootnotes";
+import ElicitBlock from "../posts/ElicitBlock";
+import WrappedStrawPoll from "./WrappedStrawPoll";
+import ForumEventPostPagePollSection from "../forumEvents/ForumEventPostPagePollSection";
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
+
+const replacementComponentMap = {
+  JargonTooltip,
+  InlineReactHoverableHighlight,
+};
 
 interface ContentItemBodyProps {
   /**
@@ -99,7 +112,7 @@ export type ContentReplacementMode = 'first' | 'all';
 
 export type ContentReplacedSubstringComponentInfo = {
   replacedString: string
-  componentName: keyof ComponentTypes,
+  componentName: 'JargonTooltip' | 'InlineReactHoverableHighlight',
   replace: ContentReplacementMode,
   caseInsensitive?: boolean,
   isRegex?: boolean,
@@ -310,9 +323,9 @@ function markConditionallyVisibleBlocks(element: HTMLElement) {
     }
 
     const BlockContents = rawExtractElementChildrenToReactComponent(block)
-    replaceElement(replacements, block, <Components.ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+    replaceElement(replacements, block, <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
       <BlockContents/>
-    </Components.ConditionalVisibilityBlockDisplay>);
+    </ConditionalVisibilityBlockDisplay>);
   }
   return replacements;
 }
@@ -321,9 +334,9 @@ function markConditionallyVisibleBlocks(element: HTMLElement) {
 // <HorizScrollBlock>.
 function addHorizontalScrollIndicators(replacements: ElementReplacement[], block: HTMLElement) {
   const ScrollableContents = rawExtractElementChildrenToReactComponent(block)
-  replaceElement(replacements, block, <Components.HorizScrollBlock>
+  replaceElement(replacements, block, <HorizScrollBlock>
     <ScrollableContents/>
-  </Components.HorizScrollBlock>);
+  </HorizScrollBlock>);
 };
 
 function forwardAttributes(node: HTMLElement|Element) {
@@ -354,7 +367,7 @@ function collapseFootnotes(body: HTMLElement) {
       innerHTML = `<section>${innerHTML}</section>`;
     }
     const collapsedFootnotes = (
-      <Components.CollapsedFootnotes
+      <CollapsedFootnotes
         footnotesHtml={innerHTML}
         attributes={forwardAttributes(footnotes)}
       />
@@ -375,7 +388,7 @@ function markHoverableLinks(element: HTMLElement, options: {description?: string
     const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
     const id = linkTag.getAttribute("id") ?? undefined;
     const rel = linkTag.getAttribute("rel") ?? undefined;
-    const replacementElement = <Components.HoverPreviewLink
+    const replacementElement = <HoverPreviewLink
       href={href}
       contentSourceDescription={options.description}
       id={id}
@@ -384,7 +397,7 @@ function markHoverableLinks(element: HTMLElement, options: {description?: string
       contentStyleType={options.contentStyleType}
     >
       <TagLinkContents/>
-    </Components.HoverPreviewLink>
+    </HoverPreviewLink>
     replaceElement(replacements, linkTag, replacementElement);
   }
   return replacements;
@@ -395,7 +408,7 @@ function markElicitBlocks(element: HTMLElement) {
   const elicitBlocks = getElementsByClassname(element, "elicit-binary-prediction");
   for (const elicitBlock of elicitBlocks) {
     if (elicitBlock.dataset?.elicitId) {
-      const replacementElement = <Components.ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
+      const replacementElement = <ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
       replaceElement(replacements, elicitBlock, replacementElement)
     }
   }
@@ -424,7 +437,7 @@ function wrapStrawPoll(element: HTMLElement) {
     const id = strawpollBlock.getAttribute("id");
     const iframe = strawpollBlock.getElementsByTagName("iframe");
     const iframeSrc = iframe[0]?.getAttribute("src") ?? "";
-    const replacementElement = <Components.WrappedStrawPoll id={id} src={iframeSrc} />
+    const replacementElement = <WrappedStrawPoll id={id} src={iframeSrc} />
     replaceElement(replacements, strawpollBlock, replacementElement)
   }
 
@@ -455,8 +468,6 @@ function addCTAButtonEventListeners(element: HTMLElement) {
 function replaceForumEventPollPlaceholders(element: HTMLElement) {
   let replacements: ElementReplacement[] = [];
   const pollPlaceholders = element.getElementsByClassName('ck-poll');
-
-  const { ForumEventPostPagePollSection } = Components;
 
   const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
     placeholder,
@@ -490,7 +501,7 @@ function replaceSubstrings(
 
   for (let replacement of sortedSubstrings) {
     if (replacement.replace === "all") {
-      const ReplacementComponent = Components[replacement.componentName];
+      const ReplacementComponent = replacementComponentMap[replacement.componentName];
       const replacementComponentProps = replacement.props;
       
       try {
@@ -579,10 +590,7 @@ function replaceSubstrings(
         console.error(`Error highlighting string ${replacement.replacedString} in ${options.description ?? "content block"}`, e);
       }
     } else {
-      // The `AnyBecauseHard` is to avoid the type checker spending ~2 seconds
-      // uselessly checking whether you can spread `any`-typed props into 1200 different component types.
-      // (You can; we aren't getting any safety out of having it typed right now.)
-      const ReplacementComponent: AnyBecauseHard = Components[replacement.componentName];
+      const ReplacementComponent = replacementComponentMap[replacement.componentName];
       const replacementComponentProps = replacement.props;
       const str = replacement.replacedString;
 
@@ -687,14 +695,10 @@ function insertElement(replacements: ElementReplacement[], container: HTMLElemen
   container.prepend(insertionContainer);
 }
 
-const ContentItemBodyComponent = registerComponent("ContentItemBody", ContentItemBody, {
+export default registerComponent("ContentItemBody", ContentItemBody, {
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
   allowRef: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    ContentItemBody: typeof ContentItemBodyComponent
-  }
-}
+
 

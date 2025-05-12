@@ -1,7 +1,10 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
+import HoverOver from "../common/HoverOver";
+import EAUserTooltipContent from "./EAUserTooltipContent";
+import LWUserTooltipContent from "./LWUserTooltipContent";
 
 const styles = () => ({
   root: isFriendlyUI
@@ -31,7 +34,6 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const content = isFriendlyUI 
     ? <EAUserTooltipContent user={user} />
     : <LWUserTooltipContent user={user} hideFollowButton={hideFollowButton} />;
@@ -50,10 +52,6 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
   );
 }
 
-const UserTooltipComponent = registerComponent("UserTooltip", UserTooltip, {styles});
+export default registerComponent("UserTooltip", UserTooltip, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserTooltip: typeof UserTooltipComponent
-  }
-}
+

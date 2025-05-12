@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { CommentsNodeProps } from './CommentsNode';
+import CommentsNodeInner, { CommentsNodeProps } from './CommentsNode';
 
 const styles = (theme: ThemeType) => ({
   showChildren: {
@@ -52,9 +52,6 @@ const CommentWithReplies = ({
     noDOMId: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
-
-  const { CommentsNode } = Components;
-
   const renderedChildren = comment.latestChildren.slice(0, maxChildren);
   const extraChildrenCount = Math.max(0, comment.latestChildren.length - renderedChildren.length);
 
@@ -71,7 +68,7 @@ const CommentWithReplies = ({
     ) : null;
 
   return (
-    <CommentsNode
+    <CommentsNodeInner
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}
@@ -89,15 +86,11 @@ const CommentWithReplies = ({
   );
 };
 
-const CommentWithRepliesComponent = registerComponent(
+export default registerComponent(
   'CommentWithReplies', CommentWithReplies, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentWithReplies: typeof CommentWithRepliesComponent;
-  }
-}
+

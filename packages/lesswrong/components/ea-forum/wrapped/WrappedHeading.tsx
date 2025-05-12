@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -33,14 +33,10 @@ const WrappedHeading = ({children, className, classes}: {
   );
 }
 
-const WrappedHeadingComponent = registerComponent(
+export default registerComponent(
   "WrappedHeading",
   WrappedHeading,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedHeading: typeof WrappedHeadingComponent
-  }
-}
+

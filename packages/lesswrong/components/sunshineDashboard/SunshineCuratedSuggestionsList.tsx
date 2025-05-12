@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineCuratedSuggestionsItem from "./SunshineCuratedSuggestionsItem";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   loadMorePadding: {
@@ -106,10 +113,6 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
   }
 
   const needsDraftsText = !timeForCuration && !hasDrafts ? " (No drafts!)" : "";
-
-  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate,
-    LoadMore, LWTooltip, ForumIcon } = Components
-
   return (
     <div className={statusClass}>
       <SunshineListTitle>
@@ -137,10 +140,6 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
   )
 }
 
-const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles})
+export default registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineCuratedSuggestionsList: typeof SunshineCuratedSuggestionsListComponent
-  }
-}
+

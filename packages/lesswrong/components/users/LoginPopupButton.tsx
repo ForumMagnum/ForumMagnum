@@ -1,7 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
+import LoginPopup from "./LoginPopup";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,8 +23,6 @@ const LoginPopupButton = ({classes, children, title, className}: {
   // (not wrapped around other buttons with other functionality. For that, just add
   // openDialog + "LoginPopup" to their functionality
   const { openDialog } = useDialog();
-
-  const { LWTooltip } = Components
   if (currentUser) return null
 
   return (
@@ -31,7 +31,7 @@ const LoginPopupButton = ({classes, children, title, className}: {
           if (!currentUser) {
             openDialog({
               name: "LoginPopup",
-              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+              contents: ({onClose}) => <LoginPopup onClose={onClose}/>
             });
             ev.preventDefault();
           }
@@ -43,10 +43,6 @@ const LoginPopupButton = ({classes, children, title, className}: {
   )
 }
 
-const LoginPopupButtonComponent = registerComponent('LoginPopupButton', LoginPopupButton, {styles});
+export default registerComponent('LoginPopupButton', LoginPopupButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LoginPopupButton: typeof LoginPopupButtonComponent
-  }
-}
+

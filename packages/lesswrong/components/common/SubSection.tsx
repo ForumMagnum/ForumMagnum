@@ -18,10 +18,6 @@ const SubSection = ({children, classes, className}: {
   </div>
 }
 
-const SubSectionComponent = registerComponent('SubSection', SubSection, {styles});
+export default registerComponent('SubSection', SubSection, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubSection: typeof SubSectionComponent
-  }
-}
+

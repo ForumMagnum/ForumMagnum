@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import PostsItem from "../posts/PostsItem";
+import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
+import FrontpageReviewWidget from "./FrontpageReviewWidget";
+import SectionFooter from "../common/SectionFooter";
+import Loading from "../vulcan-core/Loading";
+import ReviewPhaseInformation from "./ReviewPhaseInformation";
+import ReviewDashboardButtons from "./ReviewDashboardButtons";
+import PostInteractionStripe from "./PostInteractionStripe";
 
 const styles = (theme: ThemeType) => ({
   grid: {
@@ -108,9 +115,6 @@ export const QuickReviewPage2022 = ({classes}: {
     itemsPerPage: 1000,
     skip: !reviewYear
   });
-
-  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, PostInteractionStripe } = Components
-
   const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
   }) : []
@@ -169,10 +173,6 @@ export const QuickReviewPage2022 = ({classes}: {
   </div>;
 }
 
-const QuickReviewPage2022Component = registerComponent('QuickReviewPage2022', QuickReviewPage2022, {styles});
+export default registerComponent('QuickReviewPage2022', QuickReviewPage2022, {styles});
 
-declare global {
-  interface ComponentTypes {
-    QuickReviewPage2022: typeof QuickReviewPage2022Component
-  }
-}
+

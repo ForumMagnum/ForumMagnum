@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
+import { MenuItem } from "../common/Menus";
 
 interface SelectLocalgroupBaseProps {
   useDocumentAsUser?: boolean;
@@ -28,8 +28,6 @@ type SelectLocalgroupProps = SelectLocalgroupBaseProps & (
  */
 export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
   const currentUser = useCurrentUser();
-  const { MenuItem } = Components;
-
   // Default to currentUser, but use props.document if necessary
   // (ex. you want to be able to select groups for another user).
   const user = props.useDocumentAsUser ? props.document : currentUser

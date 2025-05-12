@@ -1,5 +1,5 @@
 import React, { Ref, useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -10,6 +10,13 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SortButton from "../icons/SortButton";
+import SettingsButton from "../icons/SettingsButton";
+import PostsListSettings from "./PostsListSettings";
+import HeadTags from "../common/HeadTags";
+import AllPostsList from "./AllPostsList";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -67,12 +74,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
     currentUser?.allPostsShowLowKarma || false;
   const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
   const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
-
-  const {
-    SingleColumnSection, SectionTitle, SortButton, SettingsButton, PostsListSettings, HeadTags,
-    AllPostsList,
-  } = Components;
-
   return (
     <>
       <HeadTags description={description} />
@@ -122,15 +123,11 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   );
 }
 
-const AllPostsPageComponent = registerComponent(
+export default registerComponent(
   "AllPostsPage",
   AllPostsPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPage: typeof AllPostsPageComponent
-  }
-}
+
 

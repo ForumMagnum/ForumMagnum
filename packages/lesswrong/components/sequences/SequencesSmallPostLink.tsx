@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { isLWorAF } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import PostReadCheckbox from "../posts/PostReadCheckbox";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -44,7 +46,6 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   large?: boolean,
   placement?: PopperPlacementType,
 }) => {
-  const {PostsTooltip, PostReadCheckbox} = Components;
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
       <PostReadCheckbox
@@ -66,10 +67,6 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   </div>
 }
 
-const SequencesSmallPostLinkComponent = registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
+export default registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesSmallPostLink: typeof SequencesSmallPostLinkComponent
-  }
-}
+

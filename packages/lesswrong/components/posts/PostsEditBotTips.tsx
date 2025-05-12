@@ -1,8 +1,9 @@
 import React, { RefObject } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import { useTracking } from "../../lib/analyticsEvents";
+import ForumIcon from "../common/ForumIcon";
 
 // For large screens, we show the card on the right-hand side of the editor.
 const MIN_WIDTH_RHS_CARD = '1670px'
@@ -106,8 +107,6 @@ const PostsEditBotTips = ({handleDismiss, postId, className, nodeRef, classes}: 
   if (!isEAForum) {
     return null
   }
-  
-  const { ForumIcon } = Components
 
   return <aside className={classes.root} ref={nodeRef}>
     <div className={classNames(className, classes.card)}>
@@ -133,10 +132,6 @@ const PostsEditBotTips = ({handleDismiss, postId, className, nodeRef, classes}: 
   </aside>
 }
 
-const PostsEditBotTipsComponent = registerComponent("PostsEditBotTips", PostsEditBotTips, {styles, stylePriority: -1});
+export default registerComponent("PostsEditBotTips", PostsEditBotTips, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    PostsEditBotTips: typeof PostsEditBotTipsComponent
-  }
-}
+

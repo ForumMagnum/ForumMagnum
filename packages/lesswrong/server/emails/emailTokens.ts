@@ -7,35 +7,39 @@ import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateEmailToken } from '../collections/emailTokens/mutations';
 import { updateUser } from '../collections/users/mutations';
+import { EmailTokenResult } from '@/components/users/EmailTokenResult';
+import { userEmailAddressIsVerified } from '@/lib/collections/users/helpers';
+import UsersRepo from '../repos/UsersRepo';
+import { createPasswordHash, validatePassword } from '../vulcan-lib/apollo-server/passwordHelpers';
 
-let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
+const emailTokenResultComponents = {
+  EmailTokenResult,
+};
 
-export class EmailTokenType
-{
-  name: string
-  onUseAction: (user: DbUser, params: any, args: any) => any
-  resultComponentName: string
+export type EmailTokenResultComponentName = keyof typeof emailTokenResultComponents;
+
+export class EmailTokenType<T extends EmailTokenResultComponentName> {
+  name: DbEmailTokens['tokenType']
+  onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<typeof emailTokenResultComponents[T]>>
+  resultComponentName: T
   reusable: boolean
   path: string
   
   constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
-    name: string,
-    onUseAction: (user: DbUser, params: any, args: any) => any,
-    resultComponentName: keyof ComponentTypes,
+    name: DbEmailTokens['tokenType'],
+    onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<typeof emailTokenResultComponents[T]>>,
+    resultComponentName: T,
     reusable?: boolean,
     path?: string,
   }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
-    if (name in emailTokenTypesByName)
-      throw new Error("EmailTokenType: name must be unique");
     
     this.name = name;
     this.onUseAction = onUseAction;
     this.resultComponentName = resultComponentName;
     this.reusable = reusable;
     this.path = path;
-    emailTokenTypesByName[name] = this;
   }
   
   generateToken = async (userId: string) => {
@@ -70,7 +74,9 @@ export class EmailTokenType
   }
 }
 
-async function getAndValidateToken(token: string): Promise<{tokenObj: DbEmailTokens, tokenType: EmailTokenType}> {
+export type UseEmailTokenResult = Awaited<ReturnType<EmailTokenType<EmailTokenResultComponentName>['handleToken']>>;
+
+async function getAndValidateToken(token: string) {
   const results = await EmailTokens.find({ token }).fetch();
   if (results.length !== 1)
     throw new Error("Invalid email token");
@@ -117,15 +123,41 @@ export const emailTokensGraphQLMutations = {
     }
 };
 
+export const emailTokenTypesByName = {
+  unsubscribeAll: new EmailTokenType({
+    name: "unsubscribeAll",
+    onUseAction: async (user: DbUser) => {
+      await updateUser({
+        data: { unsubscribeFromAll: true },
+        selector: { _id: user._id }
+      }, createAnonymousContext());
+      return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
+    },
+    resultComponentName: "EmailTokenResult",
+  }),
 
-export const UnsubscribeAllToken = new EmailTokenType({
-  name: "unsubscribeAll",
-  onUseAction: async (user: DbUser) => {
-    await updateUser({
-      data: { unsubscribeFromAll: true },
-      selector: { _id: user._id }
-    }, createAnonymousContext());
-    return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
-  },
-  resultComponentName: "EmailTokenResult",
-});
+  verifyEmail: new EmailTokenType({
+    name: "verifyEmail",
+    onUseAction: async (user) => {
+      if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
+      await new UsersRepo().verifyEmail(user._id);
+      return {message: "Your email has been verified" };
+    },
+    resultComponentName: "EmailTokenResult"
+  }),
+  
+  resetPassword: new EmailTokenType({
+    name: "resetPassword",
+    onUseAction: async (user, params, args) => {
+      if (!args) throw Error("Using a reset-password token requires providing a new password")
+      const { password } = args
+      const validatePasswordResponse = validatePassword(password)
+      if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+
+      await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
+      return {message: "Your new password has been set. Try logging in again." };
+    },
+    resultComponentName: "EmailTokenResult",
+    path: "resetPassword" // Defined in routes.ts
+  }),
+} satisfies Record<DbEmailTokens['tokenType'], EmailTokenType<EmailTokenResultComponentName>>;

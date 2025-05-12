@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import DropdownItem from "../DropdownItem";
 
 const BanUserFromPostDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -38,8 +39,6 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
       );
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban user from this post"
@@ -48,13 +47,9 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   );
 };
 
-const BanUserFromPostDropdownItemComponent = registerComponent(
+export default registerComponent(
   'BanUserFromPostDropdownItem', BanUserFromPostDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    BanUserFromPostDropdownItem: typeof BanUserFromPostDropdownItemComponent,
-  }
-}
+
 

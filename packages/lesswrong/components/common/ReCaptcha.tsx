@@ -38,7 +38,7 @@ interface ReCaptchaProps {
 interface ReCaptchaState {
   ready: boolean,
 }
-class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
+class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
   constructor (props: ReCaptchaProps) {
     super(props)
 
@@ -107,14 +107,10 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
   }
 }
 
-(ReCaptcha as any).propTypes = propTypes;
-(ReCaptcha as any).defaultProps = defaultProps;
+(ReCaptchaInner as any).propTypes = propTypes;
+(ReCaptchaInner as any).defaultProps = defaultProps;
 
-const ReCaptchaComponent = registerComponent("ReCaptcha", ReCaptcha)
+export default registerComponent("ReCaptcha", ReCaptchaInner);
 
-declare global {
-  interface ComponentTypes {
-    ReCaptcha: typeof ReCaptchaComponent
-  }
-}
+
 

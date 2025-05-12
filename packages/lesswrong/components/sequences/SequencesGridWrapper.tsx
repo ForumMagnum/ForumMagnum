@@ -1,10 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import classNames from 'classnames';
 
 // Share styles with SequencesGrid
-import { styles } from './SequencesGrid';
+import SequencesGrid, { styles } from './SequencesGrid';
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 const SequencesGridWrapper = ({
   terms,
@@ -31,34 +34,30 @@ const SequencesGridWrapper = ({
   
   if (results && results.length) {
     return (<div className={className}>
-      <Components.SequencesGrid sequences={results} showAuthor={showAuthor} />
-      {showLoadMore && <Components.LoadMore {...loadMoreProps} />}
+      <SequencesGrid sequences={results} showAuthor={showAuthor} />
+      {showLoadMore && <LoadMore {...loadMoreProps} />}
     </div>);
   } else if (loading) {
     return (<div className={classNames(className, classes.grid)}>
-      <Components.Loading/>
+      <Loading/>
     </div>);
   } else {
     return (<div className={classNames(className, classes.grid)}>
       <div className={classes.gridContent}>
-        <Components.Typography variant="body2" className={classes.noResults}>
+        <Typography variant="body2" className={classes.noResults}>
           No sequences to display.
-        </Components.Typography>
+        </Typography>
       </div>
     </div>);
   }
 };
 
-const SequencesGridWrapperComponent = registerComponent('SequencesGridWrapper', SequencesGridWrapper, {
+export default registerComponent('SequencesGridWrapper', SequencesGridWrapper, {
   styles,
   areEqual: {
     terms: "deep"
   }
 });
 
-declare global {
-  interface ComponentTypes {
-    SequencesGridWrapper: typeof SequencesGridWrapperComponent
-  }
-}
+
 

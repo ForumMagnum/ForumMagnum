@@ -16,10 +16,6 @@ const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 
-const LWHelpIconComponent = registerComponent("LWHelpIcon", LWHelpIcon, {styles});
+export default registerComponent("LWHelpIcon", LWHelpIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWHelpIcon: typeof LWHelpIconComponent
-  }
-}
+
