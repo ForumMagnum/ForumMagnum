@@ -146,7 +146,6 @@ importComponent("HeaderEventSubtitle", () => require("../../components/common/He
 importComponent("HeaderSubtitle", () => require("../../components/common/HeaderSubtitle.tsx"));
 importComponent("HomeLatestPosts", () => require("../../components/common/HomeLatestPosts.tsx"));
 importComponent("HomeTagBar", () => require("../../components/common/HomeTagBar.tsx"));
-importComponent("HorizScrollBlock", () => require("../../components/common/HorizScrollBlock.tsx"));
 importComponent("HoverOver", () => require("../../components/common/HoverOver.tsx"));
 importComponent("InlineSelect", () => require("../../components/common/InlineSelect.tsx"));
 importComponent("IntercomFeedbackButton", () => require("../../components/common/IntercomFeedbackButton.tsx"));

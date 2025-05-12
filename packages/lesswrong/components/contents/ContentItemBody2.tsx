@@ -4,8 +4,11 @@ import * as htmlparser2 from "htmlparser2";
 import { type ChildNode } from 'domhandler';
 import { Components } from '@/lib/vulcan-lib/components';
 import pick from 'lodash/pick';
+import { MaybeScrollableBlock } from '../common/HorizScrollBlock';
 
-type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType">
+type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"> & {
+  bodyRef: React.RefObject<HTMLDivElement|null>
+}
 
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
@@ -14,10 +17,9 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
  *
  * Functionality from ContentItemBody which is supported:
  *   markHoverableLinks
- * Functionality from ContentItemBody which is not yet implemented:
  *   markScrollableBlocks
+ * Functionality from ContentItemBody which is not yet implemented:
  *   markConditionallyVisibleBlocks
- *   addHorizontalScrollIndicators
  *   collapseFootnotes
  *   markElicitBlocks
  *   wrapStrawPoll
@@ -37,7 +39,7 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
  */
 export const ContentItemBody2 = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, className, ref } = props;
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement|null>(null);
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -62,20 +64,25 @@ export const ContentItemBody2 = (props: ContentItemBodyProps) => {
     }
   }, [onContentReady]);
   
-  const passedThroughProps = pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType"]);
+  const passedThroughProps = {
+    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType"]),
+    bodyRef,
+  };
   
   return <div className={className} ref={bodyRef}>
     {parsedHtml.childNodes.map((child,i) => <ContentItemBodyInner
       key={i}
       parsedHtml={child}
       passedThroughProps={passedThroughProps}
+      root={true}
     />)}
   </div>
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps}: {
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
   parsedHtml: ChildNode,
-  passedThroughProps: PassedThroughContentItemBodyProps
+  passedThroughProps: PassedThroughContentItemBodyProps,
+  root?: boolean,
 }) => {
   switch (parsedHtml.type) {
     case htmlparser2.ElementType.CDATA:
@@ -86,7 +93,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps}: {
       return null;
 
     case htmlparser2.ElementType.Tag:
-      const TagName = parsedHtml.tagName as any;
+      const TagName = parsedHtml.tagName.toLowerCase() as any;
       const attribs = translateAttribs(parsedHtml.attribs);
       const mappedChildren = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
@@ -94,7 +101,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps}: {
         passedThroughProps={passedThroughProps}
       />)
       
-      if (TagName === 'a') {
+      if (root && ['p','div','table'].includes(TagName)) {
+        return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
+          {mappedChildren}
+        </MaybeScrollableBlock>
+      } else if (TagName === 'a') {
         return <Components.HoverPreviewLink
           href={attribs.href}
           {...passedThroughProps}
@@ -130,14 +141,15 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps}: {
  * HTML was validated before it was passed to ContentItemBody and parsed.
  */
 function translateAttribs(attribs: Record<string,string>): Record<string,any> {
-  if ('style' in attribs) {
-    return {
-      ...attribs,
-      style: parseInlineStyle(attribs.style),
-    };
-  } else {
-    return attribs;
+  let attribsCopy: any = {...attribs};
+  if ('style' in attribsCopy) {
+    attribsCopy.style = parseInlineStyle(attribs.style);
   }
+  if ('class' in attribsCopy) {
+    attribsCopy.className = attribsCopy.class;
+    delete attribsCopy.class;
+  }
+  return attribsCopy;
 }
 function camelCaseCssAttribute(input: string) {
   return input.replace(/-([a-z])/g, (_, char) => char.toUpperCase())

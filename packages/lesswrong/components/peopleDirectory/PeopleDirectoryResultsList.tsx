@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
+import { HorizScrollBlock, SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";
 
 const HORIZ_PADDING = 24;
@@ -73,7 +73,7 @@ const PeopleDirectoryResultsList = ({classes}: {
   }
 
   const {
-    HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow,
+    PeopleDirectoryHeading, PeopleDirectoryResultRow,
     PeopleDirectoryNoResults, PeopleDirectoryCard,
   } = Components;
   if (results.length < 1 && !resultsLoading) {

@@ -11,6 +11,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
+import { HorizScrollBlock } from './HorizScrollBlock';
 
 export interface ContentItemBodyProps {
   /**
@@ -321,9 +322,9 @@ function markConditionallyVisibleBlocks(element: HTMLElement) {
 // <HorizScrollBlock>.
 function addHorizontalScrollIndicators(replacements: ElementReplacement[], block: HTMLElement) {
   const ScrollableContents = rawExtractElementChildrenToReactComponent(block)
-  replaceElement(replacements, block, <Components.HorizScrollBlock>
+  replaceElement(replacements, block, <HorizScrollBlock>
     <ScrollableContents/>
-  </Components.HorizScrollBlock>);
+  </HorizScrollBlock>);
 };
 
 function forwardAttributes(node: HTMLElement|Element) {
