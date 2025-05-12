@@ -1,5 +1,5 @@
+import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useCallback, useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation } from '@apollo/client';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
@@ -118,7 +118,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const hasOauthSection = !isEAForum;
 
   const { pathname } = useLocation()
-  const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
+  const reCaptchaToken = useRef<string|null>(null);
   const [username, setUsername] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const [email, setEmail] = useState<string>("")
@@ -173,7 +173,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       const { data, errors } = await signupMutation({
         variables: {
           email, username, password,
-          reCaptchaToken,
+          reCaptchaToken: reCaptchaToken.current,
           abTestKey: signupAbTestKey,
           subscribeToCurated
         }
@@ -199,7 +199,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
 
   return <ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKeySetting.get()
-      && <ReCaptcha verifyCallback={(token) => setReCaptchaToken(token)} action="login/signup"/>}
+      && <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>}
     <form className={classes.root} onSubmit={submitFunction}>
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>
