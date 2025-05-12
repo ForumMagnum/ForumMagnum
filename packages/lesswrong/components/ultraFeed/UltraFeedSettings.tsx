@@ -349,7 +349,7 @@ const UltraFeedSettings = ({
   const handleExploreBiasChange = useCallback((newExploreBiasValue: number) => {
     setZodErrors(null); // Clear any previous validation errors
     const newLogImpactFactor = 2 - newExploreBiasValue;
-    const newCommentSubscribedAuthorMultiplier = (3 - newExploreBiasValue) * 2;
+    const newCommentSubscribedAuthorMultiplier = (2 - newExploreBiasValue) * 2.5;
 
     const totalSourceWeight = Object.values(formValues.sourceWeights).reduce((acc: number, value: number | '') => acc + (value === '' ? 0 : value), 0) || 0;
     // if newExploreBiasValue is high, set subscribedAuthorSourceWeight 5% of totalSourceWeight or 1 if less than 1
