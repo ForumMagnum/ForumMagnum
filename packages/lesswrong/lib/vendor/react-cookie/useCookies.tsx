@@ -11,7 +11,6 @@ export default function useCookies<T extends string, U = { [K in T]?: any }>(
   U,
   (name: T, value: Cookie, options?: CookieSetOptions) => void,
   (name: T, options?: CookieSetOptions) => void,
-  () => void,
 ] {
   const cookies = useContext(CookiesContext);
   if (!cookies) {
@@ -49,9 +48,8 @@ export default function useCookies<T extends string, U = { [K in T]?: any }>(
 
   const setCookie = useMemo(() => cookies.set.bind(cookies), [cookies]);
   const removeCookie = useMemo(() => cookies.remove.bind(cookies), [cookies]);
-  const updateCookies = useMemo(() => cookies.update.bind(cookies), [cookies]);
 
-  return [allCookies, setCookie, removeCookie, updateCookies];
+  return [allCookies, setCookie, removeCookie];
 }
 
 function shouldUpdate<U = { [K: string]: any }>(
