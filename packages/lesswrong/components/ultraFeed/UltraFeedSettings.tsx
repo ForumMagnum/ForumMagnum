@@ -196,7 +196,7 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
 
-  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings, ThreadInterestTuningSettings } = Components; 
+  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings, ThreadInterestTuningSettings, ExploreExploitBiasSettings } = Components; 
 
   const { flash } = useMessages();
 
@@ -346,6 +346,35 @@ const UltraFeedSettings = ({
     updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue, }));
   }, [updateForm]);
 
+  const handleExploreBiasChange = useCallback((newExploreBiasValue: number) => {
+    setZodErrors(null); // Clear any previous validation errors
+    const newLogImpactFactor = 2 - newExploreBiasValue;
+    const newCommentSubscribedAuthorMultiplier = (3 - newExploreBiasValue) * 2;
+
+    const totalSourceWeight = Object.values(formValues.sourceWeights).reduce((acc: number, value: number | '') => acc + (value === '' ? 0 : value), 0) || 0;
+    // if newExploreBiasValue is high, set subscribedAuthorSourceWeight 5% of totalSourceWeight or 1 if less than 1
+    // if newExploreBiasValue is low, set subscribedAuthorSourceWeight 30% of totalSourceWeight or 1 if less than 1
+    // interpolated over the 0 - 2 range of newExploreBiasValue
+    const newSubscribedAuthorSourceWeight = Math.max(1, Math.min(totalSourceWeight * ((0.05 + ((2-newExploreBiasValue) / 2)) * 0.25), totalSourceWeight));
+
+    setFormValues(prev => ({
+      ...prev,
+      threadInterestModel: {
+        ...prev.threadInterestModel,
+        logImpactFactor: newLogImpactFactor,
+      },
+      commentScoring: {
+        ...prev.commentScoring,
+        commentSubscribedAuthorMultiplier: newCommentSubscribedAuthorMultiplier,
+      },
+      sourceWeights: {
+        ...prev.sourceWeights,
+        subscriptions: Math.round(newSubscribedAuthorSourceWeight),
+      }
+      
+    }));
+  }, [setFormValues, formValues.sourceWeights]);
+
   const handleSave = useCallback(() => {
 
     const defaultResolverSettings = DEFAULT_SETTINGS.resolverSettings;
@@ -477,14 +506,21 @@ const UltraFeedSettings = ({
 
   };
 
+  // Prepare props for ExploreExploitBiasSettings
+  const exploreExploitBiasProps = {
+    currentLogImpactFactor: formValues.threadInterestModel.logImpactFactor,
+    onExploreBiasChange: handleExploreBiasChange,
+  };
+
   const renderSimpleView = () => (
     <>
+      <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
       <SourceWeightsSettings
         weights={formValues.sourceWeights}
         errors={sourceWeightErrors}
         onChange={handleSourceWeightChange}
       />
-      <TruncationGridSettings {...truncationGridProps} />
+      <TruncationGridSettings {...truncationGridProps} defaultOpen={true} />
       <MiscSettings {...miscSettingsProps} defaultOpen={false} />
     </>
   );

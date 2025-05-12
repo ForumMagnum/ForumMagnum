@@ -81,6 +81,16 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     fontSize: '1.1rem',
     color: theme.palette.text.dim,
     marginTop: 4,
+    '& ul': {
+      paddingInlineStart: "30px"
+    },
+    '& code': {
+      fontSize: '0.8rem',
+      fontWeight: 600,
+      backgroundColor: theme.palette.grey[200],
+      padding: '4px 4px',
+      borderRadius: 4,
+    }
   },
   sourceWeightSlider: {
     width: '100%',
@@ -205,6 +215,9 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   collapsibleIconExpanded: {
     transform: "translateY(2px) rotate(90deg)",
+  },
+  preLineDescription: {
+    whiteSpace: 'pre-line',
   },
 }));
 
@@ -611,6 +624,73 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
 };
 const AdvancedTruncationSettingsComponent = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettings);
 
+interface ExploreExploitBiasSettingsProps {
+  currentLogImpactFactor: number | ''; 
+  onExploreBiasChange: (newExploreBiasValue: number) => void;
+  defaultOpen?: boolean;
+  // We might need error display if a direct validation on exploreBias itself were added, but not for now.
+}
+
+const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
+  currentLogImpactFactor,
+  onExploreBiasChange,
+  defaultOpen = true, 
+}) => {
+  const classes = useStyles(styles);
+
+  // Convert logImpactFactor (0-3 range, where 0 is high exploration in LIF terms) to exploreBias (0-2 range, where 2 is high exploration)
+  // exploreBias = 2 - logImpactFactor. Slider default is 1.5, means logImpactFactor = 0.5
+  const exploreBiasValue = typeof currentLogImpactFactor === 'number' ? (2 - currentLogImpactFactor) : 1.5; 
+  // Ensure slider value is within its bounds, clamping might be good defense if currentLogImpactFactor is outside expected 0-2 for (2-LIF)
+  const clampedExploreBiasValue = Math.max(0, Math.min(2, exploreBiasValue));
+
+  return (
+    <CollapsibleSettingGroup title="Explore-Exploit Bias" defaultOpen={defaultOpen} className={classes.settingGroup}>
+      <p className={classNames(classes.groupDescription, classes.preLineDescription)}>
+        Choose how much the feed prioritizes content based on your past engagement versus popular or new content.
+      </p>
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Explore Bias</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={clampedExploreBiasValue} // Slider displays 0-2 range
+            onChange={(_, newValue) => onExploreBiasChange(newValue as number)}
+            min={0}
+            max={2}
+            step={0.5}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput)}
+            value={clampedExploreBiasValue} // Input displays 0-2 range
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val)) {
+                onExploreBiasChange(Math.max(0, Math.min(2, val))); // Clamp input too
+              }
+            }}
+            min={0}
+            max={2}
+            step={0.5}
+          />
+        </div>
+        <div className={classes.sourceWeightDescription}>
+          <ul>
+            <li>Left: Strongly prefer content related to what you've read, upvoted, commented on, or from authors you follow.</li>
+            <li>Right: Indifferent to your past interactions, recommend what generally seems good.</li>
+          </ul>
+          <p>
+            This adjusts <code>Log Impact Factor</code> and <code>Subscribed Author Boost</code> located in Advanced Settings and <code>Subscribed Author</code> proportion in Source Weights.
+          </p>
+        </div>
+        {/* No error message planned for this simple slider for now */}
+      </div>
+    </CollapsibleSettingGroup>
+  );
+};
+const ExploreExploitBiasSettingsComponent = registerComponent('ExploreExploitBiasSettings', ExploreExploitBiasSettings);
+
 interface MultipliersSettingsProps {
   formValues: CommentScoringFormState;
   errors: ZodFormattedError<CommentScoringFormState, string> | null;
@@ -963,14 +1043,12 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
           <code>clampedThreadMultiplier = clamped(threadMultiplier, minOverallMultiplier, maxOverallMultiplier)</code><br/><br/>
           <code>overallThreadScore = baseThreadScore * clampedThreadMultiplier</code>
         </p>
-        <p>
-          <ul>
-            <li>See Comment Scoring section for calculation of baseThreadScore</li>
-            <li>voteScore: smallUpvotes = 1 vote unit, bigUpovtes = 5</li>
-            <li>viewScore: itemOnViewport = 1 view unit, itemExpanded = 3 view units</li>
-            <li>onReadPostFactor applies if thread is on a post user has read, otherwise 1.0</li>
-          </ul>
-        </p>
+        <ul>
+          <li>See Comment Scoring section for calculation of baseThreadScore</li>
+          <li>voteScore: smallUpvotes = 1 vote unit, bigUpovtes = 5</li>
+          <li>viewScore: itemOnViewport = 1 view unit, itemExpanded = 3 view units</li>
+          <li>onReadPostFactor applies if thread is on a post user has read, otherwise 1.0</li>
+        </ul>
       </div>
       {fields.map(f => {
         const currentValue = formValues[f.key];
@@ -988,7 +1066,6 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
                 min={f.min}
                 max={f.max}
                 step={f.step}
-                aria-labelledby={`${f.key}-label`}
               />
               <input
                 type="number"
@@ -998,7 +1075,6 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
                 min={f.min}
                 max={f.max}
                 step={f.step}
-                aria-describedby={currentError ? `${f.key}-error` : undefined}
               />
             </div>
             <p id={`${f.key}-label`} className={classes.sourceWeightDescription}>{f.description} Default: {f.defaultVal}</p>
@@ -1069,6 +1145,7 @@ declare global {
     SourceWeightsSettings: typeof SourceWeightsSettingsComponent
     TruncationGridSettings: typeof TruncationGridSettingsComponent
     AdvancedTruncationSettings: typeof AdvancedTruncationSettingsComponent
+    ExploreExploitBiasSettings: typeof ExploreExploitBiasSettingsComponent
     MultipliersSettings: typeof MultipliersSettingsComponent
     ThreadInterestTuningSettings: typeof ThreadInterestTuningSettingsComponent
     MiscSettings: typeof MiscSettingsComponent
