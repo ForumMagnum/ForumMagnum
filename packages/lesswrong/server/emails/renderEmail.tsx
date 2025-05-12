@@ -26,6 +26,7 @@ import { generateEmailStylesheet } from '../styleGeneration';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
+import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -162,6 +163,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
+    <CookiesProvider>
     <ThemeContextProvider options={themeOptions}>
     <FMJssProvider stylesContext={stylesContext}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
@@ -171,6 +173,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     </UserContext.Provider>
     </FMJssProvider>
     </ThemeContextProvider>
+    </CookiesProvider>
     </ApolloProvider>
     </EmailRenderContext.Provider>
   );
