@@ -215,15 +215,21 @@ const UltraFeedItemFooterCore = ({
     }
   };
 
+  console.log("commentCount", {
+    id: voteProps.document?._id,
+    commentCount,
+  });
+
   const commentCountIcon = (
     <div
       onClick={handleCommentsClick}
       className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
     >
       <CommentIcon />
-      {commentCount && <span className={classes.commentCountText}>
-        {commentCount}
-      </span>}
+      {(commentCount ?? 0 > 0) 
+        ? <span className={classes.commentCountText}>{commentCount}</span>
+        : null
+      }
     </div>
   );
 
