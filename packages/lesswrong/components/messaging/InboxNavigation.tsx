@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
@@ -9,6 +9,14 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { InboxComponentProps } from './InboxWrapper';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ConversationItem from "./ConversationItem";
+import Loading from "../vulcan-core/Loading";
+import SectionFooter from "../common/SectionFooter";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import { Typography } from "../common/Typography";
+import LoadMore from "../common/LoadMore";
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({
@@ -32,9 +40,6 @@ const InboxNavigation = ({
     collectionName: "Conversations",
     fragmentName: 'ConversationsList',
   });
-  
-  const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox, Typography, LoadMore } = Components
-  
   const showArchive = query?.showArchive === "true"
   const expanded = query?.expanded === "true"
 
@@ -77,10 +82,6 @@ const InboxNavigation = ({
   )
 }
 
-const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation);
+export default registerComponent('InboxNavigation', InboxNavigation);
 
-declare global {
-  interface ComponentTypes {
-    InboxNavigation: typeof InboxNavigationComponent
-  }
-}
+

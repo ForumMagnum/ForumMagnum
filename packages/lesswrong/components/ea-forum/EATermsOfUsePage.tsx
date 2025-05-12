@@ -1,7 +1,8 @@
 import React, { FC, PropsWithChildren } from "react"
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { CENTRAL_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { Link } from "../../lib/reactRouterWrapper";
+import { Typography } from "../common/Typography";
 
 const PADDING = 15;
 
@@ -53,7 +54,6 @@ const ExternalLink: FC<PropsWithChildren<{href: string}>> = ({href, children}) =
   <a href={href} target="_blank" rel="noreferrer">{children}</a>
 
 const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const {Typography} = Components;
   return (
     <div className={classes.root}>
       <Typography variant="display1" className={classes.title}>Effective Ventures Foundation - Terms of Use – EA FORUM ADDENDUM</Typography>
@@ -95,10 +95,6 @@ const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const EATermsOfUsePageComponent = registerComponent('EATermsOfUsePage', EATermsOfUsePage, {styles})
+export default registerComponent('EATermsOfUsePage', EATermsOfUsePage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EATermsOfUsePage: typeof EATermsOfUsePageComponent
-  }
-}
+

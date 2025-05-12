@@ -1,5 +1,5 @@
 import React from "react";
-import { Components } from "@/lib/vulcan-lib/components.tsx";
+import LWTooltip from "../common/LWTooltip";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -28,10 +28,10 @@ export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, que
 }
 
 export const RelevanceLabel = () => (
-  <Components.LWTooltip
+  <LWTooltip
     title='"Relevance" represents how related the tag is to the post it is tagging. You can vote on relevance below, or by hovering over tags on post pages.'
     placement="bottom-end"
   >
     Relevance
-  </Components.LWTooltip>
+  </LWTooltip>
 );

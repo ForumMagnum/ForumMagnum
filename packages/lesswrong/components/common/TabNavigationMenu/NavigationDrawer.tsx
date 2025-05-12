@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
+import TableOfContentsList from "../../posts/TableOfContents/TableOfContentsList";
+import TabNavigationMenu from "./TabNavigationMenu";
+import TabNavigationMenuCompressed from "./TabNavigationMenuCompressed";
 
 const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   paperWithoutToC: {
@@ -59,7 +62,6 @@ const NavigationDrawer = ({open, handleClose, toc}: {
   toc: ToCData|null,
 }) => {
   const classes = useStyles(styles);
-  const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
   const showToc = toc && toc.sections
 
   return <Drawer
@@ -78,7 +80,7 @@ const NavigationDrawer = ({open, handleClose, toc}: {
         <TabNavigationMenuCompressed onClickSection={handleClose}/>
       </div>
       <div className={classes.tableOfContents}>
-        <Components.TableOfContentsList
+        <TableOfContentsList
           tocSections={toc.sections}
           title={null}
           onClickSection={() => handleClose()}
@@ -88,10 +90,6 @@ const NavigationDrawer = ({open, handleClose, toc}: {
   </Drawer>
 }
 
-const NavigationDrawerComponent = registerComponent('NavigationDrawer', NavigationDrawer);
+export default registerComponent('NavigationDrawer', NavigationDrawer);
 
-declare global {
-  interface ComponentTypes {
-    NavigationDrawer: typeof NavigationDrawerComponent
-  }
-}
+

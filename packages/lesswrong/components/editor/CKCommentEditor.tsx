@@ -116,11 +116,7 @@ const CKCommentEditor = ({
   </div>
 }
 
-const CKCommentEditorComponent = registerComponent("CKCommentEditor", CKCommentEditor, {
+export default registerComponent("CKCommentEditor", CKCommentEditor, {
   debugRerenders: true
 });
-declare global {
-  interface ComponentTypes {
-    CKCommentEditor: typeof CKCommentEditorComponent
-  }
-}
+

@@ -19,9 +19,14 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { RouterLocation } from "../../lib/vulcan-lib/routes";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';
+import LoginPopup from "../users/LoginPopup";
+import GroupFormDialog from "./GroupFormDialog";
+import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
+import EventNotificationsDialog from "./EventNotificationsDialog";
+import SimpleDivider from "../widgets/SimpleDivider";
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
@@ -191,7 +196,7 @@ export const createFallBackDialogHandler = (
   } else {
     return () => openDialog({
       name: "LoginPopup",
-      contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
     });
   }
 }
@@ -233,8 +238,6 @@ const CommunityMapFilter = ({
   const navigate = useNavigate();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
-  const { SimpleDivider } = Components;
-
   const [filters, setFilters] = useState(() => getInitialFilters(location));
 
   const handleCheck = useCallback((filter: string) => {
@@ -327,7 +330,7 @@ const CommunityMapFilter = ({
                 className={classNames(classes.actionIcon, classes.addIcon)}
                 onClick={createFallBackDialogHandler(
                   openDialog, "GroupFormDialog",
-                  ({onClose}) => <Components.GroupFormDialog onClose={onClose}/>,
+                  ({onClose}) => <GroupFormDialog onClose={onClose}/>,
                   currentUser
                 )}
               />
@@ -379,7 +382,7 @@ const CommunityMapFilter = ({
               <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={
                 createFallBackDialogHandler(
                   openDialog, "SetPersonalMapLocationDialog",
-                  ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />,
+                  ({onClose}) => <SetPersonalMapLocationDialog onClose={onClose} />,
                   currentUser
                 )
               }/>
@@ -398,7 +401,7 @@ const CommunityMapFilter = ({
         className={classNames(classes.filterSection, classes.subscribeSection)}
         onClick={createFallBackDialogHandler(
           openDialog, "EventNotificationsDialog",
-          ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />,
+          ({onClose}) => <EventNotificationsDialog onClose={onClose} />,
           currentUser
         )}
       >
@@ -422,14 +425,10 @@ const CommunityMapFilter = ({
   );
 }
 
-const CommunityMapFilterComponent = registerComponent(
+export default registerComponent(
   'CommunityMapFilter',
   CommunityMapFilter,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CommunityMapFilter: typeof CommunityMapFilterComponent
-  }
-}
+

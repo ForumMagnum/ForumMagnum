@@ -1,18 +1,21 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
-import { communityPath } from '../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTheme } from '../themes/useTheme';
+import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
+import ForumIcon from "../common/ForumIcon";
+import TagsTooltip from "../tagging/TagsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -209,8 +212,6 @@ const PostsTitle = ({
   const { pathname } = useLocation();
   const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
   const theme = useTheme();
-  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
-
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
@@ -292,10 +293,6 @@ const PostsTitle = ({
   )
 }
 
-const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
+export default registerComponent('PostsTitle', PostsTitle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTitle: typeof PostsTitleComponent
-  }
-}
+

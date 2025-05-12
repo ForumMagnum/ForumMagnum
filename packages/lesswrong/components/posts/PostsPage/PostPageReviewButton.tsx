@@ -2,8 +2,11 @@ import React from "react";
 import { forumTitleSetting } from "@/lib/instanceSettings";
 import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUtils";
 import { useCurrentUser } from "@/components/common/withUser";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import ReviewVotingWidget from "../../review/ReviewVotingWidget";
+import ReviewPostButton from "../../review/ReviewPostButton";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
@@ -31,9 +34,6 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   const currentUser = useCurrentUser();
 
   if (!postEligibleForReview(post)) return null;
-
-  const { ReviewVotingWidget, ReviewPostButton, LWTooltip } = Components;
-
   return (
     <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
@@ -44,10 +44,6 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   )
 }
 
-const PostPageReviewButtonComponent = registerComponent('PostPageReviewButton', PostPageReviewButton);
+export default registerComponent('PostPageReviewButton', PostPageReviewButton);
 
-declare global {
-  interface ComponentTypes {
-    PostPageReviewButton: typeof PostPageReviewButtonComponent
-  }
-}
+

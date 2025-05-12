@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
+import LoginForm from "../../users/LoginForm";
+import NotificationsPageFeed from "./NotificationsPageFeed";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -56,13 +58,10 @@ export const NotificationsPage = ({classes}: {
   }, [fetchedKarmaChanges, updateCurrentUser]);
 
   if (!currentUser) {
-    const {LoginForm} = Components;
     return (
       <LoginForm />
     );
   }
-
-  const {NotificationsPageFeed} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -73,14 +72,10 @@ export const NotificationsPage = ({classes}: {
   );
 }
 
-const NotificationsPageComponent = registerComponent(
+export default registerComponent(
   "NotificationsPage",
   NotificationsPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPage: typeof NotificationsPageComponent
-  }
-}
+

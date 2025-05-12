@@ -6,8 +6,8 @@ import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
 import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
 import type { History } from 'history'
-import { Components } from "../vulcan-lib/components";
 import { getRouteMatchingPathname, userCanAccessRoute } from "../vulcan-lib/routes";
+import Error404 from '@/components/common/Error404';
 
 export interface ServerRequestStatusContextType {
   status?: number
@@ -92,7 +92,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   }
   
   const params = currentRoute ? matchPath(location.pathname, { path: currentRoute.path, exact: true, strict: false })!.params : {}
-  const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
+  const RouteComponent = currentRoute?.component ?? Error404; // currentRoute?.componentName ? Components[currentRoute.componentName] : Error404;
   const result: RouterLocation = {
     currentRoute: currentRoute!, //TODO: Better null handling than this
     RouteComponent, location, params,
@@ -127,7 +127,7 @@ export const checkUserRouteAccess = (user: UsersCurrent | null, location: Router
 
   return {
     ...location,
-    RouteComponent: Components.Error404,
+    RouteComponent: Error404,
     currentRoute: null,
     params: {},
   }

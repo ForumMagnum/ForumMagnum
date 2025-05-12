@@ -1,5 +1,5 @@
 import React, { Component, MutableRefObject } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
@@ -12,6 +12,14 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
+import ContentStyles from "../common/ContentStyles";
+import CKCommentEditor from "./CKCommentEditor";
+import CKPostEditor from "./CKPostEditor";
+import WarningBanner from "../common/WarningBanner";
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
 
 const postEditorHeight = isEAForum ? 250 : 400;
 const questionEditorHeight = isEAForum ? 150 : 400;
@@ -331,6 +339,10 @@ export const shouldSubmitContents = (editorRef: Editor) => {
   return !!ckEditorReference;
 }
 
+// HACK: This component needs to be able have a ref so that the parent component
+// can call its methods, which means it can't have any HoCs. In particular, it
+// can't have 'styles' (since that would add a HoC); instead, it exports its
+// styles, and has classes provided by whatever wraps it.
 export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor;
   debouncedCheckMarkdownImgErrs;
@@ -445,7 +457,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderUpdateTypeSelect = () => {
     const { currentUser, formType, _classes: classes, hideControls } = this.props
-    const { MenuItem } = Components;
     if (hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
@@ -499,9 +510,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const {className, contentType} = this.getBodyStyles();
 
     if (showPlaceholder) {
-      return <Components.ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
+      return <ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
         { placeholder }
-      </Components.ContentStyles>
+      </ContentStyles>
     }
   }
 
@@ -521,8 +532,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       document,
       _classes: classes,
     } = this.props;
-    const { Loading } = Components
-    const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
+    const CKEditor = commentEditor ? CKCommentEditor : CKPostEditor;
     if (!CKEditor) {
       return <Loading />
     } else {
@@ -564,9 +574,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         )}
         onClick={this.interceptDetailsBlockClick.bind(this)}
       >
-        {editorWarning && <Components.WarningBanner message={editorWarning} />}
+        {editorWarning && <WarningBanner message={editorWarning} />}
         {isCollaborative
-          ? <Components.CKPostEditor key="ck-collaborate"
+          ? <CKPostEditor key="ck-collaborate"
               {...editorProps}
               isCollaborative={true}
               accessLevel={this.props.accessLevel}
@@ -650,7 +660,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <Components.ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
+      <ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}
@@ -664,12 +674,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           fullWidth={true}
           disableUnderline={true}
         />
-      </Components.ContentStyles>
-      {markdownImgErrs && contents.type === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
+      </ContentStyles>
+      {markdownImgErrs && contents.type === 'markdown' && <Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
         Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
         connection. You should update all links to images so that they are served over a{' '}
         secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-      </Components.Typography>}
+      </Typography>}
     </div>
   }
 
@@ -730,7 +740,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   render() {
     const { loading } = this.state
     const {label, formVariant, _classes: classes} = this.props;
-    const {Loading, ContentStyles, SectionTitle} = Components;
     const {className, contentType} = this.getBodyStyles();
 
     const isGrey = formVariant === "grey";
@@ -754,17 +763,3 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     </div>
   }
 };
-
-// HACK: This component needs to be able have a ref so that the parent component
-// can call its methods, which means it can't have any HoCs. In particular, it
-// can't have 'styles' (since that would add a HoC); instead, it exports its
-// styles, and has classes provided by whatever wraps it.
-export const EditorComponent = registerComponent('Editor', Editor, {
-  allowRef: true,
-});
-
-declare global {
-  interface ComponentTypes {
-    Editor: typeof EditorComponent
-  }
-}

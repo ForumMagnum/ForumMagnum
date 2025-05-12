@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useContinueReading } from '../recommendations/withContinueReading';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-
+import SectionTitle from "../common/SectionTitle";
+import BookmarksList from "./BookmarksList";
+import ContinueReadingList from "../recommendations/ContinueReadingList";
+import BookmarksFeed from "./BookmarksFeed";
 
 export const BookmarksTab = () => {
-  const {SectionTitle, BookmarksList, ContinueReadingList, BookmarksFeed} = Components
   const {continueReading} = useContinueReading()
   
   return <AnalyticsContext pageSectionContext="bookmarksTab">
@@ -22,11 +24,7 @@ export const BookmarksTab = () => {
   </AnalyticsContext>
 }
 
-const BookmarksTabComponent = registerComponent('BookmarksTab', BookmarksTab);
+export default registerComponent('BookmarksTab', BookmarksTab);
 
-declare global {
-  interface ComponentTypes {
-    BookmarksTab: typeof BookmarksTabComponent
-  }
-}
+
 

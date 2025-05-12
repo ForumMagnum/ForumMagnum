@@ -15,10 +15,21 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useSingle } from '@/lib/crud/withSingle';
 import { SpotlightForm } from './SpotlightForm';
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import AnalyticsTracker from "../common/AnalyticsTracker";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import SpotlightEditorStyles from "./SpotlightEditorStyles";
+import SpotlightStartOrContinueReading from "./SpotlightStartOrContinueReading";
+import { Typography } from "../common/Typography";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const TEXT_WIDTH = 350;
 
@@ -498,13 +509,6 @@ export const SpotlightItem = ({
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
-
-  const {
-    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
-    SpotlightEditorStyles, SpotlightStartOrContinueReading,
-    Typography, LWTooltip, ForumIcon, CommentsNode
-  } = Components
-
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
@@ -573,7 +577,7 @@ export const SpotlightItem = ({
           </div>
           <div className={classes.reviews}>
             {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-              <CommentsNode comment={review} treeOptions={{
+              <CommentsNodeInner comment={review} treeOptions={{
                 singleLineCollapse: true,
                 forceSingleLine: true,
                 hideSingleLineMeta: true,
@@ -643,13 +647,9 @@ export const SpotlightItem = ({
   </AnalyticsContext>
 }
 
-const SpotlightItemComponent = registerComponent('SpotlightItem', SpotlightItem, {
+export default registerComponent('SpotlightItem', SpotlightItem, {
   styles,
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    SpotlightItem: typeof SpotlightItemComponent
-  }
-}
+

@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../../lib/alignment-forum/posts/helpers';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isLWorAF } from '../../../lib/instanceSettings';
+import DropdownItem from "../DropdownItem";
 
 const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -23,9 +24,6 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
 
   const userHasSuggested = post.suggestForAlignmentUserIds &&
     post.suggestForAlignmentUserIds.includes(currentUser!._id);
-
-  const { DropdownItem } = Components;
-
   if (userHasSuggested) {
     return (
       <DropdownItem
@@ -43,13 +41,9 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const SuggestAlignmentPostDropdownItemComponent = registerComponent(
+export default registerComponent(
   'SuggestAlignmentPostDropdownItem',
   SuggestAlignmentPostDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    SuggestAlignmentPostDropdownItem: typeof SuggestAlignmentPostDropdownItemComponent
-  }
-}
+

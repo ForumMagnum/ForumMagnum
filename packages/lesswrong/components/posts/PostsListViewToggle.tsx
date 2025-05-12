@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isPostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
 import moment from "moment";
+import ForumDropdown from "../common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,8 +116,6 @@ const PostsListViewToggle = ({classes}: {
       captureEvent("postsListViewToggle", {value});
     }
   }, [setView, captureEvent]);
-
-  const {ForumDropdown} = Components;
   return (
     <div className={classes.root} onClick={onClick}>
       <ForumDropdown
@@ -137,14 +136,10 @@ const PostsListViewToggle = ({classes}: {
   );
 }
 
-const PostsListViewToggleComponent = registerComponent(
+export default registerComponent(
   "PostsListViewToggle",
   PostsListViewToggle,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsListViewToggle: typeof PostsListViewToggleComponent
-  }
-}
+

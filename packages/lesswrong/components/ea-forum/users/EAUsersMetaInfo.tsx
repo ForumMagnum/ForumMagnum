@@ -1,8 +1,14 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "@/lib/collections/users/helpers";
-import { communityPath } from "../../../lib/routes";
+import { communityPath } from '@/lib/pathConstants';
+import ContentStyles from "../../common/ContentStyles";
+import ForumIcon from "../../common/ForumIcon";
+import FormatDate from "../../common/FormatDate";
+import SocialMediaLink from "../../users/SocialMediaLink";
+import LWTooltip from "../../common/LWTooltip";
+import SocialMediaIcon from "../../icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconsRow: {
@@ -64,9 +70,6 @@ const EAUsersMetaInfo = ({user, classes}: {
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(
     (field: SocialMediaProfileField) => user[field],
   );
-
-  const { ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip, SocialMediaIcon } = Components;
-
   return (
     <ContentStyles contentType="comment" className={classes.iconsRow}>
       <LWTooltip title={`${userKarma} karma`}>
@@ -127,14 +130,10 @@ const EAUsersMetaInfo = ({user, classes}: {
   );
 }
 
-const EAUsersMetaInfoComponent = registerComponent(
+export default registerComponent(
   "EAUsersMetaInfo",
   EAUsersMetaInfo,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersMetaInfo: typeof EAUsersMetaInfoComponent
-  }
-}
+

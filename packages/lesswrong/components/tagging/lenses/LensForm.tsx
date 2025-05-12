@@ -11,12 +11,14 @@ import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/hel
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { Components } from "@/lib/vulcan-lib/components";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useCallback, useState } from "react";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import Error404 from "../../common/Error404";
+import SummariesEditForm from "../SummariesEditForm";
+import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('MultiDocumentsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -40,7 +42,6 @@ export const LensForm = ({
   onCancel: () => void;
   onChange?: () => void;
 }) => {
-  const { Error404, SummariesEditForm, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

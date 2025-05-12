@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -17,6 +17,9 @@ import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationForm
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LWDialog from "../common/LWDialog";
 
 const MAX_NOTIFICATION_RADIUS = 300;
 
@@ -100,7 +103,6 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps()
@@ -212,11 +214,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   )
 }
 
-const EventNotificationsDialogComponent = registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
+export default registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventNotificationsDialog: typeof EventNotificationsDialogComponent
-  }
-}
+
 

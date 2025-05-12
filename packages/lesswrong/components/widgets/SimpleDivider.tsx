@@ -25,11 +25,7 @@ export const SimpleDivider = ({className}: {
   return <hr className={classNames(classes.root, className)} />;
 }
 
-const SimpleDividerComponent = registerComponent('SimpleDivider', SimpleDivider);
+export default registerComponent('SimpleDivider', SimpleDivider);
 
-declare global {
-  interface ComponentTypes {
-    SimpleDivider: typeof SimpleDividerComponent
-  }
-}
+
 

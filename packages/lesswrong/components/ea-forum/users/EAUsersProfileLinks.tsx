@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userGetEditUrl } from "../../../lib/vulcan-users/helpers";
 import { userCanEditUser } from "../../../lib/collections/users/helpers";
 import { useMessages } from "../../common/withMessages";
@@ -8,6 +8,10 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { separatorBulletStyles } from "../../common/SectionFooter";
 import CopyToClipboard from "react-copy-to-clipboard";
 import CopyIcon from "@/lib/vendor/@material-ui/icons/src/FileCopy";
+import NewFeedButton from "../../rss/NewFeedButton";
+import { Typography } from "../../common/Typography";
+import LWTooltip from "../../common/LWTooltip";
+import DialogGroup from "../../common/DialogGroup";
 
 const styles = (theme: ThemeType) => ({
   links: {
@@ -43,8 +47,6 @@ const EAUsersProfileLinks = ({user, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
-  const {Typography, LWTooltip, DialogGroup} = Components;
-
   const hasLinks = currentUser?.isAdmin || userCanEditUser(currentUser, user);
   if (!hasLinks) {
     return null;
@@ -74,7 +76,7 @@ const EAUsersProfileLinks = ({user, classes}: {
             actions={[]}
             trigger={<a>Register RSS</a>}
           >
-            <div><Components.NewFeedButton user={user} /></div>
+            <div><NewFeedButton user={user} /></div>
           </DialogGroup>
         </div>
       }
@@ -92,14 +94,10 @@ const EAUsersProfileLinks = ({user, classes}: {
   );
 }
 
-const EAUsersProfileLinksComponent = registerComponent(
+export default registerComponent(
   "EAUsersProfileLinks",
   EAUsersProfileLinks,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersProfileLinks: typeof EAUsersProfileLinksComponent
-  }
-}
+

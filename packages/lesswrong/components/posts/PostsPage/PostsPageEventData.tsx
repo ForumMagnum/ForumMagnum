@@ -13,9 +13,12 @@ import LocalActivityIcon from '@/lib/vendor/@material-ui/icons/src/LocalActivity
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { Typography } from "../../common/Typography";
+import EventTime from "../../localGroups/EventTime";
+import SmallMapPreview from "../../localGroups/SmallMapPreview";
 
 const styles = (theme: ThemeType) => ({
   metadata: {
@@ -206,11 +209,11 @@ const PostsPageEventData = ({classes, post}: {
     </Button>
   }
   
-  return <Components.Typography variant="body2" className={classes.metadata}>
+  return <Typography variant="body2" className={classes.metadata}>
       <div>
         <div className={classes.iconRow}>
           <div className={classes.iconWrapper}><ClockIcon className={classes.icon} /></div>
-          <Components.EventTime post={post} dense={false} />
+          <EventTime post={post} dense={false} />
         </div>
         <div className={classes.iconRow}>
           <div className={classes.iconWrapper}><LocationIcon className={classes.icon} /></div>
@@ -230,15 +233,11 @@ const PostsPageEventData = ({classes, post}: {
         {eventCTA}
       </div>}
       {!post.onlineEvent && <div className={classes.mapbox}>
-        <Components.SmallMapPreview post={post} />
+        <SmallMapPreview post={post} />
       </div>}
-  </Components.Typography>
+  </Typography>
 }
 
-const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {styles});
+export default registerComponent('PostsPageEventData', PostsPageEventData, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPageEventData: typeof PostsPageEventDataComponent
-  }
-}
+
