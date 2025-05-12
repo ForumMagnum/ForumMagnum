@@ -51,10 +51,6 @@ const Divider = ({ classes, wings=true, margin=24 }: {
     </div>}
   </div>
 }
-const DividerComponent = registerComponent('Divider', Divider, {styles});
+export default registerComponent('Divider', Divider, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Divider: typeof DividerComponent
-  }
-}
+

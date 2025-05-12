@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import SingleColumnSection from "./SingleColumnSection";
+import ErrorMessage from "./ErrorMessage";
 
 const ErrorPage = ({error}: {
   error: any
 }) => {
-  const { SingleColumnSection, ErrorMessage } = Components;
-  
   const message = error?.message ?? error ?? "Error";
   
   return <SingleColumnSection>
@@ -13,11 +13,7 @@ const ErrorPage = ({error}: {
   </SingleColumnSection>
 }
 
-const ErrorPageComponent = registerComponent('ErrorPage', ErrorPage);
+export default registerComponent('ErrorPage', ErrorPage);
 
-declare global {
-  interface ComponentTypes {
-    ErrorPage: typeof ErrorPageComponent
-  }
-}
+
 

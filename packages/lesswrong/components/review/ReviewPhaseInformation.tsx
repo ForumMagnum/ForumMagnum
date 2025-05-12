@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { Card } from "@/components/widgets/Paper";
+import ReviewProgressNominations from "./ReviewProgressNominations";
+import ReviewProgressReviews from "./ReviewProgressReviews";
+import ContentStyles from "../common/ContentStyles";
+import LWTooltip from "../common/LWTooltip";
+import ReviewProgressVoting from "./ReviewProgressVoting";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,9 +43,6 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
 }) => {
-
-  const { ReviewProgressNominations, ReviewProgressReviews, ContentStyles, LWTooltip, ReviewProgressVoting } = Components
-
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const FaqCard = ({linkText, children}: {
@@ -103,11 +105,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   </ContentStyles>
 }
 
-const ReviewPhaseInformationComponent = registerComponent('ReviewPhaseInformation', ReviewPhaseInformation, {styles});
+export default registerComponent('ReviewPhaseInformation', ReviewPhaseInformation, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPhaseInformation: typeof ReviewPhaseInformationComponent
-  }
-}
+
 

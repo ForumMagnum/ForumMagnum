@@ -5,8 +5,9 @@ import {
 } from "../../../lib/instanceSettings";
 import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
+import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,8 +35,6 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styl
     ? "Click to view."
     : `Click to view ${commentCount} comment${commentCount === 1 ? "" : "s"}.`;
   const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `${postGetPageUrl(foreignPost)}${noComments ? "" : "#comments"}`);
-
-  const {Typography} = Components;
   return (
     <div>
       <a href={link} target="_blank" rel="noreferrer">
@@ -47,10 +46,6 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styl
   );
 }
 
-const PostsPageCrosspostCommentsComponent = registerComponent("PostsPageCrosspostComments", PostsPageCrosspostComments, {styles});
+export default registerComponent("PostsPageCrosspostComments", PostsPageCrosspostComments, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPageCrosspostComments: typeof PostsPageCrosspostCommentsComponent
-  }
-}
+

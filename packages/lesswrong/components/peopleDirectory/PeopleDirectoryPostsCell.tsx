@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
@@ -10,10 +9,11 @@ import {
 } from "./PeopleDirectoryTextCell";
 import classNames from "classnames";
 import { ROW_BACKGROUND_VAR } from "./PeopleDirectoryResultRow";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const FADE_SIZE = 30;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryPostsCell', (theme: ThemeType) => ({
   root: {
     ...textCellStyles(theme),
     position: "relative",
@@ -35,12 +35,12 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: FADE_SIZE,
     background: `linear-gradient(to right, transparent, var(${ROW_BACKGROUND_VAR}) ${FADE_SIZE}px)`,
   },
-});
+}));
 
-const PeopleDirectoryPostsCell = ({user, classes}: {
+export const PeopleDirectoryPostsCell = ({user}: {
   user: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const posts = user.posts ?? [];
 
   if (!posts.length) {
@@ -71,16 +71,4 @@ const PeopleDirectoryPostsCell = ({user, classes}: {
       }
     </div>
   );
-}
-
-const PeopleDirectoryPostsCellComponent = registerComponent(
-  "PeopleDirectoryPostsCell",
-  PeopleDirectoryPostsCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryPostsCell: typeof PeopleDirectoryPostsCellComponent
-  }
 }

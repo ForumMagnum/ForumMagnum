@@ -1,8 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import LoadMore from "../common/LoadMore";
+import FriendlyPopularComment from "./FriendlyPopularComment";
+import LWPopularComment from "./LWPopularComment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,9 +26,6 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
     limit: 3,
     itemsPerPage: 5,
   });
-
-  const {LoadMore, FriendlyPopularComment, LWPopularComment} = Components;
-
   const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
@@ -42,14 +42,10 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
   );
 }
 
-const PopularCommentsListComponent = registerComponent(
+export default registerComponent(
   "PopularCommentsList",
   PopularCommentsList,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PopularCommentsList: typeof PopularCommentsListComponent
-  }
-}
+

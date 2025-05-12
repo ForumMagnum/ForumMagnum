@@ -71,15 +71,11 @@ const CommunityBanner = ({classes}: {
   </div>
 }
 
-const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityBanner, {
+export default registerComponent('CommunityBanner', CommunityBanner, {
   styles,
   
   // This is based around an image, so it doesn't get inverted in dark mdoe
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    CommunityBanner: typeof CommunityBannerComponent
-  }
-}
+

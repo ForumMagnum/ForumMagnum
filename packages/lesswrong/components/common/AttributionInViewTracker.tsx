@@ -69,10 +69,6 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   )
 }
 
-const AttributionInViewTrackerComponent = registerComponent('AttributionInViewTracker', AttributionInViewTracker)
+export default registerComponent('AttributionInViewTracker', AttributionInViewTracker);
 
-declare global {
-  interface ComponentTypes {
-    AttributionInViewTracker: typeof AttributionInViewTrackerComponent
-  }
-}
+

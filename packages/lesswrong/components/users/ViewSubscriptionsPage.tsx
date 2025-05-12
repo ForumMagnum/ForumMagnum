@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
@@ -13,6 +13,9 @@ import {
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SubscriptionsList from "./SubscriptionsList";
+import UsersNameDisplay from "./UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   noSubscriptions: {
@@ -55,7 +58,6 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SingleColumnSection, SubscriptionsList, UsersNameDisplay} = Components;
   return (
     <SingleColumnSection>
       {userHasSubscribeTabFeed(currentUser) &&
@@ -176,7 +178,6 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
 const ViewSubscriptionsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SingleColumnSection} = Components;
   const currentUser = useCurrentUser();
 
   if (!currentUser) {
@@ -192,14 +193,10 @@ const ViewSubscriptionsPage = ({classes}: {
   );
 }
 
-const ViewSubscriptionsPageComponent = registerComponent(
+export default registerComponent(
   "ViewSubscriptionsPage",
   ViewSubscriptionsPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ViewSubscriptionsPage: typeof ViewSubscriptionsPageComponent,
-  }
-}
+

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
+import T3AudioPlayer from "../posts/PostsPage/T3AudioPlayer";
 
 const styles = defineStyles("TagAudioPlayerWrapper", (theme: ThemeType) => ({
   embeddedPlayer: {
@@ -16,7 +17,6 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
   tag: TagPageFragment,
   showEmbeddedPlayer: boolean,
 }) => {
-  const { T3AudioPlayer } = Components;
   const classes = useStyles(styles);
 
   return (
@@ -31,10 +31,6 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
   );
 }
 
-const TagAudioPlayerWrapperComponent = registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapper);
+export default registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapper);
 
-declare global {
-  interface ComponentTypes {
-    TagAudioPlayerWrapper: typeof TagAudioPlayerWrapperComponent
-  }
-} 
+ 

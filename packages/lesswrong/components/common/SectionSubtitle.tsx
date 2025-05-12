@@ -1,6 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
+import { Typography } from "./Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,15 +20,11 @@ const SectionSubtitle = ({children, classes, className}: {
   classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
-  return <Components.Typography component='span' variant='subheading' className={classNames(classes.root, className)}>
+  return <Typography component='span' variant='subheading' className={classNames(classes.root, className)}>
     {children}
-  </Components.Typography>
+  </Typography>
 }
 
-const SectionSubtitleComponent = registerComponent('SectionSubtitle', SectionSubtitle, {styles})
+export default registerComponent('SectionSubtitle', SectionSubtitle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SectionSubtitle: typeof SectionSubtitleComponent
-  }
-}
+

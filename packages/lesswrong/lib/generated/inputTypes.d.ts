@@ -4120,7 +4120,6 @@ interface User {
   tagRevisionCount: number;
   abTestKey: string | null;
   abTestOverrides: any;
-  reenableDraftJs: boolean | null;
   walledGardenInvite: boolean | null;
   hideWalledGardenUI: boolean | null;
   walledGardenPortalOnboarded: boolean | null;

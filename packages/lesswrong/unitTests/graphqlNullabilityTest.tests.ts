@@ -2,7 +2,7 @@ import chai from 'chai';
 import { getSchema } from "@/lib/schema/allSchemas";
 import { getAllCollections, getCollection, isValidCollectionName } from "@/server/collections/allCollections";
 import isArray from "lodash/isArray";
-import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
+import { allowAccess, getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
 
 type FieldProblem = {
@@ -110,7 +110,11 @@ export function permissionsAllowGuest(permissions: FieldPermissions) {
   return false;
 }
 
+/**
+ * Returns true if the collection has a collection-level access filter (which isn't the "return true" function), and false otherwise.
+ */
 function collectionHasRowLevelPermissions(collectionName: CollectionNameString) {
-  return !!getCollectionAccessFilter(collectionName);
+  const accessFilter = getCollectionAccessFilter(collectionName);
+  return !!accessFilter && accessFilter !== allowAccess;
 }
 

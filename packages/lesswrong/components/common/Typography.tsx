@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -66,12 +65,4 @@ export const Typography = ({children, variant, component, className, onClick, gu
       {children}
     </Component>
   );
-}
-
-const TypographyComponent = registerComponent("Typography", Typography);
-
-declare global {
-  interface ComponentTypes {
-    Typography: typeof TypographyComponent
-  }
 }

@@ -63,11 +63,7 @@ const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
   </div>
 }
 
-const SearchPaginationComponent = registerComponent("SearchPagination", SearchPagination, {styles});
+export default registerComponent("SearchPagination", SearchPagination, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchPagination: typeof SearchPaginationComponent
-  }
-}
+
 

@@ -1,10 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "../DropdownItem";
 
 const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -46,9 +47,6 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
       },
     });
   }
-
-  const {DropdownItem} = Components;
-
   if (!post.frontpageDate) {
     return (
       <DropdownItem
@@ -71,13 +69,9 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   return null;
 }
 
-const MoveToFrontpageDropdownItemComponent = registerComponent(
+export default registerComponent(
   "MoveToFrontpageDropdownItem",
   MoveToFrontpageDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToFrontpageDropdownItem: typeof MoveToFrontpageDropdownItemComponent
-  }
-}
+

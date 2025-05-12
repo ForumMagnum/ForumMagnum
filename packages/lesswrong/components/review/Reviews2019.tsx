@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import RecentComments from "../comments/RecentComments";
+import LWTooltip from "../common/LWTooltip";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -35,8 +42,6 @@ const Reviews2019 = ({classes}: {
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
-
   const handleSetExpandUnread = () => {
     if (currentUser) {
       void updateUser({
@@ -114,11 +119,7 @@ const Reviews2019 = ({classes}: {
   )
 }
 
-const Reviews2019Component = registerComponent('Reviews2019', Reviews2019, {styles});
+export default registerComponent('Reviews2019', Reviews2019, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Reviews2019: typeof Reviews2019Component
-  }
-}
+
 

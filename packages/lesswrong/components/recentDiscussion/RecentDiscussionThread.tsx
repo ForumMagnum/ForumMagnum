@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 
 import classNames from 'classnames';
@@ -14,6 +14,11 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import PostsGroupDetails from "../posts/PostsGroupDetails";
+import PostsItemMeta from "../posts/PostsItemMeta";
+import CommentsNodeInner from "../comments/CommentsNode";
+import PostsHighlight from "../posts/PostsHighlight";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -192,11 +197,6 @@ const RecentDiscussionThread = ({
     // TODO verify whether/how this should be interacting with afCommentCount
     [classes.noComments]: post.commentCount === null
   });
-
-  const {
-    PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight,
-    PostActionsButton,
-  } = Components;
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
       <div className={classNames(
@@ -240,7 +240,7 @@ const RecentDiscussionThread = ({
           <div className={classes.commentsList}>
             {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={treeOptions}
                   startThreadTruncated={true}
                   expandAllThreads={expandAllThreads}
@@ -259,7 +259,7 @@ const RecentDiscussionThread = ({
   )
 };
 
-const RecentDiscussionThreadComponent = registerComponent(
+export default registerComponent(
   'RecentDiscussionThread', RecentDiscussionThread, {
     styles,
     hocs: [withErrorBoundary],
@@ -270,8 +270,4 @@ const RecentDiscussionThreadComponent = registerComponent(
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
-  }
-}
+

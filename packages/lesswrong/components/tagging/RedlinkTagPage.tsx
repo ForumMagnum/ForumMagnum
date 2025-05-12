@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -8,6 +8,10 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { ApolloError } from '@apollo/client';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import ContentStyles from "../common/ContentStyles";
+import Error404 from "../common/Error404";
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -104,7 +108,6 @@ const RedlinkTagPage = ({tag, slug}: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { SingleColumnSection, Typography, ContentStyles, Error404 } = Components;
   const { results: pingbacks, loading: pingbacksLoading, error: pingbacksError } = useRedLinkPingbacks(tag?._id);
   const navigate = useNavigate();
   const title = capitalizeFirstLetter(inferRedLinkTitle(tag, slug??null) ?? "Unnamed");
@@ -151,11 +154,7 @@ const RedlinkTagPage = ({tag, slug}: {
   </SingleColumnSection>
 }
 
-const RedlinkTagPageComponent = registerComponent('RedlinkTagPage', RedlinkTagPage);
+export default registerComponent('RedlinkTagPage', RedlinkTagPage);
 
-declare global {
-  interface ComponentTypes {
-    RedlinkTagPage: typeof RedlinkTagPageComponent
-  }
-}
+
 

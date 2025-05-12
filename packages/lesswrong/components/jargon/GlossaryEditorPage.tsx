@@ -1,9 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
+import GlossaryEditForm from "./GlossaryEditForm";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsTitle from "../posts/PostsTitle";
+import LoadMore from "../common/LoadMore";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import Row from "../common/Row";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,10 +49,6 @@ export const GlossaryEditorPage = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsEditQueryFragment',
   })
-
-  const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles, ErrorAccessDenied, Row, UsersNameDisplay } = Components
-  
-
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }
@@ -74,10 +79,6 @@ export const GlossaryEditorPage = ({classes}: {
   </div>;
 }
 
-const GlossaryEditorPageComponent = registerComponent('GlossaryEditorPage', GlossaryEditorPage, {styles});
+export default registerComponent('GlossaryEditorPage', GlossaryEditorPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossaryEditorPage: typeof GlossaryEditorPageComponent
-  }
-}
+

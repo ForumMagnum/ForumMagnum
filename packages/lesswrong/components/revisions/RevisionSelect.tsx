@@ -1,9 +1,14 @@
 import React, { useCallback, useState } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import classNames from 'classnames';
+import FormatDate from "../common/FormatDate";
+import UsersName from "../users/UsersName";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 
 const styles = (theme: ThemeType) => ({
   revisionRow: {
@@ -54,8 +59,6 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   count?: number,
   totalCount?: number
 }) => {
-  const { FormatDate, UsersName, LoadMore, LWTooltip, ChangeMetricsDisplay } = Components;
-  
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
   
@@ -129,12 +132,8 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   </React.Fragment>
 }
 
-const RevisionSelectComponent = registerComponent(
+export default registerComponent(
   'RevisionSelect', RevisionSelect, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-   RevisionSelect: typeof RevisionSelectComponent
-  }
-}
+

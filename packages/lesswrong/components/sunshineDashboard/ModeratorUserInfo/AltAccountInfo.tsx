@@ -3,10 +3,12 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock'
 import LockOpenIcon from '@/lib/vendor/@material-ui/icons/src/LockOpen'
 import flatMap from 'lodash/flatMap';
+import Loading from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,8 +29,6 @@ export const AltAccountInfo = ({classes, user}: {
   user: SunshineUsersList
 }) => {
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
-  const { Loading, LWTooltip } = Components
-
   const associatedUserIds: string[] = user.associatedClientIds
     ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))
     : [];
@@ -70,11 +70,7 @@ export const AltAccountInfo = ({classes, user}: {
   </div>;
 }
 
-const AltAccountInfoComponent = registerComponent('AltAccountInfo', AltAccountInfo, {styles});
+export default registerComponent('AltAccountInfo', AltAccountInfo, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AltAccountInfo: typeof AltAccountInfoComponent
-  }
-}
+
 

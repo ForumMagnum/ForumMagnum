@@ -1,6 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Divider from "../common/Divider";
+import SequencesNewButton from "./SequencesNewButton";
+import LWCoreReading from "./LWCoreReading";
+import SequencesGridWrapper from "./SequencesGridWrapper";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   pageTitle: {
@@ -18,8 +25,6 @@ const styles = (theme: ThemeType) => ({
 const LibraryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
-
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
       <SingleColumnSection>
@@ -58,11 +63,7 @@ const LibraryPage = ({classes}: {
   </React.Fragment>;
 };
 
-const LibraryPageComponent = registerComponent('LibraryPage', LibraryPage, {styles});
+export default registerComponent('LibraryPage', LibraryPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LibraryPage: typeof LibraryPageComponent
-  }
-}
+
 

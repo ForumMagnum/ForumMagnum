@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {
@@ -12,11 +12,14 @@ import {
   legacyToNewNotificationTypeSettings
 } from "@/lib/collections/users/notificationFieldHelpers";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
-import type { PickedTime } from '../common/BatchTimePicker';
+import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import ToggleSwitch from "../common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,8 +91,6 @@ const NotificationTypeSettingsWidget = ({
   label,
   classes
 }: NotificationTypeSettingsWidgetProps) => {
-  const { BatchTimePicker, Typography, MenuItem, ToggleSwitch } = Components;
-
   const path = field.name;
   const value = field.state.value;
 
@@ -163,13 +164,9 @@ const NotificationTypeSettingsWidget = ({
   );
 }
 
-const NotificationTypeSettingsWidgetComponent = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
+export default registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidgetComponent
-  }
-}
+

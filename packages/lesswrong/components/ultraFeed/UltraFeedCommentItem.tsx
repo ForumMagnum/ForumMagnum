@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
@@ -9,6 +9,11 @@ import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
+import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
+import FeedContentBody from "./FeedContentBody";
+import UltraFeedItemFooter from "./UltraFeedItemFooter";
+import OverflowNavButtons from "./OverflowNavButtons";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -120,7 +125,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
-const UltraFeedCompressedCommentsItem = ({
+export const UltraFeedCompressedCommentsItem = ({
   numComments, 
   setExpanded,
   isFirstComment = false,
@@ -153,8 +158,6 @@ const UltraFeedCompressedCommentsItem = ({
   );
 };
 
-const UltraFeedCompressedCommentsItemComponent = registerComponent("UltraFeedCompressedCommentsItem", UltraFeedCompressedCommentsItem);
-
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
   metaInfo: FeedCommentMetaInfo;
@@ -167,7 +170,7 @@ export interface UltraFeedCommentItemProps {
   settings?: UltraFeedSettingsType;
 }
 
-const UltraFeedCommentItem = ({
+export const UltraFeedCommentItem = ({
   comment,
   metaInfo,
   onChangeDisplayStatus,
@@ -179,7 +182,6 @@ const UltraFeedCommentItem = ({
   settings = DEFAULT_SETTINGS,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter, OverflowNavButtons } = Components;
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
@@ -259,7 +261,7 @@ const UltraFeedCommentItem = ({
       name: "UltraFeedCommentsDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
-        <Components.UltraFeedCommentsDialog 
+        <UltraFeedCommentsDialog 
           document={comment}
           collectionName="Comments"
           onClose={onClose}
@@ -329,13 +331,3 @@ const UltraFeedCommentItem = ({
   );
 };
 
-const UltraFeedCommentItemComponent = registerComponent("UltraFeedCommentItem", UltraFeedCommentItem);
-
-export default UltraFeedCommentItemComponent;
-
-declare global {
-  interface ComponentTypes {
-    UltraFeedCommentItem: typeof UltraFeedCommentItemComponent
-    UltraFeedCompressedCommentsItem: typeof UltraFeedCompressedCommentsItemComponent
-  }
-}

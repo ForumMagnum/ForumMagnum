@@ -1,4 +1,4 @@
-import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
+import { importAllComponents } from '../lib/vulcan-lib/components';
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
@@ -30,21 +30,6 @@ describe('JSS', () => {
     const stubbedLightTheme = replacePaletteWithStubs(lightTheme);
     const stubbedDarkTheme = replacePaletteWithStubs(darkTheme);
     let nonPaletteColors: string[] = [];
-    
-    const componentsToTest = Object.keys(ComponentsTable);
-
-    if (componentsToTest.length < 1000) {
-      throw new Error("Expected more components to test - are they imported correctly?");
-    }
-
-    for (let componentName of _.sortBy(componentsToTest, x=>x)) {
-      const styleGetter = ComponentsTable[componentName].options?.styles;
-      const lightModeStyles = (typeof styleGetter === 'function') ? styleGetter(stubbedLightTheme) : styleGetter;
-      const darkModeStyles = (typeof styleGetter === 'function') ? styleGetter(stubbedDarkTheme) : styleGetter;
-      if (lightModeStyles && !ComponentsTable[componentName].options?.allowNonThemeColors) {
-        assertNoNonPaletteColors(componentName, lightModeStyles, darkModeStyles, nonPaletteColors);
-      }
-    }
 
     for (const name in topLevelStyleDefinitions) {
       const styleGetter = topLevelStyleDefinitions[name].styles;

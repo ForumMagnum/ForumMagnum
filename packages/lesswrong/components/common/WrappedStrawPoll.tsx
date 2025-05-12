@@ -50,10 +50,6 @@ const WrappedStrawPoll = ({ id, src, classes }: {
   }
 }
 
-const WrappedStrawPollComponent = registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles})
+export default registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WrappedStrawPoll: typeof WrappedStrawPollComponent
-  }
-}
+

@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import classNames from "classnames";
-import { ForumIconName } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useHover } from "../common/withHover";
 import { InteractionWrapper } from "../common/useClickableCell";
+import ForumEventResultPopper from "./ForumEventResultPopper";
+import LWTooltip from "../common/LWTooltip";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   sticker: {
@@ -73,8 +76,6 @@ const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji
   setUserVoteRef?: any
   classes: ClassesType<typeof styles>
 }) => {
-  const { ForumIcon, ForumEventResultPopper, LWTooltip, UsersNameDisplay } = Components;
-
   const isHoverSticker = !!saveDraftSticker;
 
   const { captureEvent } = useTracking();
@@ -128,10 +129,6 @@ const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji
 }
 
 
-const ForumEventStickerComponent = registerComponent( 'ForumEventSticker', ForumEventSticker, {styles});
+export default registerComponent( 'ForumEventSticker', ForumEventSticker, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ForumEventSticker: typeof ForumEventStickerComponent;
-  }
-}
+

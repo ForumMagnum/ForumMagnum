@@ -1,5 +1,5 @@
 import React from 'react';
-import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
+import { importAllComponents } from '../lib/vulcan-lib/components';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
 import miscStyles from '../themes/globalStyles/miscStyles';
@@ -56,21 +56,7 @@ function getAllStylesByName() {
   importAllComponents();
   require("@/lib/generated/nonRegisteredComponents");
   
-  // Sort components by stylePriority, tiebroken by name (alphabetical)
-  const componentStyles: Record<string,StyleDefinition> = keyBy(
-    Object.keys(ComponentsTable)
-      .filter(componentName => !!ComponentsTable[componentName].options?.styles)
-      .map(componentName => ({
-        name: componentName,
-        styles: ComponentsTable[componentName].options!.styles!,
-        options: ComponentsTable[componentName].options,
-        nameProxy: null
-      })),
-    c=>c.name
-  );
-  
   return {
-    ...componentStyles,
     ...topLevelStyleDefinitions,
   };
 }

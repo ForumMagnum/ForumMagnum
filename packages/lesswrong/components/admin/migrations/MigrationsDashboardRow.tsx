@@ -64,14 +64,10 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
   </div>
 }
 
-const MigrationsDashboardRowComponent = registerComponent(
+export default registerComponent(
   "MigrationsDashboardRow", MigrationsDashboardRow, {
     styles
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    MigrationsDashboardRow: typeof MigrationsDashboardRowComponent
-  }
-}
+

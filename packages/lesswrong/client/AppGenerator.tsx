@@ -2,7 +2,6 @@
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { Components } from '../lib/vulcan-lib/components';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
@@ -13,6 +12,7 @@ import type { AbstractThemeOptions } from '../themes/themeNames';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '../lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
+import AppComponent from '../components/vulcan-core/App';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
@@ -34,7 +34,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
                   <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <Components.App apolloClient={apolloClient} />
+                    <AppComponent apolloClient={apolloClient} />
                   </EnvironmentOverrideContextProvider>
                 </LayoutOptionsContextProvider>
               </PrefersDarkModeProvider>

@@ -1,9 +1,8 @@
 import compose from 'lodash/flowRight';
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
-import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
-import { classNameProxy, withAddClasses, withStyles } from '@/components/hooks/useStyles';
+import { withAddClasses } from '@/components/hooks/useStyles';
 import type { StyleOptions } from '@/server/styleGeneration';
 
 type ComparisonFn = (prev: any, next: any) => boolean
@@ -50,51 +49,11 @@ interface ComponentsTableEntry {
   options?: ComponentOptions,
 }
 
-const componentsProxyHandler = {
-  get: function(obj: {}, prop: string) {
-    if (prop === "__isProxy") {
-      return true;
-    } else if (prop in PreparedComponents) {
-      return PreparedComponents[prop];
-    } else {
-      return prepareComponent(prop);
-    }
-  }
-}
-
-/**
- * Acts like a mapping from component-name to component, based on
- * registerComponents calls. Lazily loads those components when you dereference,
- * using a proxy.
- */
-export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
-
-const PreparedComponents: Record<string,any> = {};
-
-// storage for infos about components
-export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
-
-export const DeferredComponentsTable: Record<string,() => void> = {};
-
 type EmailRenderContextType = {
   isEmailRender: boolean
 }
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
-
-const addClassnames = (componentName: string, styles: any, hasForwardRef: boolean) => {
-  const classesProxy = classNameProxy(componentName+'-');
-  
-  if (hasForwardRef) {
-    return (WrappedComponent: any) => forwardRef(function AddClassnames(props, ref) {
-      return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
-    })
-  } else {
-    return (WrappedComponent: any) => function AddClassnames(props: AnyBecauseHard) {
-      return <WrappedComponent {...props} classes={classesProxy}/>
-    }
-  }
-}
 
 /**
  * Takes a props type, and, if it doesn't mention `ref`, set its type to
@@ -129,40 +88,12 @@ export function registerComponent<PropType>(
 ): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window?.missingMainStylesheet || enableVite)) {
-      hocs.push(withAddClasses(styles, name, options));
-    } else {
-      hocs.push(addClassnames(name, styles, options?.allowRef ?? false));
-    }
+    hocs.push(withAddClasses(styles, name, options));
   }
   
   rawComponent.displayName = name;
   
-  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    // Don't warn about duplicate components if using HMR because vite can trigger this
-    if (!enableVite) {
-      throw new Error(`Two components with the same name: ${name}`);
-    }
-  }
-  
-  // store the component in the table
-  ComponentsTable[name] = {
-    name,
-    rawComponent,
-    hocs,
-    options,
-  };
-  
-  if (enableVite) {
-    delete PreparedComponents[name as keyof ComponentTypes];
-    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>;
-  }
-  
-  // The Omit is a hacky way of ensuring that hocs props are omitted from the
-  // ones required to be passed in by parent components. It doesn't work for
-  // hocs that share prop names that overlap with actually passed-in props, like
-  // `location`.
-  return (null as any as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>);
+  return composeComponent({ name, rawComponent, hocs, options });
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until
@@ -170,54 +101,16 @@ export function registerComponent<PropType>(
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
-  if (Array.isArray(componentName)) {
-    for (let name of componentName) {
-      DeferredComponentsTable[name] = importFn;
-    }
-  } else {
-    DeferredComponentsTable[componentName] = importFn;
-  }
-}
 
 export function importAllComponents() {
-  for (let componentName of Object.keys(DeferredComponentsTable)) {
-    prepareComponent(componentName);
-  }
+  require('@/lib/generated/allComponents');
 }
 
-export function prepareComponent(componentName: string): any
-{
-  if (componentName in PreparedComponents) {
-    return PreparedComponents[componentName];
-  } else if (componentName in ComponentsTable) {
-    PreparedComponents[componentName] = getComponent(componentName);
-    return PreparedComponents[componentName];
-  } else if (componentName in DeferredComponentsTable) {
-    DeferredComponentsTable[componentName]();
-    if (!(componentName in ComponentsTable)) {
-      throw new Error(`Import did not provide component ${componentName}`);
-    }
-    return prepareComponent(componentName);
-  } else {
-    // eslint-disable-next-line no-console
-    console.error(`Missing component: ${componentName}`);
-    return null;
-  }
-}
-
-// Get a component registered with registerComponent, applying HoCs and other
-// wrappings.
-const getComponent = (name: string): any => {
-  const componentMeta = ComponentsTable[name];
-  if (!componentMeta) {
-    throw new Error(`Component ${name} not registered.`);
-  }
-  
+const composeComponent = (componentMeta: ComponentsTableEntry) => {
   const componentWithMemo = componentMeta.options?.areEqual
-    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, name, !!componentMeta.options.debugRerenders)
+    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, componentMeta.name, !!componentMeta.options.debugRerenders)
     : componentMeta.rawComponent;
-  
+
   if (componentMeta.hocs && componentMeta.hocs.length) {
     const hocs = componentMeta.hocs.map(hoc => {
       if (!Array.isArray(hoc)) {
@@ -316,29 +209,5 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
 export const populateComponentsAppDebug = (): void => {
   if (debugComponentImports) {
     importAllComponents();
-  }
-};
-
-// Returns an instance of the given component name of function
-//
-// @param {string|function} component  A component or registered component name
-// @param {Object} [props]  Optional properties to pass to the component
-export const instantiateComponent = (component: any, props: any) => {
-  if (!component) {
-    return null;
-  } else if (typeof component === 'string') {
-    const Component: any = Components[component as keyof ComponentTypes];
-    return <Component {...props} />;
-  } else if (
-    typeof component === 'function' &&
-    component.prototype &&
-    component.prototype.isReactComponent
-  ) {
-    const Component = component;
-    return <Component {...props} />;
-  } else if (typeof component === 'function') {
-    return component(props);
-  } else {
-    return component;
   }
 };

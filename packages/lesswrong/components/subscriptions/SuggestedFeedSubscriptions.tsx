@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -14,6 +14,13 @@ import { Paper }from '@/components/widgets/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';
+import UsersName from "../users/UsersName";
+import UserMetaInfo from "../users/UserMetaInfo";
+import LWPopper from "../common/LWPopper";
+import FollowUserSearch from "./FollowUserSearch";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import ForumIcon from "../common/ForumIcon";
+import Loading from "../vulcan-core/Loading";
 
 const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;
@@ -247,8 +254,6 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
   hidden?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, UserMetaInfo } = Components;
-
   const cardRef = useRef<HTMLLIElement>(null);
   const [additionalStyling, setAdditionalStyling] = useState<React.CSSProperties>();
 
@@ -312,8 +317,6 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, FollowUserSearch, LWClickAwayListener, ForumIcon } = Components
-
   if (!currentUser) {
     return null;
   }
@@ -359,8 +362,6 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
   existingSubscriptions?: SubscriptionState[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading } = Components;
-
   const { availableUsers, setAvailableUsers, loadingSuggestedUsers } = useSuggestedUsers();
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
@@ -448,10 +449,6 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
   </div>;
 }
 
-const SuggestedFeedSubscriptionsComponent = registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptions, {styles});
+export default registerComponent('SuggestedFeedSubscriptions', SuggestedFeedSubscriptions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SuggestedFeedSubscriptions: typeof SuggestedFeedSubscriptionsComponent
-  }
-}
+

@@ -1,11 +1,14 @@
 import React, { useEffect, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
+import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
+import { emailTokenResultComponents } from './emailTokens';
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const EmailTokenPage = () => {
-  const { Loading, SingleColumnSection } = Components
-  const [useTokenResult, setUseTokenResult] = useState<any>(null)
+  const [useTokenResult, setUseTokenResult] = useState<UseEmailTokenResult | null>(null)
   const { params: { token } } = useLocation()
   const { mutate: emailTokenMutation, loading: emailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
 
@@ -16,16 +19,13 @@ const EmailTokenPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
-  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
+  const ResultComponent = useTokenResult?.componentName && emailTokenResultComponents[useTokenResult.componentName];
+
   return <SingleColumnSection>
     {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
   </SingleColumnSection>
 }
 
-const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage);
+export default registerComponent("EmailTokenPage", EmailTokenPage);
 
-declare global {
-  interface ComponentTypes {
-    EmailTokenPage: typeof EmailTokenPageComponent
-  }
-}
+
