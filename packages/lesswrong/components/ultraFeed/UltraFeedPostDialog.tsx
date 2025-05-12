@@ -1,11 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
+import LWDialog from "../common/LWDialog";
+import FeedContentBody from "./FeedContentBody";
+import Loading from "../vulcan-core/Loading";
+import CommentsListSection from "../comments/CommentsListSection";
+import PostsVote from "../votes/PostsVote";
 import { DialogContent } from "../widgets/DialogContent";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
@@ -117,7 +122,6 @@ const UltraFeedDialogContent = ({
   textFragment?: string;
   onClose: () => void;
 }) => {
-  const { LWDialog, FeedContentBody, Loading, CommentsListSection, PostsVote } = Components;
   const classes = useStyles(styles);
 
   const navigate = useNavigate();
@@ -199,7 +203,6 @@ const UltraFeedPostDialog = ({
   onClose,
   textFragment,
 }: UltraFeedPostDialogProps) => {
-  const { Loading } = Components;
   const classes = useStyles(styles);
 
   const { document: fetchedPost, loading: loadingPost } = useSingle({
@@ -237,16 +240,8 @@ const UltraFeedPostDialog = ({
       onClose={onClose}
     />}
   </>
-
-
 };
-
-const UltraFeedPostDialogComponent = registerComponent("UltraFeedPostDialog", UltraFeedPostDialog);
 
 export default UltraFeedPostDialog;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPostDialog: typeof UltraFeedPostDialogComponent
-  }
-}
+

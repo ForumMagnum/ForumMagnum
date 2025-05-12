@@ -11,7 +11,6 @@ import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { isWeekend } from "@/lib/utils/timeUtil";
-import { Components } from '@/lib/vulcan-lib/components';
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";

@@ -40,14 +40,10 @@ export const AnalyticsPostItemSkeleton = ({className, classes}: {
   );
 }
 
-const AnalyticsPostItemSkeletonComponent = registerComponent(
+export default registerComponent(
   "AnalyticsPostItemSkeleton",
   AnalyticsPostItemSkeleton,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPostItemSkeleton: typeof AnalyticsPostItemSkeletonComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { UsePostsItem } from "./usePostsItem";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import UnarchiveIcon from "@/lib/vendor/@material-ui/icons/src/Unarchive";
@@ -7,6 +7,8 @@ import CloseIcon from "@/lib/vendor/@material-ui/icons/src/Close";
 import { useCurrentUser } from "../common/withUser";
 import { isBookUI } from "../../themes/forumTheme";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import LWTooltip from "../common/LWTooltip";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 export const MENU_WIDTH = 18;
 
@@ -65,9 +67,9 @@ export const DismissButton = ({ onDismiss }: {
   onDismiss: () => void
 }) => {
   const classes = useStyles(styles);
-  return <Components.LWTooltip title={dismissRecommendationTooltip} placement="right">
+  return <LWTooltip title={dismissRecommendationTooltip} placement="right">
     <CloseIcon className={classes.dismissButton} onClick={onDismiss} />
-  </Components.LWTooltip>
+  </LWTooltip>
 };
 
 const PostsItemTrailingButtons = ({
@@ -85,9 +87,6 @@ const PostsItemTrailingButtons = ({
   if (!showTrailingButtons || showMostValuableCheckbox) {
     return null;
   }
-
-  const {LWTooltip, PostActionsButton} = Components;
-
   return (
     <>
       {(showDismissButton || resumeReading || isBookUI) && <div className={classes.actions}>
@@ -108,10 +107,6 @@ const PostsItemTrailingButtons = ({
   );
 }
 
-const PostsItemTrailingButtonsComponent = registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtons);
+export default registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtons);
 
-declare global {
-  interface ComponentTypes {
-    PostsItemTrailingButtons: typeof PostsItemTrailingButtonsComponent
-  }
-}
+

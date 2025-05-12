@@ -15,8 +15,7 @@ import {
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { useTracking } from '@/lib/analyticsEvents';
-import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { ZodFormattedError } from 'zod';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
@@ -212,7 +211,7 @@ interface SourceWeightsSettingsProps {
   onChange: (key: FeedItemSourceType, value: string | number) => void;
 }
 
-const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
+export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   weights,
   errors,
   onChange,
@@ -264,7 +263,6 @@ const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
     </div>
   );
 };
-const SourceWeightsSettingsComponent = registerComponent('SourceWeightsSettings', SourceWeightsSettings);
 
 const getCommentLevelLabel = (level: TruncationLevel): string => {
   if (level === 'Very Short') return `${level} (2 lines)`;
@@ -348,7 +346,7 @@ interface TruncationGridSettingsProps {
   originalSettings: UltraFeedSettingsType;
 }
 
-const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
+export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   levels,
   onChange,
   originalSettings,
@@ -396,8 +394,6 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   );
 };
 
-const TruncationGridSettingsComponent = registerComponent('TruncationGridSettings', TruncationGridSettings);
-
 interface AdvancedTruncationSettingsProps {
   values: {
     lineClampNumberOfLines: number | '';
@@ -413,7 +409,7 @@ interface AdvancedTruncationSettingsProps {
   onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
 }
 
-const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
+export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   values,
   errors,
   onLineClampChange,
@@ -500,7 +496,6 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
     </div>
   );
 };
-const AdvancedTruncationSettingsComponent = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettings);
 
 interface MultipliersSettingsProps {
   quickTakeBoost: {
@@ -515,7 +510,7 @@ interface MultipliersSettingsProps {
   };
 }
 
-const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
+export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
   quickTakeBoost,
   seenPenalty,
 }) => {
@@ -586,14 +581,13 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
     </div>
   );
 };
-const MultipliersSettingsComponent = registerComponent('MultipliersSettings', MultipliersSettings);
 
 interface MiscSettingsProps {
   formValues: Pick<SettingsFormState, 'postTitlesAreModals' | 'incognitoMode'>;
   onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
 }
 
-const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
+export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange }) => {
   const classes = useStyles(styles);
   return (
     <div className={classes.settingGroup}>
@@ -634,16 +628,3 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
     </div>
   );
 };
-const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);
-
-export default TruncationGridSettingsComponent; // one export required to make Vite HMR work
-
-declare global {
-  interface ComponentTypes {
-    SourceWeightsSettings: typeof SourceWeightsSettingsComponent
-    TruncationGridSettings: typeof TruncationGridSettingsComponent
-    AdvancedTruncationSettings: typeof AdvancedTruncationSettingsComponent
-    MultipliersSettings: typeof MultipliersSettingsComponent
-    MiscSettings: typeof MiscSettingsComponent
-  }
-}

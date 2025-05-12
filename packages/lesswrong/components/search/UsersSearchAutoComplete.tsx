@@ -1,26 +1,25 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
+import SearchAutoComplete from "./SearchAutoComplete";
+import UsersAutoCompleteHit from "./UsersAutoCompleteHit";
+import UsersSearchInput from "./UsersSearchInput";
 
 const UsersSearchAutoComplete = ({clickAction, label}: {
   clickAction: (id: string, result: SearchUser) => void;
   label?: string;
 }) => {
-  return <Components.SearchAutoComplete
+  return <SearchAutoComplete
     indexName={getSearchIndexName("Users")}
     clickAction={clickAction}
-    renderSuggestion={(hit: any) => <Components.UsersAutoCompleteHit document={hit} />}
-    renderInputComponent={(inputProps: any) => <Components.UsersSearchInput inputProps={inputProps} />}
+    renderSuggestion={(hit: any) => <UsersAutoCompleteHit document={hit} />}
+    renderInputComponent={(inputProps: any) => <UsersSearchInput inputProps={inputProps} />}
     placeholder={label || "Search for Users"}
     noSearchPlaceholder='User ID'
   />
 }
 
-const UsersSearchAutoCompleteComponent = registerComponent("UsersSearchAutoComplete", UsersSearchAutoComplete);
+export default registerComponent("UsersSearchAutoComplete", UsersSearchAutoComplete);
 
-declare global {
-  interface ComponentTypes {
-    UsersSearchAutoComplete: typeof UsersSearchAutoCompleteComponent
-  }
-}
+
 

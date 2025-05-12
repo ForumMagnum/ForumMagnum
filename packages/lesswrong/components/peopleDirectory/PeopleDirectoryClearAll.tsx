@@ -24,14 +24,10 @@ const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
   );
 }
 
-const PeopleDirectoryClearAllComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryClearAll",
   PeopleDirectoryClearAll,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryClearAll: typeof PeopleDirectoryClearAllComponent
-  }
-}
+

@@ -25,10 +25,6 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   }
 }
 
-const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
+export default registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AlignmentCrosspostMessage: typeof AlignmentCrosspostMessageComponent
-  }
-}
+

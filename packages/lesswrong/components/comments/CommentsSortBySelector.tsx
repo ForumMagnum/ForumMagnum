@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
-import type { Option } from '../common/InlineSelect';
+import InlineSelect, { Option } from '../common/InlineSelect';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 export const CommentsSortBySelector = ({setRestoreScrollPos}: {
@@ -11,9 +11,6 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  
-  const {InlineSelect} = Components
-
   const sortByOptions = [
     {value: "top", label: "Top"},
     {value: "magic", label: "Magic (New & Upvoted)"},
@@ -37,10 +34,6 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   return <InlineSelect options={sortByOptions} selected={selectedOption} handleSelect={handleViewClick}/>
 };
 
-const CommentsSortBySelectorComponent = registerComponent('CommentsSortBySelector', CommentsSortBySelector);
+export default registerComponent('CommentsSortBySelector', CommentsSortBySelector);
 
-declare global {
-  interface ComponentTypes {
-    CommentsSortBySelector: typeof CommentsSortBySelectorComponent
-  }
-}
+

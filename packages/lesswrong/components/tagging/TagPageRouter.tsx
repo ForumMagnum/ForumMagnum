@@ -1,10 +1,13 @@
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useOverrideLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import EATagPage from "./EATagPage";
+import LWTagPage from "./LWTagPage";
+import TagSubforumPage2 from "./subforums/TagSubforumPage2";
 
 /**
  * Build structured data for a tag to help with SEO.
@@ -34,7 +37,6 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
 const TagPageRouter = () => {
-  const { EATagPage, LWTagPage, TagSubforumPage2 } = Components;
   const TagPage = isFriendlyUI ? EATagPage : LWTagPage;
   const { query, params: { slug } } = useLocation();
   const [overridenLayoutOptions, setOverridenLayoutOptions] = useOverrideLayoutOptions();
@@ -91,10 +93,6 @@ const TagPageRouter = () => {
   return <TagPage/>
 }
 
-const TagPageRouterComponent = registerComponent("TagPageRouter", TagPageRouter);
+export default registerComponent("TagPageRouter", TagPageRouter);
 
-declare global {
-  interface ComponentTypes {
-    TagPageRouter: typeof TagPageRouterComponent
-  }
-}
+

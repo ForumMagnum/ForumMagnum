@@ -34,14 +34,10 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   </span>
 }
 
-const ChangeMetricsDisplayComponent = registerComponent(
+export default registerComponent(
   "ChangeMetricsDisplay",
   ChangeMetricsDisplay,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ChangeMetricsDisplay: typeof ChangeMetricsDisplayComponent
-  }
-}
+

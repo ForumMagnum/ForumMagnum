@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -15,6 +15,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
+import ContentStyles from "../common/ContentStyles";
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -148,14 +152,13 @@ const styles = (theme: ThemeType) => ({
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
-  mode: FilterMode,
+  mode: FilterModeType,
   canRemove?: boolean,
-  onChangeMode: (mode: FilterMode) => void,
+  onChangeMode: (mode: FilterModeType) => void,
   onRemove?: () => void,
   description?: React.ReactNode
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });
@@ -197,7 +200,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   // case they continue to type.
   const [inputTime, setInputTime] = useState(0);
 
-  const setMode = (mode: FilterMode, inputTime = 0) => {
+  const setMode = (mode: FilterModeType, inputTime = 0) => {
     onChangeMode(mode);
     setInputTime(inputTime);
   }
@@ -309,9 +312,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   </span>
 }
 
-function filterModeToTooltip(mode: FilterMode): React.ReactNode {
+function filterModeToTooltip(mode: FilterModeType): React.ReactNode {
   // Avoid floating point equality comparisons
-  let modeWithoutFloat: FilterMode | "0.5" = mode
+  let modeWithoutFloat: FilterModeType | "0.5" = mode
   if (
     typeof mode === "number" &&
     Math.abs(0.5 - mode) < .000000001
@@ -348,7 +351,7 @@ type FilterModeString =
   | "Reduced"
   | "";
 
-function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): FilterModeString {
+function filterModeToStr(mode: FilterModeType, currentUser: UsersCurrent | null): FilterModeString {
   if (typeof mode === "number") {
     if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
     if (
@@ -390,10 +393,6 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
+export default registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FilterMode: typeof FilterModeComponent
-  }
-}
+

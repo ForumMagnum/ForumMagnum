@@ -146,10 +146,6 @@ const CloudinaryImage2 = ({
   </picture>
 };
 
-const CloudinaryImage2Component = registerComponent('CloudinaryImage2', CloudinaryImage2);
+export default registerComponent('CloudinaryImage2', CloudinaryImage2);
 
-declare global {
-  interface ComponentTypes {
-    CloudinaryImage2: typeof CloudinaryImage2Component
-  }
-}
+

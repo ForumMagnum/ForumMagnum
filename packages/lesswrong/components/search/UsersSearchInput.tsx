@@ -28,11 +28,7 @@ const UsersSearchInput = ({ inputProps, classes }: {
   />
 };
 
-const UsersSearchInputComponent = registerComponent("UsersSearchInput", UsersSearchInput, {styles});
+export default registerComponent("UsersSearchInput", UsersSearchInput, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersSearchInput: typeof UsersSearchInputComponent
-  }
-}
+
 

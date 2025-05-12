@@ -1,6 +1,5 @@
 // TODO: run `yarn run generate` after creating component
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 
@@ -21,14 +20,6 @@ const TemplateComponent = () => {
       </div>
     // </AnalyticsContext>
   )
-}
-
-const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent);
-
-declare global {
-  interface ComponentTypes {
-    TemplateComponent: typeof TemplateComponentComponent
-  }
 }
 
 export default TemplateComponent;

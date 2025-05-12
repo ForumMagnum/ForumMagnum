@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -6,6 +6,16 @@ import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 import { useDialog } from '../common/withDialog';
 import { DialogContent } from '../widgets/DialogContent';
 import { highlightHtmlWithLlmDetectionScores } from './helpers';
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import PostsTitle from "../posts/PostsTitle";
+import SmallSideVote from "../votes/SmallSideVote";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import RejectContentButton from "./RejectContentButton";
+import RejectedReasonDisplay from "./RejectedReasonDisplay";
+import LWDialog from "../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -56,7 +66,6 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay, LWDialog } = Components
   const { openDialog } = useDialog();
 
   function handleLLMScoreClick(
@@ -172,10 +181,6 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   )
 }
 
-const SunshineNewUserPostsListComponent = registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
+export default registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
-  }
-}
+

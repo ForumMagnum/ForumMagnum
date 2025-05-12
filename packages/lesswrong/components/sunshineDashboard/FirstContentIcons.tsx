@@ -28,11 +28,7 @@ export const FirstContentIcons = ({user, classes}: {
   </span>;
 }
 
-const FirstContentIconsComponent = registerComponent('FirstContentIcons', FirstContentIcons, {styles});
+export default registerComponent('FirstContentIcons', FirstContentIcons, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FirstContentIcons: typeof FirstContentIconsComponent
-  }
-}
+
 

@@ -4,7 +4,6 @@ import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { Components } from "@/lib/vulcan-lib/components";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -22,6 +21,9 @@ import { FormUserMultiselect } from "@/components/form-components/UserMultiselec
 import SummariesEditForm from "./SummariesEditForm";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -94,7 +96,6 @@ export const TagForm = ({
   onCancel?: () => void;
   onChange?: () => void;
 }) => {
-  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   

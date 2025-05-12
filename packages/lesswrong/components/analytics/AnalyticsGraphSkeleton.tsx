@@ -80,14 +80,10 @@ export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   );
 }
 
-const AnalyticsGraphSkeletonComponent = registerComponent(
+export default registerComponent(
   "AnalyticsGraphSkeleton",
   AnalyticsGraphSkeleton,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsGraphSkeleton: typeof AnalyticsGraphSkeletonComponent
-  }
-}
+

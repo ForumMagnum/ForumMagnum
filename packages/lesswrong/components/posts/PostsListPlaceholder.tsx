@@ -25,10 +25,6 @@ const PostsListPlaceholder = ({count, classes}: {
   return <React.Fragment>{placeholders}</React.Fragment>;
 }
 
-const PostsListPlaceholderComponent = registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
+export default registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListPlaceholder: typeof PostsListPlaceholderComponent
-  }
-}
+

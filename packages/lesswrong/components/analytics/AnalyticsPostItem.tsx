@@ -91,14 +91,10 @@ export const AnalyticsPostItem = ({post, className, classes}: {
   );
 }
 
-const AnalyticsPostItemComponent = registerComponent(
+export default registerComponent(
   "AnalyticsPostItem",
   AnalyticsPostItem,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPostItem: typeof AnalyticsPostItemComponent
-  }
-}
+

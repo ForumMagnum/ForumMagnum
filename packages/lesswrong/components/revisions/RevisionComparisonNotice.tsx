@@ -13,10 +13,6 @@ const RevisionComparisonNotice = ({before, after, classes}: {
   return <p className={classes.root}>You are comparing revision {before} to revision {after}.</p>
 }
 
-const RevisionComparisonNoticeComponent = registerComponent("RevisionComparisonNotice", RevisionComparisonNotice, {styles});
+export default registerComponent("RevisionComparisonNotice", RevisionComparisonNotice, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RevisionComparisonNotice: typeof RevisionComparisonNoticeComponent
-  }
-}
+

@@ -573,10 +573,6 @@ const LlmChatWrapper = ({children}: {
   </LlmChatContext.Provider>
 }
 
-const LlmChatWrapperComponent = registerComponent("LlmChatWrapper", LlmChatWrapper);
+export default registerComponent("LlmChatWrapper", LlmChatWrapper);
 
-declare global {
-  interface ComponentTypes {
-    LlmChatWrapper: typeof LlmChatWrapperComponent
-  }
-}
+

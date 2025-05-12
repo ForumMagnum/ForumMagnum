@@ -1,6 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { makeSortableListComponent } from '../form-components/sortableList';
+import SingleUsersItem from "../form-components/SingleUsersItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('EditableUsersList', theme => ({
@@ -21,7 +23,7 @@ const SortableList = makeSortableListComponent({
   RenderItem: ({contents, removeItem}) => {
     const classes = useStyles(styles);
     return <li className={classes.item}>
-      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -36,7 +38,6 @@ export function EditableUsersList({value, setValue, label}: {
   label: string
 }) {
   const classes = useStyles(styles);
-  const {ErrorBoundary, UsersSearchAutoComplete} = Components;
   
   return <span className={classes.listEditor}>
     <ErrorBoundary>
@@ -54,12 +55,4 @@ export function EditableUsersList({value, setValue, label}: {
       className={classes.list}
     />
   </span>
-}
-
-const EditableUsersListComponent = registerComponent('EditableUsersList', EditableUsersList);
-
-declare global {
-  interface ComponentTypes {
-    EditableUsersList: typeof EditableUsersListComponent
-  }
 }

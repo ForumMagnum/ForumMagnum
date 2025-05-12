@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
@@ -6,9 +6,17 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
-import { coreTagIconMap } from '../tagging/CoreTagIcon';
-import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
+import CoreTagIcon, { coreTagIconMap } from '../tagging/CoreTagIcon';
+import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import FormatDate from "../common/FormatDate";
+import ShowParentComment from "./ShowParentComment";
+import CommentUserName from "./CommentsItem/CommentUserName";
+import CommentShortformIcon from "./CommentsItem/CommentShortformIcon";
+import PostsItemComments from "../posts/PostsItemComments";
+import ContentStyles from "../common/ContentStyles";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "./CommentsNode";
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -167,8 +175,6 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
-  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
-
   const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
@@ -207,7 +213,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           className={classes.username}
         />
         {!hideSingleLineMeta && <span className={classes.date}>
-          <Components.FormatDate date={comment.postedAt} tooltip={false}/>
+          <FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
         {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
@@ -230,7 +236,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         clickable={false}
       >
           <div className={classes.preview}>
-            <CommentsNode
+            <CommentsNodeInner
               truncated
               nestingLevel={1}
               comment={comment}
@@ -249,7 +255,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   )
 };
 
-const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, {
+export default registerComponent('SingleLineComment', SingleLineComment, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: {
@@ -257,8 +263,4 @@ const SingleLineCommentComponent = registerComponent('SingleLineComment', Single
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    SingleLineComment: typeof SingleLineCommentComponent,
-  }
-}
+

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
@@ -7,6 +7,19 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
+import MetaInfo from "../common/MetaInfo";
+import SunshineNewUserPostsList from "./SunshineNewUserPostsList";
+import SunshineNewUserCommentsList from "./SunshineNewUserCommentsList";
+import ContentSummaryRows from "./ModeratorUserInfo/ContentSummaryRows";
+import LWTooltip from "../common/LWTooltip";
+import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import { Typography } from "../common/Typography";
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
+import UserReviewStatus from "./ModeratorUserInfo/UserReviewStatus";
+import ModeratorMessageCount from "./ModeratorMessageCount";
+import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
+import ModeratorActions from "./ModeratorActions";
+import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,12 +114,6 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
     fetchPolicy: 'cache-and-network',
     limit: CONTENT_LIMIT
   });
-
-  const {
-    MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip, UserAutoRateLimitsDisplay,
-    Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, UserReviewMetadata, ModeratorActions, NewUserDMSummary
-  } = Components
-
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
   
@@ -163,15 +170,11 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   )
 }
 
-const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
+export default registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
   styles,
   hocs: [
     withErrorBoundary,
   ]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
-  }
-}
+

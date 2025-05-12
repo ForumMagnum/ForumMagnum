@@ -1,10 +1,11 @@
 import React from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { Typography } from "../common/Typography";
 
 const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
   root: {
@@ -53,7 +54,7 @@ const FormComponentCheckbox = ({
     disableRipple
   />;
 
-  const displayedLabel = label && <Components.Typography htmlFor={id} className={classes.inline} variant="body2" component="label">{label}</Components.Typography>;
+  const displayedLabel = label && <Typography htmlFor={id} className={classes.inline} variant="body2" component="label">{label}</Typography>;
 
   return (
     <FormControlLabel
@@ -64,10 +65,6 @@ const FormComponentCheckbox = ({
   );
 }
 
-const FormComponentCheckboxComponent = registerComponent('FormComponentCheckbox', FormComponentCheckbox);
+export default registerComponent('FormComponentCheckbox', FormComponentCheckbox);
 
-declare global {
-  interface ComponentTypes {
-    FormComponentCheckbox: typeof FormComponentCheckboxComponent
-  }
-}
+

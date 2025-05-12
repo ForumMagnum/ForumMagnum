@@ -1,6 +1,6 @@
 import React from 'react';
 import { styles } from './SequencesNewForm';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
 
 const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallback, classes }: {
@@ -22,11 +22,7 @@ const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallb
   )
 }
 
-const SequencesEditFormComponent = registerComponent('SequencesEditForm', SequencesEditForm, {styles});
+export default registerComponent('SequencesEditForm', SequencesEditForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesEditForm: typeof SequencesEditFormComponent
-  }
-}
+
 
