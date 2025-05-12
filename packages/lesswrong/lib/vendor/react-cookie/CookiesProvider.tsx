@@ -9,9 +9,9 @@ const CookiesProvider: React.FC<ReactCookieProps> = (props) => {
     if (props.cookies) {
       return props.cookies;
     } else {
-      return new Cookies(undefined, props.defaultSetOptions);
+      return new Cookies(undefined);
     }
-  }, [props.cookies, props.defaultSetOptions]);
+  }, [props.cookies]);
 
   return <Provider value={cookies}>{props.children}</Provider>;
 };
