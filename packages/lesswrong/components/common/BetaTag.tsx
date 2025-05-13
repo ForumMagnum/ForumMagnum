@@ -17,10 +17,6 @@ const BetaTag = ({classes}: {
   return <span className={classes.root}>[Beta]</span>
 }
 
-const BetaTagComponent = registerComponent('BetaTag', BetaTag, {styles});
+export default registerComponent('BetaTag', BetaTag, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BetaTag: typeof BetaTagComponent
-  }
-}
+

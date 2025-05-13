@@ -1,5 +1,4 @@
 import {useEffect, useRef} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { isLWorAF } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
@@ -37,10 +36,3 @@ export default function ScrollToTop() {
   return null;
 }
 
-const ScrollToTopComponent = registerComponent('ScrollToTop', ScrollToTop);
-
-declare global {
-  interface ComponentTypes {
-    ScrollToTop: typeof ScrollToTopComponent
-  }
-}

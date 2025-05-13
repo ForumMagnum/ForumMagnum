@@ -80,11 +80,7 @@ const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPr
   )
 }
 
-const PostsItemCommentsComponent = registerComponent('PostsItemComments', PostsItemComments, {styles});
+export default registerComponent('PostsItemComments', PostsItemComments, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemComments: typeof PostsItemCommentsComponent
-  }
-}
+
 

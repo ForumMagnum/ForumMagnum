@@ -24,11 +24,7 @@ const CollectionsCardContainer = ({ classes, children }: {
   </div>
 }
 
-const CollectionsCardContainerComponent = registerComponent(
+export default registerComponent(
   "CollectionsCardContainer", CollectionsCardContainer, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CollectionsCardContainer: typeof CollectionsCardContainerComponent
-  }
-}
+

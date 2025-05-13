@@ -1,12 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
-import { communityPath } from '../../../lib/routes';
+import TabNavigationMenu, { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { communityPath } from '@/lib/pathConstants';
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -53,7 +53,6 @@ const NavigationStandalone = ({
   noTopMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TabNavigationMenu } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;
@@ -104,12 +103,8 @@ const Slide = ({slidIn, children}: {
   </div>
 }
 
-const NavigationStandaloneComponent = registerComponent(
+export default registerComponent(
   'NavigationStandalone', NavigationStandalone, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    NavigationStandalone: typeof NavigationStandaloneComponent
-  }
-}
+

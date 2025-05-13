@@ -4,11 +4,14 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 const bannerHeight = 250
 
@@ -117,7 +120,6 @@ const EAHomeHandbook = ({ classes, documentId }: {
   classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
-  const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",
@@ -177,12 +179,8 @@ const EAHomeHandbook = ({ classes, documentId }: {
   </React.Fragment>
 }
 
-const EAHomeHandbookComponent = registerComponent(
+export default registerComponent(
   'EAHomeHandbook', EAHomeHandbook, {styles},
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    EAHomeHandbook: typeof EAHomeHandbookComponent
-  }
-}
+

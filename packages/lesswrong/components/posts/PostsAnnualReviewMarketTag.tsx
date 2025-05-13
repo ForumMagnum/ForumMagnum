@@ -1,5 +1,5 @@
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
@@ -7,6 +7,9 @@ import { tagStyle } from '../tagging/FooterTag';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import HoverOver from "../common/HoverOver";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
 const sharedStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.fontFamily,
@@ -57,8 +60,6 @@ const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { HoverOver, ContentStyles, ContentItemBody } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const year = annualReviewMarketInfo.year
@@ -91,10 +92,6 @@ const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   </span>
 };
 
-const PostsAnnualReviewMarketTagComponent = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
+export default registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsAnnualReviewMarketTag: typeof PostsAnnualReviewMarketTagComponent
-  }
-}
+

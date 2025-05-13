@@ -1,5 +1,4 @@
 import React, {FC, useCallback, useState} from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { userCanUseSharing } from '../../lib/betas';
@@ -15,6 +14,12 @@ import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import EAButton from "../ea-forum/EAButton";
+import { EditableUsersList } from "./EditableUsersList";
+import LWDialog from "../common/LWDialog";
+import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles('PostSharingSettings', (theme: ThemeType) => ({
   linkSharingPreview: {
@@ -81,7 +86,6 @@ const PostSharingIcon: FC<{
   className?: string,
   onClick?: () => void,
 }> = (props) => {
-  const {ForumIcon} = Components;
   return isFriendlyUI
     ? (
       <ForumIcon icon="Share" {...props} />
@@ -168,9 +172,6 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
       />
     });
   }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
-
-  const {LWTooltip, EAButton} = Components;
-
   const canUseSharing = userCanUseSharing(currentUser)
 
   return <LWTooltip title={canUseSharing ? undefined : noSharePermissionTooltip}>
@@ -194,8 +195,6 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
 }) => {
-  const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
-
   const classes = useStyles(styles);
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);

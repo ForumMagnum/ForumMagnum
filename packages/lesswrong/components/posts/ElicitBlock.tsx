@@ -11,8 +11,11 @@ import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import LoginPopup from "../users/LoginPopup";
+import UsersName from "../users/UsersName";
+import ContentStyles from "../common/ContentStyles";
 
 const elicitDataFragment = `
   _id
@@ -182,7 +185,6 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
-  const { UsersName, ContentStyles } = Components;
   const { data, loading } = useQuery(gql`
     query ElicitBlockData($questionId: String) {
       ElicitBlockData(questionId: $questionId) {
@@ -256,7 +258,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
               } else {
                 openDialog({
                   name: "LoginPopup",
-                  contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+                  contents: ({onClose}) => <LoginPopup onClose={onClose} />
                 });
               }
             }}
@@ -294,16 +296,12 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   </ContentStyles>
 }
 
-const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, {
+export default registerComponent('ElicitBlock', ElicitBlock, {
   styles,
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    ElicitBlock: typeof ElicitBlockComponent
-  }
-}
+
 
 function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
   return {

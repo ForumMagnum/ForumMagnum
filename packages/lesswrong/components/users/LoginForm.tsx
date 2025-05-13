@@ -1,5 +1,5 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation } from '@apollo/client';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
@@ -8,6 +8,11 @@ import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import ContentStyles from "../common/ContentStyles";
+import ReCaptcha from "../common/ReCaptcha";
+import Loading from "../vulcan-core/Loading";
+import EALoginPopover from "../ea-forum/auth/EALoginPopover";
+import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,8 +118,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const hasOauthSection = !isEAForum;
 
   const { pathname } = useLocation()
-  const { SignupSubscribeToCurated } = Components;
-  const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
+  const reCaptchaToken = useRef<string|null>(null);
   const [username, setUsername] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const [email, setEmail] = useState<string>("")
@@ -169,7 +173,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       const { data, errors } = await signupMutation({
         variables: {
           email, username, password,
-          reCaptchaToken,
+          reCaptchaToken: reCaptchaToken.current,
           abTestKey: signupAbTestKey,
           subscribeToCurated
         }
@@ -193,9 +197,9 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
     }
   }
 
-  return <Components.ContentStyles contentType="commentExceptPointerEvents">
+  return <ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKeySetting.get()
-      && <Components.ReCaptcha verifyCallback={(token) => setReCaptchaToken(token)} action="login/signup"/>}
+      && <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>}
     <form className={classes.root} onSubmit={submitFunction}>
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>
@@ -226,7 +230,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       </>}
       {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
-  </Components.ContentStyles>;
+  </ContentStyles>;
 }
 
 const LoginFormEA = ({
@@ -256,21 +260,17 @@ const LoginFormEA = ({
 
   if (immediateRedirect) {
     window.location.href = urls[startingState];
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   return (
-    <Components.EALoginPopover
+    <EALoginPopover
       action={action}
       setAction={wrappedSetAction}
     />
   );
 }
 
-const LoginFormComponent = registerComponent('LoginForm', LoginForm, { styles });
+export default registerComponent('LoginForm', LoginForm, { styles });
 
-declare global {
-  interface ComponentTypes {
-    LoginForm: typeof LoginFormComponent
-  }
-}
+

@@ -24,10 +24,6 @@ const LWClickAwayListener = ({onClickAway, children}: {
   );
 }
 
-const LWClickAwayListenerComponent = registerComponent('LWClickAwayListener', LWClickAwayListener);
+export default registerComponent('LWClickAwayListener', LWClickAwayListener);
 
-declare global {
-  interface ComponentTypes {
-    LWClickAwayListener: typeof LWClickAwayListenerComponent
-  }
-}
+

@@ -1,10 +1,10 @@
 import React from "react";
-import { Components } from "../../lib/vulcan-lib/components";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Typography } from "../common/Typography";
 
 const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 
@@ -52,9 +52,9 @@ export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {
 
   return (
     <div className={classes.root}>
-      <Components.Typography variant="body2" className={classes.title}>
+      <Typography variant="body2" className={classes.title}>
         This is a linkpost for
-      </Components.Typography>
+      </Typography>
       <Input
         className={classes.input}
         value={value || ""}

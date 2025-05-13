@@ -110,11 +110,7 @@ export const AdminToggle = ({classes}: {
   return null
 }
 
-const AdminToggleComponent = registerComponent('AdminToggle', AdminToggle, {styles});
+export default registerComponent('AdminToggle', AdminToggle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AdminToggle: typeof AdminToggleComponent
-  }
-}
+
 

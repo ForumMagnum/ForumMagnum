@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
@@ -9,9 +9,14 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
-import { communityPath } from '../../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import VirtualProgramCard from "./VirtualProgramCard";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -133,9 +138,6 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
-  
-  const { AddToCalendarButton, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard, PrettyEventDateTime } = Components
-  
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
     return numDefaultCards ? <>
@@ -210,10 +212,6 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   </>
 }
 
-const EventCardsComponent = registerComponent('EventCards', EventCards, {styles});
+export default registerComponent('EventCards', EventCards, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventCards: typeof EventCardsComponent
-  }
-}
+

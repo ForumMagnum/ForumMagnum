@@ -45,11 +45,7 @@ const FormComponentRadioGroup = ({ path, value, options, name, label, updateCurr
   </FormControl>
 }
 
-const FormComponentRadioGroupComponent = registerComponent("FormComponentRadioGroup", FormComponentRadioGroup, {styles});
+export default registerComponent("FormComponentRadioGroup", FormComponentRadioGroup, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FormComponentRadioGroup: typeof FormComponentRadioGroupComponent
-  }
-}
+
 

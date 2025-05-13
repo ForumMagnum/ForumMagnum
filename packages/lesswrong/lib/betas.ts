@@ -19,8 +19,7 @@ import {
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { recombeeEnabledSetting, userIdsWithAccessToLlmChat } from './publicSettings';
-import { useLocation } from './routeUtil';
+import { userIdsWithAccessToLlmChat } from './publicSettings';
 import { isAnyTest } from './executionEnvironment';
 
 // States for in-progress features
@@ -63,18 +62,6 @@ export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
 export const userHasSubscribeTabFeed = isLW ? shippedFeature : disabled;
 
 export const userHasUltraFeed = isLW ? isAdmin : disabled;
-
-//defining as Hook so as to combine with ABTest
-export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
-  // TODO: figure out what went wrong with the AB tests causing caching issues, beyond `affectsLoggedOut` being set to false
-  // const recombeeOptInABTest = useABTest(newFrontpagePostFeedsWithRecommendationsOptIn)
-  // const optedIntoRecombee = (recombeeOptInABTest === "frontpageWithTabs")
-  const { query } = useLocation();
-  
-  const manualOptIn = currentUser && query.recExperiment === 'true';
-
-  return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
-}
 
 export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
   if (!currentUser) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -16,6 +16,8 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import LWDialog from "../common/LWDialog";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -33,8 +35,6 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   onClose?: () => void,
   conversation: UpdateConversationDataInput & { _id: string },
 }) => {
-  const { FormComponentCheckbox } = Components;
-  
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 
@@ -68,7 +68,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
     },
   });
 
-  return <Components.LWDialog open onClose={onClose}>
+  return <LWDialog open onClose={onClose}>
     <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
     <DialogContent>
       <form className="vulcan-form" onSubmit={(e) => {
@@ -136,13 +136,9 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
         </div>
       </form>
     </DialogContent>
-  </Components.LWDialog>
+  </LWDialog>
 }
 
-const ConversationTitleEditFormComponent = registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
+export default registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
 
-declare global {
-  interface ComponentTypes {
-    ConversationTitleEditForm: typeof ConversationTitleEditFormComponent
-  }
-}
+

@@ -1,7 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import type { Placement as PopperPlacementType } from "popper.js"
+import Loading from "../vulcan-core/Loading";
+import UsersNameDisplay from "./UsersNameDisplay";
+import UserNameDeleted from "./UserNameDeleted";
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.
@@ -24,18 +27,14 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
     fragmentName: 'UsersMinimumInfo',
   });
   if (!document && loading) {
-    return <Components.Loading />
+    return <Loading />
   } else if (document) {
-    return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
+    return <UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
   } else {
-    return <Components.UserNameDeleted/>
+    return <UserNameDeleted/>
   }
 };
 
-const UsersNameWrapperComponent = registerComponent('UsersNameWrapper', UsersNameWrapper);
+export default registerComponent('UsersNameWrapper', UsersNameWrapper);
 
-declare global {
-  interface ComponentTypes {
-    UsersNameWrapper: typeof UsersNameWrapperComponent
-  }
-}
+

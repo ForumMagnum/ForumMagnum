@@ -1,36 +1,24 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from "moment";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryDateCell', (theme: ThemeType) => ({
   root: {
     ...textCellStyles(theme),
   },
-});
+}));
 
-const PeopleDirectoryDateCell = ({user, fieldName, format, classes}: {
+export const PeopleDirectoryDateCell = ({user, fieldName, format}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
   format: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const date = moment(String(user[fieldName]));
   return (
     <div className={classes.root}>
       {date.format(format)}
     </div>
   );
-}
-
-const PeopleDirectoryDateCellComponent = registerComponent(
-  "PeopleDirectoryDateCell",
-  PeopleDirectoryDateCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryDateCell: typeof PeopleDirectoryDateCellComponent
-  }
 }

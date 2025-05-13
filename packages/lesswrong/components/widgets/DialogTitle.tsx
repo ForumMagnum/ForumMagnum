@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { Components } from '@/lib/vulcan-lib/components';
+import { Typography } from "../common/Typography";
 
 export const styles = defineStyles("DialogTitle", theme => ({
   /* Styles applied to the root element. */
@@ -19,8 +19,6 @@ export function DialogTitle(props: {
 }) {
   const { children, className, disableTypography=false } = props;
   const classes = useStyles(styles);
-  const { Typography } = Components;
-
   return (
     <div className={classNames(classes.root, className)}>
       {disableTypography ? children : <Typography variant="title">{children}</Typography>}

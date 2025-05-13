@@ -24,7 +24,6 @@ import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
-import { Components } from "@/lib/vulcan-lib/components";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";

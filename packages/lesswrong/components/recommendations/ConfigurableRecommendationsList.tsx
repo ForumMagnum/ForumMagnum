@@ -1,10 +1,15 @@
 import React, {useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
-import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
+import RecommendationsAlgorithmPicker, { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isLW } from '../../lib/instanceSettings';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import RecommendationsList from "./RecommendationsList";
+import SettingsButton from "../icons/SettingsButton";
+import LWTooltip from "../common/LWTooltip";
 
 const ConfigurableRecommendationsList = ({configName}: {
   configName: string
@@ -20,9 +25,6 @@ const ConfigurableRecommendationsList = ({configName}: {
   const changeSettings = (newSettings: Partial<DefaultRecommendationsAlgorithm>) => {
     setSettings(newSettings);
   }
-
-  const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-    RecommendationsList, SettingsButton, LWTooltip } = Components;
   const settingsOrDefault = getRecommendationSettings({settings, currentUser, configName})
 
   return <SingleColumnSection>
@@ -49,10 +51,6 @@ const ConfigurableRecommendationsList = ({configName}: {
   </SingleColumnSection>
 }
 
-const ConfigurableRecommendationsListComponent = registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList);
+export default registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList);
 
-declare global {
-  interface ComponentTypes {
-    ConfigurableRecommendationsList: typeof ConfigurableRecommendationsListComponent
-  }
-}
+

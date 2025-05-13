@@ -113,12 +113,4 @@ const GenerateImagesButton = ({
   );
 };
 
-const GenerateImagesButtonComponent = registerComponent('GenerateImagesButton', GenerateImagesButton);
-
-declare global {
-  interface ComponentTypes {
-    GenerateImagesButton: typeof GenerateImagesButtonComponent
-  }
-}
-
 export default GenerateImagesButton;

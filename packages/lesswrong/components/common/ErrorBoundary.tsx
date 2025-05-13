@@ -1,6 +1,7 @@
 import React, { ErrorInfo } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { configureScope, captureException }from '@sentry/core';
+import ErrorMessage from "./ErrorMessage";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode,
@@ -16,7 +17,7 @@ interface ErrorBoundaryState {
   errorLocation?: string,
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { error: false };
@@ -47,7 +48,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   render() {
     if (this.state.error) {
-      return <Components.ErrorMessage message={this.state.error}/>
+      return <ErrorMessage message={this.state.error}/>
     }
     if (this.props.children)
       return this.props.children;
@@ -56,10 +57,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const ErrorBoundaryComponent = registerComponent("ErrorBoundary", ErrorBoundary);
+export default registerComponent("ErrorBoundary", ErrorBoundaryInner);
 
-declare global {
-  interface ComponentTypes {
-    ErrorBoundary: typeof ErrorBoundaryComponent
-  }
-}
+

@@ -19,10 +19,15 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
-import { Components } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import LastEditedInWarning from "./LastEditedInWarning";
+import LocalStorageCheck from "./LocalStorageCheck";
+import EditorTypeSelect from "./EditorTypeSelect";
+import PostsEditBotTips from "../posts/PostsEditBotTips";
+import ErrorBoundary from "../common/ErrorBoundary";
+import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -97,20 +102,20 @@ interface EditorFormComponentProps<S, R> {
 }
 
 export function useEditorFormCallbacks<R>() {
-  const onSubmitCallback = useRef<EditorSubmitCallback>(undefined);
-  const onSuccessCallback = useRef<EditorSuccessCallback<R>>(undefined);
+  const onSubmitCallback = useRef<EditorSubmitCallback | null>(null);
+  const onSuccessCallback = useRef<EditorSuccessCallback<R> | null>(null);
 
   const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
     onSubmitCallback.current = cb;
     return () => {
-      onSubmitCallback.current = undefined;
+      onSubmitCallback.current = null;
     };
   };
 
   const addOnSuccessCallback = (cb: EditorSuccessCallback<R>) => {
     onSuccessCallback.current = cb;
     return () => {
-      onSuccessCallback.current = undefined;
+      onSuccessCallback.current = null;
     };
   };
 
@@ -543,7 +548,7 @@ function InnerEditorFormComponent<S, R>({
 
   return <div className={classes.root}>
     {showEditorWarning && 
-      <Components.LastEditedInWarning
+      <LastEditedInWarning
         autoConvert={(contents.type as LegacyEditorTypeString) === 'draftJS'}
         initialType={initialEditorType}
         currentType={contents.type}
@@ -551,14 +556,14 @@ function InnerEditorFormComponent<S, R>({
         value={contents} setValue={wrappedSetContents}
       />
     }
-    {!isCollabEditor && <Components.LocalStorageCheck
+    {!isCollabEditor && <LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
       onRestoreNewPostLegacy={onRestoreNewPostLegacy}
       getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
-    {isValidEditorType(contents.type) && <Components.Editor
+    {isValidEditorType(contents.type) && <Editor
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
@@ -585,16 +590,16 @@ function InnerEditorFormComponent<S, R>({
     />}
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" && (
-      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+      <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
     )}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id && (
-      <Components.PostVersionHistoryButton
+      <PostVersionHistoryButton
         post={document}
         postId={document._id}
       />
     )}
     <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear nodeRef={tipsNodeRef}>
-      {(state) => <Components.PostsEditBotTips
+      {(state) => <PostsEditBotTips
         handleDismiss={handleDismissCriticismTips}
         postId={document._id}
         nodeRef={tipsNodeRef}
@@ -605,8 +610,6 @@ function InnerEditorFormComponent<S, R>({
 }
 
 export function EditorFormComponent<S, R>(props: EditorFormComponentProps<S, R>) {
-  const { ErrorBoundary } = Components;
-
   const { field, formType, ...rest } = props;
   if (typeof field.state.value !== 'object' && formType === 'edit') {
     return null;

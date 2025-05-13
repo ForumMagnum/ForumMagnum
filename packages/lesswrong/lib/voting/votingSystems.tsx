@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
 import { eaEmojiNames } from './eaEmojiPalette';
 import { loadByIds } from '../loaders';
@@ -12,6 +11,14 @@ import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import { TagLens } from '../arbital/useTagLenses';
+import EAEmojisVoteOnComment from '@/components/votes/EAEmojisVoteOnComment';
+import EAEmojisVoteOnPost from '@/components/votes/EAEmojisVoteOnPost';
+import EAEmojisVoteOnPostSecondary from '@/components/votes/EAEmojisVoteOnPostSecondary';
+import EmojiReactionVoteOnComment from '@/components/votes/EmojiReactionVoteOnComment';
+import ReactBallotVoteOnComment from '@/components/votes/ReactBallotVoteOnComment';
+import TwoAxisVoteOnComment from '@/components/votes/TwoAxisVoteOnComment';
+import VoteOnComment from '@/components/votes/VoteOnComment';
+import { defineVotingSystem } from './defineVotingSystem';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
 
@@ -78,14 +85,10 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   }) => ContentReplacedSubstringComponentInfo[]
 }
 
-export const defineVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
-  return votingSystem;
-}
-
 export const defaultVotingSystem = defineVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
-  getCommentVotingComponent: () => Components.VoteOnComment,
+  getCommentVotingComponent: () => VoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     return null;
   },
@@ -104,7 +107,7 @@ export const twoAxisVotingSystem = defineVotingSystem({
   name: "twoAxis",
   description: "Default (Two-Axis Approve and Agree)",
   userCanActivate: true,
-  getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
+  getCommentVotingComponent: () => TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
@@ -183,7 +186,7 @@ const reactBallotStandaloneReactionNames = reactBallotStandaloneReactions.map(re
 export const reactsBallotVotingSystem = defineVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
-  getCommentVotingComponent: () => Components.ReactBallotVoteOnComment,
+  getCommentVotingComponent: () => ReactBallotVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent}): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       const axisPower = calculateVotePower(currentUser.karma, extendedVote?.[axis]||"neutral");
@@ -249,7 +252,7 @@ const emojiReactionNames = emojiReactions.map(reaction => reaction.name)
 export const emojiReactionsVotingSystem = defineVotingSystem({
   name: "emojiReactions",
   description: "Emoji reactions",
-  getCommentVotingComponent: () => Components.EmojiReactionVoteOnComment,
+  getCommentVotingComponent: () => EmojiReactionVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent}): any => {
     const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
       const hasReaction = !!extendedVote?.[reaction];
@@ -287,9 +290,9 @@ const getEmojiReactionPower = (value?: boolean) =>
 export const eaEmojisVotingSystem = defineVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
-  getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
-  getPostBottomVotingComponent: () => Components.EAEmojisVoteOnPost,
-  getPostBottomSecondaryVotingComponent: () => Components.EAEmojisVoteOnPostSecondary,
+  getCommentVotingComponent: () => EAEmojisVoteOnComment,
+  getPostBottomVotingComponent: () => EAEmojisVoteOnPost,
+  getPostBottomSecondaryVotingComponent: () => EAEmojisVoteOnPostSecondary,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,

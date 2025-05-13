@@ -61,10 +61,6 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, documentId, collecti
   </div>
 }
 
-const T3AudioPlayerComponent = registerComponent('T3AudioPlayer', T3AudioPlayer, {styles});
+export default registerComponent('T3AudioPlayer', T3AudioPlayer, {styles});
 
-declare global {
-  interface ComponentTypes {
-    T3AudioPlayer: typeof T3AudioPlayerComponent
-  }
-}
+

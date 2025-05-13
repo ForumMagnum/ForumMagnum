@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { conditionalVisibilityModes, ConditionalVisibilitySettings } from './conditionalVisibility';
 
@@ -41,11 +41,7 @@ const ShowBlockVisibilityCondition = ({options, children}: {
   </div>
 }
 
-const ShowBlockVisibilityConditionComponent = registerComponent('ShowBlockVisibilityCondition', ShowBlockVisibilityCondition);
+export default registerComponent('ShowBlockVisibilityCondition', ShowBlockVisibilityCondition);
 
-declare global {
-  interface ComponentTypes {
-    ShowBlockVisibilityCondition: typeof ShowBlockVisibilityConditionComponent
-  }
-}
+
 

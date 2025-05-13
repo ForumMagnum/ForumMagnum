@@ -1,5 +1,5 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib/components';
+import { registerComponent } from '../lib/vulcan-lib/components';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
@@ -20,7 +20,7 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { HEADER_HEIGHT } from './common/Header';
+import Header, { HEADER_HEIGHT } from './common/Header';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
@@ -37,6 +37,31 @@ import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 
 import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
+import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
+import ErrorBoundary from "./common/ErrorBoundary";
+import Footer from "./common/Footer";
+import FlashMessages from "./common/FlashMessages";
+import AnalyticsClient from "./common/AnalyticsClient";
+import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
+import NavigationEventSender from "./hooks/useOnNavigate";
+import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
+import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
+import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
+import SidebarsWrapper from "./common/SidebarsWrapper";
+import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
+import AdminToggle from "./admin/AdminToggle";
+import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
+import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+import CloudinaryImage2 from "./common/CloudinaryImage2";
+import ForumEventBanner from "./forumEvents/ForumEventBanner";
+import GlobalHotkeys from "./common/GlobalHotkeys";
+import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
+import LlmChatWrapper from "./languageModels/LlmChatWrapper";
+import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
+import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
+import LWBackgroundImage from "./LWBackgroundImage";
+import IntercomWrapper from "./common/IntercomWrapper";
+import CookieBanner from "./common/CookieBanner/CookieBanner";
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -316,33 +341,6 @@ const Layout = ({currentUser, children, classes}: {
   }
 
   const render = () => {
-    const {
-      NavigationStandalone,
-      ErrorBoundary,
-      Footer,
-      Header,
-      FlashMessages,
-      AnalyticsClient,
-      AnalyticsPageInitializer,
-      NavigationEventSender,
-      EAOnboardingFlow,
-      BasicOnboardingFlow,
-      CommentOnSelectionPageWrapper,
-      SidebarsWrapper,
-      HomepageCommunityMap,
-      AdminToggle,
-      SunshineSidebar,
-      EAHomeRightHandSide,
-      CloudinaryImage2,
-      ForumEventBanner,
-      GlobalHotkeys,
-      LanguageModelLauncherButton,
-      LlmChatWrapper,
-      TabNavigationMenuFooter,
-      ReviewVotingCanvas,
-      LWBackgroundImage
-    } = Components;
-
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
       // navigation on the side. If there is no current route (ie, a 404 page),
@@ -510,7 +508,6 @@ const Layout = ({currentUser, children, classes}: {
 }
 
 function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
-  const { IntercomWrapper, CookieBanner } = Components;
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
@@ -523,10 +520,6 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   return isWrapped ? null : <IntercomWrapper />
 }
 
-const LayoutComponent = registerComponent('Layout', Layout, {styles});
+export default registerComponent('Layout', Layout, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Layout: typeof LayoutComponent
-  }
-}
+

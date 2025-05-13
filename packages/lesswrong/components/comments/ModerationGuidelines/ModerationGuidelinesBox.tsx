@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
@@ -12,6 +12,8 @@ import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuideli
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { TooltipSpan } from '@/components/common/FMTooltip';
+import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
+import ContentStyles from "../../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -157,7 +159,7 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
 
     openDialog({
       name: "ModerationGuidelinesEditForm",
-      contents: ({onClose}) => <Components.ModerationGuidelinesEditForm
+      contents: ({onClose}) => <ModerationGuidelinesEditForm
         onClose={onClose}
         commentType={commentType}
         documentId={documentId}
@@ -183,10 +185,10 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
           </TooltipSpan>
         </span>
       }
-      <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
+      <ContentStyles contentType="comment" className={classes.moderationGuidelines}>
         <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
-      </Components.ContentStyles>
+      </ContentStyles>
     </div>
   )
 }
@@ -197,13 +199,9 @@ const moderationStyleLookup: Partial<Record<string,string>> = {
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
+export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    ModerationGuidelinesBox: typeof ModerationGuidelinesBoxComponent
-  }
-}
+
