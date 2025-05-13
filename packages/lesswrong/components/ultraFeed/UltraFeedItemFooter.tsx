@@ -42,6 +42,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
   },
   commentCount: {
+    position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "flex",
     alignItems: "center",
@@ -52,9 +53,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       [theme.breakpoints.down('sm')]: {
         height: 20,
         width: 20,
-        top: 2,
       },
     },
+    [theme.breakpoints.down('sm')]: {
+      top: 2,
+    }
   },
   commentCountClickable: {
     cursor: "pointer",
@@ -64,9 +67,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCountText: {
     marginLeft: 4,
-    [theme.breakpoints.down('sm')]: {
-      position: 'relative',
-    }
   },
   addReactionButton: {
     opacity: 0.7,
@@ -130,7 +130,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& .VoteArrowIconSolid-root": {
     },
     [theme.breakpoints.down('sm')]: {
-      top: 5,
+      top: 3,
     }
   },
   agreementButtons: {
@@ -139,7 +139,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     top: 1,
     marginLeft: -8,
     [theme.breakpoints.down('sm')]: {
-      top: 5,
+      top: 3,
     }
   },
   footerVoteScoreOverride: {
