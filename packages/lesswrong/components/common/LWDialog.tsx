@@ -99,7 +99,7 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
           if (!disableBackdropClick)
             onClose?.();
         }}>
-          <span><Paper
+          <Paper
             elevation={24}
             className={classNames(classes.paper, paperClassName, {
               [classes.paperWidthSm]: maxWidth==='sm',
@@ -109,7 +109,7 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
             })}
           >
             {children}
-          </Paper></span>
+          </Paper>
         </ClickAwayListener>
       </div>,
       document.body
