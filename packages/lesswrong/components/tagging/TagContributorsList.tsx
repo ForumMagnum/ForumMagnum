@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
-
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,7 +46,6 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   onHoverUser?: (userId: string|null) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay, Loading, LWTooltip } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
@@ -102,13 +103,9 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   </div>
 }
 
-const TagContributorsListComponent = registerComponent("TagContributorsList", TagContributorsList, {
+export default registerComponent("TagContributorsList", TagContributorsList, {
   styles,
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    TagContributorsList: typeof TagContributorsListComponent
-  }
-}
+

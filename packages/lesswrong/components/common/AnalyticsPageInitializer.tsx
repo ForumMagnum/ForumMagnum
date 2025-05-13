@@ -120,10 +120,6 @@ const AnalyticsPageInitializer = () => {
   return <span/>
 };
 
-const AnalyticsPageInitializerComponent = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
+export default registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer);
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPageInitializer: typeof AnalyticsPageInitializerComponent
-  }
-}
+

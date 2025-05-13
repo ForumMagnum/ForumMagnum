@@ -112,10 +112,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   );
 };
 
-const ImageUpload2Component = registerComponent("ImageUpload2", ImageUpload2, {styles});
+export default registerComponent("ImageUpload2", ImageUpload2, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ImageUpload2: typeof ImageUpload2Component
-  }
-}
+

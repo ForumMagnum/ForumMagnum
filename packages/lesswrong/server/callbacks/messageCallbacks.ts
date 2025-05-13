@@ -76,7 +76,7 @@ export async function addParticipantIfNew({ document, currentUser, context }: Af
     await updateConversation({
       data: { participantIds: [...conversation.participantIds, currentUser._id] },
       selector: { _id: conversationId }
-    }, createAnonymousContext());
+    }, context);
   }
 }
 

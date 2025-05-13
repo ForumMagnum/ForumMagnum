@@ -9,8 +9,12 @@ import { forumTitleSetting } from "../../lib/instanceSettings";
 import { getPostDescription } from "./PostsPage/PostsPage";
 import { siteImageSetting } from '@/lib/publicSettings';
 import classNames from "classnames";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import LWPopper from "../common/LWPopper";
+import { Typography } from "../common/Typography";
+import ForumIcon from "../common/ForumIcon";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const ANIMATION_DURATION = 300;
 
@@ -208,9 +212,6 @@ const SharePostPopup = ({
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
-
-  const { LWPopper, Typography, ForumIcon, SocialMediaIcon } = Components;
-
   const urlHostname = new URL(getSiteUrl()).hostname;
 
   // Force rerender because the element we are anchoring to is created after the first render
@@ -331,12 +332,6 @@ const SharePostPopup = ({
   );
 };
 
-export default SharePostPopup;
+export default registerComponent("SharePostPopup", SharePostPopup, { styles });
 
-const SharePostPopupComponent = registerComponent("SharePostPopup", SharePostPopup, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SharePostPopup: typeof SharePostPopupComponent;
-  }
-}

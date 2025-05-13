@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDialog } from '../common/withDialog';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -15,6 +15,15 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import LoginPopup from "../users/LoginPopup";
+import NewLensDialog from "./lenses/NewLensDialog";
+import LWTooltip from "../common/LWTooltip";
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import TagDiscussionButton from "./TagDiscussionButton";
+import ContentItemBody from "../common/ContentItemBody";
+import ForumIcon from "../common/ForumIcon";
+import { TagOrLensLikeButton } from "./lenses/LensTab";
+import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
 
 const PODCAST_ICON_SIZE = 20;
 const PODCAST_ICON_PADDING = 3;
@@ -158,15 +167,6 @@ const TagPageButtonRow = ({
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const {
-    LWTooltip,
-    NotifyMeButton,
-    TagDiscussionButton,
-    ContentItemBody,
-    ForumIcon,
-    TagOrLensLikeButton,
-    TagPageActionsMenuButton
-  } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment");
 
   const { captureEvent } = useTracking();
@@ -178,7 +178,7 @@ const TagPageButtonRow = ({
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return;
     }
@@ -186,7 +186,7 @@ const TagPageButtonRow = ({
     if (!refetchTag || !updateSelectedLens) return;
     openDialog({
       name: "NewLensDialog",
-      contents: ({onClose}) => <Components.NewLensDialog
+      contents: ({onClose}) => <NewLensDialog
         onClose={onClose}
         tag={tag}
         refetchTag={refetchTag}
@@ -202,7 +202,7 @@ const TagPageButtonRow = ({
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       e.preventDefault();
     }
@@ -323,10 +323,6 @@ const TagPageButtonRow = ({
   </AnalyticsContext>
 }
 
-const TagPageButtonRowComponent = registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
+export default registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TagPageButtonRow: typeof TagPageButtonRowComponent
-  }
-}
+

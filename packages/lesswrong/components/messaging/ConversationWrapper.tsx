@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import ConversationPage from "./ConversationPage";
 
 /**
  * A page with a private mesage conversation, with URL parameter parsing.
@@ -12,14 +13,10 @@ const ConversationWrapper = () => {
   
   if (!currentUser) return <div>Log in to access private messages.</div>
 
-  return <Components.ConversationPage conversationId={params._id} currentUser={currentUser} />
+  return <ConversationPage conversationId={params._id} currentUser={currentUser} />
 }
 
-const ConversationWrapperComponent = registerComponent('ConversationWrapper', ConversationWrapper);
+export default registerComponent('ConversationWrapper', ConversationWrapper);
 
-declare global {
-  interface ComponentTypes {
-    ConversationWrapper: typeof ConversationWrapperComponent
-  }
-}
+
 

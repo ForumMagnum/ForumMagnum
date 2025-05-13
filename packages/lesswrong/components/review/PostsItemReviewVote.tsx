@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ReviewVotingWidget from "./ReviewVotingWidget";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ReviewPostButton from "./ReviewPostButton";
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -76,7 +80,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
-  const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
@@ -117,10 +120,6 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: Classe
   </div>
 }
 
-const PostsItemReviewVoteComponent = registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
+export default registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemReviewVote: typeof PostsItemReviewVoteComponent
-  }
-}
+

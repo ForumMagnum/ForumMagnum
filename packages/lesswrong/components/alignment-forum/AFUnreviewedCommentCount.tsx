@@ -1,6 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useMulti } from "../../lib/crud/withMulti";
+import ContentStyles from '../common/ContentStyles';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,18 +33,14 @@ const AFUnreviewedCommentCount = ({ post, classes }: {
    return null
  } else {
    return (
-     <Components.ContentStyles contentType="comment" className={classes.root}>
+     <ContentStyles contentType="comment" className={classes.root}>
        {`There are ${count} comments pending acceptance to the Alignment Forum.`}
        <a href={`https://www.lesswrong.com/posts/${post._id}`} className={classes.viewLink}>View them on LessWrong.</a>
-     </Components.ContentStyles>
+     </ContentStyles>
    );
  }
 }
 
-const AFUnreviewedCommentCountComponent = registerComponent('AFUnreviewedCommentCount', AFUnreviewedCommentCount, {styles});
+export default registerComponent('AFUnreviewedCommentCount', AFUnreviewedCommentCount, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFUnreviewedCommentCount: typeof AFUnreviewedCommentCountComponent
-  }
-}
+

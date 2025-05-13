@@ -1,15 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import CollectionsPage from "./CollectionsPage";
 
 const Codex = () => {
-  return <Components.CollectionsPage documentId={'2izXHCrmJ684AnZ5X'} />
+  return <CollectionsPage documentId={'2izXHCrmJ684AnZ5X'} />
 };
 
-const CodexComponent = registerComponent('Codex', Codex);
+export default registerComponent('Codex', Codex);
 
-declare global {
-  interface ComponentTypes {
-    Codex: typeof CodexComponent
-  }
-}
+
 

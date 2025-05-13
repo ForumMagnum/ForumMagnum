@@ -1,4 +1,4 @@
-import { Cookies } from "react-cookie";
+import Cookies from "universal-cookie";
 import { initDatadog } from "../../client/datadogRum";
 import { ALL_COOKIES, CookieType, isCookieAllowed } from "./utils";
 import { initReCaptcha } from "../../client/reCaptcha";

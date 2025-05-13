@@ -1,13 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { FilterSettings, FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
-import { filteringStyles } from './FilterMode';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import AddTagButton from "./AddTagButton";
+import LWTooltip from "../common/LWTooltip";
+import FilterMode, { filteringStyles } from './FilterMode';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,13 +68,12 @@ const TagFilterSettings = ({
   classes
 }: {
   filterSettings: FilterSettings,
-  setPersonalBlogFilter: (filterMode: FilterMode) => void,
-  setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
+  setPersonalBlogFilter: (filterMode: FilterModeType) => void,
+  setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AddTagButton, FilterMode, LWTooltip } = Components
   const currentUser = useCurrentUser()
 
   const {
@@ -89,7 +90,7 @@ const TagFilterSettings = ({
         tagId={tagSettings.tagId}
         mode={tagSettings.filterMode}
         canRemove={true}
-        onChangeMode={(mode: FilterMode) => {
+        onChangeMode={(mode: FilterModeType) => {
           // If user has clicked on, eg, "Hidden" after it's already selected, return it to default
           // ... but don't apply that to manually input filter settings
           const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(mode) ? 0 : mode
@@ -108,7 +109,7 @@ const TagFilterSettings = ({
         description={personalBlogpostTooltip}
         mode={filterSettings.personalBlog}
         canRemove={false}
-        onChangeMode={(mode: FilterMode) => {
+        onChangeMode={(mode: FilterModeType) => {
           setPersonalBlogFilter(mode)
         }}
       />
@@ -128,10 +129,6 @@ const TagFilterSettings = ({
   </span>
 }
 
-const TagFilterSettingsComponent = registerComponent("TagFilterSettings", TagFilterSettings, {styles});
+export default registerComponent("TagFilterSettings", TagFilterSettings, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagFilterSettings: typeof TagFilterSettingsComponent
-  }
-}
+

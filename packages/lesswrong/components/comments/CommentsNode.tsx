@@ -1,14 +1,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
-import { HIGHLIGHT_DURATION } from './CommentFrame';
+import CommentFrame, { HIGHLIGHT_DURATION } from './CommentFrame';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
+import SingleLineComment from "./SingleLineComment";
+import CommentsItem from "./CommentsItem/CommentsItem";
+import RepliesToCommentList from "../shortform/RepliesToCommentList";
+import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -83,7 +87,7 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNode = ({
+const CommentsNodeInner = ({
   treeOptions,
   comment,
   startThreadTruncated,
@@ -256,9 +260,6 @@ const CommentsNode = ({
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
-
-  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
-
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
@@ -267,7 +268,7 @@ const CommentsNode = ({
   const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
     <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
     {showExtraChildrenButton}
-    {childComments.map(child => <Components.CommentsNode
+    {childComments.map(child => <CommentsNode
       isChild={true}
       treeOptions={treeOptions}
       comment={child.item}
@@ -346,7 +347,7 @@ const CommentsNode = ({
   </div>
 }
 
-const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
+const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
   styles,
   areEqual: {
     treeOptions: "shallow",
@@ -355,8 +356,4 @@ const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsNode: typeof CommentsNodeComponent,
-  }
-}
+export default CommentsNode;

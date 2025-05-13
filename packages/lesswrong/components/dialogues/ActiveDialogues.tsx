@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { ActiveDialogue, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
 import { useCurrentUser } from '../common/withUser';
@@ -11,7 +11,9 @@ import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import Visibility from '@/lib/vendor/@material-ui/icons/src/Visibility';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import isEqual from 'lodash/isEqual';
-
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { Typography } from "../common/Typography";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -87,8 +89,6 @@ const styles = (theme: ThemeType) => ({
 export const ActiveDialogues = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsTooltip, Typography, UsersName } = Components
-
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [activeDialogues, setActiveDialogues] = useState<ActiveDialogue[]>([]);
   const currentUser = useCurrentUser();
@@ -162,10 +162,6 @@ export const ActiveDialogues = ({classes}: {
   );
 }
 
-const ActiveDialoguesComponent = registerComponent('ActiveDialogues', ActiveDialogues, {styles});
+export default registerComponent('ActiveDialogues', ActiveDialogues, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ActiveDialogues: typeof ActiveDialoguesComponent
-  }
-}
+

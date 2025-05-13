@@ -1,18 +1,22 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
 import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
-import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
+import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 import { useDialog } from "../common/withDialog";
 import { bookmarkableCollectionNames } from "@/lib/collections/bookmarks/constants";
-
+import BookmarkButton from "../posts/BookmarkButton";
+import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import OverallVoteAxis from "../votes/OverallVoteAxis";
+import AgreementVoteAxis from "../votes/AgreementVoteAxis";
+import { AddReactionButton } from "../votes/lwReactions/NamesAttachedReactionsVoteOnComment";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -184,7 +188,6 @@ const UltraFeedItemFooterCore = ({
   className,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
-  const { BookmarkButton, OverallVoteAxis, AgreementVoteAxis, AddReactionButton } = Components;
   const currentUser = useCurrentUser();
 
   const { create: createUltraFeedEvent } = useCreate({
@@ -297,7 +300,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
     openDialog({
       name: "commentsDialog",
       closeOnNavigate: true,
-      contents: ({onClose}) => <Components.UltraFeedCommentsDialog 
+      contents: ({onClose}) => <UltraFeedCommentsDialog 
         document={post}
         collectionName="Posts"
         onClose={onClose}
@@ -337,7 +340,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
     openDialog({
       name: "UltraFeedCommentsDialog",
       closeOnNavigate: true,
-      contents: ({onClose}) => <Components.UltraFeedCommentsDialog 
+      contents: ({onClose}) => <UltraFeedCommentsDialog 
         document={comment}
         collectionName="Comments"
         onClose={onClose}
@@ -387,12 +390,8 @@ const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: 
 };
 
 
-const UltraFeedItemFooterComponent = registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
+export default registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
 
-export default UltraFeedItemFooterComponent; 
+ 
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedItemFooter: typeof UltraFeedItemFooterComponent
-  }
-} 
+ 

@@ -42,7 +42,7 @@ export const requestedCssVarsToString = (theme: ThemeType, selector = ":root"): 
   const vars: string[] = [];
   for (const key of requestedCssVars.values()) {
     const value = getAtPath(theme, keyToPath(key));
-    if (value) {
+    if (value !== undefined) {
       vars.push(`${keyToVar(key)}: ${value};`);
     } else {
       // eslint-disable-next-line

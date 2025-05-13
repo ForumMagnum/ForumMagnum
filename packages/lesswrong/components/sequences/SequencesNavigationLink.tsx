@@ -60,11 +60,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   }
 };
 
-const SequencesNavigationLinkComponent = registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
+export default registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNavigationLink: typeof SequencesNavigationLinkComponent
-  }
-}
+
 

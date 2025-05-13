@@ -22,7 +22,7 @@ export const expiredRateLimitsReturnToReviewQueueCron = addCronJob({
     const usersWithExpiringRateLimits = await Users.find({_id: {$in: userIdsWithExpiringRateLimits}}).fetch();
     
     if (!_.isEmpty(usersWithExpiringRateLimits)) {
-      usersWithExpiringRateLimits.map(async user => {
+      await Promise.all(usersWithExpiringRateLimits.map(async user => {
         await appendToSunshineNotes({
           moderatedUserId: user._id,
           adminName: "Automod",
@@ -30,7 +30,7 @@ export const expiredRateLimitsReturnToReviewQueueCron = addCronJob({
           context,
         });
         await triggerReview(user._id, context);
-      })
+      }));
       
       // log the action
       // eslint-disable-next-line no-console

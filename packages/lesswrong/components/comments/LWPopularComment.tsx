@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { htmlToTextDefault } from "../../lib/htmlToText";
@@ -11,6 +11,13 @@ import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
+import LWPopper from "../common/LWPopper";
+import CommentById from "./CommentById";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "../users/UsersName";
+import CommentsItemDate from "./CommentsItem/CommentsItemDate";
+import SmallSideVote from "../votes/SmallSideVote";
+import CommentBody from "./CommentsItem/CommentBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,8 +103,6 @@ const useParentCommentLinkAndTooltip = ({ comment, classes }: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWPopper, CommentById } = Components;
-
   const { eventHandlers, hover, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "popularCommentParentTooltip",
@@ -156,7 +161,6 @@ const PopularCommentPostLink = ({ post, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { isRead } = useRecordPostView(post);
-  const { PostsTooltip } = Components;
   return (
     <div className={classes.postTitle}>
       <PostsTooltip postId={post._id}>
@@ -176,8 +180,6 @@ const LWPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentsItemDate, SmallSideVote, CommentBody } = Components;
-  
   const { captureEvent } = useTracking();
 
   const [expanded, setExpanded] = useState(false);
@@ -248,14 +250,10 @@ const LWPopularComment = ({comment, classes}: {
   );
 }
 
-const LWPopularCommentComponent = registerComponent(
+export default registerComponent(
   "LWPopularComment",
   LWPopularComment,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWPopularComment: typeof LWPopularCommentComponent
-  }
-}
+

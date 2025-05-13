@@ -17,9 +17,14 @@ import moment from 'moment';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { COMMENTS_NEW_FORM_PADDING } from '@/lib/collections/comments/constants';
 import { CommentForm } from './CommentForm';
+import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
+import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
+import RecaptchaWarning from "../common/RecaptchaWarning";
+import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
+import RateLimitWarning from "../editor/RateLimitWarning";
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -94,7 +99,7 @@ export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<ComponentTypes['NewUserGuidelinesDialog']>, "onClose" | "classes"> => {
+): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose" | "classes"> => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
@@ -213,7 +218,7 @@ const CommentsNewForm = ({
       if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
         openDialog({
           name: 'NewUserGuidelinesDialog',
-          contents: ({onClose}) => <Components.NewUserGuidelinesDialog
+          contents: ({onClose}) => <NewUserGuidelinesDialog
             onClose={onClose}
             {...dialogProps}
           />
@@ -325,8 +330,6 @@ const CommentsNewForm = ({
   ) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
-
-  const { ModerationGuidelinesBox, RecaptchaWarning, NewCommentModerationWarning, RateLimitWarning } = Components;
   return (
     <div className={classNames(
       className,
@@ -389,14 +392,10 @@ const CommentsNewForm = ({
   );
 };
 
-const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, {
+export default registerComponent('CommentsNewForm', CommentsNewForm, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsNewForm: typeof CommentsNewFormComponent,
-  }
-}
+
 

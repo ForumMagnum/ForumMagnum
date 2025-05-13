@@ -1,6 +1,5 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -10,6 +9,9 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -49,8 +51,6 @@ const JargonSubmitButton = ({ submitForm, cancelCallback }: {
   submitForm: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
   cancelCallback: () => void;
 }) => {
-  const { Loading } = Components;
-
   const classes = useStyles(formStyles);
   const [loading, setLoading] = useState(false);
 
@@ -79,8 +79,6 @@ export const JargonTermForm = ({
   onCancel: () => void;
 }) => {
   const classes = useStyles(formStyles);
-  const { LWTooltip, Error404 } = Components;
-
   const formType = initialData ? 'edit' : 'new';
 
   const {

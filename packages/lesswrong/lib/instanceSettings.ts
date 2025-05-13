@@ -324,3 +324,5 @@ export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twit
 export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");
 
 export const saplingApiKey = new PublicInstanceSetting<string>("sapling.apiKey", "", "optional");
+export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
+export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");

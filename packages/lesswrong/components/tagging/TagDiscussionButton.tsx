@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
@@ -7,6 +7,8 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import TagDiscussion from "./TagDiscussion";
+import PopperCard from "../common/PopperCard";
 
 const styles = (theme: ThemeType) => ({
   discussionButton: {
@@ -57,8 +59,6 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
   hideLabelOnMobile?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  
-  const { TagDiscussion, PopperCard } = Components
   const { hover, anchorEl, eventHandlers } = useHover()
   const { totalCount, loading } = useMulti({
     terms: {
@@ -93,10 +93,6 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
   </Link>
 }
 
-const TagDiscussionButtonComponent = registerComponent("TagDiscussionButton", TagDiscussionButton, {styles});
+export default registerComponent("TagDiscussionButton", TagDiscussionButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagDiscussionButton: typeof TagDiscussionButtonComponent
-  }
-}
+

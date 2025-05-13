@@ -1,9 +1,10 @@
 import { Chip } from '@/components/widgets/Chip';
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import ErrorBoundary from "../common/ErrorBoundary";
+import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 
 const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
   root: {
@@ -35,12 +36,12 @@ export const TagSelect = ({ field, label }: TagSelectProps) => {
 
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.TagsSearchAutoComplete
+      <ErrorBoundary>
+        <TagsSearchAutoComplete
           clickAction={(id) => field.handleChange(id)}
           placeholder={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       {(!loading && selectedTag?.name) ?
         <Chip
           onDelete={() => field.handleChange(null)}

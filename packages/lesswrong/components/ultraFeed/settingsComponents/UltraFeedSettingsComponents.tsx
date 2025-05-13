@@ -16,8 +16,9 @@ import {
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { ZodFormattedError } from 'zod';
+import LWTooltip from '@/components/common/LWTooltip';
+import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
   settingGroup: {
@@ -252,14 +253,14 @@ const CollapsibleSettingGroup: React.FC<CollapsibleSettingGroupProps> = ({
         onClick={toggleExpanded}
       >
         <div className={classNames(classes.collapsibleTitle)}>{title}</div>
-        <Components.LWTooltip title={isExpanded ? "Collapse" : "Expand"} hideOnTouchScreens>
-          <Components.ForumIcon
+        <LWTooltip title={isExpanded ? "Collapse" : "Expand"} hideOnTouchScreens>
+          <ForumIcon
             icon="ThickChevronRight"
             className={classNames(classes.collapsibleIcon, {
               [classes.collapsibleIconExpanded]: isExpanded,
             })}
           />
-        </Components.LWTooltip>
+        </LWTooltip>
       </div>
       {isExpanded && <>{children}</>}
     </div>
@@ -317,7 +318,7 @@ interface SourceWeightsSettingsProps {
   defaultOpen?: boolean;
 }
 
-const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
+export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   weights,
   errors,
   onChange,
@@ -369,7 +370,6 @@ const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
     </CollapsibleSettingGroup>
   );
 };
-const SourceWeightsSettingsComponent = registerComponent('SourceWeightsSettings', SourceWeightsSettings);
 
 const getCommentLevelLabel = (level: TruncationLevel): string => {
   if (level === 'Very Short') return `${level} (2 lines)`;
@@ -466,7 +466,7 @@ interface TruncationGridSettingsProps {
   commentBreakpointError?: string;
 }
 
-const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
+export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   levels,
   onChange,
   originalSettings,
@@ -539,8 +539,6 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   );
 };
 
-const TruncationGridSettingsComponent = registerComponent('TruncationGridSettings', TruncationGridSettings);
-
 type ArrayFieldError = ZodFormattedError<(number | null)[] | undefined, string> & {
   [k: number]: ZodFormattedError<number | null, string>;
 };
@@ -561,7 +559,7 @@ interface AdvancedTruncationSettingsProps {
   defaultOpen?: boolean;
 }
 
-const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
+export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   values,
   errors,
   onLineClampChange,
@@ -652,7 +650,6 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
     </CollapsibleSettingGroup>
   );
 };
-const AdvancedTruncationSettingsComponent = registerComponent('AdvancedTruncationSettings', AdvancedTruncationSettings);
 
 interface ExploreExploitBiasSettingsProps {
   currentLogImpactFactor: number | ''; 
@@ -660,7 +657,7 @@ interface ExploreExploitBiasSettingsProps {
   defaultOpen?: boolean;
 }
 
-const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
+export const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
   currentLogImpactFactor,
   onExploreBiasChange,
   defaultOpen = true, 
@@ -717,8 +714,6 @@ const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
     </CollapsibleSettingGroup>
   );
 };
-const ExploreExploitBiasSettingsComponent = registerComponent('ExploreExploitBiasSettings', ExploreExploitBiasSettings);
-
 interface MultipliersSettingsProps {
   formValues: CommentScoringFormState;
   errors: ZodFormattedError<CommentScoringFormState, string> | null;
@@ -726,7 +721,7 @@ interface MultipliersSettingsProps {
   defaultOpen?: boolean;
 }
 
-const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
+export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
   formValues, 
   errors,
   onFieldChange,
@@ -998,7 +993,6 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
     </CollapsibleSettingGroup>
   );
 };
-const MultipliersSettingsComponent = registerComponent('MultipliersSettings', MultipliersSettings);
 
 interface ThreadInterestTuningSettingsProps {
   formValues: ThreadInterestModelFormState;
@@ -1007,7 +1001,7 @@ interface ThreadInterestTuningSettingsProps {
   defaultOpen?: boolean;
 }
 
-const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> = ({
+export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> = ({
   formValues,
   errors,
   onFieldChange,
@@ -1114,8 +1108,6 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
   );
 };
 
-const ThreadInterestTuningSettingsComponent = registerComponent('ThreadInterestTuningSettings', ThreadInterestTuningSettings);
-
 interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
@@ -1126,7 +1118,7 @@ interface MiscSettingsProps {
   defaultOpen?: boolean;
 }
 
-const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, defaultOpen = true }) => {
+export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, defaultOpen = true }) => {
   const classes = useStyles(styles);
   return (
     <CollapsibleSettingGroup title="Misc" defaultOpen={defaultOpen} className={classes.settingGroup}>
@@ -1165,17 +1157,3 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
     </CollapsibleSettingGroup>
   );
 };
-const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);
-export default TruncationGridSettingsComponent;
-
-declare global {
-  interface ComponentTypes {
-    SourceWeightsSettings: typeof SourceWeightsSettingsComponent
-    TruncationGridSettings: typeof TruncationGridSettingsComponent
-    AdvancedTruncationSettings: typeof AdvancedTruncationSettingsComponent
-    ExploreExploitBiasSettings: typeof ExploreExploitBiasSettingsComponent
-    MultipliersSettings: typeof MultipliersSettingsComponent
-    ThreadInterestTuningSettings: typeof ThreadInterestTuningSettingsComponent
-    MiscSettings: typeof MiscSettingsComponent
-  }
-}

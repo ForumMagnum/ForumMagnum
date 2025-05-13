@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import CalendarDate from "../common/CalendarDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +42,7 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: Posts
   }
 
   if (post?.commentsLockedToAccountsCreatedAfter) {
-    return <>Comments on this post are disabled to accounts created after <Components.CalendarDate date={post.commentsLockedToAccountsCreatedAfter}/></>
+    return <>Comments on this post are disabled to accounts created after <CalendarDate date={post.commentsLockedToAccountsCreatedAfter}/></>
   }
 
   return <>You cannot comment at this time</>
@@ -67,12 +68,8 @@ const CantCommentExplanation = ({post, classes}: {
   );
 }
 
-const CantCommentExplanationComponent = registerComponent(
+export default registerComponent(
   'CantCommentExplanation', CantCommentExplanation, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CantCommentExplanation: typeof CantCommentExplanationComponent,
-  }
-}
+

@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery, gql } from '@apollo/client';
-import { rowStyles } from './MigrationsDashboardRow';
+import MigrationsDashboardRow, { rowStyles } from './MigrationsDashboardRow';
+import SingleColumnSection from "../../common/SingleColumnSection";
+import Loading from "../../vulcan-core/Loading";
+import SectionTitle from "../../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   ...rowStyles,
@@ -20,7 +23,6 @@ const MigrationsDashboard = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, Loading, SectionTitle } = Components;
   const { data, loading } = useQuery(gql`
     query MigrationsDashboardQuery {
       MigrationsDashboard {
@@ -48,16 +50,12 @@ const MigrationsDashboard = ({classes}: {
       <span className={classes.lastRun}>Last Run (Started)</span>
     </div>
     {data?.MigrationsDashboard?.migrations && data.MigrationsDashboard.migrations.map((migration: AnyBecauseTodo) =>
-      <Components.MigrationsDashboardRow key={migration.name} migration={migration}/>)}
+      <MigrationsDashboardRow key={migration.name} migration={migration}/>)}
   </SingleColumnSection>;
 }
 
-const MigrationsDashboardComponent = registerComponent(
+export default registerComponent(
   "MigrationsDashboard", MigrationsDashboard, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    MigrationsDashboard: typeof MigrationsDashboardComponent
-  }
-}
+

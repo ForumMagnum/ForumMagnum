@@ -2,9 +2,9 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
-import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
 const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   root: {
@@ -52,8 +52,6 @@ export const EventUpdatedEmail = ({postId}: {
   const { timezone, timezoneIsKnown } = useTimezone()
   
   if (loading || !post) return null;
-
-  const { PrettyEventDateTime } = Components;
   
   const link = postGetPageUrl(post, true);
   

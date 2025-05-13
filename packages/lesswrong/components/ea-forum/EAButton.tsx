@@ -92,12 +92,8 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
   )
 }
 
-const EAButtonComponent = registerComponent(
+export default registerComponent(
   'EAButton', EAButton, {styles, stylePriority: -2}
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    EAButton: typeof EAButtonComponent
-  }
-}
+

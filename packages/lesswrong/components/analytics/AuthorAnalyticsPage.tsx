@@ -8,11 +8,19 @@ import classNames from "classnames";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
-import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
+import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { slugify } from "@/lib/utils/slugify";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "../common/SingleColumnSection";
+import HeadTags from "../common/HeadTags";
+import { Typography } from "../common/Typography";
+import LoadMore from "../common/LoadMore";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import AnalyticsPostItem from "./AnalyticsPostItem";
+import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -250,12 +258,6 @@ const AuthorAnalyticsPage = ({ classes }: {
     setPosts([]);
     setTotalCount(0);
   }, [slug]);
-
-  const {
-    SingleColumnSection, HeadTags, Typography, LoadMore, ForumIcon, LWTooltip,
-    AnalyticsGraph, AnalyticsPostItem, AnalyticsPostItemSkeleton,
-  } = Components;
-
   const isCurrentUser = currentUser?.slug === slug
   if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
     return (
@@ -345,10 +347,6 @@ const AuthorAnalyticsPage = ({ classes }: {
   );
 };
 
-const AuthorAnalyticsPageComponent = registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
+export default registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
 
-declare global {
-  interface ComponentTypes {
-    AuthorAnalyticsPage: typeof AuthorAnalyticsPageComponent;
-  }
-}
+

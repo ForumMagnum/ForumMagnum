@@ -30,6 +30,7 @@ const styles = defineStyles("Drawer", theme => ({
     zIndex: theme.zIndexes.drawer,
     position: 'fixed',
     top: 0,
+    height: "100%",
   },
   paper: {
     position: "absolute",
@@ -153,7 +154,10 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
 
   if (variant === 'persistent') {
     return (
-      <div className={classNames(classes.docked, className)}>
+      <div className={classNames(classes.container, classes.docked, className, {
+        [classes.containerLeft]: anchor==='left',
+        [classes.containerRight]: anchor==='right',
+      })}>
         {drawer}
       </div>
     );

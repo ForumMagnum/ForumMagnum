@@ -1,7 +1,6 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -16,6 +15,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
+import Error404 from "../common/Error404";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -39,7 +39,6 @@ export const ChaptersForm = ({
   onCancel?: () => void;
   onPostIdsChanged?: (newPostIds: string[]) => void;
 }) => {
-  const { Error404 } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

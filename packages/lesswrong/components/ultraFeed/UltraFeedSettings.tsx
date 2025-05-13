@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { 
   UltraFeedSettingsType,
   DEFAULT_SOURCE_WEIGHTS, 
@@ -30,6 +29,15 @@ import {
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
+import {
+  SourceWeightsSettings,
+  TruncationGridSettings,
+  AdvancedTruncationSettings,
+  MultipliersSettings,
+  MiscSettings,
+  ExploreExploitBiasSettings,
+  ThreadInterestTuningSettings 
+} from "./settingsComponents/UltraFeedSettingsComponents";
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -197,9 +205,6 @@ const UltraFeedSettings = ({
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
-
-  const { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings, ThreadInterestTuningSettings, ExploreExploitBiasSettings } = Components; 
-
   const { flash } = useMessages();
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
@@ -589,12 +594,6 @@ const UltraFeedSettings = ({
   );
 };
 
-const UltraFeedSettingsComponent = registerComponent('UltraFeedSettings', UltraFeedSettings);
-
 export default UltraFeedSettings;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedSettings: typeof UltraFeedSettingsComponent
-  }
-} 
+ 

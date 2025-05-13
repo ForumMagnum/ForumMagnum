@@ -8,13 +8,16 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import Error404 from "../common/Error404";
+import LWDialog from "../common/LWDialog";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -28,7 +31,6 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
   initialData?: UpdateTagFlagDataInput & { _id: string };
   onClose?: () => void,
 }) => {
-  const { Error404, LWDialog, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
 
   const formType = initialData ? 'edit' : 'new';
@@ -201,10 +203,6 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
   )
 }
 
-const TagFlagEditAndNewFormComponent = registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewForm);
+export default registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewForm);
 
-declare global {
-  interface ComponentTypes {
-    TagFlagEditAndNewForm: typeof TagFlagEditAndNewFormComponent
-  }
-}
+

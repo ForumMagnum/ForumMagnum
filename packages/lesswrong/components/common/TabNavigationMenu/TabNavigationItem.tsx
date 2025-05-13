@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
@@ -8,6 +8,9 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
+import TabNavigationSubItem from "./TabNavigationSubItem";
+import LWTooltip from "../LWTooltip";
+import { MenuItemLink } from "../Menus";
 
 export const iconWidth = 30
 
@@ -159,7 +162,7 @@ const useFlag = (tab: MenuTabRegular): {
   onClickFlag?: () => void,
 } => {
   const cookieName = `${NAV_MENU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
-  const [cookies, setCookie] = useCookiesWithConsent();
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const cookie = cookies[cookieName];
   const flag = tab.flag;
   if (flag === "new") {
@@ -211,8 +214,6 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   const IconComponent = isSelected
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
-
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}
@@ -252,12 +253,8 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   </LWTooltip>
 }
 
-const TabNavigationItemComponent = registerComponent(
+export default registerComponent(
   'TabNavigationItem', TabNavigationItem, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationItem: typeof TabNavigationItemComponent
-  }
-}
+

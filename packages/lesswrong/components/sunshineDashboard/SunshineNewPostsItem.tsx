@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -15,6 +15,18 @@ import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/Visibili
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import MetaInfo from "../common/MetaInfo";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import ContentItemBody from "../common/ContentItemBody";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import FormatDate from "../common/FormatDate";
+import FooterTagList from "../tagging/FooterTagList";
+import { Typography } from "../common/Typography";
+import ContentStyles from "../common/ContentStyles";
+import SmallSideVote from "../votes/SmallSideVote";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -116,21 +128,6 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     // The backend state only gets changed in a moderator action callback, so apollo doesn't handle it for us by updating the cache
     refetch();
   }
-
-  const {
-    MetaInfo,
-    LinkPostMessage,
-    ContentItemBody,
-    SunshineListItem,
-    SidebarHoverOver,
-    SidebarInfo,
-    FormatDate,
-    FooterTagList,
-    Typography,
-    ContentStyles,
-    SmallSideVote,
-    ForumIcon
-  } = Components;
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -212,12 +209,8 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   )
 }
 
-const SunshineNewPostsItemComponent = registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
+export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewPostsItem: typeof SunshineNewPostsItemComponent
-  }
-}
+

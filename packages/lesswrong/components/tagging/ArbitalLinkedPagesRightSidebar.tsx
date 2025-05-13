@@ -1,11 +1,14 @@
 import React, { useState, FC } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { SideItemsSidebar } from "../contents/SideItems";
+import ContentStyles from "../common/ContentStyles";
+import TagsTooltip from "./TagsTooltip";
 
 const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
   rightColumn: {
@@ -150,7 +153,7 @@ interface ArbitalLinkedPage {
   slug: string,
 }
 
-const LWTagPageRightColumn = ({tag, selectedLens}: {
+export const LWTagPageRightColumn = ({tag, selectedLens}: {
   tag: TagPageFragment
   selectedLens: TagLens|undefined,
 }) => {
@@ -158,18 +161,16 @@ const LWTagPageRightColumn = ({tag, selectedLens}: {
 
   return <div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      <Components.SideItemsSidebar/>
+      <SideItemsSidebar/>
     </div>
   </div>
 }
 
-const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
+export const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
   tag: TagPageFragment,
   selectedLens?: TagLens,
   arbitalLinkedPages?: ArbitalLinkedPagesFragment,
 }) => {
-  const { ContentStyles } = Components;
-  
   const classes = useStyles(styles);
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
 
@@ -237,7 +238,6 @@ const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
 }
 
 const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPage, className?: string}) => {
-  const { TagsTooltip } = Components;
   const classes = useStyles(styles);
   return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
     <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
@@ -246,7 +246,7 @@ const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPa
   </div>
 }
 
-const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}: {
+export const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}: {
   arbitalLinkedPages?: ArbitalLinkedPagesFragment
   selectedLens?: TagLens,
   tag: TagPageFragment,
@@ -256,8 +256,6 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}
   if (!arbitalLinkedPages) {
     return null;
   }
-
-  const { TagsTooltip, ContentStyles } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   
@@ -297,14 +295,11 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}
   );
 }
 
-const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
+export const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
   const classes = useStyles(styles);
   const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
   const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
-
-  const { ContentStyles } = Components;
-
   if (parents.length === 0 && children.length === 0) return null;
 
   return (
@@ -344,20 +339,5 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
 
 function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] {
   return !!(list && list?.length > 0);
-}
-
-
-const LWTagPageRightColumnComponent = registerComponent('LWTagPageRightColumn', LWTagPageRightColumn);
-const ArbitalLinkedPagesRightSidebarComponent = registerComponent('ArbitalLinkedPagesRightSidebar', ArbitalLinkedPagesRightSidebar);
-const ArbitalRelationshipsSmallScreenComponent = registerComponent('ArbitalRelationshipsSmallScreen', ArbitalRelationshipsSmallScreen);
-const ParentsAndChildrenSmallScreenComponent = registerComponent('ParentsAndChildrenSmallScreen', ParentsAndChildrenSmallScreen);
-
-declare global {
-  interface ComponentTypes {
-    LWTagPageRightColumn: typeof LWTagPageRightColumnComponent
-    ArbitalLinkedPagesRightSidebar: typeof ArbitalLinkedPagesRightSidebarComponent
-    ArbitalRelationshipsSmallScreen: typeof ArbitalRelationshipsSmallScreenComponent
-    ParentsAndChildrenSmallScreen: typeof ParentsAndChildrenSmallScreenComponent
-  }
 }
 

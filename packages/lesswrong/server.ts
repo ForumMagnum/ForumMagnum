@@ -29,7 +29,6 @@ import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
 import './server/legacy-redirects/routes';
-import './server/material-ui/themeProvider';
 import './server/editor/utils';
 import './server/mapsUtils';
 import './server/emails/index';
