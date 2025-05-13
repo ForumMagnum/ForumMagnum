@@ -46,10 +46,6 @@ export const DialogueEditorGuidelines = ({classes}: {
   </div>;
 }
 
-const DialogueEditorGuidelinesComponent = registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
+export default registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DialogueEditorGuidelines: typeof DialogueEditorGuidelinesComponent
-  }
-}
+

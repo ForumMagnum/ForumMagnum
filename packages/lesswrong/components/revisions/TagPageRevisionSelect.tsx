@@ -1,11 +1,16 @@
 import React, { useCallback } from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import RevisionSelect from "./RevisionSelect";
+import TagRevisionItem from "../tagging/TagRevisionItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
 });
@@ -17,9 +22,6 @@ const TagPageRevisionSelect = ({ classes }: {
   const { slug } = params;
   const focusedUser = query.user;
   const navigate = useNavigate();
-
-  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
-  
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
   const { results: revisions, loadMoreProps, count, totalCount } = useMulti({
     skip: !tag,
@@ -72,10 +74,6 @@ const TagPageRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-const TagPageRevisionSelectComponent = registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
+export default registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagPageRevisionSelect: typeof TagPageRevisionSelectComponent
-  }
-}
+

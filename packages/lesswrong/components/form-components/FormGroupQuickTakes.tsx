@@ -27,14 +27,10 @@ const FormGroupQuickTakes = ({
   );
 }
 
-const FormGroupQuickTakesComponent = registerComponent(
+export default registerComponent(
   'FormGroupQuickTakes',
   FormGroupQuickTakes,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    FormGroupQuickTakes: typeof FormGroupQuickTakesComponent
-  }
-}
+

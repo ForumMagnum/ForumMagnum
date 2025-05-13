@@ -6,11 +6,11 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
+import LWTooltip from "../common/LWTooltip";
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -79,9 +79,6 @@ export const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post");
-
-  const { LWTooltip } = Components;
-
   const document = formApi.state.values;
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
@@ -172,12 +169,4 @@ export const PostSubmit = ({
       </div>
     </React.Fragment>
   );
-}
-
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit);
-
-declare global {
-  interface ComponentTypes {
-    PostSubmit: typeof PostSubmitComponent
-  }
 }

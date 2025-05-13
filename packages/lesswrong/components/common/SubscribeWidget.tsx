@@ -1,61 +1,45 @@
-import React, { Component } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { withTracking } from "../../lib/analyticsEvents";
+import React, { useState } from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import TabNavigationSubItem from "./TabNavigationMenu/TabNavigationSubItem";
+import SubscribeDialog from "./SubscribeDialog";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {
     "&:hover": {
       opacity: isFriendlyUI ? 1 : undefined,
       color: isFriendlyUI ? theme.palette.grey[800] : undefined,
     },
   },
-});
+}));
 
-interface SubscribeWidgetProps extends WithTrackingProps {}
-interface SubscribeWidgetProps extends WithStylesProps {}
-interface SubscribeWidgetState {
-  dialogOpen: boolean,
-  method: string,
-}
-class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetState> {
-  state: SubscribeWidgetState = {
-    dialogOpen: false,
-    method: "",
-  }
+export const SubscribeWidget = () => {
+  const classes = useStyles(styles);
 
-  openDialog(method: string) {
-    this.setState({ dialogOpen: true, method });
-    this.props.captureEvent("subscribeButtonsClicked", {method: method, dialogOpen: true})
-  }
+  const { captureEvent } = useTracking();
 
-  render() {
-    const { TabNavigationSubItem, SubscribeDialog } = Components;
-    const { dialogOpen, method } = this.state;
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [method, setMethod] = useState("");
 
-    return (
-      <div>
-        <a onClick={() => this.openDialog("rss")} className={this.props.classes.root}>
-          <TabNavigationSubItem>{isEAForum ? "RSS" : "Subscribe (RSS/Email)"}</TabNavigationSubItem>
-        </a>
-        { dialogOpen && <SubscribeDialog
-          open={true}
-          onClose={ () => this.setState({ dialogOpen: false })}
-          view={isEAForum ? "frontpage" : "curated"}
-          method={method} /> }
-      </div>
-    )
-  }
+  const openDialog = (method: string) => {
+    setDialogOpen(true);
+    setMethod(method);
+    captureEvent("subscribeButtonsClicked", {method: method, dialogOpen: true})
+  };
+
+  return (
+    <div>
+      <a onClick={() => openDialog("rss")} className={classes.root}>
+        <TabNavigationSubItem>{isEAForum ? "RSS" : "Subscribe (RSS/Email)"}</TabNavigationSubItem>
+      </a>
+      { dialogOpen && <SubscribeDialog
+        open={true}
+        onClose={() => setDialogOpen(false)}
+        view={isEAForum ? "frontpage" : "curated"}
+        method={method} /> }
+    </div>
+  )
 }
 
-const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, {
-  styles,
-  hocs: [withTracking]
-});
-
-declare global {
-  interface ComponentTypes {
-    SubscribeWidget: typeof SubscribeWidgetComponent
-  }
-}

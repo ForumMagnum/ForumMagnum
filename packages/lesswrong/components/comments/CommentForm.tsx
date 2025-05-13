@@ -1,7 +1,6 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { Components } from "@/lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -28,6 +27,12 @@ import { useDialog } from "../common/withDialog";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
+import LoginPopup from "../users/LoginPopup";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
+import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -134,7 +139,6 @@ const CommentSubmit = ({
   cancelLabel?: React.ReactNode;
   cancelCallback?: () => (void | Promise<void>);
 }) => {
-  const { Loading } = Components;
   const classes = useStyles(customSubmitButtonStyles);
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -172,7 +176,7 @@ const CommentSubmit = ({
           if (!currentUser) {
             openDialog({
               name: "LoginPopup",
-              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>,
+              contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
             });
             ev.preventDefault();
           }
@@ -229,7 +233,6 @@ export const CommentForm = ({
   onCancel: () => void;
   onError?: () => void;
 }) => {
-  const { Error404, FormGroupNoStyling, FormGroupQuickTakes, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

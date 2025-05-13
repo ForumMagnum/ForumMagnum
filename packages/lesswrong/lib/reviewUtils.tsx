@@ -141,7 +141,7 @@ export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
 // person thought was reasonably important, or at least 4 people thought were "maybe important?"
 export const QUICK_REVIEW_SCORE_THRESHOLD = 4
 
-export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): number {
   // During the nomination phase, posts require 1 positive reviewVote
   // to appear in review post lists (so a single vote allows others to see it
   // and get prompted to cast additional votes.

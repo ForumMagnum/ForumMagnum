@@ -15,11 +15,11 @@ import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
-import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ImageUpload2 from "./ImageUpload2";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
@@ -259,8 +259,6 @@ export const SocialPreviewUpload = ({
   croppingAspectRatio,
 }: SocialPreviewUploadProps) => {
   const classes = useStyles(styles);
-  const { ImageUpload2 } = Components;
-
   const value = field.state.value;
 
   const docWithValue = { ...post, socialPreviewData: value };

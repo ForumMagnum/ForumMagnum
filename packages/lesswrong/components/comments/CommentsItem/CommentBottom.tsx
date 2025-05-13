@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
@@ -11,6 +11,7 @@ import type { VotingSystem } from '../../../lib/voting/votingSystems';
 import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentBottomCaveats from "./CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   bottom: {
@@ -40,7 +41,6 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const isMinimalist = treeOptions.formStyle === "minimalist"
@@ -84,11 +84,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   );
 }
 
-const CommentBottomComponent = registerComponent('CommentBottom', CommentBottom, {styles});
+export default registerComponent('CommentBottom', CommentBottom, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBottom: typeof CommentBottomComponent
-  }
-}
+
 

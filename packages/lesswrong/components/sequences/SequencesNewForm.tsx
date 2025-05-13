@@ -3,7 +3,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
 
 // Also used by SequencesEditForm
@@ -185,10 +185,6 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
   }
 }
 
-const SequencesNewFormComponent = registerComponent('SequencesNewForm', SequencesNewForm, {styles});
+export default registerComponent('SequencesNewForm', SequencesNewForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNewForm: typeof SequencesNewFormComponent
-  }
-}
+

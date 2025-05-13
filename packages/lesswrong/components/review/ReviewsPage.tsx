@@ -1,9 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import SingleColumnSection from "../common/SingleColumnSection";
+import ReviewsList from "./ReviewsList";
 
 const styles = (theme: ThemeType) => ({
   yearLinks: {
@@ -29,8 +31,6 @@ const styles = (theme: ThemeType) => ({
 
 
 export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
-  const { SingleColumnSection, ReviewsList } = Components
-
   const { params } = useLocation()
 
   if (params.year !== 'all') {
@@ -49,11 +49,7 @@ export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof 
   </SingleColumnSection>;
 }
 
-const ReviewsPageComponent = registerComponent('ReviewsPage', ReviewsPage, {styles});
+export default registerComponent('ReviewsPage', ReviewsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewsPage: typeof ReviewsPageComponent
-  }
-}
+
 

@@ -102,12 +102,8 @@ export const OverflowNavButtons = ({ nav, onCollapse, applyCommentStyle }: Props
   );
 };
 
-const OverflowNavButtonsComponent = registerComponent("OverflowNavButtons", OverflowNavButtons);
+export default registerComponent("OverflowNavButtons", OverflowNavButtons);
 
-export default OverflowNavButtonsComponent;
 
-declare global {
-  interface ComponentTypes {
-    OverflowNavButtons: typeof OverflowNavButtonsComponent
-  }
-} 
+
+ 

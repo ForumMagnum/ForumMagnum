@@ -1,8 +1,9 @@
 import React from 'react';
 import { makeSortableListComponent } from '../form-components/sortableList';
-import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import PostsItemWrapper from "../posts/PostsItemWrapper";
+import PostsSearchAutoComplete from "../search/PostsSearchAutoComplete";
 
 const styles = defineStyles('PostsListEditor', (theme: ThemeType) => ({
   editor: {
@@ -22,7 +23,7 @@ const SortableList = makeSortableListComponent({
   RenderItem: ({contents, removeItem}) => {
     const classes = useStyles(styles);
     return <li className={classes.item}>
-      <Components.PostsItemWrapper documentId={contents} removeItem={removeItem} />
+      <PostsItemWrapper documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -40,7 +41,7 @@ export const PostsListEditor = ({ field }: {
         field.handleChange(newValue);
       }}
     />
-    <Components.PostsSearchAutoComplete
+    <PostsSearchAutoComplete
       clickAction={(postId: string) => {
         field.handleChange([...value, postId]);
       }}

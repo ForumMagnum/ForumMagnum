@@ -38,10 +38,6 @@ const CitationTags = ({title, author, coauthors, date}: {
   );
 }
 
-const CitationTagsComponent = registerComponent("CitationTags", CitationTags);
+export default registerComponent("CitationTags", CitationTags);
 
-declare global {
-  interface ComponentTypes {
-    CitationTags: typeof CitationTagsComponent
-  }
-}
+

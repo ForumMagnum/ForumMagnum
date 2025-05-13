@@ -47,14 +47,10 @@ const FormGroupFriendlyUserProfile = ({label, children, classes}: {
   );
 }
 
-const FormGroupFriendlyUserProfileComponent = registerComponent(
+export default registerComponent(
   "FormGroupFriendlyUserProfile",
   FormGroupFriendlyUserProfile,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    FormGroupFriendlyUserProfile: typeof FormGroupFriendlyUserProfileComponent
-  }
-}
+

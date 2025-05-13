@@ -493,7 +493,7 @@ interface DbEmailTokens extends DbObject {
   legacyData: any | null
   params: any | null
   token: string
-  tokenType: string
+  tokenType: 'unsubscribeAll' | 'verifyEmail' | 'resetPassword'
   usedAt: Date | null
   userId: string
 }
@@ -534,7 +534,7 @@ interface DbForumEvent extends DbObject {
   commentPrompt: string | null
   contrastColor: string | null
   createdAt: Date
-  customComponent: string | null
+  customComponent: "GivingSeason2024Banner" | null
   darkColor: string
   endDate: Date | null
   eventFormat: "BASIC" | "POLL" | "STICKERS"

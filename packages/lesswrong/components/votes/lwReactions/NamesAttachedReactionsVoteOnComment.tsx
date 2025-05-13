@@ -1,7 +1,8 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
-import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import type { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
+import type { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
+import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
@@ -25,6 +26,21 @@ import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
 import { slugify } from '@/lib/utils/slugify';
+import LoginPopup from "../../users/LoginPopup";
+import ReactOrAntireactVote from "./ReactOrAntireactVote";
+import UsersWhoReacted from "./UsersWhoReacted";
+import OverallVoteAxis from "../OverallVoteAxis";
+import AgreementVoteAxis from "../AgreementVoteAxis";
+import ReactionIcon from "../ReactionIcon";
+import LWPopper from "../../common/LWPopper";
+import Row from "../../common/Row";
+import LWTooltip from "../../common/LWTooltip";
+import ReactionDescription from "./ReactionDescription";
+import ReactionHoverTopRow from "./ReactionHoverTopRow";
+import ReactionQuotesHoverInfo from "./ReactionQuotesHoverInfo";
+import PopperCard from "../../common/PopperCard";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
+import ReactionsPalette from "../ReactionsPalette";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -176,7 +192,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   function openLoginDialog() {
     openDialog({
       name: "LoginPopup",
-      contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+      contents: ({onClose}) => <LoginPopup onClose={onClose}/>
     });
   }
 
@@ -282,10 +298,8 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
 }
 
 
-const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
-  const { OverallVoteAxis, AgreementVoteAxis } = Components;
-  
   return <span className={classes.root}>
     <OverallVoteAxis
       document={document}
@@ -302,7 +316,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
   </span>
 }
 
-const NamesAttachedReactionsCommentBottom = ({
+const NamesAttachedReactionsCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, classes, voteProps, post
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
@@ -341,7 +355,7 @@ const NamesAttachedReactionsCommentBottom = ({
       {hideKarma && <AddReactionIcon />}
     </span>}
     {(hiddenReacts.length > 0 || alwaysShowReactionOverviewButton) && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
-    {showReactButton && <AddReactionButton voteProps={voteProps} classes={classes}/>}
+    {showReactButton && <AddReactionButton voteProps={voteProps} />}
   </span>
 }
 
@@ -358,7 +372,6 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   classes: ClassesType<typeof styles>,
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
-  const { ReactionIcon, LWPopper } = Components;
   const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReactionVote = getCurrentUserReactionVote(react, quote);
   const currentUserReaction = getCurrentUserReaction(react, quote)
@@ -439,8 +452,6 @@ const ReactionOverview = ({voteProps, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
-  const { Row, LWTooltip, ReactionIcon, ReactionDescription } = Components;
-
   const alreadyUsedReactionTypesByKarma = getAlreadyUsedReactTypesByKarma();
   const alreadyUsedReactions = getAlreadyUsedReacts();
   
@@ -459,14 +470,14 @@ const ReactionOverview = ({voteProps, classes}: {
               </>}>
                 <ReactionIcon react={r}/>
               </LWTooltip>
-              <Components.ReactOrAntireactVote
+              <ReactOrAntireactVote
                 reactionName={r}
                 quote={null}
                 netReactionCount={netReactionCount}
                 currentUserReaction={getCurrentUserReactionVote(r, null)}
                 setCurrentUserReaction={setCurrentUserReaction}
               />
-              <Components.UsersWhoReacted reactions={reactions}/>
+              <UsersWhoReacted reactions={reactions}/>
             </Row>
           </div>
         })}
@@ -481,7 +492,6 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   classes: ClassesType<typeof styles>,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null
 }) => {
-  const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
   const alreadyUsedReactions: NamesAttachedReactionsList = normalizedReactions?.reacts ?? {};
   const relevantReactions = alreadyUsedReactions[react] ?? [];
@@ -508,13 +518,12 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   </div>
 }
 
-export const AddReactionButton = ({voteProps, classes}: {
+const AddReactionButtonInner = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
-  const { PopperCard, LWClickAwayListener, LWTooltip, ReactionsPalette } = Components;
   const { captureEvent } = useTracking();
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
@@ -564,8 +573,6 @@ const ReactionOverviewButton = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWTooltip } = Components;
-
   return <LWTooltip
     inlineBlock={false}
     clickable={true}
@@ -577,23 +584,17 @@ const ReactionOverviewButton = ({voteProps, classes}: {
 }
 
 
-const AddReactionButtonComponent = registerComponent('AddReactionButton', AddReactionButton, {styles});
+export const AddReactionButton = registerComponent('AddReactionButton', AddReactionButtonInner, {styles});
 
-const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
+export const NamesAttachedReactionsVoteOnComment = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnCommentInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-const NamesAttachedReactionsCommentBottomComponent = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottom, {
+export const NamesAttachedReactionsCommentBottom = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottomInner, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnCommentComponent
-    NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottomComponent
-    AddReactionButton: typeof AddReactionButtonComponent
-  }
-}
+
 

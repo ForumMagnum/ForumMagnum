@@ -11,8 +11,17 @@ import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDiges
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import Loading from "../../vulcan-core/Loading";
+import EditDigestHeader from "./EditDigestHeader";
+import ForumDropdown from "../../common/ForumDropdown";
+import ForumDropdownMultiselect from "../../common/ForumDropdownMultiselect";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import EditDigestActionButtons from "./EditDigestActionButtons";
+import EditDigestTableRow from "./EditDigestTableRow";
+import Error404 from "../../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -359,11 +368,6 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     )
     flash({messageString: "Email digest post list copied"})
   }
-
-
-  const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
-    EditDigestActionButtons, EditDigestTableRow, Error404 } = Components
-  
   // list of the most common tags in the overall posts list
   const tagCounts = useMemo(() => {
     return posts?.reduce((tagsList: TagUsage[], post) => {
@@ -570,10 +574,6 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const EditDigestComponent = registerComponent('EditDigest', EditDigest, {styles});
+export default registerComponent('EditDigest', EditDigest, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigest: typeof EditDigestComponent
-  }
-}
+

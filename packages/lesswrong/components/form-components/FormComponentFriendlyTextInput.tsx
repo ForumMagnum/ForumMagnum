@@ -1,9 +1,10 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = defineStyles('FormComponentFriendlyTextInput', (theme: ThemeType) => ({
   label: {
@@ -45,9 +46,6 @@ export const FormComponentFriendlyTextInput = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
-
-
-  const {SectionTitle} = Components;
   return (
     <div className={classNames(
       className,
@@ -70,15 +68,4 @@ export const FormComponentFriendlyTextInput = ({
       />
     </div>
   );
-}
-
-const FormComponentFriendlyTextInputComponent = registerComponent(
-  "FormComponentFriendlyTextInput",
-  FormComponentFriendlyTextInput,
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentFriendlyTextInput: typeof FormComponentFriendlyTextInputComponent
-  }
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
@@ -11,6 +10,7 @@ import { useNavigate } from '../../../lib/routeUtil';
 import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '@/lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
+import Row from "../../common/Row";
 
 export const styles = defineStyles('DialogueSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -89,8 +89,6 @@ export const DialogueSubmit = ({
   const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
-
-  const {Row} = Components;
   return (
     <Row justifyContent="flex-end">
       <Button type="submit"
@@ -139,10 +137,3 @@ export const DialogueSubmit = ({
   );
 }
 
-const DialogueSubmitComponent = registerComponent('DialogueSubmit', DialogueSubmit);
-
-declare global {
-  interface ComponentTypes {
-    DialogueSubmit: typeof DialogueSubmitComponent
-  }
-}

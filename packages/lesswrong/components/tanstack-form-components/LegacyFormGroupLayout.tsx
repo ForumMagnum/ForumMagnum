@@ -1,6 +1,7 @@
-import { Components } from "@/lib/vulcan-lib/components";
 import React, { useState } from "react";
 import { TooltipSpan } from "../common/FMTooltip";
+import FormGroupLayout from "../form-components/FormGroupLayout";
+import { FormGroupHeader } from "../vulcan-forms/FormGroup";
 
 export const LegacyFormGroupLayout = ({
   label,
@@ -23,7 +24,6 @@ export const LegacyFormGroupLayout = ({
   tooltipText?: string;
   children: React.ReactNode;
 }) => {
-  const { FormGroupLayout, FormGroupHeader } = Components;
   const [collapsed, setCollapsed] = useState(startCollapsed ?? false);
 
   const heading = <FormGroupHeader

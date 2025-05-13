@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
@@ -10,6 +10,11 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import LWTooltip from "../common/LWTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import ConversationPreview from "../messaging/ConversationPreview";
+import PostNominatedNotification from "../review/PostNominatedNotification";
+import TagRelNotificationItem from "./TagRelNotificationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,7 +76,6 @@ const TooltipWrapper: FC<{
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({title, children, classes}) => {
-  const {LWTooltip} = Components;
   return (
     <LWTooltip
       {...tooltipProps}
@@ -111,10 +115,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   );
 
   const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
-    const {
-      PostsTooltip, ConversationPreview, PostNominatedNotification,
-    } = Components;
-
     if (notificationType.onsiteHoverView) {
       return (
         <TooltipWrapper
@@ -200,7 +200,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   }, [classes, currentUser, notification, notificationLink, notificationType, documentId]);
 
   const renderMessage = () => {
-    const { TagRelNotificationItem } = Components
     switch (notification.documentType) {
       // TODO: add case for tagRel
       case 'tagRel': 
@@ -260,13 +259,9 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   );
 }
 
-const NotificationsItemComponent = registerComponent('NotificationsItem', NotificationsItem, {
+export default registerComponent('NotificationsItem', NotificationsItem, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationsItem: typeof NotificationsItemComponent
-  }
-}
+

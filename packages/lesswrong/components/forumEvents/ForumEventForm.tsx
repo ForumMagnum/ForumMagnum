@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -19,6 +19,10 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { useSingle } from "@/lib/crud/withSingle";
 import { EVENT_FORMATS } from "@/lib/collections/forumEvents/types";
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
@@ -36,12 +40,10 @@ const InnerForumEventForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: UpdateForumEventDataInput & { _id: string; eventFormat?: DbForumEvent['eventFormat'] };
+  initialData?: UpdateForumEventDataInput & { _id: string; eventFormat?: DbForumEvent['eventFormat']; customComponent?: DbForumEvent['customComponent'] };
   onSuccess: (doc: ForumEventsEdit) => void;
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip, Error404 } = Components;
-
   const formType = initialData ? 'edit' : 'new';
 
   const {
@@ -424,8 +426,6 @@ export const ForumEventForm = ({ documentId }: {
   const classes = useStyles(styles);
 
   const title = documentId ? "Edit forum event" : "New forum event";
-  const { SectionTitle, Loading } = Components;
-
   const [remountingForm, setRemountingForm] = useState(false);
 
   const { document: editableDocument, loading } = useSingle({
@@ -459,13 +459,9 @@ export const ForumEventForm = ({ documentId }: {
   );
 }
 
-const ForumEventFormComponent = registerComponent(
+export default registerComponent(
   "ForumEventForm",
   ForumEventForm,
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventForm: typeof ForumEventFormComponent
-  }
-}
+

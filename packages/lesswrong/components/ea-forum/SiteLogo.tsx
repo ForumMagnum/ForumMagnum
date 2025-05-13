@@ -44,12 +44,8 @@ const SiteLogo = ({eaContrast, classes}: {
 }
 
 SiteLogo.displayName = "SiteLogo";
-const SiteLogoComponent = registerComponent(
+export default registerComponent(
   'SiteLogo', SiteLogo, {styles}
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    SiteLogo: typeof SiteLogoComponent
-  }
-}
+

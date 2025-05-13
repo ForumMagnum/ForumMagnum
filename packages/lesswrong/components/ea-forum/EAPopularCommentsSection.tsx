@@ -1,8 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
 import { preferredHeadingCase } from "../../themes/forumTheme";
+import ExpandableSection from "../common/ExpandableSection";
+import PopularCommentsList from "../comments/PopularCommentsList";
 
 const EAPopularCommentsSection = () => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -12,7 +14,6 @@ const EAPopularCommentsSection = () => {
     onCollapseEvent: "popularCommentsSectionCollapsed",
     cookieName: SHOW_POPULAR_COMMENTS_SECTION_COOKIE,
   });
-  const {ExpandableSection, PopularCommentsList} = Components;
   return (
     <ExpandableSection
       pageSectionContext="popularCommentsSection"
@@ -25,13 +26,9 @@ const EAPopularCommentsSection = () => {
   );
 }
 
-const EAPopularCommentsSectionComponent = registerComponent(
+export default registerComponent(
   "EAPopularCommentsSection",
   EAPopularCommentsSection,
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPopularCommentsSection: typeof EAPopularCommentsSectionComponent
-  }
-}
+

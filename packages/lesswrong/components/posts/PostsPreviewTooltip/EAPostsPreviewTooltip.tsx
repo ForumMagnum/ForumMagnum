@@ -1,8 +1,12 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from "./helpers";
 import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
+import PostExcerpt from "../../common/excerpts/PostExcerpt";
+import EAPostMeta from "../../ea-forum/EAPostMeta";
+import TruncatedTagsList from "../../tagging/TruncatedTagsList";
+import CommentsNodeInner from "../../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,8 +73,6 @@ const EAPostsPreviewTooltip = ({
 
   const showSubheaderInfo = !postsList;
   const {imageUrl} = post.socialPreviewData ?? {};
-
-  const {PostExcerpt, EAPostMeta, TruncatedTagsList, CommentsNode} = Components;
   return (
     <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <div className={classes.root}>
@@ -94,7 +96,7 @@ const EAPostsPreviewTooltip = ({
           </div>
           {comment
             ? (
-              <CommentsNode
+              <CommentsNodeInner
                 treeOptions={{
                   post,
                   hideReply: true,
@@ -128,14 +130,10 @@ const EAPostsPreviewTooltip = ({
   );
 }
 
-const EAPostsPreviewTooltipComponent = registerComponent(
+export default registerComponent(
   "EAPostsPreviewTooltip",
   EAPostsPreviewTooltip,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsPreviewTooltip: typeof EAPostsPreviewTooltipComponent
-  }
-}
+

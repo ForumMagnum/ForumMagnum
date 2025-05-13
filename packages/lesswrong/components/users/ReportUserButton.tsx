@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
+import ReportForm from "../sunshineDashboard/ReportForm";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   reportUserSection: {
@@ -35,7 +37,7 @@ const ReportUserButton = ({user, classes}: {
   
     openDialog({
       name: "ReportForm",
-      contents: ({onClose}) => <Components.ReportForm
+      contents: ({onClose}) => <ReportForm
         onClose={onClose}
         reportedUserId={user._id}
         link={`/users/${user.slug}`}
@@ -46,9 +48,6 @@ const ReportUserButton = ({user, classes}: {
       />,
     })
   }
-  
-  const { SingleColumnSection } = Components
-
   if (currentUser && (currentUser._id !== user._id)) {
     return <SingleColumnSection className={classes.reportUserSection}>
       <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
@@ -58,10 +57,6 @@ const ReportUserButton = ({user, classes}: {
   }
 }
 
-const ReportUserButtonComponent = registerComponent('ReportUserButton', ReportUserButton, {styles});
+export default registerComponent('ReportUserButton', ReportUserButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReportUserButton: typeof ReportUserButtonComponent
-  }
-}
+

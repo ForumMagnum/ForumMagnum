@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
+import MetaInfo from "../common/MetaInfo";
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -49,7 +50,6 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   currentShowMyDialogues: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -87,12 +87,8 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   );
 };
 
-const DialoguesSectionFrontpageSettingsComponent = registerComponent(
+export default registerComponent(
   'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    DialoguesSectionFrontpageSettings: typeof DialoguesSectionFrontpageSettingsComponent
-  }
-}
+

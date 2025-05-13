@@ -1,10 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
+import EAButton from "../ea-forum/EAButton";
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -81,9 +86,6 @@ const NotifyMeButton = ({
   if (disabled) {
     return null;
   }
-
-  const {LWTooltip, Loading, ForumIcon, MenuItem, EAButton} = Components;
-
   const icon = showIcon && <ListItemIcon>
     {loading
       ? <Loading/>
@@ -140,14 +142,10 @@ const NotifyMeButton = ({
     : maybeToolipButton;
 }
 
-const SubscribeToComponent = registerComponent(
+export default registerComponent(
   'NotifyMeButton',
   NotifyMeButton,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotifyMeButton: typeof SubscribeToComponent
-  }
-}
+

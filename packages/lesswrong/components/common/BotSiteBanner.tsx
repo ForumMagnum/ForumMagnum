@@ -1,5 +1,6 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import SingleColumnSection from "./SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,8 +22,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SingleColumnSection } = Components;
-
   return (
     <SingleColumnSection className={classes.root}>
       <div>
@@ -37,10 +36,6 @@ const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   );
 };
 
-const BotSiteBannerComponent = registerComponent("BotSiteBanner", BotSiteBanner, { styles });
+export default registerComponent("BotSiteBanner", BotSiteBanner, { styles });
 
-declare global {
-  interface ComponentTypes {
-    BotSiteBanner: typeof BotSiteBannerComponent;
-  }
-}
+
