@@ -226,34 +226,22 @@ export interface SettingsFormErrors {
   threadInterestModel?: ZodFormattedError<ThreadInterestModelFormState, string> | null;
 }
 
+export type WithEmptyString<T> = T extends number ? number | '' :
+                           T extends string ? T | '' :
+                           T;
+
+// Utility type to create a form state version of a settings object (allow values to be empty strings)
+export type ToFormState<T> = {
+  [P in keyof T]: T[P] extends (infer E)[]
+    ? (WithEmptyString<E>)[]
+    : WithEmptyString<T[P]>;
+};
+
 export type SourceWeightFormState = {
   [key in FeedItemSourceType]: number | '';
-}
-
-export interface DisplaySettingsFormState {
-  lineClampNumberOfLines: number | '';
-  postBreakpoints: (number | null | '')[];
-  commentBreakpoints: (number | null | '')[];
-  postTitlesAreModals: boolean;
-}
-
-export interface CommentScoringFormState {
-  ultraFeedSeenPenalty: number | '';
-  quickTakeBoost: number | '';
-  commentSubscribedAuthorMultiplier: number | '';
-  commentDecayFactor: number | '';
-  commentDecayBiasHours: number | '';
-  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg' | '';
-  threadScoreFirstN: number | '';
-}
-export interface ThreadInterestModelFormState {
-  commentCoeff: number | '';
-  voteCoeff: number | '';
-  viewCoeff: number | '';
-  onReadPostFactor: number | '';
-  logImpactFactor: number | '';
-  minOverallMultiplier: number | '';
-  maxOverallMultiplier: number | '';
-}
+};
+export type DisplaySettingsFormState = ToFormState<typeof DEFAULT_SETTINGS["displaySettings"]>;
+export type CommentScoringFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["commentScoring"]>;
+export type ThreadInterestModelFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["threadInterestModel"]>;
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings';
