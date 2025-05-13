@@ -15,10 +15,6 @@ const Footer = ({classes}: {
   )
 }
 
-const FooterComponent = registerComponent('Footer', Footer, {styles});
+export default registerComponent('Footer', Footer, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Footer: typeof FooterComponent
-  }
-}
+

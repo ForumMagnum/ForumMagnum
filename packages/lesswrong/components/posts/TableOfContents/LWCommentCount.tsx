@@ -2,7 +2,8 @@ import React, { FC, MouseEvent } from 'react';
 import classNames from 'classnames';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
-import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import { registerComponent } from "@/lib/vulcan-lib/components";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +55,6 @@ export const LWCommentCount = ({classes, answerCount, commentCount, label=true}:
   commentCount?: number,
   label?: boolean,
 }) => {
-  const { ForumIcon } = Components;
   return <div className={classes.root}>
         {typeof answerCount === 'number' && <CommentsLink anchor="#answers" className={classes.comments}>
           <div className={classes.answerIcon}>A</div>
@@ -68,10 +68,6 @@ export const LWCommentCount = ({classes, answerCount, commentCount, label=true}:
       </div>
 }
 
-const LWCommentCountComponent = registerComponent('LWCommentCount', LWCommentCount, {styles});
+export default registerComponent('LWCommentCount', LWCommentCount, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWCommentCount: typeof LWCommentCountComponent
-  }
-}
+

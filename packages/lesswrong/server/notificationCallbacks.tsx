@@ -5,7 +5,7 @@ import * as _ from 'underscore';
 import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
-import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import type { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 
 
 interface NotifyDialogueParticipantProps {

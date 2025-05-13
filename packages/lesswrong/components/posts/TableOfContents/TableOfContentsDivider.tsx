@@ -21,11 +21,7 @@ const TableOfContentsDivider = ({ scaleStyling }: {
   return <div className={classes.divider} style={scaleStyling}/>
 }
 
-const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider);
+export default registerComponent('TableOfContentsDivider', TableOfContentsDivider);
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsDivider: typeof TableOfContentsDividerComponent
-  }
-}
+
 

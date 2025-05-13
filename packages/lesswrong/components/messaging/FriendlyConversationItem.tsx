@@ -1,9 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { truncate } from "../../lib/editor/ellipsize";
 import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
+import UsersProfileImage from "../users/UsersProfileImage";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -90,7 +92,6 @@ const FriendlyConversationItem = ({
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
-  const { UsersProfileImage, FormatDate } = Components;
   const isSelected = selectedConversationId === conversation._id;
 
   const { onClick } = useClickableCell({ onClick: () => setSelectedConversationId(conversation._id) });
@@ -142,10 +143,6 @@ const FriendlyConversationItem = ({
   );
 };
 
-const FriendlyConversationItemComponent = registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
+export default registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
 
-declare global {
-  interface ComponentTypes {
-    FriendlyConversationItem: typeof FriendlyConversationItemComponent;
-  }
-}
+

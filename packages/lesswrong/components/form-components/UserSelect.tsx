@@ -1,7 +1,10 @@
 import React, {useCallback} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import SingleUsersItem from "./SingleUsersItem";
 
 const styles = defineStyles('FormUserSelect', (theme: ThemeType) => ({
   root: {
@@ -23,15 +26,15 @@ const UserSelect = ({ value, setValue, label }: {
 
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.UsersSearchAutoComplete
+      <ErrorBoundary>
+        <UsersSearchAutoComplete
           clickAction={(userId: string, result: SearchUser) => setValue(userId, result)}
           label={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       {value && (
         <div className={classes.item}>
-          <Components.SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
+          <SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
         </div>
       )}
     </div>
@@ -49,17 +52,13 @@ export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
     field.handleChange(newValue);
   }, [field]);
 
-  return <Components.UserSelect
+  return <UserSelect
     value={value}
     setValue={setValue}
     label={label}
   />
 };
 
-const UserSelectComponent = registerComponent("UserSelect", UserSelect);
+export default registerComponent("UserSelect", UserSelect);
 
-declare global {
-  interface ComponentTypes {
-    UserSelect: typeof UserSelectComponent
-  }
-}
+

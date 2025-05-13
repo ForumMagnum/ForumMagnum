@@ -13,7 +13,7 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
-import { Components } from "@/lib/vulcan-lib/components";
+import LoginPopup from "../users/LoginPopup";
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -131,7 +131,7 @@ export const useNotifyMe = ({
     if (!currentUser) {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return;
     }

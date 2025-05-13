@@ -39,10 +39,6 @@ const CalendlyIFrame = ({url, classes}: {url: string, classes: ClassesType<typeo
   </div>
 }
 
-const CalendlyIFrameComponent = registerComponent('CalendlyIFrame', CalendlyIFrame, {styles})
+export default registerComponent('CalendlyIFrame', CalendlyIFrame, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CalendlyIFrame: typeof CalendlyIFrameComponent
-  }
-}
+

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useNavigate } from '../../lib/routeUtil';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -14,6 +14,10 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import LWTooltip from "../common/LWTooltip";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = defineStyles('EditPaymentInfoPage', (theme: ThemeType) => ({
   root: {
@@ -39,8 +43,6 @@ const UserPaymentInfoForm = ({
   onSuccess: (doc: UsersEdit) => void;
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip, Error404 } = Components;
-
   const formType = initialData ? 'edit' : 'new';
 
   const { mutate } = useUpdate({
@@ -123,7 +125,6 @@ const UserPaymentInfoForm = ({
 };
 
 export const EditPaymentInfoPage = () => {
-  const { SectionTitle, Error404, ContentStyles } = Components
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
@@ -146,11 +147,7 @@ export const EditPaymentInfoPage = () => {
   </ContentStyles>;
 }
 
-const EditPaymentInfoPageComponent = registerComponent('EditPaymentInfoPage', EditPaymentInfoPage);
+export default registerComponent('EditPaymentInfoPage', EditPaymentInfoPage);
 
-declare global {
-  interface ComponentTypes {
-    EditPaymentInfoPage: typeof EditPaymentInfoPageComponent
-  }
-}
+
 

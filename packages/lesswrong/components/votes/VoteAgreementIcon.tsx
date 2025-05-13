@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,9 +114,6 @@ const VoteAgreementIcon = ({
   const handlers = enabled ? eventHandlers : {};
 
   const {mainColor, lightColor} = useVoteColors(color);
-
-  const { ForumIcon } = Components;
-
   const bigVoteVisible = bigVotingTransition || bigVoteCompleted || bigVoted
 
   const strongVoteLargeIconClasses = (upOrDown === "Downvote")
@@ -181,13 +179,9 @@ const VoteAgreementIcon = ({
   )
 }
 
-const VoteAgreementIconComponent = registerComponent('VoteAgreementIcon', VoteAgreementIcon, {styles});
+export default registerComponent('VoteAgreementIcon', VoteAgreementIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    VoteAgreementIcon: typeof VoteAgreementIconComponent
-  }
-}
+
 
 
 

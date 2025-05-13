@@ -1,6 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import LWTooltip from "../common/LWTooltip";
 
 export const EMPTY_TEXT_PLACEHOLDER = "–";
 
@@ -20,22 +21,21 @@ export const emptyTextCellStyles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryTextCell', (theme: ThemeType) => ({
   root: {
     ...textCellStyles(theme),
   },
   empty: {
     ...emptyTextCellStyles(theme),
   },
-});
+}));
 
-const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
+export const PeopleDirectoryTextCell = ({user, fieldName}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const text = String(user[fieldName] || "").trim() || EMPTY_TEXT_PLACEHOLDER;
-  const {LWTooltip} = Components;
   return (
     <LWTooltip title={user[fieldName] ? String(user[fieldName]) : undefined}>
       <div className={classNames(classes.root, {
@@ -45,16 +45,4 @@ const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
       </div>
     </LWTooltip>
   );
-}
-
-const PeopleDirectoryTextCellComponent = registerComponent(
-  "PeopleDirectoryTextCell",
-  PeopleDirectoryTextCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryTextCell: typeof PeopleDirectoryTextCellComponent
-  }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { DEFAULT_QUALITATIVE_VOTE } from "@/lib/collections/posts/helpers";
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
@@ -55,8 +56,6 @@ const styles = (theme: ThemeType) => {
 }
 
 const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
-  const { LWTooltip } = Components
-
   const currentUser = useCurrentUser()
 
   const [selection, setSelection] = useState(currentUserVote?.score || DEFAULT_QUALITATIVE_VOTE)
@@ -100,10 +99,6 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
   </AnalyticsContext>
 }
 
-const ReviewVotingButtonsComponent = registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});
+export default registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingButtons: typeof ReviewVotingButtonsComponent
-  }
-}
+

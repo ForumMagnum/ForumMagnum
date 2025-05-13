@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -52,8 +54,6 @@ const PrefixedInput = ({
   smallBottomMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SocialMediaIcon, FormComponentFriendlyTextInput} = Components;
-
   const value = field.state.value;
   const fieldName = field.name;
 
@@ -81,10 +81,6 @@ const PrefixedInput = ({
   );
 }
 
-const PrefixedInputComponent = registerComponent("PrefixedInput", PrefixedInput, { styles });
+export default registerComponent("PrefixedInput", PrefixedInput, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PrefixedInput: typeof PrefixedInputComponent
-  }
-}
+

@@ -3,8 +3,11 @@ import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import LoadMore from "../common/LoadMore";
+import ConceptItem from "./ConceptItem";
+import Loading from "../vulcan-core/Loading";
 
 // TODO: single source for here and ConceptItem, must be kept in sync
 const CONCEPT_ITEM_WIDTH = 280;
@@ -128,11 +131,6 @@ const WikiTagGroup = ({
     })
     setLimit(newLimit);
   };
-
-
-  const { LoadMore, ConceptItem, Loading } = Components;
-
-
   if (searchTagIds && pages.length === 0) {
     return null;
   }
@@ -185,12 +183,8 @@ const WikiTagGroup = ({
 };
 
 
-const WikiTagGroupComponent = registerComponent("WikiTagGroup", WikiTagGroup);
+export default registerComponent("WikiTagGroup", WikiTagGroup);
 
-declare global {
-  interface ComponentTypes {
-    WikiTagGroup: typeof WikiTagGroupComponent
-  }
-}
-export default WikiTagGroupComponent;
+
+
 

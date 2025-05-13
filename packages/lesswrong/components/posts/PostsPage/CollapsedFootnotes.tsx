@@ -133,14 +133,10 @@ const CollapsedFootnotes = ({
   );
 }
 
-const CollapsedFootnotesComponent = registerComponent(
+export default registerComponent(
   "CollapsedFootnotes",
   CollapsedFootnotes,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CollapsedFootnotes: typeof CollapsedFootnotesComponent
-  }
-}
+

@@ -1,11 +1,16 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import CommentUserName from "../comments/CommentsItem/CommentUserName";
+import CommentShortformIcon from "../comments/CommentsItem/CommentShortformIcon";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -132,8 +137,6 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
   onPostTitleClick?: () => void,
 }) => {
   const classes = useStyles(styles);
-  const { PostsTooltip } = Components;
-
   const { post } = comment;
 
   const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -187,8 +190,6 @@ const UltraFeedCommentsItemMeta = ({
   onPostTitleClick?: () => void,
 }) => {
   const classes = useStyles(styles);
-  const { CommentsMenu, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components;
-
   const currentUser = useCurrentUser();
   const { post } = comment;
 
@@ -240,15 +241,11 @@ const UltraFeedCommentsItemMeta = ({
   );
 };
 
-const UltraFeedCommentsItemMetaComponent = registerComponent(
+export default registerComponent(
   "UltraFeedCommentsItemMeta",
   UltraFeedCommentsItemMeta
 );
 
-export default UltraFeedCommentsItemMetaComponent;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedCommentsItemMeta: typeof UltraFeedCommentsItemMetaComponent
-  }
-} 
+
+ 

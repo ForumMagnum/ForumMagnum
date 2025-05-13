@@ -53,10 +53,6 @@ const SunshineGoogleServiceAccount = ({ classes }: {
   )
 }
 
-const SunshineGoogleServiceAccountComponent = registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles})
+export default registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineGoogleServiceAccount: typeof SunshineGoogleServiceAccountComponent
-  }
-}
+

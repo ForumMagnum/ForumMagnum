@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LoadMore from "../common/LoadMore";
+import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
@@ -26,9 +29,6 @@ const ShortformThreadList = ({ classes }: {
     enableTotal: false,
     pollInterval: 0,
   });
-
-  const { LoadMore, CommentOnPostWithReplies, QuickTakesEntry } = Components;
-  
   return (
     <div>
       {(userCanQuickTake(currentUser) || !currentUser) &&
@@ -52,10 +52,6 @@ const ShortformThreadList = ({ classes }: {
   )
 }
 
-const ShortformThreadListComponent = registerComponent('ShortformThreadList', ShortformThreadList, {styles});
+export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformThreadList: typeof ShortformThreadListComponent
-  }
-}
+

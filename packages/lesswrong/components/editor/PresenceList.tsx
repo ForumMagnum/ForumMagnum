@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   user: {
@@ -95,15 +96,11 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
     <div className={classes.activeDot}>
     </div>
     <span className={classes.offlineIcon}>{!connected && <CloudOff/>}</span>
-    {user && <Components.UsersName user={user}/>}
+    {user && <UsersName user={user}/>}
     {isLoggedOutUser && <>Anonymous</>}
   </span>
 }
 
-const PresenceListComponent = registerComponent('PresenceList', PresenceList, {styles});
+export default registerComponent('PresenceList', PresenceList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PresenceList: typeof PresenceListComponent
-  }
-}
+

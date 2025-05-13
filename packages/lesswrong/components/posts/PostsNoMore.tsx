@@ -3,11 +3,7 @@ import React from "react";
 
 const PostsNoMore = () => <p className="posts-no-more">No more posts.</p>;
 
-const PostsNoMoreComponent = registerComponent('PostsNoMore', PostsNoMore);
+export default registerComponent('PostsNoMore', PostsNoMore);
 
-declare global {
-  interface ComponentTypes {
-    PostsNoMore: typeof PostsNoMoreComponent
-  }
-}
+
 

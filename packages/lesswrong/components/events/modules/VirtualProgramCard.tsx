@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import * as _ from 'underscore';
 import { Card } from "@/components/widgets/Paper";
@@ -7,6 +7,7 @@ import moment from 'moment';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { useEAVirtualPrograms } from '@/components/hooks/useEAVirtualPrograms';
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   eventCard: {
@@ -109,8 +110,6 @@ const VirtualProgramCard = ({program, classes}: {
   const { captureEvent } = useTracking();
   const now = useCurrentTime()
   const { deadline, start, end } = useEAVirtualPrograms();
-  const { FormatDate } = Components;
-
   if (program === 'intro') {
     return <a
       href="https://www.effectivealtruism.org/virtual-programs/introductory-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
@@ -194,15 +193,11 @@ const VirtualProgramCard = ({program, classes}: {
   return null
 }
 
-const VirtualProgramCardComponent = registerComponent('VirtualProgramCard', VirtualProgramCard, {
+export default registerComponent('VirtualProgramCard', VirtualProgramCard, {
   styles,
   
   // This is based around an image, which doesn't get inverted in dark mode
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    VirtualProgramCard: typeof VirtualProgramCardComponent
-  }
-}
+

@@ -58,11 +58,7 @@ export const HoveredReactionContextProvider = ({voteProps, children}: {
   </HoveredReactionListContext.Provider>
 }
 
-const HoveredReactionContextProviderComponent = registerComponent('HoveredReactionContextProvider', HoveredReactionContextProvider);
+export default registerComponent('HoveredReactionContextProvider', HoveredReactionContextProvider);
 
-declare global {
-  interface ComponentTypes {
-    HoveredReactionContextProvider: typeof HoveredReactionContextProviderComponent
-  }
-}
+
 

@@ -4,11 +4,12 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import LWDialog from "../common/LWDialog";
 
 const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -68,7 +69,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   });
 
   return (
-    <Components.LWDialog
+    <LWDialog
       title={title}
       open={true}
       onClose={onClose}
@@ -107,15 +108,11 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
           </div>
         </form>
       </DialogContent>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 
-const ReportFormComponent = registerComponent('ReportForm', ReportForm);
+export default registerComponent('ReportForm', ReportForm);
 
-declare global {
-  interface ComponentTypes {
-    ReportForm: typeof ReportFormComponent
-  }
-}
+
 

@@ -1,13 +1,15 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import type { ContentStyleType } from '../../common/ContentStyles';
+import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import ContentItemBody, { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
+import CommentDeletedMetadata from "./CommentDeletedMetadata";
+import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
@@ -57,7 +59,6 @@ const CommentBody = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -108,11 +109,7 @@ const CommentBody = ({
   }
 }
 
-const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {styles});
+export default registerComponent('CommentBody', CommentBody, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBody: typeof CommentBodyComponent,
-  }
-}
+
 

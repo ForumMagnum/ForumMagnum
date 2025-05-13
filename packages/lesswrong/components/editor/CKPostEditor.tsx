@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { CollaborationMode } from './EditorTopBar';
+import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
@@ -31,6 +31,9 @@ import { claimsConfig } from './claims/claimsConfig';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isClient } from '@/lib/executionEnvironment';
 import { useCkEditorInspector } from '@/client/useCkEditorInspector';
+import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
+import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
+import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -420,7 +423,6 @@ const CKPostEditor = ({
   const { openDialog } = useDialog();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
-  const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
   const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
@@ -476,7 +478,7 @@ const CKPostEditor = ({
   const conditionalVisibilityPluginConfiguration: ConditionalVisibilityPluginConfiguration = {
     renderConditionalVisibilitySettingsInto: (element, initialState, setDocumentState) => {
       if (portalContext) {
-        portalContext.createPortal(element, <Components.EditConditionalVisibility
+        portalContext.createPortal(element, <EditConditionalVisibility
           initialState={initialState}
           setDocumentState={setDocumentState}
         />);
@@ -736,9 +738,5 @@ const CKPostEditor = ({
   </div>
 }
 
-const CKPostEditorComponent = registerComponent("CKPostEditor", CKPostEditor, {styles});
-declare global {
-  interface ComponentTypes {
-    CKPostEditor: typeof CKPostEditorComponent
-  }
-}
+export default registerComponent("CKPostEditor", CKPostEditor, {styles});
+

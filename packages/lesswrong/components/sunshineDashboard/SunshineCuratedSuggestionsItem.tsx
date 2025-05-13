@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -10,6 +10,16 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import CurationNoticesItem from "../admin/CurationNoticesItem";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import { Typography } from "../common/Typography";
+import PostsHighlight from "../posts/PostsHighlight";
+import SidebarInfo from "./SidebarInfo";
+import SidebarAction from "./SidebarAction";
+import SidebarActionMenu from "./SidebarActionMenu";
+import ForumIcon from "../common/ForumIcon";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   audioIcon: {
@@ -38,8 +48,6 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   timeForCuration?: boolean,
 }) => {
   const currentUser = useCurrentUser();
-  const { CurationNoticesItem, SunshineListItem, SidebarHoverOver, Typography, PostsHighlight, SidebarInfo, SidebarAction, SidebarActionMenu, ForumIcon, FormatDate } = Components
-
   const { hover, anchorEl, eventHandlers } = useHover();
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
@@ -157,12 +165,8 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   )
 }
 
-const SunshineCuratedSuggestionsItemComponent = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
+export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineCuratedSuggestionsItem: typeof SunshineCuratedSuggestionsItemComponent
-  }
-}
+

@@ -1,6 +1,7 @@
 import React, { FC } from "react";
-import { Components } from "../../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../../themes/forumTheme";
+import EAPostsPreviewTooltip from "./EAPostsPreviewTooltip";
+import LWPostsPreviewTooltip from "./LWPostsPreviewTooltip";
 
 export interface DialogueMessageInfo {
   dialogueMessageId: string
@@ -17,5 +18,5 @@ export type PostsPreviewTooltipProps = {
 
 export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>
   isFriendlyUI
-    ? <Components.EAPostsPreviewTooltip {...props} />
-    : <Components.LWPostsPreviewTooltip {...props} />;
+    ? <EAPostsPreviewTooltip {...props} />
+    : <LWPostsPreviewTooltip {...props} />;

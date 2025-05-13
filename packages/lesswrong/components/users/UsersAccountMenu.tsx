@@ -1,10 +1,15 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
+import EAButton from "../ea-forum/EAButton";
+import EALoginPopover from "../ea-forum/auth/EALoginPopover";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import LoginForm from "./LoginForm";
 import { Paper } from '../widgets/Paper';
 
 const styles = (theme: ThemeType) => ({
@@ -34,7 +39,6 @@ const EAUsersAccountMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {onLogin, onSignup} = useLoginPopoverContext();
-  const {EAButton, EALoginPopover} = Components;
   return (
     <div className={classes.root}>
       <EAButton
@@ -75,8 +79,6 @@ const LWUsersAccountMenu = ({classes}: {
     captureEvent("loginButtonClicked", {open: false});
     setOpen(false);
   }, [captureEvent]);
-
-  const {LWClickAwayListener, LWPopper, LoginForm} = Components;
   return (
     <div className={classes.root}>
       <Button onClick={handleClick}>
@@ -99,14 +101,10 @@ const LWUsersAccountMenu = ({classes}: {
   );
 }
 
-const UsersAccountMenuComponent = registerComponent(
+export default registerComponent(
   "UsersAccountMenu",
   isFriendlyUI ? EAUsersAccountMenu : LWUsersAccountMenu,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersAccountMenu: typeof UsersAccountMenuComponent
-  }
-}
+

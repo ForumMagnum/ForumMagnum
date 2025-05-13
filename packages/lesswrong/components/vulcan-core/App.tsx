@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { localeSetting, siteImageSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
-import { useLocation, withRouter } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
 import {
   LocationContext,
@@ -19,17 +19,21 @@ import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
 import { onUserChanged } from '@/client/logging';
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "./Loading";
+import HeadTags from "../common/HeadTags";
+import ScrollToTop from "./ScrollToTop";
+import Layout from "../Layout";
 
 interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
 }
 
-const App = ({serverRequestStatus, history}: ExternalProps & {
-  history: History
-}) => {
+const App = ({serverRequestStatus}: ExternalProps) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
+  const history = useHistory();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
   const navigationContext = useRef<{ history: History<unknown> } | null>(null);
@@ -55,7 +59,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
   
   if (location.redirected) {
     return (
-      <Components.PermanentRedirect url={location.url} />
+      <PermanentRedirect url={location.url} />
     );
   }
 
@@ -92,7 +96,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
   // and logged-out views.)
   if (currentUserLoading && !currentUser) {
     return (
-      <Components.Loading />
+      <Loading />
     );
   }
 
@@ -103,11 +107,11 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
     <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
       <MessageContextProvider>
-        <Components.HeadTags image={siteImageSetting.get()} />
-        <Components.ScrollToTop />
-        <Components.Layout currentUser={currentUser}>
+        <HeadTags image={siteImageSetting.get()} />
+        <ScrollToTop />
+        <Layout currentUser={currentUser}>
           <location.RouteComponent />
-        </Components.Layout>
+        </Layout>
       </MessageContextProvider>
     </RefetchCurrentUserContext.Provider>
     </ServerRequestStatusContext.Provider>
@@ -117,14 +121,6 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
   );
 }
 
-const AppComponent = registerComponent<ExternalProps>('App', App, {
-  hocs: [withRouter],
-});
+export default registerComponent('App', App);
 
-declare global {
-  interface ComponentTypes {
-    App: typeof AppComponent
-  }
-}
 
-export default App;

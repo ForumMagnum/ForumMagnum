@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { useCurrentUser } from '../common/withUser';
+import UltraFeed from "../ultraFeed/UltraFeed";
 
 const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
   root: {
@@ -18,8 +18,6 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
 
 const UltraFeedPage = () => {
   const classes = useStyles(styles);
-  const { UltraFeed } = Components;
-
   const currentUser = useCurrentUser();
 
   if (!currentUser) {
@@ -37,12 +35,6 @@ const UltraFeedPage = () => {
   );
 };
 
-const UltraFeedPageComponent = registerComponent('UltraFeedPage', UltraFeedPage);
-
 export default UltraFeedPage;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPage: typeof UltraFeedPageComponent
-  }
-} 
+ 

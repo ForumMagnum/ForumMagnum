@@ -1,10 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
-import type { CommonExcerptProps } from "./ContentExcerpt";
+import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
+import Loading from "../../vulcan-core/Loading";
 
 const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
   "user" in post;
@@ -43,8 +44,6 @@ const PostExcerpt = ({
     extraVariablesValues: {hash},
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
-
-  const {Loading, ContentExcerpt} = Components;
   if ((loading && !hash) || (loadingHighlight && hash)) {
     return (
       <Loading />
@@ -76,13 +75,9 @@ const PostExcerpt = ({
   );
 }
 
-const PostExcerptComponent = registerComponent(
+export default registerComponent(
   "PostExcerpt",
   PostExcerpt,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostExcerpt: typeof PostExcerptComponent,
-  }
-}
+

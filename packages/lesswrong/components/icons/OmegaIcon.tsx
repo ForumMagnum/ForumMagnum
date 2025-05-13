@@ -26,10 +26,6 @@ const OmegaIcon = ({classes, className}: {
   return <span className={classNames(classes.root, className)}>Ω</span>
 }
 
-const OmegaIconComponent = registerComponent('OmegaIcon', OmegaIcon, {styles});
+export default registerComponent('OmegaIcon', OmegaIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OmegaIcon: typeof OmegaIconComponent
-  }
-}
+

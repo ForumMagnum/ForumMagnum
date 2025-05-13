@@ -4,10 +4,14 @@ import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
 import { TagForm } from './TagForm';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import NewTagInfoBox from "./NewTagInfoBox";
+import Loading from "../vulcan-core/Loading";
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -26,7 +30,6 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, SectionTitle, NewTagInfoBox, Loading } = Components;
   const {mutate: updateTag} = useUpdate({
     collectionName: "Tags",
     fragmentName: "TagEditFragment",
@@ -104,10 +107,6 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage, {styles});
+export default registerComponent('NewTagPage', NewTagPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagPage: typeof NewTagPageComponent
-  }
-}
+

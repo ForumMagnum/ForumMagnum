@@ -1,8 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +41,6 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   displayTitle: boolean,
   reviewedAt?: Date
 }) => {
-  const {PostsTooltip, FormatDate} = Components;
   return (
     <PostsTooltip
       post={post}
@@ -70,10 +71,6 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   );
 }
 
-const PostKarmaWithPreviewComponent = registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
+export default registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostKarmaWithPreview: typeof PostKarmaWithPreviewComponent
-  }
-}
+

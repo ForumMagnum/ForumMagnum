@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
@@ -14,6 +14,22 @@ import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
 import { ChaptersForm } from './ChaptersForm';
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import SequencesEditForm from "./SequencesEditForm";
+import HeadTags from "../common/HeadTags";
+import CloudinaryImage from "../common/CloudinaryImage";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionSubtitle from "../common/SectionSubtitle";
+import ChaptersList from "./ChaptersList";
+import FormatDate from "../common/FormatDate";
+import SectionFooter from "../common/SectionFooter";
+import UsersName from "../users/UsersName";
+import ContentItemBody from "../common/ContentItemBody";
+import { Typography } from "../common/Typography";
+import SectionButton from "../common/SectionButton";
+import ContentStyles from "../common/ContentStyles";
+import NotifyMeButton from "../notifications/NotifyMeButton";
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -182,12 +198,6 @@ const SequencesPage = ({ documentId, classes }: {
   const showSequence = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-    ChaptersList, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
-  } = Components
-  
   if (document?.isDeleted) {
     return <SingleColumnSection>
       <Typography variant="body2" className={classes.deletedText}>
@@ -198,17 +208,17 @@ const SequencesPage = ({ documentId, classes }: {
   if (loading) return <Loading />
   
   if (!document) {
-    return <Components.Error404/>
+    return <Error404/>
   }
   if (edit) {
     if (!currentUser) {
       return <div>You must be logged in to edit this sequence.</div>
     }
     if (editLoading) {
-      return <Components.Loading />
+      return <Loading />
     }
     if (!editDocument) {
-      return <Components.Error404/>
+      return <Error404/>
     }
     return (
       <SequencesEditForm
@@ -331,10 +341,6 @@ const SequencesPage = ({ documentId, classes }: {
   </AnalyticsContext>
 }
 
-const SequencesPageComponent = registerComponent('SequencesPage', SequencesPage, {styles});
+export default registerComponent('SequencesPage', SequencesPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesPage: typeof SequencesPageComponent
-  }
-}
+
