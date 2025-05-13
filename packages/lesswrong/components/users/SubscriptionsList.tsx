@@ -36,7 +36,7 @@ const SubscriptionsList = ({
   subscriptionType: string,
   renderDocument: (document: AnyBecauseTodo) => ReactNode,
   title: React.ReactNode,
-  subscriptionTypeDescription?: String
+  subscriptionTypeDescription?: string
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();

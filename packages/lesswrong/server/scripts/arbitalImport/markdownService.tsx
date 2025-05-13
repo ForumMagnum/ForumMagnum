@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable eqeqeq */
 /* eslint-disable no-control-regex */
-/* eslint-disable @typescript-eslint/type-annotation-spacing */
+/* eslint-disable @stylistic/ts/type-annotation-spacing */
 /* eslint-disable no-console */
 
 //import app from './angular.ts';

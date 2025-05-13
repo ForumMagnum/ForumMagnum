@@ -26,7 +26,6 @@ import { default as ContextWatchdog } from "../ckeditor5-watchdog/contextwatchdo
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor> & {
   isCollaborative: boolean
 }, {}> {

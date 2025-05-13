@@ -139,7 +139,7 @@ const tooltips: Partial<Record<string,string>> = {
 
 const GroupLinks = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
-  noMargin?: Boolean,
+  noMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
