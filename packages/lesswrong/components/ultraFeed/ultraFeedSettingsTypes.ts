@@ -142,7 +142,7 @@ export const levelToCommentLinesMap: Record<TruncationLevel, number> = {
   'Unset': 0,
 };
 
-export const levelToCommentBreakpointMap: Record<TruncationLevel, number | null | undefined> = {
+export const levelToCommentBreakpointMap: Record<TruncationLevel, number | undefined> = {
   'Very Short': 50,
   'Short': 100,
   'Medium': 200,
@@ -151,7 +151,7 @@ export const levelToCommentBreakpointMap: Record<TruncationLevel, number | null 
   'Unset': undefined  // not present
 };
 
-export const levelToPostBreakpointMap: Record<TruncationLevel, number | null | undefined> = {
+export const levelToPostBreakpointMap: Record<TruncationLevel, number | undefined> = {
   'Very Short': 50,
   'Short': 100,
   'Medium': 200,

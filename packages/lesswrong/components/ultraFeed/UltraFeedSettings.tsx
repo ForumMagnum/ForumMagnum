@@ -415,12 +415,12 @@ const UltraFeedSettings = ({
       const commentLevels = [simpleViewTruncationLevels.commentLevel0, simpleViewTruncationLevels.commentLevel1, simpleViewTruncationLevels.commentLevel2];
       settingsToUpdate.displaySettings!.commentTruncationBreakpoints = commentLevels
         .map(lvl => levelToCommentBreakpointMap[lvl])
-        .filter(bp => bp !== undefined) as number[];
+        .filter(bp => bp !== undefined)
 
       const postLevels = [simpleViewTruncationLevels.postLevel0, simpleViewTruncationLevels.postLevel1, simpleViewTruncationLevels.postLevel2];
       settingsToUpdate.displaySettings!.postTruncationBreakpoints = postLevels
         .map(lvl => levelToPostBreakpointMap[lvl])
-        .filter(bp => bp !== undefined) as number[];
+        .filter(bp => bp !== undefined)
       
     } else {
       settingsToUpdate.displaySettings!.lineClampNumberOfLines = parseNumericInputAsZeroOrNumber(
@@ -435,7 +435,7 @@ const UltraFeedSettings = ({
           if (isNaN(num)) return undefined;
           return num; 
         })
-        .filter(bp => bp !== undefined) as number[];
+        .filter(bp => bp !== undefined) 
       
       settingsToUpdate.displaySettings!.commentTruncationBreakpoints = formValues.displaySetting.commentTruncationBreakpoints
         .map(val => {
@@ -444,7 +444,7 @@ const UltraFeedSettings = ({
           if (isNaN(num)) return undefined;
           return num; 
         })
-        .filter(bp => bp !== undefined) as number[];
+        .filter(bp => bp !== undefined) 
     }
 
     const result = ultraFeedSettingsSchema.safeParse(settingsToUpdate);

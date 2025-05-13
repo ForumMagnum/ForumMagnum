@@ -74,7 +74,6 @@ const resolverSettingsSchema = z.object({
   threadInterestModel: threadInterestModelSchema.default(DEFAULT_SETTINGS.resolverSettings.threadInterestModel),
 });
 
-// Export the schema, marked as partial to allow for partial updates
 export const ultraFeedSettingsSchema = z.object({
   displaySettings: displaySettingsSchema.default(DEFAULT_SETTINGS.displaySettings),
   resolverSettings: resolverSettingsSchema,
