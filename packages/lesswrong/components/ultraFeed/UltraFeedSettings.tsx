@@ -156,8 +156,8 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
     incognitoMode: resolverSettings.incognitoMode ?? defaultResolverSettings.incognitoMode,
     displaySetting: {
       lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
-      postBreakpoints: [...(displaySettings.postTruncationBreakpoints || [])],
-      commentBreakpoints: [...(displaySettings.commentTruncationBreakpoints || [])],
+      postTruncationBreakpoints: [...(displaySettings.postTruncationBreakpoints || [])],
+      commentTruncationBreakpoints: [...(displaySettings.commentTruncationBreakpoints || [])],
       postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
     },
     commentScoring: mergeWith(
@@ -305,7 +305,7 @@ const UltraFeedSettings = ({
     index: number,
     value: string | number
   ) => {
-    const field = kind === 'post' ? 'postBreakpoints' : 'commentBreakpoints';
+    const field = kind === 'post' ? 'postTruncationBreakpoints' : 'commentTruncationBreakpoints';
     updateDisplaySettingForm(field, (prev: (number | '')[]) => {
       const currentArray = [...prev];
       if (value === '') {
@@ -434,7 +434,7 @@ const UltraFeedSettings = ({
         0 
       );
           
-      settingsToUpdate.displaySettings!.postTruncationBreakpoints = formValues.displaySetting.postBreakpoints
+      settingsToUpdate.displaySettings!.postTruncationBreakpoints = formValues.displaySetting.postTruncationBreakpoints
         .map(val => {
           if (val === '') return undefined;
           const num = Number(val);
@@ -443,7 +443,7 @@ const UltraFeedSettings = ({
         })
         .filter(bp => bp !== undefined) as number[];
       
-      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = formValues.displaySetting.commentBreakpoints
+      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = formValues.displaySetting.commentTruncationBreakpoints
         .map(val => {
           if (val === '') return undefined;
           const num = Number(val);
@@ -491,8 +491,8 @@ const UltraFeedSettings = ({
     values: formValues.displaySetting,
     errors: {
       lineClampNumberOfLines: zodErrors?.displaySettings?.lineClampNumberOfLines?._errors?.[0],
-      postBreakpoints: zodErrors?.displaySettings?.postTruncationBreakpoints,
-      commentBreakpoints: zodErrors?.displaySettings?.commentTruncationBreakpoints,
+      postTruncationBreakpoints: zodErrors?.displaySettings?.postTruncationBreakpoints,
+      commentTruncationBreakpoints: zodErrors?.displaySettings?.commentTruncationBreakpoints,
     },
     onLineClampChange: handleLineClampChange,
     onBreakpointChange: handleBreakpointChange,

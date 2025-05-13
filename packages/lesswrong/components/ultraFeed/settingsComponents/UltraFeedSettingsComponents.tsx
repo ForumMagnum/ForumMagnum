@@ -548,16 +548,16 @@ type ArrayFieldError = ZodFormattedError<(number | null)[] | undefined, string> 
 interface AdvancedTruncationSettingsProps {
   values: {
     lineClampNumberOfLines: number | '';
-    postBreakpoints: (number | null | '')[];
-    commentBreakpoints: (number | null | '')[];
+    postTruncationBreakpoints: (number | '')[];
+    commentTruncationBreakpoints: (number | '')[];
   };
   errors: {
     lineClampNumberOfLines?: string;
-    postBreakpoints?: ZodFormattedError<(number | null)[] | undefined, string>;
-    commentBreakpoints?: ZodFormattedError<(number | null)[] | undefined, string>;
+    postTruncationBreakpoints?: ZodFormattedError<number[], string>;
+    commentTruncationBreakpoints?: ZodFormattedError<number[], string>;
   };
   onLineClampChange: (value: number | string) => void;
-  onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
+  onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number) => void;
   defaultOpen?: boolean;
 }
 
@@ -577,8 +577,8 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
     index: number,
   ): string | undefined => {
     const err = (kind === 'post'
-      ? errors.postBreakpoints
-      : errors.commentBreakpoints) as ArrayFieldError | undefined;
+      ? errors.postTruncationBreakpoints
+      : errors.commentTruncationBreakpoints) as ArrayFieldError | undefined;
 
     return err?.[index]?._errors?.[0] ?? err?._errors?.[0];
   };
@@ -586,7 +586,7 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   const createBreakpointInputProps = (kind: 'post' | 'comment', index: number) => ({
     kind,
     index,
-    value: kind === 'post' ? values.postBreakpoints[index] : values.commentBreakpoints[index],
+    value: kind === 'post' ? values.postTruncationBreakpoints[index] : values.commentTruncationBreakpoints[index],
     errorMessage: getBreakpointError(kind, index),
     onChange: onBreakpointChange,
     disabled: kind === 'comment' && index === 0 && values.lineClampNumberOfLines !== 0 && values.lineClampNumberOfLines !== '',
@@ -643,11 +643,11 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
         </p>
       )}
 
-      {errors.postBreakpoints?._errors?.[0] && !getBreakpointError('post', 0) && !getBreakpointError('post', 1) && !getBreakpointError('post', 2) && (
-        <p className={classes.errorMessage}>{errors.postBreakpoints._errors[0]}</p>
+      {errors.postTruncationBreakpoints?._errors?.[0] && !getBreakpointError('post', 0) && !getBreakpointError('post', 1) && !getBreakpointError('post', 2) && (
+        <p className={classes.errorMessage}>{errors.postTruncationBreakpoints._errors[0]}</p>
       )}
-      {errors.commentBreakpoints?._errors?.[0] && !getBreakpointError('comment', 0) && !getBreakpointError('comment', 1) && !getBreakpointError('comment', 2) && (
-        <p className={classes.errorMessage}>{errors.commentBreakpoints._errors[0]}</p>
+      {errors.commentTruncationBreakpoints?._errors?.[0] && !getBreakpointError('comment', 0) && !getBreakpointError('comment', 1) && !getBreakpointError('comment', 2) && (
+        <p className={classes.errorMessage}>{errors.commentTruncationBreakpoints._errors[0]}</p>
       )}
     </CollapsibleSettingGroup>
   );
