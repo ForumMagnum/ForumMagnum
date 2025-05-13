@@ -118,9 +118,7 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
       display: 'none !important',
     },
     [theme.breakpoints.down('sm')]: {
-      // fontSize: 17,
       '& h1, & h2, & h3, & h4': {
-        fontSize: 20.5,
         marginBlockStart: "0 !important",
       },
       '& img, & iframe': {
@@ -128,7 +126,6 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
         height: 'auto',
       },
       '& blockquote, & li': {
-        // fontSize: 17
       }
     },
   }
