@@ -130,6 +130,10 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     marginTop: 4,
     textAlign: 'right',
   },
+  errorMessageCenteredText: {
+    textAlign: 'center',
+    width: '100%',
+  },
   // Styles for Truncation Grid
   truncationGridContainer: {
     display: 'grid',
@@ -458,6 +462,8 @@ interface TruncationGridSettingsProps {
   onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
   originalSettings: UltraFeedSettingsType;
   defaultOpen?: boolean;
+  postBreakpointError?: string;
+  commentBreakpointError?: string;
 }
 
 const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
@@ -465,9 +471,31 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   onChange,
   originalSettings,
   defaultOpen = true,
+  postBreakpointError,
+  commentBreakpointError,
 }) => {
   const classes = useStyles(styles);
   const showWarning = checkMismatch(originalSettings);
+
+  const breakpointErrorDisplay = (postBreakpointError || commentBreakpointError) && (
+    <>
+      <div />
+      <div className={classes.truncationGridCell}>
+        {postBreakpointError && (
+          <p className={classNames(classes.errorMessage, classes.errorMessageCenteredText)}>
+            {postBreakpointError}
+          </p>
+        )}
+      </div>
+      <div className={classes.truncationGridCell}>
+        {commentBreakpointError && (
+          <p className={classNames(classes.errorMessage, classes.errorMessageCenteredText)}>
+            {commentBreakpointError}
+          </p>
+        )}
+      </div>
+    </>
+  );
 
   return (
     <CollapsibleSettingGroup title="Content Display Length" defaultOpen={defaultOpen} className={classes.settingGroup}>
@@ -492,6 +520,8 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
         <div />
         <div className={classes.truncationGridHeader}>Posts</div>
         <div className={classes.truncationGridHeader}>Comments</div>
+        
+        {breakpointErrorDisplay}
 
         <div className={classes.truncationGridRowHeader}>Level 0</div>
         <TruncationLevelDropdown field="postLevel0" value={levels.postLevel0} onChange={onChange} />
@@ -628,7 +658,6 @@ interface ExploreExploitBiasSettingsProps {
   currentLogImpactFactor: number | ''; 
   onExploreBiasChange: (newExploreBiasValue: number) => void;
   defaultOpen?: boolean;
-  // We might need error display if a direct validation on exploreBias itself were added, but not for now.
 }
 
 const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
@@ -667,7 +696,7 @@ const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
             onChange={(e) => {
               const val = parseFloat(e.target.value);
               if (!isNaN(val)) {
-                onExploreBiasChange(Math.max(0, Math.min(2, val))); // Clamp input too
+                onExploreBiasChange(Math.max(0, Math.min(2, val)));
               }
             }}
             min={0}
@@ -684,7 +713,6 @@ const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProps> = ({
             This adjusts <code>Log Impact Factor</code> and <code>Subscribed Author Boost</code> located in Advanced Settings and <code>Subscribed Author</code> proportion in Source Weights.
           </p>
         </div>
-        {/* No error message planned for this simple slider for now */}
       </div>
     </CollapsibleSettingGroup>
   );
@@ -1070,7 +1098,7 @@ const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettingsProps> 
               <input
                 type="number"
                 className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!currentError })}
-                value={currentValue} // Keep as number | '' for input field
+                value={currentValue}
                 onChange={(e) => onFieldChange(f.key, e.target.value)}
                 min={f.min}
                 max={f.max}
@@ -1138,7 +1166,7 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
   );
 };
 const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);
-export default TruncationGridSettingsComponent; // one export required to make Vite HMR work
+export default TruncationGridSettingsComponent;
 
 declare global {
   interface ComponentTypes {

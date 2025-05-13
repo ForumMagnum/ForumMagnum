@@ -7,16 +7,16 @@ import { ZodFormattedError } from 'zod';
 
 
 export interface UltraFeedDisplaySettings {
-  postTruncationBreakpoints: (number | null)[];
+  postTruncationBreakpoints: number[];
   lineClampNumberOfLines: number;
-  commentTruncationBreakpoints: (number | null)[];
+  commentTruncationBreakpoints: number[];
   postTitlesAreModals: boolean;
 }
 
 interface DefaultUltraFeedDisplaySettings {
-  postTruncationBreakpoints: (number | null)[];
+  postTruncationBreakpoints: number[];
   lineClampNumberOfLines: number;
-  commentTruncationBreakpoints: (number | null)[];
+  commentTruncationBreakpoints: number[];
   postTitlesAreModals: boolean;
 }
 
@@ -49,6 +49,8 @@ const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
   commentTruncationBreakpoints: [50, 200, 1000],
   postTitlesAreModals: true,
 };
+
+export const SHOW_ALL_BREAKPOINT_VALUE = Number.MAX_SAFE_INTEGER;
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recombee-lesswrong-custom': 30,
@@ -164,7 +166,7 @@ export const levelToCommentBreakpointMap: Record<TruncationLevel, number | null 
   'Short': 100,
   'Medium': 200,
   'Long': 1000,
-  'Full': null,       // explicit "show all"
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
   'Unset': undefined  // not present
 };
 
@@ -173,13 +175,12 @@ export const levelToPostBreakpointMap: Record<TruncationLevel, number | null | u
   'Short': 100,
   'Medium': 200,
   'Long': 2000,
-  'Full': null,       // explicit "show all"
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
   'Unset': undefined  // not present
 };
 
-export const getCommentBreakpointLevel = (breakpoint: number | null | undefined): TruncationLevel => {
-  if (breakpoint === null) return 'Full';
-  if (breakpoint === undefined) return 'Unset';
+export const getCommentBreakpointLevel = (breakpoint: number): TruncationLevel => {
+  if (breakpoint === SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
   if (breakpoint <= 0) return 'Full';
 
   let closestLevel: TruncationLevel = 'Very Short';
@@ -199,23 +200,22 @@ export const getCommentBreakpointLevel = (breakpoint: number | null | undefined)
   return closestLevel;
 };
 
-export const getFirstCommentLevel = (lines: number, breakpoint: number | null | undefined): TruncationLevel => {
+export const getFirstCommentLevel = (lines: number, breakpoint: number): TruncationLevel => {
   if (lines === 2) {
     return 'Very Short';
   }
   return getCommentBreakpointLevel(breakpoint);
 };
 
-export const getPostBreakpointLevel = (breakpoint: number | null | undefined): TruncationLevel => {
-  if (breakpoint === null) return 'Full';
-  if (breakpoint === undefined) return 'Unset';
+export const getPostBreakpointLevel = (breakpoint: number): TruncationLevel => {
+  if (breakpoint === SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
   if (breakpoint <= 0) return 'Full';
 
   let closestLevel: TruncationLevel = 'Very Short';
   let minDiff = Infinity;
   for (const level of truncationLevels) {
     if (level === 'Full' || level === 'Unset') continue;
-    const mapVal = levelToPostBreakpointMap[level]; // Use post map
+    const mapVal = levelToPostBreakpointMap[level];
     if (mapVal === undefined || mapVal === null) continue;
     const diff = Math.abs(mapVal - breakpoint);
     if (diff < minDiff) {
