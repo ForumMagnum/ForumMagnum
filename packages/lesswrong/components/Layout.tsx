@@ -62,6 +62,7 @@ import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
+import { defineStyles, useStyles } from './hooks/useStyles';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -73,7 +74,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("Layout", (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -231,34 +232,39 @@ const styles = (theme: ThemeType) => ({
   stickyWrapperHeaderVisible: {
     transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
-});
+}));
 
 const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
 
-const StickyWrapper: FC<{
-  eaHomeLayout: boolean,
-  headerVisible: boolean,
-  headerAtTop: boolean,
+const StickyWrapper = ({children}: {
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
-}> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
-  eaHomeLayout
-    ? (
-      <StickyBox offsetTop={0} offsetBottom={20}>
-        <div className={classNames(classes.stickyWrapper, {
-          [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
-        })}>
-          {children}
-        </div>
-      </StickyBox>
-    )
-    : <>{children}</>;
+}) => {
+  const classes = useStyles(styles);
+  const {headerVisible, headerAtTop} = useHeaderVisible();
 
-const Layout = ({currentUser, children, classes}: {
+  return <StickyBox offsetTop={0} offsetBottom={20}>
+    <div className={classNames(classes.stickyWrapper, {
+      [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
+    })}>
+      {children}
+    </div>
+  </StickyBox>
+}
+
+const MaybeStickyWrapper: FC<{
+  sticky: boolean,
+  children: ReactNode,
+}> = ({sticky, children}) => {
+  return sticky
+    ? <StickyWrapper>{children}</StickyWrapper>
+    : <>{children}</>;
+}
+
+const Layout = ({currentUser, children}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
@@ -267,7 +273,6 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -430,12 +435,7 @@ const Layout = ({currentUser, children, classes}: {
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
                 {standaloneNavigation &&
-                  <StickyWrapper
-                    eaHomeLayout={friendlyHomeLayout}
-                    headerVisible={headerVisible}
-                    headerAtTop={headerAtTop}
-                    classes={classes}
-                  >
+                  <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
                       <NavigationStandalone
                         sidebarHidden={hideNavigationSidebar}
@@ -443,7 +443,7 @@ const Layout = ({currentUser, children, classes}: {
                         noTopMargin={friendlyHomeLayout}
                       />
                     </DeferRender>
-                  </StickyWrapper>
+                  </MaybeStickyWrapper>
                 }
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
@@ -465,16 +465,11 @@ const Layout = ({currentUser, children, classes}: {
                 {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
-                  <StickyWrapper
-                    eaHomeLayout={friendlyHomeLayout}
-                    headerVisible={headerVisible}
-                    headerAtTop={headerAtTop}
-                    classes={classes}
-                  >
+                  <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
                       <EAHomeRightHandSide />
                     </DeferRender>
-                  </StickyWrapper>
+                  </MaybeStickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
@@ -520,6 +515,6 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   return isWrapped ? null : <IntercomWrapper />
 }
 
-export default registerComponent('Layout', Layout, {styles});
+export default registerComponent('Layout', Layout);
 
 
