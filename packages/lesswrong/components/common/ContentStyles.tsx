@@ -101,10 +101,40 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
         fontSize: 17
       }
     },
+  },
+  ultraFeedPost: {
+    marginTop: 0,
+    marginBottom: 0,
+    '& p:first-child': {
+      marginTop: '0 !important',
+    },
+    '& p:last-child': {
+      marginBottom: '0 !important',
+    },
+    '& p:first-child > br:first-child': {
+      display: 'none !important',
+    },
+    '& p:last-child > br:last-child': {
+      display: 'none !important',
+    },
+    [theme.breakpoints.down('sm')]: {
+      // fontSize: 17,
+      '& h1, & h2, & h3, & h4': {
+        fontSize: 20.5,
+        marginBlockStart: "0 !important",
+      },
+      '& img, & iframe': {
+        maxWidth: '100%',
+        height: 'auto',
+      },
+      '& blockquote, & li': {
+        // fontSize: 17
+      }
+    },
   }
 }), { stylePriority: -1 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -147,6 +177,7 @@ const ContentStyles = ({contentType, className, style, children}: {
     contentType==="debateResponse" && classes.debateResponseBody,
     contentType==="llmChat" && classes.llmChat,
     contentType==="ultraFeed" && classes.ultraFeed,
+    contentType==="ultraFeedPost" && classes.ultraFeedPost,
   )}>
     {children}
   </div>;

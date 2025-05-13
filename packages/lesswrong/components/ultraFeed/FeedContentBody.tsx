@@ -135,6 +135,8 @@ export interface FeedContentBodyProps {
   hideSuffix?: boolean;
   /** when changed, resets expansion level to 0 */
   resetSignal?: number;
+  /** If true, use serif style for the content */
+  serifStyle?: boolean;
 }
 
 const FeedContentBody = ({
@@ -150,6 +152,7 @@ const FeedContentBody = ({
   clampOverride,
   hideSuffix,
   resetSignal,
+  serifStyle = false,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -281,6 +284,8 @@ const FeedContentBody = ({
   const isClickableForExpansion = !isMaxLevel;
   const generatedFragment = onContinueReadingClick ? generateTextFragment(truncatedHtmlWithoutSuffix, html) : undefined;
 
+  const styleType = serifStyle ? 'ultraFeedPost' : 'ultraFeed';
+
   return (
     <div
       className={classNames(
@@ -290,7 +295,7 @@ const FeedContentBody = ({
       )}
       onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
-      <ContentStyles contentType="ultraFeed">
+      <ContentStyles contentType={styleType}>
         <div>
           <ContentItemBody
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
