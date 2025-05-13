@@ -498,7 +498,6 @@ const UltraFeedSettings = ({
     onBreakpointChange: handleBreakpointChange,
   };
   
-  // Props for MiscSettings
   const miscSettingsProps = {
     formValues: {
       incognitoMode: formValues.incognitoMode,
@@ -508,7 +507,6 @@ const UltraFeedSettings = ({
 
   };
 
-  // Prepare props for ExploreExploitBiasSettings
   const exploreExploitBiasProps = {
     currentLogImpactFactor: formValues.threadInterestModel.logImpactFactor,
     onExploreBiasChange: handleExploreBiasChange,

@@ -142,7 +142,6 @@ export async function getUltraFeedPostThreads(
     (latestPostsLimit > 0)
       ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays)
       : Promise.resolve([]),
-    // getSubscribedPostsForUltraFeed will be called from ultraFeedResolver.ts, passing subscribedPostsMaxAgeDays from there
   ]);
 
   const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;
