@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
-  inRecentDiscussion?: Boolean,
+  inRecentDiscussion?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { document } = useSingle({

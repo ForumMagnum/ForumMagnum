@@ -23,7 +23,7 @@ const FriendlyInboxNavigation = ({
 }: {
   conversationsResult: UseMultiResult<"ConversationsListWithReadStatus">;
   currentUser: UsersCurrent;
-  title?: React.JSX.Element | String;
+  title?: React.JSX.Element | string;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
   classes: ClassesType<typeof styles>;
