@@ -71,7 +71,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   addReactionButton: {
     opacity: 0.7,
     position: "relative",
-    top: 1,
+    top: 0,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
     marginRight: 6,
@@ -103,7 +103,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   bookmarkButton: {
     position: "relative", 
-    top: 3,
+    top: 2,
     opacity: 0.7,
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
@@ -124,13 +124,23 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
   },
   overallVoteButtons: {
+    position: 'relative',
+    top: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 5,
     }
   },
   agreementButtons: {
+    position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
-    marginLeft: -8
+    top: 1,
+    marginLeft: -8,
+    [theme.breakpoints.down('sm')]: {
+      top: 5,
+    }
   },
   footerVoteScoreOverride: {
     fontSize: `${theme.typography.body2.fontSize}px !important`, 
