@@ -14,7 +14,6 @@ import {
   SettingsFormState,
   ThreadInterestModelFormState,
   CommentScoringFormState,
-  CommentScoringSettings,
   DisplaySettingsFormState
 } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType } from './ultraFeedTypes';
@@ -30,6 +29,7 @@ import {
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
+import cloneDeep from 'lodash/cloneDeep';
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -148,8 +148,7 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
 
   return {
     sourceWeights: mergeWith(
-      {},
-      DEFAULT_SOURCE_WEIGHTS,
+      cloneDeep(DEFAULT_SOURCE_WEIGHTS),
       resolverSettings.sourceWeights,
       customNullishCoalesceProperties
     ),
@@ -161,14 +160,12 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
       postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
     },
     commentScoring: mergeWith(
-      {},
-      defaultCommentScoring,
+      cloneDeep(defaultCommentScoring),
       resolverSettings.commentScoring,
       customNullishCoalesceProperties
     ),
     threadInterestModel: mergeWith(
-      {},
-      defaultThreadInterestModel,
+      cloneDeep(defaultThreadInterestModel),
       resolverSettings.threadInterestModel,
       customNullishCoalesceProperties
     ),
@@ -383,15 +380,13 @@ const UltraFeedSettings = ({
     const settingsToUpdate: Partial<UltraFeedSettingsType> = {
       resolverSettings: {
         sourceWeights: mergeWith(
-          {}, 
-          DEFAULT_SOURCE_WEIGHTS, 
+          cloneDeep(DEFAULT_SOURCE_WEIGHTS), 
           formValues.sourceWeights,
           (defaultWeightVal, formWeightVal) => parseNumericInputAsZeroOrNumber(formWeightVal, 0)
         ),
         incognitoMode: formValues.incognitoMode,
         commentScoring: mergeWith(
-          {},
-          defaultCommentScoring,
+          cloneDeep(defaultCommentScoring),
           formValues.commentScoring,
           (defaultVal, formVal, key) => {
             if (key === 'threadScoreAggregation') {
@@ -401,8 +396,7 @@ const UltraFeedSettings = ({
           }
         ),
         threadInterestModel: mergeWith(
-          {},
-          defaultThreadInterestModel,
+          cloneDeep(defaultThreadInterestModel),
           formValues.threadInterestModel,
           (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
         ),
