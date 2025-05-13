@@ -13,19 +13,6 @@ export interface UltraFeedDisplaySettings {
   postTitlesAreModals: boolean;
 }
 
-interface DefaultUltraFeedDisplaySettings {
-  postTruncationBreakpoints: number[];
-  lineClampNumberOfLines: number;
-  commentTruncationBreakpoints: number[];
-  postTitlesAreModals: boolean;
-}
-
-interface DefaultUltraFeedResolverSettings {
-  incognitoMode: boolean;
-  sourceWeights: Record<FeedItemSourceType, number>;
-  threadInterestModel: ThreadInterestModelSettings;
-  commentScoring: CommentScoringSettings;
-}
 export interface UltraFeedResolverSettings {
   incognitoMode: boolean;
   sourceWeights: Record<FeedItemSourceType, number>;
@@ -36,11 +23,6 @@ export interface UltraFeedResolverSettings {
 export interface UltraFeedSettingsType {
   displaySettings: UltraFeedDisplaySettings;
   resolverSettings: UltraFeedResolverSettings;
-}
-
-interface DefaultUltraFeedSettings {
-  displaySettings: DefaultUltraFeedDisplaySettings;
-  resolverSettings: DefaultUltraFeedResolverSettings;
 }
 
 const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
@@ -99,8 +81,7 @@ const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
   maxOverallMultiplier: 20.0,
 };
 
-// Now define the constant using this explicit type
-export const DEFAULT_SETTINGS: DefaultUltraFeedSettings = {
+export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   displaySettings: DEFAULT_DISPLAY_SETTINGS,
   resolverSettings: {
     incognitoMode: false,
