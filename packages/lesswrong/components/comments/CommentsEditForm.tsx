@@ -17,6 +17,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
     collectionName: 'Comments',
     fragmentName: 'CommentEdit',
     documentId: comment._id,
+    fetchPolicy: 'network-only',
   });
 
   if (loading) {
