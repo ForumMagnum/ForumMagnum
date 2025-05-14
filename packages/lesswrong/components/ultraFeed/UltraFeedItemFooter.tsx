@@ -16,6 +16,7 @@ import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
 import { AddReactionButton } from "../votes/lwReactions/NamesAttachedReactionsVoteOnComment";
+import { getDefaultVotingSystem } from "@/lib/collections/posts/newSchema";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -78,7 +79,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
     marginRight: 6,
-    marginLeft: 'auto',
     alignItems: 'center',
     '& .react-hover-style': {
       filter: 'opacity(1) !important',
@@ -156,6 +156,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       margin: '0 7px !important',
     }
   },
+  rightItems: {
+    marginLeft: 'auto',
+    display: 'flex'
+  },
 }));
 
 interface BookmarkProps {
@@ -229,6 +233,8 @@ const UltraFeedItemFooterCore = ({
     </div>
   );
 
+  const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
+
   return (
     <div className={classNames(classes.root, className)}>
       {commentCountIcon}
@@ -258,27 +264,29 @@ const UltraFeedItemFooterCore = ({
         </>
       )}
 
-      {voteProps.document && (
-        <div className={classes.addReactionButton}>
-          <div className={classes.reactionIcon}>
-            <AddReactionButton voteProps={voteProps} />
+      <div className={classes.rightItems}>
+        {voteProps.document && votingSystem === "namesAttachedReactions" && (
+          <div className={classes.addReactionButton}>
+            <div className={classes.reactionIcon}>
+              <AddReactionButton voteProps={voteProps} />
+            </div>
+            <div className={classes.reactionCount}>
+              {reactionCount > 0 && reactionCount}
+            </div>
           </div>
-          <div className={classes.reactionCount}>
-            {reactionCount > 0 && reactionCount}
+        )}
+
+        { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
+          <div onClick={() => handleInteractionLog('bookmarkClicked')}>
+            <BookmarkButton
+              documentId={bookmarkProps.documentId}
+              collectionName={collectionName}
+              className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
+              overrideTooltipText="You are being shown this because you bookmarked it."
+            />
           </div>
-        </div>
-      )}
-      
-      { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
-        <div onClick={() => handleInteractionLog('bookmarkClicked')}>
-          <BookmarkButton
-            documentId={bookmarkProps.documentId}
-            collectionName={collectionName}
-            className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
-            overrideTooltipText="You are being shown this because you bookmarked it."
-          />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
@@ -390,7 +398,3 @@ const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: 
 
 
 export default registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
-
- 
-
- 
