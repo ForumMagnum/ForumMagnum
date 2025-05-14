@@ -14,7 +14,7 @@ import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark } from "@/
 export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
   landmarkName: string|"above"|"below"|null
 } {
-  const [currentLandmark,setCurrentSection] = useState<string|null>(null);
+  const [currentLandmark,setCurrentSection] = useState<string|null>("above");
 
   const getCurrentSection = useCallback((): string|null => {
     if (isServer)
