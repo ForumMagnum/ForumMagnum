@@ -305,6 +305,8 @@ const CommentsListSection = ({
   );
 }
 
-export default registerComponent("CommentsListSection", CommentsListSection, {styles});
+export default registerComponent("CommentsListSection", CommentsListSection, {
+  styles, areEqual: "auto"
+});
 
 

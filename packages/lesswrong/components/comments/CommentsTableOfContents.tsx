@@ -238,6 +238,9 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 }
 
 
-export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
+export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, {
+  styles,
+  areEqual: "auto"
+});
 
 
