@@ -773,7 +773,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     hashCommentId && !loading && ![...(results ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
   ), [answersAndReplies, hashCommentId, loading, results]);
 
-  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? linkedCommentId : null)
+  const [permalinkedCommentId, setPermalinkedCommentId] = useState((fullPost && !isDebateResponseLink) ? (linkedCommentId ?? null) : null)
   // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
   const silentLoadingPermalink = permalinkedCommentId === hashCommentId;
   useEffect(() => { // useEffect required because `location.hash` isn't sent to the server
