@@ -1,11 +1,14 @@
 import { z } from 'zod';
 import { DEFAULT_SETTINGS } from './ultraFeedSettingsTypes';
-import type { FeedItemSourceType } from './ultraFeedTypes';
-import type { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
+import { FeedItemSourceType, allFeedItemSourceTypes } from './ultraFeedTypes';
 
-const sourceWeightsSchema = z.record(
-  z.custom<FeedItemSourceType>(), 
-  z.number().min(0, { message: "Weight must be non-negative" })
+const sourceWeightsSchema = z.object(
+  Object.fromEntries(
+    allFeedItemSourceTypes.map(key => [
+      key,
+      z.number().min(0, { message: "Weight must be non-negative" })
+    ])
+  ) as Record<FeedItemSourceType, z.ZodNumber>
 );
 
 const strictlyAscendingNumbersDefinition = (arr: number[]) => {
@@ -77,7 +80,7 @@ const resolverSettingsSchema = z.object({
 export const ultraFeedSettingsSchema = z.object({
   displaySettings: displaySettingsSchema.default(DEFAULT_SETTINGS.displaySettings),
   resolverSettings: resolverSettingsSchema,
-}).partial() as z.ZodType<UltraFeedSettingsType>; 
+}).partial()
 
 export type ValidatedUltraFeedSettings = z.infer<typeof ultraFeedSettingsSchema>;
 export type UltraFeedSettingsZodErrors = z.ZodFormattedError<ValidatedUltraFeedSettings, string> | null; 

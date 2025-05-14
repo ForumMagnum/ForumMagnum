@@ -133,6 +133,86 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
+// Helper components for Simple and Advanced views
+interface SimpleViewProps {
+  exploreExploitBiasProps: any;
+  sourceWeights: SettingsFormState['sourceWeights'];
+  sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
+  onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
+  truncationGridProps: any;
+  miscSettingsProps: any;
+}
+
+const SimpleView: React.FC<SimpleViewProps> = ({
+  exploreExploitBiasProps,
+  sourceWeights,
+  sourceWeightErrors,
+  onSourceWeightChange,
+  truncationGridProps,
+  miscSettingsProps,
+}) => (
+  <>
+    <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
+    <SourceWeightsSettings
+      weights={sourceWeights}
+      errors={sourceWeightErrors}
+      onChange={onSourceWeightChange}
+    />
+    <TruncationGridSettings {...truncationGridProps} defaultOpen={true} />
+    <MiscSettings {...miscSettingsProps} defaultOpen={false} />
+  </>
+);
+
+interface AdvancedViewProps {
+  sourceWeights: SettingsFormState['sourceWeights'];
+  sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
+  onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
+  advancedTruncationProps: any;
+  commentScoringFormValues: CommentScoringFormState;
+  commentScoringErrors: any; // Consider defining a more specific type
+  onCommentScoringFieldChange: (field: keyof CommentScoringFormState, value: number | string) => void;
+  threadInterestModelFormValues: ThreadInterestModelFormState;
+  threadInterestModelErrors: any; // Consider defining a more specific type
+  onThreadInterestFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
+  miscSettingsProps: any;
+}
+
+const AdvancedView: React.FC<AdvancedViewProps> = ({
+  sourceWeights,
+  sourceWeightErrors,
+  onSourceWeightChange,
+  advancedTruncationProps,
+  commentScoringFormValues,
+  commentScoringErrors,
+  onCommentScoringFieldChange,
+  threadInterestModelFormValues,
+  threadInterestModelErrors,
+  onThreadInterestFieldChange,
+  miscSettingsProps,
+}) => (
+  <>
+    <SourceWeightsSettings
+      weights={sourceWeights}
+      errors={sourceWeightErrors}
+      onChange={onSourceWeightChange}
+    />
+    <AdvancedTruncationSettings {...advancedTruncationProps} />
+    <MultipliersSettings
+      formValues={commentScoringFormValues}
+      errors={commentScoringErrors}
+      onFieldChange={onCommentScoringFieldChange}
+      defaultOpen={false}
+    />
+    <ThreadInterestTuningSettings
+      formValues={threadInterestModelFormValues}
+      errors={threadInterestModelErrors}
+      onFieldChange={onThreadInterestFieldChange}
+      defaultOpen={false}
+    />
+    <MiscSettings {...miscSettingsProps} />
+  </>
+);
+
 const parseNumericInputAsZeroOrNumber = (
   value: string | number | '',
   defaultValueOnNaN: number 
@@ -186,7 +266,7 @@ const deriveSimpleViewTruncationLevelsFromSettings = (settings: UltraFeedSetting
   commentLevel2: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[2]),
   postLevel0: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[0]),
   postLevel1: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[1]),
-  postLevel2: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[2]) ?? 'Unset',
+  postLevel2: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[2]),
 });
 
 
@@ -455,7 +535,7 @@ const UltraFeedSettings = ({
     const result = ultraFeedSettingsSchema.safeParse(settingsToUpdate);
 
     if (!result.success) {
-      const formattedErrors = result.error.format() as UltraFeedSettingsZodErrors;
+      const formattedErrors = result.error.format()
       setZodErrors(formattedErrors);
       // eslint-disable-next-line no-console
       console.error("UltraFeed Settings Validation Errors:", formattedErrors);
@@ -464,7 +544,7 @@ const UltraFeedSettings = ({
     
     setZodErrors(null);
     
-    updateSettings(result.data as Partial<UltraFeedSettingsType>);
+    updateSettings(result.data);
     flash("Settings saved");
     captureEvent("ultraFeedSettingsUpdated", {
       oldSettings: settings,
@@ -511,66 +591,51 @@ const UltraFeedSettings = ({
     onExploreBiasChange: handleExploreBiasChange,
   };
 
-  const renderSimpleView = () => (
-    <>
-      <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
-      <SourceWeightsSettings
-        weights={formValues.sourceWeights}
-        errors={sourceWeightErrors}
-        onChange={handleSourceWeightChange}
-      />
-      <TruncationGridSettings {...truncationGridProps} defaultOpen={true} />
-      <MiscSettings {...miscSettingsProps} defaultOpen={false} />
-    </>
-  );
-
-  const renderAdvancedView = () => (
-    <>
-      <SourceWeightsSettings
-        weights={formValues.sourceWeights}
-        errors={sourceWeightErrors}
-        onChange={handleSourceWeightChange}
-      />
-      <AdvancedTruncationSettings {...advancedTruncationProps} />
-      <MultipliersSettings
-        formValues={formValues.commentScoring}
-        errors={zodErrors ? (zodErrors as any).resolverSettings?.commentScoring : null}
-        onFieldChange={handleCommentScoringFieldChange}
-        defaultOpen={false}
-      />
-      <ThreadInterestTuningSettings
-        formValues={formValues.threadInterestModel}
-        errors={zodErrors ? (zodErrors as any).resolverSettings?.threadInterestModel : null}
-        onFieldChange={handleThreadInterestFieldChange}
-        defaultOpen={false}
-      />
-      <MiscSettings {...miscSettingsProps} />
-    </>
-  );
-
   const hasAnyErrors = useMemo(() => {
      return zodErrors !== null;
   }, [zodErrors]);
 
+  const viewModeButton = (mode: 'simple' | 'advanced') => (
+    <div
+      onClick={() => setViewMode(mode)}
+      className={classNames(classes.viewModeButton, viewMode === mode ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
+    >
+      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+    </div>
+  );
+
   return (
     <div className={classes.root}>
       <div className={classes.viewModeToggle}>
-        <div
-          onClick={() => setViewMode('simple')}
-          className={classNames(classes.viewModeButton, viewMode === 'simple' ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
-        >
-           Simple
-        </div>
-        <div
-          onClick={() => setViewMode('advanced')}
-          className={classNames(classes.viewModeButton, viewMode === 'advanced' ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
-        >
-          Advanced
-        </div>
+        {viewModeButton('simple')}
+        {viewModeButton('advanced')}
       </div>
       
       <div className={classes.settingsGroupsContainer}>
-        {viewMode === 'simple' ? renderSimpleView() : renderAdvancedView()}
+        {viewMode === 'simple' ? (
+          <SimpleView
+            exploreExploitBiasProps={exploreExploitBiasProps}
+            sourceWeights={formValues.sourceWeights}
+            sourceWeightErrors={sourceWeightErrors}
+            onSourceWeightChange={handleSourceWeightChange}
+            truncationGridProps={truncationGridProps}
+            miscSettingsProps={miscSettingsProps}
+          />
+        ) : (
+          <AdvancedView
+            sourceWeights={formValues.sourceWeights}
+            sourceWeightErrors={sourceWeightErrors}
+            onSourceWeightChange={handleSourceWeightChange}
+            advancedTruncationProps={advancedTruncationProps}
+            commentScoringFormValues={formValues.commentScoring}
+            commentScoringErrors={zodErrors?.resolverSettings?.commentScoring}
+            onCommentScoringFieldChange={handleCommentScoringFieldChange}
+            threadInterestModelFormValues={formValues.threadInterestModel}
+            threadInterestModelErrors={zodErrors?.resolverSettings?.threadInterestModel}
+            onThreadInterestFieldChange={handleThreadInterestFieldChange}
+            miscSettingsProps={miscSettingsProps}
+          />
+        )}
       </div>
 
       <div className={classes.buttonRow}>

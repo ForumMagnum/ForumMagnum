@@ -1110,7 +1110,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     excludedPostIds: string[] = [],
     limit = 100
   ): Promise<FeedFullPost[]> {
-    const db = this.getRawDb();
     
     const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
@@ -1138,7 +1137,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
 
     const filteredScoreSql = constructFilteredScoreSql(filterSettings);
 
-    const feedPostsData = await db.manyOrNone<FeedPostFromDb>(`
+    const feedPostsData = await this.getRawDb().manyOrNone<FeedPostFromDb>(`
       -- PostsRepo.getLatestPostsForUltraFeed
       WITH "UniversalPostFilter" AS (
         -- Apply basic post filters
@@ -1244,18 +1243,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
    * Get posts from users the current user is subscribed to, for UltraFeed
    */
   async getPostsFromSubscribedUsersForUltraFeed(
-    context: ResolverContext,
+    userId: string,
     maxAgeDays: number,
     limit = 100
   ): Promise<{ postId: string }[]> {
-    const db = this.getRawDb();
-    const userId = context.currentUser?._id;
 
-    if (!userId) {
-      return [];
-    }
-
-    return await db.manyOrNone<{ postId: string }>(`
+    return await this.getRawDb().manyOrNone<{ postId: string }>(`
       -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
       WITH user_subscriptions AS (
         SELECT DISTINCT type, "documentId" AS "userId"

@@ -204,7 +204,7 @@ const createSourcesMap = (
     if (!postId || addedPostIds.has(postId)) {
       return;
     }
-    const bucket = sources['subscriptions' as FeedItemSourceType]; 
+    const bucket = sources['subscriptions' as const]; 
     if (bucket) {
       bucket.items.push({ 
         type: "feedPost", 

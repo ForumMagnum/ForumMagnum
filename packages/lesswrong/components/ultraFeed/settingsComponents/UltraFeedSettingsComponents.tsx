@@ -714,6 +714,7 @@ export const ExploreExploitBiasSettings: React.FC<ExploreExploitBiasSettingsProp
     </CollapsibleSettingGroup>
   );
 };
+
 interface MultipliersSettingsProps {
   formValues: CommentScoringFormState;
   errors: ZodFormattedError<CommentScoringFormState, string> | null;
@@ -729,49 +730,63 @@ export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
 }) => {
   const classes = useStyles(styles);
 
+  const onChangeForField = (fieldName: keyof CommentScoringFormState) => {
+    return (value: number | string) => onFieldChange(fieldName, value);
+  };
+
   const defaultCommentScoringSettings = DEFAULT_SETTINGS.resolverSettings.commentScoring;
 
-  const quickTakeBoostSliderValue = typeof formValues.quickTakeBoost === 'number' ? formValues.quickTakeBoost : defaultCommentScoringSettings.quickTakeBoost;
-  const subscribedAuthorSliderValue = typeof formValues.commentSubscribedAuthorMultiplier === 'number' ? formValues.commentSubscribedAuthorMultiplier : defaultCommentScoringSettings.commentSubscribedAuthorMultiplier;
-  const seenPenaltySliderValue = typeof formValues.ultraFeedSeenPenalty === 'number' ? formValues.ultraFeedSeenPenalty : defaultCommentScoringSettings.ultraFeedSeenPenalty;
-  const commentDecayFactorSliderValue = typeof formValues.commentDecayFactor === 'number' ? formValues.commentDecayFactor : defaultCommentScoringSettings.commentDecayFactor;
-  const commentDecayBiasHoursSliderValue = typeof formValues.commentDecayBiasHours === 'number' ? formValues.commentDecayBiasHours : defaultCommentScoringSettings.commentDecayBiasHours;
-  const threadScoreFirstNSliderValue = typeof formValues.threadScoreFirstN === 'number' ? formValues.threadScoreFirstN : defaultCommentScoringSettings.threadScoreFirstN;
+  const multiplierFieldsConfig = [
+    {
+      key: 'quickTakeBoost' as const,
+      label: "Quick Take Boost",
+      description: "Multiplier applied to the score of Quick Takes comments.",
+      min: 0.5, max: 3.0, step: 0.01, defaultVal: defaultCommentScoringSettings.quickTakeBoost,
+    },
+    {
+      key: 'commentSubscribedAuthorMultiplier' as const,
+      label: "Subscribed Boost",
+      description: `Multiplier for comments by authors you subscribe to or follow. Default: ${defaultCommentScoringSettings.commentSubscribedAuthorMultiplier}`,
+      min: 1, max: 5, step: 0.1, defaultVal: defaultCommentScoringSettings.commentSubscribedAuthorMultiplier,
+    },
+    {
+      key: 'ultraFeedSeenPenalty' as const,
+      label: "Seen Penalty",
+      description: `Score multiplier for items already marked as seen (0 to 1). Default: ${defaultCommentScoringSettings.ultraFeedSeenPenalty}`,
+      min: 0, max: 1, step: 0.01, defaultVal: defaultCommentScoringSettings.ultraFeedSeenPenalty,
+    },
+    {
+      key: 'commentDecayFactor' as const,
+      label: "Decay Factor",
+      description: `Controls how quickly comments lose score over time. Higher values mean faster decay. Default: ${defaultCommentScoringSettings.commentDecayFactor}`,
+      min: 1.0, max: 2.5, step: 0.1, defaultVal: defaultCommentScoringSettings.commentDecayFactor,
+    },
+    {
+      key: 'commentDecayBiasHours' as const,
+      label: "Decay Bias (hours)",
+      description: `Hours to add to comment age for decay calculation. Higher values give newer comments a boost. Default: ${defaultCommentScoringSettings.commentDecayBiasHours}`,
+      min: 0, max: 8, step: 0.5, defaultVal: defaultCommentScoringSettings.commentDecayBiasHours,
+    },
+    {
+      key: 'threadScoreFirstN' as const,
+      label: "Thread First N",
+      description: `Number of top comments to consider when calculating thread score. Default: ${defaultCommentScoringSettings.threadScoreFirstN}`,
+      min: 1, max: 20, step: 1, defaultVal: defaultCommentScoringSettings.threadScoreFirstN,
+    },
+  ];
 
-  const quickTakeBoost = {
-    value: formValues.quickTakeBoost,
-    error: errors?.quickTakeBoost?._errors[0],
-    onChange: (val: number | string) => onFieldChange('quickTakeBoost', val),
-  };
-  const seenPenalty = {
-    value: formValues.ultraFeedSeenPenalty,
-    error: errors?.ultraFeedSeenPenalty?._errors[0],
-    onChange: (val: number | string) => onFieldChange('ultraFeedSeenPenalty', val),
-  };
-  const commentSubscribedAuthorMultiplier = {
-    value: formValues.commentSubscribedAuthorMultiplier,
-    error: errors?.commentSubscribedAuthorMultiplier?._errors[0],
-    onChange: (val: number | string) => onFieldChange('commentSubscribedAuthorMultiplier', val),
-  };
-  const commentDecayFactor = {
-    value: formValues.commentDecayFactor,
-    error: errors?.commentDecayFactor?._errors[0],
-    onChange: (val: number | string) => onFieldChange('commentDecayFactor', val),
-  };
-  const commentDecayBiasHours = {
-    value: formValues.commentDecayBiasHours,
-    error: errors?.commentDecayBiasHours?._errors[0],
-    onChange: (val: number | string) => onFieldChange('commentDecayBiasHours', val),
-  };
-  const threadScoreFirstN = {
-    value: formValues.threadScoreFirstN,
-    error: errors?.threadScoreFirstN?._errors[0],
-    onChange: (val: number | string) => onFieldChange('threadScoreFirstN', val),
-  };
-  const threadScoreAggregation = {
-    value: formValues.threadScoreAggregation,
-    error: errors?.threadScoreAggregation?._errors[0],
-    onChange: (val: string) => onFieldChange('threadScoreAggregation', val),
+  // Separate config for threadScoreAggregation due to different input type
+  const threadScoreAggregationConfig = {
+    key: 'threadScoreAggregation' as const,
+    label: "Thread Agg.",
+    description: `How to aggregate comment scores into a thread score. Default: ${defaultCommentScoringSettings.threadScoreAggregation}`,
+    options: [
+      { value: "sum", label: "Sum" },
+      { value: "max", label: "Max" },
+      { value: "logSum", label: "Log Sum" },
+      { value: "avg", label: "Average" },
+    ],
+    defaultVal: defaultCommentScoringSettings.threadScoreAggregation,
   };
 
   return (
@@ -784,212 +799,71 @@ export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
         </p>
       </div>
 
+      {multiplierFieldsConfig.map(field => {
+        const currentValue = formValues[field.key];
+        const currentError = errors?.[field.key]?._errors[0];
+        const sliderValue = typeof currentValue === 'number' ? currentValue : field.defaultVal;
+        const handleChange = onChangeForField(field.key);
 
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Quick Take Boost</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={quickTakeBoostSliderValue}
-            onChange={(_, val) => quickTakeBoost.onChange(val as number)}
-            min={0.5}
-            max={3.0}
-            step={0.01}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!quickTakeBoost.error
-            })}
-            value={quickTakeBoost.value}
-            onChange={(e) => quickTakeBoost.onChange(e.target.value)}
-            min={0.5}
-            max={3.0}
-            step={0.01}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>Multiplier applied to the score of Quick Takes comments.</p>
-        {quickTakeBoost.error && (
-          <p className={classes.errorMessage}>{quickTakeBoost.error}</p>
-        )}
-      </div>
+        return (
+          <div key={field.key} className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>{field.label}</label>
+              <Slider
+                className={classes.sourceWeightSlider}
+                value={sliderValue}
+                onChange={(_, val) => handleChange(val as number)}
+                min={field.min}
+                max={field.max}
+                step={field.step}
+              />
+              <input
+                type="number"
+                className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!currentError })}
+                value={currentValue}
+                onChange={(e) => handleChange(e.target.value)}
+                min={field.min}
+                max={field.max}
+                step={field.step}
+              />
+            </div>
+            <p className={classes.sourceWeightDescription}>{field.description}</p>
+            {currentError && (
+              <p className={classes.errorMessage}>{currentError}</p>
+            )}
+          </div>
+        );
+      })}
 
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Subscribed Boost</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={subscribedAuthorSliderValue}
-            onChange={(_, val) => commentSubscribedAuthorMultiplier.onChange(val as number)}
-            min={1}
-            max={5}
-            step={0.1}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!commentSubscribedAuthorMultiplier.error
-            })}
-            value={commentSubscribedAuthorMultiplier.value}
-            onChange={(e) => commentSubscribedAuthorMultiplier.onChange(e.target.value)}
-            min={1}
-            max={5}
-            step={0.1}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>
-          Multiplier for comments by authors you subscribe to or follow. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.commentSubscribedAuthorMultiplier}
-        </p>
-        {commentSubscribedAuthorMultiplier.error && (
-          <p className={classes.errorMessage}>{commentSubscribedAuthorMultiplier.error}</p>
-        )}
-      </div>
+      {/* Special handling for threadScoreAggregation */}
+      {(() => {
+        const field = threadScoreAggregationConfig;
+        const currentValue = formValues[field.key];
+        const currentError = errors?.[field.key]?._errors[0];
+        const handleChange = onChangeForField(field.key);
 
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Seen Penalty</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={seenPenaltySliderValue}
-            onChange={(_, val) => seenPenalty.onChange(val as number)}
-            min={0}
-            max={1}
-            step={0.01}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!seenPenalty.error
-            })}
-            value={seenPenalty.value}
-            onChange={(e) => seenPenalty.onChange(e.target.value)}
-            min={0}
-            max={1}
-            step={0.01}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>
-          Score multiplier for items already marked as seen (0 to 1). Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.ultraFeedSeenPenalty}
-        </p>
-        {seenPenalty.error && (
-          <p className={classes.errorMessage}>{seenPenalty.error}</p>
-        )}
-      </div>
+        return (
+          <div key={field.key} className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>{field.label}</label>
+              <select
+                className={classNames(classes.sourceWeightInput, classes.threadAggSelect, { [classes.invalidInput]: !!currentError })}
+                value={currentValue}
+                onChange={(e) => handleChange(e.target.value)}
+              >
+                {field.options.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <p className={classes.sourceWeightDescription}>{field.description}</p>
+            {currentError && (
+              <p className={classes.errorMessage}>{currentError}</p>
+            )}
+          </div>
+        );
+      })()}
 
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Decay Factor</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={commentDecayFactorSliderValue}
-            onChange={(_, val) => commentDecayFactor.onChange(val as number)}
-            min={1.0}
-            max={2.5}
-            step={0.1}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!commentDecayFactor.error
-            })}
-            value={commentDecayFactor.value}
-            onChange={(e) => commentDecayFactor.onChange(e.target.value)}
-            min={1.0}
-            max={2.5}
-            step={0.1}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>
-          Controls how quickly comments lose score over time. Higher values mean faster decay. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.commentDecayFactor}
-        </p>
-        {commentDecayFactor.error && (
-          <p className={classes.errorMessage}>{commentDecayFactor.error}</p>
-        )}
-      </div>
-
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Decay Bias (hours)</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={commentDecayBiasHoursSliderValue}
-            onChange={(_, val) => commentDecayBiasHours.onChange(val as number)}
-            min={0}
-            max={8}
-            step={0.5}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!commentDecayBiasHours.error
-            })}
-            value={commentDecayBiasHours.value}
-            onChange={(e) => commentDecayBiasHours.onChange(e.target.value)}
-            min={0}
-            max={8}
-            step={0.5}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>
-          Hours to add to comment age for decay calculation. Higher values give newer comments a boost. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.commentDecayBiasHours}
-        </p>
-        {commentDecayBiasHours.error && (
-          <p className={classes.errorMessage}>{commentDecayBiasHours.error}</p>
-        )}
-      </div>
-
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Thread First N</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={threadScoreFirstNSliderValue}
-            onChange={(_, val) => threadScoreFirstN.onChange(val as number)}
-            min={1}
-            max={20}
-            step={1}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!threadScoreFirstN.error
-            })}
-            value={threadScoreFirstN.value}
-            onChange={(e) => threadScoreFirstN.onChange(e.target.value)}
-            min={1}
-            max={20}
-            step={1}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>
-          Number of top comments to consider when calculating thread score. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.threadScoreFirstN}
-        </p>
-        {threadScoreFirstN.error && (
-          <p className={classes.errorMessage}>{threadScoreFirstN.error}</p>
-        )}
-      </div>
-
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Thread Agg.</label>
-          <select
-            className={classNames(classes.sourceWeightInput, classes.threadAggSelect, { [classes.invalidInput]: !!threadScoreAggregation.error })}
-            value={threadScoreAggregation.value}
-            onChange={(e) => threadScoreAggregation.onChange(e.target.value)}
-          >
-            <option value="sum">Sum</option>
-            <option value="max">Max</option>
-            <option value="logSum">Log Sum</option>
-            <option value="avg">Average</option>
-          </select>
-        </div>
-        <p className={classes.sourceWeightDescription}>
-          How to aggregate comment scores into a thread score. Default: {DEFAULT_SETTINGS.resolverSettings.commentScoring.threadScoreAggregation}
-        </p>
-        {threadScoreAggregation.error && (
-          <p className={classes.errorMessage}>{threadScoreAggregation.error}</p>
-        )}
-      </div>
     </CollapsibleSettingGroup>
   );
 };

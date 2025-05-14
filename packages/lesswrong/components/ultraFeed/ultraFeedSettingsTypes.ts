@@ -160,25 +160,33 @@ export const levelToPostBreakpointMap: Record<TruncationLevel, number | undefine
   'Unset': undefined  // not present
 };
 
-export const getCommentBreakpointLevel = (breakpoint: number): TruncationLevel => {
+const getBreakpointLevelInternal = (
+  breakpoint: number | undefined,
+  levelMap: Record<TruncationLevel, number | undefined> 
+): TruncationLevel => {
+  if (breakpoint === undefined || breakpoint <= 0) return 'Unset';
   if (breakpoint === SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
-  if (breakpoint <= 0) return 'Full';
 
   let closestLevel: TruncationLevel = 'Very Short';
   let minDiff = Infinity;
+
   for (const level of truncationLevels) {
     if (level === 'Full' || level === 'Unset') continue;
-    const mapVal = levelToCommentBreakpointMap[level]; // Use comment map
+    const mapVal = levelMap[level]; 
     if (mapVal === undefined || mapVal === null) continue;
     const diff = Math.abs(mapVal - breakpoint);
-     if (diff < minDiff) {
-       minDiff = diff;
-       closestLevel = level;
-     } else if (diff === minDiff && levelToCommentBreakpointMap[level]! > levelToCommentBreakpointMap[closestLevel]!) {
-       closestLevel = level;
+    if (diff < minDiff) {
+      minDiff = diff;
+      closestLevel = level;
+    } else if (diff === minDiff && levelMap[level]! > levelMap[closestLevel]!) { 
+      closestLevel = level;
     }
   }
   return closestLevel;
+};
+
+export const getCommentBreakpointLevel = (breakpoint: number | undefined): TruncationLevel => {
+  return getBreakpointLevelInternal(breakpoint, levelToCommentBreakpointMap);
 };
 
 export const getFirstCommentLevel = (lines: number, breakpoint: number): TruncationLevel => {
@@ -188,25 +196,8 @@ export const getFirstCommentLevel = (lines: number, breakpoint: number): Truncat
   return getCommentBreakpointLevel(breakpoint);
 };
 
-export const getPostBreakpointLevel = (breakpoint: number): TruncationLevel => {
-  if (breakpoint === SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
-  if (breakpoint <= 0) return 'Full';
-
-  let closestLevel: TruncationLevel = 'Very Short';
-  let minDiff = Infinity;
-  for (const level of truncationLevels) {
-    if (level === 'Full' || level === 'Unset') continue;
-    const mapVal = levelToPostBreakpointMap[level];
-    if (mapVal === undefined || mapVal === null) continue;
-    const diff = Math.abs(mapVal - breakpoint);
-    if (diff < minDiff) {
-       minDiff = diff;
-       closestLevel = level;
-     } else if (diff === minDiff && levelToPostBreakpointMap[level]! > levelToPostBreakpointMap[closestLevel]!) {
-       closestLevel = level;
-    }
-  }
-  return closestLevel;
+export const getPostBreakpointLevel = (breakpoint: number | undefined): TruncationLevel => {
+  return getBreakpointLevelInternal(breakpoint, levelToPostBreakpointMap);
 };
 
 export interface SettingsFormState {
@@ -226,9 +217,7 @@ export interface SettingsFormErrors {
   threadInterestModel?: ZodFormattedError<ThreadInterestModelFormState, string> | null;
 }
 
-export type WithEmptyString<T> = T extends number ? number | '' :
-                           T extends string ? T | '' :
-                           T;
+export type WithEmptyString<T> = T extends number | string ? T | '' : T;
 
 // Utility type to create a form state version of a settings object (allow values to be empty strings)
 export type ToFormState<T> = {

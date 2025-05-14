@@ -476,7 +476,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     initialCandidateLookbackDays: number,
     commentServedEventRecencyHours: number
   ): Promise<FeedCommentFromDb[]> {
-    const db = this.getRawDb();
     const initialCandidateLimit = 500;
 
     const getUniversalCommentFilterClause = (alias: string) => `
@@ -486,7 +485,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       AND ${getViewableCommentsSelector(alias)}
     `;
 
-    const feedCommentsData: FeedCommentFromDb[] = await db.manyOrNone(`
+    const feedCommentsData: FeedCommentFromDb[] = await this.getRawDb().manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
       WITH "InitialCandidates" AS (
           -- Find top candidate comments based on recency or shortform status
@@ -618,11 +617,10 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     userId: string,
     threadEngagementLookbackDays: number
   ): Promise<ThreadEngagementStats[]> {
-    const db = this.getRawDb();
     const threadCandidateLimit = 200; // Hardcoded
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
-    const engagementStats = await db.manyOrNone<ThreadEngagementStats>(`
+    const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
       -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
       WITH "RecentActiveThreads" AS (
         SELECT "threadTopLevelId"

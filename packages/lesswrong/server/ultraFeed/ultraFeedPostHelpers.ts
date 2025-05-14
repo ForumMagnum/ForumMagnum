@@ -76,7 +76,7 @@ export async function getSubscribedPostsForUltraFeed(
   }
 
   const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
-    context,
+    currentUser._id,
     maxAgeDays,
     limit
   );

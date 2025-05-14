@@ -29,7 +29,6 @@ import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import SpotlightsRepo from "./SpotlightsRepo";
-import SubscriptionsRepo from "./SubscriptionsRepo";
 import SurveysRepo from "./SurveysRepo";
 import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
@@ -82,7 +81,6 @@ const allRepos = {
   sideComments: SideCommentCachesRepo,
   splashArtCoordinates: SplashArtCoordinatesRepo,
   spotlights: SpotlightsRepo,
-  subscriptions: SubscriptionsRepo,
   surveys: SurveysRepo,
   surveySchedules: SurveySchedulesRepo,
   tags: TagsRepo,

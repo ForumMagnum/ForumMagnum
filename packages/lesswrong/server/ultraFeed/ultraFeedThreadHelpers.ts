@@ -18,7 +18,6 @@ import {
   FeedItemSourceType,
   ThreadEngagementStats,
 } from '../../components/ultraFeed/ultraFeedTypes';
-
 import * as crypto from 'crypto';
 
   /**
@@ -472,7 +471,6 @@ export async function getUltraFeedCommentThreads(
     return [];
   }
 
-  const subscriptionsRepo = context.repos.subscriptions;
   const commentsRepo = context.repos.comments;
 
   const rawCommentsDataPromise = commentsRepo.getCommentsForFeed(
@@ -485,7 +483,17 @@ export async function getUltraFeedCommentThreads(
     userId,
     threadEngagementLookbackDays
   );
-  const subscribedToUserIdsPromise = subscriptionsRepo.getSubscribedToUserIds(userId);
+  const subscribedToUserIdsPromise = context.Subscriptions.find({
+    collectionName: 'Users',
+    userId,
+    state: 'subscribed',
+    type: { $in: ['newActivityForFeed', 'newPosts', 'newComments'] },
+    deleted: { $ne: true },
+  }, {
+    projection: {
+      documentId: 1,
+    },
+  }).fetch().then(rows => rows.map(row => row.documentId).filter(id => id !== null));
 
   const [
     rawCommentsData,

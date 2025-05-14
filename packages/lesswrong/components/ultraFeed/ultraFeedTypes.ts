@@ -2,6 +2,11 @@
 export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptions' ] as const;
 export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks', 'subscriptions'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
+export const allFeedItemSourceTypes = [
+  ...feedPostSourceTypesArray,
+  ...feedCommentSourceTypesArray,
+  ...feedSpotlightSourceTypesArray,
+] as const;
 
 // Define types based on the arrays
 export type FeedPostSourceType = typeof feedPostSourceTypesArray[number];
