@@ -273,6 +273,7 @@ interface VoteableType extends HasIdType {
   baseScore: number | null
   extendedScore: any,
   voteCount: number
+  votingSystem?: string | null,
   af?: boolean
   afBaseScore?: number | null
   afExtendedScore?: any,
