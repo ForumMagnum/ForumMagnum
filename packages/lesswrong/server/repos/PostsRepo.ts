@@ -1250,20 +1250,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
 
     return await this.getRawDb().manyOrNone<{ postId: string }>(`
       -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
-      WITH user_subscriptions AS (
-        SELECT DISTINCT type, "documentId" AS "userId"
+      SELECT
+        p._id AS "postId"
+      FROM "Posts" p
+      JOIN (
+        SELECT DISTINCT "documentId" AS "userId"
         FROM "Subscriptions" s
         WHERE state = 'subscribed'
           AND s.deleted IS NOT TRUE
           AND "collectionName" = 'Users'
           AND "type" IN ('newActivityForFeed', 'newPosts')
           AND "userId" = $(userId)
-      )
-      SELECT
-        p._id AS "postId"
-      FROM "Posts" p
-      JOIN user_subscriptions us
-      USING ("userId")
+      ) AS user_subscriptions ON p."userId" = user_subscriptions."userId"
       WHERE 
         p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
         AND p.rejected IS NOT TRUE 

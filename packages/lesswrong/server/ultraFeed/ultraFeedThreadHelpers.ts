@@ -489,10 +489,8 @@ export async function getUltraFeedCommentThreads(
     state: 'subscribed',
     type: { $in: ['newActivityForFeed', 'newPosts', 'newComments'] },
     deleted: { $ne: true },
-  }, {
-    projection: {
-      documentId: 1,
-    },
+  }, undefined, {
+    documentId: 1,
   }).fetch().then(rows => rows.map(row => row.documentId).filter(id => id !== null));
 
   const [

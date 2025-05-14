@@ -621,93 +621,133 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
     const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
-      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
-      WITH "RecentActiveThreads" AS (
-        SELECT "threadTopLevelId"
-        FROM (
-          SELECT COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId", MAX(c."postedAt") as "lastCommentActivity"
-          FROM "Comments" c
-          WHERE c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-            AND c.deleted IS NOT TRUE AND c.retracted IS NOT TRUE AND c."authorIsUnreviewed" IS NOT TRUE
-          GROUP BY COALESCE(c."topLevelCommentId", c._id)
-          ORDER BY "lastCommentActivity" DESC
-          LIMIT $(threadCandidateLimit)
-        ) recent_threads
-      ),
-      "UserVotesInThreads" AS (
-        SELECT
-          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
-          SUM(CASE WHEN v."voteType" = 'bigUpvote' THEN 5 ELSE 1 END) AS "votingActivityScore"
-        FROM "Votes" v
-        JOIN "Comments" c ON v."documentId" = c._id
-        WHERE v."userId" = $(userId)
-          AND v."collectionName" = 'Comments'
-          AND v.power > 0
-          AND v."cancelled" IS NOT TRUE
-          AND v."isUnvote" IS NOT TRUE
-          AND v."votedAt" > (NOW() - INTERVAL $(lookbackInterval))
-          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
-        GROUP BY 1
-      ),
-      "UserCommentsInThreads" AS (
-        SELECT
-          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
-          COUNT(*) AS "participationCount"
-        FROM "Comments" c
-        WHERE c."userId" = $(userId)
-          AND c.deleted IS NOT TRUE
-          AND c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
-        GROUP BY 1
-      ),
-      "UserViewEventsInThreads" AS (
-        SELECT
-          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
-          SUM(CASE
-              WHEN ufe."eventType" = 'viewed' THEN 1
-              WHEN ufe."eventType" = 'expanded' THEN 3
-              ELSE 0
-          END) AS "viewScore"
-        FROM "UltraFeedEvents" ufe
-        JOIN "Comments" c ON ufe."documentId" = c._id
-        WHERE ufe."userId" = $(userId)
-          AND ufe."eventType" != 'served'
-          AND ufe."collectionName" = 'Comments'
-          AND ufe."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
-          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
-        GROUP BY 1
-      ),
-      "ThreadsOnReadPosts" AS (
-        SELECT DISTINCT COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId"
-        FROM "Comments" c
-        JOIN (
-          SELECT "postId"
-          FROM "ReadStatuses" rs
-          WHERE rs."userId" = $(userId)
-            AND rs."isRead" IS TRUE
-            AND rs."lastUpdated" > (NOW() - INTERVAL $(lookbackInterval))
-          UNION DISTINCT
-          SELECT DISTINCT "documentId" AS "postId"
-          FROM "UltraFeedEvents" ufe
-          WHERE ufe."userId" = $(userId)
-            AND ufe."collectionName" = 'Posts'
-            AND ufe."eventType" != 'served'
-            AND ufe."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
-        ) "readPosts" USING ("postId")
-        WHERE c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-          AND COALESCE(c."topLevelCommentId", c._id) IN (SELECT "threadTopLevelId" FROM "RecentActiveThreads")
-      )
+      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads (Refactored to use JOINs with inlined subqueries)
       SELECT
-        rat."threadTopLevelId",
-        COALESCE(uvt."votingActivityScore", 0) AS "votingActivityScore",
-        COALESCE(uct."participationCount", 0) AS "participationCount",
-        COALESCE(uve."viewScore", 0) AS "viewScore",
-        CASE WHEN torp."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost"
-      FROM "RecentActiveThreads" rat
-      LEFT JOIN "UserVotesInThreads" uvt ON rat."threadTopLevelId" = uvt."threadTopLevelId"
-      LEFT JOIN "UserCommentsInThreads" uct ON rat."threadTopLevelId" = uct."threadTopLevelId"
-      LEFT JOIN "UserViewEventsInThreads" uve ON rat."threadTopLevelId" = uve."threadTopLevelId"
-      LEFT JOIN "ThreadsOnReadPosts" torp ON rat."threadTopLevelId" = torp."threadTopLevelId"
+        recentActiveThreads."threadTopLevelId",
+        COALESCE(userVotesInThreads."votingActivityScore", 0) AS "votingActivityScore",
+        COALESCE(userCommentsInThreads."participationCount", 0) AS "participationCount",
+        COALESCE(userViewEventsInThreads."viewScore", 0) AS "viewScore",
+        CASE WHEN threadsOnReadPosts."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost"
+      FROM
+        ( -- get threads with any recent activity
+          SELECT "threadTopLevelId"
+          FROM (
+            SELECT COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId", MAX(c."postedAt") as "lastCommentActivity"
+            FROM "Comments" c
+            WHERE c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+              AND c.deleted IS NOT TRUE AND c.retracted IS NOT TRUE AND c."authorIsUnreviewed" IS NOT TRUE
+            GROUP BY COALESCE(c."topLevelCommentId", c._id)
+            ORDER BY "lastCommentActivity" DESC
+            LIMIT $(threadCandidateLimit)
+          ) recent_threads_subquery
+        ) recentActiveThreads
+      LEFT JOIN
+        ( -- get a users recent votes on threads
+          SELECT
+            COALESCE(c_votes."topLevelCommentId", c_votes._id) AS "threadTopLevelId",
+            SUM(CASE WHEN v."voteType" = 'bigUpvote' THEN 5 ELSE 1 END) AS "votingActivityScore"
+          FROM "Votes" v
+          JOIN "Comments" c_votes ON v."documentId" = c_votes._id
+          WHERE v."userId" = $(userId)
+            AND v."collectionName" = 'Comments'
+            AND v.power > 0 -- Or your updated v."voteType" IN ('smallUpvote', 'bigUpvote') condition
+            AND v."cancelled" IS NOT TRUE
+            AND v."isUnvote" IS NOT TRUE
+            AND v."votedAt" > (NOW() - INTERVAL $(lookbackInterval))
+            AND COALESCE(c_votes."topLevelCommentId", c_votes._id) IN (
+                SELECT "threadTopLevelId_inner_rat" FROM (
+                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                    FROM "Comments" c_inner
+                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                    ORDER BY "lastCommentActivity_inner" DESC
+                    LIMIT $(threadCandidateLimit)
+                ) recent_threads_filter_for_uvt
+            )
+          GROUP BY COALESCE(c_votes."topLevelCommentId", c_votes._id)
+        ) userVotesInThreads ON recentActiveThreads."threadTopLevelId" = userVotesInThreads."threadTopLevelId"
+      LEFT JOIN
+        ( -- get a users recent comments on threads
+          SELECT
+            COALESCE(c_comments."topLevelCommentId", c_comments._id) AS "threadTopLevelId",
+            COUNT(*) AS "participationCount"
+          FROM "Comments" c_comments
+          WHERE c_comments."userId" = $(userId)
+            AND c_comments.deleted IS NOT TRUE
+            AND c_comments."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+            AND COALESCE(c_comments."topLevelCommentId", c_comments._id) IN (
+                SELECT "threadTopLevelId_inner_rat" FROM (
+                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                    FROM "Comments" c_inner
+                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                    ORDER BY "lastCommentActivity_inner" DESC
+                    LIMIT $(threadCandidateLimit)
+                ) recent_threads_filter_for_uct
+            )
+          GROUP BY COALESCE(c_comments."topLevelCommentId", c_comments._id)
+        ) userCommentsInThreads ON recentActiveThreads."threadTopLevelId" = userCommentsInThreads."threadTopLevelId"
+      LEFT JOIN
+        ( -- get a users recent view events on threads
+          SELECT
+            COALESCE(c_views."topLevelCommentId", c_views._id) AS "threadTopLevelId",
+            SUM(CASE
+                WHEN ufe."eventType" = 'viewed' THEN 1
+                WHEN ufe."eventType" = 'expanded' THEN 3
+                ELSE 0
+            END) AS "viewScore"
+          FROM "UltraFeedEvents" ufe
+          JOIN "Comments" c_views ON ufe."documentId" = c_views._id
+          WHERE ufe."userId" = $(userId)
+            AND ufe."eventType" != 'served'
+            AND ufe."collectionName" = 'Comments'
+            AND ufe."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
+            AND COALESCE(c_views."topLevelCommentId", c_views._id) IN (
+                SELECT "threadTopLevelId_inner_rat" FROM (
+                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                    FROM "Comments" c_inner
+                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                    ORDER BY "lastCommentActivity_inner" DESC
+                    LIMIT $(threadCandidateLimit)
+                ) recent_threads_filter_for_uve
+            )
+          GROUP BY COALESCE(c_views."topLevelCommentId", c_views._id)
+        ) userViewEventsInThreads ON recentActiveThreads."threadTopLevelId" = userViewEventsInThreads."threadTopLevelId"
+      LEFT JOIN
+        ( -- get threads that are on posts read by the user
+          SELECT DISTINCT COALESCE(c_read."topLevelCommentId", c_read._id) AS "threadTopLevelId"
+          FROM "Comments" c_read
+          JOIN (
+            SELECT "postId"
+            FROM "ReadStatuses" rs
+            WHERE rs."userId" = $(userId)
+              AND rs."isRead" IS TRUE
+              AND rs."lastUpdated" > (NOW() - INTERVAL $(lookbackInterval))
+            UNION DISTINCT
+            SELECT DISTINCT "documentId" AS "postId"
+            FROM "UltraFeedEvents" ufe_posts
+            WHERE ufe_posts."userId" = $(userId)
+              AND ufe_posts."collectionName" = 'Posts'
+              AND ufe_posts."eventType" != 'served'
+              AND ufe_posts."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
+          ) "readPosts_subquery" ON c_read."postId" = "readPosts_subquery"."postId"
+          WHERE c_read."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+            AND COALESCE(c_read."topLevelCommentId", c_read._id) IN (
+                SELECT "threadTopLevelId_inner_rat" FROM (
+                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                    FROM "Comments" c_inner
+                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                    ORDER BY "lastCommentActivity_inner" DESC
+                    LIMIT $(threadCandidateLimit)
+                ) recent_threads_filter_for_torp
+            )
+        ) threadsOnReadPosts ON recentActiveThreads."threadTopLevelId" = threadsOnReadPosts."threadTopLevelId"
     `, {
       userId,
       lookbackInterval,
