@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
 import { createNewPost, loginNewUser } from "./playwrightUtils";
-import { styleSelect } from "@/themes/forumTheme";
 
 test("bookmark a post and view it on bookmarks page", async ({ page, context }) => {
   await loginNewUser(context);
@@ -10,8 +9,8 @@ test("bookmark a post and view it on bookmarks page", async ({ page, context }) 
 
   await page.locator(".BookmarkButton-container").click();
 
-  await page.goto(styleSelect({friendly: "/saved", default: "/bookmarks"}));
+  await page.goto("/bookmarks");
 
   // Assert that the post appears
   await expect(page.getByText(post.title)).toBeVisible();
-}); 
+});
