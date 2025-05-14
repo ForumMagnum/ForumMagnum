@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
 export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks' ] as const;
-export const feedCommentSourceTypesArray = ['recentComments'] as const;
+export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 
 // Define types based on the arrays
@@ -75,6 +75,11 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
+}
+
+export interface FeedPostStub {
+  postId: string;
+  postMetaInfo: FeedPostMetaInfo;
 }
 
 export interface FeedFullPost {

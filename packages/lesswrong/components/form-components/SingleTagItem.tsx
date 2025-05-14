@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from '../tagging/FooterTag';
 import classNames from 'classnames';
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   tag: {
@@ -43,14 +45,14 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   })
 
   if (loading) {
-    return <Components.Loading />
+    return <Loading />
   }
 
   if (document) {
     return <div className={classNames(classes.tag, className)}>
       {document.name}
       <button className={classes.removeTag} onClick={() => onDelete(document._id)}>
-        <Components.ForumIcon icon="Close" />
+        <ForumIcon icon="Close" />
       </button>
     </div>
   }
@@ -58,14 +60,10 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   return null
 };
 
-const SingleTagItemComponent = registerComponent(
+export default registerComponent(
   'SingleTagItem',
   SingleTagItem,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    SingleTagItem: typeof SingleTagItemComponent
-  }
-}
+

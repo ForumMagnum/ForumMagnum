@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import without from 'lodash/without';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => ({
   checkbox: {
@@ -10,10 +10,14 @@ const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => 
   },
 }))
 
-const FormComponentCheckboxGroup = ({ value, updateCurrentValues, path, label, options }: FormComponentProps<string[]> & {
+export const FormComponentCheckboxGroup = ({ field, label, options }: {
+  field: TypedFieldApi<string[] | null>
+  label: string
   options: Array<{value: string, label: string}>
 }) => {
   const classes = useStyles(styles);
+
+  const value = field.state.value ?? [];
   
   return <div>
     <div>{label}</div>
@@ -25,22 +29,12 @@ const FormComponentCheckboxGroup = ({ value, updateCurrentValues, path, label, o
         onChange={(ev, checked) => {
           const newValue = checked
             ? [...value, option.value]
-            : without(value, option.value)
-          void updateCurrentValues({
-            [path]: newValue
-          });
+            : without(value, option.value);
+
+          field.handleChange(newValue);
         }}
       />
       <span>{option.label}</span>
     </div>)}
   </div>
 }
-
-const FormComponentCheckboxGroupComponent = registerComponent('FormComponentCheckboxGroup', FormComponentCheckboxGroup);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentCheckboxGroup: typeof FormComponentCheckboxGroupComponent
-  }
-}
-

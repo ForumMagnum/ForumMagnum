@@ -14,6 +14,7 @@ import * as defaultFragments from '@/lib/generated/defaultFragments';
 // Collection imports
 import * as advisorRequestsFragments from '../collections/advisorRequests/fragments';
 import * as bansFragments from '../collections/bans/fragments';
+import * as bookmarksFragments from '../collections/bookmarks/fragments';
 import * as booksFragments from '../collections/books/fragments';
 import * as chaptersFragments from '../collections/chapters/fragments';
 import * as ckEditorUserSessionsFragments from '../collections/ckEditorUserSessions/fragments';
@@ -97,6 +98,7 @@ const staticFragments = transformFragments({
   // Collection fragments
   ...advisorRequestsFragments,
   ...bansFragments,
+  ...bookmarksFragments,
   ...booksFragments,
   ...chaptersFragments,
   ...ckEditorUserSessionsFragments,

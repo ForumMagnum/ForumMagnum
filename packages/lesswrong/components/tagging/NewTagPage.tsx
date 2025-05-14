@@ -4,9 +4,14 @@ import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
+import { TagForm } from './TagForm';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import NewTagInfoBox from "./NewTagInfoBox";
+import Loading from "../vulcan-core/Loading";
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -25,7 +30,6 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, SectionTitle, WrappedSmartForm, NewTagInfoBox, Loading } = Components;
   const {mutate: updateTag} = useUpdate({
     collectionName: "Tags",
     fragmentName: "TagEditFragment",
@@ -76,26 +80,24 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         ? <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
         : <SectionTitle title={`New Wiki Page`}/>
       }
-      {!loadingExistingTag && <WrappedSmartForm
-        collectionName="Tags"
-        documentId={existingTag?._id}
-        queryFragmentName={'TagEditFragment'}
-        mutationFragmentName={'TagWithFlagsFragment'}
-        successCallback={async (tag: any) => {
-          if (existingTag) {
-            await updateTag({
-              selector: { _id: existingTag._id },
-              data: { isPlaceholderPage: false },
-            });
-          }
-          navigate({pathname: tagGetUrl(tag)});
-        }}
-        prefilledProps={{
-          name: prefillName,
-          wikiOnly: (createdType === "wiki"),
-          isPlaceholderPage: false,
-        }}
-      />}
+      {!loadingExistingTag && (
+        <TagForm
+          initialData={existingTag ?? undefined}
+          prefilledProps={{
+            name: prefillName,
+            wikiOnly: (createdType === "wiki"),
+          }}
+          onSuccess={async (tag) => {
+            if (existingTag) {
+              await updateTag({
+                selector: { _id: existingTag._id },
+                data: { isPlaceholderPage: false },
+              });
+            }
+            navigate({pathname: tagGetUrl(tag)});
+          }}
+        />
+      )}
       {isEAForum &&
         <div className={classes.guide}>
           <NewTagInfoBox />
@@ -105,10 +107,6 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage, {styles});
+export default registerComponent('NewTagPage', NewTagPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagPage: typeof NewTagPageComponent
-  }
-}
+

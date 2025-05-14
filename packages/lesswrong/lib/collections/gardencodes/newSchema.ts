@@ -1,5 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 import moment from "moment";
@@ -13,17 +14,6 @@ function generateCode(length: number) {
   }
   return result;
 }
-
-export const eventTypes = [
-  {
-    value: "public",
-    label: "Displayed on the public Garden Calendar",
-  },
-  {
-    value: "private",
-    label: "Displayed only to you",
-  },
-];
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -39,6 +29,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -48,23 +39,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "GardenCodes",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 20,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("GardenCodes"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -134,10 +108,6 @@ const schema = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
-    form: {
-      order: 10,
-      label: "Event Name",
-    },
   },
   userId: {
     database: {
@@ -176,11 +146,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 20,
-      label: "Start Time",
-      control: "datetime",
-    },
   },
   endTime: {
     database: {
@@ -199,11 +164,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 25,
-      label: "End Time",
-      control: "datetime",
-    },
   },
   fbLink: {
     database: {
@@ -217,10 +177,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 25,
-      label: "FB Event Link",
     },
   },
   type: {
@@ -240,12 +196,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: { options: () => eventTypes },
-      order: 30,
-      label: "Event Visibility:",
-      control: "radiogroup",
-    },
   },
   hidden: {
     database: {
@@ -262,10 +212,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 32,
-      hidden: true,
     },
   },
   deleted: {
@@ -284,9 +230,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 35,
-    },
   },
   afOnly: {
     database: {
@@ -304,11 +247,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 36,
-      label: "Limit attendance to AI Alignment Forum members",
-      control: "checkbox",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"GardenCodes">>;

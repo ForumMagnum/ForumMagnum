@@ -1,10 +1,9 @@
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
-import { SimpleDivider } from '@/components/widgets/SimpleDivider';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
@@ -14,6 +13,9 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
 import { createFallBackDialogHandler } from '@/components/localGroups/CommunityMapFilter';
+import EventNotificationsDialog from "../../localGroups/EventNotificationsDialog";
+import LWTooltip from "../../common/LWTooltip";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -92,9 +94,6 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
-  const { LWTooltip } = Components
-
   return <Paper>
     <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you." placement="left">
       <div className={classNames(classes.section, classes.title)}>
@@ -109,7 +108,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
           className={classNames(classes.section, classes.subscribeSection)}
           onClick={createFallBackDialogHandler(
             openDialog, "EventNotificationsDialog",
-            ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />,
+            ({onClose}) => <EventNotificationsDialog onClose={onClose} />,
             currentUser
           )}
         >
@@ -127,11 +126,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
   </Paper>
 }
 
-const HomepageMapFilterComponent = registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
+export default registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomepageMapFilter: typeof HomepageMapFilterComponent
-  }
-}
+
 

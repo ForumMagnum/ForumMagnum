@@ -64,14 +64,10 @@ const NotificationsPageEmpty = ({tabName, classes}: {
   }
 }
 
-const NotificationsPageEmptyComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageEmpty",
   NotificationsPageEmpty,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageEmpty: typeof NotificationsPageEmptyComponent,
-  }
-}
+

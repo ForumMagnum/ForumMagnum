@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import { SimpleDivider } from '@/components/widgets/SimpleDivider';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import TabNavigationCompressedItem from "./TabNavigationCompressedItem";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,8 +27,6 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { TabNavigationCompressedItem } = Components
-
   return (
     <div className={classes.root}>
       {forumSelect(menuTabs).map(tab => {
@@ -43,12 +42,8 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   )
 };
 
-const TabNavigationMenuCompressedComponent = registerComponent(
+export default registerComponent(
   'TabNavigationMenuCompressed', TabNavigationMenuCompressed, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenuCompressed: typeof TabNavigationMenuCompressedComponent
-  }
-}
+

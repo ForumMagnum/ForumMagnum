@@ -1,26 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
-import { EVENT_FORMATS } from "./types";
-
-const formGroups = {
-  pollEventOptions: {
-    name: "pollEventOptions",
-    order: 10,
-    label: '"POLL" Event Options',
-    startCollapsed: true,
-  },
-  stickerEventOptions: {
-    name: "stickerEventOptions",
-    order: 20,
-    label: '"STICKER" Event Options',
-    startCollapsed: true,
-  },
-} satisfies Partial<Record<string, FormGroupType<"ForumEvents">>>;
-
-function getDefaultEditorPlaceholder() {
-  return defaultEditorPlaceholder;
-}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -36,6 +17,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -45,29 +27,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        label: "Frontpage description",
-        hintText: getDefaultEditorPlaceholder,
-        fieldName: "frontpageDescription",
-        collectionName: "ForumEvents",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 0,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (forumEvent) => {
-          return {
-            id: `forumEvent:frontpageDescription:${forumEvent?._id ?? "create"}`,
-            verify: true,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -81,6 +40,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -90,29 +50,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        label: "Frontpage description (mobile)",
-        hintText: getDefaultEditorPlaceholder,
-        fieldName: "frontpageDescriptionMobile",
-        collectionName: "ForumEvents",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 0,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (forumEvent) => {
-          return {
-            id: `forumEvent:frontpageDescriptionMobile:${forumEvent?._id ?? "create"}`,
-            verify: true,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -126,6 +63,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -135,29 +73,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        label: "Post page description",
-        hintText: getDefaultEditorPlaceholder,
-        fieldName: "postPageDescription",
-        collectionName: "ForumEvents",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 0,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (forumEvent) => {
-          return {
-            id: `forumEvent:postPageDescription:${forumEvent?._id ?? "create"}`,
-            verify: true,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -173,9 +88,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
-    form: {
-      control: "MuiTextField",
-    },
   },
   startDate: {
     database: {
@@ -187,10 +99,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      form: { below: true },
-      control: "datetime",
     },
   },
   endDate: {
@@ -207,10 +115,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: { below: true },
-      control: "datetime",
-    },
   },
   darkColor: {
     database: {
@@ -224,12 +128,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      label: "Primary background color",
-      tooltip:
-        'Used as the background of the banner for basic events. Sometimes used as a text color with "Secondary background color" ("lightColor" in the schema) as the background, so these should be roughly inverses of each other.',
-      control: "FormComponentColorPicker",
     },
   },
   lightColor: {
@@ -245,12 +143,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
-    form: {
-      label: "Secondary background color",
-      tooltip:
-        'Used as the background in some places (e.g. topic tabs) with "Primary background color" as the foreground, so these should be roughly inverses of each other.',
-      control: "FormComponentColorPicker",
-    },
   },
   bannerTextColor: {
     database: {
@@ -264,11 +156,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      tooltip:
-        'Color of the text on the main banner, and for some event types the text in the header (e.g. "Effective Altruism Forum"). For many events its ok to leave this as white, it may be useful to set for events where the primary background color is light.',
-      control: "FormComponentColorPicker",
     },
   },
   contrastColor: {
@@ -285,10 +172,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Accent color (optional, used very rarely)",
-      control: "FormComponentColorPicker",
-    },
   },
   tagId: {
     database: {
@@ -304,10 +187,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Choose tag",
-      control: "TagSelect",
     },
   },
   tag: {
@@ -332,9 +211,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Choose post ID",
-    },
   },
   post: {
     graphql: {
@@ -357,9 +233,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "ImageUpload",
-    },
   },
   /** @deprecated Set `eventFormat` to "POLL" instead */
   includesPoll: {
@@ -379,10 +252,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "FormComponentCheckbox",
-      hidden: true,
-    },
   },
   isGlobal: {
     database: {
@@ -399,10 +268,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "FormComponentCheckbox",
-      hidden: true,
     },
   },
   eventFormat: {
@@ -423,18 +288,11 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      options: () =>
-        EVENT_FORMATS.map((ef) => ({
-          value: ef,
-          label: ef,
-        })),
-      control: "select",
-    },
   },
   pollQuestion: {
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -445,28 +303,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        label: "Poll question",
-        hintText: () => 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
-        fieldName: "pollQuestion",
-        collectionName: "ForumEvents",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (forumEvent) => {
-          return {
-            id: `forumEvent:pollQuestion:${forumEvent?._id ?? "create"}`,
-            verify: true,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },  
   },
@@ -485,9 +321,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.pollEventOptions,
-    }
   },
   pollDisagreeWording: {
     database: {
@@ -503,9 +336,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.pollEventOptions,
-    }
   },
   maxStickersPerUser: {
     database: {
@@ -524,9 +354,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.stickerEventOptions,
-    },
   },
   customComponent: {
     database: {
@@ -540,9 +367,9 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        allowedValues: ['GivingSeason2024Banner'],
       },
     },
-    form: {},
   },
   commentPrompt: {
     database: {
@@ -557,9 +384,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      tooltip: 'For events with comments, the title in the comment box (defaults to "Add your comment")',
     },
   },
   /**
@@ -586,9 +410,6 @@ const schema = {
         optional: true,
         blackbox: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   voteCount: {

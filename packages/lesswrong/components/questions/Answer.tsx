@@ -1,18 +1,30 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
+import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
 import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import type { ContentItemBody } from '../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import CommentsEditForm from "../comments/CommentsEditForm";
+import SmallSideVote from "../votes/SmallSideVote";
+import AnswerCommentsList from "./AnswerCommentsList";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import ForumIcon from "../common/ForumIcon";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import UsersName from "../users/UsersName";
+import { Typography } from "../common/Typography";
+import CommentBottom from "../comments/CommentsItem/CommentBottom";
+import CommentsNewForm from "../comments/CommentsNewForm";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -139,7 +151,7 @@ const Answer = ({ comment, post, childComments, classes }: {
 }) => {
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
@@ -160,13 +172,6 @@ const Answer = ({ comment, post, childComments, classes }: {
   }, []);
 
   const CommentLinkWrapper = useCommentLink({comment, post});
-
-  const {
-    SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon, CommentBody,
-    CommentsItemDate, UsersName, Typography, CommentBottom, CommentsNewForm,
-    HoveredReactionContextProvider,
-  } = Components;
-
   const menuIcon = isFriendlyUI
     ? undefined
     : <MoreHorizIcon />;
@@ -233,7 +238,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 Pinned by {comment.promotedByUser.displayName}
               </div>}
               { showEdit
-                ? <Components.CommentsEditForm
+                ? <CommentsEditForm
                     comment={comment}
                     successCallback={hideEdit}
                     cancelCallback={hideEdit}
@@ -288,13 +293,9 @@ const Answer = ({ comment, post, childComments, classes }: {
   )
 }
 
-const AnswerComponent = registerComponent('Answer', Answer, {
+export default registerComponent('Answer', Answer, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    Answer: typeof AnswerComponent
-  }
-}
+

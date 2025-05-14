@@ -1,9 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { JARGON_LLM_MODEL } from './GlossaryEditForm';
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = () => ({
   checkboxContainer: {
@@ -21,8 +23,6 @@ export const EditUserJargonSettings = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-
-  const { LWTooltip, MetaInfo } = Components;
   return <>
       <LWTooltip title={<div><div>Automatically generate jargon for all your drafts, by default</div>
       <em>(i.e. send your drafts to {JARGON_LLM_MODEL} every ~5 minutes)</em></div>}>
@@ -48,10 +48,6 @@ export const EditUserJargonSettings = ({classes}: {
   </>;
 }
 
-const EditUserJargonSettingsComponent = registerComponent('EditUserJargonSettings', EditUserJargonSettings, {styles});
+export default registerComponent('EditUserJargonSettings', EditUserJargonSettings, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditUserJargonSettings: typeof EditUserJargonSettingsComponent
-  }
-}
+

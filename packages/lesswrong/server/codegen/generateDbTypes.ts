@@ -1,5 +1,5 @@
 import { getAllCollections } from '@/server/collections/allCollections';
-import { generateAllowedValuesTypeString, generatedFileHeader, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
+import { generateAllowedValuesTypeString, generatedFileHeader, graphqlTypeToTypescript, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/utils/schemaUtils';
 import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import orderBy from 'lodash/orderBy';
@@ -44,6 +44,48 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
   }
 }
 
+function stripRequired(typeString: string) {
+  const required = typeString.endsWith('!');
+  return {
+    typeString: required ? typeString.slice(0, -1) : typeString,
+    required,
+  };
+}
+
+function stripArray(typeString: string) {
+  const array = typeString.startsWith('[') && typeString.endsWith(']');
+  return {
+    typeString: array ? typeString.slice(1, -1) : typeString,
+    array,
+  };
+}
+
+function getGraphqlType(graphqlSpec?: GraphQLFieldSpecification<any>) {
+  if (!graphqlSpec) {
+    return;
+  }
+
+  if ('inputType' in graphqlSpec) {
+    return graphqlSpec.inputType;
+  }
+
+  return graphqlSpec.outputType;
+}
+
+/**
+ * Ignores graphql required annotations, since the database nullability field is the source of truth in this context.
+ */
+function graphqlTypeStringToTypescriptTypeString(graphqlType: string): string {
+  const { typeString } = stripRequired(graphqlType);
+  const { typeString: typeStringWithoutArray, array } = stripArray(typeString);
+
+  if (array) {
+    return `Array<${typeStringWithoutArray}>`;
+  }
+
+  return typeString;
+}
+
 function databaseSpecToTypescriptType(databaseSpec: DatabaseFieldSpecification<any>, graphqlSpec?: GraphQLFieldSpecification<any>): string {
   const { type, typescriptType } = databaseSpec;
   const nullable = isFieldNullable({ database: databaseSpec, graphql: graphqlSpec }, true);
@@ -56,9 +98,20 @@ function databaseSpecToTypescriptType(databaseSpec: DatabaseFieldSpecification<a
     return generateAllowedValuesTypeString(graphqlSpec.validation.allowedValues, { database: databaseSpec, graphql: graphqlSpec });
   }
 
+
   const rawTypescriptType = databaseTypeToTypescriptType(type);
 
-  if (rawTypescriptType === 'any') {
+  if (rawTypescriptType === 'any' || rawTypescriptType === 'Array<any>') {
+    const graphqlType = getGraphqlType(graphqlSpec);
+    if (graphqlType) {
+      if (typeof graphqlType === 'string' && !graphqlType.startsWith('JSON')) {
+        return graphqlTypeStringToTypescriptTypeString(graphqlType) + nullableString;
+      }
+
+      // The only remaining case is GraphQLJSON or explicitly-typed JSON
+      return 'any' + nullableString;
+    }
+
     return rawTypescriptType;
   }
 
@@ -125,7 +178,8 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
       && !hasTypescriptType
       && hasSimpleSchemaType
       && isNonTrivialSimpleSchemaType(fieldSimpleSchemaType, fieldSchema)
-      && !hasAllowedValues;
+      && !hasAllowedValues
+      && fieldSchema.graphql?.validation?.simpleSchema;
 
     if (useSimpleSchemaTypeGen) {
       typeName = simplSchemaTypeToTypescript(simpleSchema._schema, fieldName, fieldSimpleSchemaType, 2, true);

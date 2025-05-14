@@ -2,7 +2,7 @@ import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFe
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
-import { UltraFeedSettingsType } from "@/components/ultraFeed/ultraFeedSettingsTypes";
+import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
 
 
@@ -66,7 +66,7 @@ export async function getRecommendedPostsForUltraFeed(
 export async function getLatestPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  settings: UltraFeedSettingsType
+  settings: UltraFeedResolverSettings
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
@@ -98,7 +98,7 @@ export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
   latestPostsLimit: number,
-  settings: UltraFeedSettingsType
+  settings: UltraFeedResolverSettings
 ): Promise<FeedFullPost[]> {
   const recombeeScenario = 'recombee-lesswrong-custom';
 

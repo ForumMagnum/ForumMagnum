@@ -69,14 +69,10 @@ const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagInfoBoxComponent = registerComponent(
+export default registerComponent(
   "NewTagInfoBox",
   NewTagInfoBox,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NewTagInfoBox: typeof NewTagInfoBoxComponent
-  }
-}
+

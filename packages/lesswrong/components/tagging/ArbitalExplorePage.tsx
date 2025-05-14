@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 // import { arbitalPageData } from './ArbitalMockupData';
 import { useMulti } from '@/lib/crud/withMulti';
 import type { ArbitalPage, ArbitalPageNode } from './arbitalTypes';
+import WikiTagNestedList from "./WikiTagNestedList";
+import Loading from "../vulcan-core/Loading";
+import InlineSelect from "../common/InlineSelect";
 
 // Helper function to build the tree
 function buildTree(items: ArbitalPage[], parentId: string | null = null): ArbitalPageNode[] {
@@ -39,7 +42,6 @@ const styles = defineStyles("ArbitalExplorePage", (theme: ThemeType) => ({
 
 const ArbitalExplorePage = () => {
   const classes = useStyles(styles);
-  const { WikiTagNestedList, Loading, InlineSelect } = Components;
   const [defaultCollapseAfterLevel, setDefaultCollapseAfterLevel] = useState<number>(0);
 
   // Fetch all Arbital pages
@@ -137,12 +139,8 @@ const ArbitalExplorePage = () => {
   // );
 };
 
-const ArbitalExplorePageComponent = registerComponent('ArbitalExplorePage', ArbitalExplorePage);
+export default registerComponent('ArbitalExplorePage', ArbitalExplorePage);
 
-export default ArbitalExplorePageComponent;
 
-declare global {
-  interface ComponentTypes {
-    ArbitalExplorePage: typeof ArbitalExplorePageComponent;
-  }
-}
+
+

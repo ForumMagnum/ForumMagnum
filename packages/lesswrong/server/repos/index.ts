@@ -37,6 +37,7 @@ import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
 import LWEventsRepo from "./LWEventsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
+import BookmarksRepo from "./BookmarksRepo";
 
 declare global {
   type AllRepos = typeof allRepos;
@@ -87,6 +88,7 @@ const allRepos = {
   ultraFeedEvents: UltraFeedEventsRepo,
   users: UsersRepo,
   votes: VotesRepo,
+  bookmarks: BookmarksRepo,
 } as const;
 
 /**

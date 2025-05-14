@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import { isEmpty } from 'underscore';
-import type { Option } from '../common/InlineSelect';
+import InlineSelect, { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
@@ -14,9 +14,6 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-
-  const {InlineSelect} = Components
-
   // permalinkedCommentHeight() finds the height of the comment at the top of comment permalink pages
   // on the EA Forum and LessWrong. This is used when the user changes the comment sort order, which
   // changes the page from a comment permalink page to a regular post page, and we want to preserve
@@ -50,10 +47,6 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
 
 };
 
-const CommentsViewsComponent = registerComponent('CommentsViews', CommentsViews);
+export default registerComponent('CommentsViews', CommentsViews);
 
-declare global {
-  interface ComponentTypes {
-    CommentsViews: typeof CommentsViewsComponent,
-  }
-}
+

@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { useTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { commentBodyStyles } from '../../themes/stylePiping'
-import { useCurrentUser } from '../common/withUser';
-import { useCreate } from '@/lib/crud/withCreate';
-import { commentDefaultToAlignment } from '@/lib/collections/comments/helpers';
-import { User } from '@sentry/node';
-import { useUpdate } from '@/lib/crud/withUpdate';
-import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
-import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { useCreate } from '@/lib/crud/withCreate';
+import { useUpdate } from '@/lib/crud/withUpdate';
+import { Link } from '@/lib/reactRouterWrapper';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import React, { useState } from 'react';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { commentBodyStyles } from '../../themes/stylePiping';
+import { useCurrentUser } from '../common/withUser';
+import { CurationNoticesForm } from './CurationNoticesForm';
+import ContentItemBody from "../common/ContentItemBody";
+import BasicFormStyles from "../form-components/BasicFormStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 0.5,
     },
-},
+  },
   publishButton: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
@@ -93,11 +92,11 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, BasicFormStyles, WrappedSmartForm } = Components;
-
+  const currentUser = useCurrentUser();
 
   const [edit, setEdit] = useState<boolean>(false)
   const [clickedPushing, setClickedPushing] = useState<boolean>(false)
+
   const { create } = useCreate({
     collectionName: "Comments",
     fragmentName: 'CommentsList'
@@ -127,7 +126,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
       userId,
       contents: {
         originalContents: { data, type }
-      } as EditableFieldContents
+      }
     };
 
     try {
@@ -150,20 +149,20 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     }
   }
 
-  if (curationNotice.post === null) return null;
+  if (curationNotice.post === null || curationNotice.postId === null || !currentUser) return null;
+
+  const { _id, contents, commentId, deleted } = curationNotice;
 
   return <div className={classes.root}>
     {edit ? 
       <div>
         <BasicFormStyles>
           {curationNotice.post.title}
-          <WrappedSmartForm
-            collectionName="CurationNotices"
-            documentId={curationNotice._id}
-            mutationFragmentName={'CurationNoticesFragment'}
-            queryFragmentName={'CurationNoticesFragment'}
-            successCallback={() => setEdit(false)}
-            prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
+          <CurationNoticesForm
+            initialData={{ _id, contents, commentId, deleted }}
+            currentUser={currentUser}
+            postId={curationNotice.postId}
+            onSuccess={() => setEdit(false)}
           />
         </BasicFormStyles>
       </div>
@@ -195,12 +194,8 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   </div>
 }
 
-const CurationNoticesItemComponent = registerComponent('CurationNoticesItem', CurationNoticesItem, {styles});
+export default registerComponent('CurationNoticesItem', CurationNoticesItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CurationNoticesItem: typeof CurationNoticesItemComponent
-  }
-}
+
 
 

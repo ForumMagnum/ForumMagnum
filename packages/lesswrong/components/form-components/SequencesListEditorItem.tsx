@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   box: {
@@ -77,14 +78,10 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
       </div>
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const SequencesListEditorItemComponent = registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
+export default registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesListEditorItem: typeof SequencesListEditorItemComponent
-  }
-}
+

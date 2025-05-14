@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { gql, useApolloClient, useQuery } from '@apollo/client';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
@@ -8,6 +8,11 @@ import RssFeed from "@/lib/vendor/@material-ui/icons/src/RssFeed";
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import DropdownItem from "../DropdownItem";
+import ContentStyles from "../../common/ContentStyles";
+import ContentItemBody from "../../common/ContentItemBody";
+import LWDialog from "../../common/LWDialog";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   diffExplanation: {
@@ -35,13 +40,12 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
+const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
-  const { DropdownItem } = Components;
   const currentUser = useCurrentUser();
   
   if (!post.feedId) {
@@ -55,7 +59,7 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
     closeMenu();
     openDialog({
       name: "ResyncRssDialog",
-      contents: ({onClose}) => <Components.ResyncRssDialog onClose={onClose} post={post} />
+      contents: ({onClose}) => <ResyncRssDialog onClose={onClose} post={post} classes={classes} />
     });
   }
 
@@ -71,7 +75,6 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   post: PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody, LWDialog, Loading } = Components;
   const client = useApolloClient();
   
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed
@@ -165,13 +168,6 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   </LWDialog>
 }
 
-const ResyncRssDropdownItemComponent = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItem, {styles});
-const ResyncRssDialogComponent = registerComponent('ResyncRssDialog', ResyncRssDialog, {styles});
+export const ResyncRssDropdownItem = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItemInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ResyncRssDropdownItem: typeof ResyncRssDropdownItemComponent
-    ResyncRssDialog: typeof ResyncRssDialogComponent
-  }
-}
 

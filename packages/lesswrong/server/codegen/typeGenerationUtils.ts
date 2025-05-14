@@ -42,10 +42,18 @@ export function generateAllowedValuesTypeString(allowedValues: string[], fieldSc
   return maybeNullable(fieldType, nullable);
 }
 
+interface InternalSimpleSchemaType {
+  singleType: Function | string | SimpleSchema,
+  definitions: Array<{
+    type: SimpleSchemaType<CollectionNameString>,
+    allowedValues: string[]
+  }>
+}
+
 export function simplSchemaTypeToTypescript(
   schema: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>,
   fieldName: string,
-  simplSchemaType: DerivedSimpleSchemaFieldType['type'],
+  simplSchemaType: InternalSimpleSchemaType,
   indent = 2,
   DbType = false,
 ): string {
@@ -118,7 +126,9 @@ function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: 
 
 export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
-  if (graphqlType === GraphQLJSON) return "any";
+  if (graphqlType === GraphQLJSON) {
+    return "any";
+  }
   
   if (graphqlType.endsWith("!")) {
     return graphqlTypeToTypescript(graphqlType.substr(0, graphqlType.length-1), true);
@@ -152,9 +162,7 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
         if (graphqlType === "JSON") {
           return "any";
         }
-        // TODO
-        //throw new Error("Unrecognized type: "+graphqlType);
-        return `any /*${graphqlType}*/`;
+        return graphqlType;
       }
   }
 }

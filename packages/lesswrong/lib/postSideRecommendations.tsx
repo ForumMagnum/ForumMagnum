@@ -9,7 +9,7 @@ import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
-import { Components } from "./vulcan-lib/components";
+import SideRecommendation from "@/components/recommendations/SideRecommendation";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
@@ -89,7 +89,7 @@ const useGeneratorWithStrategy = (
   return {
     loading,
     title,
-    items: posts.map((post) => () => <Components.SideRecommendation post={post} />),
+    items: posts.map((post) => () => <SideRecommendation post={post} />),
   };
 }
 
@@ -139,7 +139,7 @@ const useGenerator = (
   post: RecommendablePost,
 ): RecommendationsGenerator => {
   const [cookies] = useCookiesWithConsent();
-  const generator = useRef<RecommendationsGenerator>();
+  const generator = useRef<RecommendationsGenerator|null>(null);
   if (!generator.current) {
     const generators = getAvailableGenerators(user, post, cookies);
     const index = Math.floor(seed) % generators.length;

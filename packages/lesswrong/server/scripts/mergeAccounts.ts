@@ -1,6 +1,6 @@
 import Users from '../../server/collections/users/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
-import { getEditableFieldNamesForCollection, editableFieldIsNormalized } from '../../lib/editor/make_editable'
+import { getEditableFieldNamesForCollection, editableFieldIsNormalized } from '@/lib/editor/editableSchemaFieldHelpers';
 import ReadStatuses from '../../server/collections/readStatus/collection';
 import { Votes } from '../../server/collections/votes/collection';
 import { Conversations } from '../../server/collections/conversations/collection'

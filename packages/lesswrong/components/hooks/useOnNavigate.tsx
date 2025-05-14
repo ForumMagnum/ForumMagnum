@@ -51,10 +51,6 @@ export function useOnNavigate(fn: (change: LocationChange) => void) {
   }, [fn]);
 }
 
-const NavigationEventSenderComponent = registerComponent("NavigationEventSender", NavigationEventSender);
+export default registerComponent("NavigationEventSender", NavigationEventSender);
 
-declare global {
-  interface ComponentTypes {
-    NavigationEventSender: typeof NavigationEventSenderComponent
-  }
-}
+

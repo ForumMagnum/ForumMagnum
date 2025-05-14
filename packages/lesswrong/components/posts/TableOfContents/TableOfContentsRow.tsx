@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import TableOfContentsDivider from "./TableOfContentsDivider";
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
@@ -132,7 +133,7 @@ const TableOfContentsRow = ({
   const scaleStyling = scale !== undefined ? { flex: scale } : undefined;
 
   if (divider) {
-    return <Components.TableOfContentsDivider scaleStyling={scaleStyling} />
+    return <TableOfContentsDivider scaleStyling={scaleStyling} />
   }
   
   const levelToClassName = (level: number) => {
@@ -164,10 +165,6 @@ const TableOfContentsRow = ({
   </div>
 }
 
-const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow);
+export default registerComponent("TableOfContentsRow", TableOfContentsRow);
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsRow: typeof TableOfContentsRowComponent
-  }
-}
+

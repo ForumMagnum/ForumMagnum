@@ -4,13 +4,14 @@ import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { HashLinkProps } from '../../common/HashLink';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_WELCOME_BOX_COOKIE } from '../../../lib/cookies/cookies';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
+import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
@@ -92,8 +93,6 @@ const WelcomeBox = ({ classes }: {
   const hideBox = () => setCookie(HIDE_WELCOME_BOX_COOKIE, "true", {
     path: "/"
   });
-
-  const { Typography } = Components;
   return (
     <div className={classes.wrapper}>
       <AnalyticsContext pageElementContext="welcomeBox">
@@ -121,10 +120,6 @@ const WelcomeBox = ({ classes }: {
 };
 
 
-const WelcomeBoxComponent = registerComponent('WelcomeBox', WelcomeBox, { styles });
+export default registerComponent('WelcomeBox', WelcomeBox, { styles });
 
-declare global {
-  interface ComponentTypes {
-      WelcomeBox: typeof WelcomeBoxComponent
-  }
-}
+

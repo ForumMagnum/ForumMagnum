@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -7,6 +7,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useMulti } from '@/lib/crud/withMulti';
+import SingleColumnSection from "../common/SingleColumnSection";
+import CompareRevisions from "../revisions/CompareRevisions";
+import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
@@ -25,9 +29,6 @@ const TagCompareRevisions = () => {
   const { slug } = params;
   const versionBefore = query.before;
   const versionAfter = query.after;
-  
-  const { SingleColumnSection, CompareRevisions, RevisionComparisonNotice, LoadingOrErrorPage } = Components;
-  
   const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");
   
   // Load the after- revision
@@ -71,11 +72,7 @@ const TagCompareRevisions = () => {
   </SingleColumnSection>
 }
 
-const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions);
+export default registerComponent("TagCompareRevisions", TagCompareRevisions);
 
 
-declare global {
-  interface ComponentTypes {
-    TagCompareRevisions: typeof TagCompareRevisionsComponent
-  }
-}
+

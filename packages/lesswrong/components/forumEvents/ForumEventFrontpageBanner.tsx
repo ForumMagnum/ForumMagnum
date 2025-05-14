@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
@@ -7,6 +7,12 @@ import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import ForumIcon from "../common/ForumIcon";
+import ForumEventPoll from "./ForumEventPoll";
+import ForumEventStickers from "./ForumEventStickers";
 
 const POLL_MIN_WIDTH = 800;
 
@@ -246,8 +252,6 @@ const Description = ({forumEvent, classes}: {
   forumEvent: ForumEventsDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody } = Components;
-
   const { frontpageDescription, frontpageDescriptionMobile } = forumEvent;
 
   return (
@@ -292,9 +296,6 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
 
   const {title, bannerImageId, startDate, endDate} = currentForumEvent;
   const date = endDate ? formatDate({ startDate, endDate }) : null;
-  
-  const {CloudinaryImage2, ForumIcon} = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
       <div className={classNames(classes.root, classes.rootWithGradient)}>
@@ -339,11 +340,6 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, startDate, endDate} = currentForumEvent;
   const date = endDate && formatDate({startDate, endDate});
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
-
-  const {
-    CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
@@ -388,9 +384,6 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   }
 
   const {title, bannerImageId} = currentForumEvent;
-  
-  const { CloudinaryImage2, ForumEventStickers } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
       <div className={classes.root}>
@@ -405,6 +398,11 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   );
 }
 
+const customComponents: Partial<Record<Exclude<DbForumEvent['customComponent'], null>, FC>> = {
+  // This component was presumably deleted, it not being 2024 anymore.
+  // GivingSeason2024Banner,
+};
+
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -415,7 +413,7 @@ export const ForumEventFrontpageBanner = ({classes}: {
 
   const {customComponent, eventFormat} = currentForumEvent;
   if (customComponent) {
-    const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
+    const CustomComponent = customComponents[customComponent];
     if (CustomComponent) {
       return (
         <AnalyticsContext
@@ -438,14 +436,10 @@ export const ForumEventFrontpageBanner = ({classes}: {
   }
 }
 
-const ForumEventFrontpageBannerComponent = registerComponent(
+export default registerComponent(
   "ForumEventFrontpageBanner",
   ForumEventFrontpageBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventFrontpageBanner: typeof ForumEventFrontpageBannerComponent
-  }
-}
+

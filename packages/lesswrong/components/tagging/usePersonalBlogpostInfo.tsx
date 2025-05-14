@@ -13,7 +13,7 @@ const lwafPersonalBlogpostInfo = {
   </div>
 }
 
-const personalBlogpostInfo: ForumOptions<{name: string, tooltip: JSX.Element}> = {
+const personalBlogpostInfo: ForumOptions<{name: string, tooltip: React.JSX.Element}> = {
   LessWrong: lwafPersonalBlogpostInfo,
   AlignmentForum: lwafPersonalBlogpostInfo,
   EAForum: {

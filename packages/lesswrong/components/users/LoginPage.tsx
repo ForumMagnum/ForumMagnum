@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import LoginForm from "./LoginForm";
 
 const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
   root: {
@@ -32,15 +33,11 @@ const LoginPage = () => {
     return <div />;
   } else {
     return <div className={classes.root}>
-      <Components.LoginForm />
+      <LoginForm />
     </div>;
   }
 }
 
-const LoginPageComponent = registerComponent('LoginPage', LoginPage);
+export default registerComponent('LoginPage', LoginPage);
 
-declare global {
-  interface ComponentTypes {
-    LoginPage: typeof LoginPageComponent
-  }
-}
+

@@ -4,9 +4,9 @@ import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getSimpleSchema } from '@/lib/schema/allSchemas';
-import { convertSchema } from '@/lib/vulcan-forms/schema_utils';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import Loading from "./Loading";
+import LoadMore from "../common/LoadMore";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -71,18 +71,15 @@ const DatatableHeader = ({ collectionName, column }: {
   const columnName = getColumnName(column);
   
   if (collectionName) {
-    const schema = getSimpleSchema(collectionName);
-
     /*
 
     use either:
 
     1. the column name translation : collectionName.columnName, global.columnName, columnName
-    2. the column name label in the schema (if the column name matches a schema field)
-    3. the raw column name.
+    2. the raw column name.
 
     */
-    const formattedLabel = formatLabel({fieldName: columnName, collectionName, schema: convertSchema(schema)});
+    const formattedLabel = formatLabel({fieldName: columnName, collectionName});
 
     return <DatatableHeaderCellLayout>{formattedLabel}</DatatableHeaderCellLayout>;
   } else {
@@ -113,13 +110,11 @@ const DatatableContents = (props: {
   count?: number;
   totalCount: number;
   loadingMore: boolean;
-  emptyState?: JSX.Element;
+  emptyState?: React.JSX.Element;
 }) => {
   const { title, collectionName, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
-  const { LoadMore } = Components;
-
   if (loading) {
-    return <div className="datatable-list datatable-list-loading"><Components.Loading /></div>;
+    return <div className="datatable-list datatable-list-loading"><Loading /></div>;
   } else if (!results || !results.length) {
     return emptyState || null;
   }
@@ -142,7 +137,7 @@ const DatatableContents = (props: {
       {hasMore &&
         <DatatableContentsMoreLayout>
           {loadingMore
-            ? <Components.Loading />
+            ? <Loading />
             : <LoadMore count={count} totalCount={totalCount} loadMore={loadMore} />
           }
         </DatatableContentsMoreLayout>
@@ -260,10 +255,6 @@ const DatatableDefaultCell = ({ column, document }: {
 }
 
 
-const DatatableComponent = registerComponent('Datatable', Datatable);
+export default registerComponent('Datatable', Datatable);
 
-declare global {
-  interface ComponentTypes {
-    Datatable: typeof DatatableComponent,
-  }
-}
+

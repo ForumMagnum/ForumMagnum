@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
+import VoteAgreementIcon from "./VoteAgreementIcon";
+import AxisVoteButton from "./AxisVoteButton";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   root: {
@@ -37,7 +40,6 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
   voteProps: VotingProps<VoteableTypeClient>,
   agreementScoreClassName?: string,
 }) => {
-  const { AxisVoteButton, LWTooltip } = Components;
   const classes = useStyles(styles);
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
@@ -70,14 +72,14 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
     >
       {children}
     </LWTooltip>
-  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip, LWTooltip])
+  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip])
   const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
       <LWTooltip {...props} popperClassName={classes.tooltip}>
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  , [canVote, classes.tooltip, LWTooltip])
+  , [canVote, classes.tooltip])
 
   const tooltipPlacement = "top";
 
@@ -88,7 +90,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
         placement={tooltipPlacement}
       >
         <AxisVoteButton
-          VoteIconComponent={Components.VoteAgreementIcon}
+          VoteIconComponent={VoteAgreementIcon}
           axis="agreement"
           orientation="left" color="error" upOrDown="Downvote"
           enabled={canVote}
@@ -112,7 +114,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
         placement={tooltipPlacement}
       >
         <AxisVoteButton
-          VoteIconComponent={Components.VoteAgreementIcon}
+          VoteIconComponent={VoteAgreementIcon}
           axis="agreement"
           orientation="right" color="secondary" upOrDown="Upvote"
           enabled={canVote}
@@ -124,12 +126,8 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
 }
 
 
-const AgreementVoteAxisComponent = registerComponent('AgreementVoteAxis', AgreementVoteAxis);
+export default registerComponent('AgreementVoteAxis', AgreementVoteAxis);
 
-export default AgreementVoteAxisComponent;
 
-declare global {
-  interface ComponentTypes {
-    AgreementVoteAxis: typeof AgreementVoteAxisComponent
-  }
-}
+
+

@@ -73,6 +73,21 @@ CREATE TABLE "ArbitalTagContentRels" (
 -- Index "idx_ArbitalTagContentRels_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
 
+-- Table "AutomatedContentEvaluations"
+CREATE TABLE "AutomatedContentEvaluations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "score" DOUBLE PRECISION NOT NULL,
+  "sentenceScores" JSONB NOT NULL,
+  "aiChoice" TEXT NOT NULL,
+  "aiReasoning" TEXT NOT NULL,
+  "aiCoT" TEXT NOT NULL
+);
+
+-- Index "idx_AutomatedContentEvaluations_revisionId"
+CREATE INDEX IF NOT EXISTS "idx_AutomatedContentEvaluations_revisionId" ON "AutomatedContentEvaluations" USING btree ("revisionId");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -92,6 +107,23 @@ CREATE INDEX IF NOT EXISTS "idx_Bans_schemaVersion" ON "Bans" USING btree ("sche
 
 -- Index "idx_Bans_ip"
 CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");
+
+-- Table "Bookmarks"
+CREATE TABLE "Bookmarks" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "active" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_Bookmarks_userId_documentId_collectionName"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Bookmarks_userId_documentId_collectionName" ON "Bookmarks" USING btree ("userId", "documentId", "collectionName");
+
+-- Index "idx_Bookmarks_userId_active_lastUpdated"
+CREATE INDEX IF NOT EXISTS "idx_Bookmarks_userId_active_lastUpdated" ON "Bookmarks" USING btree ("userId", "active", "lastUpdated");
 
 -- Table "Books"
 CREATE TABLE "Books" (
@@ -3112,6 +3144,17 @@ CREATE TABLE "UltraFeedEvents" (
 -- Index "idx_ultraFeedEvents_document_user_event_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_document_user_event_createdAt" ON "UltraFeedEvents" USING btree ("documentId", "userId", "eventType", "createdAt");
 
+-- Index "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx" ON "UltraFeedEvents" USING btree (
+  "userId",
+  "collectionName",
+  "eventType",
+  "createdAt"
+);
+
+-- Index "idx_ultraFeedEvents_userId_collectionName_documentId_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_documentId_idx" ON "UltraFeedEvents" USING btree ("userId", "collectionName", "documentId");
+
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3432,7 +3475,6 @@ CREATE TABLE "Users" (
   "tagRevisionCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "abTestKey" TEXT NOT NULL,
   "abTestOverrides" JSONB,
-  "reenableDraftJs" BOOL,
   "walledGardenInvite" BOOL,
   "hideWalledGardenUI" BOOL,
   "walledGardenPortalOnboarded" BOOL,

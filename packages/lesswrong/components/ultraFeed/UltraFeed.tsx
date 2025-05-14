@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import React, { useRef, useState } from 'react';
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
@@ -10,10 +10,22 @@ import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY, getResolverSettings } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import MixedTypeFeed from "../common/MixedTypeFeed";
+import UltraFeedPostItem from "./UltraFeedPostItem";
+import FeedItemWrapper from "./FeedItemWrapper";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SettingsButton from "../icons/SettingsButton";
+import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
+import UltraFeedSettings from "./UltraFeedSettings";
+import UltraFeedThreadItem from "./UltraFeedThreadItem";
+import SpotlightItem from "../spotlights/SpotlightItem";
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -49,6 +61,7 @@ const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettin
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
     // Remove padding inserted by Layout.tsx to be flush with sides of screen
+    width: '100%',
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8,
@@ -106,11 +119,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   ultraFeedNewContentContainer: {
   },
   settingsContainer: {
-    marginBottom: 20,
-    background: theme.palette.panelBackground.default,
-    borderRadius: 3,
-    padding: '16px 12px',
-    boxShadow: theme.palette.boxShadow.default,
+    marginBottom: 32,
   },
   hiddenOnDesktop: {
     display: 'none',
@@ -140,17 +149,19 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       },
     },
   },
+  checkboxLabel: {
+    whiteSpace: 'nowrap',
+  },
 }));
 
-const UltraFeedContent = () => {
+const UltraFeedContent = ({alwaysShow = false}: {
+  alwaysShow?: boolean
+}) => {
   const classes = useStyles(styles);
-  const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
-    FeedItemWrapper, SectionTitle, SingleColumnSection, SettingsButton, 
-    SpotlightFeedItem, UltraFeedSettings, UltraFeedThreadItem, SpotlightItem } = Components;
-  
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
+  const ultraFeedEnabledCookie = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
+  const ultraFeedEnabled = !!currentUser && (ultraFeedEnabledCookie || alwaysShow);
   
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -164,12 +175,12 @@ const UltraFeedContent = () => {
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
-  if (!userHasUltraFeed(currentUser)) {
+  if (!(userIsAdminOrMod(currentUser) || ultraFeedEnabled || alwaysShow)) {
     return null;
   }
 
   const toggleUltraFeed = () => {
-    setUltraFeedCookie(ULTRA_FEED_ENABLED_COOKIE, String(!ultraFeedEnabled), { path: "/" });
+    setUltraFeedCookie(ULTRA_FEED_ENABLED_COOKIE, String(!ultraFeedEnabledCookie), { path: "/" });
   };
 
   const toggleSettings = (e: React.MouseEvent) => {
@@ -186,6 +197,8 @@ const UltraFeedContent = () => {
     const defaultSettings = saveSettings(DEFAULT_SETTINGS);
     setSettings(defaultSettings);
   };
+
+  const resolverSettings = getResolverSettings(settings);
   
   const customTitle = <>
     <div className={classes.titleContainer}>
@@ -201,15 +214,19 @@ const UltraFeedContent = () => {
       />
     </div>
   </>;
+
+  const checkBoxLabel = alwaysShow ? "Use New Feed on Frontpage" : "Use New Feed";
+
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
     <div className={classes.root}>
       <div className={classes.toggleContainer}>
         <SectionFooterCheckbox 
-          value={ultraFeedEnabled} 
+          value={ultraFeedEnabledCookie} 
           onClick={toggleUltraFeed} 
-          label="Use UltraFeed"
+          label={checkBoxLabel}
           tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
+          labelClassName={classes.checkboxLabel}
         />
       </div>
       
@@ -237,7 +254,7 @@ const UltraFeedContent = () => {
                 firstPageSize={15}
                 pageSize={30}
                 refetchRef={refetchSubscriptionContentRef}
-                resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
+                resolverArgsValues={{ sessionId, settings: JSON.stringify(resolverSettings) }}
                 loadMoreDistanceProp={1000}
                 fetchPolicy="cache-first"
                 renderers={{
@@ -318,18 +335,16 @@ const UltraFeedContent = () => {
   );
 };
 
-const UltraFeed = () => {
+const UltraFeed = ({alwaysShow = false}: {
+  alwaysShow?: boolean
+}) => {
   return (
     <DeferRender ssr={false}>
-      <UltraFeedContent />
+      <UltraFeedContent alwaysShow={alwaysShow} />
     </DeferRender>
   );
 };
 
-const UltraFeedComponent = registerComponent('UltraFeed', UltraFeed);
+export default registerComponent('UltraFeed', UltraFeed);
 
-declare global {
-  interface ComponentTypes {
-    UltraFeed: typeof UltraFeedComponent
-  }
-} 
+ 

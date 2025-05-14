@@ -1,11 +1,12 @@
 // TODO: Reconcile this file with user meta info the LW user profile page
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import classNames from 'classnames';
-
+import ForumIcon from "../common/ForumIcon";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,9 +54,6 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
   infoClassName?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { ForumIcon, FormatDate } = Components
-
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
 
   const infoClasses = classNames(infoClassName, classes.info);
@@ -87,11 +85,7 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
     </div>
 }
 
-const UserMetaInfoComponent = registerComponent('UserMetaInfo', UserMetaInfo, {styles});
+export default registerComponent('UserMetaInfo', UserMetaInfo, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserMetaInfo: typeof UserMetaInfoComponent
-  }
-}
+
 

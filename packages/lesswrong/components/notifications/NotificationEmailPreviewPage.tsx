@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useQuery, gql } from '@apollo/client';
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import EmailPreview from "./EmailPreview";
 
 const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
@@ -30,7 +33,7 @@ const NotificationEmailPreviewPage = () => {
   const emails = data?.EmailPreview;
   
   return (
-    <Components.SingleColumnSection>
+    <SingleColumnSection>
       <p>This is an internal test page for previewing what notifications/posts will look
       like when they are sent as email. To use it, pass a URL parameter like</p>
       <code>
@@ -47,19 +50,15 @@ const NotificationEmailPreviewPage = () => {
       were batched together in a daily batch.</p>
       <br/><br/>
       
-      {loading && <Components.Loading/>}
+      {loading && <Loading/>}
       {!loading && emails && emails.map((email: any, i: number) =>
-        <Components.EmailPreview key={i} email={email}/>
+        <EmailPreview key={i} email={email}/>
       )}
-  </Components.SingleColumnSection>
+  </SingleColumnSection>
   );
 }
 
-const NotificationEmailPreviewPageComponent = registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
+export default registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
 
-declare global {
-  interface ComponentTypes {
-    NotificationEmailPreviewPage: typeof NotificationEmailPreviewPageComponent
-  }
-}
+
 

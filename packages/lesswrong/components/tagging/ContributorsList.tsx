@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { FieldsNotNull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/arbital/useTagLenses';
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
@@ -57,7 +58,6 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
 }) => {
-  const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
@@ -66,14 +66,13 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   </span>))}</>;
 }
 
-function ToCContributorsList({
+export function ToCContributorsList({
   contributors,
   onHoverContributor,
 }: {
   contributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string | null) => void
 }) {
-  const { LWTooltip, UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   const displayedContributors = contributors.slice(0, 2);
@@ -105,14 +104,12 @@ function ToCContributorsList({
   );
 }
 
-const HeadingContributorsList = ({topContributors, smallContributors, onHoverContributor}: {
+export const HeadingContributorsList = ({topContributors, smallContributors, onHoverContributor}: {
   topContributors: NonnullDocumentContributorWithStats[]
   smallContributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string|null) => void
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip } = Components;
-
   return <span className={classes.contributorNameWrapper}>
     <span>Written by </span>
     <ContributorsList
@@ -129,16 +126,3 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
     </LWTooltip>}
   </span>
 }
-
-const ContributorsListComponent = registerComponent('ContributorsList', ContributorsList);
-const ToCContributorsListComponent = registerComponent('ToCContributorsList', ToCContributorsList);
-const HeadingContributorsListComponent = registerComponent('HeadingContributorsList', HeadingContributorsList);
-
-declare global {
-  interface ComponentTypes {
-    ContributorsList: typeof ContributorsListComponent
-    ToCContributorsList: typeof ToCContributorsListComponent
-    HeadingContributorsList: typeof HeadingContributorsListComponent
-  }
-}
-

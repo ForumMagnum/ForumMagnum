@@ -1,19 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
-import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
+import { sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/constants';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-import { useHasSideItemsSidebar } from '../contents/SideItems';
+import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
-import type { ContentStyleType } from '../common/ContentStyles';
+import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
+import FootnoteDialog from "./FootnoteDialog";
+import SideItemLine from "../contents/SideItemLine";
+import LWPopper from "../common/LWPopper";
+import ContentItemBody from "../common/ContentItemBody";
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -137,7 +141,6 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
@@ -171,7 +174,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
       setDisableHover(true);
       openDialog({
         name: "FootnoteDialog",
-        contents: ({onClose}) => <Components.FootnoteDialog
+        contents: ({onClose}) => <FootnoteDialog
           onClose={onClose}
           footnoteHTML={footnoteHTML}
         />
@@ -287,7 +290,6 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType, classes}
   contentStyleType: ContentStyleType,
   classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
@@ -351,7 +353,8 @@ function getFootnoteIndex(href: string, html: string): string|null {
   // This prevents using the version of the footnote from within quick-switch edit form that has a div parent instead of an ol
   const footnoteWithOlParent = allMatchingElements.find(el => 
     el.parentElement?.tagName === 'OL' &&
-    el.parentElement.classList.contains('footnotes')
+    (el.parentElement.classList.contains('footnotes')
+      || el.parentElement.classList.contains('footnotes-list'))
   );
   
   if (footnoteWithOlParent) {
@@ -377,12 +380,8 @@ function getFootnoteIndex(href: string, html: string): string|null {
   return null;
 }
 
-const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
+export default registerComponent('FootnotePreview', FootnotePreview, {
   styles: footnotePreviewStyles,
 });
 
-declare global {
-  interface ComponentTypes {
-    FootnotePreview: typeof FootnotePreviewComponent
-  }
-}
+

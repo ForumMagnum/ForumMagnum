@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { hookToHoc } from '../../lib/hocUtils';
 
 export type UpdateCurrentUserFunction = (
-  data: Partial<MakeFieldsNullable<DbUser>>,
+  data: UpdateUserDataInput,
 ) => Promise<AnyBecauseTodo>;
 
 export function useUpdateCurrentUser(): UpdateCurrentUserFunction {
@@ -15,7 +14,7 @@ export function useUpdateCurrentUser(): UpdateCurrentUserFunction {
     fragmentName: 'UsersCurrent',
   });
   
-  return useCallback(async (data: Partial<MakeFieldsNullable<DbUser>>): Promise<AnyBecauseTodo> => {
+  return useCallback(async (data: UpdateUserDataInput & Partial<Pick<DbUser, 'reactPaletteStyle' | 'subforumPreferredLayout'>>): Promise<AnyBecauseTodo> => {
     if (currentUserId) {
       return await updateUser({
         selector: {_id: currentUserId},
@@ -24,9 +23,3 @@ export function useUpdateCurrentUser(): UpdateCurrentUserFunction {
     }
   }, [updateUser, currentUserId]);
 }
-
-export interface WithUpdateCurrentUserProps {
-  updateCurrentUser: UpdateCurrentUserFunction
-}
-
-export const withUpdateCurrentUser = hookToHoc(() => ({updateCurrentUser: useUpdateCurrentUser()}));

@@ -9,6 +9,9 @@ import { DEFAULT_TIMEZONE, EnvironmentOverrideContext } from '../../lib/utils/ti
 
 export const TimezoneContext = React.createContext<string|null>(null);
 
+// If we know the user's timezone, then timezone is that timezone (a string,
+// for use with moment-timezone, such as "America/New_York") and timezoneIsKnown is true;
+// otherwise timezone is "GMT" and timezoneIsKnown is false.
 export const useTimezone = (): WithTimezoneProps => {
   const { timezone: overrideTimezone } = React.useContext(EnvironmentOverrideContext);
   const timezone = React.useContext(TimezoneContext);
@@ -18,13 +21,6 @@ export const useTimezone = (): WithTimezoneProps => {
     timezoneIsKnown: !!(overrideTimezone ?? timezone),
   };
 }
-
-// Higher-order component for providing the user's timezone. Provides two
-// props: timezone and timezoneIsKnown. If we know the user's timezone, then
-// timezone is that timezone (a string, for use with moment-timezone, such as
-// "America/New_York") and timezoneIsKnown is true; otherwise timezone is "GMT"
-// and timezoneIsKnown is false.
-export const withTimezone = hookToHoc(useTimezone);
 
 /**
  * TimezoneWrapper: Wrapper which provides a timezone context (which makes useTimezone

@@ -1,5 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
@@ -17,6 +18,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -26,23 +28,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "CurationNotices",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 20,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("CurationNotices"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -58,9 +43,6 @@ const schema = {
       inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      hidden: true,
     },
   },
   user: {
@@ -85,9 +67,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   comment: {
     graphql: {
@@ -106,9 +85,6 @@ const schema = {
       inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      hidden: true,
     },
   },
   post: {
@@ -132,9 +108,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "checkbox",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"CurationNotices">>;

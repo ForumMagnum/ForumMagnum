@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { generateTextFragment } from './textFragmentHelpers'
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
@@ -57,7 +59,6 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
     paddingBottom: '0.1em !important',
-    // Replace the first blockquote with a placeholder ellipsis when line-clamped
     '& blockquote:first-child': {
       margin: 0,
       paddingTop: 0,
@@ -120,7 +121,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
 
 export interface FeedContentBodyProps {
   html: string;
-  breakpoints?: number[];
+  breakpoints?: (number | null)[];
   initialExpansionLevel?: number;
   linkToDocumentOnFinalExpand?: boolean;
   onContinueReadingClick?: (params: { textFragment?: string }) => void;
@@ -153,8 +154,13 @@ const FeedContentBody = ({
 
   const classes = useStyles(styles);
   const [expansionLevel, setExpansionLevel] = useState(initialExpansionLevel);
+  const firstRenderRef = React.useRef(true);
 
   useEffect(() => {
+    if (firstRenderRef.current) {
+      firstRenderRef.current = false;
+      return;
+    }
     if (resetSignal !== undefined) {
       setExpansionLevel(0);
     }
@@ -176,15 +182,30 @@ const FeedContentBody = ({
     onExpand?.(newLevel, newMaxReached, wordCount);
   }, [expansionLevel, breakpoints.length, onExpand, isMaxLevel, wordCount]);
 
+  const handleExpandToMax = useCallback(() => {
+    const maxLevel = breakpoints.length - 1;
+    if (expansionLevel < maxLevel) {
+      setExpansionLevel(maxLevel);
+      onExpand?.(maxLevel, true, wordCount);
+    }
+  }, [breakpoints.length, expansionLevel, onExpand, wordCount]);
+
+  // By default links cause expansion to next level (until max), however clicks on links don't expand,
+  // just navigate, with the exeption of footnote links, which expand to max (because we need the full footnote for scrolling or modal)
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
+    const anchorElement = target.closest('a');
 
-    // if clicking on a link, don't expand, just allow default navigation
-    if (target.closest('a')) {
+    if (anchorElement) {
+      const href = anchorElement.getAttribute('href');
+      if (href && href.startsWith('#fn')) {
+        handleExpandToMax();
+      }
       return;
     }
+
     handleExpand();
-  }, [handleExpand]);
+  }, [handleExpand, handleExpandToMax]);
 
   const readMoreSuffixText = '(read more)';
 
@@ -199,7 +220,7 @@ const FeedContentBody = ({
     let wordsLeft = 0;
     let suffix = '';
 
-    if (!breakpoints.length) {
+    if (!breakpoints.length || currentWordLimit == null) {
       return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
     } else if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
@@ -269,9 +290,9 @@ const FeedContentBody = ({
       )}
       onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
-      <Components.ContentStyles contentType="ultraFeed">
+      <ContentStyles contentType="ultraFeed">
         <div>
-          <Components.ContentItemBody
+          <ContentItemBody
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
             nofollow={nofollow}
             className={classNames({
@@ -282,7 +303,7 @@ const FeedContentBody = ({
             })}
           />
         </div>
-      </Components.ContentStyles>
+      </ContentStyles>
       {showContinueReadingAction && <div
         className={classes.readMoreButton}
         onClick={(e) => {
@@ -296,12 +317,8 @@ const FeedContentBody = ({
   );
 };
 
-const FeedContentBodyComponent = registerComponent('FeedContentBody', FeedContentBody);
+export default registerComponent('FeedContentBody', FeedContentBody);
 
-export default FeedContentBodyComponent;
 
-declare global {
-  interface ComponentTypes {
-    FeedContentBody: typeof FeedContentBodyComponent
-  }
-}
+
+

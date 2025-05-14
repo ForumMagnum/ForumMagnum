@@ -24,12 +24,8 @@ const FeedItemWrapper = ({children}: {
   );
 };
 
-const FeedItemWrapperComponent = registerComponent('FeedItemWrapper', FeedItemWrapper);
+export default registerComponent('FeedItemWrapper', FeedItemWrapper);
 
-export default FeedItemWrapperComponent;
 
-declare global {
-  interface ComponentTypes {
-    FeedItemWrapper: typeof FeedItemWrapperComponent
-  }
-} 
+
+ 

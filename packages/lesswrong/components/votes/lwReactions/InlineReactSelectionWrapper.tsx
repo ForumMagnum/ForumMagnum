@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
+import AddInlineReactionButton from "./AddInlineReactionButton";
+import LWPopper from "../../common/LWPopper";
 
 export const hideSelectorClassName = "hidden-selector";
 const hiddenSelector = `& .${hideSelectorClassName}`;
@@ -22,8 +24,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, classes}: {
-  contentRef?: React.RefObject<ContentItemBody>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, classes}: {
+  contentRef?: React.RefObject<ContentItemBodyImperative|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post"|"tag",
   children: React.ReactNode,
@@ -35,9 +37,6 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const [yOffset, setYOffset] = useState<number>(0);
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
-
-  const { AddInlineReactionButton, LWPopper } = Components;
-  
   const detectSelection = useCallback((e: MouseEvent): void => {
     function clearAll() {
       setAnchorEl(null);
@@ -106,7 +105,7 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
   );
 }
 
-function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
+function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement|null>) {
   const commentTextRect = commentTextRef.current?.getBoundingClientRect();
   if (!commentTextRect) return 0;
 
@@ -127,10 +126,6 @@ function countStringsInString(haystack: string, needle: string): number {
   return count;
 }
 
-const InlineReactSelectionWrapperComponent = registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapper, {styles});
+export default registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapper, {styles});
 
-declare global {
-  interface ComponentTypes {
-    InlineReactSelectionWrapper: typeof InlineReactSelectionWrapperComponent
-  }
-}
+

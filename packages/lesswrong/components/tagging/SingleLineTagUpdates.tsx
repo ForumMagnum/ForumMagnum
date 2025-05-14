@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import TagHistory from '@/lib/vendor/@material-ui/icons/src/History';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,7 +8,14 @@ import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
-import type { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
+import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
+import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
+import PostsItemComments from "../posts/PostsItemComments";
+import AllPostsPageTagRevisionItem from "./AllPostsPageTagRevisionItem";
+import CommentById from "../comments/CommentById";
+import LWTooltip from "../common/LWTooltip";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import UsersName from "../users/UsersName";
 
 export const POSTED_AT_WIDTH = 38
 
@@ -116,8 +123,6 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName, AllPostsPageTagDocDeletionItem } = Components;
-  
   documentDeletions ??= [];
 
   return <div className={classes.root} >
@@ -206,10 +211,6 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   </div>
 }
 
-const SingleLineTagUpdatesComponent = registerComponent('SingleLineTagUpdates', SingleLineTagUpdates, {styles});
+export default registerComponent('SingleLineTagUpdates', SingleLineTagUpdates, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SingleLineTagUpdates: typeof SingleLineTagUpdatesComponent
-  }
-}
+

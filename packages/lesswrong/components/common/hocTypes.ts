@@ -1,6 +1,7 @@
 import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib/routes';
 import type { JssStylesCallback } from '@/lib/jssStyles';
+import type { StyleDefinition } from '@/server/styleGeneration';
 
 declare global {
 
@@ -11,8 +12,8 @@ type ClassesType<
   ClassKey extends string = string
 > = Readonly<Record<keyof ReturnType<Styles>, string>>;
 
-interface WithStylesProps {
-  classes: ClassesType<AnyStyles>,
+interface WithStylesProps<T extends StyleDefinition<any>=any> {
+  classes: ClassesType<T["styles"]>,
 }
 
 interface WithUserProps {
@@ -49,13 +50,13 @@ type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
 
 type WithUpdateFunction<N extends CollectionNameString, F extends FragmentName = FragmentName> = (args: {
   selector: MongoSelector<ObjectsByCollectionName[N]>,
-  data: NullablePartial<ObjectsByCollectionName[N]>,
+  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
   optimisticResponse?: FragmentTypes[F],
   extraVariables?: any,
 }) => Promise<FetchResult>;
 
 type WithCreateFunction<N extends CollectionNameString> = (args: {
-  data: NullablePartial<ObjectsByCollectionName[N]>,
+  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
   extraVariables?: any,
 }) => Promise<FetchResult>;
 

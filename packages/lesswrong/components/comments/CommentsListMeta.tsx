@@ -24,10 +24,6 @@ const CommentsListMeta = ({classes, children}: {
   </div>
 }
 
-const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});
+export default registerComponent('CommentsListMeta', CommentsListMeta, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsListMeta: typeof CommentsListMetaComponent,
-  }
-}
+

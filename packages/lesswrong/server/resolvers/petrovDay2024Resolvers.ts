@@ -51,7 +51,7 @@ export const petrovDay2024GraphQLQueries = {
     }
     return { count: 0 }
   },
-  async petrov2024checkIfNuked(root: void, args: void, context: ResolverContext): Promise<Boolean> {
+  async petrov2024checkIfNuked(root: void, args: void, context: ResolverContext): Promise<boolean> {
     const { currentUser } = context;
     if (!currentUser) {
       return false;

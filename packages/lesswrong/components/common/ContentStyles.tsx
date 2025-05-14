@@ -152,12 +152,8 @@ const ContentStyles = ({contentType, className, style, children}: {
   </div>;
 }
 
-const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles);
+export default registerComponent('ContentStyles', ContentStyles);
 
-export default ContentStylesComponent;
 
-declare global {
-  interface ComponentTypes {
-    ContentStyles: typeof ContentStylesComponent
-  }
-}
+
+

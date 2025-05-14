@@ -12,11 +12,14 @@ import LoginIcon from "@/lib/vendor/@material-ui/icons/src/LockOpen"
 import UnlinkIcon from "@/lib/vendor/@material-ui/icons/src/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
+import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -46,16 +49,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.error.main,
     margin: "8px 0",
   },
-});
+}));
 
 /**
  * FMCrosspostAccount displays the user's account on the other platform after
  * it's already been authorized
  */
-const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
+const FMCrosspostAccount = ({fmCrosspostUserId}: {
   fmCrosspostUserId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const apolloClient = useForeignApolloClient();
   const {document, loading} = useSingle({
     documentId: fmCrosspostUserId,
@@ -65,9 +68,6 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   });
 
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
-
-  const {Loading} = Components;
-  
   if (!document || loading) {
     return <Loading/>
   }
@@ -84,14 +84,13 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
  * with an option to remove the account to perhaps add another, or, if they've not set up an
  * account yet they'll be prompted to do so.
  */
-const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlink, classes}: {
+const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlink}: {
   fmCrosspostUserId?: string,
   loading: boolean,
   onClickLogin: () => void,
   onClickUnlink: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const {Loading} = Components;
+  const classes = useStyles(styles);
 
   if (loading) {
     return (
@@ -102,7 +101,7 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
   return fmCrosspostUserId
     ? (
       <div>
-        <FMCrosspostAccount fmCrosspostUserId={fmCrosspostUserId} classes={classes} />
+        <FMCrosspostAccount fmCrosspostUserId={fmCrosspostUserId} />
         <Button onClick={onClickUnlink} className={classes.button}>
           <UnlinkIcon className={classes.buttonIcon} />
           Unlink this account
@@ -125,14 +124,12 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
  * and it also allows them to connect or disconnect their account on the other
  * platform.
  */
-const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
-  updateCurrentValues: Function,
-  classes: ClassesType<typeof styles>,
-  value: {isCrosspost: boolean, hostedHere?: boolean, foreignPostId?: string},
-  path: string,
+export const FMCrosspostControl = ({ field }: {
+  field: TypedFieldApi<{ isCrosspost: boolean, hostedHere?: boolean | null, foreignPostId?: string | null }>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const {isCrosspost} = value ?? {};
+  const {isCrosspost} = field.state.value ?? {};
   if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
   const [unlink, {loading: loadingUnlink}] = useMutation(gql`
@@ -188,11 +185,9 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
           <Checkbox
             checked={isCrosspost}
             onChange={(_, checked) => {
-              updateCurrentValues({
-                [path]: {
-                  isCrosspost: checked,
-                  hostedHere: true,
-                },
+              field.handleChange({
+                isCrosspost: checked,
+                hostedHere: true,
               })
             }}
             disableRipple
@@ -206,17 +201,9 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
           loading={loading}
           onClickLogin={onClickLogin}
           onClickUnlink={onClickUnlink}
-          classes={classes}
         />
       }
     </div>
   );
 };
 
-const FMCrosspostControlComponent = registerComponent("FMCrosspostControl", FMCrosspostControl, {styles});
-
-declare global {
-  interface ComponentTypes {
-    FMCrosspostControl: typeof FMCrosspostControlComponent
-  }
-}

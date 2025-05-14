@@ -1,17 +1,27 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
-import type { KarmaChanges } from "@/server/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
 import classNames from "classnames";
+import SectionTitle from "../common/SectionTitle";
+import NotificationsPageKarmaChangeList from "./NotificationsPage/NotificationsPageKarmaChangeList";
+import NoNotificationsPlaceholder from "./NoNotificationsPlaceholder";
+import LoadMore from "../common/LoadMore";
+import NotificationsPopoverNotification from "./NotificationsPopoverNotification";
+import ForumIcon from "../common/ForumIcon";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import PopperCard from "../common/PopperCard";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import Loading from "../vulcan-core/Loading";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -201,13 +211,6 @@ const NotificationsPopover = ({
   } = currentUser;
 
   const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday || hasKarmaChangesThisWeek);
-
-  const {
-    SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
-    LoadMore, NotificationsPopoverNotification, ForumIcon, LWClickAwayListener,
-    PopperCard, DropdownMenu, DropdownItem, Loading,
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="notificationsPopover">
       <NotificationsPopoverContext.Provider value={{ closeNotifications }}>
@@ -260,7 +263,7 @@ const NotificationsPopover = ({
                   <div>
                     <div className={classes.karmaSubsectionTitle}>Today</div>
                     <NotificationsPageKarmaChangeList
-                      karmaChanges={todaysKarmaChanges}
+                      karmaChanges={todaysKarmaChanges ?? undefined}
                       truncateAt={3}
                     />
                   </div>
@@ -269,7 +272,7 @@ const NotificationsPopover = ({
                   <div>
                     <div className={classes.karmaSubsectionTitle}>This week</div>
                     <NotificationsPageKarmaChangeList
-                      karmaChanges={thisWeeksKarmaChanges}
+                      karmaChanges={thisWeeksKarmaChanges ?? undefined}
                       truncateAt={2}
                     />
                   </div>
@@ -319,14 +322,10 @@ const NotificationsPopover = ({
   );
 }
 
-const NotificationsPopoverComponent = registerComponent(
+export default registerComponent(
   "NotificationsPopover",
   NotificationsPopover,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPopover: typeof NotificationsPopoverComponent
-  }
-}
+

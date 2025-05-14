@@ -141,7 +141,7 @@ export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
 // person thought was reasonably important, or at least 4 people thought were "maybe important?"
 export const QUICK_REVIEW_SCORE_THRESHOLD = 4
 
-export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): number {
   // During the nomination phase, posts require 1 positive reviewVote
   // to appear in review post lists (so a single vote allows others to see it
   // and get prompted to cast additional votes.
@@ -208,7 +208,7 @@ export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 interface CostData {
   value: number | null;
   cost: number;
-  tooltip: JSX.Element | null;
+  tooltip: React.JSX.Element | null;
 }
 
 export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<number, CostData> => {

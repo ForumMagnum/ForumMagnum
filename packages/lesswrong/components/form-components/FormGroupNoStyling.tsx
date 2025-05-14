@@ -8,10 +8,6 @@ const FormGroupNoStyling = ({children}: FormGroupLayoutProps) => {
   </React.Fragment>
 }
   
-const FormGroupNoStylingComponent = registerComponent('FormGroupNoStyling', FormGroupNoStyling)
+export default registerComponent('FormGroupNoStyling', FormGroupNoStyling);
 
-declare global {
-  interface ComponentTypes {
-    FormGroupNoStyling: typeof FormGroupNoStylingComponent
-  }
-}
+

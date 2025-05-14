@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from "../common/withHover";
 import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
@@ -10,6 +10,13 @@ import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
+import LWDialog from "../common/LWDialog";
+import { SideItem } from "../contents/SideItems";
+import SideItemLine from "../contents/SideItemLine";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import CommentWithReplies from "./CommentWithReplies";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
@@ -99,7 +106,7 @@ const BadgeWrapper = ({commentCount, classes, children}: {
   }
 }
 
-const SideCommentIcon = ({commentIds, post, classes}: {
+const SideCommentIconInner = ({commentIds, post, classes}: {
   commentIds: string[]
   post: PostsList
   classes: ClassesType<typeof styles>
@@ -108,19 +115,19 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   if (isMobile) {
     return <SideCommentIconMobile commentIds={commentIds} post={post} classes={classes} />;
   } else {
-    return <SideCommentIconDesktop commentIds={commentIds} post={post} classes={classes} />;
+    return <SideCommentIconDesktop commentIds={commentIds} post={post} />;
   }
 }
 
-const SideCommentDialog = ({ commentIds, post, onClose, classes }: {
+const sideCommentDialogStyles = defineStyles('SideCommentDialog', dialogStyles);
+
+export const SideCommentDialog = ({ commentIds, post, onClose }: {
   commentIds: string[]
   post: PostsList,
   onClose: () => void,
-  classes: ClassesType<typeof dialogStyles>
 }) => {
-  const { SideCommentHover, LWDialog } = Components;
-
-  return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
+  const classes = useStyles(sideCommentDialogStyles);
+  return <LWDialog open onClose={onClose} paperClassName={classes.dialogPaper}>
     <SideCommentHover commentIds={commentIds} post={post} closeDialog={onClose} />
   </LWDialog>;
 }
@@ -130,14 +137,12 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType<typeof styles>
 }) => {
-  const {SideItem, SideItemLine} = Components;
-
   const { openDialog } = useDialog();
 
   const openModal = () => {
     openDialog({
       name: 'SideCommentDialog',
-      contents: ({onClose}) => <Components.SideCommentDialog
+      contents: ({onClose}) => <SideCommentDialog
         onClose={onClose}
         commentIds={commentIds}
         post={post}
@@ -156,12 +161,13 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentIconDesktop = ({commentIds, post, classes}: {
+const sideCommentIconDesktopStyles = defineStyles('SideCommentIconDesktop', styles);
+
+const SideCommentIconDesktop = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
-  const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
+  const classes = useStyles(sideCommentIconDesktopStyles);
   const {eventHandlers, hover, anchorEl} = useHover();
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -227,14 +233,14 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
+const sideCommentHoverStyles = defineStyles('SideCommentHover', styles);
+
+const SideCommentHover = ({commentIds, post, closeDialog}: {
   commentIds: string[],
   post: PostsList,
   closeDialog?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const { SideCommentSingle } = Components;
-  
+  const classes = useStyles(sideCommentHoverStyles);
   // If there's only one comment (not counting replies to that comment), don't
   // truncate it with a read more.
   const dontTruncateRoot = (commentIds.length === 1); 
@@ -247,6 +253,7 @@ const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
         post={post}
         dontTruncateRoot={dontTruncateRoot}
         closeDialog={closeDialog}
+        classes={classes}
       />
     )}
   </div>
@@ -261,9 +268,6 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
-  
-  const { CommentWithReplies } = Components;
-  
   const { bestResult: comment, fetchedResult: { document: loadedComment } } = useSingleWithPreload({
     collectionName: 'Comments',
     fragmentName: 'CommentWithRepliesFragment',
@@ -341,16 +345,5 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
   </div>
 }
 
-const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon, {styles});
-const SideCommentDialogComponent = registerComponent('SideCommentDialog', SideCommentDialog, { styles: dialogStyles });
-const SideCommentHoverComponent = registerComponent('SideCommentHover', SideCommentHover, {styles});
-const SideCommentSingleComponent = registerComponent('SideCommentSingle', SideCommentSingle, {styles});
+export const SideCommentIcon = registerComponent('SideCommentIcon', SideCommentIconInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SideCommentIcon: typeof SideCommentIconComponent
-    SideCommentDialog: typeof SideCommentDialogComponent
-    SideCommentHover: typeof SideCommentHoverComponent
-    SideCommentSingle: typeof SideCommentSingleComponent
-  }
-}

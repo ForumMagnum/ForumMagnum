@@ -1,9 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useNamedMutation } from "../../../lib/crud/withMutation";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "../DropdownItem";
 
 const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   const {postsRead, setPostRead} = useItemsRead();
@@ -23,8 +24,6 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
-
-  const {DropdownItem} = Components;
   const title = isRead ? "Mark as Unread" : "Mark as Read";
   return (
     <DropdownItem
@@ -34,13 +33,9 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const MarkAsReadDropdownItemComponent = registerComponent(
+export default registerComponent(
   "MarkAsReadDropdownItem",
   MarkAsReadDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    MarkAsReadDropdownItem: typeof MarkAsReadDropdownItemComponent
-  }
-}
+

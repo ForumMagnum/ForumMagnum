@@ -39,7 +39,7 @@ const EAOnboardingInput = ({
   placeholder: string,
   As?: "input" | "textarea",
   rows?: number,
-  inputRef?: RefObject<HTMLInputElement> | RefObject<HTMLTextAreaElement>,
+  inputRef?: RefObject<HTMLInputElement|null> | RefObject<HTMLTextAreaElement|null>,
   disabled?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -63,14 +63,10 @@ const EAOnboardingInput = ({
   );
 }
 
-const EAOnboardingInputComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingInput",
   EAOnboardingInput,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingInput: typeof EAOnboardingInputComponent
-  }
-}
+

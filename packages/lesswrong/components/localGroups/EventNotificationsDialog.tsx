@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -14,11 +14,14 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/newSchema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LWDialog from "../common/LWDialog";
 
+const MAX_NOTIFICATION_RADIUS = 300;
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -100,7 +103,6 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps()
@@ -212,11 +214,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   )
 }
 
-const EventNotificationsDialogComponent = registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
+export default registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventNotificationsDialog: typeof EventNotificationsDialogComponent
-  }
-}
+
 
