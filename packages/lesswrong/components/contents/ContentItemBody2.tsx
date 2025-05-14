@@ -1,15 +1,19 @@
 import React, { useEffect, useImperativeHandle, useRef, type CSSProperties } from 'react';
-import { addNofollowToHTML, type ContentItemBodyProps } from '../common/ContentItemBody';
+import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from '../common/ContentItemBody';
 import * as htmlparser2 from "htmlparser2";
-import { type ChildNode } from 'domhandler';
-import { Components } from '@/lib/vulcan-lib/components';
+import { type ChildNode as DomHandlerChildNode, type Text as DomHandlerText, type Node as DomHandlerNode, Element as DomHandlerElement } from 'domhandler';
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from '../common/HorizScrollBlock';
+import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
+import uniq from 'lodash/uniq';
+import reverse from 'lodash/reverse';
 
-type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"> & {
+type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
 }
 
+type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
+  
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
  * ContentItemBody, by parsing and recursing through an HTML parse tree rather
@@ -38,13 +42,17 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
  * functionality that's currently handled by `truncatize`.
  */
 export const ContentItemBody2 = (props: ContentItemBodyProps) => {
-  const { onContentReady, nofollow, dangerouslySetInnerHTML, className, ref } = props;
+  console.log("ContentItemBody2.render");
+  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
   );
   const parsedHtml = htmlparser2.parseDocument(html);
+  const parsedHtmlWithReplacement = replacedSubstrings
+    ? applyReplaceSubstrings(parsedHtml, replacedSubstrings)
+    : parsedHtml;
 
   useImperativeHandle(ref, () => ({
     containsNode: (node: Node): boolean => {
@@ -65,7 +73,7 @@ export const ContentItemBody2 = (props: ContentItemBodyProps) => {
   }, [onContentReady]);
   
   const passedThroughProps = {
-    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType"]),
+    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings"]),
     bodyRef,
   };
   
@@ -80,10 +88,11 @@ export const ContentItemBody2 = (props: ContentItemBodyProps) => {
 }
 
 const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
-  parsedHtml: ChildNode,
+  parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
 }) => {
+  const { replacedSubstrings } = passedThroughProps;;
   switch (parsedHtml.type) {
     case htmlparser2.ElementType.CDATA:
     case htmlparser2.ElementType.Directive:
@@ -101,18 +110,23 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         passedThroughProps={passedThroughProps}
       />)
       
-      if (root && ['p','div','table'].includes(TagName)) {
+      if (attribs['data-replacements'] && replacedSubstrings) {
+        const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
+        return applyReplacements(<TagName {...attribs}>
+          {mappedChildren}
+        </TagName>, substitutions, replacedSubstrings);
+      } else if (root && ['p','div','table'].includes(TagName)) {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {mappedChildren}
         </MaybeScrollableBlock>
       } else if (TagName === 'a') {
-        return <Components.HoverPreviewLink
+        return <HoverPreviewLink
           href={attribs.href}
           {...passedThroughProps}
           {...attribs}
         >
           {mappedChildren}
-        </Components.HoverPreviewLink>
+        </HoverPreviewLink>
       } else if (parsedHtml.childNodes.length > 0) {
         return <TagName
           {...attribs}
@@ -165,4 +179,165 @@ export function parseInlineStyle(input: string): CSSProperties {
     }
     return obj
   }, {} as CSSProperties)
+}
+
+function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[]): DomHandlerChildNode {
+  // Traverse parsedHtml, producing an array of text nodes, a combined string
+  // with the text of all those nodes, and text offsets for each. Node types
+  // that contain non-normal text (CDATA, Script, Style) are skipped.
+  const textNodes: Array<{
+    node: DomHandlerText,
+    offset: number,
+    str: string,
+  }> = [];
+  let currentOffset = 0;
+
+  function traverse(node: DomHandlerChildNode) {
+    switch (node.type) {
+      case htmlparser2.ElementType.Root:
+        for (const child of node.childNodes) {
+          traverse(child);
+        }
+        break;
+      case htmlparser2.ElementType.Text:
+        const textNode = node;
+        const str = textNode.data ?? "";
+        textNodes.push({
+          node: textNode,
+          offset: currentOffset,
+          str,
+        });
+        currentOffset += str.length;
+        break;
+      case htmlparser2.ElementType.Tag:
+        for (const child of node.childNodes) {
+          traverse(child);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  traverse(parsedHtml);
+  const combinedText = textNodes.map(t => t.str).join("");
+
+  // Locate replacements in the combined string, as offsets (or null if not present).
+  const replacementRanges: Array<{ startOffset: number, endOffset: number, replacementIndex: number }> =
+    replacedSubstrings.flatMap((replacedSubstring, i) => {
+      if (replacedSubstring.replace === 'first') {
+        const idx = combinedText.indexOf(replacedSubstring.replacedString)
+        if (idx < 0) return [];
+        return [{
+          startOffset: idx,
+          endOffset: idx + replacedSubstring.replacedString.length,
+          replacementIndex: i,
+        }];
+      } else {
+        const indices = findStringMultiple(replacedSubstring.replacedString, combinedText);
+        return indices.map(idx => ({
+          startOffset: idx,
+          endOffset: idx + replacedSubstring.replacedString.length,
+          replacementIndex: i
+        }));
+      }
+    }
+  )
+
+  // Modify the parse tree (in place) to split text nodes at substitution boundaries.
+  const splitTextNodes: Array<{
+    node: DomHandlerText
+    offset: number
+    substitutions: SubstitutionsAttr,
+  }> = [];
+  const splitOffsets = uniq(replacementRanges.flatMap(r => [r.startOffset, r.endOffset])).sort((a,b) => a-b);
+  for (const textNode of textNodes) {
+    const nodeSplitOffsets = splitOffsets
+      .filter(o => o > textNode.offset && o < textNode.offset + textNode.str.length)
+      .map(o => o - textNode.offset);
+    if (nodeSplitOffsets.length > 0) {
+      const newSplitNodes = splitTextNode(textNode.node, nodeSplitOffsets);
+      let withinNodeOffset = 0;
+      for (const newSplitNode of newSplitNodes) {
+        splitTextNodes.push({
+          node: newSplitNode,
+          offset: textNode.offset + withinNodeOffset,
+          substitutions: [],
+        });
+        withinNodeOffset += newSplitNode.data?.length ?? 0;
+      }
+    } else {
+      splitTextNodes.push({
+        node: textNode.node,
+        offset: textNode.offset,
+        substitutions: [],
+      });
+    }
+  }
+
+  // Mark split text nodes with the replacements that apply to them
+  for (let i=0; i<replacementRanges.length; i++) {
+    const replacementRange = replacementRanges[i];
+    let first = true;
+    for (const textNode of splitTextNodes) {
+      if (textNode.offset >= replacementRange.startOffset && textNode.offset < replacementRange.endOffset) {
+        textNode.substitutions.push({
+          substitutionIndex: replacementRange.replacementIndex,
+          isSplitContinuation: !first,
+        });
+        first = false;
+      }
+    }
+  }
+
+  // Modify the parse tree (in place) to wrap text nodes inside substituted ranges with a <span data-replacements="...">.
+  for (const textNode of splitTextNodes) {
+    if (textNode.substitutions.length > 0) {
+      const span = new DomHandlerElement(
+        'span',
+        {"data-replacements": JSON.stringify(textNode.substitutions)},
+        []
+      );
+      htmlparser2.DomUtils.replaceElement(textNode.node, span);
+      htmlparser2.DomUtils.appendChild(span, textNode.node);
+    }
+  }
+
+  return parsedHtml;
+}
+
+function splitTextNode(textNode: DomHandlerText, splitOffsets: number[]): DomHandlerText[] {
+  const parentElement = textNode.parent!;
+  const childrenArray = Array.from(parentElement.childNodes);
+  const nodeIndex: number = childrenArray.indexOf(textNode);
+
+  // Partion textNode into n+1 Text nodes, each containing a substring, with the given splitOffsets.
+  let newTextNodes: DomHandlerText[] = [];
+  for (let i=splitOffsets.length-1; i>=0; i--) {
+    // @ts-ignore
+    const splitText = textNode.splitText(splitOffsets[i]);
+    newTextNodes.push(splitText);
+  }
+  return [textNode, ...reverse(newTextNodes)];
+}
+
+function findStringMultiple(needle: string, haystack: string): number[] {
+  const indices: number[] = [];
+  let index = haystack.indexOf(needle);
+  while (index !== -1) {
+    indices.push(index);
+    index = haystack.indexOf(needle, index + 1);
+  }
+  return indices;
+}
+
+function applyReplacements(element: React.ReactNode, substitutions: SubstitutionsAttr, replacements: ContentReplacedSubstringComponentInfo[]): React.ReactNode {
+  console.log("ContentItemBody2.applyReplacements");
+  for (const substitution of substitutions) {
+    const replacement = replacements[substitution.substitutionIndex];
+    const Component = replacementComponentMap[replacement.componentName];
+    element = <Component {...replacement.props} isSplitContinuation={substitution.isSplitContinuation}>
+      {element}
+    </Component>;
+  }
+  return element;
 }

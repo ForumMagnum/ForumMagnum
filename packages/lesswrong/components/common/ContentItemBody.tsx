@@ -20,7 +20,7 @@ import ForumEventPostPagePollSection from "../forumEvents/ForumEventPostPagePoll
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
 import { HorizScrollBlock } from './HorizScrollBlock';
 
-const replacementComponentMap = {
+export const replacementComponentMap = {
   JargonTooltip,
   InlineReactHoverableHighlight,
 };
