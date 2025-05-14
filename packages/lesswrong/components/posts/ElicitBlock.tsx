@@ -180,7 +180,7 @@ const styles = (theme: ThemeType) => ({
 
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType<typeof styles>,
-  questionId: String
+  questionId: string
 }) => {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);

@@ -390,7 +390,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs, TabsState> {
       childIndex += 1;
       return React.cloneElement(child, {
         fullWidth,
-        indicator: selected && !this.state.mounted && indicator,
+        indicator: (selected && !this.state.mounted && indicator) || undefined,
         selected,
         onChange,
         textColor,
