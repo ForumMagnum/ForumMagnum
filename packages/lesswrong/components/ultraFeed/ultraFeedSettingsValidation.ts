@@ -2,14 +2,12 @@ import { z } from 'zod';
 import { DEFAULT_SETTINGS } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType, allFeedItemSourceTypes } from './ultraFeedTypes';
 
-const sourceWeightsSchema = z.object(
-  Object.fromEntries(
-    allFeedItemSourceTypes.map(key => [
-      key,
-      z.number().min(0, { message: "Weight must be non-negative" })
-    ])
-  ) as Record<FeedItemSourceType, z.ZodNumber>
-);
+const sourceWeightsShape = allFeedItemSourceTypes.reduce((acc, key) => {
+  acc[key] = z.number().min(0, { message: "Weight must be non-negative" });
+  return acc;
+}, {} as { [K in FeedItemSourceType]: z.ZodNumber });
+
+const sourceWeightsSchema = z.object(sourceWeightsShape);
 
 const strictlyAscendingNumbersDefinition = (arr: number[]) => {
   let lastNumber: number | undefined;
@@ -83,4 +81,6 @@ export const ultraFeedSettingsSchema = z.object({
 }).partial()
 
 export type ValidatedUltraFeedSettings = z.infer<typeof ultraFeedSettingsSchema>;
+export type ValidatedCommentScoring = z.infer<typeof commentScoringSchema>;
+export type ValidatedThreadInterestModel = z.infer<typeof threadInterestModelSchema>;
 export type UltraFeedSettingsZodErrors = z.ZodFormattedError<ValidatedUltraFeedSettings, string> | null; 

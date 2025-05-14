@@ -135,7 +135,6 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     textAlign: 'center',
     width: '100%',
   },
-  // Styles for Truncation Grid
   truncationGridContainer: {
     display: 'grid',
     gridTemplateColumns: 'auto 1fr 1fr',
@@ -457,7 +456,7 @@ const checkMismatch = (originalSettings: UltraFeedSettingsType) => {
   return false;
 };
 
-interface TruncationGridSettingsProps {
+export interface TruncationGridSettingsProps {
   levels: SimpleViewTruncationLevels;
   onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
   originalSettings: UltraFeedSettingsType;
@@ -543,7 +542,7 @@ type ArrayFieldError = ZodFormattedError<(number | null)[] | undefined, string> 
   [k: number]: ZodFormattedError<number | null, string>;
 };
 
-interface AdvancedTruncationSettingsProps {
+export interface AdvancedTruncationSettingsProps {
   values: {
     lineClampNumberOfLines: number | '';
     postTruncationBreakpoints: (number | '')[];
@@ -651,7 +650,7 @@ export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProp
   );
 };
 
-interface ExploreExploitBiasSettingsProps {
+export interface ExploreExploitBiasSettingsProps {
   currentLogImpactFactor: number | ''; 
   onExploreBiasChange: (newExploreBiasValue: number) => void;
   defaultOpen?: boolean;
@@ -982,7 +981,7 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
   );
 };
 
-interface MiscSettingsProps {
+export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
     postTitlesAreModals: boolean;

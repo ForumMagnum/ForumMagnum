@@ -24,7 +24,9 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { 
   ultraFeedSettingsSchema, 
   UltraFeedSettingsZodErrors,
-  ValidatedUltraFeedSettings
+  ValidatedUltraFeedSettings,
+  ValidatedCommentScoring,
+  ValidatedThreadInterestModel
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
@@ -36,7 +38,11 @@ import {
   MultipliersSettings,
   MiscSettings,
   ExploreExploitBiasSettings,
-  ThreadInterestTuningSettings 
+  ThreadInterestTuningSettings,
+  AdvancedTruncationSettingsProps,
+  ExploreExploitBiasSettingsProps,
+  TruncationGridSettingsProps,
+  MiscSettingsProps
 } from "./settingsComponents/UltraFeedSettingsComponents";
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
@@ -135,12 +141,12 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
 
 // Helper components for Simple and Advanced views
 interface SimpleViewProps {
-  exploreExploitBiasProps: any;
+  exploreExploitBiasProps: ExploreExploitBiasSettingsProps;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
-  truncationGridProps: any;
-  miscSettingsProps: any;
+  truncationGridProps: TruncationGridSettingsProps;
+  miscSettingsProps: MiscSettingsProps;
 }
 
 const SimpleView: React.FC<SimpleViewProps> = ({
@@ -167,14 +173,14 @@ interface AdvancedViewProps {
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
-  advancedTruncationProps: any;
+  advancedTruncationProps: AdvancedTruncationSettingsProps;
   commentScoringFormValues: CommentScoringFormState;
-  commentScoringErrors: any; // Consider defining a more specific type
+  commentScoringErrors: ZodFormattedError<ValidatedCommentScoring, string> | null;
   onCommentScoringFieldChange: (field: keyof CommentScoringFormState, value: number | string) => void;
   threadInterestModelFormValues: ThreadInterestModelFormState;
-  threadInterestModelErrors: any; // Consider defining a more specific type
+  threadInterestModelErrors: ZodFormattedError<ValidatedThreadInterestModel, string> | null;
   onThreadInterestFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
-  miscSettingsProps: any;
+  miscSettingsProps: MiscSettingsProps;
 }
 
 const AdvancedView: React.FC<AdvancedViewProps> = ({
@@ -628,10 +634,10 @@ const UltraFeedSettings = ({
             onSourceWeightChange={handleSourceWeightChange}
             advancedTruncationProps={advancedTruncationProps}
             commentScoringFormValues={formValues.commentScoring}
-            commentScoringErrors={zodErrors?.resolverSettings?.commentScoring}
+            commentScoringErrors={zodErrors?.resolverSettings?.commentScoring ?? null}
             onCommentScoringFieldChange={handleCommentScoringFieldChange}
             threadInterestModelFormValues={formValues.threadInterestModel}
-            threadInterestModelErrors={zodErrors?.resolverSettings?.threadInterestModel}
+            threadInterestModelErrors={zodErrors?.resolverSettings?.threadInterestModel ?? null}
             onThreadInterestFieldChange={handleThreadInterestFieldChange}
             miscSettingsProps={miscSettingsProps}
           />
