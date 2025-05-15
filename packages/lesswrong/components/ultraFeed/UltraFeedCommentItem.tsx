@@ -193,6 +193,8 @@ export const UltraFeedCommentItem = ({
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
 
+  const { displaySettings } = settings;
+
   useEffect(() => {
     const currentElement = elementRef.current;
     if (currentElement) {
@@ -271,8 +273,8 @@ export const UltraFeedCommentItem = ({
   }, [openDialog, comment]);
 
   const truncationBreakpoints = useMemo(() => {
-    return settings.commentTruncationBreakpoints || [];
-  }, [settings.commentTruncationBreakpoints]);
+    return displaySettings.commentTruncationBreakpoints || [];
+  }, [displaySettings.commentTruncationBreakpoints]);
 
   const collapseToFirst = () => {
     setResetSig((s)=>s+1);
@@ -309,7 +311,7 @@ export const UltraFeedCommentItem = ({
               wordCount={comment.contents?.wordCount ?? 0}
               initialExpansionLevel={displayStatus === "expanded" ? 1 : 0}
               nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-              clampOverride={settings.lineClampNumberOfLines}
+              clampOverride={displaySettings.lineClampNumberOfLines}
               onExpand={handleContentExpand}
               onContinueReadingClick={handleContinueReadingClick}
               hideSuffix={false}

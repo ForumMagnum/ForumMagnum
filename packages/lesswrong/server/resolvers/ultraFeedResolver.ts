@@ -15,10 +15,26 @@ import gql from 'graphql-tag';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
 import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
-import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings, getResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
-import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
+import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
+
+interface UltraFeedDateCutoffs {
+  latestPostsMaxAgeDays: number;
+  subscribedPostsMaxAgeDays: number;
+  initialCommentCandidateLookbackDays: number;
+  commentServedEventRecencyHours: number;
+  threadEngagementLookbackDays: number;
+}
+
+const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
+  latestPostsMaxAgeDays: 45,
+  subscribedPostsMaxAgeDays: 45,
+  initialCommentCandidateLookbackDays: 14,
+  commentServedEventRecencyHours: 48,
+  threadEngagementLookbackDays: 45,
+};
 
 export const ultraFeedGraphQLTypeDefs = gql`
   type FeedPost {
@@ -115,7 +131,7 @@ const weightedSample = (
   return finalFeed;
 };
 
-const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = getResolverSettings(DEFAULT_ULTRAFEED_SETTINGS);
+const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
 
 const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
   let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS;
@@ -146,7 +162,8 @@ const createSourcesMap = (
   postThreadsItems: FeedFullPost[],
   commentThreadsItems: FeedCommentsThread[],
   spotlightItems: FeedSpotlight[],
-  bookmarkItems: PreparedBookmarkItem[]
+  bookmarkItems: PreparedBookmarkItem[],
+  subscribedPostItems: FeedPostStub[]
 ): Partial<Record<FeedItemSourceType, WeightedSource>> => {
 
   const sources = Object.entries(sourceWeights)
@@ -182,11 +199,23 @@ const createSourcesMap = (
     }
   });
 
-  if (sources.recentComments) {
-    commentThreadsItems.forEach(t => {
-      sources.recentComments?.items.push({ type: "feedCommentThread", feedCommentThread: t });
-    });
-  }
+  subscribedPostItems.forEach(p => {
+    const postId = p.postId;
+    if (!postId || addedPostIds.has(postId)) {
+      return;
+    }
+    const bucket = sources['subscriptions' as const]; 
+    if (bucket) {
+      bucket.items.push({ 
+        type: "feedPost", 
+        feedPostStub: { 
+          postId: postId, 
+          postMetaInfo: p.postMetaInfo 
+        } 
+      });
+      addedPostIds.add(postId);
+    }
+  });
 
   if (sources.bookmarks) {
     bookmarkItems.forEach(item => {
@@ -200,6 +229,12 @@ const createSourcesMap = (
       } else if (item.type === "feedCommentThread") {
         sources.bookmarks?.items.push(item);
       }
+    });
+  }
+
+  if (sources.recentComments) {
+    commentThreadsItems.forEach(t => {
+      sources.recentComments?.items.push({ type: "feedCommentThread", feedCommentThread: t });
     });
   }
 
@@ -412,6 +447,7 @@ const calculateFetchLimits = (
   totalWeight: number;
   recombeePostFetchLimit: number;
   hackerNewsPostFetchLimit: number;
+  subscribedPostFetchLimit: number;
   commentFetchLimit: number;
   spotlightFetchLimit: number;
   bookmarkFetchLimit: number;
@@ -421,6 +457,7 @@ const calculateFetchLimits = (
   
   const recombeePostWeight = sourceWeights['recombee-lesswrong-custom'] ?? 0;
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
+  const subscribedPostWeight = sourceWeights['subscriptions'] ?? 0;
   const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
   const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
   const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
@@ -429,6 +466,7 @@ const calculateFetchLimits = (
     totalWeight,
     recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * bufferMultiplier),
     hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * bufferMultiplier),
+    subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * bufferMultiplier),
     commentFetchLimit: Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier),
     spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
     bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
@@ -456,7 +494,7 @@ export const ultraFeedGraphQLQueries = {
       const spotlightsRepo = context.repos.spotlights;
       const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
-      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit, bufferMultiplier } = calculateFetchLimits(sourceWeights, limit);
+      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit);
 
       if (totalWeight <= 0) {
         // eslint-disable-next-line no-console
@@ -472,21 +510,46 @@ export const ultraFeedGraphQLQueries = {
 
       const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
 
-      const combinedPostFetchLimit = recombeePostFetchLimit + hackerNewsPostFetchLimit;
-
-      const [mostPostItems, commentThreadsItems, spotlightItems, bookmarkItems] = await Promise.all([
-        combinedPostFetchLimit > 0 ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, parsedSettings) : Promise.resolve([]),
-        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings, servedCommentThreadHashes) : Promise.resolve([]),
+      const [recombeeAndLatestPostItems, subscribedPostItemsResult, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
+        (recombeePostFetchLimit + hackerNewsPostFetchLimit > 0) 
+          ? getUltraFeedPostThreads( 
+              context, 
+              recombeePostFetchLimit, 
+              hackerNewsPostFetchLimit, 
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
+            ) 
+          : Promise.resolve([]),
+        (subscribedPostFetchLimit > 0)
+          ? getSubscribedPostsForUltraFeed(
+              context, 
+              subscribedPostFetchLimit, 
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.subscribedPostsMaxAgeDays
+            )
+          : Promise.resolve([]),
+        commentFetchLimit > 0 
+          ? getUltraFeedCommentThreads(
+              context, 
+              commentFetchLimit, 
+              parsedSettings, 
+              servedCommentThreadHashes,
+              ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
+              ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
+              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+            ) 
+          : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
         bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([])
-      ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];
-
+      ]) as [FeedFullPost[], FeedPostStub[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];
+      
       const populatedSources = createSourcesMap(
         sourceWeights,
-        mostPostItems,
-        commentThreadsItems,
-        spotlightItems,
-        bookmarkItems
+        recombeeAndLatestPostItems,
+        commentThreadsItemsResult,
+        spotlightItemsResult,
+        bookmarkItemsResult,
+        subscribedPostItemsResult
       );
 
       // Sample items from sources based on weights

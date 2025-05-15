@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
-import { userCanDo } from "@/lib/vulcan-users/permissions";
-import { logFieldChanges } from "@/server/fieldChanges";
+import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
 
 export const bookmarkGqlTypeDefs = gql`
   input ToggleBookmarkInput {
@@ -19,7 +18,7 @@ export const bookmarkGqlTypeDefs = gql`
 
 interface ToggleBookmarkInput {
   documentId: string;
-  collectionName: "Posts" | "Comments";
+  collectionName: BookmarkableCollectionName;
 }
 
 async function toggleBookmarkResolver(root: void, { input }: { input: ToggleBookmarkInput }, context: ResolverContext): Promise<{ data: DbBookmark | null }> {

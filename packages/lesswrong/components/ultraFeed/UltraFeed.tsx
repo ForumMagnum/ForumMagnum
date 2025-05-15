@@ -3,14 +3,13 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
-import { userHasUltraFeed } from '../../lib/betas';
 import type { ObservableQuery } from '@apollo/client';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY, getResolverSettings } from './ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
@@ -61,7 +60,6 @@ const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettin
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
     // Remove padding inserted by Layout.tsx to be flush with sides of screen
-    width: '100%',
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8,
@@ -198,7 +196,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
     setSettings(defaultSettings);
   };
 
-  const resolverSettings = getResolverSettings(settings);
+  const { resolverSettings } = settings;
   
   const customTitle = <>
     <div className={classes.titleContainer}>
@@ -231,7 +229,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
       </div>
       
       {ultraFeedEnabled && <>
-        <UltraFeedObserverProvider incognitoMode={settings.incognitoMode}>
+        <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
           <SingleColumnSection>
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />

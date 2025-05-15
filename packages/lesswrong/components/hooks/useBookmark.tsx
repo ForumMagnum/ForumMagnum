@@ -6,6 +6,7 @@ import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { useMulti } from "@/lib/crud/withMulti";
+import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import LoginPopup from "../users/LoginPopup";
 
 export interface UseBookmarkResult {
@@ -19,7 +20,7 @@ export interface UseBookmarkResult {
 
 export const useBookmark = (
   documentId: string,
-  collectionName: "Posts" | "Comments"
+  collectionName: BookmarkableCollectionName
 ): UseBookmarkResult => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

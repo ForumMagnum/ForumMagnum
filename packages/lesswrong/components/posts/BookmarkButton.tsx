@@ -5,12 +5,9 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useBookmark } from '../hooks/useBookmark';
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import LWTooltip from "../common/LWTooltip";
-import ForumIcon from "../common/ForumIcon";
-
-export const bookmarkableCollectionNames = new TupleSet(["Posts", "Comments"] as const);
-
+import LWTooltip from '../common/LWTooltip';
+import ForumIcon from '../common/ForumIcon';
+import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
 const styles = (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
@@ -47,7 +44,7 @@ const BookmarkButton = ({
   classes,
 }: {
   documentId: string,
-  collectionName: UnionOf<typeof bookmarkableCollectionNames>,
+  collectionName: BookmarkableCollectionName,
   withText?: boolean,
   placement?: PopperPlacementType,
   overrideTooltipText?: string,
