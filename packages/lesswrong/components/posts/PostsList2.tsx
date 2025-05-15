@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 import LoadMore from "../common/LoadMore";
 import PostsNoResults from "./PostsNoResults";
 import SectionFooter from "../common/SectionFooter";
@@ -15,7 +16,7 @@ const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsList2", (theme: ThemeType) => ({
   itemIsLoading: {
     opacity: .4,
   },
@@ -35,12 +36,24 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     letterSpacing: '1px',
   },
-});
+}));
 
-type PostsList2Props = PostsListConfig & {classes: ClassesType<typeof styles>};
+type PostsList2Props = PostsListConfig;
+
+const PostsList2 = (props: PostsList2Props) => {
+  return <Suspense fallback={
+    <PostsLoading
+      placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
+      showFinalBottomBorder={props.showFinalBottomBorder}
+      viewType={"list"}
+    />
+  }>
+    <PostsListLoaded {...props}/>
+  </Suspense>
+}
 
 /** A list of posts, defined by a query that returns them. */
-const PostsList2 = ({classes, ...props}: PostsList2Props) => {
+const PostsListLoaded = ({...props}: PostsList2Props) => {
   const {
     children,
     showNoResults,
@@ -63,6 +76,8 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     showPlacement,
     header,
   } = usePostsList(props);
+  const classes = useStyles(styles);
+
   if (!orderedResults && loading) {
     return (
       <PostsLoading
@@ -124,7 +139,6 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
 }
 
 export default registerComponent('PostsList2', PostsList2, {
-  styles,
   areEqual: {
     terms: "deep",
   },

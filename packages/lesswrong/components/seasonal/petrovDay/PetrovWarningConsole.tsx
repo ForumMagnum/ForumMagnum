@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";

@@ -9,7 +9,8 @@ import React, {
   useState,
 } from "react";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
