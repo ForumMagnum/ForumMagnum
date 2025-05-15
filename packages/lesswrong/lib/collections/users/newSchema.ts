@@ -670,10 +670,8 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["members"],
-      // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
-      canUpdate: verifyEmailsSetting.get()
-        ? [userOwns, 'sunshineRegiment', 'admins']
-        : [],
+      // Setting this will trigger a verification email to be sent (unless `verifyEmailsSetting` is false, in which case it does nothing)
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
       canCreate: ["members"],
       validation: {
         optional: true,
