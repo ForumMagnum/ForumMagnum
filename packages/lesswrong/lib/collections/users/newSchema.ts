@@ -1414,22 +1414,19 @@ const schema = {
     },
   },
   bookmarkedPostsMetadata: {
-    database: {
-      type: "JSONB[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
     graphql: {
       outputType: "[PostMetadataOutput!]",
-      inputType: "[PostMetadataInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: arrayOfForeignKeysOnCreate,
-      onUpdate: ({ data, currentUser, oldDocument }) => {
-        if (data?.bookmarkedPostsMetadata) {
-          return _.uniq(data?.bookmarkedPostsMetadata, "postId");
-        }
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { Bookmarks } = context;
+        const bookmarks = await Bookmarks.find({ 
+          userId: user._id, 
+          collectionName: "Posts",
+          active: true 
+        }, 
+        {sort: {lastUpdated: -1}}
+        ).fetch();
+        return bookmarks.map((bookmark: DbBookmark) => ({ postId: bookmark.documentId }));
       },
     },
   },
@@ -1437,11 +1434,23 @@ const schema = {
     graphql: {
       outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: generateIdResolverMulti({
-        foreignCollectionName: "Posts",
-        fieldName: "bookmarkedPostsMetadata",
-        getKey: (obj) => obj.postId,
-      }),
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { Bookmarks, currentUser, loaders } = context;
+        const bookmarks = await Bookmarks.find({ 
+          userId: user._id, 
+          collectionName: "Posts",
+          active: true 
+        }, 
+        {sort: {lastUpdated: -1}}
+        ).fetch();
+        const postIds = bookmarks.map((bookmark: DbBookmark) => bookmark.documentId);
+        if (postIds.length === 0) {
+          return [];
+        }
+        const posts = await loaders.Posts.loadMany(postIds);
+        const validPosts = posts.filter((post): post is DbPost => !(post instanceof Error) && !!post?._id);
+        return await accessFilterMultiple(currentUser, "Posts", validPosts, context);
+      },
     },
   },
   // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
