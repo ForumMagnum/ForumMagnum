@@ -16,14 +16,13 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
     context: ResolverContext, 
     limit = 5
   ): Promise<FeedSpotlight[]> {
-    const db = this.getRawDb();
     const userId = context.currentUser?._id;
 
     if (!userId) {
       return [];
     }
     
-    const spotlightRows = await db.manyOrNone(`
+    const spotlightRows = await this.getRawDb().manyOrNone(`
       -- SpotlightsRepo.getUltraFeedSpotlights - Prioritize by fewest views
       WITH "RecentViews" AS (
         SELECT

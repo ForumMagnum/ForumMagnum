@@ -227,7 +227,7 @@ const UltraFeedPostItem = ({
   const [shouldShowLoading, setShouldShowLoading] = useState(false);
   const [resetSig, setResetSig] = useState(0);
 
-
+  const { displaySettings } = settings;
   const apolloClient = useForeignApolloClient();
   
   const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
@@ -258,7 +258,7 @@ const UltraFeedPostItem = ({
     // Show loading spinner only if we need more content than what we have
     // Compare requested breakpoint (word count) against highlight char limit
     // This is an approximation, but better than using full post word count
-    const requestedWordCount = settings.postTruncationBreakpoints?.[level - 1];
+    const requestedWordCount = displaySettings.postTruncationBreakpoints?.[level - 1];
     const needsMoreContentThanHighlight = requestedWordCount ? requestedWordCount > (highlightMaxChars / 5) : false;
     
     const showLoading = isLoadingFull && needsMoreContentThanHighlight && !fullPost;
@@ -292,7 +292,7 @@ const UltraFeedPostItem = ({
     hasRecordedViewOnExpand, 
     isLoadingFull, 
     fullPost,
-    settings.postTruncationBreakpoints
+    displaySettings.postTruncationBreakpoints
   ]);
 
   const handleCollapse = () => {
@@ -349,7 +349,7 @@ const UltraFeedPostItem = ({
           post={post}
           isRead={isRead}
           handleOpenDialog={handleOpenDialog}
-          postTitlesAreModals={settings.postTitlesAreModals}
+          postTitlesAreModals={displaySettings.postTitlesAreModals}
         />
 
         {shouldShowLoading && loadingFullPost ? (
@@ -359,7 +359,7 @@ const UltraFeedPostItem = ({
         ) : (
           <FeedContentBody
             html={displayHtml}
-            breakpoints={settings.postTruncationBreakpoints}
+            breakpoints={displaySettings.postTruncationBreakpoints}
             initialExpansionLevel={0}
             wordCount={displayWordCount!} // assertion because of shortform case that will at least be zero but isn't detected as such
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
