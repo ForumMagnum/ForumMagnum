@@ -12,6 +12,7 @@ interface CollectionBookmarkRow {
 }
 
 export async function up({ db }: MigrationContext): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log("Starting migration: remove_bookmarked_posts_metadata_from_users (up)");
 
   // 1. Fetch User Bookmarks from Metadata (Set A)
@@ -27,6 +28,7 @@ export async function up({ db }: MigrationContext): Promise<void> {
       AND array_length(u."bookmarkedPostsMetadata", 1) > 0
       AND bookmark_element.el ? 'postId'
   `);
+  // eslint-disable-next-line no-console
   console.log(`Found ${userMetadataBookmarks.length} potential postId entries in Users.bookmarkedPostsMetadata.`);
 
   // 2. Fetch Bookmarks from Bookmarks Collection (Set B)
@@ -39,6 +41,7 @@ export async function up({ db }: MigrationContext): Promise<void> {
     WHERE
       b."collectionName" = 'Posts'
   `);
+  // eslint-disable-next-line no-console
   console.log(`Found ${collectionBookmarks.length} 'Posts' bookmarks in the Bookmarks collection.`);
 
   const bookmarksSet = new Set(
@@ -64,10 +67,13 @@ export async function up({ db }: MigrationContext): Promise<void> {
 
   // 4. Conditional Field Drop
   if (discrepancies.length === 0) {
+    // eslint-disable-next-line no-console
     console.log("No discrepancies found for users with bookmarkedPostsMetadata. Proceeding to drop 'bookmarkedPostsMetadata' field from Users table.");
     await dropField(db, Users, 'bookmarkedPostsMetadata');
+    // eslint-disable-next-line no-console
     console.log("'bookmarkedPostsMetadata' field dropped successfully.");
   } else {
+    // eslint-disable-next-line no-console
     console.warn(`Found ${discrepancies.length} discrepancies. 'bookmarkedPostsMetadata' field will NOT be dropped.`);
     throw new Error(
       `Found ${discrepancies.length} discrepancies. 'bookmarkedPostsMetadata' field will NOT be dropped.`,
@@ -75,5 +81,6 @@ export async function up({ db }: MigrationContext): Promise<void> {
     );
   }
 
+  // eslint-disable-next-line no-console
   console.log("Migration remove_bookmarked_posts_metadata_from_users (up) completed.");
 }
