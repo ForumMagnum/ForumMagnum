@@ -1449,8 +1449,7 @@ const schema = {
           return [];
         }
         const posts = await loadByIds(context, "Posts", postIds)
-        const validPosts = posts.filter((post): post is DbPost => !(post instanceof Error) && !!post?._id);
-        return await accessFilterMultiple(currentUser, "Posts", validPosts, context);
+        return await accessFilterMultiple(currentUser, "Posts", posts, context);
       },
     },
   },
