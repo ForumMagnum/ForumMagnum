@@ -1844,6 +1844,7 @@ type Comment {
   legacyId: String
   legacyPoll: Boolean!
   legacyParentId: String
+  draft: Boolean!
   retracted: Boolean!
   deleted: Boolean!
   deletedPublic: Boolean!
@@ -5259,6 +5260,7 @@ input CreateCommentDataInput {
   legacyId: String
   legacyPoll: Boolean
   legacyParentId: String
+  draft: Boolean
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
@@ -5306,6 +5308,7 @@ input UpdateCommentDataInput {
   legacyId: String
   legacyPoll: Boolean
   legacyParentId: String
+  draft: Boolean
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
@@ -7820,6 +7823,7 @@ fragment CommentsDefaultFragment on Comment {
   legacyId
   legacyPoll
   legacyParentId
+  draft
   retracted
   deleted
   deletedPublic

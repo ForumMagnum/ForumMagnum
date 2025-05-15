@@ -438,7 +438,7 @@ const schema = {
         fieldName: "directChildrenCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "parentCommentId",
-        filterFn: (comment) => !comment.deleted && !comment.rejected,
+        filterFn: (comment) => !comment.deleted && !comment.rejected && !comment.draft,
       }),
       nullable: false,
     },
@@ -450,7 +450,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "parentCommentId",
-        filterFn: (comment) => !comment.deleted && !comment.rejected,
+        filterFn: (comment) => !comment.deleted && !comment.rejected && !comment.draft,
         resyncElastic: false,
       },
       validation: {
@@ -764,6 +764,26 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  // retracted: Indicates whether a comment is a draft.
+  // Draft comments are only visible to authors and admins.
+  draft: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"], // The status itself is readable, visibility of comment content is handled elsewhere
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {

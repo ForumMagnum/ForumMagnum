@@ -369,6 +369,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly legacyId: string|null,
   readonly legacyPoll: boolean,
   readonly legacyParentId: string|null,
+  readonly draft: boolean,
   readonly retracted: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,

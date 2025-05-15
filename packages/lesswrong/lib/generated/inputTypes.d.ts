@@ -1324,6 +1324,7 @@ interface Comment {
   legacyId: string | null;
   legacyPoll: boolean;
   legacyParentId: string | null;
+  draft: boolean;
   retracted: boolean;
   deleted: boolean;
   deletedPublic: boolean;
@@ -4444,6 +4445,7 @@ interface CreateCommentDataInput {
   legacyId?: string | null;
   legacyPoll?: boolean | null;
   legacyParentId?: string | null;
+  draft?: boolean | null;
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
@@ -4491,6 +4493,7 @@ interface UpdateCommentDataInput {
   legacyId?: string | null;
   legacyPoll?: boolean | null;
   legacyParentId?: string | null;
+  draft?: boolean | null;
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
