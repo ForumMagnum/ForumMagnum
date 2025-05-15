@@ -11586,6 +11586,8 @@ fragment UltraFeedPostFragment on Post {
     html
     htmlHighlight
     wordCount
+    plaintextDescription
+    version
   }
   autoFrontpage
   votingSystem
