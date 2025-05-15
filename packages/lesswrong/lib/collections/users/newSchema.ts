@@ -33,6 +33,7 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import GraphQLJSON from "graphql-type-json";
 import gql from "graphql-tag";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
+import { loadByIds } from "@/lib/loaders";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -1435,7 +1436,7 @@ const schema = {
       outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
-        const { Bookmarks, currentUser, loaders } = context;
+        const { Bookmarks, currentUser } = context;
         const bookmarks = await Bookmarks.find({ 
           userId: user._id, 
           collectionName: "Posts",
@@ -1447,7 +1448,7 @@ const schema = {
         if (postIds.length === 0) {
           return [];
         }
-        const posts = await loaders.Posts.loadMany(postIds);
+        const posts = await loadByIds(context, "Posts", postIds)
         const validPosts = posts.filter((post): post is DbPost => !(post instanceof Error) && !!post?._id);
         return await accessFilterMultiple(currentUser, "Posts", validPosts, context);
       },
