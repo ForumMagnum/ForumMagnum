@@ -194,7 +194,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 /**
  * Translate an attributes-dict from parsed HTML into something that can be
  * passed to React. In particular, if there's a `style` attribute, it will be
- * a string that needs to be converted into `CSSProperties` (a k-v dict).
+ * a string that needs to be converted into `CSSProperties` (a k-v dict); and,
+ * if there's an attribute which React knows by a different name, apply the
+ * inverse mapping, ie class->className, srcset->srcSet.
  *
  * This is NOT a sanitization/validation function. The expectation is that the
  * HTML was validated before it was passed to ContentItemBody and parsed.
@@ -204,12 +206,19 @@ function translateAttribs(attribs: Record<string,string>): Record<string,any> {
   if ('style' in attribsCopy) {
     attribsCopy.style = parseInlineStyle(attribs.style);
   }
-  if ('class' in attribsCopy) {
-    attribsCopy.className = attribsCopy.class;
-    delete attribsCopy.class;
+  for (const attribKey of Object.keys(attribsCopy)) {
+    if (attribKey in mapAttributeNames) {
+      attribsCopy[mapAttributeNames[attribKey]] = attribsCopy[attribKey];
+      delete attribsCopy[attribKey];
+    }
   }
   return attribsCopy;
 }
+const mapAttributeNames: Record<string,string> = {
+  "srcset": "srcSet",
+  "class": "className",
+}
+
 function camelCaseCssAttribute(input: string) {
   return input.replace(/-([a-z])/g, (_, char) => char.toUpperCase())
 }
@@ -384,7 +393,7 @@ function applyReplacements(element: React.ReactNode, substitutions: Substitution
   for (const substitution of substitutions) {
     const replacement = replacements[substitution.substitutionIndex];
     const Component = replacementComponentMap[replacement.componentName];
-    element = <Component {...replacement.props} isSplitContinuation={substitution.isSplitContinuation}>
+    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation}>
       {element}
     </Component>;
   }
