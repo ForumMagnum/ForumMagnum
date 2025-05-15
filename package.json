@@ -401,7 +401,7 @@
     "@types/react": "^19.0.0"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=22.12.0"
   },
   "knip": {
     "entry": [
