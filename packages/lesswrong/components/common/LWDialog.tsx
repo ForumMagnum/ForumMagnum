@@ -90,26 +90,28 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
   return <>
     {backdrop!=="none" && openRecently && <Backdrop visible={open} style={backdrop}/>}
     {(open || (everOpened && keepMounted)) && createPortal(
-      <div className={classNames(
-        classes.dialogWrapper, className, {
-          [classes.hidden]: !open,
-        }
-      )}>
+      <div>
         <ClickAwayListener onClickAway={() => {
           if (!disableBackdropClick)
             onClose?.();
         }}>
-          <span><Paper
-            elevation={24}
-            className={classNames(classes.paper, paperClassName, {
-              [classes.paperWidthSm]: maxWidth==='sm',
-              [classes.paperWidthMd]: maxWidth==='md',
-              [classes.paperFullScreen]: fullScreen,
-              [classes.paperFullWidth]: fullWidth,
-            })}
-          >
-            {children}
-          </Paper></span>
+          <div className={classNames(
+            classes.dialogWrapper, className, {
+              [classes.hidden]: !open,
+            }
+          )}>
+            <Paper
+              elevation={24}
+              className={classNames(classes.paper, paperClassName, {
+                [classes.paperWidthSm]: maxWidth==='sm',
+                [classes.paperWidthMd]: maxWidth==='md',
+                [classes.paperFullScreen]: fullScreen,
+                [classes.paperFullWidth]: fullWidth,
+              })}
+            >
+              {children}
+            </Paper>
+          </div>
         </ClickAwayListener>
       </div>,
       document.body

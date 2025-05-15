@@ -8,9 +8,10 @@ import { useMulti } from "@/lib/crud/withMulti";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
+import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import CommentsListSection from "../comments/CommentsListSection";
-import PostsVote from "../votes/PostsVote";
+import ForumIcon from '../common/ForumIcon';
 import { DialogContent } from "../widgets/DialogContent";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
@@ -34,14 +35,14 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   title: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: theme.palette.fonts.serifStack,
     fontSize: '1.4rem',
     fontWeight: 600,
+    paddingTop: 4,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
@@ -54,20 +55,21 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       fontSize: '1.6rem',
     },
   },
-  closeButton: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[500],
-    fontWeight: 600,
-    fontSize: "1.1rem",
+  chevronButton: {
     cursor: 'pointer',
-    padding: 8,
+    opacity: 0.8,
+    marginRight: 12,
+    fontSize: 24,
     '&:hover': {
       color: theme.palette.grey[700],
     },
+    '& svg': {
+      display: 'block',
+    }
   },
   dialogPaper: {
     maxWidth: 765,
-    margin: 4
+    height: '100dvh',
   },
   loadingContainer: {
     display: "flex",
@@ -93,6 +95,10 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       fontFamily: `${theme.palette.fonts.sansSerifStack} !important`,
     }
   },
+  footer: {
+    marginTop: 24,
+    marginBottom: 24,
+  }
 }));
 
 type UltraFeedPostDialogProps = {
@@ -147,6 +153,11 @@ const UltraFeedDialogContent = ({
       <DialogContent className={classes.dialogContent}>
         {post && <div>
           <div className={classes.titleContainer}>
+            <ForumIcon 
+              icon="ThickChevronLeft" 
+              onClick={onClose} 
+              className={classes.chevronButton} 
+            />
             <Link
               to={postGetPageUrl(post)}
               className={classes.title}
@@ -157,24 +168,28 @@ const UltraFeedDialogContent = ({
               }>
               {post.title}
             </Link>
-            <span className={classes.closeButton} onClick={onClose}>
-              Close
-            </span>
           </div>
           {post?.contents?.html ? (
             <FeedContentBody
               html={post.contents.html}
               wordCount={post.contents.wordCount || 0}
               linkToDocumentOnFinalExpand={false}
-              hideSuffix={true}
+              hideSuffix
+              serifStyle
             />
           ) : (
             <div>Post content not available.</div>
           )}
         </div>}
-        <div className={classes.voteBottom}>
-          {post && <PostsVote post={post} useHorizontalLayout={false} isFooter />}
-        </div>
+        <UltraFeedItemFooter
+          document={post}
+          collectionName="Posts"
+          metaInfo={{
+            sources: [],
+            displayStatus: "expanded",
+          }}
+          className={classes.footer}
+        />
         {commentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
         {comments && (
           <CommentsListSection

@@ -32,17 +32,18 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
-    '& .form-section-default': {
-      width: "100%"
-    },
-    '& .form-input': {
-      width: "100%",
-      margin: '2.5px 0 0 0'
-    },
     '& form': {
       display: "flex",
       flexDirection: "row",
-    }
+      alignItems: "flex-end",
+    },
+    '& form > div': {
+      marginTop: '2.5px',
+      marginBottom: '2.5px',
+    },
+    '& form > .form-component-EditorFormComponent': {
+      flexGrow: 1,
+    },
   },
 });
 

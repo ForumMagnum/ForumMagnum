@@ -596,22 +596,6 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_forumEventId_userId_postedAt_authorIsUn
   "debateResponse"
 );
 
--- Index "idx_comments_alignmentSuggestedComments"
-CREATE INDEX IF NOT EXISTS "idx_comments_alignmentSuggestedComments" ON "Comments" USING gin (
-  "reviewForAlignmentUserId",
-  "af",
-  "suggestForAlignmentUserIds",
-  "postedAt",
-  "authorIsUnreviewed",
-  "deleted",
-  "deletedPublic",
-  "hideAuthor",
-  "userId",
-  "debateResponse"
-)
-WHERE
-  ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
-
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
 
@@ -3732,6 +3716,17 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" (
 CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
 WHERE
   ("baseScore" >= 15);
+
+-- CustomIndex "idx_Comments_suggestForAlignmentUserIds"
+CREATE INDEX IF NOT EXISTS "idx_Comments_suggestForAlignmentUserIds" ON "Comments" USING btree (
+  "reviewForAlignmentUserId" ASC NULLS LAST,
+  af ASC NULLS LAST,
+  "postedAt" ASC NULLS LAST
+)
+WITH
+  (deduplicate_items = TRUE)
+WHERE
+  "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
