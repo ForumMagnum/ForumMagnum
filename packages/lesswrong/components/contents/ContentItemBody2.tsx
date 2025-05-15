@@ -8,6 +8,7 @@ import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
+import ElicitBlock from '../posts/ElicitBlock';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -142,7 +143,10 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         // TODO: collapseFootnotes
       }
       if (classNames.includes("elicit-binary-prediction")) {
-        // TODO: markElicitBlocks
+        const elicitId = attribs['data-elicit-id'];
+        if (elicitId) {
+          result = <ElicitBlock questionId={elicitId}/>
+        }
       }
       if (classNames.includes("strawpoll-embed")) {
         // TODO: wrapStrawPoll
