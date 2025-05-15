@@ -4,8 +4,11 @@ import {
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { Link } from "../../lib/reactRouterWrapper";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -17,8 +20,6 @@ const ForeignCrosspostEditForm = ({post, classes}: {
   post: PostsPage,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SingleColumnSection, PostsPagePostHeader, Typography} = Components;
-
   const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `editPost?postId=${post._id}&eventForm=false`);
 
   const postWithNavigation: PostsWithNavigation = {
@@ -50,10 +51,6 @@ const ForeignCrosspostEditForm = ({post, classes}: {
   );
 }
 
-const ForeignCrosspostEditFormComponent = registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditForm, {styles});
+export default registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ForeignCrosspostEditForm: typeof ForeignCrosspostEditFormComponent
-  }
-}
+

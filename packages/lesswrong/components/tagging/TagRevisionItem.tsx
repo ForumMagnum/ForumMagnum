@@ -1,10 +1,18 @@
 import React, {useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classNames from 'classnames';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagHistoryStyles } from './history/TagHistoryPage';
+import SingleLineFeedEvent from "../common/SingleLineFeedEvent";
+import CompareRevisions from "../revisions/CompareRevisions";
+import TagRevisionItemFullMetadata from "./TagRevisionItemFullMetadata";
+import TagRevisionItemShortMetadata from "./TagRevisionItemShortMetadata";
+import TagDiscussionButton from "./TagDiscussionButton";
+import ContentStyles from "../common/ContentStyles";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("TagRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -39,7 +47,6 @@ const TagRevisionItem = ({
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles, ForumIcon, LWTooltip } = Components
   const [expanded, setExpanded] = useState(false);
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
@@ -71,7 +78,7 @@ const TagRevisionItem = ({
       </>
   return noContainer
     ? contents
-    : <Components.SingleLineFeedEvent
+    : <SingleLineFeedEvent
         icon={showIcon ? <ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/> : undefined}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
         tooltip={!(expanded || !collapsed) && diffBody}
@@ -79,13 +86,9 @@ const TagRevisionItem = ({
         <div className={classes.container}>
           {contents}
         </div>
-      </Components.SingleLineFeedEvent>
+      </SingleLineFeedEvent>
 }
 
-const TagRevisionItemComponent = registerComponent("TagRevisionItem", TagRevisionItem, {hocs: [withErrorBoundary]});
+export default registerComponent("TagRevisionItem", TagRevisionItem, {hocs: [withErrorBoundary]});
 
-declare global {
-  interface ComponentTypes {
-    TagRevisionItem: typeof TagRevisionItemComponent
-  }
-}
+

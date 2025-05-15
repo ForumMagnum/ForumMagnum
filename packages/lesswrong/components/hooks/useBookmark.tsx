@@ -4,9 +4,10 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useDialog } from "@/components/common/withDialog";
 import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
-import { Components } from "@/lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { useMulti } from "@/lib/crud/withMulti";
+import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
+import LoginPopup from "../users/LoginPopup";
 
 export interface UseBookmarkResult {
   isBookmarked: boolean;
@@ -19,7 +20,7 @@ export interface UseBookmarkResult {
 
 export const useBookmark = (
   documentId: string,
-  collectionName: "Posts" | "Comments"
+  collectionName: BookmarkableCollectionName
 ): UseBookmarkResult => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -72,7 +73,7 @@ export const useBookmark = (
     if (event) event.preventDefault();
 
     if (!currentUser) {
-      openDialog({ name: "LoginPopup", contents: ({onClose}) => <Components.LoginPopup onClose={onClose} /> });
+      openDialog({ name: "LoginPopup", contents: ({onClose}) => <LoginPopup onClose={onClose} /> });
       return;
     }
 

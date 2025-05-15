@@ -1,13 +1,15 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SpotlightItem from "./SpotlightItem";
+import LoadMore from "../common/LoadMore";
 
 export const SpotlightHistory = () => {
-  const { SingleColumnSection, SectionTitle, SpotlightItem, LoadMore } = Components
-
   const currentUser = useCurrentUser()
 
   const { results: spotlights = [], loadMoreProps } = useMulti({
@@ -31,11 +33,7 @@ export const SpotlightHistory = () => {
   </SingleColumnSection>;
 }
 
-const SpotlightHistoryComponent = registerComponent('SpotlightHistory', SpotlightHistory);
+export default registerComponent('SpotlightHistory', SpotlightHistory);
 
-declare global {
-  interface ComponentTypes {
-    SpotlightHistory: typeof SpotlightHistoryComponent
-  }
-}
+
 

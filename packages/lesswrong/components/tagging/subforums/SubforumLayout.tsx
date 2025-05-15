@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
@@ -126,8 +127,6 @@ export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, 
   sidebarComponents?: React.ReactNode[],
 }) => {
   const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing
-  const { CloudinaryImage2 } = Components
-  
   /*
    * The logic for rendering the banner image has turned out more complicated than I would
    * have liked, but unfortunately it is neccesary to achieve the following things:
@@ -203,10 +202,6 @@ export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, 
   );
 }
 
-const SubforumLayoutComponent = registerComponent("SubforumLayout", SubforumLayout, {styles});
+export default registerComponent("SubforumLayout", SubforumLayout, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubforumLayout: typeof SubforumLayoutComponent
-  }
-}
+

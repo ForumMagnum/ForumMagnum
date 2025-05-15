@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
@@ -24,7 +24,8 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-
+import LWDialog from "./LWDialog";
+import { MenuItem } from "./Menus";
 
 const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   thresholdSelector: {
@@ -213,8 +214,6 @@ const SubscribeDialog = (props: {
 
   const fullScreen = !useIsAboveBreakpoint('sm');
   const { onClose, open } = props;
-  const { LWDialog, MenuItem } = Components;
-
   const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
     <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
     <Select
@@ -331,10 +330,6 @@ const SubscribeDialog = (props: {
   );
 }
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog);
+export default registerComponent("SubscribeDialog", SubscribeDialog);
 
-declare global {
-  interface ComponentTypes {
-    SubscribeDialog: typeof SubscribeDialogComponent
-  }
-}
+

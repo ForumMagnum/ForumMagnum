@@ -27,12 +27,8 @@ export const AnalyticsClient = () => {
   return <div/>;
 }
 
-const AnalyticsClientComponent = registerComponent("AnalyticsClient", AnalyticsClient, {
+export default registerComponent("AnalyticsClient", AnalyticsClient, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsClient: typeof AnalyticsClientComponent
-  }
-}
+

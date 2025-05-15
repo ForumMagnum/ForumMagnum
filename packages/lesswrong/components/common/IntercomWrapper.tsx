@@ -57,13 +57,9 @@ const IntercomWrapper = () => {
   }
 }
 
-const IntercomWrapperComponent = registerComponent('IntercomWrapper', IntercomWrapper, {
+export default registerComponent('IntercomWrapper', IntercomWrapper, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    IntercomWrapper: typeof IntercomWrapperComponent
-  }
-}
+

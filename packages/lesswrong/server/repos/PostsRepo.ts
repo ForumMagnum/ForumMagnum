@@ -1106,11 +1106,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     context: ResolverContext,
     filterSettings: FilterSettings,
     seenPenalty: number,
-    maxAgeDays = 30,
+    maxAgeDays: number,
     excludedPostIds: string[] = [],
     limit = 100
   ): Promise<FeedFullPost[]> {
-    const db = this.getRawDb();
     
     const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
@@ -1138,7 +1137,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
 
     const filteredScoreSql = constructFilteredScoreSql(filterSettings);
 
-    const feedPostsData = await db.manyOrNone<FeedPostFromDb>(`
+    const feedPostsData = await this.getRawDb().manyOrNone<FeedPostFromDb>(`
       -- PostsRepo.getLatestPostsForUltraFeed
       WITH "UniversalPostFilter" AS (
         -- Apply basic post filters
@@ -1237,6 +1236,42 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           lastInteracted: lastInteracted,
         },
       };
+    });
+  }
+
+  /**
+   * Get posts from users the current user is subscribed to, for UltraFeed
+   */
+  async getPostsFromSubscribedUsersForUltraFeed(
+    userId: string,
+    maxAgeDays: number,
+    limit = 100
+  ): Promise<{ postId: string }[]> {
+
+    return await this.getRawDb().manyOrNone<{ postId: string }>(`
+      -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
+      SELECT
+        p._id AS "postId"
+      FROM "Posts" p
+      JOIN (
+        SELECT DISTINCT "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" IN ('newActivityForFeed', 'newPosts')
+          AND "userId" = $(userId)
+      ) AS user_subscriptions ON p."userId" = user_subscriptions."userId"
+      WHERE 
+        p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
+        AND p.rejected IS NOT TRUE 
+        AND ${getViewablePostsSelector('p')} 
+      ORDER BY p."postedAt" DESC
+      LIMIT $(limitParam)
+    `, { 
+      userId: userId, 
+      maxAgeDaysParam: maxAgeDays,
+      limitParam: limit
     });
   }
 }

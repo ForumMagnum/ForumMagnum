@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil'
 import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SingleColumnSection from "../common/SingleColumnSection";
+import TagDiscussionSection from "./TagDiscussionSection";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -26,8 +29,6 @@ const TagDiscussionPage = ({classes}: {
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug, "TagFragment");
-  const {SingleColumnSection, TagDiscussionSection, ContentStyles} = Components;
-  
   return (
     <SingleColumnSection>
       { tag && <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
@@ -42,11 +43,7 @@ const TagDiscussionPage = ({classes}: {
   );
 }
 
-const TagDiscussionPageComponent = registerComponent("TagDiscussionPage", TagDiscussionPage, {styles});
+export default registerComponent("TagDiscussionPage", TagDiscussionPage, {styles});
 
 
-declare global {
-  interface ComponentTypes {
-    TagDiscussionPage: typeof TagDiscussionPageComponent
-  }
-}
+

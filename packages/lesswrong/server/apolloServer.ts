@@ -58,7 +58,7 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
-import { makeAbsolute } from '@/lib/vulcan-lib/utils';
+import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 
@@ -476,7 +476,8 @@ export function startWebserver() {
     if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(makeAbsolute(redirectUrl));
+      const absoluteRedirectUrl = urlIsAbsolute(redirectUrl) ? redirectUrl : makeAbsolute(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(absoluteRedirectUrl);
     } else {
       trySetResponseStatus({ response, status: status || 200 });
       const ssrMetadata: SSRMetadata = {

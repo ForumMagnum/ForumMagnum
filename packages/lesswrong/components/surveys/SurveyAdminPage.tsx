@@ -1,9 +1,18 @@
 import React, { FormEvent, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useMulti } from "@/lib/crud/withMulti";
 import { Link } from "@/lib/reactRouterWrapper";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
+import FormatDate from "../common/FormatDate";
+import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,11 +110,6 @@ const SurveysEditor = ({classes}: {
       void onCreateSurvey();
     }
   }, [newSurveyName, onCreateSurvey]);
-
-  const {
-    SingleColumnSection, SectionTitle, Loading, EAButton, FormatDate,
-    BlurredBackgroundModal, EAOnboardingInput, LoadMore,
-  } = Components;
   return (
     <SingleColumnSection className={classes.root}>
 
@@ -199,17 +203,13 @@ const SurveyAdminPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveysEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
-const SurveyAdminPageComponent = registerComponent(
+export default registerComponent(
   "SurveyAdminPage",
   SurveyAdminPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyAdminPage: typeof SurveyAdminPageComponent
-  }
-}
+

@@ -1,9 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
 import flatten from "lodash/flatten";
+import PostsLoading from "../posts/PostsLoading";
+import EAPostsItem from "../posts/EAPostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,11 +56,6 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
 
   const loading = chaptersLoading || postsLoading;
   const orderedPosts = posts ? sortBy(posts, p => postIds.indexOf(p._id)) : [];
-
-  const {
-    PostsLoading, EAPostsItem,
-  } = Components;
-
   const postsList = loading ? (
     <PostsLoading placeholderCount={10} viewType="card" />
   ) : orderedPosts.map((post) => (
@@ -85,14 +82,10 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
   );
 };
 
-const InstagramLandingPageComponent = registerComponent(
+export default registerComponent(
   "InstagramLandingPage",
   InstagramLandingPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    InstagramLandingPage: typeof InstagramLandingPageComponent;
-  }
-}
+

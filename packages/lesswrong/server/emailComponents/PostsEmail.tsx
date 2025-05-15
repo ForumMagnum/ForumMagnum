@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
@@ -11,6 +10,7 @@ import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
+import ContentStyles from '@/components/common/ContentStyles';
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -126,8 +126,6 @@ function PostsEmailInner({
     fragmentName: "PostsRevision",
     terms: { exactPostIds: postIds },
   });
-
-  const { ContentStyles } = Components;
 
   if (!posts || posts.length === 0) {
     return null;

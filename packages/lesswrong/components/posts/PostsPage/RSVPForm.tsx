@@ -9,8 +9,10 @@ import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import LWDialog from "../../common/LWDialog";
+import { MenuItem } from "../../common/Menus";
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -49,10 +51,8 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   const [email, setEmail] = useState(currentUser?.email ?? "")
   const [response, setResponse] = useState(initialResponse)
   const [error, setError] = useState("")
-  const { MenuItem } = Components;
-
   return (
-    <Components.LWDialog
+    <LWDialog
       title={`RSVP to ${post.title}`}
       open={true}
       onClose={() => {
@@ -111,14 +111,10 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
           Submit
         </Button>
       </DialogActions>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 
-const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm, {styles});
+export default registerComponent('RSVPForm', RSVPForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RSVPForm: typeof RSVPFormComponent
-  }
-}
+

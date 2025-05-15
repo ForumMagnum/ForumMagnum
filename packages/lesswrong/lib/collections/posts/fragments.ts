@@ -217,6 +217,8 @@ export const UltraFeedPostFragment = () => frag`
       html
       htmlHighlight
       wordCount
+      plaintextDescription
+      version
     }
     autoFrontpage
     votingSystem

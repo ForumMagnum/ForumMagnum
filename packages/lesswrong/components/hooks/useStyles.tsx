@@ -290,6 +290,7 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
       },
     }
   );
+  sheets.add(sheet);
   return sheets.toString();
 }
 

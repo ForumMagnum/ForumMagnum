@@ -1,11 +1,16 @@
 import React, { Suspense } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import LoadMore from "../common/LoadMore";
+import PostsNoResults from "./PostsNoResults";
+import SectionFooter from "../common/SectionFooter";
+import PostsItem from "./PostsItem";
+import PostsLoading from "./PostsLoading";
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -36,7 +41,6 @@ const styles = defineStyles("PostsList2", (theme: ThemeType) => ({
 type PostsList2Props = PostsListConfig;
 
 const PostsList2 = (props: PostsList2Props) => {
-  const { PostsLoading } = Components;
   return <Suspense fallback={
     <PostsLoading
       placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
@@ -73,8 +77,6 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
     header,
   } = usePostsList(props);
   const classes = useStyles(styles);
-
-  const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
 
   if (!orderedResults && loading) {
     return (
@@ -136,14 +138,10 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
   )
 }
 
-const PostsList2Component = registerComponent('PostsList2', PostsList2, {
+export default registerComponent('PostsList2', PostsList2, {
   areEqual: {
     terms: "deep",
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsList2: typeof PostsList2Component
-  }
-}
+

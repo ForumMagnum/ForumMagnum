@@ -1,14 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useBookmark } from '../hooks/useBookmark';
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-
-export const bookmarkableCollectionNames = new TupleSet(["Posts", "Comments"] as const);
-
+import LWTooltip from '../common/LWTooltip';
+import ForumIcon from '../common/ForumIcon';
+import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
 const styles = (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
@@ -45,7 +44,7 @@ const BookmarkButton = ({
   classes,
 }: {
   documentId: string,
-  collectionName: UnionOf<typeof bookmarkableCollectionNames>,
+  collectionName: BookmarkableCollectionName,
   withText?: boolean,
   placement?: PopperPlacementType,
   overrideTooltipText?: string,
@@ -54,7 +53,6 @@ const BookmarkButton = ({
 }) => {
   const {icon, labelText, hoverText, toggleBookmark} = useBookmark(documentId, collectionName);
   const Component = withText ? "a" : "span";
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip title={overrideTooltipText ?? hoverText} placement={withText ? "bottom" : placement}>
       <Component onClick={toggleBookmark} className={classNames({
@@ -71,13 +69,9 @@ const BookmarkButton = ({
   );
 }
 
-const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, {
+export default registerComponent('BookmarkButton', BookmarkButton, {
   styles,
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarkButton: typeof BookmarkButtonComponent
-  }
-}
+

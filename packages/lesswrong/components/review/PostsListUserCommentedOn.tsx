@@ -4,8 +4,12 @@ import {useCurrentUser} from '../common/withUser.tsx'
 import {gql, NetworkStatus} from '@apollo/client'
 import { useQuery } from "@/lib/crud/useQuery";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import Loading from "../vulcan-core/Loading";
+import PostsItem from "../posts/PostsItem";
+import LoadMore from "../common/LoadMore";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -68,9 +72,6 @@ const PostsListUserCommentedOn = ({classes, filter, sort}: {
     filter,
     sort,
   })
-
-  const {Loading, PostsItem, LoadMore, Typography} = Components
-
   const posts = data?.PostsUserCommentedOn?.posts
 
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
@@ -107,10 +108,6 @@ const PostsListUserCommentedOn = ({classes, filter, sort}: {
   </AnalyticsContext>
 }
 
-const PostsListUserCommentedOnComponent = registerComponent('PostsListUserCommentedOn', PostsListUserCommentedOn, {styles})
+export default registerComponent('PostsListUserCommentedOn', PostsListUserCommentedOn, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListUserCommentedOn: typeof PostsListUserCommentedOnComponent
-  }
-}
+

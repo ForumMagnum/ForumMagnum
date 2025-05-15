@@ -1,7 +1,6 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
-import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -14,6 +13,8 @@ import { PostsListEditor } from "@/components/form-components/PostsListEditor";
 import { SequencesListEditor } from "@/components/form-components/SequencesListEditor";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import Error404 from "../common/Error404";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -35,7 +36,6 @@ export const BooksForm = ({
   onSuccess: (doc: BookPageFragment) => void;
   onCancel: () => void;
 }) => {
-  const { Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
 
   const formType = initialData ? 'edit' : 'new';

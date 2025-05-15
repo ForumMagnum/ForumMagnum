@@ -1,10 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib/components';
+import { registerComponent } from '../lib/vulcan-lib/components';
 import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
 import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
+import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
+import CloudinaryImage2 from "./common/CloudinaryImage2";
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -105,7 +107,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { ReviewVotingCanvas, CloudinaryImage2 } = Components
   const { currentRoute } = useLocation();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
@@ -149,10 +150,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div>;
 }
 
-const LWBackgroundImageComponent = registerComponent('LWBackgroundImage', LWBackgroundImage);
+export default registerComponent('LWBackgroundImage', LWBackgroundImage);
 
-declare global {
-  interface ComponentTypes {
-    LWBackgroundImage: typeof LWBackgroundImageComponent
-  }
-}
+

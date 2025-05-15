@@ -7,14 +7,25 @@ import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditorContext } from './EditorContext';
+import Loading from "../vulcan-core/Loading";
+import PermanentRedirect from "../common/PermanentRedirect";
+import Error404 from "../common/Error404";
+import PostsAcceptTos from "./PostsAcceptTos";
+import HeadTags from "../common/HeadTags";
+import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
+import RateLimitWarning from "../editor/RateLimitWarning";
+import PostForm from "./PostForm";
+import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
+import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
+import NewPostHowToGuides from "./NewPostHowToGuides";
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -117,10 +128,6 @@ const PostsEditForm = ({ documentId, version }: {
 }) => {
   // return <></>;
   const classes = useStyles(styles);
-  const { HeadTags, ForeignCrosspostEditForm, RateLimitWarning, PostForm,
-    DynamicTableOfContents, NewPostModerationWarning, NewPostHowToGuides
-  } = Components
-
   const { query } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
@@ -168,19 +175,19 @@ const PostsEditForm = ({ documentId, version }: {
   }, [isDraft]);
   
   if (!document && loading) {
-    return <Components.Loading/>
+    return <Loading/>
   }
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
   if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
-    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+    return <PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
   if (!document && !loading && query?.key) {
-    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+    return <PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -188,14 +195,14 @@ const PostsEditForm = ({ documentId, version }: {
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
   if (document?.linkSharingKey && !(query?.key)) {
-    return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+    return <PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
   }
   
   // If we don't have the post and none of the earlier cases applied, we either
   // have an invalid post ID or the post is a draft that we don't have access
   // to.
   if (!document) {
-    return <Components.Error404/>
+    return <Error404/>
   }
 
   if (isNotHostedHere(document)) {
@@ -209,7 +216,7 @@ const PostsEditForm = ({ documentId, version }: {
     <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
-        {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+        {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning
           contentType="post"
@@ -246,10 +253,6 @@ const PostsEditForm = ({ documentId, version }: {
   );
 }
 
-const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm);
+export default registerComponent('PostsEditForm', PostsEditForm);
 
-declare global {
-  interface ComponentTypes {
-    PostsEditForm: typeof PostsEditFormComponent
-  }
-}
+

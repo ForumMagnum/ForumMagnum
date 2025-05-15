@@ -13,7 +13,7 @@ import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { UnsubscribeAllToken } from '../emails/emailTokens';
+import { emailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
@@ -26,6 +26,7 @@ import { generateEmailStylesheet } from '../styleGeneration';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
+import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -162,6 +163,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
+    <CookiesProvider>
     <ThemeContextProvider options={themeOptions}>
     <FMJssProvider stylesContext={stylesContext}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
@@ -171,6 +173,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     </UserContext.Provider>
     </FMJssProvider>
     </ThemeContextProvider>
+    </CookiesProvider>
     </ApolloProvider>
     </EmailRenderContext.Provider>
   );
@@ -221,7 +224,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
 }
 
 export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user: DbUser | null, to: string, from?: string, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await UnsubscribeAllToken.generateLink(user._id) : null;
+  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
   return await generateEmail({
     user,
     to,

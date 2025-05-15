@@ -8,7 +8,9 @@ import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
 import ForumEventsRepo from "./ForumEventsRepo";
+import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
+import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
 import PageCacheRepo from "./PageCacheRepo";
@@ -35,8 +37,6 @@ import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
-import LWEventsRepo from "./LWEventsRepo";
-import JargonTermsRepo from "./JargonTermsRepo";
 import BookmarksRepo from "./BookmarksRepo";
 
 declare global {
@@ -49,8 +49,9 @@ declare global {
 }
 
 const allRepos = {
-  collections: CollectionsRepo,
+  bookmarks: BookmarksRepo,
   clientIds: ClientIdsRepo,
+  collections: CollectionsRepo,
   comments: CommentsRepo,
   conversations: ConversationsRepo,
   curationEmails: CurationEmailsRepo,
@@ -62,10 +63,10 @@ const allRepos = {
   jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,
-  notifications: NotificationsRepo,
-  postEmbeddings: PostEmbeddingsRepo,
-  pageCaches: PageCacheRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
+  notifications: NotificationsRepo,
+  pageCaches: PageCacheRepo,
+  postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,
   postRelations: PostRelationsRepo,
   posts: PostsRepo,
@@ -73,8 +74,8 @@ const allRepos = {
   postViewTimes: PostViewTimesRepo,
   readStatuses: ReadStatusesRepo,
   recommendationsCaches: RecommendationsCachesRepo,
-  reviewWinners: ReviewWinnersRepo,
   reviewWinnerArts: ReviewWinnerArtsRepo,
+  reviewWinners: ReviewWinnersRepo,
   revisions: RevisionsRepo,
   sequences: SequencesRepo,
   sideComments: SideCommentCachesRepo,
@@ -88,7 +89,6 @@ const allRepos = {
   ultraFeedEvents: UltraFeedEventsRepo,
   users: UsersRepo,
   votes: VotesRepo,
-  bookmarks: BookmarksRepo,
 } as const;
 
 /**

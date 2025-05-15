@@ -46,11 +46,7 @@ export const EmailPreview = ({email, sentDate, classes}: {
   </div>;
 }
 
-const EmailPreviewComponent = registerComponent('EmailPreview', EmailPreview, {styles});
+export default registerComponent('EmailPreview', EmailPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EmailPreview: typeof EmailPreviewComponent
-  }
-}
+
 

@@ -1,8 +1,15 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { FC } from 'react';
 import classNames from 'classnames';
 import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
+import EventTime from "../localGroups/EventTime";
+import EventVicinity from "../localGroups/EventVicinity";
+import FormatDate from "../common/FormatDate";
+import FooterTagList from "../tagging/FooterTagList";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import LWTooltip from "../common/LWTooltip";
+import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
 
 const styles = (theme: ThemeType) => ({
   read: {
@@ -26,7 +33,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
-  const { FormatDate } = Components;
   return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
@@ -39,7 +45,6 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
   const baseScore = isAF ? post.afBaseScore : post.baseScore
   const showAfScore = (!isAF && post.af);
   const afBaseScore = showAfScore ? post.afBaseScore : null
-  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       {!post.shortform && !post.isEvent && <span className={classes.info}>
@@ -60,7 +65,7 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
           </span>
         )}
         {post.startTime
-          ? <LWTooltip title={<Components.EventTime post={post} />}>
+          ? <LWTooltip title={<EventTime post={post} />}>
               <DateWithoutTime date={post.startTime} />
             </LWTooltip>
           : <LWTooltip title={<span>To Be Determined</span>}>
@@ -69,7 +74,7 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
       </span>}
 
       { post.isEvent && !post.onlineEvent && <span className={classes.info}>
-        <Components.EventVicinity post={post} />
+        <EventVicinity post={post} />
       </span>}
 
       <span className={classes.info}>
@@ -96,10 +101,6 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
     </span>
 };
 
-const PostsItemMetaComponent = registerComponent('PostsItemMeta', PostsItemMeta, {styles});
+export default registerComponent('PostsItemMeta', PostsItemMeta, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemMeta: typeof PostsItemMetaComponent
-  }
-}
+

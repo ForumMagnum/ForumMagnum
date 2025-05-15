@@ -7,9 +7,14 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
 import type { GoogleDocMetadata } from "../../server/collections/revisions/helpers";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import PopperCard from "../common/PopperCard";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -100,9 +105,6 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [canImport, setCanImport] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const { EAButton, ForumIcon, PopperCard, LWClickAwayListener, Loading } = Components;
-
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   const location = useLocation();
@@ -323,10 +325,6 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   );
 };
 
-const GoogleDocImportButtonComponent = registerComponent("GoogleDocImportButton", GoogleDocImportButton, { styles });
+export default registerComponent("GoogleDocImportButton", GoogleDocImportButton, { styles });
 
-declare global {
-  interface ComponentTypes {
-    GoogleDocImportButton: typeof GoogleDocImportButtonComponent;
-  }
-}
+

@@ -130,15 +130,11 @@ const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   </div>
 }
 
-const HorizScrollBlockComponent = registerComponent(
+export default registerComponent(
   'HorizScrollBlock',
   HorizScrollBlock,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    HorizScrollBlock: typeof HorizScrollBlockComponent
-  }
-}
+
 

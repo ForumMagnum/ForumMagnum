@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -23,10 +22,3 @@ export const ManageSubscriptionsLink = () => {
   </Link>
 };
 
-const ManageSubscriptionsLinkComponent = registerComponent('ManageSubscriptionsLink', ManageSubscriptionsLink);
-
-declare global {
-  interface ComponentTypes {
-    ManageSubscriptionsLink: typeof ManageSubscriptionsLinkComponent
-  }
-}

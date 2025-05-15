@@ -72,10 +72,6 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   </>;
 };
 
-const PostsPodcastPlayerComponent = registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
+export default registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsPodcastPlayer: typeof PostsPodcastPlayerComponent,
-  }
-}
+

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { gql } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
+import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
+import PastWarnings from "./PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,8 +39,6 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
-  const { PetrovWorldmapWrapper, PastWarnings } = Components;
-
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
@@ -125,10 +125,6 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   }
 }
 
-const PetrovWarningConsoleComponent = registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
+export default registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovWarningConsole: typeof PetrovWarningConsoleComponent
-  }
-}
+

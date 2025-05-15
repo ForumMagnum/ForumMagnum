@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { gql } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const RandomTagPage = () => {
-  const {PermanentRedirect, Loading, SingleColumnSection} = Components;
   const {data, loading} = useQuery(gql`
     query getRandomTag {
       RandomTag {slug}
@@ -20,11 +22,7 @@ const RandomTagPage = () => {
   </SingleColumnSection>
 }
 
-const RandomTagPageComponent = registerComponent('RandomTagPage', RandomTagPage);
+export default registerComponent('RandomTagPage', RandomTagPage);
 
-declare global {
-  interface ComponentTypes {
-    RandomTagPage: typeof RandomTagPageComponent
-  }
-}
+
 

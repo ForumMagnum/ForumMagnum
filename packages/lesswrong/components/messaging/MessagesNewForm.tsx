@@ -6,7 +6,7 @@ import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCreate } from "@/lib/crud/withCreate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
@@ -16,6 +16,10 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,8 +117,6 @@ const InnerMessagesNewForm = ({
   prefilledProps,
   onSuccess,
 }: MessagesNewFormProps) => {
-  const { Loading, ForumIcon, FormComponentCheckbox } = Components;
-
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   
@@ -240,8 +242,6 @@ export const MessagesNewForm = ({
   formStyle?: FormDisplayMode;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Loading, Error404 } = Components;
-
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -280,10 +280,6 @@ export const MessagesNewForm = ({
   );
 };
 
-const MessagesNewFormComponent = registerComponent("MessagesNewForm", MessagesNewForm, { styles });
+export default registerComponent("MessagesNewForm", MessagesNewForm, { styles });
 
-declare global {
-  interface ComponentTypes {
-    MessagesNewForm: typeof MessagesNewFormComponent;
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, {FormEvent, ReactNode, useCallback, useEffect, useRef, useState} from 'react'
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useMutation } from "@apollo/client";
@@ -8,6 +8,9 @@ import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
 import {useCurrentUser} from '../../common/withUser'
+import EAOnboardingStage from "./EAOnboardingStage";
+import EAOnboardingInput from "./EAOnboardingInput";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -144,8 +147,6 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   }, []);
 
   const canContinue = !!name && !nameTaken && acceptedTos;
-
-  const {EAOnboardingStage, EAOnboardingInput, ForumIcon} = Components;
   return (
     <EAOnboardingStage
       stageName="user"
@@ -199,14 +200,10 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   );
 }
 
-const EAOnboardingUserStageComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingUserStage",
   EAOnboardingUserStage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingUserStage: typeof EAOnboardingUserStageComponent
-  }
-}
+

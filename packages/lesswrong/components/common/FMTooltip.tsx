@@ -1,10 +1,11 @@
 import React, { Ref, useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsProps } from '@/lib/analyticsEvents';
 import { useHover } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
+import LWPopper from "./LWPopper";
 
 const styles = defineStyles("TooltipRef", (theme: ThemeType) => ({
   tooltip: {
@@ -112,8 +113,6 @@ export const TooltipRef = <T extends HTMLElement>({
       }
     }
   });
-
-  const { LWPopper } = Components;
   return <>
     {children(hoveredElementRef)}
     

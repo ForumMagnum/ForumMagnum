@@ -1,5 +1,5 @@
 import React from 'react';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { communityPath, getAllTagsPath } from '@/lib/pathConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
@@ -73,7 +73,7 @@ type MenuTabDivider = {
 
 type MenuTabCustomComponent = {
   id: string
-  customComponentName: string
+  customComponentName: 'EventsList' | 'SubscribeWidget'
 }
 
 type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;

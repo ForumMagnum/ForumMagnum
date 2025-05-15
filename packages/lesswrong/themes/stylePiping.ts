@@ -604,7 +604,7 @@ export const postBodyStyles = (theme: ThemeType) => {
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: boolean) => {
   // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
 
   const pointerEvents = dontIncludePointerEvents ?

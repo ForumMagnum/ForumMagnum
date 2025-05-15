@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -13,6 +13,9 @@ import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LWDialog from "../common/LWDialog";
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -34,8 +37,6 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
     skip: !currentUser,
   });
   const { mapLocation, googleLocation, } = currentUser || {}
-  const { Loading, Typography, LWDialog } = Components
-  
   const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
@@ -106,11 +107,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   )
 }
 
-const SetPersonalMapLocationDialogComponent = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
+export default registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SetPersonalMapLocationDialog: typeof SetPersonalMapLocationDialogComponent
-  }
-}
+
 

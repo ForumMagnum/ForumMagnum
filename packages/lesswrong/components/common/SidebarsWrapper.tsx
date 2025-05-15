@@ -50,10 +50,6 @@ const SidebarsWrapper = ({children}: {
   </SidebarsContext.Provider>
 }
 
-const SidebarsWrapperComponent = registerComponent("SidebarsWrapper", SidebarsWrapper);
+export default registerComponent("SidebarsWrapper", SidebarsWrapper);
 
-declare global {
-  interface ComponentTypes {
-    SidebarsWrapper: typeof SidebarsWrapperComponent
-  }
-}
+

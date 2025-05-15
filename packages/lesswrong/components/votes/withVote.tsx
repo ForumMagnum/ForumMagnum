@@ -4,13 +4,13 @@ import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { isAF } from '../../lib/instanceSettings';
-import { getDefaultVotingSystem } from '../../lib/voting/getVotingSystem';
-import { VotingSystem } from '@/lib/voting/votingSystems';
+import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';
+import type { VotingSystem } from '@/lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
-import { Components } from '@/lib/vulcan-lib/components';
+import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
@@ -40,7 +40,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   const showVotingPatternWarningPopup= useCallback(() => {
     openDialog({
       name: "VotingPatternsWarningPopup",
-      contents: ({onClose}) => <Components.VotingPatternsWarningPopup onClose={onClose}/>,
+      contents: ({onClose}) => <VotingPatternsWarningPopup onClose={onClose}/>,
       closeOnNavigate: true,
     });
   }, [openDialog]);
