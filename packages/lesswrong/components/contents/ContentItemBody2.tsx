@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useRef, type CSSProperties } from 'react';
+import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from '../common/ContentItemBody';
 import * as htmlparser2 from "htmlparser2";
 import { type ChildNode as DomHandlerChildNode, type Text as DomHandlerText, type Node as DomHandlerNode, Element as DomHandlerElement } from 'domhandler';
@@ -8,12 +8,12 @@ import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 import uniq from 'lodash/uniq';
 import reverse from 'lodash/reverse';
 
-type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"> & {
+type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
 }
 
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
-  
+
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
  * ContentItemBody, by parsing and recursing through an HTML parse tree rather
@@ -22,6 +22,8 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * Functionality from ContentItemBody which is supported:
  *   markHoverableLinks
  *   markScrollableBlocks
+ *   replaceSubstrings
+ *   applyIdInsertions
  * Functionality from ContentItemBody which is not yet implemented:
  *   markConditionallyVisibleBlocks
  *   collapseFootnotes
@@ -29,8 +31,6 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   wrapStrawPoll
  *   addCTAButtonEventListeners
  *   replaceForumEventPollPlaceholders
- *   replaceSubstrings
- *   applyIdInsertions
  *   exposeInternalIds
  * Additional limitations:
  *   CDATA, directive, script, and style nodes are ignored. These will be
@@ -42,17 +42,19 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * functionality that's currently handled by `truncatize`.
  */
 export const ContentItemBody2 = (props: ContentItemBodyProps) => {
-  console.log("ContentItemBody2.render");
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
   );
-  const parsedHtml = htmlparser2.parseDocument(html);
-  const parsedHtmlWithReplacement = replacedSubstrings
-    ? applyReplaceSubstrings(parsedHtml, replacedSubstrings)
-    : parsedHtml;
+  const parsedHtml = useMemo(() => {
+    const parsed = htmlparser2.parseDocument(html);
+    if (replacedSubstrings) {
+      applyReplaceSubstrings(parsed, replacedSubstrings)
+    }
+    return parsed;
+  }, [html, replacedSubstrings]);
 
   useImperativeHandle(ref, () => ({
     containsNode: (node: Node): boolean => {
@@ -73,7 +75,7 @@ export const ContentItemBody2 = (props: ContentItemBodyProps) => {
   }, [onContentReady]);
   
   const passedThroughProps = {
-    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings"]),
+    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
     bodyRef,
   };
   
@@ -104,11 +106,17 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     case htmlparser2.ElementType.Tag:
       const TagName = parsedHtml.tagName.toLowerCase() as any;
       const attribs = translateAttribs(parsedHtml.attribs);
-      const mappedChildren = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
+      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
       />)
+
+      const id = attribs.id;
+      if (id && passedThroughProps.idInsertions?.[id]) {
+        const idInsertion = passedThroughProps.idInsertions[id];
+        mappedChildren = [idInsertion, ...mappedChildren];
+      }
       
       if (attribs['data-replacements'] && replacedSubstrings) {
         const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
@@ -331,7 +339,6 @@ function findStringMultiple(needle: string, haystack: string): number[] {
 }
 
 function applyReplacements(element: React.ReactNode, substitutions: SubstitutionsAttr, replacements: ContentReplacedSubstringComponentInfo[]): React.ReactNode {
-  console.log("ContentItemBody2.applyReplacements");
   for (const substitution of substitutions) {
     const replacement = replacements[substitution.substitutionIndex];
     const Component = replacementComponentMap[replacement.componentName];
