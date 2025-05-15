@@ -7,6 +7,9 @@ import { MaybeScrollableBlock } from '../common/HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 import uniq from 'lodash/uniq';
 import reverse from 'lodash/reverse';
+import classNames from 'classnames';
+import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
+import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -24,8 +27,8 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   markScrollableBlocks
  *   replaceSubstrings
  *   applyIdInsertions
- * Functionality from ContentItemBody which is not yet implemented:
  *   markConditionallyVisibleBlocks
+ * Functionality from ContentItemBody which is not yet implemented:
  *   collapseFootnotes
  *   markElicitBlocks
  *   wrapStrawPoll
@@ -106,7 +109,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     case htmlparser2.ElementType.Tag:
       const TagName = parsedHtml.tagName.toLowerCase() as any;
       const attribs = translateAttribs(parsedHtml.attribs);
-      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
+      let result: React.ReactNode|React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
@@ -115,17 +118,54 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const id = attribs.id;
       if (id && passedThroughProps.idInsertions?.[id]) {
         const idInsertion = passedThroughProps.idInsertions[id];
-        mappedChildren = [idInsertion, ...mappedChildren];
+        result = [idInsertion, ...result];
       }
       
+      const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
+      if (classNames.includes("conditionallyVisibleBlock")) {
+        const visibilityOptionsStr = attribs["data-visibility"];
+        if (visibilityOptionsStr) {
+          let visibilityOptions: ConditionalVisibilitySettings|null = null;
+          try {
+            visibilityOptions = JSON.parse(visibilityOptionsStr)
+            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+              {result}
+            </ConditionalVisibilityBlockDisplay>;
+          } catch {
+            // eslint-disable-next-line no-console
+            console.error("Error parsing conditional visibility options", visibilityOptionsStr);
+          }
+        }
+      }
+      if (classNames.includes("footnotes")) {
+        // TODO: collapseFootnotes
+      }
+      if (classNames.includes("elicit-binary-prediction")) {
+        // TODO: markElicitBlocks
+      }
+      if (classNames.includes("strawpoll-embed")) {
+        // TODO: wrapStrawPoll
+      }
+      if (classNames.includes("ck-cta-button")) {
+        // TODO: addCTAButtonEventListeners CTA button event listeners
+      }
+      if (classNames.includes("ck-poll")) {
+        // TODO: replaceForumEventPollPlaceholders
+      }
+      if (attribs['data-internal-id']) {
+        // TODO: exposeInternalIds
+      }
+
       if (attribs['data-replacements'] && replacedSubstrings) {
         const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
-        return applyReplacements(<TagName {...attribs}>
-          {mappedChildren}
-        </TagName>, substitutions, replacedSubstrings);
-      } else if (root && ['p','div','table'].includes(TagName)) {
+        result = [applyReplacements(<TagName {...attribs}>
+          {result}
+        </TagName>, substitutions, replacedSubstrings)];
+      }
+
+      if (root && ['p','div','table'].includes(TagName)) {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
-          {mappedChildren}
+          {result}
         </MaybeScrollableBlock>
       } else if (TagName === 'a') {
         return <HoverPreviewLink
@@ -133,18 +173,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           {...passedThroughProps}
           {...attribs}
         >
-          {mappedChildren}
+          {result}
         </HoverPreviewLink>
       } else if (parsedHtml.childNodes.length > 0) {
-        return <TagName
-          {...attribs}
-        >
-          {mappedChildren}
+        return <TagName {...attribs}>
+          {result}
         </TagName>
       } else {
-        return <TagName
-          {...attribs}
-        />
+        return <TagName {...attribs}/>
       }
     case htmlparser2.ElementType.Text:
       return parsedHtml.data;
