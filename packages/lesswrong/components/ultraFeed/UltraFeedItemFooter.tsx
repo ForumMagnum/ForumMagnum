@@ -227,11 +227,6 @@ const UltraFeedItemFooterCore = ({
     }
   };
 
-  console.log("commentCount", {
-    id: voteProps.document?._id,
-    commentCount,
-  });
-
   const commentCountIcon = (
     <div
       onClick={handleCommentsClick}

@@ -60,7 +60,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     opacity: 0.8,
     marginRight: 12,
     fontSize: 24,
-    // color: theme.palette.grey[700],
     '&:hover': {
       color: theme.palette.grey[700],
     },

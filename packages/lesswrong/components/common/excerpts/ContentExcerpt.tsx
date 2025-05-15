@@ -19,6 +19,7 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   debateResponse: "debate response",
   llmChat: "llm chat",
   ultraFeed: "content",
+  ultraFeedPost: "post",
 };
 
 const normalHeading = {
