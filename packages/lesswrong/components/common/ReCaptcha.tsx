@@ -5,8 +5,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components'
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings'
 import { isClient } from '../../lib/executionEnvironment';
 
-const reCaptchaSiteKey = reCaptchaSiteKeySetting.get()
-
 const propTypes = {
   elementID: PropTypes.string,
   verifyCallbackName: PropTypes.string,
@@ -18,7 +16,6 @@ const propTypes = {
 const defaultProps = {
   elementID: 'g-recaptcha',
   verifyCallbackName: 'verifyCallback',
-  sitekey: reCaptchaSiteKey
 }
 
 const isReady = () =>
@@ -71,7 +68,7 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
 
   execute () {
     const {
-      sitekey,
+      sitekey = reCaptchaSiteKeySetting.get(),
       verifyCallback,
       action,
     } = this.props

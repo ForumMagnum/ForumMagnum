@@ -238,9 +238,7 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
-const FACEBOOK_DEFAULT_ENABLED = auth0FacebookLoginEnabled.get()
-
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
+export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = auth0FacebookLoginEnabled.get(), googleEnabled = true, classes}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
