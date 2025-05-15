@@ -1,13 +1,11 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from '../common/ContentItemBody';
 import * as htmlparser2 from "htmlparser2";
-import { type ChildNode as DomHandlerChildNode, type Text as DomHandlerText, type Node as DomHandlerNode, Element as DomHandlerElement } from 'domhandler';
+import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from '../common/HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 import uniq from 'lodash/uniq';
-import reverse from 'lodash/reverse';
-import classNames from 'classnames';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 
@@ -53,7 +51,7 @@ export const ContentItemBody2 = (props: ContentItemBodyProps) => {
   );
   const parsedHtml = useMemo(() => {
     const parsed = htmlparser2.parseDocument(html);
-    if (replacedSubstrings) {
+    if (replacedSubstrings && replacedSubstrings.length > 0) {
       applyReplaceSubstrings(parsed, replacedSubstrings)
     }
     return parsed;
@@ -118,7 +116,10 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const id = attribs.id;
       if (id && passedThroughProps.idInsertions?.[id]) {
         const idInsertion = passedThroughProps.idInsertions[id];
-        result = [idInsertion, ...result];
+        result = [
+          <React.Fragment key="inserted">{idInsertion}</React.Fragment>,
+           ...result
+        ];
       }
       
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
@@ -356,12 +357,17 @@ function splitTextNode(textNode: DomHandlerText, splitOffsets: number[]): DomHan
 
   // Partion textNode into n+1 Text nodes, each containing a substring, with the given splitOffsets.
   let newTextNodes: DomHandlerText[] = [];
-  for (let i=splitOffsets.length-1; i>=0; i--) {
-    // @ts-ignore
-    const splitText = textNode.splitText(splitOffsets[i]);
-    newTextNodes.push(splitText);
+  let lengthSoFar = 0;
+  for (let i=0; i<splitOffsets.length; i++) {
+    const replacementResult = splitText(textNode, splitOffsets[i] - lengthSoFar);
+    if (replacementResult) {
+      const [insertedTextNode, replacedTextNode] = replacementResult;
+      newTextNodes.push(insertedTextNode);
+      textNode = replacedTextNode;
+      lengthSoFar += insertedTextNode.data?.length ?? 0;
+    }
   }
-  return [textNode, ...reverse(newTextNodes)];
+  return [...newTextNodes, textNode];
 }
 
 function findStringMultiple(needle: string, haystack: string): number[] {
@@ -383,4 +389,16 @@ function applyReplacements(element: React.ReactNode, substitutions: Substitution
     </Component>;
   }
   return element;
+}
+
+function splitText(textNode: DomHandlerText, splitOffset: number): [DomHandlerText, DomHandlerText]|null {
+  const text = textNode.data;
+  if (splitOffset > 0 && splitOffset < text.length) {
+    const insertedTextNode = new DomHandlerText(text.slice(0, splitOffset));
+    htmlparser2.DomUtils.prepend(textNode, insertedTextNode);
+    const replacedTextNode = new DomHandlerText(text.slice(splitOffset));
+    htmlparser2.DomUtils.replaceElement(textNode, replacedTextNode);
+    return [insertedTextNode, replacedTextNode];
+  }
+  return null;
 }
