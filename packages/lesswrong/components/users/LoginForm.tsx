@@ -13,6 +13,7 @@ import ReCaptcha from "../common/ReCaptcha";
 import Loading from "../vulcan-core/Loading";
 import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -198,8 +199,9 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   }
 
   return <ContentStyles contentType="commentExceptPointerEvents">
-    {reCaptchaSiteKeySetting.get()
-      && <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>}
+    {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
+      <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
+    </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>
