@@ -275,7 +275,6 @@ const deriveSimpleViewTruncationLevelsFromSettings = (settings: UltraFeedSetting
   postLevel2: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[2]),
 });
 
-
 const UltraFeedSettings = ({
   settings,
   updateSettings,
@@ -292,6 +291,28 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const { flash } = useMessages();
+
+  const ViewModeButton: React.FC<{
+    mode: 'simple' | 'advanced';
+    currentViewMode: 'simple' | 'advanced';
+    onClick: (mode: 'simple' | 'advanced') => void;
+  }> = ({
+    mode,
+    currentViewMode,
+    onClick,
+  }) => (
+    <div
+      onClick={() => onClick(mode)}
+      className={classNames(
+        classes.viewModeButton,
+        currentViewMode === mode
+          ? classes.viewModeButtonActive
+          : classes.viewModeButtonInactive
+      )}
+    >
+      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+    </div>
+  );
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
@@ -601,20 +622,19 @@ const UltraFeedSettings = ({
      return zodErrors !== null;
   }, [zodErrors]);
 
-  const viewModeButton = (mode: 'simple' | 'advanced') => (
-    <div
-      onClick={() => setViewMode(mode)}
-      className={classNames(classes.viewModeButton, viewMode === mode ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
-    >
-      {mode.charAt(0).toUpperCase() + mode.slice(1)}
-    </div>
-  );
-
   return (
     <div className={classes.root}>
       <div className={classes.viewModeToggle}>
-        {viewModeButton('simple')}
-        {viewModeButton('advanced')}
+        <ViewModeButton
+          mode="simple"
+          currentViewMode={viewMode as 'simple' | 'advanced'}
+          onClick={setViewMode}
+        />
+        <ViewModeButton
+          mode="advanced"
+          currentViewMode={viewMode as 'simple' | 'advanced'}
+          onClick={setViewMode}
+        />
       </div>
       
       <div className={classes.settingsGroupsContainer}>
