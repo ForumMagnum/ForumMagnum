@@ -35,7 +35,7 @@ export const graphqlLweventQueryTypeDefs = gql`
   
   input LWEventsGatherTownUsersInput
   
-  input LweventSelector  {
+  input LWEventSelector  {
     default: LWEventDefaultViewInput
     adminView: LWEventsAdminViewInput
     postVisits: LWEventsPostVisitsInput
@@ -43,7 +43,7 @@ export const graphqlLweventQueryTypeDefs = gql`
     gatherTownUsers: LWEventsGatherTownUsersInput
   }
   
-  input MultiLweventInput {
+  input MultiLWEventInput {
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
@@ -55,11 +55,11 @@ export const graphqlLweventQueryTypeDefs = gql`
   }
   
   extend type Query {
-    lwevent(
+    lWEvent(
       input: SingleLWEventInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleLWEventOutput
-    lwevents(
+    lWEvents(
       input: MultiLWEventInput @deprecated(reason: "Use the selector field instead"),
       selector: LWEventSelector,
       limit: Int,

@@ -8,12 +8,12 @@ import { UserEAGDetailsViews } from "@/lib/collections/userEAGDetails/views";
 export const graphqlUserEagDetailQueryTypeDefs = gql`
   type UserEAGDetail ${ getAllGraphQLFields(schema) }
   
-  input SingleUserEagDetailInput {
+  input SingleUserEAGDetailInput {
     selector: SelectorInput
     resolverArgs: JSON
   }
   
-  type SingleUserEagDetailOutput {
+  type SingleUserEAGDetailOutput {
     result: UserEAGDetail
   }
   
@@ -23,34 +23,34 @@ export const graphqlUserEagDetailQueryTypeDefs = gql`
     userId: String
   }
   
-  input UserEagDetailSelector  {
+  input UserEAGDetailSelector  {
     default: UserEAGDetailDefaultViewInput
     dataByUser: UserEAGDetailsDataByUserInput
   }
   
-  input MultiUserEagDetailInput {
+  input MultiUserEAGDetailInput {
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
   }
   
-  type MultiUserEagDetailOutput {
+  type MultiUserEAGDetailOutput {
     results: [UserEAGDetail]
     totalCount: Int
   }
   
   extend type Query {
-    userEagDetail(
-      input: SingleUserEagDetailInput @deprecated(reason: "Use the selector field instead"),
+    userEAGDetail(
+      input: SingleUserEAGDetailInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
-    ): SingleUserEagDetailOutput
-    userEagDetails(
-      input: MultiUserEagDetailInput @deprecated(reason: "Use the selector field instead"),
-      selector: UserEagDetailSelector,
+    ): SingleUserEAGDetailOutput
+    userEAGDetails(
+      input: MultiUserEAGDetailInput @deprecated(reason: "Use the selector field instead"),
+      selector: UserEAGDetailSelector,
       limit: Int,
       offset: Int,
       enableTotal: Boolean
-    ): MultiUserEagDetailOutput
+    ): MultiUserEAGDetailOutput
   }
 `;
 export const userEagDetailGqlQueryHandlers = getDefaultResolvers('UserEAGDetails', UserEAGDetailsViews);

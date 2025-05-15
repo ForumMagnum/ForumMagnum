@@ -35,11 +35,11 @@ export const graphqlPostViewQueryTypeDefs = gql`
   }
   
   extend type Query {
-    postView(
+    postViews(
       input: SinglePostViewInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SinglePostViewOutput
-    postViews(
+    postViewses(
       input: MultiPostViewInput @deprecated(reason: "Use the selector field instead"),
       selector: PostViewSelector,
       limit: Int,

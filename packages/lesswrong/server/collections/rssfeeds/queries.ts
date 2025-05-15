@@ -8,12 +8,12 @@ import { RSSFeedsViews } from "@/lib/collections/rssfeeds/views";
 export const graphqlRssfeedQueryTypeDefs = gql`
   type RSSFeed ${ getAllGraphQLFields(schema) }
   
-  input SingleRssfeedInput {
+  input SingleRSSFeedInput {
     selector: SelectorInput
     resolverArgs: JSON
   }
   
-  type SingleRssfeedOutput {
+  type SingleRSSFeedOutput {
     result: RSSFeed
   }
   
@@ -23,34 +23,34 @@ export const graphqlRssfeedQueryTypeDefs = gql`
     userId: String
   }
   
-  input RssfeedSelector  {
+  input RSSFeedSelector  {
     default: RSSFeedDefaultViewInput
     usersFeed: RSSFeedsUsersFeedInput
   }
   
-  input MultiRssfeedInput {
+  input MultiRSSFeedInput {
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
   }
   
-  type MultiRssfeedOutput {
+  type MultiRSSFeedOutput {
     results: [RSSFeed]
     totalCount: Int
   }
   
   extend type Query {
-    rssfeed(
-      input: SingleRssfeedInput @deprecated(reason: "Use the selector field instead"),
+    rSSFeed(
+      input: SingleRSSFeedInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
-    ): SingleRssfeedOutput
-    rssfeeds(
-      input: MultiRssfeedInput @deprecated(reason: "Use the selector field instead"),
-      selector: RssfeedSelector,
+    ): SingleRSSFeedOutput
+    rSSFeeds(
+      input: MultiRSSFeedInput @deprecated(reason: "Use the selector field instead"),
+      selector: RSSFeedSelector,
       limit: Int,
       offset: Int,
       enableTotal: Boolean
-    ): MultiRssfeedOutput
+    ): MultiRSSFeedOutput
   }
 `;
 export const rssfeedGqlQueryHandlers = getDefaultResolvers('RSSFeeds', RSSFeedsViews);

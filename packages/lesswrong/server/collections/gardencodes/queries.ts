@@ -8,12 +8,12 @@ import { GardenCodesViews } from "@/lib/collections/gardencodes/views";
 export const graphqlGardencodeQueryTypeDefs = gql`
   type GardenCode ${ getAllGraphQLFields(schema) }
   
-  input SingleGardencodeInput {
+  input SingleGardenCodeInput {
     selector: SelectorInput
     resolverArgs: JSON
   }
   
-  type SingleGardencodeOutput {
+  type SingleGardenCodeOutput {
     result: GardenCode
   }
   
@@ -41,36 +41,36 @@ export const graphqlGardencodeQueryTypeDefs = gql`
     code: String
   }
   
-  input GardencodeSelector  {
+  input GardenCodeSelector  {
     default: GardenCodeDefaultViewInput
     usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput
     publicGardenCodes: GardenCodesPublicGardenCodesInput
     gardenCodeByCode: GardenCodesGardenCodeByCodeInput
   }
   
-  input MultiGardencodeInput {
+  input MultiGardenCodeInput {
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
   }
   
-  type MultiGardencodeOutput {
+  type MultiGardenCodeOutput {
     results: [GardenCode]
     totalCount: Int
   }
   
   extend type Query {
-    gardencode(
-      input: SingleGardencodeInput @deprecated(reason: "Use the selector field instead"),
+    gardenCode(
+      input: SingleGardenCodeInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
-    ): SingleGardencodeOutput
-    gardencodes(
-      input: MultiGardencodeInput @deprecated(reason: "Use the selector field instead"),
-      selector: GardencodeSelector,
+    ): SingleGardenCodeOutput
+    gardenCodes(
+      input: MultiGardenCodeInput @deprecated(reason: "Use the selector field instead"),
+      selector: GardenCodeSelector,
       limit: Int,
       offset: Int,
       enableTotal: Boolean
-    ): MultiGardencodeOutput
+    ): MultiGardenCodeOutput
   }
 `;
 export const gardencodeGqlQueryHandlers = getDefaultResolvers('GardenCodes', GardenCodesViews);

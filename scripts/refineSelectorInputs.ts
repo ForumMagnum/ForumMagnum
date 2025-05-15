@@ -95,11 +95,11 @@ function indent(i: number, str: string) {
     const absPath = src.getFilePath();
     const collectionName = absPath.split('/').at(-2)!; // e.g. tags
     const singularBase = collectionName.replace(/s$/, '');
-    const camelSingular = camelCase(singularBase);
-    const pascalSingular = camelSingular.charAt(0).toUpperCase() + camelSingular.slice(1);
+    let camelSingular = camelCase(singularBase);
+    let pascalSingular = camelSingular.charAt(0).toUpperCase() + camelSingular.slice(1);
     const pascalCollection = collectionName.charAt(0).toUpperCase() + collectionName.slice(1); // plural form retained for resolvers
-    const singularName = camelSingular;
-    const pluralName = camelCase(collectionName);
+    let singularName = camelSingular;
+    let pluralName = camelCase(collectionName);
 
     // Grabbing original viewNames + AST nodes
     const newExpr = src.getFirstDescendant(n =>
@@ -288,6 +288,19 @@ function indent(i: number, str: string) {
           }
         }
       });
+
+      // If we can find previous GraphQL type name, preserve its casing
+      const typeLineMatch = fs.readFileSync(existingQueriesPath, 'utf8').match(/type\s+([A-Za-z0-9]+)\s+\$\{/);
+      if (typeLineMatch) {
+        const prevPascal = typeLineMatch[1];
+        if (prevPascal) {
+          pascalSingular = prevPascal;
+          camelSingular = pascalSingular.charAt(0).toLowerCase() + pascalSingular.slice(1);
+          singularName = camelSingular;
+          // recompute pluralName based on preserved singular
+          pluralName = singularName.endsWith('s') ? `${singularName}es` : `${singularName}s`;
+        }
+      }
     }
 
     const collectionLabel = (preserved.label ?? viewSetVar.replace(/Views$/, '')) || pascalCollection;

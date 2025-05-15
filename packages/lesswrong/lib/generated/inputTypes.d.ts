@@ -766,11 +766,19 @@ interface UltraFeedEntryType {
 interface SingleAdvisorRequestInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleAdvisorRequestOutput {
   result?: UpdateAdvisorRequestDataInput | null;
+}
+
+interface AdvisorRequestsRequestsByUserInput {
+  userId?: string | null;
+}
+
+interface AdvisorRequestSelector {
+  default?: AdvisorRequestDefaultViewInput | null;
+  requestsByUser?: AdvisorRequestsRequestsByUserInput | null;
 }
 
 interface MultiAdvisorRequestInput {
@@ -794,11 +802,14 @@ interface ArbitalCaches {
 interface SingleArbitalTagContentRelInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleArbitalTagContentRelOutput {
   result?: UpdateArbitalTagContentRelDataInput | null;
+}
+
+interface ArbitalTagContentRelSelector {
+  default?: ArbitalTagContentRelViewInput | null;
 }
 
 interface MultiArbitalTagContentRelInput {
@@ -815,11 +826,14 @@ interface MultiArbitalTagContentRelOutput {
 interface SingleBanInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleBanOutput {
   result?: UpdateBanDataInput | null;
+}
+
+interface BanSelector {
+  default?: BanViewInput | null;
 }
 
 interface MultiBanInput {
@@ -836,11 +850,14 @@ interface MultiBanOutput {
 interface SingleBookInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleBookOutput {
   result?: UpdateBookDataInput | null;
+}
+
+interface BookSelector {
+  default?: BookViewInput | null;
 }
 
 interface MultiBookInput {
@@ -857,11 +874,20 @@ interface MultiBookOutput {
 interface SingleChapterInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleChapterOutput {
   result?: UpdateChapterDataInput | null;
+}
+
+interface ChaptersSequenceChaptersInput {
+  sequenceId?: string | null;
+  limit?: string | null;
+}
+
+interface ChapterSelector {
+  default?: ChapterDefaultViewInput | null;
+  SequenceChapters?: ChaptersSequenceChaptersInput | null;
 }
 
 interface MultiChapterInput {
@@ -878,11 +904,14 @@ interface MultiChapterOutput {
 interface SingleCkEditorUserSessionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleCkEditorUserSessionOutput {
   result?: UpdateCkEditorUserSessionDataInput | null;
+}
+
+interface CkEditorUserSessionSelector {
+  default?: CkEditorUserSessionViewInput | null;
 }
 
 interface MultiCkEditorUserSessionInput {
@@ -899,11 +928,19 @@ interface MultiCkEditorUserSessionOutput {
 interface SingleClientIdInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleClientIdOutput {
   result?: UpdateClientIdDataInput | null;
+}
+
+interface ClientIdsGetClientIdInput {
+  clientId?: string | null;
+}
+
+interface ClientIdSelector {
+  default?: ClientIdDefaultViewInput | null;
+  getClientId?: ClientIdsGetClientIdInput | null;
 }
 
 interface MultiClientIdInput {
@@ -920,11 +957,18 @@ interface MultiClientIdOutput {
 interface SingleCollectionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleCollectionOutput {
   result?: UpdateCollectionDataInput | null;
+}
+
+interface CollectionDefaultViewInput {
+  collectionIds?: string | null;
+}
+
+interface CollectionSelector {
+  default?: CollectionDefaultViewInput | null;
 }
 
 interface MultiCollectionInput {
@@ -941,11 +985,19 @@ interface MultiCollectionOutput {
 interface SingleCommentModeratorActionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleCommentModeratorActionOutput {
   result?: UpdateCommentModeratorActionDataInput | null;
+}
+
+interface CommentModeratorActionsActiveCommentModeratorActionsInput {
+  limit?: string | null;
+}
+
+interface CommentModeratorActionSelector {
+  default?: CommentModeratorActionDefaultViewInput | null;
+  activeCommentModeratorActions?: CommentModeratorActionsActiveCommentModeratorActionsInput | null;
 }
 
 interface MultiCommentModeratorActionInput {
@@ -962,11 +1014,398 @@ interface MultiCommentModeratorActionOutput {
 interface SingleCommentInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleCommentOutput {
   result?: UpdateCommentDataInput | null;
+}
+
+interface CommentDefaultViewInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsCommentRepliesInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  parentCommentId?: string | null;
+}
+
+interface CommentsPostCommentsDeletedInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsAllCommentsDeletedInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsCheckedByModGPTInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsPostCommentsTopInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsPostCommentsRecentRepliesInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsPostCommentsMagicInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsAfPostCommentsTopInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsPostCommentsOldInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsPostCommentsNewInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsPostCommentsBestInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsPostLWCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsProfileRecentCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsProfileCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  sortBy?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsAllRecentCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  sortBy?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsRecentCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  sortBy?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsAfSubmissionsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsRejectedInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsRecentDiscussionThreadInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsAfRecentDiscussionThreadInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsPostsItemCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+  after?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsSunshineNewCommentsListInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsQuestionAnswersInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+  sortBy?: string | null;
+}
+
+interface CommentsLegacyIdCommentInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  legacyId?: string | null;
+}
+
+interface CommentsSunshineNewUsersCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsDefaultModeratorResponsesInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  tagId?: string | null;
+}
+
+interface CommentsRepliesToAnswerInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  parentAnswerId?: string | null;
+}
+
+interface CommentsAnswersAndRepliesInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+  sortBy?: string | null;
+}
+
+interface CommentsTopShortformInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  before?: string | null;
+  after?: string | null;
+  shortformFrontpage?: string | null;
+}
+
+interface CommentsShortformInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsShortformFrontpageInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  maxAgeDays?: string | null;
+  showCommunity?: string | null;
+  relevantTagId?: string | null;
+}
+
+interface CommentsRepliesToCommentThreadInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  topLevelCommentId?: string | null;
+}
+
+interface CommentsShortformLatestChildrenInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  topLevelCommentId?: string | null;
+}
+
+interface CommentsNominations2018Input {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsNominations2019Input {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsReviews2018Input {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsReviews2019Input {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsReviewsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsTagDiscussionCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  tagId?: string | null;
+}
+
+interface CommentsTagSubforumCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsLatestSubforumDiscussionInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  profileTagIds?: string | null;
+}
+
+interface CommentsModeratorCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentsDebateResponsesInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsRecentDebateResponsesInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+  limit?: string | null;
+}
+
+interface CommentsForumEventCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  forumEventId?: string | null;
+}
+
+interface CommentsAlignmentSuggestedCommentsInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+  postId?: string | null;
+}
+
+interface CommentsRssInput {
+  userId?: string | null;
+  commentIds?: string | null;
+  minimumKarma?: string | null;
+}
+
+interface CommentSelector {
+  default?: CommentDefaultViewInput | null;
+  commentReplies?: CommentsCommentRepliesInput | null;
+  postCommentsDeleted?: CommentsPostCommentsDeletedInput | null;
+  allCommentsDeleted?: CommentsAllCommentsDeletedInput | null;
+  checkedByModGPT?: CommentsCheckedByModGPTInput | null;
+  postCommentsTop?: CommentsPostCommentsTopInput | null;
+  postCommentsRecentReplies?: CommentsPostCommentsRecentRepliesInput | null;
+  postCommentsMagic?: CommentsPostCommentsMagicInput | null;
+  afPostCommentsTop?: CommentsAfPostCommentsTopInput | null;
+  postCommentsOld?: CommentsPostCommentsOldInput | null;
+  postCommentsNew?: CommentsPostCommentsNewInput | null;
+  postCommentsBest?: CommentsPostCommentsBestInput | null;
+  postLWComments?: CommentsPostLWCommentsInput | null;
+  profileRecentComments?: CommentsProfileRecentCommentsInput | null;
+  profileComments?: CommentsProfileCommentsInput | null;
+  allRecentComments?: CommentsAllRecentCommentsInput | null;
+  recentComments?: CommentsRecentCommentsInput | null;
+  afSubmissions?: CommentsAfSubmissionsInput | null;
+  rejected?: CommentsRejectedInput | null;
+  recentDiscussionThread?: CommentsRecentDiscussionThreadInput | null;
+  afRecentDiscussionThread?: CommentsAfRecentDiscussionThreadInput | null;
+  postsItemComments?: CommentsPostsItemCommentsInput | null;
+  sunshineNewCommentsList?: CommentsSunshineNewCommentsListInput | null;
+  questionAnswers?: CommentsQuestionAnswersInput | null;
+  legacyIdComment?: CommentsLegacyIdCommentInput | null;
+  sunshineNewUsersComments?: CommentsSunshineNewUsersCommentsInput | null;
+  defaultModeratorResponses?: CommentsDefaultModeratorResponsesInput | null;
+  repliesToAnswer?: CommentsRepliesToAnswerInput | null;
+  answersAndReplies?: CommentsAnswersAndRepliesInput | null;
+  topShortform?: CommentsTopShortformInput | null;
+  shortform?: CommentsShortformInput | null;
+  shortformFrontpage?: CommentsShortformFrontpageInput | null;
+  repliesToCommentThread?: CommentsRepliesToCommentThreadInput | null;
+  shortformLatestChildren?: CommentsShortformLatestChildrenInput | null;
+  nominations2018?: CommentsNominations2018Input | null;
+  nominations2019?: CommentsNominations2019Input | null;
+  reviews2018?: CommentsReviews2018Input | null;
+  reviews2019?: CommentsReviews2019Input | null;
+  reviews?: CommentsReviewsInput | null;
+  tagDiscussionComments?: CommentsTagDiscussionCommentsInput | null;
+  tagSubforumComments?: CommentsTagSubforumCommentsInput | null;
+  latestSubforumDiscussion?: CommentsLatestSubforumDiscussionInput | null;
+  moderatorComments?: CommentsModeratorCommentsInput | null;
+  debateResponses?: CommentsDebateResponsesInput | null;
+  recentDebateResponses?: CommentsRecentDebateResponsesInput | null;
+  forumEventComments?: CommentsForumEventCommentsInput | null;
+  alignmentSuggestedComments?: CommentsAlignmentSuggestedCommentsInput | null;
+  rss?: CommentsRssInput | null;
 }
 
 interface MultiCommentInput {
@@ -983,11 +1422,39 @@ interface MultiCommentOutput {
 interface SingleConversationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleConversationOutput {
   result?: UpdateConversationDataInput | null;
+}
+
+interface ConversationsModeratorConversationsInput {
+  userId?: string | null;
+  showArchive?: string | null;
+}
+
+interface ConversationsUserConversationsInput {
+  showArchive?: string | null;
+  userId?: string | null;
+}
+
+interface ConversationsUserConversationsAllInput {
+  showArchive?: string | null;
+  userId?: string | null;
+}
+
+interface ConversationsUserGroupUntitledConversationsInput {
+  moderator?: string | null;
+  participantIds?: string | null;
+  userId?: string | null;
+}
+
+interface ConversationSelector {
+  default?: ConversationDefaultViewInput | null;
+  moderatorConversations?: ConversationsModeratorConversationsInput | null;
+  userConversations?: ConversationsUserConversationsInput | null;
+  userConversationsAll?: ConversationsUserConversationsAllInput | null;
+  userGroupUntitledConversations?: ConversationsUserGroupUntitledConversationsInput | null;
 }
 
 interface MultiConversationInput {
@@ -1004,11 +1471,15 @@ interface MultiConversationOutput {
 interface SingleCurationNoticeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleCurationNoticeOutput {
   result?: UpdateCurationNoticeDataInput | null;
+}
+
+interface CurationNoticeSelector {
+  default?: CurationNoticeDefaultViewInput | null;
+  curationNoticesPage?: CurationNoticesCurationNoticesPageInput | null;
 }
 
 interface MultiCurationNoticeInput {
@@ -1039,11 +1510,25 @@ interface DebouncerEvents {
 interface SingleDialogueCheckInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleDialogueCheckOutput {
   result?: UpdateDialogueCheckDataInput | null;
+}
+
+interface DialogueChecksUserDialogueChecksInput {
+  userId?: string | null;
+}
+
+interface DialogueChecksUserTargetDialogueChecksInput {
+  userId?: string | null;
+  targetUserIds?: string | null;
+}
+
+interface DialogueCheckSelector {
+  default?: DialogueCheckDefaultViewInput | null;
+  userDialogueChecks?: DialogueChecksUserDialogueChecksInput | null;
+  userTargetDialogueChecks?: DialogueChecksUserTargetDialogueChecksInput | null;
 }
 
 interface MultiDialogueCheckInput {
@@ -1060,11 +1545,19 @@ interface MultiDialogueCheckOutput {
 interface SingleDialogueMatchPreferenceInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleDialogueMatchPreferenceOutput {
   result?: UpdateDialogueMatchPreferenceDataInput | null;
+}
+
+interface DialogueMatchPreferencesDialogueMatchPreferencesInput {
+  dialogueCheckId?: string | null;
+}
+
+interface DialogueMatchPreferenceSelector {
+  default?: DialogueMatchPreferenceDefaultViewInput | null;
+  dialogueMatchPreferences?: DialogueMatchPreferencesDialogueMatchPreferencesInput | null;
 }
 
 interface MultiDialogueMatchPreferenceInput {
@@ -1081,11 +1574,14 @@ interface MultiDialogueMatchPreferenceOutput {
 interface SingleDigestPostInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleDigestPostOutput {
   result?: UpdateDigestPostDataInput | null;
+}
+
+interface DigestPostSelector {
+  default?: DigestPostViewInput | null;
 }
 
 interface MultiDigestPostInput {
@@ -1102,11 +1598,20 @@ interface MultiDigestPostOutput {
 interface SingleDigestInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleDigestOutput {
   result?: UpdateDigestDataInput | null;
+}
+
+interface DigestsFindByNumInput {
+  num?: string | null;
+}
+
+interface DigestSelector {
+  default?: DigestDefaultViewInput | null;
+  findByNum?: DigestsFindByNumInput | null;
+  all?: DigestsAllInput | null;
 }
 
 interface MultiDigestInput {
@@ -1123,11 +1628,19 @@ interface MultiDigestOutput {
 interface SingleElectionCandidateInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleElectionCandidateOutput {
   result?: UpdateElectionCandidateDataInput | null;
+}
+
+interface ElectionCandidateDefaultViewInput {
+  electionName?: string | null;
+  sortBy?: string | null;
+}
+
+interface ElectionCandidateSelector {
+  default?: ElectionCandidateDefaultViewInput | null;
 }
 
 interface MultiElectionCandidateInput {
@@ -1144,11 +1657,25 @@ interface MultiElectionCandidateOutput {
 interface SingleElectionVoteInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleElectionVoteOutput {
   result?: UpdateElectionVoteDataInput | null;
+}
+
+interface ElectionVoteDefaultViewInput {
+  electionName?: string | null;
+  userId?: string | null;
+}
+
+interface ElectionVotesAllSubmittedVotesInput {
+  electionName?: string | null;
+  userId?: string | null;
+}
+
+interface ElectionVoteSelector {
+  default?: ElectionVoteDefaultViewInput | null;
+  allSubmittedVotes?: ElectionVotesAllSubmittedVotesInput | null;
 }
 
 interface MultiElectionVoteInput {
@@ -1165,11 +1692,14 @@ interface MultiElectionVoteOutput {
 interface SingleElicitQuestionPredictionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleElicitQuestionPredictionOutput {
   result?: UpdateElicitQuestionPredictionDataInput | null;
+}
+
+interface ElicitQuestionPredictionSelector {
+  default?: ElicitQuestionPredictionViewInput | null;
 }
 
 interface MultiElicitQuestionPredictionInput {
@@ -1186,11 +1716,14 @@ interface MultiElicitQuestionPredictionOutput {
 interface SingleElicitQuestionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleElicitQuestionOutput {
   result?: UpdateElicitQuestionDataInput | null;
+}
+
+interface ElicitQuestionSelector {
+  default?: ElicitQuestionViewInput | null;
 }
 
 interface MultiElicitQuestionInput {
@@ -1214,11 +1747,15 @@ interface EmailTokens {
 interface SingleFeaturedResourceInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleFeaturedResourceOutput {
   result?: UpdateFeaturedResourceDataInput | null;
+}
+
+interface FeaturedResourceSelector {
+  default?: FeaturedResourceDefaultViewInput | null;
+  activeResources?: FeaturedResourcesActiveResourcesInput | null;
 }
 
 interface MultiFeaturedResourceInput {
@@ -1232,14 +1769,57 @@ interface MultiFeaturedResourceOutput {
   totalCount?: number | null;
 }
 
+interface SingleFieldChangeInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleFieldChangeOutput {
+  result?: UpdateFieldChangeDataInput | null;
+}
+
+interface FieldChangeSelector {
+  default?: FieldChangeDefaultViewInput | null;
+}
+
+interface MultiFieldChangeInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiFieldChangeOutput {
+  results?: Array<UpdateFieldChangeDataInput | null> | null;
+  totalCount?: number | null;
+}
+
 interface SingleForumEventInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleForumEventOutput {
   result?: UpdateForumEventDataInput | null;
+}
+
+interface ForumEventsUpcomingForumEventsInput {
+  limit?: string | null;
+}
+
+interface ForumEventsPastForumEventsInput {
+  limit?: string | null;
+}
+
+interface ForumEventsCurrentAndRecentForumEventsInput {
+  limit?: string | null;
+}
+
+interface ForumEventSelector {
+  default?: ForumEventDefaultViewInput | null;
+  upcomingForumEvents?: ForumEventsUpcomingForumEventsInput | null;
+  pastForumEvents?: ForumEventsPastForumEventsInput | null;
+  currentForumEvent?: ForumEventsCurrentForumEventInput | null;
+  currentAndRecentForumEvents?: ForumEventsCurrentAndRecentForumEventsInput | null;
 }
 
 interface MultiForumEventInput {
@@ -1256,11 +1836,41 @@ interface MultiForumEventOutput {
 interface SingleGardenCodeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleGardenCodeOutput {
   result?: UpdateGardenCodeDataInput | null;
+}
+
+interface GardenCodeDefaultViewInput {
+  types?: string | null;
+  userId?: string | null;
+  code?: string | null;
+}
+
+interface GardenCodesUsersPrivateGardenCodesInput {
+  types?: string | null;
+  userId?: string | null;
+  code?: string | null;
+}
+
+interface GardenCodesPublicGardenCodesInput {
+  types?: string | null;
+  userId?: string | null;
+  code?: string | null;
+}
+
+interface GardenCodesGardenCodeByCodeInput {
+  types?: string | null;
+  userId?: string | null;
+  code?: string | null;
+}
+
+interface GardenCodeSelector {
+  default?: GardenCodeDefaultViewInput | null;
+  usersPrivateGardenCodes?: GardenCodesUsersPrivateGardenCodesInput | null;
+  publicGardenCodes?: GardenCodesPublicGardenCodesInput | null;
+  gardenCodeByCode?: GardenCodesGardenCodeByCodeInput | null;
 }
 
 interface MultiGardenCodeInput {
@@ -1277,11 +1887,14 @@ interface MultiGardenCodeOutput {
 interface SingleGoogleServiceAccountSessionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleGoogleServiceAccountSessionOutput {
   result?: UpdateGoogleServiceAccountSessionDataInput | null;
+}
+
+interface GoogleServiceAccountSessionSelector {
+  default?: GoogleServiceAccountSessionDefaultViewInput | null;
 }
 
 interface MultiGoogleServiceAccountSessionInput {
@@ -1305,11 +1918,25 @@ interface Images {
 interface SingleJargonTermInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleJargonTermOutput {
   result?: UpdateJargonTermDataInput | null;
+}
+
+interface JargonTermsPostEditorJargonTermsInput {
+  postId?: string | null;
+}
+
+interface JargonTermsPostsApprovedJargonInput {
+  postIds?: string | null;
+}
+
+interface JargonTermSelector {
+  default?: JargonTermDefaultViewInput | null;
+  postEditorJargonTerms?: JargonTermsPostEditorJargonTermsInput | null;
+  glossaryEditAll?: JargonTermsGlossaryEditAllInput | null;
+  postsApprovedJargon?: JargonTermsPostsApprovedJargonInput | null;
 }
 
 interface MultiJargonTermInput {
@@ -1326,11 +1953,32 @@ interface MultiJargonTermOutput {
 interface SingleLWEventInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleLWEventOutput {
   result?: UpdateLWEventDataInput | null;
+}
+
+interface LWEventsAdminViewInput {
+  name?: string | null;
+}
+
+interface LWEventsPostVisitsInput {
+  postId?: string | null;
+  userId?: string | null;
+  limit?: string | null;
+}
+
+interface LWEventsEmailHistoryInput {
+  userId?: string | null;
+}
+
+interface LWEventSelector {
+  default?: LWEventDefaultViewInput | null;
+  adminView?: LWEventsAdminViewInput | null;
+  postVisits?: LWEventsPostVisitsInput | null;
+  emailHistory?: LWEventsEmailHistoryInput | null;
+  gatherTownUsers?: LWEventsGatherTownUsersInput | null;
 }
 
 interface MultiLWEventInput {
@@ -1354,11 +2002,24 @@ interface LegacyData {
 interface SingleLlmConversationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleLlmConversationOutput {
   result?: UpdateLlmConversationDataInput | null;
+}
+
+interface LlmConversationsLlmConversationsWithUserInput {
+  userId?: string | null;
+}
+
+interface LlmConversationsLlmConversationsAllInput {
+  showDeleted?: string | null;
+}
+
+interface LlmConversationSelector {
+  default?: LlmConversationDefaultViewInput | null;
+  llmConversationsWithUser?: LlmConversationsLlmConversationsWithUserInput | null;
+  llmConversationsAll?: LlmConversationsLlmConversationsAllInput | null;
 }
 
 interface MultiLlmConversationInput {
@@ -1375,11 +2036,73 @@ interface MultiLlmConversationOutput {
 interface SingleLocalgroupInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleLocalgroupOutput {
   result?: UpdateLocalgroupDataInput | null;
+}
+
+interface LocalgroupDefaultViewInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+}
+
+interface LocalgroupsUserOrganizesGroupsInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+  userId?: string | null;
+}
+
+interface LocalgroupsUserActiveGroupsInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+  userId?: string | null;
+}
+
+interface LocalgroupsUserInactiveGroupsInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+  userId?: string | null;
+}
+
+interface LocalgroupsAllInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+}
+
+interface LocalgroupsNearbyInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+  lng?: string | null;
+  lat?: string | null;
+}
+
+interface LocalgroupsSingleInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+  groupId?: string | null;
+}
+
+interface LocalgroupsLocalInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+}
+
+interface LocalgroupsOnlineInput {
+  filters?: string | null;
+  includeInactive?: string | null;
+}
+
+interface LocalgroupSelector {
+  default?: LocalgroupDefaultViewInput | null;
+  userOrganizesGroups?: LocalgroupsUserOrganizesGroupsInput | null;
+  userActiveGroups?: LocalgroupsUserActiveGroupsInput | null;
+  userInactiveGroups?: LocalgroupsUserInactiveGroupsInput | null;
+  all?: LocalgroupsAllInput | null;
+  nearby?: LocalgroupsNearbyInput | null;
+  single?: LocalgroupsSingleInput | null;
+  local?: LocalgroupsLocalInput | null;
+  online?: LocalgroupsOnlineInput | null;
 }
 
 interface MultiLocalgroupInput {
@@ -1396,11 +2119,24 @@ interface MultiLocalgroupOutput {
 interface SingleMessageInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleMessageOutput {
   result?: UpdateMessageDataInput | null;
+}
+
+interface MessagesMessagesConversationInput {
+  conversationId?: string | null;
+}
+
+interface MessagesConversationPreviewInput {
+  conversationId?: string | null;
+}
+
+interface MessageSelector {
+  default?: MessageDefaultViewInput | null;
+  messagesConversation?: MessagesMessagesConversationInput | null;
+  conversationPreview?: MessagesConversationPreviewInput | null;
 }
 
 interface MultiMessageInput {
@@ -1417,11 +2153,20 @@ interface MultiMessageOutput {
 interface SingleModerationTemplateInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleModerationTemplateOutput {
   result?: UpdateModerationTemplateDataInput | null;
+}
+
+interface ModerationTemplatesModerationTemplatesListInput {
+  collectionName?: string | null;
+}
+
+interface ModerationTemplateSelector {
+  default?: ModerationTemplateDefaultViewInput | null;
+  moderationTemplatesPage?: ModerationTemplatesModerationTemplatesPageInput | null;
+  moderationTemplatesList?: ModerationTemplatesModerationTemplatesListInput | null;
 }
 
 interface MultiModerationTemplateInput {
@@ -1438,11 +2183,20 @@ interface MultiModerationTemplateOutput {
 interface SingleModeratorActionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleModeratorActionOutput {
   result?: UpdateModeratorActionDataInput | null;
+}
+
+interface ModeratorActionsUserModeratorActionsInput {
+  userIds?: Array<string> | null;
+}
+
+interface ModeratorActionSelector {
+  default?: ModeratorActionDefaultViewInput | null;
+  userModeratorActions?: ModeratorActionsUserModeratorActionsInput | null;
+  restrictionModerationActions?: ModeratorActionsRestrictionModerationActionsInput | null;
 }
 
 interface MultiModeratorActionInput {
@@ -1459,11 +2213,36 @@ interface MultiModeratorActionOutput {
 interface SingleMultiDocumentInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleMultiDocumentOutput {
   result?: UpdateMultiDocumentDataInput | null;
+}
+
+interface MultiDocumentDefaultViewInput {
+  excludedDocumentIds?: string | null;
+}
+
+interface MultiDocumentsLensBySlugInput {
+  excludedDocumentIds?: string | null;
+  slug?: string | null;
+}
+
+interface MultiDocumentsSummariesByParentIdInput {
+  excludedDocumentIds?: string | null;
+  parentDocumentId?: string | null;
+}
+
+interface MultiDocumentsPingbackLensPagesInput {
+  excludedDocumentIds?: string | null;
+  documentId?: string | null;
+}
+
+interface MultiDocumentSelector {
+  default?: MultiDocumentDefaultViewInput | null;
+  lensBySlug?: MultiDocumentsLensBySlugInput | null;
+  summariesByParentId?: MultiDocumentsSummariesByParentIdInput | null;
+  pingbackLensPages?: MultiDocumentsPingbackLensPagesInput | null;
 }
 
 interface MultiMultiDocumentInput {
@@ -1480,11 +2259,33 @@ interface MultiMultiDocumentOutput {
 interface SingleNotificationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleNotificationOutput {
   result?: UpdateNotificationDataInput | null;
+}
+
+interface NotificationsUserNotificationsInput {
+  userId?: string | null;
+  type?: string | null;
+  viewed?: string | null;
+}
+
+interface NotificationsUnreadUserNotificationsInput {
+  userId?: string | null;
+  type?: string | null;
+  lastViewedDate?: string | null;
+}
+
+interface NotificationsAdminAlertNotificationsInput {
+  type?: string | null;
+}
+
+interface NotificationSelector {
+  default?: NotificationDefaultViewInput | null;
+  userNotifications?: NotificationsUserNotificationsInput | null;
+  unreadUserNotifications?: NotificationsUnreadUserNotificationsInput | null;
+  adminAlertNotifications?: NotificationsAdminAlertNotificationsInput | null;
 }
 
 interface MultiNotificationInput {
@@ -1508,11 +2309,31 @@ interface PageCacheEntry {
 interface SinglePetrovDayActionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePetrovDayActionOutput {
   result?: UpdatePetrovDayActionDataInput | null;
+}
+
+interface PetrovDayActionsGetActionInput {
+  userId?: string | null;
+  actionType?: string | null;
+}
+
+interface PetrovDayActionsLaunchDashboardInput {
+  side?: string | null;
+}
+
+interface PetrovDayActionsWarningConsoleInput {
+  side?: string | null;
+}
+
+interface PetrovDayActionSelector {
+  default?: PetrovDayActionDefaultViewInput | null;
+  getAction?: PetrovDayActionsGetActionInput | null;
+  launchDashboard?: PetrovDayActionsLaunchDashboardInput | null;
+  adminConsole?: PetrovDayActionsAdminConsoleInput | null;
+  warningConsole?: PetrovDayActionsWarningConsoleInput | null;
 }
 
 interface MultiPetrovDayActionInput {
@@ -1529,11 +2350,15 @@ interface MultiPetrovDayActionOutput {
 interface SinglePodcastEpisodeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePodcastEpisodeOutput {
   result?: UpdatePodcastEpisodeDataInput | null;
+}
+
+interface PodcastEpisodeSelector {
+  default?: PodcastEpisodeDefaultViewInput | null;
+  episodeByExternalId?: PodcastEpisodesEpisodeByExternalIdInput | null;
 }
 
 interface MultiPodcastEpisodeInput {
@@ -1550,11 +2375,14 @@ interface MultiPodcastEpisodeOutput {
 interface SinglePodcastInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePodcastOutput {
   result?: UpdatePodcastDataInput | null;
+}
+
+interface PodcastSelector {
+  default?: PodcastViewInput | null;
 }
 
 interface MultiPodcastInput {
@@ -1571,11 +2399,14 @@ interface MultiPodcastOutput {
 interface SinglePostEmbeddingInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePostEmbeddingOutput {
   result?: UpdatePostEmbeddingDataInput | null;
+}
+
+interface PostEmbeddingSelector {
+  default?: PostEmbeddingViewInput | null;
 }
 
 interface MultiPostEmbeddingInput {
@@ -1592,11 +2423,19 @@ interface MultiPostEmbeddingOutput {
 interface SinglePostRelationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePostRelationOutput {
   result?: UpdatePostRelationDataInput | null;
+}
+
+interface PostRelationsAllPostRelationsInput {
+  postId?: string | null;
+}
+
+interface PostRelationSelector {
+  default?: PostRelationDefaultViewInput | null;
+  allPostRelations?: PostRelationsAllPostRelationsInput | null;
 }
 
 interface MultiPostRelationInput {
@@ -1613,11 +2452,14 @@ interface MultiPostRelationOutput {
 interface SinglePostViewTimeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePostViewTimeOutput {
   result?: UpdatePostViewTimeDataInput | null;
+}
+
+interface PostViewTimeSelector {
+  default?: PostViewTimeViewInput | null;
 }
 
 interface MultiPostViewTimeInput {
@@ -1638,23 +2480,26 @@ interface PostViews {
   legacyData?: any;
 }
 
-interface SinglePostViewsInput {
+interface SinglePostViewInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
-interface SinglePostViewsOutput {
+interface SinglePostViewOutput {
   result?: PostViews | null;
 }
 
-interface MultiPostViewsInput {
+interface PostViewSelector {
+  default?: PostViewViewInput | null;
+}
+
+interface MultiPostViewInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
 }
 
-interface MultiPostViewsOutput {
+interface MultiPostViewOutput {
   results?: Array<PostViews | null> | null;
   totalCount?: number | null;
 }
@@ -1662,11 +2507,1212 @@ interface MultiPostViewsOutput {
 interface SinglePostInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SinglePostOutput {
   result?: UpdatePostDataInput | null;
+}
+
+interface PostDefaultViewInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsUserPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsMagicInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsTopInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsNewInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsRecentCommentsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsOldInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsTimeframeInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  limit?: string | null;
+}
+
+interface PostsDailyInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsTagRelevanceInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsFrontpageInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsFrontpageRssInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsCuratedInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsCuratedRssInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsCommunityInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsCommunityRssInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsMetaRssInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsRssInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsTopQuestionsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsRecentQuestionActivityInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsScheduledInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsRejectedInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsDraftsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  includeDraftEvents?: string | null;
+  includeArchived?: string | null;
+  includeShared?: string | null;
+  sortDraftsBy?: string | null;
+}
+
+interface PostsAll_draftsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsUnlistedInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsUserAFSubmissionsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsSlugPostInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  slug?: string | null;
+}
+
+interface PostsLegacyIdPostInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  legacyId?: string | null;
+}
+
+interface PostsRecentDiscussionThreadsListInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  limit?: string | null;
+}
+
+interface PostsAfRecentDiscussionThreadsListInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  limit?: string | null;
+}
+
+interface PostsReviewRecentDiscussionThreadsList2018Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  limit?: string | null;
+}
+
+interface PostsReviewRecentDiscussionThreadsList2019Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  limit?: string | null;
+}
+
+interface PostsGlobalEventsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  onlineEvent?: string | null;
+  eventType?: string | null;
+}
+
+interface PostsNearbyEventsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  onlineEvent?: string | null;
+  eventType?: string | null;
+  lng?: string | null;
+  lat?: string | null;
+  distance?: string | null;
+  filters?: string | null;
+}
+
+interface PostsEventsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  globalEvent?: string | null;
+  onlineEvent?: string | null;
+  groupId?: string | null;
+}
+
+interface PostsEventsInTimeRangeInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  groupId?: string | null;
+}
+
+interface PostsUpcomingEventsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  groupId?: string | null;
+}
+
+interface PostsPastEventsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  groupId?: string | null;
+}
+
+interface PostsTbdEventsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  groupId?: string | null;
+}
+
+interface PostsNonEventGroupPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  groupId?: string | null;
+}
+
+interface PostsPostsWithBannedUsersInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsCommunityResourcePostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsSunshineNewPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsSunshineNewUsersPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsSunshineCuratedSuggestionsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  audioOnly?: string | null;
+}
+
+interface PostsHasEverDialoguedInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsPingbackPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  postId?: string | null;
+}
+
+interface PostsNominations2018Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  sortByMost?: string | null;
+}
+
+interface PostsNominations2019Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  sortByMost?: string | null;
+}
+
+interface PostsReviews2018Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  sortBy?: string | null;
+}
+
+interface PostsReviews2019Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  sortBy?: string | null;
+}
+
+interface PostsVoting2019Input {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  sortBy?: string | null;
+}
+
+interface PostsStickiedInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsNominatablePostsByVoteInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  requiredUnnominated?: string | null;
+  requiredFrontpage?: string | null;
+}
+
+interface PostsReviewVotingInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  reviewPhase?: string | null;
+}
+
+interface PostsFrontpageReviewWidgetInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  reviewYear?: string | null;
+  reviewPhase?: string | null;
+}
+
+interface PostsReviewQuickPageInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsReviewFinalVotingInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsMyBookmarkedPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+  limit?: string | null;
+}
+
+interface PostsAlignmentSuggestedPostsInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostsCurrentOpenThreadInput {
+  postIds?: string | null;
+  notPostIds?: string | null;
+  hideCommunity?: string | null;
+  karmaThreshold?: string | null;
+  excludeEvents?: string | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: string | null;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
+interface PostSelector {
+  default?: PostDefaultViewInput | null;
+  userPosts?: PostsUserPostsInput | null;
+  magic?: PostsMagicInput | null;
+  top?: PostsTopInput | null;
+  new?: PostsNewInput | null;
+  recentComments?: PostsRecentCommentsInput | null;
+  old?: PostsOldInput | null;
+  timeframe?: PostsTimeframeInput | null;
+  daily?: PostsDailyInput | null;
+  tagRelevance?: PostsTagRelevanceInput | null;
+  frontpage?: PostsFrontpageInput | null;
+  frontpageRss?: PostsFrontpageRssInput | null;
+  curated?: PostsCuratedInput | null;
+  curatedRss?: PostsCuratedRssInput | null;
+  community?: PostsCommunityInput | null;
+  communityRss?: PostsCommunityRssInput | null;
+  metaRss?: PostsMetaRssInput | null;
+  rss?: PostsRssInput | null;
+  topQuestions?: PostsTopQuestionsInput | null;
+  recentQuestionActivity?: PostsRecentQuestionActivityInput | null;
+  scheduled?: PostsScheduledInput | null;
+  rejected?: PostsRejectedInput | null;
+  drafts?: PostsDraftsInput | null;
+  all_drafts?: PostsAll_draftsInput | null;
+  unlisted?: PostsUnlistedInput | null;
+  userAFSubmissions?: PostsUserAFSubmissionsInput | null;
+  slugPost?: PostsSlugPostInput | null;
+  legacyIdPost?: PostsLegacyIdPostInput | null;
+  recentDiscussionThreadsList?: PostsRecentDiscussionThreadsListInput | null;
+  afRecentDiscussionThreadsList?: PostsAfRecentDiscussionThreadsListInput | null;
+  reviewRecentDiscussionThreadsList2018?: PostsReviewRecentDiscussionThreadsList2018Input | null;
+  reviewRecentDiscussionThreadsList2019?: PostsReviewRecentDiscussionThreadsList2019Input | null;
+  globalEvents?: PostsGlobalEventsInput | null;
+  nearbyEvents?: PostsNearbyEventsInput | null;
+  events?: PostsEventsInput | null;
+  eventsInTimeRange?: PostsEventsInTimeRangeInput | null;
+  upcomingEvents?: PostsUpcomingEventsInput | null;
+  pastEvents?: PostsPastEventsInput | null;
+  tbdEvents?: PostsTbdEventsInput | null;
+  nonEventGroupPosts?: PostsNonEventGroupPostsInput | null;
+  postsWithBannedUsers?: PostsPostsWithBannedUsersInput | null;
+  communityResourcePosts?: PostsCommunityResourcePostsInput | null;
+  sunshineNewPosts?: PostsSunshineNewPostsInput | null;
+  sunshineNewUsersPosts?: PostsSunshineNewUsersPostsInput | null;
+  sunshineCuratedSuggestions?: PostsSunshineCuratedSuggestionsInput | null;
+  hasEverDialogued?: PostsHasEverDialoguedInput | null;
+  pingbackPosts?: PostsPingbackPostsInput | null;
+  nominations2018?: PostsNominations2018Input | null;
+  nominations2019?: PostsNominations2019Input | null;
+  reviews2018?: PostsReviews2018Input | null;
+  reviews2019?: PostsReviews2019Input | null;
+  voting2019?: PostsVoting2019Input | null;
+  stickied?: PostsStickiedInput | null;
+  nominatablePostsByVote?: PostsNominatablePostsByVoteInput | null;
+  reviewVoting?: PostsReviewVotingInput | null;
+  frontpageReviewWidget?: PostsFrontpageReviewWidgetInput | null;
+  reviewQuickPage?: PostsReviewQuickPageInput | null;
+  reviewFinalVoting?: PostsReviewFinalVotingInput | null;
+  myBookmarkedPosts?: PostsMyBookmarkedPostsInput | null;
+  alignmentSuggestedPosts?: PostsAlignmentSuggestedPostsInput | null;
+  currentOpenThread?: PostsCurrentOpenThreadInput | null;
 }
 
 interface MultiPostInput {
@@ -1683,11 +3729,19 @@ interface MultiPostOutput {
 interface SingleRSSFeedInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleRSSFeedOutput {
   result?: UpdateRSSFeedDataInput | null;
+}
+
+interface RSSFeedsUsersFeedInput {
+  userId?: string | null;
+}
+
+interface RSSFeedSelector {
+  default?: RSSFeedDefaultViewInput | null;
+  usersFeed?: RSSFeedsUsersFeedInput | null;
 }
 
 interface MultiRSSFeedInput {
@@ -1704,11 +3758,24 @@ interface MultiRSSFeedOutput {
 interface SingleReportInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleReportOutput {
   result?: UpdateReportDataInput | null;
+}
+
+interface ReportsAdminClaimedReportsInput {
+  userId?: string | null;
+}
+
+interface ReportSelector {
+  default?: ReportDefaultViewInput | null;
+  allReports?: ReportsAllReportsInput | null;
+  unclaimedReports?: ReportsUnclaimedReportsInput | null;
+  claimedReports?: ReportsClaimedReportsInput | null;
+  adminClaimedReports?: ReportsAdminClaimedReportsInput | null;
+  sunshineSidebarReports?: ReportsSunshineSidebarReportsInput | null;
+  closedReports?: ReportsClosedReportsInput | null;
 }
 
 interface MultiReportInput {
@@ -1725,11 +3792,23 @@ interface MultiReportOutput {
 interface SingleReviewVoteInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleReviewVoteOutput {
   result?: UpdateReviewVoteDataInput | null;
+}
+
+interface ReviewVotesReviewVotesFromUserInput {
+  userId?: string | null;
+  year?: string | null;
+}
+
+interface ReviewVoteSelector {
+  default?: ReviewVoteDefaultViewInput | null;
+  reviewVotesFromUser?: ReviewVotesReviewVotesFromUserInput | null;
+  reviewVotesForPost?: ReviewVotesReviewVotesForPostInput | null;
+  reviewVotesForPostAndUser?: ReviewVotesReviewVotesForPostAndUserInput | null;
+  reviewVotesAdminDashboard?: ReviewVotesReviewVotesAdminDashboardInput | null;
 }
 
 interface MultiReviewVoteInput {
@@ -1746,11 +3825,20 @@ interface MultiReviewVoteOutput {
 interface SingleReviewWinnerArtInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleReviewWinnerArtOutput {
   result?: UpdateReviewWinnerArtDataInput | null;
+}
+
+interface ReviewWinnerArtsPostArtInput {
+  postId?: string | null;
+}
+
+interface ReviewWinnerArtSelector {
+  default?: ReviewWinnerArtDefaultViewInput | null;
+  postArt?: ReviewWinnerArtsPostArtInput | null;
+  allForYear?: ReviewWinnerArtsAllForYearInput | null;
 }
 
 interface MultiReviewWinnerArtInput {
@@ -1767,11 +3855,22 @@ interface MultiReviewWinnerArtOutput {
 interface SingleReviewWinnerInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleReviewWinnerOutput {
   result?: UpdateReviewWinnerDataInput | null;
+}
+
+interface ReviewWinnersReviewWinnerSingleInput {
+  category?: string | null;
+  reviewYear?: string | null;
+  reviewRanking?: string | null;
+}
+
+interface ReviewWinnerSelector {
+  default?: ReviewWinnerDefaultViewInput | null;
+  reviewWinnerSingle?: ReviewWinnersReviewWinnerSingleInput | null;
+  bestOfLessWrongAnnouncement?: ReviewWinnersBestOfLessWrongAnnouncementInput | null;
 }
 
 interface MultiReviewWinnerInput {
@@ -1788,11 +3887,34 @@ interface MultiReviewWinnerOutput {
 interface SingleRevisionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleRevisionOutput {
   result?: UpdateRevisionDataInput | null;
+}
+
+interface RevisionsRevisionsByUserInput {
+  userId?: string | null;
+}
+
+interface RevisionsRevisionsOnDocumentInput {
+  documentId?: string | null;
+  fieldName?: string | null;
+  before?: string | null;
+  after?: string | null;
+}
+
+interface RevisionsRevisionByVersionNumberInput {
+  documentId?: string | null;
+  version?: string | null;
+  fieldName?: string | null;
+}
+
+interface RevisionSelector {
+  default?: RevisionDefaultViewInput | null;
+  revisionsByUser?: RevisionsRevisionsByUserInput | null;
+  revisionsOnDocument?: RevisionsRevisionsOnDocumentInput | null;
+  revisionByVersionNumber?: RevisionsRevisionByVersionNumberInput | null;
 }
 
 interface MultiRevisionInput {
@@ -1809,11 +3931,48 @@ interface MultiRevisionOutput {
 interface SingleSequenceInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSequenceOutput {
   result?: UpdateSequenceDataInput | null;
+}
+
+interface SequenceDefaultViewInput {
+  sequenceIds?: string | null;
+}
+
+interface SequencesUserProfileInput {
+  sequenceIds?: string | null;
+  userId?: string | null;
+}
+
+interface SequencesUserProfilePrivateInput {
+  sequenceIds?: string | null;
+  userId?: string | null;
+}
+
+interface SequencesUserProfileAllInput {
+  sequenceIds?: string | null;
+  userId?: string | null;
+}
+
+interface SequencesCuratedSequencesInput {
+  sequenceIds?: string | null;
+  userId?: string | null;
+}
+
+interface SequencesCommunitySequencesInput {
+  sequenceIds?: string | null;
+  userId?: string | null;
+}
+
+interface SequenceSelector {
+  default?: SequenceDefaultViewInput | null;
+  userProfile?: SequencesUserProfileInput | null;
+  userProfilePrivate?: SequencesUserProfilePrivateInput | null;
+  userProfileAll?: SequencesUserProfileAllInput | null;
+  curatedSequences?: SequencesCuratedSequencesInput | null;
+  communitySequences?: SequencesCommunitySequencesInput | null;
 }
 
 interface MultiSequenceInput {
@@ -1830,11 +3989,14 @@ interface MultiSequenceOutput {
 interface SingleSplashArtCoordinateInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSplashArtCoordinateOutput {
   result?: UpdateSplashArtCoordinateDataInput | null;
+}
+
+interface SplashArtCoordinateSelector {
+  default?: SplashArtCoordinateViewInput | null;
 }
 
 interface MultiSplashArtCoordinateInput {
@@ -1851,11 +4013,39 @@ interface MultiSplashArtCoordinateOutput {
 interface SingleSpotlightInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSpotlightOutput {
   result?: UpdateSpotlightDataInput | null;
+}
+
+interface SpotlightsMostRecentlyPromotedSpotlightsInput {
+  limit?: string | null;
+}
+
+interface SpotlightsSpotlightsPageInput {
+  limit?: string | null;
+}
+
+interface SpotlightsSpotlightsPageDraftInput {
+  limit?: string | null;
+}
+
+interface SpotlightsSpotlightsByDocumentIdsInput {
+  documentIds?: string | null;
+}
+
+interface SpotlightsSpotlightsByIdInput {
+  spotlightIds?: string | null;
+}
+
+interface SpotlightSelector {
+  default?: SpotlightDefaultViewInput | null;
+  mostRecentlyPromotedSpotlights?: SpotlightsMostRecentlyPromotedSpotlightsInput | null;
+  spotlightsPage?: SpotlightsSpotlightsPageInput | null;
+  spotlightsPageDraft?: SpotlightsSpotlightsPageDraftInput | null;
+  spotlightsByDocumentIds?: SpotlightsSpotlightsByDocumentIdsInput | null;
+  spotlightsById?: SpotlightsSpotlightsByIdInput | null;
 }
 
 interface MultiSpotlightInput {
@@ -1872,11 +4062,23 @@ interface MultiSpotlightOutput {
 interface SingleSubscriptionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSubscriptionOutput {
   result?: UpdateSubscriptionDataInput | null;
+}
+
+interface SubscriptionsSubscriptionsOfTypeInput {
+  userId?: string | null;
+  collectionName?: string | null;
+  subscriptionType?: string | null;
+}
+
+interface SubscriptionSelector {
+  default?: SubscriptionDefaultViewInput | null;
+  subscriptionState?: SubscriptionsSubscriptionStateInput | null;
+  subscriptionsOfType?: SubscriptionsSubscriptionsOfTypeInput | null;
+  membersOfGroup?: SubscriptionsMembersOfGroupInput | null;
 }
 
 interface MultiSubscriptionInput {
@@ -1893,11 +4095,14 @@ interface MultiSubscriptionOutput {
 interface SingleSurveyQuestionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSurveyQuestionOutput {
   result?: UpdateSurveyQuestionDataInput | null;
+}
+
+interface SurveyQuestionSelector {
+  default?: SurveyQuestionViewInput | null;
 }
 
 interface MultiSurveyQuestionInput {
@@ -1914,11 +4119,14 @@ interface MultiSurveyQuestionOutput {
 interface SingleSurveyResponseInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSurveyResponseOutput {
   result?: UpdateSurveyResponseDataInput | null;
+}
+
+interface SurveyResponseSelector {
+  default?: SurveyResponseViewInput | null;
 }
 
 interface MultiSurveyResponseInput {
@@ -1935,11 +4143,15 @@ interface MultiSurveyResponseOutput {
 interface SingleSurveyScheduleInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSurveyScheduleOutput {
   result?: UpdateSurveyScheduleDataInput | null;
+}
+
+interface SurveyScheduleSelector {
+  default?: SurveyScheduleDefaultViewInput | null;
+  surveySchedulesByCreatedAt?: SurveySchedulesSurveySchedulesByCreatedAtInput | null;
 }
 
 interface MultiSurveyScheduleInput {
@@ -1956,11 +4168,15 @@ interface MultiSurveyScheduleOutput {
 interface SingleSurveyInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleSurveyOutput {
   result?: UpdateSurveyDataInput | null;
+}
+
+interface SurveySelector {
+  default?: SurveyDefaultViewInput | null;
+  surveysByCreatedAt?: SurveysSurveysByCreatedAtInput | null;
 }
 
 interface MultiSurveyInput {
@@ -1977,11 +4193,15 @@ interface MultiSurveyOutput {
 interface SingleTagFlagInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleTagFlagOutput {
   result?: UpdateTagFlagDataInput | null;
+}
+
+interface TagFlagSelector {
+  default?: TagFlagDefaultViewInput | null;
+  allTagFlags?: TagFlagsAllTagFlagsInput | null;
 }
 
 interface MultiTagFlagInput {
@@ -1998,11 +4218,24 @@ interface MultiTagFlagOutput {
 interface SingleTagRelInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleTagRelOutput {
   result?: UpdateTagRelDataInput | null;
+}
+
+interface TagRelsPostsWithTagInput {
+  tagId?: string | null;
+}
+
+interface TagRelsTagsOnPostInput {
+  postId?: string | null;
+}
+
+interface TagRelSelector {
+  default?: TagRelDefaultViewInput | null;
+  postsWithTag?: TagRelsPostsWithTagInput | null;
+  tagsOnPost?: TagRelsTagsOnPostInput | null;
 }
 
 interface MultiTagRelInput {
@@ -2019,11 +4252,124 @@ interface MultiTagRelOutput {
 interface SingleTagInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleTagOutput {
   result?: UpdateTagDataInput | null;
+}
+
+interface TagDefaultViewInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsTagsByTagIdsInput {
+  excludedTagIds?: string | null;
+  tagIds?: string | null;
+}
+
+interface TagsAllTagsAlphabeticalInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsUserTagsInput {
+  excludedTagIds?: string | null;
+  userId?: string | null;
+}
+
+interface TagsCurrentUserSubforumsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsAllPagesByNewestInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsAllTagsHierarchicalInput {
+  excludedTagIds?: string | null;
+  wikiGrade?: string | null;
+}
+
+interface TagsTagBySlugInput {
+  excludedTagIds?: string | null;
+  slug?: string | null;
+}
+
+interface TagsTagsBySlugsInput {
+  excludedTagIds?: string | null;
+  slugs?: string | null;
+}
+
+interface TagsCoreTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsPostTypeTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsCoreAndSubforumTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsNewTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsUnreviewedTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsSuggestedFilterTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsAllLWWikiTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsUnprocessedLWWikiTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsTagsByTagFlagInput {
+  excludedTagIds?: string | null;
+  tagFlagId?: string | null;
+}
+
+interface TagsAllPublicTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsAllArbitalTagsInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagsPingbackWikiPagesInput {
+  excludedTagIds?: string | null;
+}
+
+interface TagSelector {
+  default?: TagDefaultViewInput | null;
+  tagsByTagIds?: TagsTagsByTagIdsInput | null;
+  allTagsAlphabetical?: TagsAllTagsAlphabeticalInput | null;
+  userTags?: TagsUserTagsInput | null;
+  currentUserSubforums?: TagsCurrentUserSubforumsInput | null;
+  allPagesByNewest?: TagsAllPagesByNewestInput | null;
+  allTagsHierarchical?: TagsAllTagsHierarchicalInput | null;
+  tagBySlug?: TagsTagBySlugInput | null;
+  tagsBySlugs?: TagsTagsBySlugsInput | null;
+  coreTags?: TagsCoreTagsInput | null;
+  postTypeTags?: TagsPostTypeTagsInput | null;
+  coreAndSubforumTags?: TagsCoreAndSubforumTagsInput | null;
+  newTags?: TagsNewTagsInput | null;
+  unreviewedTags?: TagsUnreviewedTagsInput | null;
+  suggestedFilterTags?: TagsSuggestedFilterTagsInput | null;
+  allLWWikiTags?: TagsAllLWWikiTagsInput | null;
+  unprocessedLWWikiTags?: TagsUnprocessedLWWikiTagsInput | null;
+  tagsByTagFlag?: TagsTagsByTagFlagInput | null;
+  allPublicTags?: TagsAllPublicTagsInput | null;
+  allArbitalTags?: TagsAllArbitalTagsInput | null;
+  pingbackWikiPages?: TagsPingbackWikiPagesInput | null;
 }
 
 interface MultiTagInput {
@@ -2040,11 +4386,14 @@ interface MultiTagOutput {
 interface SingleTypingIndicatorInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleTypingIndicatorOutput {
   result?: UpdateTypingIndicatorDataInput | null;
+}
+
+interface TypingIndicatorSelector {
+  default?: TypingIndicatorViewInput | null;
 }
 
 interface MultiTypingIndicatorInput {
@@ -2058,14 +4407,46 @@ interface MultiTypingIndicatorOutput {
   totalCount?: number | null;
 }
 
+interface SingleUltraFeedEventInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleUltraFeedEventOutput {
+  result?: UpdateUltraFeedEventDataInput | null;
+}
+
+interface UltraFeedEventSelector {
+  default?: UltraFeedEventDefaultViewInput | null;
+}
+
+interface MultiUltraFeedEventInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUltraFeedEventOutput {
+  results?: Array<UpdateUltraFeedEventDataInput | null> | null;
+  totalCount?: number | null;
+}
+
 interface SingleUserEAGDetailInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleUserEAGDetailOutput {
   result?: UpdateUserEAGDetailDataInput | null;
+}
+
+interface UserEAGDetailsDataByUserInput {
+  userId?: string | null;
+}
+
+interface UserEAGDetailSelector {
+  default?: UserEAGDetailDefaultViewInput | null;
+  dataByUser?: UserEAGDetailsDataByUserInput | null;
 }
 
 interface MultiUserEAGDetailInput {
@@ -2082,11 +4463,19 @@ interface MultiUserEAGDetailOutput {
 interface SingleUserJobAdInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleUserJobAdOutput {
   result?: UpdateUserJobAdDataInput | null;
+}
+
+interface UserJobAdsAdsByUserInput {
+  userId?: string | null;
+}
+
+interface UserJobAdSelector {
+  default?: UserJobAdDefaultViewInput | null;
+  adsByUser?: UserJobAdsAdsByUserInput | null;
 }
 
 interface MultiUserJobAdInput {
@@ -2103,11 +4492,20 @@ interface MultiUserJobAdOutput {
 interface SingleUserMostValuablePostInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleUserMostValuablePostOutput {
   result?: UpdateUserMostValuablePostDataInput | null;
+}
+
+interface UserMostValuablePostsCurrentUserPostInput {
+  postId?: string | null;
+}
+
+interface UserMostValuablePostSelector {
+  default?: UserMostValuablePostDefaultViewInput | null;
+  currentUserMostValuablePosts?: UserMostValuablePostsCurrentUserMostValuablePostsInput | null;
+  currentUserPost?: UserMostValuablePostsCurrentUserPostInput | null;
 }
 
 interface MultiUserMostValuablePostInput {
@@ -2124,11 +4522,21 @@ interface MultiUserMostValuablePostOutput {
 interface SingleUserRateLimitInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleUserRateLimitOutput {
   result?: UpdateUserRateLimitDataInput | null;
+}
+
+interface UserRateLimitsUserRateLimitsInput {
+  active?: string | null;
+  userIds?: Array<string> | null;
+}
+
+interface UserRateLimitSelector {
+  default?: UserRateLimitDefaultViewInput | null;
+  userRateLimits?: UserRateLimitsUserRateLimitsInput | null;
+  activeUserRateLimits?: UserRateLimitsActiveUserRateLimitsInput | null;
 }
 
 interface MultiUserRateLimitInput {
@@ -2145,11 +4553,20 @@ interface MultiUserRateLimitOutput {
 interface SingleUserTagRelInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleUserTagRelOutput {
   result?: UpdateUserTagRelDataInput | null;
+}
+
+interface UserTagRelsSingleInput {
+  userId?: string | null;
+  tagId?: string | null;
+}
+
+interface UserTagRelSelector {
+  default?: UserTagRelDefaultViewInput | null;
+  single?: UserTagRelsSingleInput | null;
 }
 
 interface MultiUserTagRelInput {
@@ -2166,11 +4583,43 @@ interface MultiUserTagRelOutput {
 interface SingleUserInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleUserOutput {
   result?: UpdateUserDataInput | null;
+}
+
+interface UsersUsersByUserIdsInput {
+  userIds?: string | null;
+}
+
+interface UsersUsersProfileInput {
+  userId?: string | null;
+  slug?: string | null;
+}
+
+interface UsersTagCommunityMembersInput {
+  hasBio?: string | null;
+  profileTagId?: string | null;
+}
+
+interface UserSelector {
+  default?: UserDefaultViewInput | null;
+  usersByUserIds?: UsersUsersByUserIdsInput | null;
+  usersProfile?: UsersUsersProfileInput | null;
+  LWSunshinesList?: UsersLWSunshinesListInput | null;
+  LWTrustLevel1List?: UsersLWTrustLevel1ListInput | null;
+  LWUsersAdmin?: UsersLWUsersAdminInput | null;
+  usersWithBannedUsers?: UsersUsersWithBannedUsersInput | null;
+  sunshineNewUsers?: UsersSunshineNewUsersInput | null;
+  recentlyActive?: UsersRecentlyActiveInput | null;
+  allUsers?: UsersAllUsersInput | null;
+  usersMapLocations?: UsersUsersMapLocationsInput | null;
+  tagCommunityMembers?: UsersTagCommunityMembersInput | null;
+  reviewAdminUsers?: UsersReviewAdminUsersInput | null;
+  usersWithPaymentInfo?: UsersUsersWithPaymentInfoInput | null;
+  usersWithOptedInToDialogueFacilitation?: UsersUsersWithOptedInToDialogueFacilitationInput | null;
+  alignmentSuggestedUsers?: UsersAlignmentSuggestedUsersInput | null;
 }
 
 interface MultiUserInput {
@@ -2187,11 +4636,17 @@ interface MultiUserOutput {
 interface SingleVoteInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
-  allowNull?: boolean | null;
 }
 
 interface SingleVoteOutput {
   result?: UpdateVoteDataInput | null;
+}
+
+interface VoteSelector {
+  default?: VoteDefaultViewInput | null;
+  tagVotes?: VotesTagVotesInput | null;
+  userPostVotes?: VotesUserPostVotesInput | null;
+  userVotes?: VotesUserVotesInput | null;
 }
 
 interface MultiVoteInput {
@@ -2442,7 +4897,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   forumEventId?: string | null;
   forumEventMetadata?: any;
-  tagCommentType?: TagCommentType | null;
+  tagCommentType?: string | null;
   subforumStickyPriority?: number | null;
   userId?: string | null;
   authorIsUnreviewed?: boolean | null;
@@ -4765,274 +7220,664 @@ interface GraphQLTypeMap {
   UltraFeedEntryType: UltraFeedEntryType;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
+  AdvisorRequestDefaultViewInput: AdvisorRequestDefaultViewInput;
+  AdvisorRequestsRequestsByUserInput: AdvisorRequestsRequestsByUserInput;
+  AdvisorRequestSelector: AdvisorRequestSelector;
   MultiAdvisorRequestInput: MultiAdvisorRequestInput;
   MultiAdvisorRequestOutput: MultiAdvisorRequestOutput;
   ArbitalCaches: ArbitalCaches;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
   SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
+  ArbitalTagContentRelViewInput: ArbitalTagContentRelViewInput;
+  ArbitalTagContentRelSelector: ArbitalTagContentRelSelector;
   MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;
+  BanViewInput: BanViewInput;
+  BanSelector: BanSelector;
   MultiBanInput: MultiBanInput;
   MultiBanOutput: MultiBanOutput;
   SingleBookInput: SingleBookInput;
   SingleBookOutput: SingleBookOutput;
+  BookViewInput: BookViewInput;
+  BookSelector: BookSelector;
   MultiBookInput: MultiBookInput;
   MultiBookOutput: MultiBookOutput;
   SingleChapterInput: SingleChapterInput;
   SingleChapterOutput: SingleChapterOutput;
+  ChapterDefaultViewInput: ChapterDefaultViewInput;
+  ChaptersSequenceChaptersInput: ChaptersSequenceChaptersInput;
+  ChapterSelector: ChapterSelector;
   MultiChapterInput: MultiChapterInput;
   MultiChapterOutput: MultiChapterOutput;
   SingleCkEditorUserSessionInput: SingleCkEditorUserSessionInput;
   SingleCkEditorUserSessionOutput: SingleCkEditorUserSessionOutput;
+  CkEditorUserSessionViewInput: CkEditorUserSessionViewInput;
+  CkEditorUserSessionSelector: CkEditorUserSessionSelector;
   MultiCkEditorUserSessionInput: MultiCkEditorUserSessionInput;
   MultiCkEditorUserSessionOutput: MultiCkEditorUserSessionOutput;
   SingleClientIdInput: SingleClientIdInput;
   SingleClientIdOutput: SingleClientIdOutput;
+  ClientIdDefaultViewInput: ClientIdDefaultViewInput;
+  ClientIdsGetClientIdInput: ClientIdsGetClientIdInput;
+  ClientIdSelector: ClientIdSelector;
   MultiClientIdInput: MultiClientIdInput;
   MultiClientIdOutput: MultiClientIdOutput;
   SingleCollectionInput: SingleCollectionInput;
   SingleCollectionOutput: SingleCollectionOutput;
+  CollectionDefaultViewInput: CollectionDefaultViewInput;
+  CollectionSelector: CollectionSelector;
   MultiCollectionInput: MultiCollectionInput;
   MultiCollectionOutput: MultiCollectionOutput;
   SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
   SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
+  CommentModeratorActionDefaultViewInput: CommentModeratorActionDefaultViewInput;
+  CommentModeratorActionsActiveCommentModeratorActionsInput: CommentModeratorActionsActiveCommentModeratorActionsInput;
+  CommentModeratorActionSelector: CommentModeratorActionSelector;
   MultiCommentModeratorActionInput: MultiCommentModeratorActionInput;
   MultiCommentModeratorActionOutput: MultiCommentModeratorActionOutput;
   SingleCommentInput: SingleCommentInput;
   SingleCommentOutput: SingleCommentOutput;
+  CommentDefaultViewInput: CommentDefaultViewInput;
+  CommentsCommentRepliesInput: CommentsCommentRepliesInput;
+  CommentsPostCommentsDeletedInput: CommentsPostCommentsDeletedInput;
+  CommentsAllCommentsDeletedInput: CommentsAllCommentsDeletedInput;
+  CommentsCheckedByModGPTInput: CommentsCheckedByModGPTInput;
+  CommentsPostCommentsTopInput: CommentsPostCommentsTopInput;
+  CommentsPostCommentsRecentRepliesInput: CommentsPostCommentsRecentRepliesInput;
+  CommentsPostCommentsMagicInput: CommentsPostCommentsMagicInput;
+  CommentsAfPostCommentsTopInput: CommentsAfPostCommentsTopInput;
+  CommentsPostCommentsOldInput: CommentsPostCommentsOldInput;
+  CommentsPostCommentsNewInput: CommentsPostCommentsNewInput;
+  CommentsPostCommentsBestInput: CommentsPostCommentsBestInput;
+  CommentsPostLWCommentsInput: CommentsPostLWCommentsInput;
+  CommentsProfileRecentCommentsInput: CommentsProfileRecentCommentsInput;
+  CommentsProfileCommentsInput: CommentsProfileCommentsInput;
+  CommentsAllRecentCommentsInput: CommentsAllRecentCommentsInput;
+  CommentsRecentCommentsInput: CommentsRecentCommentsInput;
+  CommentsAfSubmissionsInput: CommentsAfSubmissionsInput;
+  CommentsRejectedInput: CommentsRejectedInput;
+  CommentsRecentDiscussionThreadInput: CommentsRecentDiscussionThreadInput;
+  CommentsAfRecentDiscussionThreadInput: CommentsAfRecentDiscussionThreadInput;
+  CommentsPostsItemCommentsInput: CommentsPostsItemCommentsInput;
+  CommentsSunshineNewCommentsListInput: CommentsSunshineNewCommentsListInput;
+  CommentsQuestionAnswersInput: CommentsQuestionAnswersInput;
+  CommentsLegacyIdCommentInput: CommentsLegacyIdCommentInput;
+  CommentsSunshineNewUsersCommentsInput: CommentsSunshineNewUsersCommentsInput;
+  CommentsDefaultModeratorResponsesInput: CommentsDefaultModeratorResponsesInput;
+  CommentsRepliesToAnswerInput: CommentsRepliesToAnswerInput;
+  CommentsAnswersAndRepliesInput: CommentsAnswersAndRepliesInput;
+  CommentsTopShortformInput: CommentsTopShortformInput;
+  CommentsShortformInput: CommentsShortformInput;
+  CommentsShortformFrontpageInput: CommentsShortformFrontpageInput;
+  CommentsRepliesToCommentThreadInput: CommentsRepliesToCommentThreadInput;
+  CommentsShortformLatestChildrenInput: CommentsShortformLatestChildrenInput;
+  CommentsNominations2018Input: CommentsNominations2018Input;
+  CommentsNominations2019Input: CommentsNominations2019Input;
+  CommentsReviews2018Input: CommentsReviews2018Input;
+  CommentsReviews2019Input: CommentsReviews2019Input;
+  CommentsReviewsInput: CommentsReviewsInput;
+  CommentsTagDiscussionCommentsInput: CommentsTagDiscussionCommentsInput;
+  CommentsTagSubforumCommentsInput: CommentsTagSubforumCommentsInput;
+  CommentsLatestSubforumDiscussionInput: CommentsLatestSubforumDiscussionInput;
+  CommentsModeratorCommentsInput: CommentsModeratorCommentsInput;
+  CommentsDebateResponsesInput: CommentsDebateResponsesInput;
+  CommentsRecentDebateResponsesInput: CommentsRecentDebateResponsesInput;
+  CommentsForumEventCommentsInput: CommentsForumEventCommentsInput;
+  CommentsAlignmentSuggestedCommentsInput: CommentsAlignmentSuggestedCommentsInput;
+  CommentsRssInput: CommentsRssInput;
+  CommentSelector: CommentSelector;
   MultiCommentInput: MultiCommentInput;
   MultiCommentOutput: MultiCommentOutput;
   SingleConversationInput: SingleConversationInput;
   SingleConversationOutput: SingleConversationOutput;
+  ConversationDefaultViewInput: ConversationDefaultViewInput;
+  ConversationsModeratorConversationsInput: ConversationsModeratorConversationsInput;
+  ConversationsUserConversationsInput: ConversationsUserConversationsInput;
+  ConversationsUserConversationsAllInput: ConversationsUserConversationsAllInput;
+  ConversationsUserGroupUntitledConversationsInput: ConversationsUserGroupUntitledConversationsInput;
+  ConversationSelector: ConversationSelector;
   MultiConversationInput: MultiConversationInput;
   MultiConversationOutput: MultiConversationOutput;
   SingleCurationNoticeInput: SingleCurationNoticeInput;
   SingleCurationNoticeOutput: SingleCurationNoticeOutput;
+  CurationNoticeDefaultViewInput: CurationNoticeDefaultViewInput;
+  CurationNoticesCurationNoticesPageInput: CurationNoticesCurationNoticesPageInput;
+  CurationNoticeSelector: CurationNoticeSelector;
   MultiCurationNoticeInput: MultiCurationNoticeInput;
   MultiCurationNoticeOutput: MultiCurationNoticeOutput;
   DatabaseMetadata: DatabaseMetadata;
   DebouncerEvents: DebouncerEvents;
   SingleDialogueCheckInput: SingleDialogueCheckInput;
   SingleDialogueCheckOutput: SingleDialogueCheckOutput;
+  DialogueCheckDefaultViewInput: DialogueCheckDefaultViewInput;
+  DialogueChecksUserDialogueChecksInput: DialogueChecksUserDialogueChecksInput;
+  DialogueChecksUserTargetDialogueChecksInput: DialogueChecksUserTargetDialogueChecksInput;
+  DialogueCheckSelector: DialogueCheckSelector;
   MultiDialogueCheckInput: MultiDialogueCheckInput;
   MultiDialogueCheckOutput: MultiDialogueCheckOutput;
   SingleDialogueMatchPreferenceInput: SingleDialogueMatchPreferenceInput;
   SingleDialogueMatchPreferenceOutput: SingleDialogueMatchPreferenceOutput;
+  DialogueMatchPreferenceDefaultViewInput: DialogueMatchPreferenceDefaultViewInput;
+  DialogueMatchPreferencesDialogueMatchPreferencesInput: DialogueMatchPreferencesDialogueMatchPreferencesInput;
+  DialogueMatchPreferenceSelector: DialogueMatchPreferenceSelector;
   MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
   MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
   SingleDigestPostInput: SingleDigestPostInput;
   SingleDigestPostOutput: SingleDigestPostOutput;
+  DigestPostViewInput: DigestPostViewInput;
+  DigestPostSelector: DigestPostSelector;
   MultiDigestPostInput: MultiDigestPostInput;
   MultiDigestPostOutput: MultiDigestPostOutput;
   SingleDigestInput: SingleDigestInput;
   SingleDigestOutput: SingleDigestOutput;
+  DigestDefaultViewInput: DigestDefaultViewInput;
+  DigestsFindByNumInput: DigestsFindByNumInput;
+  DigestsAllInput: DigestsAllInput;
+  DigestSelector: DigestSelector;
   MultiDigestInput: MultiDigestInput;
   MultiDigestOutput: MultiDigestOutput;
   SingleElectionCandidateInput: SingleElectionCandidateInput;
   SingleElectionCandidateOutput: SingleElectionCandidateOutput;
+  ElectionCandidateDefaultViewInput: ElectionCandidateDefaultViewInput;
+  ElectionCandidateSelector: ElectionCandidateSelector;
   MultiElectionCandidateInput: MultiElectionCandidateInput;
   MultiElectionCandidateOutput: MultiElectionCandidateOutput;
   SingleElectionVoteInput: SingleElectionVoteInput;
   SingleElectionVoteOutput: SingleElectionVoteOutput;
+  ElectionVoteDefaultViewInput: ElectionVoteDefaultViewInput;
+  ElectionVotesAllSubmittedVotesInput: ElectionVotesAllSubmittedVotesInput;
+  ElectionVoteSelector: ElectionVoteSelector;
   MultiElectionVoteInput: MultiElectionVoteInput;
   MultiElectionVoteOutput: MultiElectionVoteOutput;
   SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
   SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
+  ElicitQuestionPredictionViewInput: ElicitQuestionPredictionViewInput;
+  ElicitQuestionPredictionSelector: ElicitQuestionPredictionSelector;
   MultiElicitQuestionPredictionInput: MultiElicitQuestionPredictionInput;
   MultiElicitQuestionPredictionOutput: MultiElicitQuestionPredictionOutput;
   SingleElicitQuestionInput: SingleElicitQuestionInput;
   SingleElicitQuestionOutput: SingleElicitQuestionOutput;
+  ElicitQuestionViewInput: ElicitQuestionViewInput;
+  ElicitQuestionSelector: ElicitQuestionSelector;
   MultiElicitQuestionInput: MultiElicitQuestionInput;
   MultiElicitQuestionOutput: MultiElicitQuestionOutput;
   EmailTokens: EmailTokens;
   SingleFeaturedResourceInput: SingleFeaturedResourceInput;
   SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
+  FeaturedResourceDefaultViewInput: FeaturedResourceDefaultViewInput;
+  FeaturedResourcesActiveResourcesInput: FeaturedResourcesActiveResourcesInput;
+  FeaturedResourceSelector: FeaturedResourceSelector;
   MultiFeaturedResourceInput: MultiFeaturedResourceInput;
   MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
+  SingleFieldChangeInput: SingleFieldChangeInput;
+  SingleFieldChangeOutput: SingleFieldChangeOutput;
+  FieldChangeDefaultViewInput: FieldChangeDefaultViewInput;
+  FieldChangeSelector: FieldChangeSelector;
+  MultiFieldChangeInput: MultiFieldChangeInput;
+  MultiFieldChangeOutput: MultiFieldChangeOutput;
   SingleForumEventInput: SingleForumEventInput;
   SingleForumEventOutput: SingleForumEventOutput;
+  ForumEventDefaultViewInput: ForumEventDefaultViewInput;
+  ForumEventsUpcomingForumEventsInput: ForumEventsUpcomingForumEventsInput;
+  ForumEventsPastForumEventsInput: ForumEventsPastForumEventsInput;
+  ForumEventsCurrentForumEventInput: ForumEventsCurrentForumEventInput;
+  ForumEventsCurrentAndRecentForumEventsInput: ForumEventsCurrentAndRecentForumEventsInput;
+  ForumEventSelector: ForumEventSelector;
   MultiForumEventInput: MultiForumEventInput;
   MultiForumEventOutput: MultiForumEventOutput;
   SingleGardenCodeInput: SingleGardenCodeInput;
   SingleGardenCodeOutput: SingleGardenCodeOutput;
+  GardenCodeDefaultViewInput: GardenCodeDefaultViewInput;
+  GardenCodesUsersPrivateGardenCodesInput: GardenCodesUsersPrivateGardenCodesInput;
+  GardenCodesPublicGardenCodesInput: GardenCodesPublicGardenCodesInput;
+  GardenCodesGardenCodeByCodeInput: GardenCodesGardenCodeByCodeInput;
+  GardenCodeSelector: GardenCodeSelector;
   MultiGardenCodeInput: MultiGardenCodeInput;
   MultiGardenCodeOutput: MultiGardenCodeOutput;
   SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
   SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
+  GoogleServiceAccountSessionDefaultViewInput: GoogleServiceAccountSessionDefaultViewInput;
+  GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
   Images: Images;
   SingleJargonTermInput: SingleJargonTermInput;
   SingleJargonTermOutput: SingleJargonTermOutput;
+  JargonTermDefaultViewInput: JargonTermDefaultViewInput;
+  JargonTermsPostEditorJargonTermsInput: JargonTermsPostEditorJargonTermsInput;
+  JargonTermsGlossaryEditAllInput: JargonTermsGlossaryEditAllInput;
+  JargonTermsPostsApprovedJargonInput: JargonTermsPostsApprovedJargonInput;
+  JargonTermSelector: JargonTermSelector;
   MultiJargonTermInput: MultiJargonTermInput;
   MultiJargonTermOutput: MultiJargonTermOutput;
   SingleLWEventInput: SingleLWEventInput;
   SingleLWEventOutput: SingleLWEventOutput;
+  LWEventDefaultViewInput: LWEventDefaultViewInput;
+  LWEventsAdminViewInput: LWEventsAdminViewInput;
+  LWEventsPostVisitsInput: LWEventsPostVisitsInput;
+  LWEventsEmailHistoryInput: LWEventsEmailHistoryInput;
+  LWEventsGatherTownUsersInput: LWEventsGatherTownUsersInput;
+  LWEventSelector: LWEventSelector;
   MultiLWEventInput: MultiLWEventInput;
   MultiLWEventOutput: MultiLWEventOutput;
   LegacyData: LegacyData;
   SingleLlmConversationInput: SingleLlmConversationInput;
   SingleLlmConversationOutput: SingleLlmConversationOutput;
+  LlmConversationDefaultViewInput: LlmConversationDefaultViewInput;
+  LlmConversationsLlmConversationsWithUserInput: LlmConversationsLlmConversationsWithUserInput;
+  LlmConversationsLlmConversationsAllInput: LlmConversationsLlmConversationsAllInput;
+  LlmConversationSelector: LlmConversationSelector;
   MultiLlmConversationInput: MultiLlmConversationInput;
   MultiLlmConversationOutput: MultiLlmConversationOutput;
   SingleLocalgroupInput: SingleLocalgroupInput;
   SingleLocalgroupOutput: SingleLocalgroupOutput;
+  LocalgroupDefaultViewInput: LocalgroupDefaultViewInput;
+  LocalgroupsUserOrganizesGroupsInput: LocalgroupsUserOrganizesGroupsInput;
+  LocalgroupsUserActiveGroupsInput: LocalgroupsUserActiveGroupsInput;
+  LocalgroupsUserInactiveGroupsInput: LocalgroupsUserInactiveGroupsInput;
+  LocalgroupsAllInput: LocalgroupsAllInput;
+  LocalgroupsNearbyInput: LocalgroupsNearbyInput;
+  LocalgroupsSingleInput: LocalgroupsSingleInput;
+  LocalgroupsLocalInput: LocalgroupsLocalInput;
+  LocalgroupsOnlineInput: LocalgroupsOnlineInput;
+  LocalgroupSelector: LocalgroupSelector;
   MultiLocalgroupInput: MultiLocalgroupInput;
   MultiLocalgroupOutput: MultiLocalgroupOutput;
   SingleMessageInput: SingleMessageInput;
   SingleMessageOutput: SingleMessageOutput;
+  MessageDefaultViewInput: MessageDefaultViewInput;
+  MessagesMessagesConversationInput: MessagesMessagesConversationInput;
+  MessagesConversationPreviewInput: MessagesConversationPreviewInput;
+  MessageSelector: MessageSelector;
   MultiMessageInput: MultiMessageInput;
   MultiMessageOutput: MultiMessageOutput;
   SingleModerationTemplateInput: SingleModerationTemplateInput;
   SingleModerationTemplateOutput: SingleModerationTemplateOutput;
+  ModerationTemplateDefaultViewInput: ModerationTemplateDefaultViewInput;
+  ModerationTemplatesModerationTemplatesPageInput: ModerationTemplatesModerationTemplatesPageInput;
+  ModerationTemplatesModerationTemplatesListInput: ModerationTemplatesModerationTemplatesListInput;
+  ModerationTemplateSelector: ModerationTemplateSelector;
   MultiModerationTemplateInput: MultiModerationTemplateInput;
   MultiModerationTemplateOutput: MultiModerationTemplateOutput;
   SingleModeratorActionInput: SingleModeratorActionInput;
   SingleModeratorActionOutput: SingleModeratorActionOutput;
+  ModeratorActionDefaultViewInput: ModeratorActionDefaultViewInput;
+  ModeratorActionsUserModeratorActionsInput: ModeratorActionsUserModeratorActionsInput;
+  ModeratorActionsRestrictionModerationActionsInput: ModeratorActionsRestrictionModerationActionsInput;
+  ModeratorActionSelector: ModeratorActionSelector;
   MultiModeratorActionInput: MultiModeratorActionInput;
   MultiModeratorActionOutput: MultiModeratorActionOutput;
   SingleMultiDocumentInput: SingleMultiDocumentInput;
   SingleMultiDocumentOutput: SingleMultiDocumentOutput;
+  MultiDocumentDefaultViewInput: MultiDocumentDefaultViewInput;
+  MultiDocumentsLensBySlugInput: MultiDocumentsLensBySlugInput;
+  MultiDocumentsSummariesByParentIdInput: MultiDocumentsSummariesByParentIdInput;
+  MultiDocumentsPingbackLensPagesInput: MultiDocumentsPingbackLensPagesInput;
+  MultiDocumentSelector: MultiDocumentSelector;
   MultiMultiDocumentInput: MultiMultiDocumentInput;
   MultiMultiDocumentOutput: MultiMultiDocumentOutput;
   SingleNotificationInput: SingleNotificationInput;
   SingleNotificationOutput: SingleNotificationOutput;
+  NotificationDefaultViewInput: NotificationDefaultViewInput;
+  NotificationsUserNotificationsInput: NotificationsUserNotificationsInput;
+  NotificationsUnreadUserNotificationsInput: NotificationsUnreadUserNotificationsInput;
+  NotificationsAdminAlertNotificationsInput: NotificationsAdminAlertNotificationsInput;
+  NotificationSelector: NotificationSelector;
   MultiNotificationInput: MultiNotificationInput;
   MultiNotificationOutput: MultiNotificationOutput;
   PageCacheEntry: PageCacheEntry;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
+  PetrovDayActionDefaultViewInput: PetrovDayActionDefaultViewInput;
+  PetrovDayActionsGetActionInput: PetrovDayActionsGetActionInput;
+  PetrovDayActionsLaunchDashboardInput: PetrovDayActionsLaunchDashboardInput;
+  PetrovDayActionsAdminConsoleInput: PetrovDayActionsAdminConsoleInput;
+  PetrovDayActionsWarningConsoleInput: PetrovDayActionsWarningConsoleInput;
+  PetrovDayActionSelector: PetrovDayActionSelector;
   MultiPetrovDayActionInput: MultiPetrovDayActionInput;
   MultiPetrovDayActionOutput: MultiPetrovDayActionOutput;
   SinglePodcastEpisodeInput: SinglePodcastEpisodeInput;
   SinglePodcastEpisodeOutput: SinglePodcastEpisodeOutput;
+  PodcastEpisodeDefaultViewInput: PodcastEpisodeDefaultViewInput;
+  PodcastEpisodesEpisodeByExternalIdInput: PodcastEpisodesEpisodeByExternalIdInput;
+  PodcastEpisodeSelector: PodcastEpisodeSelector;
   MultiPodcastEpisodeInput: MultiPodcastEpisodeInput;
   MultiPodcastEpisodeOutput: MultiPodcastEpisodeOutput;
   SinglePodcastInput: SinglePodcastInput;
   SinglePodcastOutput: SinglePodcastOutput;
+  PodcastViewInput: PodcastViewInput;
+  PodcastSelector: PodcastSelector;
   MultiPodcastInput: MultiPodcastInput;
   MultiPodcastOutput: MultiPodcastOutput;
   SinglePostEmbeddingInput: SinglePostEmbeddingInput;
   SinglePostEmbeddingOutput: SinglePostEmbeddingOutput;
+  PostEmbeddingViewInput: PostEmbeddingViewInput;
+  PostEmbeddingSelector: PostEmbeddingSelector;
   MultiPostEmbeddingInput: MultiPostEmbeddingInput;
   MultiPostEmbeddingOutput: MultiPostEmbeddingOutput;
   SinglePostRelationInput: SinglePostRelationInput;
   SinglePostRelationOutput: SinglePostRelationOutput;
+  PostRelationDefaultViewInput: PostRelationDefaultViewInput;
+  PostRelationsAllPostRelationsInput: PostRelationsAllPostRelationsInput;
+  PostRelationSelector: PostRelationSelector;
   MultiPostRelationInput: MultiPostRelationInput;
   MultiPostRelationOutput: MultiPostRelationOutput;
   SinglePostViewTimeInput: SinglePostViewTimeInput;
   SinglePostViewTimeOutput: SinglePostViewTimeOutput;
+  PostViewTimeViewInput: PostViewTimeViewInput;
+  PostViewTimeSelector: PostViewTimeSelector;
   MultiPostViewTimeInput: MultiPostViewTimeInput;
   MultiPostViewTimeOutput: MultiPostViewTimeOutput;
   PostViews: PostViews;
-  SinglePostViewsInput: SinglePostViewsInput;
-  SinglePostViewsOutput: SinglePostViewsOutput;
-  MultiPostViewsInput: MultiPostViewsInput;
-  MultiPostViewsOutput: MultiPostViewsOutput;
+  SinglePostViewInput: SinglePostViewInput;
+  SinglePostViewOutput: SinglePostViewOutput;
+  PostViewViewInput: PostViewViewInput;
+  PostViewSelector: PostViewSelector;
+  MultiPostViewInput: MultiPostViewInput;
+  MultiPostViewOutput: MultiPostViewOutput;
   SinglePostInput: SinglePostInput;
   SinglePostOutput: SinglePostOutput;
+  PostDefaultViewInput: PostDefaultViewInput;
+  PostsUserPostsInput: PostsUserPostsInput;
+  PostsMagicInput: PostsMagicInput;
+  PostsTopInput: PostsTopInput;
+  PostsNewInput: PostsNewInput;
+  PostsRecentCommentsInput: PostsRecentCommentsInput;
+  PostsOldInput: PostsOldInput;
+  PostsTimeframeInput: PostsTimeframeInput;
+  PostsDailyInput: PostsDailyInput;
+  PostsTagRelevanceInput: PostsTagRelevanceInput;
+  PostsFrontpageInput: PostsFrontpageInput;
+  PostsFrontpageRssInput: PostsFrontpageRssInput;
+  PostsCuratedInput: PostsCuratedInput;
+  PostsCuratedRssInput: PostsCuratedRssInput;
+  PostsCommunityInput: PostsCommunityInput;
+  PostsCommunityRssInput: PostsCommunityRssInput;
+  PostsMetaRssInput: PostsMetaRssInput;
+  PostsRssInput: PostsRssInput;
+  PostsTopQuestionsInput: PostsTopQuestionsInput;
+  PostsRecentQuestionActivityInput: PostsRecentQuestionActivityInput;
+  PostsScheduledInput: PostsScheduledInput;
+  PostsRejectedInput: PostsRejectedInput;
+  PostsDraftsInput: PostsDraftsInput;
+  PostsAll_draftsInput: PostsAll_draftsInput;
+  PostsUnlistedInput: PostsUnlistedInput;
+  PostsUserAFSubmissionsInput: PostsUserAFSubmissionsInput;
+  PostsSlugPostInput: PostsSlugPostInput;
+  PostsLegacyIdPostInput: PostsLegacyIdPostInput;
+  PostsRecentDiscussionThreadsListInput: PostsRecentDiscussionThreadsListInput;
+  PostsAfRecentDiscussionThreadsListInput: PostsAfRecentDiscussionThreadsListInput;
+  PostsReviewRecentDiscussionThreadsList2018Input: PostsReviewRecentDiscussionThreadsList2018Input;
+  PostsReviewRecentDiscussionThreadsList2019Input: PostsReviewRecentDiscussionThreadsList2019Input;
+  PostsGlobalEventsInput: PostsGlobalEventsInput;
+  PostsNearbyEventsInput: PostsNearbyEventsInput;
+  PostsEventsInput: PostsEventsInput;
+  PostsEventsInTimeRangeInput: PostsEventsInTimeRangeInput;
+  PostsUpcomingEventsInput: PostsUpcomingEventsInput;
+  PostsPastEventsInput: PostsPastEventsInput;
+  PostsTbdEventsInput: PostsTbdEventsInput;
+  PostsNonEventGroupPostsInput: PostsNonEventGroupPostsInput;
+  PostsPostsWithBannedUsersInput: PostsPostsWithBannedUsersInput;
+  PostsCommunityResourcePostsInput: PostsCommunityResourcePostsInput;
+  PostsSunshineNewPostsInput: PostsSunshineNewPostsInput;
+  PostsSunshineNewUsersPostsInput: PostsSunshineNewUsersPostsInput;
+  PostsSunshineCuratedSuggestionsInput: PostsSunshineCuratedSuggestionsInput;
+  PostsHasEverDialoguedInput: PostsHasEverDialoguedInput;
+  PostsPingbackPostsInput: PostsPingbackPostsInput;
+  PostsNominations2018Input: PostsNominations2018Input;
+  PostsNominations2019Input: PostsNominations2019Input;
+  PostsReviews2018Input: PostsReviews2018Input;
+  PostsReviews2019Input: PostsReviews2019Input;
+  PostsVoting2019Input: PostsVoting2019Input;
+  PostsStickiedInput: PostsStickiedInput;
+  PostsNominatablePostsByVoteInput: PostsNominatablePostsByVoteInput;
+  PostsReviewVotingInput: PostsReviewVotingInput;
+  PostsFrontpageReviewWidgetInput: PostsFrontpageReviewWidgetInput;
+  PostsReviewQuickPageInput: PostsReviewQuickPageInput;
+  PostsReviewFinalVotingInput: PostsReviewFinalVotingInput;
+  PostsMyBookmarkedPostsInput: PostsMyBookmarkedPostsInput;
+  PostsAlignmentSuggestedPostsInput: PostsAlignmentSuggestedPostsInput;
+  PostsCurrentOpenThreadInput: PostsCurrentOpenThreadInput;
+  PostSelector: PostSelector;
   MultiPostInput: MultiPostInput;
   MultiPostOutput: MultiPostOutput;
   SingleRSSFeedInput: SingleRSSFeedInput;
   SingleRSSFeedOutput: SingleRSSFeedOutput;
+  RSSFeedDefaultViewInput: RSSFeedDefaultViewInput;
+  RSSFeedsUsersFeedInput: RSSFeedsUsersFeedInput;
+  RSSFeedSelector: RSSFeedSelector;
   MultiRSSFeedInput: MultiRSSFeedInput;
   MultiRSSFeedOutput: MultiRSSFeedOutput;
   SingleReportInput: SingleReportInput;
   SingleReportOutput: SingleReportOutput;
+  ReportDefaultViewInput: ReportDefaultViewInput;
+  ReportsAllReportsInput: ReportsAllReportsInput;
+  ReportsUnclaimedReportsInput: ReportsUnclaimedReportsInput;
+  ReportsClaimedReportsInput: ReportsClaimedReportsInput;
+  ReportsAdminClaimedReportsInput: ReportsAdminClaimedReportsInput;
+  ReportsSunshineSidebarReportsInput: ReportsSunshineSidebarReportsInput;
+  ReportsClosedReportsInput: ReportsClosedReportsInput;
+  ReportSelector: ReportSelector;
   MultiReportInput: MultiReportInput;
   MultiReportOutput: MultiReportOutput;
   SingleReviewVoteInput: SingleReviewVoteInput;
   SingleReviewVoteOutput: SingleReviewVoteOutput;
+  ReviewVoteDefaultViewInput: ReviewVoteDefaultViewInput;
+  ReviewVotesReviewVotesFromUserInput: ReviewVotesReviewVotesFromUserInput;
+  ReviewVotesReviewVotesForPostInput: ReviewVotesReviewVotesForPostInput;
+  ReviewVotesReviewVotesForPostAndUserInput: ReviewVotesReviewVotesForPostAndUserInput;
+  ReviewVotesReviewVotesAdminDashboardInput: ReviewVotesReviewVotesAdminDashboardInput;
+  ReviewVoteSelector: ReviewVoteSelector;
   MultiReviewVoteInput: MultiReviewVoteInput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;
   SingleReviewWinnerArtInput: SingleReviewWinnerArtInput;
   SingleReviewWinnerArtOutput: SingleReviewWinnerArtOutput;
+  ReviewWinnerArtDefaultViewInput: ReviewWinnerArtDefaultViewInput;
+  ReviewWinnerArtsPostArtInput: ReviewWinnerArtsPostArtInput;
+  ReviewWinnerArtsAllForYearInput: ReviewWinnerArtsAllForYearInput;
+  ReviewWinnerArtSelector: ReviewWinnerArtSelector;
   MultiReviewWinnerArtInput: MultiReviewWinnerArtInput;
   MultiReviewWinnerArtOutput: MultiReviewWinnerArtOutput;
   SingleReviewWinnerInput: SingleReviewWinnerInput;
   SingleReviewWinnerOutput: SingleReviewWinnerOutput;
+  ReviewWinnerDefaultViewInput: ReviewWinnerDefaultViewInput;
+  ReviewWinnersReviewWinnerSingleInput: ReviewWinnersReviewWinnerSingleInput;
+  ReviewWinnersBestOfLessWrongAnnouncementInput: ReviewWinnersBestOfLessWrongAnnouncementInput;
+  ReviewWinnerSelector: ReviewWinnerSelector;
   MultiReviewWinnerInput: MultiReviewWinnerInput;
   MultiReviewWinnerOutput: MultiReviewWinnerOutput;
   SingleRevisionInput: SingleRevisionInput;
   SingleRevisionOutput: SingleRevisionOutput;
+  RevisionDefaultViewInput: RevisionDefaultViewInput;
+  RevisionsRevisionsByUserInput: RevisionsRevisionsByUserInput;
+  RevisionsRevisionsOnDocumentInput: RevisionsRevisionsOnDocumentInput;
+  RevisionsRevisionByVersionNumberInput: RevisionsRevisionByVersionNumberInput;
+  RevisionSelector: RevisionSelector;
   MultiRevisionInput: MultiRevisionInput;
   MultiRevisionOutput: MultiRevisionOutput;
   SingleSequenceInput: SingleSequenceInput;
   SingleSequenceOutput: SingleSequenceOutput;
+  SequenceDefaultViewInput: SequenceDefaultViewInput;
+  SequencesUserProfileInput: SequencesUserProfileInput;
+  SequencesUserProfilePrivateInput: SequencesUserProfilePrivateInput;
+  SequencesUserProfileAllInput: SequencesUserProfileAllInput;
+  SequencesCuratedSequencesInput: SequencesCuratedSequencesInput;
+  SequencesCommunitySequencesInput: SequencesCommunitySequencesInput;
+  SequenceSelector: SequenceSelector;
   MultiSequenceInput: MultiSequenceInput;
   MultiSequenceOutput: MultiSequenceOutput;
   SingleSplashArtCoordinateInput: SingleSplashArtCoordinateInput;
   SingleSplashArtCoordinateOutput: SingleSplashArtCoordinateOutput;
+  SplashArtCoordinateViewInput: SplashArtCoordinateViewInput;
+  SplashArtCoordinateSelector: SplashArtCoordinateSelector;
   MultiSplashArtCoordinateInput: MultiSplashArtCoordinateInput;
   MultiSplashArtCoordinateOutput: MultiSplashArtCoordinateOutput;
   SingleSpotlightInput: SingleSpotlightInput;
   SingleSpotlightOutput: SingleSpotlightOutput;
+  SpotlightDefaultViewInput: SpotlightDefaultViewInput;
+  SpotlightsMostRecentlyPromotedSpotlightsInput: SpotlightsMostRecentlyPromotedSpotlightsInput;
+  SpotlightsSpotlightsPageInput: SpotlightsSpotlightsPageInput;
+  SpotlightsSpotlightsPageDraftInput: SpotlightsSpotlightsPageDraftInput;
+  SpotlightsSpotlightsByDocumentIdsInput: SpotlightsSpotlightsByDocumentIdsInput;
+  SpotlightsSpotlightsByIdInput: SpotlightsSpotlightsByIdInput;
+  SpotlightSelector: SpotlightSelector;
   MultiSpotlightInput: MultiSpotlightInput;
   MultiSpotlightOutput: MultiSpotlightOutput;
   SingleSubscriptionInput: SingleSubscriptionInput;
   SingleSubscriptionOutput: SingleSubscriptionOutput;
+  SubscriptionDefaultViewInput: SubscriptionDefaultViewInput;
+  SubscriptionsSubscriptionStateInput: SubscriptionsSubscriptionStateInput;
+  SubscriptionsSubscriptionsOfTypeInput: SubscriptionsSubscriptionsOfTypeInput;
+  SubscriptionsMembersOfGroupInput: SubscriptionsMembersOfGroupInput;
+  SubscriptionSelector: SubscriptionSelector;
   MultiSubscriptionInput: MultiSubscriptionInput;
   MultiSubscriptionOutput: MultiSubscriptionOutput;
   SingleSurveyQuestionInput: SingleSurveyQuestionInput;
   SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
+  SurveyQuestionViewInput: SurveyQuestionViewInput;
+  SurveyQuestionSelector: SurveyQuestionSelector;
   MultiSurveyQuestionInput: MultiSurveyQuestionInput;
   MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
   SingleSurveyResponseInput: SingleSurveyResponseInput;
   SingleSurveyResponseOutput: SingleSurveyResponseOutput;
+  SurveyResponseViewInput: SurveyResponseViewInput;
+  SurveyResponseSelector: SurveyResponseSelector;
   MultiSurveyResponseInput: MultiSurveyResponseInput;
   MultiSurveyResponseOutput: MultiSurveyResponseOutput;
   SingleSurveyScheduleInput: SingleSurveyScheduleInput;
   SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
+  SurveyScheduleDefaultViewInput: SurveyScheduleDefaultViewInput;
+  SurveySchedulesSurveySchedulesByCreatedAtInput: SurveySchedulesSurveySchedulesByCreatedAtInput;
+  SurveyScheduleSelector: SurveyScheduleSelector;
   MultiSurveyScheduleInput: MultiSurveyScheduleInput;
   MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
   SingleSurveyInput: SingleSurveyInput;
   SingleSurveyOutput: SingleSurveyOutput;
+  SurveyDefaultViewInput: SurveyDefaultViewInput;
+  SurveysSurveysByCreatedAtInput: SurveysSurveysByCreatedAtInput;
+  SurveySelector: SurveySelector;
   MultiSurveyInput: MultiSurveyInput;
   MultiSurveyOutput: MultiSurveyOutput;
   SingleTagFlagInput: SingleTagFlagInput;
   SingleTagFlagOutput: SingleTagFlagOutput;
+  TagFlagDefaultViewInput: TagFlagDefaultViewInput;
+  TagFlagsAllTagFlagsInput: TagFlagsAllTagFlagsInput;
+  TagFlagSelector: TagFlagSelector;
   MultiTagFlagInput: MultiTagFlagInput;
   MultiTagFlagOutput: MultiTagFlagOutput;
   SingleTagRelInput: SingleTagRelInput;
   SingleTagRelOutput: SingleTagRelOutput;
+  TagRelDefaultViewInput: TagRelDefaultViewInput;
+  TagRelsPostsWithTagInput: TagRelsPostsWithTagInput;
+  TagRelsTagsOnPostInput: TagRelsTagsOnPostInput;
+  TagRelSelector: TagRelSelector;
   MultiTagRelInput: MultiTagRelInput;
   MultiTagRelOutput: MultiTagRelOutput;
   SingleTagInput: SingleTagInput;
   SingleTagOutput: SingleTagOutput;
+  TagDefaultViewInput: TagDefaultViewInput;
+  TagsTagsByTagIdsInput: TagsTagsByTagIdsInput;
+  TagsAllTagsAlphabeticalInput: TagsAllTagsAlphabeticalInput;
+  TagsUserTagsInput: TagsUserTagsInput;
+  TagsCurrentUserSubforumsInput: TagsCurrentUserSubforumsInput;
+  TagsAllPagesByNewestInput: TagsAllPagesByNewestInput;
+  TagsAllTagsHierarchicalInput: TagsAllTagsHierarchicalInput;
+  TagsTagBySlugInput: TagsTagBySlugInput;
+  TagsTagsBySlugsInput: TagsTagsBySlugsInput;
+  TagsCoreTagsInput: TagsCoreTagsInput;
+  TagsPostTypeTagsInput: TagsPostTypeTagsInput;
+  TagsCoreAndSubforumTagsInput: TagsCoreAndSubforumTagsInput;
+  TagsNewTagsInput: TagsNewTagsInput;
+  TagsUnreviewedTagsInput: TagsUnreviewedTagsInput;
+  TagsSuggestedFilterTagsInput: TagsSuggestedFilterTagsInput;
+  TagsAllLWWikiTagsInput: TagsAllLWWikiTagsInput;
+  TagsUnprocessedLWWikiTagsInput: TagsUnprocessedLWWikiTagsInput;
+  TagsTagsByTagFlagInput: TagsTagsByTagFlagInput;
+  TagsAllPublicTagsInput: TagsAllPublicTagsInput;
+  TagsAllArbitalTagsInput: TagsAllArbitalTagsInput;
+  TagsPingbackWikiPagesInput: TagsPingbackWikiPagesInput;
+  TagSelector: TagSelector;
   MultiTagInput: MultiTagInput;
   MultiTagOutput: MultiTagOutput;
   SingleTypingIndicatorInput: SingleTypingIndicatorInput;
   SingleTypingIndicatorOutput: SingleTypingIndicatorOutput;
+  TypingIndicatorViewInput: TypingIndicatorViewInput;
+  TypingIndicatorSelector: TypingIndicatorSelector;
   MultiTypingIndicatorInput: MultiTypingIndicatorInput;
   MultiTypingIndicatorOutput: MultiTypingIndicatorOutput;
+  SingleUltraFeedEventInput: SingleUltraFeedEventInput;
+  SingleUltraFeedEventOutput: SingleUltraFeedEventOutput;
+  UltraFeedEventDefaultViewInput: UltraFeedEventDefaultViewInput;
+  UltraFeedEventSelector: UltraFeedEventSelector;
+  MultiUltraFeedEventInput: MultiUltraFeedEventInput;
+  MultiUltraFeedEventOutput: MultiUltraFeedEventOutput;
   SingleUserEAGDetailInput: SingleUserEAGDetailInput;
   SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
+  UserEAGDetailDefaultViewInput: UserEAGDetailDefaultViewInput;
+  UserEAGDetailsDataByUserInput: UserEAGDetailsDataByUserInput;
+  UserEAGDetailSelector: UserEAGDetailSelector;
   MultiUserEAGDetailInput: MultiUserEAGDetailInput;
   MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
   SingleUserJobAdInput: SingleUserJobAdInput;
   SingleUserJobAdOutput: SingleUserJobAdOutput;
+  UserJobAdDefaultViewInput: UserJobAdDefaultViewInput;
+  UserJobAdsAdsByUserInput: UserJobAdsAdsByUserInput;
+  UserJobAdSelector: UserJobAdSelector;
   MultiUserJobAdInput: MultiUserJobAdInput;
   MultiUserJobAdOutput: MultiUserJobAdOutput;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
+  UserMostValuablePostDefaultViewInput: UserMostValuablePostDefaultViewInput;
+  UserMostValuablePostsCurrentUserMostValuablePostsInput: UserMostValuablePostsCurrentUserMostValuablePostsInput;
+  UserMostValuablePostsCurrentUserPostInput: UserMostValuablePostsCurrentUserPostInput;
+  UserMostValuablePostSelector: UserMostValuablePostSelector;
   MultiUserMostValuablePostInput: MultiUserMostValuablePostInput;
   MultiUserMostValuablePostOutput: MultiUserMostValuablePostOutput;
   SingleUserRateLimitInput: SingleUserRateLimitInput;
   SingleUserRateLimitOutput: SingleUserRateLimitOutput;
+  UserRateLimitDefaultViewInput: UserRateLimitDefaultViewInput;
+  UserRateLimitsUserRateLimitsInput: UserRateLimitsUserRateLimitsInput;
+  UserRateLimitsActiveUserRateLimitsInput: UserRateLimitsActiveUserRateLimitsInput;
+  UserRateLimitSelector: UserRateLimitSelector;
   MultiUserRateLimitInput: MultiUserRateLimitInput;
   MultiUserRateLimitOutput: MultiUserRateLimitOutput;
   SingleUserTagRelInput: SingleUserTagRelInput;
   SingleUserTagRelOutput: SingleUserTagRelOutput;
+  UserTagRelDefaultViewInput: UserTagRelDefaultViewInput;
+  UserTagRelsSingleInput: UserTagRelsSingleInput;
+  UserTagRelSelector: UserTagRelSelector;
   MultiUserTagRelInput: MultiUserTagRelInput;
   MultiUserTagRelOutput: MultiUserTagRelOutput;
   SingleUserInput: SingleUserInput;
   SingleUserOutput: SingleUserOutput;
+  UserDefaultViewInput: UserDefaultViewInput;
+  UsersUsersByUserIdsInput: UsersUsersByUserIdsInput;
+  UsersUsersProfileInput: UsersUsersProfileInput;
+  UsersLWSunshinesListInput: UsersLWSunshinesListInput;
+  UsersLWTrustLevel1ListInput: UsersLWTrustLevel1ListInput;
+  UsersLWUsersAdminInput: UsersLWUsersAdminInput;
+  UsersUsersWithBannedUsersInput: UsersUsersWithBannedUsersInput;
+  UsersSunshineNewUsersInput: UsersSunshineNewUsersInput;
+  UsersRecentlyActiveInput: UsersRecentlyActiveInput;
+  UsersAllUsersInput: UsersAllUsersInput;
+  UsersUsersMapLocationsInput: UsersUsersMapLocationsInput;
+  UsersTagCommunityMembersInput: UsersTagCommunityMembersInput;
+  UsersReviewAdminUsersInput: UsersReviewAdminUsersInput;
+  UsersUsersWithPaymentInfoInput: UsersUsersWithPaymentInfoInput;
+  UsersUsersWithOptedInToDialogueFacilitationInput: UsersUsersWithOptedInToDialogueFacilitationInput;
+  UsersAlignmentSuggestedUsersInput: UsersAlignmentSuggestedUsersInput;
+  UserSelector: UserSelector;
   MultiUserInput: MultiUserInput;
   MultiUserOutput: MultiUserOutput;
   SingleVoteInput: SingleVoteInput;
   SingleVoteOutput: SingleVoteOutput;
+  VoteDefaultViewInput: VoteDefaultViewInput;
+  VotesTagVotesInput: VotesTagVotesInput;
+  VotesUserPostVotesInput: VotesUserPostVotesInput;
+  VotesUserVotesInput: VotesUserVotesInput;
+  VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;
   CreateAdvisorRequestDataInput: CreateAdvisorRequestDataInput;

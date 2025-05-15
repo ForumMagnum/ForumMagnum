@@ -2972,12 +2972,12 @@ type GardenCode {
   afOnly: Boolean!
 }
 
-input SingleGardencodeInput {
+input SingleGardenCodeInput {
   selector: SelectorInput
   resolverArgs: JSON
 }
 
-type SingleGardencodeOutput {
+type SingleGardenCodeOutput {
   result: GardenCode
 }
 
@@ -3005,27 +3005,27 @@ input GardenCodesGardenCodeByCodeInput {
   code: String
 }
 
-input GardencodeSelector {
+input GardenCodeSelector {
   default: GardenCodeDefaultViewInput
   usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput
   publicGardenCodes: GardenCodesPublicGardenCodesInput
   gardenCodeByCode: GardenCodesGardenCodeByCodeInput
 }
 
-input MultiGardencodeInput {
+input MultiGardenCodeInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiGardencodeOutput {
+type MultiGardenCodeOutput {
   results: [GardenCode]
   totalCount: Int
 }
 
 extend type Query {
-  gardenCode(input: SingleGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardencodeOutput
-  gardenCodes(input: MultiGardencodeInput @deprecated(reason: "Use the selector field instead"), selector: GardencodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardencodeOutput
+  gardenCode(input: SingleGardenCodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardenCodeOutput
+  gardenCodes(input: MultiGardenCodeInput @deprecated(reason: "Use the selector field instead"), selector: GardenCodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardenCodeOutput
 }
 
 type GoogleServiceAccountSession {
@@ -4080,8 +4080,8 @@ type MultiPostViewOutput {
 }
 
 extend type Query {
-  postView(input: SinglePostViewInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostViewOutput
-  postViews(input: MultiPostViewInput @deprecated(reason: "Use the selector field instead"), selector: PostViewSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostViewOutput
+  postViews(input: SinglePostViewInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostViewOutput
+  postViewses(input: MultiPostViewInput @deprecated(reason: "Use the selector field instead"), selector: PostViewSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostViewOutput
 }
 
 type Post {
@@ -5570,12 +5570,12 @@ type RSSFeed {
   importAsDraft: Boolean!
 }
 
-input SingleRssfeedInput {
+input SingleRSSFeedInput {
   selector: SelectorInput
   resolverArgs: JSON
 }
 
-type SingleRssfeedOutput {
+type SingleRSSFeedOutput {
   result: RSSFeed
 }
 
@@ -5585,25 +5585,25 @@ input RSSFeedsUsersFeedInput {
   userId: String
 }
 
-input RssfeedSelector {
+input RSSFeedSelector {
   default: RSSFeedDefaultViewInput
   usersFeed: RSSFeedsUsersFeedInput
 }
 
-input MultiRssfeedInput {
+input MultiRSSFeedInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiRssfeedOutput {
+type MultiRSSFeedOutput {
   results: [RSSFeed]
   totalCount: Int
 }
 
 extend type Query {
-  rssfeed(input: SingleRssfeedInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleRssfeedOutput
-  rssfeeds(input: MultiRssfeedInput @deprecated(reason: "Use the selector field instead"), selector: RssfeedSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRssfeedOutput
+  rSSFeed(input: SingleRSSFeedInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleRSSFeedOutput
+  rSSFeeds(input: MultiRSSFeedInput @deprecated(reason: "Use the selector field instead"), selector: RSSFeedSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRSSFeedOutput
 }
 
 type ReadStatus {
@@ -6918,12 +6918,12 @@ type UserEAGDetail {
   lastUpdated: Date
 }
 
-input SingleUserEagDetailInput {
+input SingleUserEAGDetailInput {
   selector: SelectorInput
   resolverArgs: JSON
 }
 
-type SingleUserEagDetailOutput {
+type SingleUserEAGDetailOutput {
   result: UserEAGDetail
 }
 
@@ -6933,25 +6933,25 @@ input UserEAGDetailsDataByUserInput {
   userId: String
 }
 
-input UserEagDetailSelector {
+input UserEAGDetailSelector {
   default: UserEAGDetailDefaultViewInput
   dataByUser: UserEAGDetailsDataByUserInput
 }
 
-input MultiUserEagDetailInput {
+input MultiUserEAGDetailInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
 }
 
-type MultiUserEagDetailOutput {
+type MultiUserEAGDetailOutput {
   results: [UserEAGDetail]
   totalCount: Int
 }
 
 extend type Query {
-  userEagDetail(input: SingleUserEagDetailInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserEagDetailOutput
-  userEagDetails(input: MultiUserEagDetailInput @deprecated(reason: "Use the selector field instead"), selector: UserEagDetailSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserEagDetailOutput
+  userEAGDetail(input: SingleUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserEAGDetailOutput
+  userEAGDetails(input: MultiUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: UserEAGDetailSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserEAGDetailOutput
 }
 
 type UserJobAd {
