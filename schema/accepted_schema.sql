@@ -3698,6 +3698,14 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_i
   "votedAt"
 );
 
+-- Index "idx_Votes_userId_collectionName_cancelled_votedAt"
+CREATE INDEX IF NOT EXISTS "idx_Votes_userId_collectionName_cancelled_votedAt" ON "Votes" USING btree (
+  "userId",
+  "collectionName",
+  "cancelled",
+  "votedAt"
+);
+
 -- Index "idx_Votes_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
