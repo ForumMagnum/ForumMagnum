@@ -3,6 +3,7 @@
 import "../../components/admin/CurationNoticesForm.tsx"
 import "../../components/comments/CommentForm.tsx"
 import "../../components/common/FMTooltip.tsx"
+import "../../components/common/HorizScrollBlock.tsx"
 import "../../components/common/Menus.tsx"
 import "../../components/common/SubscribeWidget.tsx"
 import "../../components/common/TemplateComponent.tsx"

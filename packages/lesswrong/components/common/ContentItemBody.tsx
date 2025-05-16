@@ -13,14 +13,14 @@ import type { ContentStyleType } from './ContentStyles';
 import JargonTooltip from '../jargon/JargonTooltip';
 import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
 import ConditionalVisibilityBlockDisplay from "../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
-import HorizScrollBlock from "./HorizScrollBlock";
 import CollapsedFootnotes from "../posts/PostsPage/CollapsedFootnotes";
 import ElicitBlock from "../posts/ElicitBlock";
 import WrappedStrawPoll from "./WrappedStrawPoll";
 import ForumEventPostPagePollSection from "../forumEvents/ForumEventPostPagePollSection";
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
+import { HorizScrollBlock } from './HorizScrollBlock';
 
-const replacementComponentMap = {
+export const replacementComponentMap = {
   JargonTooltip,
   InlineReactHoverableHighlight,
 };
@@ -192,7 +192,7 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
 });
 
 
-const addNofollowToHTML = (html: string): string => {
+export const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
