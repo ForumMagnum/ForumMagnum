@@ -55,7 +55,7 @@ input CoauthorStatusInput {
 }
 
 input SocialPreviewInput {
-  imageId: String!
+  imageId: String
   text: String
 }
 
