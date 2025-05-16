@@ -38,6 +38,24 @@ export class FMCrosspostRoute<
   }
 }
 
+export const crossposterDetailsRoute = new FMCrosspostRoute({
+  routeName: "crossposterDetails",
+  requestSchema: z.object({ userId: z.string().nonempty() }),
+  responseSchema: z.object({
+    displayName: z.string().nonempty(),
+    slug: z.string().nonempty(),
+  }),
+});
+
+export const crosspostDetailsRoute = new FMCrosspostRoute({
+  routeName: "crosspostDetails",
+  requestSchema: z.object({ postId: z.string().nonempty() }),
+  responseSchema: z.object({
+    canonicalLink: z.string().nonempty(),
+    commentCount: z.number().int().gte(0),
+  }),
+});
+
 export const generateTokenRoute = new FMCrosspostRoute({
   routeName: "generateToken",
   requestSchema: z.any(),

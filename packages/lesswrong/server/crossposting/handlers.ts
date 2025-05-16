@@ -1,9 +1,11 @@
 import { Application, Request, Response, json } from "express";
 import { ZodType, z } from "zod";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
-import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
+import { assertCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   ApiError,
+  InvalidPostError,
   InvalidUserError,
   UnauthorizedError,
 } from "@/server/fmCrosspost/errors";
@@ -14,13 +16,18 @@ import {
 } from "@/server/crossposting/tokens";
 import {
   FMCrosspostRoute,
+  crossposterDetailsRoute,
+  crosspostDetailsRoute,
   generateTokenRoute,
   connectCrossposterRoute,
   unlinkCrossposterRoute,
   createCrosspostRoute,
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
-import { createPost } from "../collections/posts/mutations";
+import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { createPost, updatePost } from "../collections/posts/mutations";
+import Posts from "@/server/collections/posts/collection";
+import Users from "@/server/collections/users/collection";
 
 const onRequestError = (
   req: Request,
@@ -56,7 +63,7 @@ const addHandler = <
   ) => Promise<ResponseData>,
 ) => {
   const path = route.getPath();
-  app.use(path, json({ limit: "1mb" }));
+  app.use(path, json({ limit: "20mb" }));
   app.post(path, async (req: Request, res: Response) => {
     const parsedResult = route.getRequestSchema().safeParse(req.body);
     if (!parsedResult.success) {
@@ -88,12 +95,60 @@ const addHandler = <
 export const addV2CrosspostHandlers = (app: Application) => {
   addHandler(
     app,
+    crossposterDetailsRoute,
+    async function crossposterDetailsCrosspostHandler(context, { userId }) {
+      const rawUser = await context.loaders.Users.load(userId);
+      if (!rawUser) {
+        throw new InvalidUserError();
+      }
+      const user = await accessFilterSingle(
+        context.currentUser,
+        "Users",
+        rawUser,
+        context,
+      );
+      if (!user) {
+        throw new InvalidUserError();
+      }
+      return {
+        displayName: user.displayName ?? user.username ?? "",
+        slug: user.slug ?? "",
+      };
+    },
+  );
+
+  addHandler(
+    app,
+    crosspostDetailsRoute,
+    async function crosspostDetailsCrosspostHandler(context, { postId }) {
+      const rawPost = await context.loaders.Posts.load(postId);
+      if (!rawPost.fmCrosspost?.isCrosspost) {
+        throw new InvalidPostError();
+      }
+      const post = await accessFilterSingle(
+        context.currentUser,
+        "Posts",
+        rawPost,
+        context,
+      );
+      if (!post) {
+        throw new InvalidPostError();
+      }
+      return {
+        canonicalLink: postGetPageUrl(post as DbPost, true),
+        commentCount: Math.max(post.commentCount ?? 0, 0),
+      };
+    },
+  );
+
+  addHandler(
+    app,
     generateTokenRoute,
     async function generateTokenCrosspostHandler({currentUser}, _payload) {
       if (!currentUser) {
         throw new UnauthorizedError();
       }
-      validateCrosspostingKarmaThreshold(currentUser);
+      assertCrosspostingKarmaThreshold(currentUser);
       const token = await connectCrossposterToken.create({
         userId: currentUser._id,
       });
@@ -157,8 +212,15 @@ export const addV2CrosspostHandlers = (app: Application) => {
             foreignPostId: postId,
           },
           ...postData,
+          contents: {
+            ...postData.contents,
+            originalContents: postData.contents?.originalContents ?? {
+              type: "ckEditorMarkup",
+              data: "",
+            },
+          },
         },
-      }, { ...context, isFMCrosspostRequest: true });
+      }, { ...context, currentUser: user, isFMCrosspostRequest: true });
 
       return {
         status: "posted" as const,
@@ -172,7 +234,22 @@ export const addV2CrosspostHandlers = (app: Application) => {
     updateCrosspostRoute,
     async function updateCrosspostHandler(context, {token}) {
       const {postId, ...postData} = await updateCrosspostToken.verify(token);
-      await context.Posts.rawUpdateOne({_id: postId}, {$set: postData});
+
+      const post = await Posts.findOne({_id: postId});
+      if (!post) {
+        throw new InvalidPostError();
+      }
+
+      const currentUser = await Users.findOne({_id: post.userId});
+      if (!currentUser) {
+        throw new InvalidUserError();
+      }
+
+      await updatePost({
+        selector: {_id: postId},
+        data: postData,
+      }, {...context, currentUser});
+
       return {status: "updated" as const};
     },
   );
