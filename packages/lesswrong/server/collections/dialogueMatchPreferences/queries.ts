@@ -17,14 +17,12 @@ export const graphqlDialogueMatchPreferenceQueryTypeDefs = gql`
     result: DialogueMatchPreference
   }
   
-  input DialogueMatchPreferenceDefaultViewInput
-  
   input DialogueMatchPreferencesDialogueMatchPreferencesInput {
     dialogueCheckId: String
   }
   
-  input DialogueMatchPreferenceSelector  {
-    default: DialogueMatchPreferenceDefaultViewInput
+  input DialogueMatchPreferenceSelector {
+    default: EmptyViewInput
     dialogueMatchPreferences: DialogueMatchPreferencesDialogueMatchPreferencesInput
   }
   

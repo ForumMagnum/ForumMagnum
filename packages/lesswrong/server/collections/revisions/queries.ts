@@ -17,8 +17,6 @@ export const graphqlRevisionQueryTypeDefs = gql`
     result: Revision
   }
   
-  input RevisionDefaultViewInput
-  
   input RevisionsRevisionsByUserInput {
     userId: String
   }
@@ -36,8 +34,8 @@ export const graphqlRevisionQueryTypeDefs = gql`
     fieldName: String
   }
   
-  input RevisionSelector  {
-    default: RevisionDefaultViewInput
+  input RevisionSelector {
+    default: EmptyViewInput
     revisionsByUser: RevisionsRevisionsByUserInput
     revisionsOnDocument: RevisionsRevisionsOnDocumentInput
     revisionByVersionNumber: RevisionsRevisionByVersionNumberInput

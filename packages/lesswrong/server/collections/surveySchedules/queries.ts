@@ -17,13 +17,9 @@ export const graphqlSurveyScheduleQueryTypeDefs = gql`
     result: SurveySchedule
   }
   
-  input SurveyScheduleDefaultViewInput
-  
-  input SurveySchedulesSurveySchedulesByCreatedAtInput
-  
-  input SurveyScheduleSelector  {
-    default: SurveyScheduleDefaultViewInput
-    surveySchedulesByCreatedAt: SurveySchedulesSurveySchedulesByCreatedAtInput
+  input SurveyScheduleSelector {
+    default: EmptyViewInput
+    surveySchedulesByCreatedAt: EmptyViewInput
   }
   
   input MultiSurveyScheduleInput {

@@ -17,14 +17,12 @@ export const graphqlAdvisorRequestQueryTypeDefs = gql`
     result: AdvisorRequest
   }
   
-  input AdvisorRequestDefaultViewInput
-  
   input AdvisorRequestsRequestsByUserInput {
     userId: String
   }
   
-  input AdvisorRequestSelector  {
-    default: AdvisorRequestDefaultViewInput
+  input AdvisorRequestSelector {
+    default: EmptyViewInput
     requestsByUser: AdvisorRequestsRequestsByUserInput
   }
   

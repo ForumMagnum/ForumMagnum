@@ -17,18 +17,14 @@ export const graphqlDigestQueryTypeDefs = gql`
     result: Digest
   }
   
-  input DigestDefaultViewInput
-  
   input DigestsFindByNumInput {
     num: String
   }
   
-  input DigestsAllInput
-  
-  input DigestSelector  {
-    default: DigestDefaultViewInput
+  input DigestSelector {
+    default: EmptyViewInput
     findByNum: DigestsFindByNumInput
-    all: DigestsAllInput
+    all: EmptyViewInput
   }
   
   input MultiDigestInput {

@@ -17,10 +17,8 @@ export const graphqlArbitalTagContentRelQueryTypeDefs = gql`
     result: ArbitalTagContentRel
   }
   
-  input ArbitalTagContentRelViewInput
-  
-  input ArbitalTagContentRelSelector  {
-    default: ArbitalTagContentRelViewInput
+  input ArbitalTagContentRelSelector {
+    default: EmptyViewInput
   }
   
   input MultiArbitalTagContentRelInput {

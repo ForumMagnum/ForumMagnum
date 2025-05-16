@@ -17,13 +17,9 @@ export const graphqlFeaturedResourceQueryTypeDefs = gql`
     result: FeaturedResource
   }
   
-  input FeaturedResourceDefaultViewInput
-  
-  input FeaturedResourcesActiveResourcesInput
-  
-  input FeaturedResourceSelector  {
-    default: FeaturedResourceDefaultViewInput
-    activeResources: FeaturedResourcesActiveResourcesInput
+  input FeaturedResourceSelector {
+    default: EmptyViewInput
+    activeResources: EmptyViewInput
   }
   
   input MultiFeaturedResourceInput {

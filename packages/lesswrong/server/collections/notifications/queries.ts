@@ -17,8 +17,6 @@ export const graphqlNotificationQueryTypeDefs = gql`
     result: Notification
   }
   
-  input NotificationDefaultViewInput
-  
   input NotificationsUserNotificationsInput {
     userId: String
     type: String
@@ -35,8 +33,8 @@ export const graphqlNotificationQueryTypeDefs = gql`
     type: String
   }
   
-  input NotificationSelector  {
-    default: NotificationDefaultViewInput
+  input NotificationSelector {
+    default: EmptyViewInput
     userNotifications: NotificationsUserNotificationsInput
     unreadUserNotifications: NotificationsUnreadUserNotificationsInput
     adminAlertNotifications: NotificationsAdminAlertNotificationsInput

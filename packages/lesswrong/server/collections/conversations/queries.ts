@@ -17,8 +17,6 @@ export const graphqlConversationQueryTypeDefs = gql`
     result: Conversation
   }
   
-  input ConversationDefaultViewInput
-  
   input ConversationsModeratorConversationsInput {
     userId: String
     showArchive: String
@@ -40,8 +38,8 @@ export const graphqlConversationQueryTypeDefs = gql`
     userId: String
   }
   
-  input ConversationSelector  {
-    default: ConversationDefaultViewInput
+  input ConversationSelector {
+    default: EmptyViewInput
     moderatorConversations: ConversationsModeratorConversationsInput
     userConversations: ConversationsUserConversationsInput
     userConversationsAll: ConversationsUserConversationsAllInput

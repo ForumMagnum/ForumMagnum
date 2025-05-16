@@ -18,93 +18,93 @@ export const graphqlTagQueryTypeDefs = gql`
   }
   
   input TagDefaultViewInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsTagsByTagIdsInput {
-    excludedTagIds: String
-    tagIds: String
+    excludedTagIds: [String!]
+    tagIds: [String!]!
   }
   
   input TagsAllTagsAlphabeticalInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsUserTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
     userId: String
   }
   
   input TagsCurrentUserSubforumsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsAllPagesByNewestInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsAllTagsHierarchicalInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
     wikiGrade: String
   }
   
   input TagsTagBySlugInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
     slug: String
   }
   
   input TagsTagsBySlugsInput {
-    excludedTagIds: String
-    slugs: String
+    excludedTagIds: [String!]
+    slugs: [String!]!
   }
   
   input TagsCoreTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsPostTypeTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsCoreAndSubforumTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsNewTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsUnreviewedTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsSuggestedFilterTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsAllLWWikiTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsUnprocessedLWWikiTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsTagsByTagFlagInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
     tagFlagId: String
   }
   
   input TagsAllPublicTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsAllArbitalTagsInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagsPingbackWikiPagesInput {
-    excludedTagIds: String
+    excludedTagIds: [String!]
   }
   
   input TagSelector  {

@@ -17,18 +17,14 @@ export const graphqlReviewWinnerArtQueryTypeDefs = gql`
     result: ReviewWinnerArt
   }
   
-  input ReviewWinnerArtDefaultViewInput
-  
   input ReviewWinnerArtsPostArtInput {
     postId: String
   }
   
-  input ReviewWinnerArtsAllForYearInput
-  
-  input ReviewWinnerArtSelector  {
-    default: ReviewWinnerArtDefaultViewInput
+  input ReviewWinnerArtSelector {
+    default: EmptyViewInput
     postArt: ReviewWinnerArtsPostArtInput
-    allForYear: ReviewWinnerArtsAllForYearInput
+    allForYear: EmptyViewInput
   }
   
   input MultiReviewWinnerArtInput {

@@ -221,12 +221,19 @@ const selectorInput = gql`
   }
 `;
 
+const emptyViewInput = gql`
+  input EmptyViewInput {
+    _: Boolean @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
+  }
+`;
+
 export const typeDefs = gql`
   type Query
   type Mutation
   scalar JSON
   scalar Date
   ${selectorInput}
+  ${emptyViewInput}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}

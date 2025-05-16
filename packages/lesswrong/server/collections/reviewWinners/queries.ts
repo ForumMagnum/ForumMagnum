@@ -17,20 +17,16 @@ export const graphqlReviewWinnerQueryTypeDefs = gql`
     result: ReviewWinner
   }
   
-  input ReviewWinnerDefaultViewInput
-  
   input ReviewWinnersReviewWinnerSingleInput {
     category: String
     reviewYear: String
     reviewRanking: String
   }
   
-  input ReviewWinnersBestOfLessWrongAnnouncementInput
-  
-  input ReviewWinnerSelector  {
-    default: ReviewWinnerDefaultViewInput
+  input ReviewWinnerSelector {
+    default: EmptyViewInput
     reviewWinnerSingle: ReviewWinnersReviewWinnerSingleInput
-    bestOfLessWrongAnnouncement: ReviewWinnersBestOfLessWrongAnnouncementInput
+    bestOfLessWrongAnnouncement: EmptyViewInput
   }
   
   input MultiReviewWinnerInput {

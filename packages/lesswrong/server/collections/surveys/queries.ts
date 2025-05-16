@@ -17,13 +17,9 @@ export const graphqlSurveyQueryTypeDefs = gql`
     result: Survey
   }
   
-  input SurveyDefaultViewInput
-  
-  input SurveysSurveysByCreatedAtInput
-  
-  input SurveySelector  {
-    default: SurveyDefaultViewInput
-    surveysByCreatedAt: SurveysSurveysByCreatedAtInput
+  input SurveySelector {
+    default: EmptyViewInput
+    surveysByCreatedAt: EmptyViewInput
   }
   
   input MultiSurveyInput {

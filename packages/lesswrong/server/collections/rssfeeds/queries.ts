@@ -17,14 +17,12 @@ export const graphqlRssfeedQueryTypeDefs = gql`
     result: RSSFeed
   }
   
-  input RSSFeedDefaultViewInput
-  
   input RSSFeedsUsersFeedInput {
     userId: String
   }
   
-  input RSSFeedSelector  {
-    default: RSSFeedDefaultViewInput
+  input RSSFeedSelector {
+    default: EmptyViewInput
     usersFeed: RSSFeedsUsersFeedInput
   }
   

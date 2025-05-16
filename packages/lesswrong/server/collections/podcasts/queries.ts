@@ -17,10 +17,8 @@ export const graphqlPodcastQueryTypeDefs = gql`
     result: Podcast
   }
   
-  input PodcastViewInput
-  
-  input PodcastSelector  {
-    default: PodcastViewInput
+  input PodcastSelector {
+    default: EmptyViewInput
   }
   
   input MultiPodcastInput {

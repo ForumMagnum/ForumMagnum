@@ -17,8 +17,6 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
     result: LlmConversation
   }
   
-  input LlmConversationDefaultViewInput
-  
   input LlmConversationsLlmConversationsWithUserInput {
     userId: String
   }
@@ -27,8 +25,8 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
     showDeleted: String
   }
   
-  input LlmConversationSelector  {
-    default: LlmConversationDefaultViewInput
+  input LlmConversationSelector {
+    default: EmptyViewInput
     llmConversationsWithUser: LlmConversationsLlmConversationsWithUserInput
     llmConversationsAll: LlmConversationsLlmConversationsAllInput
   }

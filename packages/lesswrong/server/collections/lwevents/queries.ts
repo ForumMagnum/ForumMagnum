@@ -17,8 +17,6 @@ export const graphqlLweventQueryTypeDefs = gql`
     result: LWEvent
   }
   
-  input LWEventDefaultViewInput
-  
   input LWEventsAdminViewInput {
     name: String
   }
@@ -33,14 +31,12 @@ export const graphqlLweventQueryTypeDefs = gql`
     userId: String
   }
   
-  input LWEventsGatherTownUsersInput
-  
-  input LWEventSelector  {
-    default: LWEventDefaultViewInput
+  input LWEventSelector {
+    default: EmptyViewInput
     adminView: LWEventsAdminViewInput
     postVisits: LWEventsPostVisitsInput
     emailHistory: LWEventsEmailHistoryInput
-    gatherTownUsers: LWEventsGatherTownUsersInput
+    gatherTownUsers: EmptyViewInput
   }
   
   input MultiLWEventInput {

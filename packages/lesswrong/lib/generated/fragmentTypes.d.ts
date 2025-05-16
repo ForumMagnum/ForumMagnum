@@ -764,18 +764,6 @@ interface PodcastsDefaultFragment { // fragment on Podcasts
   readonly spotifyPodcastLink: string|null,
 }
 
-interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
-  readonly _id: string,
-  readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any,
-  readonly postId: string|null,
-  readonly postHash: string|null,
-  readonly lastGeneratedAt: Date|null,
-  readonly model: string|null,
-  readonly embeddings: Array<number>,
-}
-
 interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
   readonly _id: string,
   readonly schemaVersion: number,
@@ -800,20 +788,6 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly sourcePostId: string,
   readonly targetPostId: string,
   readonly order: number|null,
-}
-
-interface PostViewTimesDefaultFragment { // fragment on PostViewTimes
-  readonly _id: string,
-  readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any,
-}
-
-interface PostViewsDefaultFragment { // fragment on PostViews
-  readonly _id: string,
-  readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1350,38 +1324,6 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly afBaseScore: number|null,
   readonly afExtendedScore: any,
   readonly afVoteCount: number|null,
-}
-
-interface TestCollection2DefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly data: any,
-  readonly schemaVersion: any,
-}
-
-interface TestCollection3DefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly notNullData: any,
-}
-
-interface TestCollection4DefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly testCollection3Id: any,
-  readonly schemaVersion: any,
-}
-
-interface TestCollection5DefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly jsonField: any,
-  readonly schemaVersion: any,
-}
-
-interface TestCollectionDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly a: any,
-  readonly b: any,
-  readonly c: any,
-  readonly d: any,
-  readonly schemaVersion: any,
 }
 
 interface TweetsDefaultFragment { // fragment on Tweets
@@ -2160,11 +2102,8 @@ interface FragmentTypes {
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastsDefaultFragment: PodcastsDefaultFragment
-  PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
-  PostViewTimesDefaultFragment: PostViewTimesDefaultFragment
-  PostViewsDefaultFragment: PostViewsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   ReadStatusesDefaultFragment: ReadStatusesDefaultFragment
@@ -2187,11 +2126,6 @@ interface FragmentTypes {
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   TagsDefaultFragment: TagsDefaultFragment
-  TestCollection2DefaultFragment: TestCollection2DefaultFragment
-  TestCollection3DefaultFragment: TestCollection3DefaultFragment
-  TestCollection4DefaultFragment: TestCollection4DefaultFragment
-  TestCollection5DefaultFragment: TestCollection5DefaultFragment
-  TestCollectionDefaultFragment: TestCollectionDefaultFragment
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   UltraFeedEventsDefaultFragment: UltraFeedEventsDefaultFragment
@@ -2258,11 +2192,8 @@ interface FragmentTypesByCollection {
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"
   Podcasts: "PodcastsDefaultFragment"
-  PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   PostRelations: "PostRelationsDefaultFragment"
-  PostViewTimes: "PostViewTimesDefaultFragment"
-  PostViewses: "PostViewsDefaultFragment"
   Posts: "PostsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
@@ -2296,7 +2227,6 @@ interface FragmentTypesByCollection {
   UserTagRels: "UserTagRelsDefaultFragment"
   Users: "UsersDefaultFragment"
   Votes: "VotesDefaultFragment"
-  undefineds: "TestCollection2DefaultFragment"|"TestCollection3DefaultFragment"|"TestCollection4DefaultFragment"|"TestCollection5DefaultFragment"|"TestCollectionDefaultFragment"
 }
 
 interface CollectionNamesByFragmentName {
@@ -2352,11 +2282,8 @@ interface CollectionNamesByFragmentName {
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastsDefaultFragment: "Podcasts"
-  PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
-  PostViewTimesDefaultFragment: "PostViewTimes"
-  PostViewsDefaultFragment: "PostViews"
   PostsDefaultFragment: "Posts"
   RSSFeedsDefaultFragment: "RSSFeeds"
   ReadStatusesDefaultFragment: "ReadStatuses"
@@ -2379,11 +2306,6 @@ interface CollectionNamesByFragmentName {
   TagFlagsDefaultFragment: "TagFlags"
   TagRelsDefaultFragment: "TagRels"
   TagsDefaultFragment: "Tags"
-  TestCollection2DefaultFragment: never
-  TestCollection3DefaultFragment: never
-  TestCollection4DefaultFragment: never
-  TestCollection5DefaultFragment: never
-  TestCollectionDefaultFragment: never
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   UltraFeedEventsDefaultFragment: "UltraFeedEvents"

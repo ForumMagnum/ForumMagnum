@@ -17,14 +17,12 @@ export const graphqlClientIdQueryTypeDefs = gql`
     result: ClientId
   }
   
-  input ClientIdDefaultViewInput
-  
   input ClientIdsGetClientIdInput {
     clientId: String
   }
   
-  input ClientIdSelector  {
-    default: ClientIdDefaultViewInput
+  input ClientIdSelector {
+    default: EmptyViewInput
     getClientId: ClientIdsGetClientIdInput
   }
   

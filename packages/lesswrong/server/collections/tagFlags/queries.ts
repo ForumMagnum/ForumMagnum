@@ -17,13 +17,9 @@ export const graphqlTagFlagQueryTypeDefs = gql`
     result: TagFlag
   }
   
-  input TagFlagDefaultViewInput
-  
-  input TagFlagsAllTagFlagsInput
-  
-  input TagFlagSelector  {
-    default: TagFlagDefaultViewInput
-    allTagFlags: TagFlagsAllTagFlagsInput
+  input TagFlagSelector {
+    default: EmptyViewInput
+    allTagFlags: EmptyViewInput
   }
   
   input MultiTagFlagInput {

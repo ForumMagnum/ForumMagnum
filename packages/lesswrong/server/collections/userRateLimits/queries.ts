@@ -17,19 +17,15 @@ export const graphqlUserRateLimitQueryTypeDefs = gql`
     result: UserRateLimit
   }
   
-  input UserRateLimitDefaultViewInput
-  
   input UserRateLimitsUserRateLimitsInput {
     active: String
     userIds: [String!]
   }
   
-  input UserRateLimitsActiveUserRateLimitsInput
-  
-  input UserRateLimitSelector  {
-    default: UserRateLimitDefaultViewInput
+  input UserRateLimitSelector {
+    default: EmptyViewInput
     userRateLimits: UserRateLimitsUserRateLimitsInput
-    activeUserRateLimits: UserRateLimitsActiveUserRateLimitsInput
+    activeUserRateLimits: EmptyViewInput
   }
   
   input MultiUserRateLimitInput {

@@ -17,13 +17,9 @@ export const graphqlCurationNoticeQueryTypeDefs = gql`
     result: CurationNotice
   }
   
-  input CurationNoticeDefaultViewInput
-  
-  input CurationNoticesCurationNoticesPageInput
-  
-  input CurationNoticeSelector  {
-    default: CurationNoticeDefaultViewInput
-    curationNoticesPage: CurationNoticesCurationNoticesPageInput
+  input CurationNoticeSelector {
+    default: EmptyViewInput
+    curationNoticesPage: EmptyViewInput
   }
   
   input MultiCurationNoticeInput {

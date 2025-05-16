@@ -2,6 +2,7 @@ import { allSchemas } from "@/lib/schema/allSchemas";
 import { makeExecutableSchema } from "graphql-tools";
 import { resolvers, typeDefs } from "../vulcan-lib/apollo-server/initGraphQL";
 import type { GraphQLSchema } from "graphql";
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 
 function getBaseGraphqlType(graphqlSpec?: GraphQLFieldSpecification<any>) {
   if (!graphqlSpec?.outputType || typeof graphqlSpec.outputType !== 'string') {
@@ -79,6 +80,11 @@ export function generateDefaultFragments(collectionToTypeNameMap: Record<string,
   const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
   const fragments: string[] = [];
   for (const [collectionName, schema] of Object.entries(allSchemas)) {
+    const typeName = collectionToTypeNameMap[collectionName];
+    if (!executableSchema.getType(typeName)) {
+      continue;
+    }
+
     const fragment = getDefaultFragmentText(collectionName as CollectionNameString, schema, collectionToTypeNameMap, executableSchema);
     if (fragment) {
       fragments.push(fragment);
@@ -89,12 +95,17 @@ export function generateDefaultFragments(collectionToTypeNameMap: Record<string,
 
 export function generateDefaultFragmentsFile(collectionToTypeNameMap: Record<string, string>): string {
   const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
-  const sb: string[] = [];
+  const sb: string[] = [`import { gql } from '@/lib/generated/gql-codegen/gql';`];
   for (const [collectionName, schema] of Object.entries(allSchemas)) {
+    const typeName = collectionToTypeNameMap[collectionName];
+    if (!executableSchema.getType(typeName)) {
+      continue;
+    }
+    
     const fragmentName = `${collectionName}DefaultFragment`;
     const fragment = getDefaultFragmentText(collectionName as CollectionNameString, schema, collectionToTypeNameMap, executableSchema);
     if (fragment) {
-      sb.push(`export const ${fragmentName} = \`${fragment}\`;`);
+      sb.push(`export const ${fragmentName} = gql(\`${fragment}\`);`);
     }
   }
   return sb.join('\n\n') + '\n';

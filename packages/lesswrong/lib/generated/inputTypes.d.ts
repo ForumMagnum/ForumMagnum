@@ -3,6 +3,10 @@ interface SelectorInput {
   documentId?: string | null;
 }
 
+interface EmptyViewInput {
+  _?: boolean | null;
+}
+
 interface EmailPreview {
   to: string | null;
   subject: string | null;
@@ -903,7 +907,7 @@ interface AdvisorRequestsRequestsByUserInput {
 }
 
 interface AdvisorRequestSelector {
-  default: AdvisorRequestDefaultViewInput | null;
+  default: EmptyViewInput | null;
   requestsByUser: AdvisorRequestsRequestsByUserInput | null;
 }
 
@@ -950,7 +954,7 @@ interface SingleArbitalTagContentRelOutput {
 }
 
 interface ArbitalTagContentRelSelector {
-  default: ArbitalTagContentRelViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiArbitalTagContentRelInput {
@@ -1005,7 +1009,7 @@ interface SingleBanOutput {
 }
 
 interface BanSelector {
-  default: BanViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiBanInput {
@@ -1086,7 +1090,7 @@ interface SingleBookOutput {
 }
 
 interface BookSelector {
-  default: BookViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiBookInput {
@@ -1132,7 +1136,7 @@ interface ChaptersSequenceChaptersInput {
 }
 
 interface ChapterSelector {
-  default: ChapterDefaultViewInput | null;
+  default: EmptyViewInput | null;
   SequenceChapters: ChaptersSequenceChaptersInput | null;
 }
 
@@ -1169,7 +1173,7 @@ interface SingleCkEditorUserSessionOutput {
 }
 
 interface CkEditorUserSessionSelector {
-  default: CkEditorUserSessionViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiCkEditorUserSessionInput {
@@ -1213,7 +1217,7 @@ interface ClientIdsGetClientIdInput {
 }
 
 interface ClientIdSelector {
-  default: ClientIdDefaultViewInput | null;
+  default: EmptyViewInput | null;
   getClientId: ClientIdsGetClientIdInput | null;
 }
 
@@ -1304,7 +1308,7 @@ interface CommentModeratorActionsActiveCommentModeratorActionsInput {
 }
 
 interface CommentModeratorActionSelector {
-  default: CommentModeratorActionDefaultViewInput | null;
+  default: EmptyViewInput | null;
   activeCommentModeratorActions: CommentModeratorActionsActiveCommentModeratorActionsInput | null;
 }
 
@@ -1883,7 +1887,7 @@ interface ConversationsUserGroupUntitledConversationsInput {
 }
 
 interface ConversationSelector {
-  default: ConversationDefaultViewInput | null;
+  default: EmptyViewInput | null;
   moderatorConversations: ConversationsModeratorConversationsInput | null;
   userConversations: ConversationsUserConversationsInput | null;
   userConversationsAll: ConversationsUserConversationsAllInput | null;
@@ -1946,8 +1950,8 @@ interface SingleCurationNoticeOutput {
 }
 
 interface CurationNoticeSelector {
-  default: CurationNoticeDefaultViewInput | null;
-  curationNoticesPage: CurationNoticesCurationNoticesPageInput | null;
+  default: EmptyViewInput | null;
+  curationNoticesPage: EmptyViewInput | null;
 }
 
 interface MultiCurationNoticeInput {
@@ -2009,7 +2013,7 @@ interface DialogueChecksUserTargetDialogueChecksInput {
 }
 
 interface DialogueCheckSelector {
-  default: DialogueCheckDefaultViewInput | null;
+  default: EmptyViewInput | null;
   userDialogueChecks: DialogueChecksUserDialogueChecksInput | null;
   userTargetDialogueChecks: DialogueChecksUserTargetDialogueChecksInput | null;
 }
@@ -2057,7 +2061,7 @@ interface DialogueMatchPreferencesDialogueMatchPreferencesInput {
 }
 
 interface DialogueMatchPreferenceSelector {
-  default: DialogueMatchPreferenceDefaultViewInput | null;
+  default: EmptyViewInput | null;
   dialogueMatchPreferences: DialogueMatchPreferencesDialogueMatchPreferencesInput | null;
 }
 
@@ -2096,7 +2100,7 @@ interface SingleDigestPostOutput {
 }
 
 interface DigestPostSelector {
-  default: DigestPostViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiDigestPostInput {
@@ -2138,9 +2142,9 @@ interface DigestsFindByNumInput {
 }
 
 interface DigestSelector {
-  default: DigestDefaultViewInput | null;
+  default: EmptyViewInput | null;
   findByNum: DigestsFindByNumInput | null;
-  all: DigestsAllInput | null;
+  all: EmptyViewInput | null;
 }
 
 interface MultiDigestInput {
@@ -2295,7 +2299,7 @@ interface SingleElicitQuestionPredictionOutput {
 }
 
 interface ElicitQuestionPredictionSelector {
-  default: ElicitQuestionPredictionViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiElicitQuestionPredictionInput {
@@ -2331,7 +2335,7 @@ interface SingleElicitQuestionOutput {
 }
 
 interface ElicitQuestionSelector {
-  default: ElicitQuestionViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiElicitQuestionInput {
@@ -2375,8 +2379,8 @@ interface SingleFeaturedResourceOutput {
 }
 
 interface FeaturedResourceSelector {
-  default: FeaturedResourceDefaultViewInput | null;
-  activeResources: FeaturedResourcesActiveResourcesInput | null;
+  default: EmptyViewInput | null;
+  activeResources: EmptyViewInput | null;
 }
 
 interface MultiFeaturedResourceInput {
@@ -2415,7 +2419,7 @@ interface SingleFieldChangeOutput {
 }
 
 interface FieldChangeSelector {
-  default: FieldChangeDefaultViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiFieldChangeInput {
@@ -2488,10 +2492,10 @@ interface ForumEventsCurrentAndRecentForumEventsInput {
 }
 
 interface ForumEventSelector {
-  default: ForumEventDefaultViewInput | null;
+  default: EmptyViewInput | null;
   upcomingForumEvents: ForumEventsUpcomingForumEventsInput | null;
   pastForumEvents: ForumEventsPastForumEventsInput | null;
-  currentForumEvent: ForumEventsCurrentForumEventInput | null;
+  currentForumEvent: EmptyViewInput | null;
   currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput | null;
 }
 
@@ -2603,7 +2607,7 @@ interface SingleGoogleServiceAccountSessionOutput {
 }
 
 interface GoogleServiceAccountSessionSelector {
-  default: GoogleServiceAccountSessionDefaultViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiGoogleServiceAccountSessionInput {
@@ -2659,9 +2663,9 @@ interface JargonTermsPostsApprovedJargonInput {
 }
 
 interface JargonTermSelector {
-  default: JargonTermDefaultViewInput | null;
+  default: EmptyViewInput | null;
   postEditorJargonTerms: JargonTermsPostEditorJargonTermsInput | null;
-  glossaryEditAll: JargonTermsGlossaryEditAllInput | null;
+  glossaryEditAll: EmptyViewInput | null;
   postsApprovedJargon: JargonTermsPostsApprovedJargonInput | null;
 }
 
@@ -2715,11 +2719,11 @@ interface LWEventsEmailHistoryInput {
 }
 
 interface LWEventSelector {
-  default: LWEventDefaultViewInput | null;
+  default: EmptyViewInput | null;
   adminView: LWEventsAdminViewInput | null;
   postVisits: LWEventsPostVisitsInput | null;
   emailHistory: LWEventsEmailHistoryInput | null;
-  gatherTownUsers: LWEventsGatherTownUsersInput | null;
+  gatherTownUsers: EmptyViewInput | null;
 }
 
 interface MultiLWEventInput {
@@ -2775,7 +2779,7 @@ interface LlmConversationsLlmConversationsAllInput {
 }
 
 interface LlmConversationSelector {
-  default: LlmConversationDefaultViewInput | null;
+  default: EmptyViewInput | null;
   llmConversationsWithUser: LlmConversationsLlmConversationsWithUserInput | null;
   llmConversationsAll: LlmConversationsLlmConversationsAllInput | null;
 }
@@ -2961,7 +2965,7 @@ interface MessagesConversationPreviewInput {
 }
 
 interface MessageSelector {
-  default: MessageDefaultViewInput | null;
+  default: EmptyViewInput | null;
   messagesConversation: MessagesMessagesConversationInput | null;
   conversationPreview: MessagesConversationPreviewInput | null;
 }
@@ -3012,8 +3016,8 @@ interface ModerationTemplatesModerationTemplatesListInput {
 }
 
 interface ModerationTemplateSelector {
-  default: ModerationTemplateDefaultViewInput | null;
-  moderationTemplatesPage: ModerationTemplatesModerationTemplatesPageInput | null;
+  default: EmptyViewInput | null;
+  moderationTemplatesPage: EmptyViewInput | null;
   moderationTemplatesList: ModerationTemplatesModerationTemplatesListInput | null;
 }
 
@@ -3055,9 +3059,9 @@ interface ModeratorActionsUserModeratorActionsInput {
 }
 
 interface ModeratorActionSelector {
-  default: ModeratorActionDefaultViewInput | null;
+  default: EmptyViewInput | null;
   userModeratorActions: ModeratorActionsUserModeratorActionsInput | null;
-  restrictionModerationActions: ModeratorActionsRestrictionModerationActionsInput | null;
+  restrictionModerationActions: EmptyViewInput | null;
 }
 
 interface MultiModeratorActionInput {
@@ -3205,7 +3209,7 @@ interface NotificationsAdminAlertNotificationsInput {
 }
 
 interface NotificationSelector {
-  default: NotificationDefaultViewInput | null;
+  default: EmptyViewInput | null;
   userNotifications: NotificationsUserNotificationsInput | null;
   unreadUserNotifications: NotificationsUnreadUserNotificationsInput | null;
   adminAlertNotifications: NotificationsAdminAlertNotificationsInput | null;
@@ -3263,10 +3267,10 @@ interface PetrovDayActionsWarningConsoleInput {
 }
 
 interface PetrovDayActionSelector {
-  default: PetrovDayActionDefaultViewInput | null;
+  default: EmptyViewInput | null;
   getAction: PetrovDayActionsGetActionInput | null;
   launchDashboard: PetrovDayActionsLaunchDashboardInput | null;
-  adminConsole: PetrovDayActionsAdminConsoleInput | null;
+  adminConsole: EmptyViewInput | null;
   warningConsole: PetrovDayActionsWarningConsoleInput | null;
 }
 
@@ -3314,8 +3318,8 @@ interface SinglePodcastEpisodeOutput {
 }
 
 interface PodcastEpisodeSelector {
-  default: PodcastEpisodeDefaultViewInput | null;
-  episodeByExternalId: PodcastEpisodesEpisodeByExternalIdInput | null;
+  default: EmptyViewInput | null;
+  episodeByExternalId: EmptyViewInput | null;
 }
 
 interface MultiPodcastEpisodeInput {
@@ -3350,7 +3354,7 @@ interface SinglePodcastOutput {
 }
 
 interface PodcastSelector {
-  default: PodcastViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiPodcastInput {
@@ -3409,7 +3413,7 @@ interface PostRelationsAllPostRelationsInput {
 }
 
 interface PostRelationSelector {
-  default: PostRelationDefaultViewInput | null;
+  default: EmptyViewInput | null;
   allPostRelations: PostRelationsAllPostRelationsInput | null;
 }
 
@@ -4921,7 +4925,7 @@ interface RSSFeedsUsersFeedInput {
 }
 
 interface RSSFeedSelector {
-  default: RSSFeedDefaultViewInput | null;
+  default: EmptyViewInput | null;
   usersFeed: RSSFeedsUsersFeedInput | null;
 }
 
@@ -4993,13 +4997,13 @@ interface ReportsAdminClaimedReportsInput {
 }
 
 interface ReportSelector {
-  default: ReportDefaultViewInput | null;
-  allReports: ReportsAllReportsInput | null;
-  unclaimedReports: ReportsUnclaimedReportsInput | null;
-  claimedReports: ReportsClaimedReportsInput | null;
+  default: EmptyViewInput | null;
+  allReports: EmptyViewInput | null;
+  unclaimedReports: EmptyViewInput | null;
+  claimedReports: EmptyViewInput | null;
   adminClaimedReports: ReportsAdminClaimedReportsInput | null;
-  sunshineSidebarReports: ReportsSunshineSidebarReportsInput | null;
-  closedReports: ReportsClosedReportsInput | null;
+  sunshineSidebarReports: EmptyViewInput | null;
+  closedReports: EmptyViewInput | null;
 }
 
 interface MultiReportInput {
@@ -5046,11 +5050,11 @@ interface ReviewVotesReviewVotesFromUserInput {
 }
 
 interface ReviewVoteSelector {
-  default: ReviewVoteDefaultViewInput | null;
+  default: EmptyViewInput | null;
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput | null;
-  reviewVotesForPost: ReviewVotesReviewVotesForPostInput | null;
-  reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput | null;
-  reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput | null;
+  reviewVotesForPost: EmptyViewInput | null;
+  reviewVotesForPostAndUser: EmptyViewInput | null;
+  reviewVotesAdminDashboard: EmptyViewInput | null;
 }
 
 interface MultiReviewVoteInput {
@@ -5090,9 +5094,9 @@ interface ReviewWinnerArtsPostArtInput {
 }
 
 interface ReviewWinnerArtSelector {
-  default: ReviewWinnerArtDefaultViewInput | null;
+  default: EmptyViewInput | null;
   postArt: ReviewWinnerArtsPostArtInput | null;
-  allForYear: ReviewWinnerArtsAllForYearInput | null;
+  allForYear: EmptyViewInput | null;
 }
 
 interface MultiReviewWinnerArtInput {
@@ -5139,9 +5143,9 @@ interface ReviewWinnersReviewWinnerSingleInput {
 }
 
 interface ReviewWinnerSelector {
-  default: ReviewWinnerDefaultViewInput | null;
+  default: EmptyViewInput | null;
   reviewWinnerSingle: ReviewWinnersReviewWinnerSingleInput | null;
-  bestOfLessWrongAnnouncement: ReviewWinnersBestOfLessWrongAnnouncementInput | null;
+  bestOfLessWrongAnnouncement: EmptyViewInput | null;
 }
 
 interface MultiReviewWinnerInput {
@@ -5227,7 +5231,7 @@ interface RevisionsRevisionByVersionNumberInput {
 }
 
 interface RevisionSelector {
-  default: RevisionDefaultViewInput | null;
+  default: EmptyViewInput | null;
   revisionsByUser: RevisionsRevisionsByUserInput | null;
   revisionsOnDocument: RevisionsRevisionsOnDocumentInput | null;
   revisionByVersionNumber: RevisionsRevisionByVersionNumberInput | null;
@@ -5384,7 +5388,7 @@ interface SingleSplashArtCoordinateOutput {
 }
 
 interface SplashArtCoordinateSelector {
-  default: SplashArtCoordinateViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiSplashArtCoordinateInput {
@@ -5462,7 +5466,7 @@ interface SpotlightsSpotlightsByIdInput {
 }
 
 interface SpotlightSelector {
-  default: SpotlightDefaultViewInput | null;
+  default: EmptyViewInput | null;
   mostRecentlyPromotedSpotlights: SpotlightsMostRecentlyPromotedSpotlightsInput | null;
   spotlightsPage: SpotlightsSpotlightsPageInput | null;
   spotlightsPageDraft: SpotlightsSpotlightsPageDraftInput | null;
@@ -5512,10 +5516,10 @@ interface SubscriptionsSubscriptionsOfTypeInput {
 }
 
 interface SubscriptionSelector {
-  default: SubscriptionDefaultViewInput | null;
-  subscriptionState: SubscriptionsSubscriptionStateInput | null;
+  default: EmptyViewInput | null;
+  subscriptionState: EmptyViewInput | null;
   subscriptionsOfType: SubscriptionsSubscriptionsOfTypeInput | null;
-  membersOfGroup: SubscriptionsMembersOfGroupInput | null;
+  membersOfGroup: EmptyViewInput | null;
 }
 
 interface MultiSubscriptionInput {
@@ -5552,7 +5556,7 @@ interface SingleSurveyQuestionOutput {
 }
 
 interface SurveyQuestionSelector {
-  default: SurveyQuestionViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiSurveyQuestionInput {
@@ -5593,7 +5597,7 @@ interface SingleSurveyResponseOutput {
 }
 
 interface SurveyResponseSelector {
-  default: SurveyResponseViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiSurveyResponseInput {
@@ -5638,8 +5642,8 @@ interface SingleSurveyScheduleOutput {
 }
 
 interface SurveyScheduleSelector {
-  default: SurveyScheduleDefaultViewInput | null;
-  surveySchedulesByCreatedAt: SurveySchedulesSurveySchedulesByCreatedAtInput | null;
+  default: EmptyViewInput | null;
+  surveySchedulesByCreatedAt: EmptyViewInput | null;
 }
 
 interface MultiSurveyScheduleInput {
@@ -5673,8 +5677,8 @@ interface SingleSurveyOutput {
 }
 
 interface SurveySelector {
-  default: SurveyDefaultViewInput | null;
-  surveysByCreatedAt: SurveysSurveysByCreatedAtInput | null;
+  default: EmptyViewInput | null;
+  surveysByCreatedAt: EmptyViewInput | null;
 }
 
 interface MultiSurveyInput {
@@ -5712,8 +5716,8 @@ interface SingleTagFlagOutput {
 }
 
 interface TagFlagSelector {
-  default: TagFlagDefaultViewInput | null;
-  allTagFlags: TagFlagsAllTagFlagsInput | null;
+  default: EmptyViewInput | null;
+  allTagFlags: EmptyViewInput | null;
 }
 
 interface MultiTagFlagInput {
@@ -5772,7 +5776,7 @@ interface TagRelsTagsOnPostInput {
 }
 
 interface TagRelSelector {
-  default: TagRelDefaultViewInput | null;
+  default: EmptyViewInput | null;
   postsWithTag: TagRelsPostsWithTagInput | null;
   tagsOnPost: TagRelsTagsOnPostInput | null;
 }
@@ -5889,93 +5893,93 @@ interface SingleTagOutput {
 }
 
 interface TagDefaultViewInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsTagsByTagIdsInput {
-  excludedTagIds?: string | null;
-  tagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
+  tagIds: Array<string>;
 }
 
 interface TagsAllTagsAlphabeticalInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsUserTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
   userId?: string | null;
 }
 
 interface TagsCurrentUserSubforumsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsAllPagesByNewestInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsAllTagsHierarchicalInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
   wikiGrade?: string | null;
 }
 
 interface TagsTagBySlugInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
   slug?: string | null;
 }
 
 interface TagsTagsBySlugsInput {
-  excludedTagIds?: string | null;
-  slugs?: string | null;
+  excludedTagIds?: Array<string> | null;
+  slugs: Array<string>;
 }
 
 interface TagsCoreTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsPostTypeTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsCoreAndSubforumTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsNewTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsUnreviewedTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsSuggestedFilterTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsAllLWWikiTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsUnprocessedLWWikiTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsTagsByTagFlagInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
   tagFlagId?: string | null;
 }
 
 interface TagsAllPublicTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsAllArbitalTagsInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagsPingbackWikiPagesInput {
-  excludedTagIds?: string | null;
+  excludedTagIds?: Array<string> | null;
 }
 
 interface TagSelector {
@@ -6041,7 +6045,7 @@ interface SingleTypingIndicatorOutput {
 }
 
 interface TypingIndicatorSelector {
-  default: TypingIndicatorViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiTypingIndicatorInput {
@@ -6077,7 +6081,7 @@ interface SingleUltraFeedEventOutput {
 }
 
 interface UltraFeedEventSelector {
-  default: UltraFeedEventDefaultViewInput | null;
+  default: EmptyViewInput | null;
 }
 
 interface MultiUltraFeedEventInput {
@@ -6128,7 +6132,7 @@ interface UserEAGDetailsDataByUserInput {
 }
 
 interface UserEAGDetailSelector {
-  default: UserEAGDetailDefaultViewInput | null;
+  default: EmptyViewInput | null;
   dataByUser: UserEAGDetailsDataByUserInput | null;
 }
 
@@ -6171,7 +6175,7 @@ interface UserJobAdsAdsByUserInput {
 }
 
 interface UserJobAdSelector {
-  default: UserJobAdDefaultViewInput | null;
+  default: EmptyViewInput | null;
   adsByUser: UserJobAdsAdsByUserInput | null;
 }
 
@@ -6213,8 +6217,8 @@ interface UserMostValuablePostsCurrentUserPostInput {
 }
 
 interface UserMostValuablePostSelector {
-  default: UserMostValuablePostDefaultViewInput | null;
-  currentUserMostValuablePosts: UserMostValuablePostsCurrentUserMostValuablePostsInput | null;
+  default: EmptyViewInput | null;
+  currentUserMostValuablePosts: EmptyViewInput | null;
   currentUserPost: UserMostValuablePostsCurrentUserPostInput | null;
 }
 
@@ -6259,9 +6263,9 @@ interface UserRateLimitsUserRateLimitsInput {
 }
 
 interface UserRateLimitSelector {
-  default: UserRateLimitDefaultViewInput | null;
+  default: EmptyViewInput | null;
   userRateLimits: UserRateLimitsUserRateLimitsInput | null;
-  activeUserRateLimits: UserRateLimitsActiveUserRateLimitsInput | null;
+  activeUserRateLimits: EmptyViewInput | null;
 }
 
 interface MultiUserRateLimitInput {
@@ -6305,7 +6309,7 @@ interface UserTagRelsSingleInput {
 }
 
 interface UserTagRelSelector {
-  default: UserTagRelDefaultViewInput | null;
+  default: EmptyViewInput | null;
   single: UserTagRelsSingleInput | null;
 }
 
@@ -6616,22 +6620,22 @@ interface UsersTagCommunityMembersInput {
 }
 
 interface UserSelector {
-  default: UserDefaultViewInput | null;
+  default: EmptyViewInput | null;
   usersByUserIds: UsersUsersByUserIdsInput | null;
   usersProfile: UsersUsersProfileInput | null;
-  LWSunshinesList: UsersLWSunshinesListInput | null;
-  LWTrustLevel1List: UsersLWTrustLevel1ListInput | null;
-  LWUsersAdmin: UsersLWUsersAdminInput | null;
-  usersWithBannedUsers: UsersUsersWithBannedUsersInput | null;
-  sunshineNewUsers: UsersSunshineNewUsersInput | null;
-  recentlyActive: UsersRecentlyActiveInput | null;
-  allUsers: UsersAllUsersInput | null;
-  usersMapLocations: UsersUsersMapLocationsInput | null;
+  LWSunshinesList: EmptyViewInput | null;
+  LWTrustLevel1List: EmptyViewInput | null;
+  LWUsersAdmin: EmptyViewInput | null;
+  usersWithBannedUsers: EmptyViewInput | null;
+  sunshineNewUsers: EmptyViewInput | null;
+  recentlyActive: EmptyViewInput | null;
+  allUsers: EmptyViewInput | null;
+  usersMapLocations: EmptyViewInput | null;
   tagCommunityMembers: UsersTagCommunityMembersInput | null;
-  reviewAdminUsers: UsersReviewAdminUsersInput | null;
-  usersWithPaymentInfo: UsersUsersWithPaymentInfoInput | null;
-  usersWithOptedInToDialogueFacilitation: UsersUsersWithOptedInToDialogueFacilitationInput | null;
-  alignmentSuggestedUsers: UsersAlignmentSuggestedUsersInput | null;
+  reviewAdminUsers: EmptyViewInput | null;
+  usersWithPaymentInfo: EmptyViewInput | null;
+  usersWithOptedInToDialogueFacilitation: EmptyViewInput | null;
+  alignmentSuggestedUsers: EmptyViewInput | null;
 }
 
 interface MultiUserInput {
@@ -6680,10 +6684,10 @@ interface SingleVoteOutput {
 }
 
 interface VoteSelector {
-  default: VoteDefaultViewInput | null;
-  tagVotes: VotesTagVotesInput | null;
-  userPostVotes: VotesUserPostVotesInput | null;
-  userVotes: VotesUserVotesInput | null;
+  default: EmptyViewInput | null;
+  tagVotes: EmptyViewInput | null;
+  userPostVotes: EmptyViewInput | null;
+  userVotes: EmptyViewInput | null;
 }
 
 interface MultiVoteInput {
@@ -8839,6 +8843,7 @@ interface GraphQLTypeMap {
   Query: Query;
   Mutation: Mutation;
   SelectorInput: SelectorInput;
+  EmptyViewInput: EmptyViewInput;
   EmailPreview: EmailPreview;
   ArbitalLinkedPage: ArbitalLinkedPage;
   ArbitalLinkedPages: ArbitalLinkedPages;
@@ -8974,7 +8979,6 @@ interface GraphQLTypeMap {
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
-  AdvisorRequestDefaultViewInput: AdvisorRequestDefaultViewInput;
   AdvisorRequestsRequestsByUserInput: AdvisorRequestsRequestsByUserInput;
   AdvisorRequestSelector: AdvisorRequestSelector;
   MultiAdvisorRequestInput: MultiAdvisorRequestInput;
@@ -8983,7 +8987,6 @@ interface GraphQLTypeMap {
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
   SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
-  ArbitalTagContentRelViewInput: ArbitalTagContentRelViewInput;
   ArbitalTagContentRelSelector: ArbitalTagContentRelSelector;
   MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
@@ -8992,7 +8995,6 @@ interface GraphQLTypeMap {
   Ban: Ban;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;
-  BanViewInput: BanViewInput;
   BanSelector: BanSelector;
   MultiBanInput: MultiBanInput;
   MultiBanOutput: MultiBanOutput;
@@ -9004,14 +9006,12 @@ interface GraphQLTypeMap {
   Book: Book;
   SingleBookInput: SingleBookInput;
   SingleBookOutput: SingleBookOutput;
-  BookViewInput: BookViewInput;
   BookSelector: BookSelector;
   MultiBookInput: MultiBookInput;
   MultiBookOutput: MultiBookOutput;
   Chapter: Chapter;
   SingleChapterInput: SingleChapterInput;
   SingleChapterOutput: SingleChapterOutput;
-  ChapterDefaultViewInput: ChapterDefaultViewInput;
   ChaptersSequenceChaptersInput: ChaptersSequenceChaptersInput;
   ChapterSelector: ChapterSelector;
   MultiChapterInput: MultiChapterInput;
@@ -9019,14 +9019,12 @@ interface GraphQLTypeMap {
   CkEditorUserSession: CkEditorUserSession;
   SingleCkEditorUserSessionInput: SingleCkEditorUserSessionInput;
   SingleCkEditorUserSessionOutput: SingleCkEditorUserSessionOutput;
-  CkEditorUserSessionViewInput: CkEditorUserSessionViewInput;
   CkEditorUserSessionSelector: CkEditorUserSessionSelector;
   MultiCkEditorUserSessionInput: MultiCkEditorUserSessionInput;
   MultiCkEditorUserSessionOutput: MultiCkEditorUserSessionOutput;
   ClientId: ClientId;
   SingleClientIdInput: SingleClientIdInput;
   SingleClientIdOutput: SingleClientIdOutput;
-  ClientIdDefaultViewInput: ClientIdDefaultViewInput;
   ClientIdsGetClientIdInput: ClientIdsGetClientIdInput;
   ClientIdSelector: ClientIdSelector;
   MultiClientIdInput: MultiClientIdInput;
@@ -9041,7 +9039,6 @@ interface GraphQLTypeMap {
   CommentModeratorAction: CommentModeratorAction;
   SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
   SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
-  CommentModeratorActionDefaultViewInput: CommentModeratorActionDefaultViewInput;
   CommentModeratorActionsActiveCommentModeratorActionsInput: CommentModeratorActionsActiveCommentModeratorActionsInput;
   CommentModeratorActionSelector: CommentModeratorActionSelector;
   MultiCommentModeratorActionInput: MultiCommentModeratorActionInput;
@@ -9103,7 +9100,6 @@ interface GraphQLTypeMap {
   Conversation: Conversation;
   SingleConversationInput: SingleConversationInput;
   SingleConversationOutput: SingleConversationOutput;
-  ConversationDefaultViewInput: ConversationDefaultViewInput;
   ConversationsModeratorConversationsInput: ConversationsModeratorConversationsInput;
   ConversationsUserConversationsInput: ConversationsUserConversationsInput;
   ConversationsUserConversationsAllInput: ConversationsUserConversationsAllInput;
@@ -9116,8 +9112,6 @@ interface GraphQLTypeMap {
   CurationNotice: CurationNotice;
   SingleCurationNoticeInput: SingleCurationNoticeInput;
   SingleCurationNoticeOutput: SingleCurationNoticeOutput;
-  CurationNoticeDefaultViewInput: CurationNoticeDefaultViewInput;
-  CurationNoticesCurationNoticesPageInput: CurationNoticesCurationNoticesPageInput;
   CurationNoticeSelector: CurationNoticeSelector;
   MultiCurationNoticeInput: MultiCurationNoticeInput;
   MultiCurationNoticeOutput: MultiCurationNoticeOutput;
@@ -9126,7 +9120,6 @@ interface GraphQLTypeMap {
   DialogueCheck: DialogueCheck;
   SingleDialogueCheckInput: SingleDialogueCheckInput;
   SingleDialogueCheckOutput: SingleDialogueCheckOutput;
-  DialogueCheckDefaultViewInput: DialogueCheckDefaultViewInput;
   DialogueChecksUserDialogueChecksInput: DialogueChecksUserDialogueChecksInput;
   DialogueChecksUserTargetDialogueChecksInput: DialogueChecksUserTargetDialogueChecksInput;
   DialogueCheckSelector: DialogueCheckSelector;
@@ -9135,7 +9128,6 @@ interface GraphQLTypeMap {
   DialogueMatchPreference: DialogueMatchPreference;
   SingleDialogueMatchPreferenceInput: SingleDialogueMatchPreferenceInput;
   SingleDialogueMatchPreferenceOutput: SingleDialogueMatchPreferenceOutput;
-  DialogueMatchPreferenceDefaultViewInput: DialogueMatchPreferenceDefaultViewInput;
   DialogueMatchPreferencesDialogueMatchPreferencesInput: DialogueMatchPreferencesDialogueMatchPreferencesInput;
   DialogueMatchPreferenceSelector: DialogueMatchPreferenceSelector;
   MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
@@ -9143,16 +9135,13 @@ interface GraphQLTypeMap {
   DigestPost: DigestPost;
   SingleDigestPostInput: SingleDigestPostInput;
   SingleDigestPostOutput: SingleDigestPostOutput;
-  DigestPostViewInput: DigestPostViewInput;
   DigestPostSelector: DigestPostSelector;
   MultiDigestPostInput: MultiDigestPostInput;
   MultiDigestPostOutput: MultiDigestPostOutput;
   Digest: Digest;
   SingleDigestInput: SingleDigestInput;
   SingleDigestOutput: SingleDigestOutput;
-  DigestDefaultViewInput: DigestDefaultViewInput;
   DigestsFindByNumInput: DigestsFindByNumInput;
-  DigestsAllInput: DigestsAllInput;
   DigestSelector: DigestSelector;
   MultiDigestInput: MultiDigestInput;
   MultiDigestOutput: MultiDigestOutput;
@@ -9174,14 +9163,12 @@ interface GraphQLTypeMap {
   ElicitQuestionPrediction: ElicitQuestionPrediction;
   SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
   SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
-  ElicitQuestionPredictionViewInput: ElicitQuestionPredictionViewInput;
   ElicitQuestionPredictionSelector: ElicitQuestionPredictionSelector;
   MultiElicitQuestionPredictionInput: MultiElicitQuestionPredictionInput;
   MultiElicitQuestionPredictionOutput: MultiElicitQuestionPredictionOutput;
   ElicitQuestion: ElicitQuestion;
   SingleElicitQuestionInput: SingleElicitQuestionInput;
   SingleElicitQuestionOutput: SingleElicitQuestionOutput;
-  ElicitQuestionViewInput: ElicitQuestionViewInput;
   ElicitQuestionSelector: ElicitQuestionSelector;
   MultiElicitQuestionInput: MultiElicitQuestionInput;
   MultiElicitQuestionOutput: MultiElicitQuestionOutput;
@@ -9189,25 +9176,20 @@ interface GraphQLTypeMap {
   FeaturedResource: FeaturedResource;
   SingleFeaturedResourceInput: SingleFeaturedResourceInput;
   SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
-  FeaturedResourceDefaultViewInput: FeaturedResourceDefaultViewInput;
-  FeaturedResourcesActiveResourcesInput: FeaturedResourcesActiveResourcesInput;
   FeaturedResourceSelector: FeaturedResourceSelector;
   MultiFeaturedResourceInput: MultiFeaturedResourceInput;
   MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
   FieldChange: FieldChange;
   SingleFieldChangeInput: SingleFieldChangeInput;
   SingleFieldChangeOutput: SingleFieldChangeOutput;
-  FieldChangeDefaultViewInput: FieldChangeDefaultViewInput;
   FieldChangeSelector: FieldChangeSelector;
   MultiFieldChangeInput: MultiFieldChangeInput;
   MultiFieldChangeOutput: MultiFieldChangeOutput;
   ForumEvent: ForumEvent;
   SingleForumEventInput: SingleForumEventInput;
   SingleForumEventOutput: SingleForumEventOutput;
-  ForumEventDefaultViewInput: ForumEventDefaultViewInput;
   ForumEventsUpcomingForumEventsInput: ForumEventsUpcomingForumEventsInput;
   ForumEventsPastForumEventsInput: ForumEventsPastForumEventsInput;
-  ForumEventsCurrentForumEventInput: ForumEventsCurrentForumEventInput;
   ForumEventsCurrentAndRecentForumEventsInput: ForumEventsCurrentAndRecentForumEventsInput;
   ForumEventSelector: ForumEventSelector;
   MultiForumEventInput: MultiForumEventInput;
@@ -9225,7 +9207,6 @@ interface GraphQLTypeMap {
   GoogleServiceAccountSession: GoogleServiceAccountSession;
   SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
   SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
-  GoogleServiceAccountSessionDefaultViewInput: GoogleServiceAccountSessionDefaultViewInput;
   GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
@@ -9233,9 +9214,7 @@ interface GraphQLTypeMap {
   JargonTerm: JargonTerm;
   SingleJargonTermInput: SingleJargonTermInput;
   SingleJargonTermOutput: SingleJargonTermOutput;
-  JargonTermDefaultViewInput: JargonTermDefaultViewInput;
   JargonTermsPostEditorJargonTermsInput: JargonTermsPostEditorJargonTermsInput;
-  JargonTermsGlossaryEditAllInput: JargonTermsGlossaryEditAllInput;
   JargonTermsPostsApprovedJargonInput: JargonTermsPostsApprovedJargonInput;
   JargonTermSelector: JargonTermSelector;
   MultiJargonTermInput: MultiJargonTermInput;
@@ -9243,11 +9222,9 @@ interface GraphQLTypeMap {
   LWEvent: LWEvent;
   SingleLWEventInput: SingleLWEventInput;
   SingleLWEventOutput: SingleLWEventOutput;
-  LWEventDefaultViewInput: LWEventDefaultViewInput;
   LWEventsAdminViewInput: LWEventsAdminViewInput;
   LWEventsPostVisitsInput: LWEventsPostVisitsInput;
   LWEventsEmailHistoryInput: LWEventsEmailHistoryInput;
-  LWEventsGatherTownUsersInput: LWEventsGatherTownUsersInput;
   LWEventSelector: LWEventSelector;
   MultiLWEventInput: MultiLWEventInput;
   MultiLWEventOutput: MultiLWEventOutput;
@@ -9255,7 +9232,6 @@ interface GraphQLTypeMap {
   LlmConversation: LlmConversation;
   SingleLlmConversationInput: SingleLlmConversationInput;
   SingleLlmConversationOutput: SingleLlmConversationOutput;
-  LlmConversationDefaultViewInput: LlmConversationDefaultViewInput;
   LlmConversationsLlmConversationsWithUserInput: LlmConversationsLlmConversationsWithUserInput;
   LlmConversationsLlmConversationsAllInput: LlmConversationsLlmConversationsAllInput;
   LlmConversationSelector: LlmConversationSelector;
@@ -9281,7 +9257,6 @@ interface GraphQLTypeMap {
   Message: Message;
   SingleMessageInput: SingleMessageInput;
   SingleMessageOutput: SingleMessageOutput;
-  MessageDefaultViewInput: MessageDefaultViewInput;
   MessagesMessagesConversationInput: MessagesMessagesConversationInput;
   MessagesConversationPreviewInput: MessagesConversationPreviewInput;
   MessageSelector: MessageSelector;
@@ -9291,8 +9266,6 @@ interface GraphQLTypeMap {
   ModerationTemplate: ModerationTemplate;
   SingleModerationTemplateInput: SingleModerationTemplateInput;
   SingleModerationTemplateOutput: SingleModerationTemplateOutput;
-  ModerationTemplateDefaultViewInput: ModerationTemplateDefaultViewInput;
-  ModerationTemplatesModerationTemplatesPageInput: ModerationTemplatesModerationTemplatesPageInput;
   ModerationTemplatesModerationTemplatesListInput: ModerationTemplatesModerationTemplatesListInput;
   ModerationTemplateSelector: ModerationTemplateSelector;
   MultiModerationTemplateInput: MultiModerationTemplateInput;
@@ -9300,9 +9273,7 @@ interface GraphQLTypeMap {
   ModeratorAction: ModeratorAction;
   SingleModeratorActionInput: SingleModeratorActionInput;
   SingleModeratorActionOutput: SingleModeratorActionOutput;
-  ModeratorActionDefaultViewInput: ModeratorActionDefaultViewInput;
   ModeratorActionsUserModeratorActionsInput: ModeratorActionsUserModeratorActionsInput;
-  ModeratorActionsRestrictionModerationActionsInput: ModeratorActionsRestrictionModerationActionsInput;
   ModeratorActionSelector: ModeratorActionSelector;
   MultiModeratorActionInput: MultiModeratorActionInput;
   MultiModeratorActionOutput: MultiModeratorActionOutput;
@@ -9319,7 +9290,6 @@ interface GraphQLTypeMap {
   Notification: Notification;
   SingleNotificationInput: SingleNotificationInput;
   SingleNotificationOutput: SingleNotificationOutput;
-  NotificationDefaultViewInput: NotificationDefaultViewInput;
   NotificationsUserNotificationsInput: NotificationsUserNotificationsInput;
   NotificationsUnreadUserNotificationsInput: NotificationsUnreadUserNotificationsInput;
   NotificationsAdminAlertNotificationsInput: NotificationsAdminAlertNotificationsInput;
@@ -9330,10 +9300,8 @@ interface GraphQLTypeMap {
   PetrovDayAction: PetrovDayAction;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
-  PetrovDayActionDefaultViewInput: PetrovDayActionDefaultViewInput;
   PetrovDayActionsGetActionInput: PetrovDayActionsGetActionInput;
   PetrovDayActionsLaunchDashboardInput: PetrovDayActionsLaunchDashboardInput;
-  PetrovDayActionsAdminConsoleInput: PetrovDayActionsAdminConsoleInput;
   PetrovDayActionsWarningConsoleInput: PetrovDayActionsWarningConsoleInput;
   PetrovDayActionSelector: PetrovDayActionSelector;
   MultiPetrovDayActionInput: MultiPetrovDayActionInput;
@@ -9342,15 +9310,12 @@ interface GraphQLTypeMap {
   PodcastEpisode: PodcastEpisode;
   SinglePodcastEpisodeInput: SinglePodcastEpisodeInput;
   SinglePodcastEpisodeOutput: SinglePodcastEpisodeOutput;
-  PodcastEpisodeDefaultViewInput: PodcastEpisodeDefaultViewInput;
-  PodcastEpisodesEpisodeByExternalIdInput: PodcastEpisodesEpisodeByExternalIdInput;
   PodcastEpisodeSelector: PodcastEpisodeSelector;
   MultiPodcastEpisodeInput: MultiPodcastEpisodeInput;
   MultiPodcastEpisodeOutput: MultiPodcastEpisodeOutput;
   Podcast: Podcast;
   SinglePodcastInput: SinglePodcastInput;
   SinglePodcastOutput: SinglePodcastOutput;
-  PodcastViewInput: PodcastViewInput;
   PodcastSelector: PodcastSelector;
   MultiPodcastInput: MultiPodcastInput;
   MultiPodcastOutput: MultiPodcastOutput;
@@ -9358,7 +9323,6 @@ interface GraphQLTypeMap {
   PostRelation: PostRelation;
   SinglePostRelationInput: SinglePostRelationInput;
   SinglePostRelationOutput: SinglePostRelationOutput;
-  PostRelationDefaultViewInput: PostRelationDefaultViewInput;
   PostRelationsAllPostRelationsInput: PostRelationsAllPostRelationsInput;
   PostRelationSelector: PostRelationSelector;
   MultiPostRelationInput: MultiPostRelationInput;
@@ -9433,7 +9397,6 @@ interface GraphQLTypeMap {
   RSSFeed: RSSFeed;
   SingleRSSFeedInput: SingleRSSFeedInput;
   SingleRSSFeedOutput: SingleRSSFeedOutput;
-  RSSFeedDefaultViewInput: RSSFeedDefaultViewInput;
   RSSFeedsUsersFeedInput: RSSFeedsUsersFeedInput;
   RSSFeedSelector: RSSFeedSelector;
   MultiRSSFeedInput: MultiRSSFeedInput;
@@ -9443,49 +9406,34 @@ interface GraphQLTypeMap {
   Report: Report;
   SingleReportInput: SingleReportInput;
   SingleReportOutput: SingleReportOutput;
-  ReportDefaultViewInput: ReportDefaultViewInput;
-  ReportsAllReportsInput: ReportsAllReportsInput;
-  ReportsUnclaimedReportsInput: ReportsUnclaimedReportsInput;
-  ReportsClaimedReportsInput: ReportsClaimedReportsInput;
   ReportsAdminClaimedReportsInput: ReportsAdminClaimedReportsInput;
-  ReportsSunshineSidebarReportsInput: ReportsSunshineSidebarReportsInput;
-  ReportsClosedReportsInput: ReportsClosedReportsInput;
   ReportSelector: ReportSelector;
   MultiReportInput: MultiReportInput;
   MultiReportOutput: MultiReportOutput;
   ReviewVote: ReviewVote;
   SingleReviewVoteInput: SingleReviewVoteInput;
   SingleReviewVoteOutput: SingleReviewVoteOutput;
-  ReviewVoteDefaultViewInput: ReviewVoteDefaultViewInput;
   ReviewVotesReviewVotesFromUserInput: ReviewVotesReviewVotesFromUserInput;
-  ReviewVotesReviewVotesForPostInput: ReviewVotesReviewVotesForPostInput;
-  ReviewVotesReviewVotesForPostAndUserInput: ReviewVotesReviewVotesForPostAndUserInput;
-  ReviewVotesReviewVotesAdminDashboardInput: ReviewVotesReviewVotesAdminDashboardInput;
   ReviewVoteSelector: ReviewVoteSelector;
   MultiReviewVoteInput: MultiReviewVoteInput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;
   ReviewWinnerArt: ReviewWinnerArt;
   SingleReviewWinnerArtInput: SingleReviewWinnerArtInput;
   SingleReviewWinnerArtOutput: SingleReviewWinnerArtOutput;
-  ReviewWinnerArtDefaultViewInput: ReviewWinnerArtDefaultViewInput;
   ReviewWinnerArtsPostArtInput: ReviewWinnerArtsPostArtInput;
-  ReviewWinnerArtsAllForYearInput: ReviewWinnerArtsAllForYearInput;
   ReviewWinnerArtSelector: ReviewWinnerArtSelector;
   MultiReviewWinnerArtInput: MultiReviewWinnerArtInput;
   MultiReviewWinnerArtOutput: MultiReviewWinnerArtOutput;
   ReviewWinner: ReviewWinner;
   SingleReviewWinnerInput: SingleReviewWinnerInput;
   SingleReviewWinnerOutput: SingleReviewWinnerOutput;
-  ReviewWinnerDefaultViewInput: ReviewWinnerDefaultViewInput;
   ReviewWinnersReviewWinnerSingleInput: ReviewWinnersReviewWinnerSingleInput;
-  ReviewWinnersBestOfLessWrongAnnouncementInput: ReviewWinnersBestOfLessWrongAnnouncementInput;
   ReviewWinnerSelector: ReviewWinnerSelector;
   MultiReviewWinnerInput: MultiReviewWinnerInput;
   MultiReviewWinnerOutput: MultiReviewWinnerOutput;
   Revision: Revision;
   SingleRevisionInput: SingleRevisionInput;
   SingleRevisionOutput: SingleRevisionOutput;
-  RevisionDefaultViewInput: RevisionDefaultViewInput;
   RevisionsRevisionsByUserInput: RevisionsRevisionsByUserInput;
   RevisionsRevisionsOnDocumentInput: RevisionsRevisionsOnDocumentInput;
   RevisionsRevisionByVersionNumberInput: RevisionsRevisionByVersionNumberInput;
@@ -9509,14 +9457,12 @@ interface GraphQLTypeMap {
   SplashArtCoordinate: SplashArtCoordinate;
   SingleSplashArtCoordinateInput: SingleSplashArtCoordinateInput;
   SingleSplashArtCoordinateOutput: SingleSplashArtCoordinateOutput;
-  SplashArtCoordinateViewInput: SplashArtCoordinateViewInput;
   SplashArtCoordinateSelector: SplashArtCoordinateSelector;
   MultiSplashArtCoordinateInput: MultiSplashArtCoordinateInput;
   MultiSplashArtCoordinateOutput: MultiSplashArtCoordinateOutput;
   Spotlight: Spotlight;
   SingleSpotlightInput: SingleSpotlightInput;
   SingleSpotlightOutput: SingleSpotlightOutput;
-  SpotlightDefaultViewInput: SpotlightDefaultViewInput;
   SpotlightsMostRecentlyPromotedSpotlightsInput: SpotlightsMostRecentlyPromotedSpotlightsInput;
   SpotlightsSpotlightsPageInput: SpotlightsSpotlightsPageInput;
   SpotlightsSpotlightsPageDraftInput: SpotlightsSpotlightsPageDraftInput;
@@ -9528,55 +9474,43 @@ interface GraphQLTypeMap {
   Subscription: Subscription;
   SingleSubscriptionInput: SingleSubscriptionInput;
   SingleSubscriptionOutput: SingleSubscriptionOutput;
-  SubscriptionDefaultViewInput: SubscriptionDefaultViewInput;
-  SubscriptionsSubscriptionStateInput: SubscriptionsSubscriptionStateInput;
   SubscriptionsSubscriptionsOfTypeInput: SubscriptionsSubscriptionsOfTypeInput;
-  SubscriptionsMembersOfGroupInput: SubscriptionsMembersOfGroupInput;
   SubscriptionSelector: SubscriptionSelector;
   MultiSubscriptionInput: MultiSubscriptionInput;
   MultiSubscriptionOutput: MultiSubscriptionOutput;
   SurveyQuestion: SurveyQuestion;
   SingleSurveyQuestionInput: SingleSurveyQuestionInput;
   SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
-  SurveyQuestionViewInput: SurveyQuestionViewInput;
   SurveyQuestionSelector: SurveyQuestionSelector;
   MultiSurveyQuestionInput: MultiSurveyQuestionInput;
   MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
   SurveyResponse: SurveyResponse;
   SingleSurveyResponseInput: SingleSurveyResponseInput;
   SingleSurveyResponseOutput: SingleSurveyResponseOutput;
-  SurveyResponseViewInput: SurveyResponseViewInput;
   SurveyResponseSelector: SurveyResponseSelector;
   MultiSurveyResponseInput: MultiSurveyResponseInput;
   MultiSurveyResponseOutput: MultiSurveyResponseOutput;
   SurveySchedule: SurveySchedule;
   SingleSurveyScheduleInput: SingleSurveyScheduleInput;
   SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
-  SurveyScheduleDefaultViewInput: SurveyScheduleDefaultViewInput;
-  SurveySchedulesSurveySchedulesByCreatedAtInput: SurveySchedulesSurveySchedulesByCreatedAtInput;
   SurveyScheduleSelector: SurveyScheduleSelector;
   MultiSurveyScheduleInput: MultiSurveyScheduleInput;
   MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
   Survey: Survey;
   SingleSurveyInput: SingleSurveyInput;
   SingleSurveyOutput: SingleSurveyOutput;
-  SurveyDefaultViewInput: SurveyDefaultViewInput;
-  SurveysSurveysByCreatedAtInput: SurveysSurveysByCreatedAtInput;
   SurveySelector: SurveySelector;
   MultiSurveyInput: MultiSurveyInput;
   MultiSurveyOutput: MultiSurveyOutput;
   TagFlag: TagFlag;
   SingleTagFlagInput: SingleTagFlagInput;
   SingleTagFlagOutput: SingleTagFlagOutput;
-  TagFlagDefaultViewInput: TagFlagDefaultViewInput;
-  TagFlagsAllTagFlagsInput: TagFlagsAllTagFlagsInput;
   TagFlagSelector: TagFlagSelector;
   MultiTagFlagInput: MultiTagFlagInput;
   MultiTagFlagOutput: MultiTagFlagOutput;
   TagRel: TagRel;
   SingleTagRelInput: SingleTagRelInput;
   SingleTagRelOutput: SingleTagRelOutput;
-  TagRelDefaultViewInput: TagRelDefaultViewInput;
   TagRelsPostsWithTagInput: TagRelsPostsWithTagInput;
   TagRelsTagsOnPostInput: TagRelsTagsOnPostInput;
   TagRelSelector: TagRelSelector;
@@ -9613,14 +9547,12 @@ interface GraphQLTypeMap {
   TypingIndicator: TypingIndicator;
   SingleTypingIndicatorInput: SingleTypingIndicatorInput;
   SingleTypingIndicatorOutput: SingleTypingIndicatorOutput;
-  TypingIndicatorViewInput: TypingIndicatorViewInput;
   TypingIndicatorSelector: TypingIndicatorSelector;
   MultiTypingIndicatorInput: MultiTypingIndicatorInput;
   MultiTypingIndicatorOutput: MultiTypingIndicatorOutput;
   UltraFeedEvent: UltraFeedEvent;
   SingleUltraFeedEventInput: SingleUltraFeedEventInput;
   SingleUltraFeedEventOutput: SingleUltraFeedEventOutput;
-  UltraFeedEventDefaultViewInput: UltraFeedEventDefaultViewInput;
   UltraFeedEventSelector: UltraFeedEventSelector;
   MultiUltraFeedEventInput: MultiUltraFeedEventInput;
   MultiUltraFeedEventOutput: MultiUltraFeedEventOutput;
@@ -9628,7 +9560,6 @@ interface GraphQLTypeMap {
   UserEAGDetail: UserEAGDetail;
   SingleUserEAGDetailInput: SingleUserEAGDetailInput;
   SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
-  UserEAGDetailDefaultViewInput: UserEAGDetailDefaultViewInput;
   UserEAGDetailsDataByUserInput: UserEAGDetailsDataByUserInput;
   UserEAGDetailSelector: UserEAGDetailSelector;
   MultiUserEAGDetailInput: MultiUserEAGDetailInput;
@@ -9636,7 +9567,6 @@ interface GraphQLTypeMap {
   UserJobAd: UserJobAd;
   SingleUserJobAdInput: SingleUserJobAdInput;
   SingleUserJobAdOutput: SingleUserJobAdOutput;
-  UserJobAdDefaultViewInput: UserJobAdDefaultViewInput;
   UserJobAdsAdsByUserInput: UserJobAdsAdsByUserInput;
   UserJobAdSelector: UserJobAdSelector;
   MultiUserJobAdInput: MultiUserJobAdInput;
@@ -9644,8 +9574,6 @@ interface GraphQLTypeMap {
   UserMostValuablePost: UserMostValuablePost;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
-  UserMostValuablePostDefaultViewInput: UserMostValuablePostDefaultViewInput;
-  UserMostValuablePostsCurrentUserMostValuablePostsInput: UserMostValuablePostsCurrentUserMostValuablePostsInput;
   UserMostValuablePostsCurrentUserPostInput: UserMostValuablePostsCurrentUserPostInput;
   UserMostValuablePostSelector: UserMostValuablePostSelector;
   MultiUserMostValuablePostInput: MultiUserMostValuablePostInput;
@@ -9653,16 +9581,13 @@ interface GraphQLTypeMap {
   UserRateLimit: UserRateLimit;
   SingleUserRateLimitInput: SingleUserRateLimitInput;
   SingleUserRateLimitOutput: SingleUserRateLimitOutput;
-  UserRateLimitDefaultViewInput: UserRateLimitDefaultViewInput;
   UserRateLimitsUserRateLimitsInput: UserRateLimitsUserRateLimitsInput;
-  UserRateLimitsActiveUserRateLimitsInput: UserRateLimitsActiveUserRateLimitsInput;
   UserRateLimitSelector: UserRateLimitSelector;
   MultiUserRateLimitInput: MultiUserRateLimitInput;
   MultiUserRateLimitOutput: MultiUserRateLimitOutput;
   UserTagRel: UserTagRel;
   SingleUserTagRelInput: SingleUserTagRelInput;
   SingleUserTagRelOutput: SingleUserTagRelOutput;
-  UserTagRelDefaultViewInput: UserTagRelDefaultViewInput;
   UserTagRelsSingleInput: UserTagRelsSingleInput;
   UserTagRelSelector: UserTagRelSelector;
   MultiUserTagRelInput: MultiUserTagRelInput;
@@ -9671,32 +9596,15 @@ interface GraphQLTypeMap {
   UserSelectorUniqueInput: UserSelectorUniqueInput;
   SingleUserInput: SingleUserInput;
   SingleUserOutput: SingleUserOutput;
-  UserDefaultViewInput: UserDefaultViewInput;
   UsersUsersByUserIdsInput: UsersUsersByUserIdsInput;
   UsersUsersProfileInput: UsersUsersProfileInput;
-  UsersLWSunshinesListInput: UsersLWSunshinesListInput;
-  UsersLWTrustLevel1ListInput: UsersLWTrustLevel1ListInput;
-  UsersLWUsersAdminInput: UsersLWUsersAdminInput;
-  UsersUsersWithBannedUsersInput: UsersUsersWithBannedUsersInput;
-  UsersSunshineNewUsersInput: UsersSunshineNewUsersInput;
-  UsersRecentlyActiveInput: UsersRecentlyActiveInput;
-  UsersAllUsersInput: UsersAllUsersInput;
-  UsersUsersMapLocationsInput: UsersUsersMapLocationsInput;
   UsersTagCommunityMembersInput: UsersTagCommunityMembersInput;
-  UsersReviewAdminUsersInput: UsersReviewAdminUsersInput;
-  UsersUsersWithPaymentInfoInput: UsersUsersWithPaymentInfoInput;
-  UsersUsersWithOptedInToDialogueFacilitationInput: UsersUsersWithOptedInToDialogueFacilitationInput;
-  UsersAlignmentSuggestedUsersInput: UsersAlignmentSuggestedUsersInput;
   UserSelector: UserSelector;
   MultiUserInput: MultiUserInput;
   MultiUserOutput: MultiUserOutput;
   Vote: Vote;
   SingleVoteInput: SingleVoteInput;
   SingleVoteOutput: SingleVoteOutput;
-  VoteDefaultViewInput: VoteDefaultViewInput;
-  VotesTagVotesInput: VotesTagVotesInput;
-  VotesUserPostVotesInput: VotesUserPostVotesInput;
-  VotesUserVotesInput: VotesUserVotesInput;
   VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;

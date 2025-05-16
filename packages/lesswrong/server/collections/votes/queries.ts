@@ -17,19 +17,11 @@ export const graphqlVoteQueryTypeDefs = gql`
     result: Vote
   }
   
-  input VoteDefaultViewInput
-  
-  input VotesTagVotesInput
-  
-  input VotesUserPostVotesInput
-  
-  input VotesUserVotesInput
-  
-  input VoteSelector  {
-    default: VoteDefaultViewInput
-    tagVotes: VotesTagVotesInput
-    userPostVotes: VotesUserPostVotesInput
-    userVotes: VotesUserVotesInput
+  input VoteSelector {
+    default: EmptyViewInput
+    tagVotes: EmptyViewInput
+    userPostVotes: EmptyViewInput
+    userVotes: EmptyViewInput
   }
   
   input MultiVoteInput {

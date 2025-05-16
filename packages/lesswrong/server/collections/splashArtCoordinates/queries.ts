@@ -17,10 +17,8 @@ export const graphqlSplashArtCoordinateQueryTypeDefs = gql`
     result: SplashArtCoordinate
   }
   
-  input SplashArtCoordinateViewInput
-  
-  input SplashArtCoordinateSelector  {
-    default: SplashArtCoordinateViewInput
+  input SplashArtCoordinateSelector {
+    default: EmptyViewInput
   }
   
   input MultiSplashArtCoordinateInput {

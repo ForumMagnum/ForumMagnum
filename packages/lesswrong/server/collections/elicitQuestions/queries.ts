@@ -17,10 +17,8 @@ export const graphqlElicitQuestionQueryTypeDefs = gql`
     result: ElicitQuestion
   }
   
-  input ElicitQuestionViewInput
-  
-  input ElicitQuestionSelector  {
-    default: ElicitQuestionViewInput
+  input ElicitQuestionSelector {
+    default: EmptyViewInput
   }
   
   input MultiElicitQuestionInput {

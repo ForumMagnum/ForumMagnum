@@ -17,17 +17,13 @@ export const graphqlUserMostValuablePostQueryTypeDefs = gql`
     result: UserMostValuablePost
   }
   
-  input UserMostValuablePostDefaultViewInput
-  
-  input UserMostValuablePostsCurrentUserMostValuablePostsInput
-  
   input UserMostValuablePostsCurrentUserPostInput {
     postId: String
   }
   
-  input UserMostValuablePostSelector  {
-    default: UserMostValuablePostDefaultViewInput
-    currentUserMostValuablePosts: UserMostValuablePostsCurrentUserMostValuablePostsInput
+  input UserMostValuablePostSelector {
+    default: EmptyViewInput
+    currentUserMostValuablePosts: EmptyViewInput
     currentUserPost: UserMostValuablePostsCurrentUserPostInput
   }
   

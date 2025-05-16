@@ -34,6 +34,15 @@ export type AdvisorRequestOutput = {
   data?: Maybe<AdvisorRequest>;
 };
 
+export type AdvisorRequestSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  requestsByUser?: InputMaybe<AdvisorRequestsRequestsByUserInput>;
+};
+
+export type AdvisorRequestsRequestsByUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AllTagsActivityFeedEntryType = {
   __typename?: 'AllTagsActivityFeedEntryType';
   tagCreated?: Maybe<Tag>;
@@ -106,9 +115,20 @@ export type ArbitalTagContentRel = {
   type: Scalars['String']['output'];
 };
 
-export type ArbitalTagContentRelOutput = {
-  __typename?: 'ArbitalTagContentRelOutput';
-  data?: Maybe<ArbitalTagContentRel>;
+export type ArbitalTagContentRelSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type AutomatedContentEvaluation = {
+  __typename?: 'AutomatedContentEvaluation';
+  _id: Scalars['String']['output'];
+  aiChoice: Scalars['String']['output'];
+  aiCoT: Scalars['String']['output'];
+  aiReasoning: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  revisionId: Scalars['String']['output'];
+  score: Scalars['Float']['output'];
+  sentenceScores: Array<SentenceScore>;
 };
 
 export type AutosaveContentType = {
@@ -131,9 +151,8 @@ export type Ban = {
   userId: Scalars['String']['output'];
 };
 
-export type BanOutput = {
-  __typename?: 'BanOutput';
-  data?: Maybe<Ban>;
+export type BanSelector = {
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type Book = {
@@ -169,6 +188,23 @@ export type BookOutput = {
   data?: Maybe<Book>;
 };
 
+export type BookSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type Bookmark = {
+  __typename?: 'Bookmark';
+  _id: Scalars['String']['output'];
+  active: Scalars['Boolean']['output'];
+  collectionName: Scalars['String']['output'];
+  comment?: Maybe<Comment>;
+  createdAt: Scalars['Date']['output'];
+  documentId: Scalars['String']['output'];
+  lastUpdated: Scalars['Date']['output'];
+  post?: Maybe<Post>;
+  userId: Scalars['String']['output'];
+};
+
 export type Chapter = {
   __typename?: 'Chapter';
   _id: Scalars['String']['output'];
@@ -196,6 +232,16 @@ export type ChapterOutput = {
   data?: Maybe<Chapter>;
 };
 
+export type ChapterSelector = {
+  SequenceChapters?: InputMaybe<ChaptersSequenceChaptersInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type ChaptersSequenceChaptersInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+  sequenceId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CkEditorUserSession = {
   __typename?: 'CkEditorUserSession';
   _id: Scalars['String']['output'];
@@ -206,6 +252,10 @@ export type CkEditorUserSession = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
   userId?: Maybe<Scalars['String']['output']>;
+};
+
+export type CkEditorUserSessionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type ClientId = {
@@ -224,11 +274,33 @@ export type ClientId = {
   users?: Maybe<Array<User>>;
 };
 
+export type ClientIdSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  getClientId?: InputMaybe<ClientIdsGetClientIdInput>;
+};
+
+export type ClientIdsGetClientIdInput = {
+  clientId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CoauthorStatus = {
   __typename?: 'CoauthorStatus';
   confirmed?: Maybe<Scalars['Boolean']['output']>;
   requested?: Maybe<Scalars['Boolean']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoauthorStatusInput = {
+  confirmed: Scalars['Boolean']['input'];
+  requested: Scalars['Boolean']['input'];
+  userId: Scalars['String']['input'];
+};
+
+export type CoauthorStatusOutput = {
+  __typename?: 'CoauthorStatusOutput';
+  confirmed: Scalars['Boolean']['output'];
+  requested: Scalars['Boolean']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export type Collection = {
@@ -257,9 +329,17 @@ export type CollectionContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CollectionDefaultViewInput = {
+  collectionIds?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CollectionOutput = {
   __typename?: 'CollectionOutput';
   data?: Maybe<Collection>;
+};
+
+export type CollectionSelector = {
+  default?: InputMaybe<CollectionDefaultViewInput>;
 };
 
 export type CombinedKarmaVals = {
@@ -361,7 +441,7 @@ export type Comment = {
   suggestForAlignmentUserIds: Array<Scalars['String']['output']>;
   suggestForAlignmentUsers: Array<User>;
   tag?: Maybe<Tag>;
-  tagCommentType: TagCommentType;
+  tagCommentType: Scalars['String']['output'];
   tagId?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   topLevelComment?: Maybe<Comment>;
@@ -386,18 +466,26 @@ export type CommentCountTag = {
   name: Scalars['String']['output'];
 };
 
+export type CommentDefaultViewInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CommentKarmaChange = {
   __typename?: 'CommentKarmaChange';
-  _id?: Maybe<Scalars['String']['output']>;
+  _id: Scalars['String']['output'];
   addedReacts?: Maybe<Array<ReactionChange>>;
+  collectionName: Scalars['String']['output'];
   commentId?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   eaAddedReacts?: Maybe<Scalars['JSON']['output']>;
   postId?: Maybe<Scalars['String']['output']>;
   postSlug?: Maybe<Scalars['String']['output']>;
   postTitle?: Maybe<Scalars['String']['output']>;
-  scoreChange?: Maybe<Scalars['Int']['output']>;
+  scoreChange: Scalars['Int']['output'];
   tagCommentType?: Maybe<Scalars['String']['output']>;
+  tagId?: Maybe<Scalars['String']['output']>;
   tagName?: Maybe<Scalars['String']['output']>;
   tagSlug?: Maybe<Scalars['String']['output']>;
 };
@@ -420,9 +508,400 @@ export type CommentModeratorActionOutput = {
   data?: Maybe<CommentModeratorAction>;
 };
 
+export type CommentModeratorActionSelector = {
+  activeCommentModeratorActions?: InputMaybe<CommentModeratorActionsActiveCommentModeratorActionsInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type CommentModeratorActionsActiveCommentModeratorActionsInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CommentOutput = {
   __typename?: 'CommentOutput';
   data?: Maybe<Comment>;
+};
+
+export type CommentSelector = {
+  afPostCommentsTop?: InputMaybe<CommentsAfPostCommentsTopInput>;
+  afRecentDiscussionThread?: InputMaybe<CommentsAfRecentDiscussionThreadInput>;
+  afSubmissions?: InputMaybe<CommentsAfSubmissionsInput>;
+  alignmentSuggestedComments?: InputMaybe<CommentsAlignmentSuggestedCommentsInput>;
+  allCommentsDeleted?: InputMaybe<CommentsAllCommentsDeletedInput>;
+  allRecentComments?: InputMaybe<CommentsAllRecentCommentsInput>;
+  answersAndReplies?: InputMaybe<CommentsAnswersAndRepliesInput>;
+  checkedByModGPT?: InputMaybe<CommentsCheckedByModGptInput>;
+  commentReplies?: InputMaybe<CommentsCommentRepliesInput>;
+  debateResponses?: InputMaybe<CommentsDebateResponsesInput>;
+  default?: InputMaybe<CommentDefaultViewInput>;
+  defaultModeratorResponses?: InputMaybe<CommentsDefaultModeratorResponsesInput>;
+  forumEventComments?: InputMaybe<CommentsForumEventCommentsInput>;
+  latestSubforumDiscussion?: InputMaybe<CommentsLatestSubforumDiscussionInput>;
+  legacyIdComment?: InputMaybe<CommentsLegacyIdCommentInput>;
+  moderatorComments?: InputMaybe<CommentsModeratorCommentsInput>;
+  nominations2018?: InputMaybe<CommentsNominations2018Input>;
+  nominations2019?: InputMaybe<CommentsNominations2019Input>;
+  postCommentsBest?: InputMaybe<CommentsPostCommentsBestInput>;
+  postCommentsDeleted?: InputMaybe<CommentsPostCommentsDeletedInput>;
+  postCommentsMagic?: InputMaybe<CommentsPostCommentsMagicInput>;
+  postCommentsNew?: InputMaybe<CommentsPostCommentsNewInput>;
+  postCommentsOld?: InputMaybe<CommentsPostCommentsOldInput>;
+  postCommentsRecentReplies?: InputMaybe<CommentsPostCommentsRecentRepliesInput>;
+  postCommentsTop?: InputMaybe<CommentsPostCommentsTopInput>;
+  postLWComments?: InputMaybe<CommentsPostLwCommentsInput>;
+  postsItemComments?: InputMaybe<CommentsPostsItemCommentsInput>;
+  profileComments?: InputMaybe<CommentsProfileCommentsInput>;
+  profileRecentComments?: InputMaybe<CommentsProfileRecentCommentsInput>;
+  questionAnswers?: InputMaybe<CommentsQuestionAnswersInput>;
+  recentComments?: InputMaybe<CommentsRecentCommentsInput>;
+  recentDebateResponses?: InputMaybe<CommentsRecentDebateResponsesInput>;
+  recentDiscussionThread?: InputMaybe<CommentsRecentDiscussionThreadInput>;
+  rejected?: InputMaybe<CommentsRejectedInput>;
+  repliesToAnswer?: InputMaybe<CommentsRepliesToAnswerInput>;
+  repliesToCommentThread?: InputMaybe<CommentsRepliesToCommentThreadInput>;
+  reviews?: InputMaybe<CommentsReviewsInput>;
+  reviews2018?: InputMaybe<CommentsReviews2018Input>;
+  reviews2019?: InputMaybe<CommentsReviews2019Input>;
+  rss?: InputMaybe<CommentsRssInput>;
+  shortform?: InputMaybe<CommentsShortformInput>;
+  shortformFrontpage?: InputMaybe<CommentsShortformFrontpageInput>;
+  shortformLatestChildren?: InputMaybe<CommentsShortformLatestChildrenInput>;
+  sunshineNewCommentsList?: InputMaybe<CommentsSunshineNewCommentsListInput>;
+  sunshineNewUsersComments?: InputMaybe<CommentsSunshineNewUsersCommentsInput>;
+  tagDiscussionComments?: InputMaybe<CommentsTagDiscussionCommentsInput>;
+  tagSubforumComments?: InputMaybe<CommentsTagSubforumCommentsInput>;
+  topShortform?: InputMaybe<CommentsTopShortformInput>;
+};
+
+export type CommentsAfPostCommentsTopInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsAfRecentDiscussionThreadInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsAfSubmissionsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsAlignmentSuggestedCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsAllCommentsDeletedInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsAllRecentCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsAnswersAndRepliesInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsCheckedByModGptInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsCommentRepliesInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  parentCommentId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsDebateResponsesInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsDefaultModeratorResponsesInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsForumEventCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  forumEventId?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsLatestSubforumDiscussionInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  profileTagIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsLegacyIdCommentInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  legacyId?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsModeratorCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsNominations2018Input = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsNominations2019Input = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsBestInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsDeletedInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsMagicInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsNewInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsOldInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsRecentRepliesInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostCommentsTopInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostLwCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsPostsItemCommentsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsProfileCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsProfileRecentCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsQuestionAnswersInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRecentCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRecentDebateResponsesInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRecentDiscussionThreadInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRejectedInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRepliesToAnswerInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  parentAnswerId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRepliesToCommentThreadInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  topLevelCommentId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsReviews2018Input = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsReviews2019Input = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsReviewsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsRssInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsShortformFrontpageInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  maxAgeDays?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  relevantTagId?: InputMaybe<Scalars['String']['input']>;
+  showCommunity?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsShortformInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsShortformLatestChildrenInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  topLevelCommentId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsSunshineNewCommentsListInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsSunshineNewUsersCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsTagDiscussionCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsTagSubforumCommentsInput = {
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsTopShortformInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  commentIds?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['String']['input']>;
+  shortformFrontpage?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CommentsWithReactsResult = {
@@ -432,8 +911,13 @@ export type CommentsWithReactsResult = {
 
 export type ContentType = {
   __typename?: 'ContentType';
-  data?: Maybe<Scalars['ContentTypeData']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
+  data: Scalars['ContentTypeData']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type ContentTypeInput = {
+  data: Scalars['ContentTypeData']['input'];
+  type: Scalars['String']['input'];
 };
 
 export type Conversation = {
@@ -460,6 +944,35 @@ export type ConversationOutput = {
   data?: Maybe<Conversation>;
 };
 
+export type ConversationSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  moderatorConversations?: InputMaybe<ConversationsModeratorConversationsInput>;
+  userConversations?: InputMaybe<ConversationsUserConversationsInput>;
+  userConversationsAll?: InputMaybe<ConversationsUserConversationsAllInput>;
+  userGroupUntitledConversations?: InputMaybe<ConversationsUserGroupUntitledConversationsInput>;
+};
+
+export type ConversationsModeratorConversationsInput = {
+  showArchive?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ConversationsUserConversationsAllInput = {
+  showArchive?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ConversationsUserConversationsInput = {
+  showArchive?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ConversationsUserGroupUntitledConversationsInput = {
+  moderator?: InputMaybe<Scalars['String']['input']>;
+  participantIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CreateAdvisorRequestDataInput = {
   interestedInMetaculus?: InputMaybe<Scalars['Boolean']['input']>;
   jobAds?: InputMaybe<Scalars['JSON']['input']>;
@@ -471,38 +984,9 @@ export type CreateAdvisorRequestInput = {
   data: CreateAdvisorRequestDataInput;
 };
 
-export type CreateArbitalTagContentRelDataInput = {
-  childCollectionName: Scalars['String']['input'];
-  childDocumentId: Scalars['String']['input'];
-  isStrong: Scalars['Boolean']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  level: Scalars['Float']['input'];
-  parentCollectionName: Scalars['String']['input'];
-  parentDocumentId: Scalars['String']['input'];
-  type: Scalars['String']['input'];
-};
-
-export type CreateArbitalTagContentRelInput = {
-  data: CreateArbitalTagContentRelDataInput;
-};
-
-export type CreateBanDataInput = {
-  comment?: InputMaybe<Scalars['String']['input']>;
-  expirationDate: Scalars['Date']['input'];
-  ip?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  properties?: InputMaybe<Scalars['JSON']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CreateBanInput = {
-  data: CreateBanDataInput;
-};
-
 export type CreateBookDataInput = {
   collectionId: Scalars['String']['input'];
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   displaySequencesAsGrid?: InputMaybe<Scalars['Boolean']['input']>;
   hideProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -520,7 +1004,7 @@ export type CreateBookInput = {
 };
 
 export type CreateChapterDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   number?: InputMaybe<Scalars['Float']['input']>;
   postIds: Array<Scalars['String']['input']>;
@@ -534,7 +1018,7 @@ export type CreateChapterInput = {
 };
 
 export type CreateCollectionDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   createdAt: Scalars['Date']['input'];
   firstPageLink?: InputMaybe<Scalars['String']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -555,7 +1039,7 @@ export type CreateCommentDataInput = {
   agentFoundationsId?: InputMaybe<Scalars['String']['input']>;
   answer?: InputMaybe<Scalars['Boolean']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   debateResponse?: InputMaybe<Scalars['Boolean']['input']>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   deletedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -593,7 +1077,7 @@ export type CreateCommentDataInput = {
   shortformFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
   spam?: InputMaybe<Scalars['Boolean']['input']>;
   subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
-  tagCommentType?: InputMaybe<TagCommentType>;
+  tagCommentType?: InputMaybe<Scalars['String']['input']>;
   tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   topLevelCommentId?: InputMaybe<Scalars['String']['input']>;
@@ -630,7 +1114,7 @@ export type CreateConversationInput = {
 
 export type CreateCurationNoticeDataInput = {
   commentId?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   postId: Scalars['String']['input'];
   userId: Scalars['String']['input'];
@@ -638,23 +1122,6 @@ export type CreateCurationNoticeDataInput = {
 
 export type CreateCurationNoticeInput = {
   data: CreateCurationNoticeDataInput;
-};
-
-export type CreateDialogueMatchPreferenceDataInput = {
-  asyncPreference: Scalars['String']['input'];
-  calendlyLink?: InputMaybe<Scalars['String']['input']>;
-  deleted?: InputMaybe<Scalars['Boolean']['input']>;
-  dialogueCheckId: Scalars['String']['input'];
-  formatNotes: Scalars['String']['input'];
-  generatedDialogueId?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  syncPreference: Scalars['String']['input'];
-  topicNotes: Scalars['String']['input'];
-  topicPreferences: Array<Scalars['JSON']['input']>;
-};
-
-export type CreateDialogueMatchPreferenceInput = {
-  data: CreateDialogueMatchPreferenceDataInput;
 };
 
 export type CreateDigestDataInput = {
@@ -739,19 +1206,20 @@ export type CreateForumEventDataInput = {
   contrastColor?: InputMaybe<Scalars['String']['input']>;
   customComponent?: InputMaybe<Scalars['String']['input']>;
   darkColor: Scalars['String']['input'];
-  endDate: Scalars['Date']['input'];
+  endDate?: InputMaybe<Scalars['Date']['input']>;
   eventFormat?: InputMaybe<Scalars['String']['input']>;
-  frontpageDescription?: InputMaybe<Scalars['JSON']['input']>;
-  frontpageDescriptionMobile?: InputMaybe<Scalars['JSON']['input']>;
+  frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
+  frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
   includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
+  isGlobal: Scalars['Boolean']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   lightColor: Scalars['String']['input'];
   maxStickersPerUser?: InputMaybe<Scalars['Float']['input']>;
   pollAgreeWording?: InputMaybe<Scalars['String']['input']>;
   pollDisagreeWording?: InputMaybe<Scalars['String']['input']>;
-  pollQuestion?: InputMaybe<Scalars['JSON']['input']>;
+  pollQuestion?: InputMaybe<CreateRevisionDataInput>;
   postId?: InputMaybe<Scalars['String']['input']>;
-  postPageDescription?: InputMaybe<Scalars['JSON']['input']>;
+  postPageDescription?: InputMaybe<CreateRevisionDataInput>;
   publicData?: InputMaybe<Scalars['JSON']['input']>;
   startDate: Scalars['Date']['input'];
   tagId?: InputMaybe<Scalars['String']['input']>;
@@ -762,38 +1230,10 @@ export type CreateForumEventInput = {
   data: CreateForumEventDataInput;
 };
 
-export type CreateGardenCodeDataInput = {
-  afOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
-  fbLink?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  slug?: InputMaybe<Scalars['String']['input']>;
-  startTime?: InputMaybe<Scalars['Date']['input']>;
-  title: Scalars['String']['input'];
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CreateGardenCodeInput = {
-  data: CreateGardenCodeDataInput;
-};
-
-export type CreateGoogleServiceAccountSessionDataInput = {
-  active: Scalars['Boolean']['input'];
-  email: Scalars['String']['input'];
-  estimatedExpiry: Scalars['Date']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  refreshToken: Scalars['String']['input'];
-  revoked: Scalars['Boolean']['input'];
-};
-
-export type CreateGoogleServiceAccountSessionInput = {
-  data: CreateGoogleServiceAccountSessionDataInput;
-};
-
 export type CreateJargonTermDataInput = {
   altTerms: Array<Scalars['String']['input']>;
   approved?: InputMaybe<Scalars['Boolean']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   postId: Scalars['String']['input'];
@@ -822,7 +1262,7 @@ export type CreateLocalgroupDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   categories?: InputMaybe<Array<Scalars['String']['input']>>;
   contactInfo?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   facebookLink?: InputMaybe<Scalars['String']['input']>;
   facebookPageLink?: InputMaybe<Scalars['String']['input']>;
@@ -846,7 +1286,7 @@ export type CreateLocalgroupInput = {
 };
 
 export type CreateMessageDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   conversationId: Scalars['String']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   noEmail?: InputMaybe<Scalars['Boolean']['input']>;
@@ -859,7 +1299,7 @@ export type CreateMessageInput = {
 
 export type CreateModerationTemplateDataInput = {
   collectionName: Scalars['String']['input'];
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Float']['input']>;
@@ -882,7 +1322,7 @@ export type CreateModeratorActionInput = {
 
 export type CreateMultiDocumentDataInput = {
   collectionName: Scalars['String']['input'];
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   fieldName: Scalars['String']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   parentDocumentId: Scalars['String']['input'];
@@ -895,15 +1335,6 @@ export type CreateMultiDocumentDataInput = {
 
 export type CreateMultiDocumentInput = {
   data: CreateMultiDocumentDataInput;
-};
-
-export type CreateNotificationDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  viewed?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type CreateNotificationInput = {
-  data: CreateNotificationDataInput;
 };
 
 export type CreatePetrovDayActionDataInput = {
@@ -944,16 +1375,16 @@ export type CreatePostDataInput = {
   canonicalPrevPostSlug?: InputMaybe<Scalars['String']['input']>;
   canonicalSequenceId?: InputMaybe<Scalars['String']['input']>;
   canonicalSource?: InputMaybe<Scalars['String']['input']>;
-  coauthorStatuses?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  coauthorStatuses?: InputMaybe<Array<CoauthorStatusInput>>;
   collabEditorDialogue?: InputMaybe<Scalars['Boolean']['input']>;
   collectionTitle?: InputMaybe<Scalars['String']['input']>;
   commentSortOrder?: InputMaybe<Scalars['String']['input']>;
   commentsLocked?: InputMaybe<Scalars['Boolean']['input']>;
   commentsLockedToAccountsCreatedAfter?: InputMaybe<Scalars['Date']['input']>;
   contactInfo?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   curatedDate?: InputMaybe<Scalars['Date']['input']>;
-  customHighlight?: InputMaybe<Scalars['JSON']['input']>;
+  customHighlight?: InputMaybe<CreateRevisionDataInput>;
   defaultRecommendation?: InputMaybe<Scalars['Boolean']['input']>;
   disableRecommendation?: InputMaybe<Scalars['Boolean']['input']>;
   disableSidenotes?: InputMaybe<Scalars['Boolean']['input']>;
@@ -965,7 +1396,7 @@ export type CreatePostDataInput = {
   facebookLink?: InputMaybe<Scalars['String']['input']>;
   feedId?: InputMaybe<Scalars['String']['input']>;
   feedLink?: InputMaybe<Scalars['String']['input']>;
-  fmCrosspost?: InputMaybe<Scalars['JSON']['input']>;
+  fmCrosspost?: InputMaybe<CrosspostInput>;
   forceAllowType3Audio?: InputMaybe<Scalars['Boolean']['input']>;
   frontpageDate?: InputMaybe<Scalars['Date']['input']>;
   generateDraftJargon?: InputMaybe<Scalars['Boolean']['input']>;
@@ -992,7 +1423,7 @@ export type CreatePostDataInput = {
   meta?: InputMaybe<Scalars['Boolean']['input']>;
   metaDate?: InputMaybe<Scalars['Date']['input']>;
   metaSticky?: InputMaybe<Scalars['Boolean']['input']>;
-  moderationGuidelines?: InputMaybe<Scalars['JSON']['input']>;
+  moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   moderationStyle?: InputMaybe<Scalars['String']['input']>;
   nextDayReminderSent?: InputMaybe<Scalars['Boolean']['input']>;
   noIndex?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1017,7 +1448,7 @@ export type CreatePostDataInput = {
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sideCommentVisibility?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  socialPreview?: InputMaybe<Scalars['JSON']['input']>;
+  socialPreview?: InputMaybe<SocialPreviewInput>;
   socialPreviewImageAutoUrl?: InputMaybe<Scalars['String']['input']>;
   socialPreviewImageId?: InputMaybe<Scalars['String']['input']>;
   startTime?: InputMaybe<Scalars['Date']['input']>;
@@ -1039,37 +1470,8 @@ export type CreatePostDataInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CreatePostEmbeddingDataInput = {
-  embeddings?: InputMaybe<Array<Scalars['Float']['input']>>;
-  lastGeneratedAt: Scalars['Date']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  model: Scalars['String']['input'];
-  postHash: Scalars['String']['input'];
-  postId: Scalars['String']['input'];
-};
-
-export type CreatePostEmbeddingInput = {
-  data: CreatePostEmbeddingDataInput;
-};
-
 export type CreatePostInput = {
   data: CreatePostDataInput;
-};
-
-export type CreatePostViewTimeDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type CreatePostViewTimeInput = {
-  data: CreatePostViewTimeDataInput;
-};
-
-export type CreatePostViewsDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type CreatePostViewsInput = {
-  data: CreatePostViewsDataInput;
 };
 
 export type CreateRssFeedDataInput = {
@@ -1104,11 +1506,19 @@ export type CreateReportInput = {
   data: CreateReportDataInput;
 };
 
+export type CreateRevisionDataInput = {
+  commitMessage?: InputMaybe<Scalars['String']['input']>;
+  dataWithDiscardedSuggestions?: InputMaybe<Scalars['JSON']['input']>;
+  googleDocMetadata?: InputMaybe<Scalars['JSON']['input']>;
+  originalContents: ContentTypeInput;
+  updateType?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CreateSequenceDataInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   canonicalCollectionSlug?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   curatedOrder?: InputMaybe<Scalars['Float']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -1154,7 +1564,7 @@ export type CreateSplashArtCoordinateInput = {
 export type CreateSpotlightDataInput = {
   customSubtitle?: InputMaybe<Scalars['String']['input']>;
   customTitle?: InputMaybe<Scalars['String']['input']>;
-  description?: InputMaybe<Scalars['JSON']['input']>;
+  description?: InputMaybe<CreateRevisionDataInput>;
   documentId: Scalars['String']['input'];
   documentType: Scalars['String']['input'];
   draft: Scalars['Boolean']['input'];
@@ -1225,7 +1635,7 @@ export type CreateSurveyResponseInput = {
 };
 
 export type CreateSurveyScheduleDataInput = {
-  clientIds: Array<Scalars['String']['input']>;
+  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
   deactivated?: InputMaybe<Scalars['Boolean']['input']>;
   endDate?: InputMaybe<Scalars['Date']['input']>;
   impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
@@ -1253,14 +1663,14 @@ export type CreateTagDataInput = {
   core?: InputMaybe<Scalars['Boolean']['input']>;
   coreTagId?: InputMaybe<Scalars['String']['input']>;
   defaultOrder?: InputMaybe<Scalars['Float']['input']>;
-  description?: InputMaybe<Scalars['JSON']['input']>;
+  description?: InputMaybe<CreateRevisionDataInput>;
   descriptionTruncationCount?: InputMaybe<Scalars['Float']['input']>;
   forceAllowType3Audio?: InputMaybe<Scalars['Boolean']['input']>;
   introSequenceId?: InputMaybe<Scalars['String']['input']>;
   isPostType?: InputMaybe<Scalars['Boolean']['input']>;
   isSubforum?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  moderationGuidelines?: InputMaybe<Scalars['JSON']['input']>;
+  moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   name: Scalars['String']['input'];
   parentTagId?: InputMaybe<Scalars['String']['input']>;
   postsDefaultSortOrder?: InputMaybe<Scalars['String']['input']>;
@@ -1271,7 +1681,7 @@ export type CreateTagDataInput = {
   subTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
   subforumIntroPostId?: InputMaybe<Scalars['String']['input']>;
   subforumModeratorIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  subforumWelcomeText?: InputMaybe<Scalars['JSON']['input']>;
+  subforumWelcomeText?: InputMaybe<CreateRevisionDataInput>;
   subtitle?: InputMaybe<Scalars['String']['input']>;
   suggestedAsFilter?: InputMaybe<Scalars['Boolean']['input']>;
   tagFlagsIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -1280,7 +1690,7 @@ export type CreateTagDataInput = {
 };
 
 export type CreateTagFlagDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name: Scalars['String']['input'];
@@ -1294,17 +1704,6 @@ export type CreateTagFlagInput = {
 
 export type CreateTagInput = {
   data: CreateTagDataInput;
-};
-
-export type CreateTagRelDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  postId: Scalars['String']['input'];
-  tagId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
-};
-
-export type CreateTagRelInput = {
-  data: CreateTagRelDataInput;
 };
 
 export type CreateUltraFeedEventDataInput = {
@@ -1339,7 +1738,7 @@ export type CreateUserDataInput = {
   banned?: InputMaybe<Scalars['Date']['input']>;
   bannedPersonalUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
   bannedUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  biography?: InputMaybe<Scalars['JSON']['input']>;
+  biography?: InputMaybe<CreateRevisionDataInput>;
   blueskyProfileURL?: InputMaybe<Scalars['String']['input']>;
   careerStage?: InputMaybe<Array<Scalars['String']['input']>>;
   collapseModerationGuidelines?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1349,13 +1748,13 @@ export type CreateUserDataInput = {
   criticismTipsDismissed?: InputMaybe<Scalars['Boolean']['input']>;
   currentFrontpageFilter?: InputMaybe<Scalars['String']['input']>;
   deleteContent?: InputMaybe<Scalars['Boolean']['input']>;
-  displayName?: InputMaybe<Scalars['String']['input']>;
+  displayName: Scalars['String']['input'];
   draftsListShowArchived?: InputMaybe<Scalars['Boolean']['input']>;
   draftsListShowShared?: InputMaybe<Scalars['Boolean']['input']>;
   draftsListSorting?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
-  expandedFrontpageSections?: InputMaybe<Scalars['JSON']['input']>;
+  expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
@@ -1381,8 +1780,8 @@ export type CreateUserDataInput = {
   hideSubscribePoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideSunshineSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
-  howICanHelpOthers?: InputMaybe<Scalars['JSON']['input']>;
-  howOthersCanHelpMe?: InputMaybe<Scalars['JSON']['input']>;
+  howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
+  howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
   inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
@@ -1398,7 +1797,7 @@ export type CreateUserDataInput = {
   location?: InputMaybe<Scalars['String']['input']>;
   mapLocation?: InputMaybe<Scalars['JSON']['input']>;
   mapMarkerText?: InputMaybe<Scalars['String']['input']>;
-  moderationGuidelines?: InputMaybe<Scalars['JSON']['input']>;
+  moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   moderationStyle?: InputMaybe<Scalars['String']['input']>;
   moderatorAssistance?: InputMaybe<Scalars['Boolean']['input']>;
   nearbyEventsNotifications?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1464,6 +1863,7 @@ export type CreateUserDataInput = {
   slug?: InputMaybe<Scalars['String']['input']>;
   subforumPreferredLayout?: InputMaybe<Scalars['String']['input']>;
   subscribedToDigest?: InputMaybe<Scalars['Boolean']['input']>;
+  subscribedToNewsletter?: InputMaybe<Scalars['Boolean']['input']>;
   theme?: InputMaybe<Scalars['JSON']['input']>;
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
@@ -1515,7 +1915,7 @@ export type CreateUserMostValuablePostInput = {
 
 export type CreateUserRateLimitDataInput = {
   actionsPerInterval: Scalars['Float']['input'];
-  endedAt?: InputMaybe<Scalars['Date']['input']>;
+  endedAt: Scalars['Date']['input'];
   intervalLength: Scalars['Float']['input'];
   intervalUnit: Scalars['String']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -1553,6 +1953,19 @@ export type CronHistory = {
 export type CrossedKarmaThresholdResult = {
   __typename?: 'CrossedKarmaThresholdResult';
   results: Array<Post>;
+};
+
+export type CrosspostInput = {
+  foreignPostId?: InputMaybe<Scalars['String']['input']>;
+  hostedHere?: InputMaybe<Scalars['Boolean']['input']>;
+  isCrosspost: Scalars['Boolean']['input'];
+};
+
+export type CrosspostOutput = {
+  __typename?: 'CrosspostOutput';
+  foreignPostId?: Maybe<Scalars['String']['output']>;
+  hostedHere?: Maybe<Scalars['Boolean']['output']>;
+  isCrosspost: Scalars['Boolean']['output'];
 };
 
 export type CuratedAndPopularThisWeekResult = {
@@ -1597,6 +2010,11 @@ export type CurationNoticeOutput = {
   data?: Maybe<CurationNotice>;
 };
 
+export type CurationNoticeSelector = {
+  curationNoticesPage?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type DatabaseMetadata = {
   __typename?: 'DatabaseMetadata';
   _id: Scalars['String']['output'];
@@ -1628,6 +2046,21 @@ export type DialogueCheck = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+export type DialogueCheckSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  userDialogueChecks?: InputMaybe<DialogueChecksUserDialogueChecksInput>;
+  userTargetDialogueChecks?: InputMaybe<DialogueChecksUserTargetDialogueChecksInput>;
+};
+
+export type DialogueChecksUserDialogueChecksInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type DialogueChecksUserTargetDialogueChecksInput = {
+  targetUserIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type DialogueMatchPreference = {
   __typename?: 'DialogueMatchPreference';
   _id: Scalars['String']['output'];
@@ -1646,9 +2079,13 @@ export type DialogueMatchPreference = {
   topicPreferences?: Maybe<Array<Scalars['JSON']['output']>>;
 };
 
-export type DialogueMatchPreferenceOutput = {
-  __typename?: 'DialogueMatchPreferenceOutput';
-  data?: Maybe<DialogueMatchPreference>;
+export type DialogueMatchPreferenceSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  dialogueMatchPreferences?: InputMaybe<DialogueMatchPreferencesDialogueMatchPreferencesInput>;
+};
+
+export type DialogueMatchPreferencesDialogueMatchPreferencesInput = {
+  dialogueCheckId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Digest = {
@@ -1701,9 +2138,23 @@ export type DigestPostOutput = {
   data?: Maybe<DigestPost>;
 };
 
+export type DigestPostSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type DigestPostsThisWeekResult = {
   __typename?: 'DigestPostsThisWeekResult';
   results: Array<Post>;
+};
+
+export type DigestSelector = {
+  all?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  findByNum?: InputMaybe<DigestsFindByNumInput>;
+};
+
+export type DigestsFindByNumInput = {
+  num?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DocumentDeletion = {
@@ -1749,9 +2200,18 @@ export type ElectionCandidate = {
   voteCount: Scalars['Float']['output'];
 };
 
+export type ElectionCandidateDefaultViewInput = {
+  electionName?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ElectionCandidateOutput = {
   __typename?: 'ElectionCandidateOutput';
   data?: Maybe<ElectionCandidate>;
+};
+
+export type ElectionCandidateSelector = {
+  default?: InputMaybe<ElectionCandidateDefaultViewInput>;
 };
 
 export type ElectionVote = {
@@ -1771,9 +2231,24 @@ export type ElectionVote = {
   vote?: Maybe<Scalars['JSON']['output']>;
 };
 
+export type ElectionVoteDefaultViewInput = {
+  electionName?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ElectionVoteOutput = {
   __typename?: 'ElectionVoteOutput';
   data?: Maybe<ElectionVote>;
+};
+
+export type ElectionVoteSelector = {
+  allSubmittedVotes?: InputMaybe<ElectionVotesAllSubmittedVotesInput>;
+  default?: InputMaybe<ElectionVoteDefaultViewInput>;
+};
+
+export type ElectionVotesAllSubmittedVotesInput = {
+  electionName?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ElicitBlockData = {
@@ -1821,7 +2296,7 @@ export type ElicitQuestionPrediction = {
   _id: Scalars['String']['output'];
   binaryQuestionId: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
-  creator: Scalars['JSON']['output'];
+  creator: ElicitQuestionPredictionCreator;
   isDeleted: Scalars['Boolean']['output'];
   notes?: Maybe<Scalars['String']['output']>;
   prediction?: Maybe<Scalars['Float']['output']>;
@@ -1831,6 +2306,22 @@ export type ElicitQuestionPrediction = {
   sourceUrl?: Maybe<Scalars['String']['output']>;
   user?: Maybe<User>;
   userId?: Maybe<Scalars['String']['output']>;
+};
+
+export type ElicitQuestionPredictionCreator = {
+  __typename?: 'ElicitQuestionPredictionCreator';
+  _id: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  isQuestionCreator: Scalars['Boolean']['output'];
+  sourceUserId?: Maybe<Scalars['String']['output']>;
+};
+
+export type ElicitQuestionPredictionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type ElicitQuestionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type ElicitUser = {
@@ -1856,6 +2347,28 @@ export type EmailTokens = {
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
+};
+
+export type EmptyViewInput = {
+  /** @deprecated GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything. */
+  _?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ExpandedFrontpageSectionsSettingsInput = {
+  community?: InputMaybe<Scalars['Boolean']['input']>;
+  popularComments?: InputMaybe<Scalars['Boolean']['input']>;
+  quickTakes?: InputMaybe<Scalars['Boolean']['input']>;
+  quickTakesCommunity?: InputMaybe<Scalars['Boolean']['input']>;
+  recommendations?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ExpandedFrontpageSectionsSettingsOutput = {
+  __typename?: 'ExpandedFrontpageSectionsSettingsOutput';
+  community?: Maybe<Scalars['Boolean']['output']>;
+  popularComments?: Maybe<Scalars['Boolean']['output']>;
+  quickTakes?: Maybe<Scalars['Boolean']['output']>;
+  quickTakesCommunity?: Maybe<Scalars['Boolean']['output']>;
+  recommendations?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type ExternalPost = {
@@ -1886,10 +2399,15 @@ export type FeaturedResource = {
   createdAt: Scalars['Date']['output'];
   ctaText: Scalars['String']['output'];
   ctaUrl: Scalars['String']['output'];
-  expiresAt?: Maybe<Scalars['Date']['output']>;
+  expiresAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
   title: Scalars['String']['output'];
+};
+
+export type FeaturedResourceSelector = {
+  activeResources?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type FeedCommentThread = {
@@ -1928,6 +2446,10 @@ export type FieldChange = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+export type FieldChangeSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type ForumEvent = {
   __typename?: 'ForumEvent';
   _id: Scalars['String']['output'];
@@ -1938,13 +2460,14 @@ export type ForumEvent = {
   createdAt: Scalars['Date']['output'];
   customComponent?: Maybe<Scalars['String']['output']>;
   darkColor: Scalars['String']['output'];
-  endDate: Scalars['Date']['output'];
+  endDate?: Maybe<Scalars['Date']['output']>;
   eventFormat: Scalars['String']['output'];
   frontpageDescription?: Maybe<Revision>;
   frontpageDescriptionMobile?: Maybe<Revision>;
   frontpageDescriptionMobile_latest?: Maybe<Scalars['String']['output']>;
   frontpageDescription_latest?: Maybe<Scalars['String']['output']>;
   includesPoll: Scalars['Boolean']['output'];
+  isGlobal: Scalars['Boolean']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   lightColor: Scalars['String']['output'];
   maxStickersPerUser: Scalars['Float']['output'];
@@ -1990,6 +2513,26 @@ export type ForumEventOutput = {
   data?: Maybe<ForumEvent>;
 };
 
+export type ForumEventSelector = {
+  currentAndRecentForumEvents?: InputMaybe<ForumEventsCurrentAndRecentForumEventsInput>;
+  currentForumEvent?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  pastForumEvents?: InputMaybe<ForumEventsPastForumEventsInput>;
+  upcomingForumEvents?: InputMaybe<ForumEventsUpcomingForumEventsInput>;
+};
+
+export type ForumEventsCurrentAndRecentForumEventsInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ForumEventsPastForumEventsInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ForumEventsUpcomingForumEventsInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type GardenCode = {
   __typename?: 'GardenCode';
   _id: Scalars['String']['output'];
@@ -2018,9 +2561,35 @@ export type GardenCodeContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type GardenCodeOutput = {
-  __typename?: 'GardenCodeOutput';
-  data?: Maybe<GardenCode>;
+export type GardenCodeDefaultViewInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  types?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type GardenCodeSelector = {
+  default?: InputMaybe<GardenCodeDefaultViewInput>;
+  gardenCodeByCode?: InputMaybe<GardenCodesGardenCodeByCodeInput>;
+  publicGardenCodes?: InputMaybe<GardenCodesPublicGardenCodesInput>;
+  usersPrivateGardenCodes?: InputMaybe<GardenCodesUsersPrivateGardenCodesInput>;
+};
+
+export type GardenCodesGardenCodeByCodeInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  types?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type GardenCodesPublicGardenCodesInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  types?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type GardenCodesUsersPrivateGardenCodesInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  types?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type GivingSeasonHeart = {
@@ -2045,9 +2614,8 @@ export type GoogleServiceAccountSession = {
   schemaVersion: Scalars['Float']['output'];
 };
 
-export type GoogleServiceAccountSessionOutput = {
-  __typename?: 'GoogleServiceAccountSessionOutput';
-  data?: Maybe<GoogleServiceAccountSession>;
+export type GoogleServiceAccountSessionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type GoogleVertexPostsResult = {
@@ -2090,25 +2658,40 @@ export type JargonTermOutput = {
   data?: Maybe<JargonTerm>;
 };
 
+export type JargonTermSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  glossaryEditAll?: InputMaybe<EmptyViewInput>;
+  postEditorJargonTerms?: InputMaybe<JargonTermsPostEditorJargonTermsInput>;
+  postsApprovedJargon?: InputMaybe<JargonTermsPostsApprovedJargonInput>;
+};
+
+export type JargonTermsPostEditorJargonTermsInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type JargonTermsPostsApprovedJargonInput = {
+  postIds?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type KarmaChanges = {
   __typename?: 'KarmaChanges';
-  comments?: Maybe<Array<Maybe<CommentKarmaChange>>>;
+  comments: Array<CommentKarmaChange>;
   endDate?: Maybe<Scalars['Date']['output']>;
   nextBatchDate?: Maybe<Scalars['Date']['output']>;
-  posts?: Maybe<Array<Maybe<PostKarmaChange>>>;
+  posts: Array<PostKarmaChange>;
   startDate?: Maybe<Scalars['Date']['output']>;
-  tagRevisions?: Maybe<Array<Maybe<RevisionsKarmaChange>>>;
+  tagRevisions: Array<RevisionsKarmaChange>;
   thisWeeksKarmaChanges?: Maybe<KarmaChangesSimple>;
   todaysKarmaChanges?: Maybe<KarmaChangesSimple>;
-  totalChange?: Maybe<Scalars['Int']['output']>;
-  updateFrequency?: Maybe<Scalars['String']['output']>;
+  totalChange: Scalars['Int']['output'];
+  updateFrequency: Scalars['String']['output'];
 };
 
 export type KarmaChangesSimple = {
   __typename?: 'KarmaChangesSimple';
-  comments?: Maybe<Array<Maybe<CommentKarmaChange>>>;
-  posts?: Maybe<Array<Maybe<PostKarmaChange>>>;
-  tagRevisions?: Maybe<Array<Maybe<RevisionsKarmaChange>>>;
+  comments: Array<CommentKarmaChange>;
+  posts: Array<PostKarmaChange>;
+  tagRevisions: Array<RevisionsKarmaChange>;
 };
 
 export type LwEvent = {
@@ -2129,6 +2712,28 @@ export type LwEvent = {
 export type LwEventOutput = {
   __typename?: 'LWEventOutput';
   data?: Maybe<LwEvent>;
+};
+
+export type LwEventSelector = {
+  adminView?: InputMaybe<LwEventsAdminViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  emailHistory?: InputMaybe<LwEventsEmailHistoryInput>;
+  gatherTownUsers?: InputMaybe<EmptyViewInput>;
+  postVisits?: InputMaybe<LwEventsPostVisitsInput>;
+};
+
+export type LwEventsAdminViewInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LwEventsEmailHistoryInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LwEventsPostVisitsInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LatLng = {
@@ -2167,6 +2772,20 @@ export type LlmConversationOutput = {
   data?: Maybe<LlmConversation>;
 };
 
+export type LlmConversationSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  llmConversationsAll?: InputMaybe<LlmConversationsLlmConversationsAllInput>;
+  llmConversationsWithUser?: InputMaybe<LlmConversationsLlmConversationsWithUserInput>;
+};
+
+export type LlmConversationsLlmConversationsAllInput = {
+  showDeleted?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LlmConversationsLlmConversationsWithUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type LlmMessage = {
   __typename?: 'LlmMessage';
   _id: Scalars['String']['output'];
@@ -2194,12 +2813,12 @@ export type Localgroup = {
   googleLocation?: Maybe<Scalars['JSON']['output']>;
   inactive: Scalars['Boolean']['output'];
   isOnline: Scalars['Boolean']['output'];
-  lastActivity?: Maybe<Scalars['Date']['output']>;
+  lastActivity: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   location?: Maybe<Scalars['String']['output']>;
   meetupLink?: Maybe<Scalars['String']['output']>;
   mongoLocation?: Maybe<Scalars['JSON']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
   nameInAnotherLanguage?: Maybe<Scalars['String']['output']>;
   organizerIds: Array<Scalars['String']['output']>;
   organizers: Array<User>;
@@ -2214,9 +2833,72 @@ export type LocalgroupContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type LocalgroupDefaultViewInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type LocalgroupOutput = {
   __typename?: 'LocalgroupOutput';
   data?: Maybe<Localgroup>;
+};
+
+export type LocalgroupSelector = {
+  all?: InputMaybe<LocalgroupsAllInput>;
+  default?: InputMaybe<LocalgroupDefaultViewInput>;
+  local?: InputMaybe<LocalgroupsLocalInput>;
+  nearby?: InputMaybe<LocalgroupsNearbyInput>;
+  online?: InputMaybe<LocalgroupsOnlineInput>;
+  single?: InputMaybe<LocalgroupsSingleInput>;
+  userActiveGroups?: InputMaybe<LocalgroupsUserActiveGroupsInput>;
+  userInactiveGroups?: InputMaybe<LocalgroupsUserInactiveGroupsInput>;
+  userOrganizesGroups?: InputMaybe<LocalgroupsUserOrganizesGroupsInput>;
+};
+
+export type LocalgroupsAllInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsLocalInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsNearbyInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+  lat?: InputMaybe<Scalars['String']['input']>;
+  lng?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsOnlineInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsSingleInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsUserActiveGroupsInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsUserInactiveGroupsInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LocalgroupsUserOrganizesGroupsInput = {
+  filters?: InputMaybe<Scalars['String']['input']>;
+  includeInactive?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LoginReturnData = {
@@ -2261,6 +2943,20 @@ export type MessageContentsArgs = {
 export type MessageOutput = {
   __typename?: 'MessageOutput';
   data?: Maybe<Message>;
+};
+
+export type MessageSelector = {
+  conversationPreview?: InputMaybe<MessagesConversationPreviewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  messagesConversation?: InputMaybe<MessagesMessagesConversationInput>;
+};
+
+export type MessagesConversationPreviewInput = {
+  conversationId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MessagesMessagesConversationInput = {
+  conversationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Migration = {
@@ -2316,6 +3012,16 @@ export type ModerationTemplateOutput = {
   data?: Maybe<ModerationTemplate>;
 };
 
+export type ModerationTemplateSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  moderationTemplatesList?: InputMaybe<ModerationTemplatesModerationTemplatesListInput>;
+  moderationTemplatesPage?: InputMaybe<EmptyViewInput>;
+};
+
+export type ModerationTemplatesModerationTemplatesListInput = {
+  collectionName?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ModeratorAction = {
   __typename?: 'ModeratorAction';
   _id: Scalars['String']['output'];
@@ -2332,6 +3038,16 @@ export type ModeratorAction = {
 export type ModeratorActionOutput = {
   __typename?: 'ModeratorActionOutput';
   data?: Maybe<ModeratorAction>;
+};
+
+export type ModeratorActionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  restrictionModerationActions?: InputMaybe<EmptyViewInput>;
+  userModeratorActions?: InputMaybe<ModeratorActionsUserModeratorActionsInput>;
+};
+
+export type ModeratorActionsUserModeratorActionsInput = {
+  userIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type ModeratorIpAddressInfo = {
@@ -2365,6 +3081,7 @@ export type MostReceivedReact = {
 };
 
 export type MultiAdvisorRequestInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2377,6 +3094,7 @@ export type MultiAdvisorRequestOutput = {
 };
 
 export type MultiArbitalTagContentRelInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2389,6 +3107,7 @@ export type MultiArbitalTagContentRelOutput = {
 };
 
 export type MultiBanInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2401,6 +3120,7 @@ export type MultiBanOutput = {
 };
 
 export type MultiBookInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2412,7 +3132,21 @@ export type MultiBookOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+export type MultiBookmarkInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type MultiBookmarkOutput = {
+  __typename?: 'MultiBookmarkOutput';
+  results?: Maybe<Array<Maybe<Bookmark>>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type MultiChapterInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2425,6 +3159,7 @@ export type MultiChapterOutput = {
 };
 
 export type MultiCkEditorUserSessionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2437,6 +3172,7 @@ export type MultiCkEditorUserSessionOutput = {
 };
 
 export type MultiClientIdInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2449,6 +3185,7 @@ export type MultiClientIdOutput = {
 };
 
 export type MultiCollectionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2461,12 +3198,14 @@ export type MultiCollectionOutput = {
 };
 
 export type MultiCommentInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type MultiCommentModeratorActionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2485,6 +3224,7 @@ export type MultiCommentOutput = {
 };
 
 export type MultiConversationInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2497,6 +3237,7 @@ export type MultiConversationOutput = {
 };
 
 export type MultiCurationNoticeInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2509,6 +3250,7 @@ export type MultiCurationNoticeOutput = {
 };
 
 export type MultiDialogueCheckInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2521,6 +3263,7 @@ export type MultiDialogueCheckOutput = {
 };
 
 export type MultiDialogueMatchPreferenceInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2533,6 +3276,7 @@ export type MultiDialogueMatchPreferenceOutput = {
 };
 
 export type MultiDigestInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2545,6 +3289,7 @@ export type MultiDigestOutput = {
 };
 
 export type MultiDigestPostInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2614,12 +3359,39 @@ export type MultiDocumentTableOfContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type MultiDocumentDefaultViewInput = {
+  excludedDocumentIds?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type MultiDocumentOutput = {
   __typename?: 'MultiDocumentOutput';
   data?: Maybe<MultiDocument>;
 };
 
+export type MultiDocumentSelector = {
+  default?: InputMaybe<MultiDocumentDefaultViewInput>;
+  lensBySlug?: InputMaybe<MultiDocumentsLensBySlugInput>;
+  pingbackLensPages?: InputMaybe<MultiDocumentsPingbackLensPagesInput>;
+  summariesByParentId?: InputMaybe<MultiDocumentsSummariesByParentIdInput>;
+};
+
+export type MultiDocumentsLensBySlugInput = {
+  excludedDocumentIds?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MultiDocumentsPingbackLensPagesInput = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  excludedDocumentIds?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MultiDocumentsSummariesByParentIdInput = {
+  excludedDocumentIds?: InputMaybe<Scalars['String']['input']>;
+  parentDocumentId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type MultiElectionCandidateInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2632,6 +3404,7 @@ export type MultiElectionCandidateOutput = {
 };
 
 export type MultiElectionVoteInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2644,6 +3417,7 @@ export type MultiElectionVoteOutput = {
 };
 
 export type MultiElicitQuestionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2656,6 +3430,7 @@ export type MultiElicitQuestionOutput = {
 };
 
 export type MultiElicitQuestionPredictionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2668,6 +3443,7 @@ export type MultiElicitQuestionPredictionOutput = {
 };
 
 export type MultiFeaturedResourceInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2679,7 +3455,20 @@ export type MultiFeaturedResourceOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+export type MultiFieldChangeInput = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type MultiFieldChangeOutput = {
+  __typename?: 'MultiFieldChangeOutput';
+  results?: Maybe<Array<Maybe<FieldChange>>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type MultiForumEventInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2692,6 +3481,7 @@ export type MultiForumEventOutput = {
 };
 
 export type MultiGardenCodeInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2704,6 +3494,7 @@ export type MultiGardenCodeOutput = {
 };
 
 export type MultiGoogleServiceAccountSessionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2716,6 +3507,7 @@ export type MultiGoogleServiceAccountSessionOutput = {
 };
 
 export type MultiJargonTermInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2728,6 +3520,7 @@ export type MultiJargonTermOutput = {
 };
 
 export type MultiLwEventInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2740,6 +3533,7 @@ export type MultiLwEventOutput = {
 };
 
 export type MultiLlmConversationInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2752,6 +3546,7 @@ export type MultiLlmConversationOutput = {
 };
 
 export type MultiLocalgroupInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2764,6 +3559,7 @@ export type MultiLocalgroupOutput = {
 };
 
 export type MultiMessageInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2776,6 +3572,7 @@ export type MultiMessageOutput = {
 };
 
 export type MultiModerationTemplateInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2788,6 +3585,7 @@ export type MultiModerationTemplateOutput = {
 };
 
 export type MultiModeratorActionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2800,6 +3598,7 @@ export type MultiModeratorActionOutput = {
 };
 
 export type MultiMultiDocumentInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2812,6 +3611,7 @@ export type MultiMultiDocumentOutput = {
 };
 
 export type MultiNotificationInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2824,6 +3624,7 @@ export type MultiNotificationOutput = {
 };
 
 export type MultiPetrovDayActionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2836,6 +3637,7 @@ export type MultiPetrovDayActionOutput = {
 };
 
 export type MultiPodcastEpisodeInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2848,6 +3650,7 @@ export type MultiPodcastEpisodeOutput = {
 };
 
 export type MultiPodcastInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2865,19 +3668,8 @@ export type MultiPostAnalyticsResult = {
   totalCount: Scalars['Int']['output'];
 };
 
-export type MultiPostEmbeddingInput = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiPostEmbeddingOutput = {
-  __typename?: 'MultiPostEmbeddingOutput';
-  results?: Maybe<Array<Maybe<PostEmbedding>>>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 export type MultiPostInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2890,6 +3682,7 @@ export type MultiPostOutput = {
 };
 
 export type MultiPostRelationInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2901,31 +3694,8 @@ export type MultiPostRelationOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-export type MultiPostViewTimeInput = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiPostViewTimeOutput = {
-  __typename?: 'MultiPostViewTimeOutput';
-  results?: Maybe<Array<Maybe<PostViewTime>>>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiPostViewsInput = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiPostViewsOutput = {
-  __typename?: 'MultiPostViewsOutput';
-  results?: Maybe<Array<Maybe<PostViews>>>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 export type MultiRssFeedInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2938,6 +3708,7 @@ export type MultiRssFeedOutput = {
 };
 
 export type MultiReportInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2950,6 +3721,7 @@ export type MultiReportOutput = {
 };
 
 export type MultiReviewVoteInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2962,6 +3734,7 @@ export type MultiReviewVoteOutput = {
 };
 
 export type MultiReviewWinnerArtInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2974,6 +3747,7 @@ export type MultiReviewWinnerArtOutput = {
 };
 
 export type MultiReviewWinnerInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2986,6 +3760,7 @@ export type MultiReviewWinnerOutput = {
 };
 
 export type MultiRevisionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -2998,6 +3773,7 @@ export type MultiRevisionOutput = {
 };
 
 export type MultiSequenceInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3010,6 +3786,7 @@ export type MultiSequenceOutput = {
 };
 
 export type MultiSplashArtCoordinateInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3022,6 +3799,7 @@ export type MultiSplashArtCoordinateOutput = {
 };
 
 export type MultiSpotlightInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3034,6 +3812,7 @@ export type MultiSpotlightOutput = {
 };
 
 export type MultiSubscriptionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3046,6 +3825,7 @@ export type MultiSubscriptionOutput = {
 };
 
 export type MultiSurveyInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3058,6 +3838,7 @@ export type MultiSurveyOutput = {
 };
 
 export type MultiSurveyQuestionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3070,6 +3851,7 @@ export type MultiSurveyQuestionOutput = {
 };
 
 export type MultiSurveyResponseInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3082,6 +3864,7 @@ export type MultiSurveyResponseOutput = {
 };
 
 export type MultiSurveyScheduleInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3094,6 +3877,7 @@ export type MultiSurveyScheduleOutput = {
 };
 
 export type MultiTagFlagInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3106,6 +3890,7 @@ export type MultiTagFlagOutput = {
 };
 
 export type MultiTagInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3118,6 +3903,7 @@ export type MultiTagOutput = {
 };
 
 export type MultiTagRelInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3130,6 +3916,7 @@ export type MultiTagRelOutput = {
 };
 
 export type MultiTypingIndicatorInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3141,7 +3928,20 @@ export type MultiTypingIndicatorOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+export type MultiUltraFeedEventInput = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type MultiUltraFeedEventOutput = {
+  __typename?: 'MultiUltraFeedEventOutput';
+  results?: Maybe<Array<Maybe<UltraFeedEvent>>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type MultiUserEagDetailInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3154,12 +3954,14 @@ export type MultiUserEagDetailOutput = {
 };
 
 export type MultiUserInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type MultiUserJobAdInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3172,6 +3974,7 @@ export type MultiUserJobAdOutput = {
 };
 
 export type MultiUserMostValuablePostInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3190,6 +3993,7 @@ export type MultiUserOutput = {
 };
 
 export type MultiUserRateLimitInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3202,6 +4006,7 @@ export type MultiUserRateLimitOutput = {
 };
 
 export type MultiUserTagRelInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3214,6 +4019,7 @@ export type MultiUserTagRelOutput = {
 };
 
 export type MultiVoteInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
@@ -3253,8 +4059,6 @@ export type Mutation = {
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
   createAdvisorRequest?: Maybe<AdvisorRequestOutput>;
-  createArbitalTagContentRel?: Maybe<ArbitalTagContentRelOutput>;
-  createBan?: Maybe<BanOutput>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
   createCollection?: Maybe<CollectionOutput>;
@@ -3262,15 +4066,12 @@ export type Mutation = {
   createCommentModeratorAction?: Maybe<CommentModeratorActionOutput>;
   createConversation?: Maybe<ConversationOutput>;
   createCurationNotice?: Maybe<CurationNoticeOutput>;
-  createDialogueMatchPreference?: Maybe<DialogueMatchPreferenceOutput>;
   createDigest?: Maybe<DigestOutput>;
   createDigestPost?: Maybe<DigestPostOutput>;
   createElectionCandidate?: Maybe<ElectionCandidateOutput>;
   createElectionVote?: Maybe<ElectionVoteOutput>;
   createElicitQuestion?: Maybe<ElicitQuestionOutput>;
   createForumEvent?: Maybe<ForumEventOutput>;
-  createGardenCode?: Maybe<GardenCodeOutput>;
-  createGoogleServiceAccountSession?: Maybe<GoogleServiceAccountSessionOutput>;
   createJargonTerm?: Maybe<JargonTermOutput>;
   createLWEvent?: Maybe<LwEventOutput>;
   createLocalgroup?: Maybe<LocalgroupOutput>;
@@ -3278,13 +4079,9 @@ export type Mutation = {
   createModerationTemplate?: Maybe<ModerationTemplateOutput>;
   createModeratorAction?: Maybe<ModeratorActionOutput>;
   createMultiDocument?: Maybe<MultiDocumentOutput>;
-  createNotification?: Maybe<NotificationOutput>;
   createPetrovDayAction?: Maybe<PetrovDayActionOutput>;
   createPodcastEpisode?: Maybe<PodcastEpisodeOutput>;
   createPost?: Maybe<PostOutput>;
-  createPostEmbedding?: Maybe<PostEmbeddingOutput>;
-  createPostViewTime?: Maybe<PostViewTimeOutput>;
-  createPostViews?: Maybe<PostViewsOutput>;
   createRSSFeed?: Maybe<RssFeedOutput>;
   createReport?: Maybe<ReportOutput>;
   createSequence?: Maybe<SequenceOutput>;
@@ -3297,7 +4094,6 @@ export type Mutation = {
   createSurveySchedule?: Maybe<SurveyScheduleOutput>;
   createTag?: Maybe<TagOutput>;
   createTagFlag?: Maybe<TagFlagOutput>;
-  createTagRel?: Maybe<TagRelOutput>;
   createUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   createUser?: Maybe<UserOutput>;
   createUserEAGDetail?: Maybe<UserEagDetailOutput>;
@@ -3342,7 +4138,6 @@ export type Mutation = {
   sendVertexMediaCompleteEvent: Scalars['Boolean']['output'];
   sendVertexViewHomePageEvent: Scalars['Boolean']['output'];
   sendVertexViewItemEvent: Scalars['Boolean']['output'];
-  setIsBookmarked: User;
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
@@ -3353,12 +4148,11 @@ export type Mutation = {
   setVoteTagRel?: Maybe<TagRel>;
   signup?: Maybe<LoginReturnData>;
   submitReviewVote?: Maybe<Post>;
+  toggleBookmark?: Maybe<ToggleBookmarkOutput>;
   unlinkCrossposter?: Maybe<Scalars['String']['output']>;
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
   updateAdvisorRequest?: Maybe<AdvisorRequestOutput>;
-  updateArbitalTagContentRel?: Maybe<ArbitalTagContentRelOutput>;
-  updateBan?: Maybe<BanOutput>;
   updateBook?: Maybe<BookOutput>;
   updateChapter?: Maybe<ChapterOutput>;
   updateCollection?: Maybe<CollectionOutput>;
@@ -3367,17 +4161,13 @@ export type Mutation = {
   updateContinueReading?: Maybe<Scalars['Boolean']['output']>;
   updateConversation?: Maybe<ConversationOutput>;
   updateCurationNotice?: Maybe<CurationNoticeOutput>;
-  updateDialogueMatchPreference?: Maybe<DialogueMatchPreferenceOutput>;
   updateDigest?: Maybe<DigestOutput>;
   updateDigestPost?: Maybe<DigestPostOutput>;
   updateElectionCandidate?: Maybe<ElectionCandidateOutput>;
   updateElectionVote?: Maybe<ElectionVoteOutput>;
   updateElicitQuestion?: Maybe<ElicitQuestionOutput>;
   updateForumEvent?: Maybe<ForumEventOutput>;
-  updateGardenCode?: Maybe<GardenCodeOutput>;
-  updateGoogleServiceAccountSession?: Maybe<GoogleServiceAccountSessionOutput>;
   updateJargonTerm?: Maybe<JargonTermOutput>;
-  updateLWEvent?: Maybe<LwEventOutput>;
   updateLlmConversation?: Maybe<LlmConversationOutput>;
   updateLocalgroup?: Maybe<LocalgroupOutput>;
   updateMessage?: Maybe<MessageOutput>;
@@ -3385,16 +4175,11 @@ export type Mutation = {
   updateModeratorAction?: Maybe<ModeratorActionOutput>;
   updateMultiDocument?: Maybe<MultiDocumentOutput>;
   updateNotification?: Maybe<NotificationOutput>;
-  updatePodcastEpisode?: Maybe<PodcastEpisodeOutput>;
   updatePost?: Maybe<PostOutput>;
-  updatePostEmbedding?: Maybe<PostEmbeddingOutput>;
-  updatePostViewTime?: Maybe<PostViewTimeOutput>;
-  updatePostViews?: Maybe<PostViewsOutput>;
   updateRSSFeed?: Maybe<RssFeedOutput>;
   updateReport?: Maybe<ReportOutput>;
   updateRevision?: Maybe<RevisionOutput>;
   updateSequence?: Maybe<SequenceOutput>;
-  updateSplashArtCoordinate?: Maybe<SplashArtCoordinateOutput>;
   updateSpotlight?: Maybe<SpotlightOutput>;
   updateSurvey?: Maybe<SurveyOutput>;
   updateSurveyQuestion?: Maybe<SurveyQuestionOutput>;
@@ -3402,7 +4187,6 @@ export type Mutation = {
   updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
-  updateTagRel?: Maybe<TagRelOutput>;
   updateUser?: Maybe<UserOutput>;
   updateUserEAGDetail?: Maybe<UserEagDetailOutput>;
   updateUserJobAd?: Maybe<UserJobAdOutput>;
@@ -3562,16 +4346,6 @@ export type MutationCreateAdvisorRequestArgs = {
 };
 
 
-export type MutationCreateArbitalTagContentRelArgs = {
-  data: CreateArbitalTagContentRelDataInput;
-};
-
-
-export type MutationCreateBanArgs = {
-  data: CreateBanDataInput;
-};
-
-
 export type MutationCreateBookArgs = {
   data: CreateBookDataInput;
 };
@@ -3607,11 +4381,6 @@ export type MutationCreateCurationNoticeArgs = {
 };
 
 
-export type MutationCreateDialogueMatchPreferenceArgs = {
-  data: CreateDialogueMatchPreferenceDataInput;
-};
-
-
 export type MutationCreateDigestArgs = {
   data: CreateDigestDataInput;
 };
@@ -3639,16 +4408,6 @@ export type MutationCreateElicitQuestionArgs = {
 
 export type MutationCreateForumEventArgs = {
   data: CreateForumEventDataInput;
-};
-
-
-export type MutationCreateGardenCodeArgs = {
-  data: CreateGardenCodeDataInput;
-};
-
-
-export type MutationCreateGoogleServiceAccountSessionArgs = {
-  data: CreateGoogleServiceAccountSessionDataInput;
 };
 
 
@@ -3687,11 +4446,6 @@ export type MutationCreateMultiDocumentArgs = {
 };
 
 
-export type MutationCreateNotificationArgs = {
-  data: CreateNotificationDataInput;
-};
-
-
 export type MutationCreatePetrovDayActionArgs = {
   data: CreatePetrovDayActionDataInput;
 };
@@ -3704,21 +4458,6 @@ export type MutationCreatePodcastEpisodeArgs = {
 
 export type MutationCreatePostArgs = {
   data: CreatePostDataInput;
-};
-
-
-export type MutationCreatePostEmbeddingArgs = {
-  data: CreatePostEmbeddingDataInput;
-};
-
-
-export type MutationCreatePostViewTimeArgs = {
-  data: CreatePostViewTimeDataInput;
-};
-
-
-export type MutationCreatePostViewsArgs = {
-  data: CreatePostViewsDataInput;
 };
 
 
@@ -3779,11 +4518,6 @@ export type MutationCreateTagArgs = {
 
 export type MutationCreateTagFlagArgs = {
   data: CreateTagFlagDataInput;
-};
-
-
-export type MutationCreateTagRelArgs = {
-  data: CreateTagRelDataInput;
 };
 
 
@@ -4032,12 +4766,6 @@ export type MutationSendVertexViewItemEventArgs = {
 };
 
 
-export type MutationSetIsBookmarkedArgs = {
-  isBookmarked: Scalars['Boolean']['input'];
-  postId: Scalars['String']['input'];
-};
-
-
 export type MutationSetIsHiddenArgs = {
   isHidden: Scalars['Boolean']['input'];
   postId: Scalars['String']['input'];
@@ -4115,6 +4843,11 @@ export type MutationSubmitReviewVoteArgs = {
 };
 
 
+export type MutationToggleBookmarkArgs = {
+  input: ToggleBookmarkInput;
+};
+
+
 export type MutationUnlockPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
@@ -4128,18 +4861,6 @@ export type MutationUnlockThreadArgs = {
 
 export type MutationUpdateAdvisorRequestArgs = {
   data: UpdateAdvisorRequestDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdateArbitalTagContentRelArgs = {
-  data: UpdateArbitalTagContentRelDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdateBanArgs = {
-  data: UpdateBanDataInput;
   selector: SelectorInput;
 };
 
@@ -4192,12 +4913,6 @@ export type MutationUpdateCurationNoticeArgs = {
 };
 
 
-export type MutationUpdateDialogueMatchPreferenceArgs = {
-  data: UpdateDialogueMatchPreferenceDataInput;
-  selector: SelectorInput;
-};
-
-
 export type MutationUpdateDigestArgs = {
   data: UpdateDigestDataInput;
   selector: SelectorInput;
@@ -4234,26 +4949,8 @@ export type MutationUpdateForumEventArgs = {
 };
 
 
-export type MutationUpdateGardenCodeArgs = {
-  data: UpdateGardenCodeDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdateGoogleServiceAccountSessionArgs = {
-  data: UpdateGoogleServiceAccountSessionDataInput;
-  selector: SelectorInput;
-};
-
-
 export type MutationUpdateJargonTermArgs = {
   data: UpdateJargonTermDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdateLwEventArgs = {
-  data: UpdateLwEventDataInput;
   selector: SelectorInput;
 };
 
@@ -4300,32 +4997,8 @@ export type MutationUpdateNotificationArgs = {
 };
 
 
-export type MutationUpdatePodcastEpisodeArgs = {
-  data: UpdatePodcastEpisodeDataInput;
-  selector: SelectorInput;
-};
-
-
 export type MutationUpdatePostArgs = {
   data: UpdatePostDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdatePostEmbeddingArgs = {
-  data: UpdatePostEmbeddingDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdatePostViewTimeArgs = {
-  data: UpdatePostViewTimeDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdatePostViewsArgs = {
-  data: UpdatePostViewsDataInput;
   selector: SelectorInput;
 };
 
@@ -4350,12 +5023,6 @@ export type MutationUpdateRevisionArgs = {
 
 export type MutationUpdateSequenceArgs = {
   data: UpdateSequenceDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdateSplashArtCoordinateArgs = {
-  data: UpdateSplashArtCoordinateDataInput;
   selector: SelectorInput;
 };
 
@@ -4398,12 +5065,6 @@ export type MutationUpdateTagArgs = {
 
 export type MutationUpdateTagFlagArgs = {
   data: UpdateTagFlagDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationUpdateTagRelArgs = {
-  data: UpdateTagRelDataInput;
   selector: SelectorInput;
 };
 
@@ -4506,12 +5167,56 @@ export type NotificationOutput = {
   data?: Maybe<Notification>;
 };
 
+export type NotificationSelector = {
+  adminAlertNotifications?: InputMaybe<NotificationsAdminAlertNotificationsInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  unreadUserNotifications?: InputMaybe<NotificationsUnreadUserNotificationsInput>;
+  userNotifications?: InputMaybe<NotificationsUserNotificationsInput>;
+};
+
+export type NotificationsAdminAlertNotificationsInput = {
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NotificationsUnreadUserNotificationsInput = {
+  lastViewedDate?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NotificationsUserNotificationsInput = {
+  type?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  viewed?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PageCacheEntry = {
   __typename?: 'PageCacheEntry';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
+};
+
+export type PartiallyReadSequenceItemInput = {
+  collectionId?: InputMaybe<Scalars['String']['input']>;
+  lastReadPostId: Scalars['String']['input'];
+  lastReadTime?: InputMaybe<Scalars['Date']['input']>;
+  nextPostId: Scalars['String']['input'];
+  numRead: Scalars['Int']['input'];
+  numTotal: Scalars['Int']['input'];
+  sequenceId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PartiallyReadSequenceItemOutput = {
+  __typename?: 'PartiallyReadSequenceItemOutput';
+  collectionId?: Maybe<Scalars['String']['output']>;
+  lastReadPostId?: Maybe<Scalars['String']['output']>;
+  lastReadTime?: Maybe<Scalars['Date']['output']>;
+  nextPostId?: Maybe<Scalars['String']['output']>;
+  numRead?: Maybe<Scalars['Int']['output']>;
+  numTotal?: Maybe<Scalars['Int']['output']>;
+  sequenceId?: Maybe<Scalars['String']['output']>;
 };
 
 export type PetrovDay2024CheckNumberOfIncomingData = {
@@ -4533,6 +5238,27 @@ export type PetrovDayAction = {
 export type PetrovDayActionOutput = {
   __typename?: 'PetrovDayActionOutput';
   data?: Maybe<PetrovDayAction>;
+};
+
+export type PetrovDayActionSelector = {
+  adminConsole?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  getAction?: InputMaybe<PetrovDayActionsGetActionInput>;
+  launchDashboard?: InputMaybe<PetrovDayActionsLaunchDashboardInput>;
+  warningConsole?: InputMaybe<PetrovDayActionsWarningConsoleInput>;
+};
+
+export type PetrovDayActionsGetActionInput = {
+  actionType?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PetrovDayActionsLaunchDashboardInput = {
+  side?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PetrovDayActionsWarningConsoleInput = {
+  side?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PetrovDayCheckIfIncomingData = {
@@ -4587,6 +5313,15 @@ export type PodcastEpisodeOutput = {
   data?: Maybe<PodcastEpisode>;
 };
 
+export type PodcastEpisodeSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  episodeByExternalId?: InputMaybe<EmptyViewInput>;
+};
+
+export type PodcastSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type PopularCommentsResult = {
   __typename?: 'PopularCommentsResult';
   results: Array<Comment>;
@@ -4625,7 +5360,7 @@ export type Post = {
   canonicalSequenceId?: Maybe<Scalars['String']['output']>;
   canonicalSource?: Maybe<Scalars['String']['output']>;
   clickCount?: Maybe<Scalars['Float']['output']>;
-  coauthorStatuses?: Maybe<Array<Scalars['JSON']['output']>>;
+  coauthorStatuses?: Maybe<Array<CoauthorStatusOutput>>;
   coauthors?: Maybe<Array<User>>;
   collabEditorDialogue: Scalars['Boolean']['output'];
   collectionTitle?: Maybe<Scalars['String']['output']>;
@@ -4673,7 +5408,7 @@ export type Post = {
   finalReviewVotesAllKarma: Array<Scalars['Float']['output']>;
   finalReviewVotesHighKarma: Array<Scalars['Float']['output']>;
   firstVideoAttribsForPreview?: Maybe<Scalars['JSON']['output']>;
-  fmCrosspost?: Maybe<Scalars['JSON']['output']>;
+  fmCrosspost?: Maybe<CrosspostOutput>;
   forceAllowType3Audio: Scalars['Boolean']['output'];
   frontpageDate?: Maybe<Scalars['Date']['output']>;
   generateDraftJargon?: Maybe<Scalars['Boolean']['output']>;
@@ -4697,7 +5432,7 @@ export type Post = {
   joinEventLink?: Maybe<Scalars['String']['output']>;
   languageModelSummary?: Maybe<Scalars['String']['output']>;
   lastCommentPromotedAt?: Maybe<Scalars['Date']['output']>;
-  lastCommentedAt?: Maybe<Scalars['Date']['output']>;
+  lastCommentedAt: Scalars['Date']['output'];
   lastPromotedComment?: Maybe<Comment>;
   lastVisitedAt?: Maybe<Scalars['Date']['output']>;
   legacy: Scalars['Boolean']['output'];
@@ -4769,7 +5504,7 @@ export type Post = {
   reviewedByUser?: Maybe<User>;
   reviewedByUserId?: Maybe<Scalars['String']['output']>;
   reviews?: Maybe<Array<Maybe<Comment>>>;
-  revisions?: Maybe<Array<Maybe<Revision>>>;
+  revisions?: Maybe<Array<Revision>>;
   rsvpCounts: Scalars['JSON']['output'];
   rsvps?: Maybe<Array<Scalars['JSON']['output']>>;
   schemaVersion: Scalars['Float']['output'];
@@ -4788,7 +5523,7 @@ export type Post = {
   sideComments?: Maybe<Scalars['JSON']['output']>;
   sideCommentsCache?: Maybe<SideCommentCache>;
   slug: Scalars['String']['output'];
-  socialPreview?: Maybe<Scalars['JSON']['output']>;
+  socialPreview?: Maybe<SocialPreviewOutput>;
   socialPreviewData?: Maybe<SocialPreviewType>;
   socialPreviewImageAutoUrl?: Maybe<Scalars['String']['output']>;
   socialPreviewImageId?: Maybe<Scalars['String']['output']>;
@@ -4811,7 +5546,7 @@ export type Post = {
   tableOfContentsRevision?: Maybe<Scalars['JSON']['output']>;
   tagRel?: Maybe<TagRel>;
   tagRelevance?: Maybe<Scalars['JSON']['output']>;
-  tags?: Maybe<Array<Maybe<Tag>>>;
+  tags?: Maybe<Array<Tag>>;
   targetPostRelations: Array<PostRelation>;
   title: Scalars['String']['output'];
   topLevelCommentCount: Scalars['Float']['output'];
@@ -4917,34 +5652,43 @@ export type PostAnalyticsResult = {
   uniqueClientViewsSeries?: Maybe<Array<Maybe<UniqueClientViewsSeries>>>;
 };
 
-export type PostEmbedding = {
-  __typename?: 'PostEmbedding';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  embeddings?: Maybe<Array<Scalars['Float']['output']>>;
-  lastGeneratedAt?: Maybe<Scalars['Date']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  model?: Maybe<Scalars['String']['output']>;
-  post?: Maybe<Post>;
-  postHash?: Maybe<Scalars['String']['output']>;
-  postId?: Maybe<Scalars['String']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
-export type PostEmbeddingOutput = {
-  __typename?: 'PostEmbeddingOutput';
-  data?: Maybe<PostEmbedding>;
+export type PostDefaultViewInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PostKarmaChange = {
   __typename?: 'PostKarmaChange';
-  _id?: Maybe<Scalars['String']['output']>;
+  _id: Scalars['String']['output'];
   addedReacts?: Maybe<Array<ReactionChange>>;
+  collectionName: Scalars['String']['output'];
   eaAddedReacts?: Maybe<Scalars['JSON']['output']>;
-  postId?: Maybe<Scalars['String']['output']>;
-  scoreChange?: Maybe<Scalars['Int']['output']>;
-  slug?: Maybe<Scalars['String']['output']>;
+  postId: Scalars['String']['output'];
+  scoreChange: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
   title?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostMetadataInput = {
+  postId: Scalars['String']['input'];
+};
+
+export type PostMetadataOutput = {
+  __typename?: 'PostMetadataOutput';
+  postId: Scalars['String']['output'];
 };
 
 export type PostOutput = {
@@ -4984,6 +5728,15 @@ export type PostRelation = {
   type: Scalars['String']['output'];
 };
 
+export type PostRelationSelector = {
+  allPostRelations?: InputMaybe<PostRelationsAllPostRelationsInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type PostRelationsAllPostRelationsInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PostReviewFilter = {
   endDate?: InputMaybe<Scalars['Date']['input']>;
   minKarma?: InputMaybe<Scalars['Int']['input']>;
@@ -4995,30 +5748,68 @@ export type PostReviewSort = {
   karma?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type PostViewTime = {
-  __typename?: 'PostViewTime';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
-export type PostViewTimeOutput = {
-  __typename?: 'PostViewTimeOutput';
-  data?: Maybe<PostViewTime>;
-};
-
-export type PostViews = {
-  __typename?: 'PostViews';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
-export type PostViewsOutput = {
-  __typename?: 'PostViewsOutput';
-  data?: Maybe<PostViews>;
+export type PostSelector = {
+  afRecentDiscussionThreadsList?: InputMaybe<PostsAfRecentDiscussionThreadsListInput>;
+  alignmentSuggestedPosts?: InputMaybe<PostsAlignmentSuggestedPostsInput>;
+  all_drafts?: InputMaybe<PostsAll_DraftsInput>;
+  community?: InputMaybe<PostsCommunityInput>;
+  communityResourcePosts?: InputMaybe<PostsCommunityResourcePostsInput>;
+  communityRss?: InputMaybe<PostsCommunityRssInput>;
+  curated?: InputMaybe<PostsCuratedInput>;
+  curatedRss?: InputMaybe<PostsCuratedRssInput>;
+  currentOpenThread?: InputMaybe<PostsCurrentOpenThreadInput>;
+  daily?: InputMaybe<PostsDailyInput>;
+  default?: InputMaybe<PostDefaultViewInput>;
+  drafts?: InputMaybe<PostsDraftsInput>;
+  events?: InputMaybe<PostsEventsInput>;
+  eventsInTimeRange?: InputMaybe<PostsEventsInTimeRangeInput>;
+  frontpage?: InputMaybe<PostsFrontpageInput>;
+  frontpageReviewWidget?: InputMaybe<PostsFrontpageReviewWidgetInput>;
+  frontpageRss?: InputMaybe<PostsFrontpageRssInput>;
+  globalEvents?: InputMaybe<PostsGlobalEventsInput>;
+  hasEverDialogued?: InputMaybe<PostsHasEverDialoguedInput>;
+  legacyIdPost?: InputMaybe<PostsLegacyIdPostInput>;
+  magic?: InputMaybe<PostsMagicInput>;
+  metaRss?: InputMaybe<PostsMetaRssInput>;
+  myBookmarkedPosts?: InputMaybe<PostsMyBookmarkedPostsInput>;
+  nearbyEvents?: InputMaybe<PostsNearbyEventsInput>;
+  new?: InputMaybe<PostsNewInput>;
+  nominatablePostsByVote?: InputMaybe<PostsNominatablePostsByVoteInput>;
+  nominations2018?: InputMaybe<PostsNominations2018Input>;
+  nominations2019?: InputMaybe<PostsNominations2019Input>;
+  nonEventGroupPosts?: InputMaybe<PostsNonEventGroupPostsInput>;
+  old?: InputMaybe<PostsOldInput>;
+  pastEvents?: InputMaybe<PostsPastEventsInput>;
+  pingbackPosts?: InputMaybe<PostsPingbackPostsInput>;
+  postsWithBannedUsers?: InputMaybe<PostsPostsWithBannedUsersInput>;
+  recentComments?: InputMaybe<PostsRecentCommentsInput>;
+  recentDiscussionThreadsList?: InputMaybe<PostsRecentDiscussionThreadsListInput>;
+  recentQuestionActivity?: InputMaybe<PostsRecentQuestionActivityInput>;
+  rejected?: InputMaybe<PostsRejectedInput>;
+  reviewFinalVoting?: InputMaybe<PostsReviewFinalVotingInput>;
+  reviewQuickPage?: InputMaybe<PostsReviewQuickPageInput>;
+  reviewRecentDiscussionThreadsList2018?: InputMaybe<PostsReviewRecentDiscussionThreadsList2018Input>;
+  reviewRecentDiscussionThreadsList2019?: InputMaybe<PostsReviewRecentDiscussionThreadsList2019Input>;
+  reviewVoting?: InputMaybe<PostsReviewVotingInput>;
+  reviews2018?: InputMaybe<PostsReviews2018Input>;
+  reviews2019?: InputMaybe<PostsReviews2019Input>;
+  rss?: InputMaybe<PostsRssInput>;
+  scheduled?: InputMaybe<PostsScheduledInput>;
+  slugPost?: InputMaybe<PostsSlugPostInput>;
+  stickied?: InputMaybe<PostsStickiedInput>;
+  sunshineCuratedSuggestions?: InputMaybe<PostsSunshineCuratedSuggestionsInput>;
+  sunshineNewPosts?: InputMaybe<PostsSunshineNewPostsInput>;
+  sunshineNewUsersPosts?: InputMaybe<PostsSunshineNewUsersPostsInput>;
+  tagRelevance?: InputMaybe<PostsTagRelevanceInput>;
+  tbdEvents?: InputMaybe<PostsTbdEventsInput>;
+  timeframe?: InputMaybe<PostsTimeframeInput>;
+  top?: InputMaybe<PostsTopInput>;
+  topQuestions?: InputMaybe<PostsTopQuestionsInput>;
+  unlisted?: InputMaybe<PostsUnlistedInput>;
+  upcomingEvents?: InputMaybe<PostsUpcomingEventsInput>;
+  userAFSubmissions?: InputMaybe<PostsUserAfSubmissionsInput>;
+  userPosts?: InputMaybe<PostsUserPostsInput>;
+  voting2019?: InputMaybe<PostsVoting2019Input>;
 };
 
 export type PostWithApprovedJargon = {
@@ -5027,14 +5818,1134 @@ export type PostWithApprovedJargon = {
   post: Post;
 };
 
+export type PostsAfRecentDiscussionThreadsListInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsAlignmentSuggestedPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsAll_DraftsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PostsBySubscribedAuthorsResult = {
   __typename?: 'PostsBySubscribedAuthorsResult';
   results: Array<Post>;
 };
 
+export type PostsCommunityInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsCommunityResourcePostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsCommunityRssInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsCuratedInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsCuratedRssInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsCurrentOpenThreadInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsDailyInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsDraftsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeArchived?: InputMaybe<Scalars['String']['input']>;
+  includeDraftEvents?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  includeShared?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortDraftsBy?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsEventsInTimeRangeInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsEventsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  globalEvent?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  onlineEvent?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsFrontpageInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsFrontpageReviewWidgetInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  reviewPhase?: InputMaybe<Scalars['String']['input']>;
+  reviewYear?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsFrontpageRssInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsGlobalEventsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  eventType?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  onlineEvent?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsHasEverDialoguedInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsLegacyIdPostInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  legacyId?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsMagicInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsMetaRssInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsMyBookmarkedPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsNearbyEventsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  distance?: InputMaybe<Scalars['String']['input']>;
+  eventType?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  lat?: InputMaybe<Scalars['String']['input']>;
+  lng?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  onlineEvent?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsNewInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsNominatablePostsByVoteInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  requiredFrontpage?: InputMaybe<Scalars['String']['input']>;
+  requiredUnnominated?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsNominations2018Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortByMost?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsNominations2019Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortByMost?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsNonEventGroupPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsOldInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsPastEventsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsPingbackPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsPostsWithBannedUsersInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsRecentCommentsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsRecentDiscussionThreadsListInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsRecentQuestionActivityInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsRejectedInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviewFinalVotingInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviewQuickPageInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviewRecentDiscussionThreadsList2018Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviewRecentDiscussionThreadsList2019Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviewVotingInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  reviewPhase?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviews2018Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsReviews2019Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsRssInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsScheduledInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsSlugPostInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsStickiedInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsSunshineCuratedSuggestionsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  audioOnly?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsSunshineNewPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsSunshineNewUsersPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsTagRelevanceInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsTbdEventsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsTimeframeInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsTopInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsTopQuestionsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsUnlistedInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsUpcomingEventsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsUserAfSubmissionsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PostsUserCommentedOnResult = {
   __typename?: 'PostsUserCommentedOnResult';
   posts?: Maybe<Array<Post>>;
+};
+
+export type PostsUserPostsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostsVoting2019Input = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  excludeEvents?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['String']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['String']['input']>;
+  notPostIds?: InputMaybe<Scalars['String']['input']>;
+  postIds?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PostsWithActiveDiscussionResult = {
@@ -5061,8 +6972,8 @@ export type Query = {
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
   CurrentFrontpageSurvey?: Maybe<SurveySchedule>;
   DigestHighlights?: Maybe<DigestHighlightsResult>;
-  DigestPlannerData?: Maybe<Array<Maybe<DigestPlannerPost>>>;
-  DigestPosts?: Maybe<Array<Maybe<Post>>>;
+  DigestPlannerData?: Maybe<Array<DigestPlannerPost>>;
+  DigestPosts?: Maybe<Array<Post>>;
   DigestPostsThisWeek?: Maybe<DigestPostsThisWeekResult>;
   ElicitBlockData?: Maybe<ElicitBlockData>;
   EmailPreview?: Maybe<Array<Maybe<EmailPreview>>>;
@@ -5120,6 +7031,8 @@ export type Query = {
   ban?: Maybe<SingleBanOutput>;
   bans?: Maybe<MultiBanOutput>;
   book?: Maybe<SingleBookOutput>;
+  bookmark?: Maybe<SingleBookmarkOutput>;
+  bookmarks?: Maybe<MultiBookmarkOutput>;
   books?: Maybe<MultiBookOutput>;
   chapter?: Maybe<SingleChapterOutput>;
   chapters?: Maybe<MultiChapterOutput>;
@@ -5157,6 +7070,8 @@ export type Query = {
   elicitQuestions?: Maybe<MultiElicitQuestionOutput>;
   featuredResource?: Maybe<SingleFeaturedResourceOutput>;
   featuredResources?: Maybe<MultiFeaturedResourceOutput>;
+  fieldChange?: Maybe<SingleFieldChangeOutput>;
+  fieldChanges?: Maybe<MultiFieldChangeOutput>;
   forumEvent?: Maybe<SingleForumEventOutput>;
   forumEvents?: Maybe<MultiForumEventOutput>;
   gardenCode?: Maybe<SingleGardenCodeOutput>;
@@ -5194,14 +7109,8 @@ export type Query = {
   podcastEpisodes?: Maybe<MultiPodcastEpisodeOutput>;
   podcasts?: Maybe<MultiPodcastOutput>;
   post?: Maybe<SinglePostOutput>;
-  postEmbedding?: Maybe<SinglePostEmbeddingOutput>;
-  postEmbeddings?: Maybe<MultiPostEmbeddingOutput>;
   postRelation?: Maybe<SinglePostRelationOutput>;
   postRelations?: Maybe<MultiPostRelationOutput>;
-  postViewTime?: Maybe<SinglePostViewTimeOutput>;
-  postViewTimes?: Maybe<MultiPostViewTimeOutput>;
-  postViews?: Maybe<SinglePostViewsOutput>;
-  postViewses?: Maybe<MultiPostViewsOutput>;
   posts?: Maybe<MultiPostOutput>;
   rSSFeed?: Maybe<SingleRssFeedOutput>;
   rSSFeeds?: Maybe<MultiRssFeedOutput>;
@@ -5239,6 +7148,8 @@ export type Query = {
   tags?: Maybe<MultiTagOutput>;
   typingIndicator?: Maybe<SingleTypingIndicatorOutput>;
   typingIndicators?: Maybe<MultiTypingIndicatorOutput>;
+  ultraFeedEvent?: Maybe<SingleUltraFeedEventOutput>;
+  ultraFeedEvents?: Maybe<MultiUltraFeedEventOutput>;
   unreadNotificationCounts: NotificationCounts;
   user?: Maybe<SingleUserOutput>;
   userEAGDetail?: Maybe<SingleUserEagDetailOutput>;
@@ -5588,111 +7499,176 @@ export type QueryUsersReadPostsOfTargetUserArgs = {
 
 export type QueryAdvisorRequestArgs = {
   input?: InputMaybe<SingleAdvisorRequestInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryAdvisorRequestsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiAdvisorRequestInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<AdvisorRequestSelector>;
 };
 
 
 export type QueryArbitalTagContentRelArgs = {
   input?: InputMaybe<SingleArbitalTagContentRelInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryArbitalTagContentRelsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiArbitalTagContentRelInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ArbitalTagContentRelSelector>;
 };
 
 
 export type QueryBanArgs = {
   input?: InputMaybe<SingleBanInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryBansArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiBanInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<BanSelector>;
 };
 
 
 export type QueryBookArgs = {
   input?: InputMaybe<SingleBookInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+export type QueryBookmarkArgs = {
+  input?: InputMaybe<SingleBookmarkInput>;
+};
+
+
+export type QueryBookmarksArgs = {
+  input?: InputMaybe<MultiBookmarkInput>;
 };
 
 
 export type QueryBooksArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiBookInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<BookSelector>;
 };
 
 
 export type QueryChapterArgs = {
   input?: InputMaybe<SingleChapterInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryChaptersArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiChapterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ChapterSelector>;
 };
 
 
 export type QueryCkEditorUserSessionArgs = {
   input?: InputMaybe<SingleCkEditorUserSessionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryCkEditorUserSessionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCkEditorUserSessionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<CkEditorUserSessionSelector>;
 };
 
 
 export type QueryClientIdArgs = {
   input?: InputMaybe<SingleClientIdInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryClientIdsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiClientIdInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ClientIdSelector>;
 };
 
 
 export type QueryCollectionArgs = {
   input?: InputMaybe<SingleCollectionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryCollectionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCollectionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<CollectionSelector>;
 };
 
 
 export type QueryCommentArgs = {
   input?: InputMaybe<SingleCommentInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryCommentModeratorActionArgs = {
   input?: InputMaybe<SingleCommentModeratorActionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryCommentModeratorActionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCommentModeratorActionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<CommentModeratorActionSelector>;
 };
 
 
 export type QueryCommentsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCommentInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<CommentSelector>;
 };
 
 
 export type QueryConversationArgs = {
   input?: InputMaybe<SingleConversationInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryConversationsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiConversationInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ConversationSelector>;
 };
 
 
@@ -5704,121 +7680,196 @@ export type QueryConvertDocumentArgs = {
 
 export type QueryCurationNoticeArgs = {
   input?: InputMaybe<SingleCurationNoticeInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryCurationNoticesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCurationNoticeInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<CurationNoticeSelector>;
 };
 
 
 export type QueryDialogueCheckArgs = {
   input?: InputMaybe<SingleDialogueCheckInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryDialogueChecksArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDialogueCheckInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<DialogueCheckSelector>;
 };
 
 
 export type QueryDialogueMatchPreferenceArgs = {
   input?: InputMaybe<SingleDialogueMatchPreferenceInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryDialogueMatchPreferencesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDialogueMatchPreferenceInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<DialogueMatchPreferenceSelector>;
 };
 
 
 export type QueryDigestArgs = {
   input?: InputMaybe<SingleDigestInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryDigestPostArgs = {
   input?: InputMaybe<SingleDigestPostInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryDigestPostsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDigestPostInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<DigestPostSelector>;
 };
 
 
 export type QueryDigestsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDigestInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<DigestSelector>;
 };
 
 
 export type QueryElectionCandidateArgs = {
   input?: InputMaybe<SingleElectionCandidateInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryElectionCandidatesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElectionCandidateInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ElectionCandidateSelector>;
 };
 
 
 export type QueryElectionVoteArgs = {
   input?: InputMaybe<SingleElectionVoteInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryElectionVotesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElectionVoteInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ElectionVoteSelector>;
 };
 
 
 export type QueryElicitQuestionArgs = {
   input?: InputMaybe<SingleElicitQuestionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryElicitQuestionPredictionArgs = {
   input?: InputMaybe<SingleElicitQuestionPredictionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryElicitQuestionPredictionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElicitQuestionPredictionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ElicitQuestionPredictionSelector>;
 };
 
 
 export type QueryElicitQuestionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElicitQuestionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ElicitQuestionSelector>;
 };
 
 
 export type QueryFeaturedResourceArgs = {
   input?: InputMaybe<SingleFeaturedResourceInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryFeaturedResourcesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiFeaturedResourceInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<FeaturedResourceSelector>;
+};
+
+
+export type QueryFieldChangeArgs = {
+  input?: InputMaybe<SingleFieldChangeInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+export type QueryFieldChangesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiFieldChangeInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<FieldChangeSelector>;
 };
 
 
 export type QueryForumEventArgs = {
   input?: InputMaybe<SingleForumEventInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryForumEventsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiForumEventInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ForumEventSelector>;
 };
 
 
 export type QueryGardenCodeArgs = {
   input?: InputMaybe<SingleGardenCodeInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryGardenCodesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiGardenCodeInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<GardenCodeSelector>;
 };
 
 
@@ -5835,31 +7886,46 @@ export type QueryGetLinkSharedPostArgs = {
 
 export type QueryGoogleServiceAccountSessionArgs = {
   input?: InputMaybe<SingleGoogleServiceAccountSessionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryGoogleServiceAccountSessionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiGoogleServiceAccountSessionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<GoogleServiceAccountSessionSelector>;
 };
 
 
 export type QueryJargonTermArgs = {
   input?: InputMaybe<SingleJargonTermInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryJargonTermsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiJargonTermInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<JargonTermSelector>;
 };
 
 
 export type QueryLwEventArgs = {
   input?: InputMaybe<SingleLwEventInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryLwEventsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiLwEventInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<LwEventSelector>;
 };
 
 
@@ -5877,51 +7943,76 @@ export type QueryLatestGoogleDocMetadataArgs = {
 
 export type QueryLlmConversationArgs = {
   input?: InputMaybe<SingleLlmConversationInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryLlmConversationsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiLlmConversationInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<LlmConversationSelector>;
 };
 
 
 export type QueryLocalgroupArgs = {
   input?: InputMaybe<SingleLocalgroupInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryLocalgroupsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiLocalgroupInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<LocalgroupSelector>;
 };
 
 
 export type QueryMessageArgs = {
   input?: InputMaybe<SingleMessageInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryMessagesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiMessageInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<MessageSelector>;
 };
 
 
 export type QueryModerationTemplateArgs = {
   input?: InputMaybe<SingleModerationTemplateInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryModerationTemplatesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiModerationTemplateInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ModerationTemplateSelector>;
 };
 
 
 export type QueryModeratorActionArgs = {
   input?: InputMaybe<SingleModeratorActionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryModeratorActionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiModeratorActionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ModeratorActionSelector>;
 };
 
 
@@ -5932,266 +8023,352 @@ export type QueryModeratorViewIpAddressArgs = {
 
 export type QueryMultiDocumentArgs = {
   input?: InputMaybe<SingleMultiDocumentInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryMultiDocumentsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiMultiDocumentInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<MultiDocumentSelector>;
 };
 
 
 export type QueryNotificationArgs = {
   input?: InputMaybe<SingleNotificationInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryNotificationsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiNotificationInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<NotificationSelector>;
 };
 
 
 export type QueryPetrovDayActionArgs = {
   input?: InputMaybe<SinglePetrovDayActionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryPetrovDayActionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPetrovDayActionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PetrovDayActionSelector>;
 };
 
 
 export type QueryPodcastArgs = {
   input?: InputMaybe<SinglePodcastInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryPodcastEpisodeArgs = {
   input?: InputMaybe<SinglePodcastEpisodeInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryPodcastEpisodesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPodcastEpisodeInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PodcastEpisodeSelector>;
 };
 
 
 export type QueryPodcastsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPodcastInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PodcastSelector>;
 };
 
 
 export type QueryPostArgs = {
   input?: InputMaybe<SinglePostInput>;
-};
-
-
-export type QueryPostEmbeddingArgs = {
-  input?: InputMaybe<SinglePostEmbeddingInput>;
-};
-
-
-export type QueryPostEmbeddingsArgs = {
-  input?: InputMaybe<MultiPostEmbeddingInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryPostRelationArgs = {
   input?: InputMaybe<SinglePostRelationInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryPostRelationsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPostRelationInput>;
-};
-
-
-export type QueryPostViewTimeArgs = {
-  input?: InputMaybe<SinglePostViewTimeInput>;
-};
-
-
-export type QueryPostViewTimesArgs = {
-  input?: InputMaybe<MultiPostViewTimeInput>;
-};
-
-
-export type QueryPostViewsArgs = {
-  input?: InputMaybe<SinglePostViewsInput>;
-};
-
-
-export type QueryPostViewsesArgs = {
-  input?: InputMaybe<MultiPostViewsInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PostRelationSelector>;
 };
 
 
 export type QueryPostsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPostInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PostSelector>;
 };
 
 
 export type QueryRSsFeedArgs = {
   input?: InputMaybe<SingleRssFeedInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryRSsFeedsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiRssFeedInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<RssFeedSelector>;
 };
 
 
 export type QueryReportArgs = {
   input?: InputMaybe<SingleReportInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryReportsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReportInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ReportSelector>;
 };
 
 
 export type QueryReviewVoteArgs = {
   input?: InputMaybe<SingleReviewVoteInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryReviewVotesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReviewVoteInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ReviewVoteSelector>;
 };
 
 
 export type QueryReviewWinnerArgs = {
   input?: InputMaybe<SingleReviewWinnerInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryReviewWinnerArtArgs = {
   input?: InputMaybe<SingleReviewWinnerArtInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryReviewWinnerArtsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReviewWinnerArtInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ReviewWinnerArtSelector>;
 };
 
 
 export type QueryReviewWinnersArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReviewWinnerInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ReviewWinnerSelector>;
 };
 
 
 export type QueryRevisionArgs = {
   input?: InputMaybe<SingleRevisionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryRevisionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiRevisionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<RevisionSelector>;
 };
 
 
 export type QuerySequenceArgs = {
   input?: InputMaybe<SingleSequenceInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySequencesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSequenceInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SequenceSelector>;
 };
 
 
 export type QuerySplashArtCoordinateArgs = {
   input?: InputMaybe<SingleSplashArtCoordinateInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySplashArtCoordinatesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSplashArtCoordinateInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SplashArtCoordinateSelector>;
 };
 
 
 export type QuerySpotlightArgs = {
   input?: InputMaybe<SingleSpotlightInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySpotlightsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSpotlightInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SpotlightSelector>;
 };
 
 
 export type QuerySubscriptionArgs = {
   input?: InputMaybe<SingleSubscriptionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySubscriptionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSubscriptionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SubscriptionSelector>;
 };
 
 
 export type QuerySurveyArgs = {
   input?: InputMaybe<SingleSurveyInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySurveyQuestionArgs = {
   input?: InputMaybe<SingleSurveyQuestionInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySurveyQuestionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyQuestionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SurveyQuestionSelector>;
 };
 
 
 export type QuerySurveyResponseArgs = {
   input?: InputMaybe<SingleSurveyResponseInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySurveyResponsesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyResponseInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SurveyResponseSelector>;
 };
 
 
 export type QuerySurveyScheduleArgs = {
   input?: InputMaybe<SingleSurveyScheduleInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QuerySurveySchedulesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyScheduleInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SurveyScheduleSelector>;
 };
 
 
 export type QuerySurveysArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<SurveySelector>;
 };
 
 
 export type QueryTagArgs = {
   input?: InputMaybe<SingleTagInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryTagFlagArgs = {
   input?: InputMaybe<SingleTagFlagInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryTagFlagsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTagFlagInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<TagFlagSelector>;
 };
 
 
 export type QueryTagRelArgs = {
   input?: InputMaybe<SingleTagRelInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryTagRelsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTagRelInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<TagRelSelector>;
 };
 
 
@@ -6206,81 +8383,136 @@ export type QueryTagsArgs = {
 
 export type QueryTypingIndicatorArgs = {
   input?: InputMaybe<SingleTypingIndicatorInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryTypingIndicatorsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTypingIndicatorInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<TypingIndicatorSelector>;
+};
+
+
+export type QueryUltraFeedEventArgs = {
+  input?: InputMaybe<SingleUltraFeedEventInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+export type QueryUltraFeedEventsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiUltraFeedEventInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UltraFeedEventSelector>;
 };
 
 
 export type QueryUserArgs = {
   input?: InputMaybe<SingleUserInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryUserEagDetailArgs = {
   input?: InputMaybe<SingleUserEagDetailInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryUserEagDetailsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserEagDetailInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserEagDetailSelector>;
 };
 
 
 export type QueryUserJobAdArgs = {
   input?: InputMaybe<SingleUserJobAdInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryUserJobAdsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserJobAdInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserJobAdSelector>;
 };
 
 
 export type QueryUserMostValuablePostArgs = {
   input?: InputMaybe<SingleUserMostValuablePostInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryUserMostValuablePostsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserMostValuablePostInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserMostValuablePostSelector>;
 };
 
 
 export type QueryUserRateLimitArgs = {
   input?: InputMaybe<SingleUserRateLimitInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryUserRateLimitsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserRateLimitInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserRateLimitSelector>;
 };
 
 
 export type QueryUserTagRelArgs = {
   input?: InputMaybe<SingleUserTagRelInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryUserTagRelsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserTagRelInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserTagRelSelector>;
 };
 
 
 export type QueryUsersArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserSelector>;
 };
 
 
 export type QueryVoteArgs = {
   input?: InputMaybe<SingleVoteInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryVotesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiVoteInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<VoteSelector>;
 };
 
 export type RssFeed = {
@@ -6304,6 +8536,15 @@ export type RssFeed = {
 export type RssFeedOutput = {
   __typename?: 'RSSFeedOutput';
   data?: Maybe<RssFeed>;
+};
+
+export type RssFeedSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  usersFeed?: InputMaybe<RssFeedsUsersFeedInput>;
+};
+
+export type RssFeedsUsersFeedInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ReactionChange = {
@@ -6372,6 +8613,23 @@ export type RecommendResumeSequence = {
   sequence?: Maybe<Sequence>;
 };
 
+export type RecommendationAlgorithmSettingsInput = {
+  count: Scalars['Int']['input'];
+  curatedModifier: Scalars['Float']['input'];
+  frontpageModifier: Scalars['Float']['input'];
+  method: Scalars['String']['input'];
+  onlyUnread: Scalars['Boolean']['input'];
+  personalBlogpostModifier: Scalars['Float']['input'];
+  scoreExponent: Scalars['Float']['input'];
+  scoreOffset: Scalars['Float']['input'];
+};
+
+export type RecommendationSettingsInput = {
+  frontpage: RecommendationAlgorithmSettingsInput;
+  frontpageEA: RecommendationAlgorithmSettingsInput;
+  recommendationspage: RecommendationAlgorithmSettingsInput;
+};
+
 export type RecommendationsCache = {
   __typename?: 'RecommendationsCache';
   _id: Scalars['String']['output'];
@@ -6414,6 +8672,20 @@ export type ReportOutput = {
   data?: Maybe<Report>;
 };
 
+export type ReportSelector = {
+  adminClaimedReports?: InputMaybe<ReportsAdminClaimedReportsInput>;
+  allReports?: InputMaybe<EmptyViewInput>;
+  claimedReports?: InputMaybe<EmptyViewInput>;
+  closedReports?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  sunshineSidebarReports?: InputMaybe<EmptyViewInput>;
+  unclaimedReports?: InputMaybe<EmptyViewInput>;
+};
+
+export type ReportsAdminClaimedReportsInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ReviewVote = {
   __typename?: 'ReviewVote';
   _id: Scalars['String']['output'];
@@ -6430,6 +8702,19 @@ export type ReviewVote = {
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
   year: Scalars['String']['output'];
+};
+
+export type ReviewVoteSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  reviewVotesAdminDashboard?: InputMaybe<EmptyViewInput>;
+  reviewVotesForPost?: InputMaybe<EmptyViewInput>;
+  reviewVotesForPostAndUser?: InputMaybe<EmptyViewInput>;
+  reviewVotesFromUser?: InputMaybe<ReviewVotesReviewVotesFromUserInput>;
+};
+
+export type ReviewVotesReviewVotesFromUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+  year?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ReviewWinner = {
@@ -6461,12 +8746,35 @@ export type ReviewWinnerArt = {
   splashArtImageUrl: Scalars['String']['output'];
 };
 
+export type ReviewWinnerArtSelector = {
+  allForYear?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  postArt?: InputMaybe<ReviewWinnerArtsPostArtInput>;
+};
+
+export type ReviewWinnerArtsPostArtInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReviewWinnerSelector = {
+  bestOfLessWrongAnnouncement?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  reviewWinnerSingle?: InputMaybe<ReviewWinnersReviewWinnerSingleInput>;
+};
+
+export type ReviewWinnersReviewWinnerSingleInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  reviewRanking?: InputMaybe<Scalars['String']['input']>;
+  reviewYear?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Revision = {
   __typename?: 'Revision';
   _id: Scalars['String']['output'];
   afBaseScore?: Maybe<Scalars['Float']['output']>;
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
+  automatedContentEvaluations?: Maybe<AutomatedContentEvaluation>;
   baseScore: Scalars['Float']['output'];
   changeMetrics: Scalars['JSON']['output'];
   ckEditorMarkup?: Maybe<Scalars['String']['output']>;
@@ -6477,8 +8785,7 @@ export type Revision = {
   currentUserVote?: Maybe<Scalars['String']['output']>;
   documentId?: Maybe<Scalars['String']['output']>;
   draft?: Maybe<Scalars['Boolean']['output']>;
-  draftJS?: Maybe<Scalars['JSON']['output']>;
-  editedAt?: Maybe<Scalars['Date']['output']>;
+  editedAt: Scalars['Date']['output'];
   extendedScore?: Maybe<Scalars['JSON']['output']>;
   fieldName?: Maybe<Scalars['String']['output']>;
   googleDocMetadata?: Maybe<Scalars['JSON']['output']>;
@@ -6516,15 +8823,40 @@ export type RevisionOutput = {
   data?: Maybe<Revision>;
 };
 
+export type RevisionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  revisionByVersionNumber?: InputMaybe<RevisionsRevisionByVersionNumberInput>;
+  revisionsByUser?: InputMaybe<RevisionsRevisionsByUserInput>;
+  revisionsOnDocument?: InputMaybe<RevisionsRevisionsOnDocumentInput>;
+};
+
 export type RevisionsKarmaChange = {
   __typename?: 'RevisionsKarmaChange';
-  _id?: Maybe<Scalars['String']['output']>;
+  _id: Scalars['String']['output'];
   addedReacts?: Maybe<Array<ReactionChange>>;
+  collectionName: Scalars['String']['output'];
   eaAddedReacts?: Maybe<Scalars['JSON']['output']>;
-  scoreChange?: Maybe<Scalars['Int']['output']>;
+  scoreChange: Scalars['Int']['output'];
   tagId?: Maybe<Scalars['String']['output']>;
   tagName?: Maybe<Scalars['String']['output']>;
   tagSlug?: Maybe<Scalars['String']['output']>;
+};
+
+export type RevisionsRevisionByVersionNumberInput = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  fieldName?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RevisionsRevisionsByUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RevisionsRevisionsOnDocumentInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  fieldName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RssPostChangeInfo = {
@@ -6537,6 +8869,12 @@ export type RssPostChangeInfo = {
 export type SelectorInput = {
   _id?: InputMaybe<Scalars['String']['input']>;
   documentId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SentenceScore = {
+  __typename?: 'SentenceScore';
+  score: Scalars['Float']['output'];
+  sentence: Scalars['String']['output'];
 };
 
 export type Sequence = {
@@ -6573,9 +8911,47 @@ export type SequenceContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SequenceDefaultViewInput = {
+  sequenceIds?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SequenceOutput = {
   __typename?: 'SequenceOutput';
   data?: Maybe<Sequence>;
+};
+
+export type SequenceSelector = {
+  communitySequences?: InputMaybe<SequencesCommunitySequencesInput>;
+  curatedSequences?: InputMaybe<SequencesCuratedSequencesInput>;
+  default?: InputMaybe<SequenceDefaultViewInput>;
+  userProfile?: InputMaybe<SequencesUserProfileInput>;
+  userProfileAll?: InputMaybe<SequencesUserProfileAllInput>;
+  userProfilePrivate?: InputMaybe<SequencesUserProfilePrivateInput>;
+};
+
+export type SequencesCommunitySequencesInput = {
+  sequenceIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SequencesCuratedSequencesInput = {
+  sequenceIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SequencesUserProfileAllInput = {
+  sequenceIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SequencesUserProfileInput = {
+  sequenceIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SequencesUserProfilePrivateInput = {
+  sequenceIds?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Session = {
@@ -6599,7 +8975,6 @@ export type SideCommentCache = {
 };
 
 export type SingleAdvisorRequestInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6610,7 +8985,6 @@ export type SingleAdvisorRequestOutput = {
 };
 
 export type SingleArbitalTagContentRelInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6621,7 +8995,6 @@ export type SingleArbitalTagContentRelOutput = {
 };
 
 export type SingleBanInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6632,7 +9005,6 @@ export type SingleBanOutput = {
 };
 
 export type SingleBookInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6642,8 +9014,18 @@ export type SingleBookOutput = {
   result?: Maybe<Book>;
 };
 
-export type SingleChapterInput = {
+export type SingleBookmarkInput = {
   allowNull?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+export type SingleBookmarkOutput = {
+  __typename?: 'SingleBookmarkOutput';
+  result?: Maybe<Bookmark>;
+};
+
+export type SingleChapterInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6654,7 +9036,6 @@ export type SingleChapterOutput = {
 };
 
 export type SingleCkEditorUserSessionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6665,7 +9046,6 @@ export type SingleCkEditorUserSessionOutput = {
 };
 
 export type SingleClientIdInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6676,7 +9056,6 @@ export type SingleClientIdOutput = {
 };
 
 export type SingleCollectionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6687,13 +9066,11 @@ export type SingleCollectionOutput = {
 };
 
 export type SingleCommentInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 export type SingleCommentModeratorActionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6709,7 +9086,6 @@ export type SingleCommentOutput = {
 };
 
 export type SingleConversationInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6720,7 +9096,6 @@ export type SingleConversationOutput = {
 };
 
 export type SingleCurationNoticeInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6731,7 +9106,6 @@ export type SingleCurationNoticeOutput = {
 };
 
 export type SingleDialogueCheckInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6742,7 +9116,6 @@ export type SingleDialogueCheckOutput = {
 };
 
 export type SingleDialogueMatchPreferenceInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6753,7 +9126,6 @@ export type SingleDialogueMatchPreferenceOutput = {
 };
 
 export type SingleDigestInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6764,7 +9136,6 @@ export type SingleDigestOutput = {
 };
 
 export type SingleDigestPostInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6775,7 +9146,6 @@ export type SingleDigestPostOutput = {
 };
 
 export type SingleElectionCandidateInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6786,7 +9156,6 @@ export type SingleElectionCandidateOutput = {
 };
 
 export type SingleElectionVoteInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6797,7 +9166,6 @@ export type SingleElectionVoteOutput = {
 };
 
 export type SingleElicitQuestionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6808,7 +9176,6 @@ export type SingleElicitQuestionOutput = {
 };
 
 export type SingleElicitQuestionPredictionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6819,7 +9186,6 @@ export type SingleElicitQuestionPredictionOutput = {
 };
 
 export type SingleFeaturedResourceInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6829,8 +9195,17 @@ export type SingleFeaturedResourceOutput = {
   result?: Maybe<FeaturedResource>;
 };
 
+export type SingleFieldChangeInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+export type SingleFieldChangeOutput = {
+  __typename?: 'SingleFieldChangeOutput';
+  result?: Maybe<FieldChange>;
+};
+
 export type SingleForumEventInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6841,7 +9216,6 @@ export type SingleForumEventOutput = {
 };
 
 export type SingleGardenCodeInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6852,7 +9226,6 @@ export type SingleGardenCodeOutput = {
 };
 
 export type SingleGoogleServiceAccountSessionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6863,7 +9236,6 @@ export type SingleGoogleServiceAccountSessionOutput = {
 };
 
 export type SingleJargonTermInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6874,7 +9246,6 @@ export type SingleJargonTermOutput = {
 };
 
 export type SingleLwEventInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6885,7 +9256,6 @@ export type SingleLwEventOutput = {
 };
 
 export type SingleLlmConversationInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6896,7 +9266,6 @@ export type SingleLlmConversationOutput = {
 };
 
 export type SingleLocalgroupInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6907,7 +9276,6 @@ export type SingleLocalgroupOutput = {
 };
 
 export type SingleMessageInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6918,7 +9286,6 @@ export type SingleMessageOutput = {
 };
 
 export type SingleModerationTemplateInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6929,7 +9296,6 @@ export type SingleModerationTemplateOutput = {
 };
 
 export type SingleModeratorActionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6940,7 +9306,6 @@ export type SingleModeratorActionOutput = {
 };
 
 export type SingleMultiDocumentInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6951,7 +9316,6 @@ export type SingleMultiDocumentOutput = {
 };
 
 export type SingleNotificationInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6962,7 +9326,6 @@ export type SingleNotificationOutput = {
 };
 
 export type SinglePetrovDayActionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6973,7 +9336,6 @@ export type SinglePetrovDayActionOutput = {
 };
 
 export type SinglePodcastEpisodeInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6984,7 +9346,6 @@ export type SinglePodcastEpisodeOutput = {
 };
 
 export type SinglePodcastInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -6994,19 +9355,7 @@ export type SinglePodcastOutput = {
   result?: Maybe<Podcast>;
 };
 
-export type SinglePostEmbeddingInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SinglePostEmbeddingOutput = {
-  __typename?: 'SinglePostEmbeddingOutput';
-  result?: Maybe<PostEmbedding>;
-};
-
 export type SinglePostInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7017,7 +9366,6 @@ export type SinglePostOutput = {
 };
 
 export type SinglePostRelationInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7027,30 +9375,7 @@ export type SinglePostRelationOutput = {
   result?: Maybe<PostRelation>;
 };
 
-export type SinglePostViewTimeInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SinglePostViewTimeOutput = {
-  __typename?: 'SinglePostViewTimeOutput';
-  result?: Maybe<PostViewTime>;
-};
-
-export type SinglePostViewsInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SinglePostViewsOutput = {
-  __typename?: 'SinglePostViewsOutput';
-  result?: Maybe<PostViews>;
-};
-
 export type SingleRssFeedInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7061,7 +9386,6 @@ export type SingleRssFeedOutput = {
 };
 
 export type SingleReportInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7072,7 +9396,6 @@ export type SingleReportOutput = {
 };
 
 export type SingleReviewVoteInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7083,7 +9406,6 @@ export type SingleReviewVoteOutput = {
 };
 
 export type SingleReviewWinnerArtInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7094,7 +9416,6 @@ export type SingleReviewWinnerArtOutput = {
 };
 
 export type SingleReviewWinnerInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7105,7 +9426,6 @@ export type SingleReviewWinnerOutput = {
 };
 
 export type SingleRevisionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7116,7 +9436,6 @@ export type SingleRevisionOutput = {
 };
 
 export type SingleSequenceInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7127,7 +9446,6 @@ export type SingleSequenceOutput = {
 };
 
 export type SingleSplashArtCoordinateInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7138,7 +9456,6 @@ export type SingleSplashArtCoordinateOutput = {
 };
 
 export type SingleSpotlightInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7149,7 +9466,6 @@ export type SingleSpotlightOutput = {
 };
 
 export type SingleSubscriptionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7160,7 +9476,6 @@ export type SingleSubscriptionOutput = {
 };
 
 export type SingleSurveyInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7171,7 +9486,6 @@ export type SingleSurveyOutput = {
 };
 
 export type SingleSurveyQuestionInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7182,7 +9496,6 @@ export type SingleSurveyQuestionOutput = {
 };
 
 export type SingleSurveyResponseInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7193,7 +9506,6 @@ export type SingleSurveyResponseOutput = {
 };
 
 export type SingleSurveyScheduleInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7204,7 +9516,6 @@ export type SingleSurveyScheduleOutput = {
 };
 
 export type SingleTagFlagInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7215,7 +9526,6 @@ export type SingleTagFlagOutput = {
 };
 
 export type SingleTagInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7226,7 +9536,6 @@ export type SingleTagOutput = {
 };
 
 export type SingleTagRelInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7237,7 +9546,6 @@ export type SingleTagRelOutput = {
 };
 
 export type SingleTypingIndicatorInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7247,8 +9555,17 @@ export type SingleTypingIndicatorOutput = {
   result?: Maybe<TypingIndicator>;
 };
 
+export type SingleUltraFeedEventInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+export type SingleUltraFeedEventOutput = {
+  __typename?: 'SingleUltraFeedEventOutput';
+  result?: Maybe<UltraFeedEvent>;
+};
+
 export type SingleUserEagDetailInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7259,13 +9576,11 @@ export type SingleUserEagDetailOutput = {
 };
 
 export type SingleUserInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<UserSelectorUniqueInput>;
 };
 
 export type SingleUserJobAdInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7276,7 +9591,6 @@ export type SingleUserJobAdOutput = {
 };
 
 export type SingleUserMostValuablePostInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7292,7 +9606,6 @@ export type SingleUserOutput = {
 };
 
 export type SingleUserRateLimitInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7303,7 +9616,6 @@ export type SingleUserRateLimitOutput = {
 };
 
 export type SingleUserTagRelInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7314,7 +9626,6 @@ export type SingleUserTagRelOutput = {
 };
 
 export type SingleVoteInput = {
-  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7331,11 +9642,22 @@ export type Site = {
   url?: Maybe<Scalars['String']['output']>;
 };
 
+export type SocialPreviewInput = {
+  imageId: Scalars['String']['input'];
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SocialPreviewOutput = {
+  __typename?: 'SocialPreviewOutput';
+  imageId: Scalars['String']['output'];
+  text?: Maybe<Scalars['String']['output']>;
+};
+
 export type SocialPreviewType = {
   __typename?: 'SocialPreviewType';
-  _id?: Maybe<Scalars['String']['output']>;
+  _id: Scalars['String']['output'];
   imageId?: Maybe<Scalars['String']['output']>;
-  imageUrl?: Maybe<Scalars['String']['output']>;
+  imageUrl: Scalars['String']['output'];
   text?: Maybe<Scalars['String']['output']>;
 };
 
@@ -7367,6 +9689,10 @@ export type SplashArtCoordinate = {
 export type SplashArtCoordinateOutput = {
   __typename?: 'SplashArtCoordinateOutput';
   data?: Maybe<SplashArtCoordinate>;
+};
+
+export type SplashArtCoordinateSelector = {
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type Spotlight = {
@@ -7411,6 +9737,35 @@ export type SpotlightDescriptionArgs = {
 export type SpotlightOutput = {
   __typename?: 'SpotlightOutput';
   data?: Maybe<Spotlight>;
+};
+
+export type SpotlightSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  mostRecentlyPromotedSpotlights?: InputMaybe<SpotlightsMostRecentlyPromotedSpotlightsInput>;
+  spotlightsByDocumentIds?: InputMaybe<SpotlightsSpotlightsByDocumentIdsInput>;
+  spotlightsById?: InputMaybe<SpotlightsSpotlightsByIdInput>;
+  spotlightsPage?: InputMaybe<SpotlightsSpotlightsPageInput>;
+  spotlightsPageDraft?: InputMaybe<SpotlightsSpotlightsPageDraftInput>;
+};
+
+export type SpotlightsMostRecentlyPromotedSpotlightsInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SpotlightsSpotlightsByDocumentIdsInput = {
+  documentIds?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SpotlightsSpotlightsByIdInput = {
+  spotlightIds?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SpotlightsSpotlightsPageDraftInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SpotlightsSpotlightsPageInput = {
+  limit?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SubforumMagicFeedEntryType = {
@@ -7530,6 +9885,19 @@ export type SubscriptionOutput = {
   data?: Maybe<Subscription>;
 };
 
+export type SubscriptionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  membersOfGroup?: InputMaybe<EmptyViewInput>;
+  subscriptionState?: InputMaybe<EmptyViewInput>;
+  subscriptionsOfType?: InputMaybe<SubscriptionsSubscriptionsOfTypeInput>;
+};
+
+export type SubscriptionsSubscriptionsOfTypeInput = {
+  collectionName?: InputMaybe<Scalars['String']['input']>;
+  subscriptionType?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SuggestedFeedSubscriptionUsersResult = {
   __typename?: 'SuggestedFeedSubscriptionUsersResult';
   results: Array<User>;
@@ -7574,6 +9942,10 @@ export type SurveyQuestionOutput = {
   data?: Maybe<SurveyQuestion>;
 };
 
+export type SurveyQuestionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type SurveyResponse = {
   __typename?: 'SurveyResponse';
   _id: Scalars['String']['output'];
@@ -7596,6 +9968,10 @@ export type SurveyResponseOutput = {
   data?: Maybe<SurveyResponse>;
 };
 
+export type SurveyResponseSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type SurveySchedule = {
   __typename?: 'SurveySchedule';
   _id: Scalars['String']['output'];
@@ -7612,7 +9988,7 @@ export type SurveySchedule = {
   name?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
   startDate?: Maybe<Scalars['Date']['output']>;
-  survey: Survey;
+  survey?: Maybe<Survey>;
   surveyId: Scalars['String']['output'];
   target?: Maybe<Scalars['String']['output']>;
 };
@@ -7620,6 +9996,16 @@ export type SurveySchedule = {
 export type SurveyScheduleOutput = {
   __typename?: 'SurveyScheduleOutput';
   data?: Maybe<SurveySchedule>;
+};
+
+export type SurveyScheduleSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  surveySchedulesByCreatedAt?: InputMaybe<EmptyViewInput>;
+};
+
+export type SurveySelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  surveysByCreatedAt?: InputMaybe<EmptyViewInput>;
 };
 
 export type Tag = {
@@ -7639,7 +10025,7 @@ export type Tag = {
   charsAdded?: Maybe<Scalars['Float']['output']>;
   charsRemoved?: Maybe<Scalars['Float']['output']>;
   contributionStats?: Maybe<Scalars['JSON']['output']>;
-  contributors?: Maybe<TagContributorsList>;
+  contributors: TagContributorsList;
   core: Scalars['Boolean']['output'];
   coreTagId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -7759,10 +10145,6 @@ export type TagTableOfContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type TagCommentType =
-  | 'DISCUSSION'
-  | 'SUBFORUM';
-
 export type TagContributor = {
   __typename?: 'TagContributor';
   contributionScore: Scalars['Int']['output'];
@@ -7774,8 +10156,12 @@ export type TagContributor = {
 
 export type TagContributorsList = {
   __typename?: 'TagContributorsList';
-  contributors?: Maybe<Array<TagContributor>>;
+  contributors: Array<TagContributor>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type TagDefaultViewInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type TagFlag = {
@@ -7800,6 +10186,11 @@ export type TagFlagContentsArgs = {
 export type TagFlagOutput = {
   __typename?: 'TagFlagOutput';
   data?: Maybe<TagFlag>;
+};
+
+export type TagFlagSelector = {
+  allTagFlags?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type TagHistoryFeedEntryType = {
@@ -7870,18 +10261,43 @@ export type TagRel = {
   voteCount: Scalars['Float']['output'];
 };
 
-export type TagRelOutput = {
-  __typename?: 'TagRelOutput';
-  data?: Maybe<TagRel>;
+export type TagRelSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  postsWithTag?: InputMaybe<TagRelsPostsWithTagInput>;
+  tagsOnPost?: InputMaybe<TagRelsTagsOnPostInput>;
 };
 
-export type TagSelector =
-  { allTagsAlphabetical: ViewInput; currentUserSubforums?: never; default?: never; tagByTagIds?: never; tagsBySlugs?: never; userTags?: never; }
-  |  { allTagsAlphabetical?: never; currentUserSubforums: ViewInput; default?: never; tagByTagIds?: never; tagsBySlugs?: never; userTags?: never; }
-  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default: ViewInput; tagByTagIds?: never; tagsBySlugs?: never; userTags?: never; }
-  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default?: never; tagByTagIds: ViewInput; tagsBySlugs?: never; userTags?: never; }
-  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default?: never; tagByTagIds?: never; tagsBySlugs: ViewInput; userTags?: never; }
-  |  { allTagsAlphabetical?: never; currentUserSubforums?: never; default?: never; tagByTagIds?: never; tagsBySlugs?: never; userTags: ViewInput; };
+export type TagRelsPostsWithTagInput = {
+  tagId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TagRelsTagsOnPostInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TagSelector = {
+  allArbitalTags?: InputMaybe<TagsAllArbitalTagsInput>;
+  allLWWikiTags?: InputMaybe<TagsAllLwWikiTagsInput>;
+  allPagesByNewest?: InputMaybe<TagsAllPagesByNewestInput>;
+  allPublicTags?: InputMaybe<TagsAllPublicTagsInput>;
+  allTagsAlphabetical?: InputMaybe<TagsAllTagsAlphabeticalInput>;
+  allTagsHierarchical?: InputMaybe<TagsAllTagsHierarchicalInput>;
+  coreAndSubforumTags?: InputMaybe<TagsCoreAndSubforumTagsInput>;
+  coreTags?: InputMaybe<TagsCoreTagsInput>;
+  currentUserSubforums?: InputMaybe<TagsCurrentUserSubforumsInput>;
+  default?: InputMaybe<TagDefaultViewInput>;
+  newTags?: InputMaybe<TagsNewTagsInput>;
+  pingbackWikiPages?: InputMaybe<TagsPingbackWikiPagesInput>;
+  postTypeTags?: InputMaybe<TagsPostTypeTagsInput>;
+  suggestedFilterTags?: InputMaybe<TagsSuggestedFilterTagsInput>;
+  tagBySlug?: InputMaybe<TagsTagBySlugInput>;
+  tagsBySlugs?: InputMaybe<TagsTagsBySlugsInput>;
+  tagsByTagFlag?: InputMaybe<TagsTagsByTagFlagInput>;
+  tagsByTagIds?: InputMaybe<TagsTagsByTagIdsInput>;
+  unprocessedLWWikiTags?: InputMaybe<TagsUnprocessedLwWikiTagsInput>;
+  unreviewedTags?: InputMaybe<TagsUnreviewedTagsInput>;
+  userTags?: InputMaybe<TagsUserTagsInput>;
+};
 
 export type TagUpdates = {
   __typename?: 'TagUpdates';
@@ -7901,6 +10317,102 @@ export type TagWithTotalCount = {
   __typename?: 'TagWithTotalCount';
   tags: Array<Tag>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type TagsAllArbitalTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsAllLwWikiTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsAllPagesByNewestInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsAllPublicTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsAllTagsAlphabeticalInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsAllTagsHierarchicalInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  wikiGrade?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TagsCoreAndSubforumTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsCoreTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsCurrentUserSubforumsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsNewTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsPingbackWikiPagesInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsPostTypeTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsSuggestedFilterTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsTagBySlugInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TagsTagsBySlugsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  slugs: Array<Scalars['String']['input']>;
+};
+
+export type TagsTagsByTagFlagInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  tagFlagId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TagsTagsByTagIdsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  tagIds: Array<Scalars['String']['input']>;
+};
+
+export type TagsUnprocessedLwWikiTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsUnreviewedTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type TagsUserTagsInput = {
+  excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ToggleBookmarkInput = {
+  collectionName: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+};
+
+export type ToggleBookmarkOutput = {
+  __typename?: 'ToggleBookmarkOutput';
+  data?: Maybe<Bookmark>;
 };
 
 export type TopComment = {
@@ -7948,6 +10460,10 @@ export type TypingIndicator = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+export type TypingIndicatorSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 export type UltraFeedEntryType = {
   __typename?: 'UltraFeedEntryType';
   feedCommentThread?: Maybe<FeedCommentThread>;
@@ -7971,6 +10487,10 @@ export type UltraFeedEvent = {
 export type UltraFeedEventOutput = {
   __typename?: 'UltraFeedEventOutput';
   data?: Maybe<UltraFeedEvent>;
+};
+
+export type UltraFeedEventSelector = {
+  default?: InputMaybe<EmptyViewInput>;
 };
 
 export type UltraFeedQueryResults = {
@@ -7999,33 +10519,9 @@ export type UpdateAdvisorRequestInput = {
   selector: SelectorInput;
 };
 
-export type UpdateArbitalTagContentRelDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type UpdateArbitalTagContentRelInput = {
-  data: UpdateArbitalTagContentRelDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateBanDataInput = {
-  comment?: InputMaybe<Scalars['String']['input']>;
-  expirationDate?: InputMaybe<Scalars['Date']['input']>;
-  ip?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  properties?: InputMaybe<Scalars['JSON']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateBanInput = {
-  data: UpdateBanDataInput;
-  selector: SelectorInput;
-};
-
 export type UpdateBookDataInput = {
   collectionId?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   displaySequencesAsGrid?: InputMaybe<Scalars['Boolean']['input']>;
   hideProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -8044,7 +10540,7 @@ export type UpdateBookInput = {
 };
 
 export type UpdateChapterDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   number?: InputMaybe<Scalars['Float']['input']>;
   postIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -8059,7 +10555,7 @@ export type UpdateChapterInput = {
 };
 
 export type UpdateCollectionDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   createdAt?: InputMaybe<Scalars['Date']['input']>;
   firstPageLink?: InputMaybe<Scalars['String']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -8081,7 +10577,7 @@ export type UpdateCommentDataInput = {
   agentFoundationsId?: InputMaybe<Scalars['String']['input']>;
   answer?: InputMaybe<Scalars['Boolean']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   debateResponse?: InputMaybe<Scalars['Boolean']['input']>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   deletedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -8156,31 +10652,13 @@ export type UpdateConversationInput = {
 
 export type UpdateCurationNoticeDataInput = {
   commentId?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type UpdateCurationNoticeInput = {
   data: UpdateCurationNoticeDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateDialogueMatchPreferenceDataInput = {
-  asyncPreference?: InputMaybe<Scalars['String']['input']>;
-  calendlyLink?: InputMaybe<Scalars['String']['input']>;
-  deleted?: InputMaybe<Scalars['Boolean']['input']>;
-  dialogueCheckId?: InputMaybe<Scalars['String']['input']>;
-  formatNotes?: InputMaybe<Scalars['String']['input']>;
-  generatedDialogueId?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  syncPreference?: InputMaybe<Scalars['String']['input']>;
-  topicNotes?: InputMaybe<Scalars['String']['input']>;
-  topicPreferences?: InputMaybe<Array<Scalars['JSON']['input']>>;
-};
-
-export type UpdateDialogueMatchPreferenceInput = {
-  data: UpdateDialogueMatchPreferenceDataInput;
   selector: SelectorInput;
 };
 
@@ -8273,17 +10751,19 @@ export type UpdateForumEventDataInput = {
   darkColor?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['Date']['input']>;
   eventFormat?: InputMaybe<Scalars['String']['input']>;
-  frontpageDescription?: InputMaybe<Scalars['JSON']['input']>;
-  frontpageDescriptionMobile?: InputMaybe<Scalars['JSON']['input']>;
+  frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
+  frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
   includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
+  isGlobal?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   lightColor?: InputMaybe<Scalars['String']['input']>;
   maxStickersPerUser?: InputMaybe<Scalars['Float']['input']>;
   pollAgreeWording?: InputMaybe<Scalars['String']['input']>;
   pollDisagreeWording?: InputMaybe<Scalars['String']['input']>;
-  pollQuestion?: InputMaybe<Scalars['JSON']['input']>;
+  pollQuestion?: InputMaybe<CreateRevisionDataInput>;
   postId?: InputMaybe<Scalars['String']['input']>;
-  postPageDescription?: InputMaybe<Scalars['JSON']['input']>;
+  postPageDescription?: InputMaybe<CreateRevisionDataInput>;
+  publicData?: InputMaybe<Scalars['JSON']['input']>;
   startDate?: InputMaybe<Scalars['Date']['input']>;
   tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -8294,43 +10774,10 @@ export type UpdateForumEventInput = {
   selector: SelectorInput;
 };
 
-export type UpdateGardenCodeDataInput = {
-  afOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
-  deleted?: InputMaybe<Scalars['Boolean']['input']>;
-  endTime?: InputMaybe<Scalars['Date']['input']>;
-  fbLink?: InputMaybe<Scalars['String']['input']>;
-  hidden?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  slug?: InputMaybe<Scalars['String']['input']>;
-  startTime?: InputMaybe<Scalars['Date']['input']>;
-  title?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateGardenCodeInput = {
-  data: UpdateGardenCodeDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateGoogleServiceAccountSessionDataInput = {
-  active?: InputMaybe<Scalars['Boolean']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  estimatedExpiry?: InputMaybe<Scalars['Date']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  refreshToken?: InputMaybe<Scalars['String']['input']>;
-  revoked?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type UpdateGoogleServiceAccountSessionInput = {
-  data: UpdateGoogleServiceAccountSessionDataInput;
-  selector: SelectorInput;
-};
-
 export type UpdateJargonTermDataInput = {
   altTerms?: InputMaybe<Array<Scalars['String']['input']>>;
   approved?: InputMaybe<Scalars['Boolean']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
@@ -8338,16 +10785,6 @@ export type UpdateJargonTermDataInput = {
 
 export type UpdateJargonTermInput = {
   data: UpdateJargonTermDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateLwEventDataInput = {
-  important?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type UpdateLwEventInput = {
-  data: UpdateLwEventDataInput;
   selector: SelectorInput;
 };
 
@@ -8369,7 +10806,7 @@ export type UpdateLocalgroupDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   categories?: InputMaybe<Array<Scalars['String']['input']>>;
   contactInfo?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   facebookLink?: InputMaybe<Scalars['String']['input']>;
   facebookPageLink?: InputMaybe<Scalars['String']['input']>;
@@ -8394,7 +10831,7 @@ export type UpdateLocalgroupInput = {
 };
 
 export type UpdateMessageDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
 };
 
@@ -8405,7 +10842,7 @@ export type UpdateMessageInput = {
 
 export type UpdateModerationTemplateDataInput = {
   collectionName?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -8430,7 +10867,7 @@ export type UpdateModeratorActionInput = {
 };
 
 export type UpdateMultiDocumentDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   index?: InputMaybe<Scalars['Float']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -8455,15 +10892,6 @@ export type UpdateNotificationInput = {
   selector: SelectorInput;
 };
 
-export type UpdatePodcastEpisodeDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type UpdatePodcastEpisodeInput = {
-  data: UpdatePodcastEpisodeDataInput;
-  selector: SelectorInput;
-};
-
 export type UpdatePostDataInput = {
   activateRSVPs?: InputMaybe<Scalars['Boolean']['input']>;
   af?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8479,16 +10907,16 @@ export type UpdatePostDataInput = {
   canonicalPrevPostSlug?: InputMaybe<Scalars['String']['input']>;
   canonicalSequenceId?: InputMaybe<Scalars['String']['input']>;
   canonicalSource?: InputMaybe<Scalars['String']['input']>;
-  coauthorStatuses?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  coauthorStatuses?: InputMaybe<Array<CoauthorStatusInput>>;
   collabEditorDialogue?: InputMaybe<Scalars['Boolean']['input']>;
   collectionTitle?: InputMaybe<Scalars['String']['input']>;
   commentSortOrder?: InputMaybe<Scalars['String']['input']>;
   commentsLocked?: InputMaybe<Scalars['Boolean']['input']>;
   commentsLockedToAccountsCreatedAfter?: InputMaybe<Scalars['Date']['input']>;
   contactInfo?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   curatedDate?: InputMaybe<Scalars['Date']['input']>;
-  customHighlight?: InputMaybe<Scalars['JSON']['input']>;
+  customHighlight?: InputMaybe<CreateRevisionDataInput>;
   defaultRecommendation?: InputMaybe<Scalars['Boolean']['input']>;
   deletedDraft?: InputMaybe<Scalars['Boolean']['input']>;
   disableRecommendation?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8501,7 +10929,7 @@ export type UpdatePostDataInput = {
   facebookLink?: InputMaybe<Scalars['String']['input']>;
   feedId?: InputMaybe<Scalars['String']['input']>;
   feedLink?: InputMaybe<Scalars['String']['input']>;
-  fmCrosspost?: InputMaybe<Scalars['JSON']['input']>;
+  fmCrosspost?: InputMaybe<CrosspostInput>;
   forceAllowType3Audio?: InputMaybe<Scalars['Boolean']['input']>;
   frontpageDate?: InputMaybe<Scalars['Date']['input']>;
   generateDraftJargon?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8529,7 +10957,7 @@ export type UpdatePostDataInput = {
   meta?: InputMaybe<Scalars['Boolean']['input']>;
   metaDate?: InputMaybe<Scalars['Date']['input']>;
   metaSticky?: InputMaybe<Scalars['Boolean']['input']>;
-  moderationGuidelines?: InputMaybe<Scalars['JSON']['input']>;
+  moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   moderationStyle?: InputMaybe<Scalars['String']['input']>;
   nextDayReminderSent?: InputMaybe<Scalars['Boolean']['input']>;
   noIndex?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8553,7 +10981,7 @@ export type UpdatePostDataInput = {
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sideCommentVisibility?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  socialPreview?: InputMaybe<Scalars['JSON']['input']>;
+  socialPreview?: InputMaybe<SocialPreviewInput>;
   socialPreviewImageAutoUrl?: InputMaybe<Scalars['String']['input']>;
   socialPreviewImageId?: InputMaybe<Scalars['String']['input']>;
   startTime?: InputMaybe<Scalars['Date']['input']>;
@@ -8576,40 +11004,8 @@ export type UpdatePostDataInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type UpdatePostEmbeddingDataInput = {
-  embeddings?: InputMaybe<Array<Scalars['Float']['input']>>;
-  lastGeneratedAt?: InputMaybe<Scalars['Date']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  model?: InputMaybe<Scalars['String']['input']>;
-  postHash?: InputMaybe<Scalars['String']['input']>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdatePostEmbeddingInput = {
-  data: UpdatePostEmbeddingDataInput;
-  selector: SelectorInput;
-};
-
 export type UpdatePostInput = {
   data: UpdatePostDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdatePostViewTimeDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type UpdatePostViewTimeInput = {
-  data: UpdatePostViewTimeDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdatePostViewsDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type UpdatePostViewsInput = {
-  data: UpdatePostViewsDataInput;
   selector: SelectorInput;
 };
 
@@ -8660,7 +11056,7 @@ export type UpdateSequenceDataInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   canonicalCollectionSlug?: InputMaybe<Scalars['String']['input']>;
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   curatedOrder?: InputMaybe<Scalars['Float']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -8680,36 +11076,11 @@ export type UpdateSequenceInput = {
   selector: SelectorInput;
 };
 
-export type UpdateSplashArtCoordinateDataInput = {
-  leftFlipped?: InputMaybe<Scalars['Boolean']['input']>;
-  leftHeightPct?: InputMaybe<Scalars['Float']['input']>;
-  leftWidthPct?: InputMaybe<Scalars['Float']['input']>;
-  leftXPct?: InputMaybe<Scalars['Float']['input']>;
-  leftYPct?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  middleFlipped?: InputMaybe<Scalars['Boolean']['input']>;
-  middleHeightPct?: InputMaybe<Scalars['Float']['input']>;
-  middleWidthPct?: InputMaybe<Scalars['Float']['input']>;
-  middleXPct?: InputMaybe<Scalars['Float']['input']>;
-  middleYPct?: InputMaybe<Scalars['Float']['input']>;
-  reviewWinnerArtId?: InputMaybe<Scalars['String']['input']>;
-  rightFlipped?: InputMaybe<Scalars['Boolean']['input']>;
-  rightHeightPct?: InputMaybe<Scalars['Float']['input']>;
-  rightWidthPct?: InputMaybe<Scalars['Float']['input']>;
-  rightXPct?: InputMaybe<Scalars['Float']['input']>;
-  rightYPct?: InputMaybe<Scalars['Float']['input']>;
-};
-
-export type UpdateSplashArtCoordinateInput = {
-  data: UpdateSplashArtCoordinateDataInput;
-  selector: SelectorInput;
-};
-
 export type UpdateSpotlightDataInput = {
   customSubtitle?: InputMaybe<Scalars['String']['input']>;
   customTitle?: InputMaybe<Scalars['String']['input']>;
   deletedDraft?: InputMaybe<Scalars['Boolean']['input']>;
-  description?: InputMaybe<Scalars['JSON']['input']>;
+  description?: InputMaybe<CreateRevisionDataInput>;
   documentId?: InputMaybe<Scalars['String']['input']>;
   documentType?: InputMaybe<Scalars['String']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8802,7 +11173,7 @@ export type UpdateTagDataInput = {
   coreTagId?: InputMaybe<Scalars['String']['input']>;
   defaultOrder?: InputMaybe<Scalars['Float']['input']>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
-  description?: InputMaybe<Scalars['JSON']['input']>;
+  description?: InputMaybe<CreateRevisionDataInput>;
   descriptionTruncationCount?: InputMaybe<Scalars['Float']['input']>;
   forceAllowType3Audio?: InputMaybe<Scalars['Boolean']['input']>;
   introSequenceId?: InputMaybe<Scalars['String']['input']>;
@@ -8810,7 +11181,7 @@ export type UpdateTagDataInput = {
   isPostType?: InputMaybe<Scalars['Boolean']['input']>;
   isSubforum?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  moderationGuidelines?: InputMaybe<Scalars['JSON']['input']>;
+  moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8823,7 +11194,7 @@ export type UpdateTagDataInput = {
   subTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
   subforumIntroPostId?: InputMaybe<Scalars['String']['input']>;
   subforumModeratorIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  subforumWelcomeText?: InputMaybe<Scalars['JSON']['input']>;
+  subforumWelcomeText?: InputMaybe<CreateRevisionDataInput>;
   subtitle?: InputMaybe<Scalars['String']['input']>;
   suggestedAsFilter?: InputMaybe<Scalars['Boolean']['input']>;
   tagFlagsIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -8832,7 +11203,7 @@ export type UpdateTagDataInput = {
 };
 
 export type UpdateTagFlagDataInput = {
-  contents?: InputMaybe<Scalars['JSON']['input']>;
+  contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -8847,16 +11218,6 @@ export type UpdateTagFlagInput = {
 
 export type UpdateTagInput = {
   data: UpdateTagDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateTagRelDataInput = {
-  deleted?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type UpdateTagRelInput = {
-  data: UpdateTagRelDataInput;
   selector: SelectorInput;
 };
 
@@ -8883,9 +11244,9 @@ export type UpdateUserDataInput = {
   bannedPersonalUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
   bannedUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
   beta?: InputMaybe<Scalars['Boolean']['input']>;
-  biography?: InputMaybe<Scalars['JSON']['input']>;
+  biography?: InputMaybe<CreateRevisionDataInput>;
   blueskyProfileURL?: InputMaybe<Scalars['String']['input']>;
-  bookmarkedPostsMetadata?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  bookmarkedPostsMetadata?: InputMaybe<Array<PostMetadataInput>>;
   careerStage?: InputMaybe<Array<Scalars['String']['input']>>;
   collapseModerationGuidelines?: InputMaybe<Scalars['Boolean']['input']>;
   commentSorting?: InputMaybe<Scalars['String']['input']>;
@@ -8902,7 +11263,7 @@ export type UpdateUserDataInput = {
   draftsListSorting?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
-  expandedFrontpageSections?: InputMaybe<Scalars['JSON']['input']>;
+  expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
@@ -8913,7 +11274,7 @@ export type UpdateUserDataInput = {
   githubProfileURL?: InputMaybe<Scalars['String']['input']>;
   googleLocation?: InputMaybe<Scalars['JSON']['input']>;
   groups?: InputMaybe<Array<Scalars['String']['input']>>;
-  hiddenPostsMetadata?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  hiddenPostsMetadata?: InputMaybe<Array<PostMetadataInput>>;
   hideAFNonMemberInitialWarning?: InputMaybe<Scalars['Boolean']['input']>;
   hideActiveDialogueUsers?: InputMaybe<Scalars['Boolean']['input']>;
   hideCommunitySection?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8933,8 +11294,8 @@ export type UpdateUserDataInput = {
   hideSubscribePoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideSunshineSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
-  howICanHelpOthers?: InputMaybe<Scalars['JSON']['input']>;
-  howOthersCanHelpMe?: InputMaybe<Scalars['JSON']['input']>;
+  howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
+  howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
   inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
@@ -8951,7 +11312,7 @@ export type UpdateUserDataInput = {
   mapLocation?: InputMaybe<Scalars['JSON']['input']>;
   mapMarkerText?: InputMaybe<Scalars['String']['input']>;
   markDownPostEditor?: InputMaybe<Scalars['Boolean']['input']>;
-  moderationGuidelines?: InputMaybe<Scalars['JSON']['input']>;
+  moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   moderationStyle?: InputMaybe<Scalars['String']['input']>;
   moderatorAssistance?: InputMaybe<Scalars['Boolean']['input']>;
   nearbyEventsNotifications?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8998,7 +11359,7 @@ export type UpdateUserDataInput = {
   optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  partiallyReadSequences?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  partiallyReadSequences?: InputMaybe<Array<PartiallyReadSequenceItemInput>>;
   paymentEmail?: InputMaybe<Scalars['String']['input']>;
   paymentInfo?: InputMaybe<Scalars['String']['input']>;
   permanentDeletionRequestedAt?: InputMaybe<Scalars['Date']['input']>;
@@ -9013,7 +11374,7 @@ export type UpdateUserDataInput = {
   profileUpdatedAt?: InputMaybe<Scalars['Date']['input']>;
   programParticipation?: InputMaybe<Array<Scalars['String']['input']>>;
   reactPaletteStyle?: InputMaybe<Scalars['String']['input']>;
-  recommendationSettings?: InputMaybe<Scalars['JSON']['input']>;
+  recommendationSettings?: InputMaybe<RecommendationSettingsInput>;
   revealChecksToAdmins?: InputMaybe<Scalars['Boolean']['input']>;
   reviewForAlignmentForumUserId?: InputMaybe<Scalars['String']['input']>;
   reviewVotesQuadratic?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9035,6 +11396,7 @@ export type UpdateUserDataInput = {
   sortDraftsBy?: InputMaybe<Scalars['String']['input']>;
   subforumPreferredLayout?: InputMaybe<Scalars['String']['input']>;
   subscribedToDigest?: InputMaybe<Scalars['Boolean']['input']>;
+  subscribedToNewsletter?: InputMaybe<Scalars['Boolean']['input']>;
   sunshineFlagged?: InputMaybe<Scalars['Boolean']['input']>;
   sunshineNotes?: InputMaybe<Scalars['String']['input']>;
   sunshineSnoozed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9182,7 +11544,7 @@ export type User = {
   biography_latest?: Maybe<Scalars['String']['output']>;
   blueskyProfileURL?: Maybe<Scalars['String']['output']>;
   bookmarkedPosts?: Maybe<Array<Post>>;
-  bookmarkedPostsMetadata?: Maybe<Array<Scalars['JSON']['output']>>;
+  bookmarkedPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
   careerStage?: Maybe<Array<Scalars['String']['output']>>;
   collapseModerationGuidelines?: Maybe<Scalars['Boolean']['output']>;
   commentCount: Scalars['Float']['output'];
@@ -9203,7 +11565,7 @@ export type User = {
   email?: Maybe<Scalars['String']['output']>;
   emailSubscribedToCurated?: Maybe<Scalars['Boolean']['output']>;
   emails?: Maybe<Array<Scalars['JSON']['output']>>;
-  expandedFrontpageSections?: Maybe<Scalars['JSON']['output']>;
+  expandedFrontpageSections?: Maybe<ExpandedFrontpageSectionsSettingsOutput>;
   facebookProfileURL?: Maybe<Scalars['String']['output']>;
   fmCrosspostUserId?: Maybe<Scalars['String']['output']>;
   frontpageFilterSettings?: Maybe<Scalars['JSON']['output']>;
@@ -9218,7 +11580,7 @@ export type User = {
   groups?: Maybe<Array<Scalars['String']['output']>>;
   hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
   hiddenPosts?: Maybe<Array<Post>>;
-  hiddenPostsMetadata?: Maybe<Array<Scalars['JSON']['output']>>;
+  hiddenPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
   hideAFNonMemberInitialWarning?: Maybe<Scalars['Boolean']['output']>;
   hideActiveDialogueUsers?: Maybe<Scalars['Boolean']['output']>;
   hideCommunitySection: Scalars['Boolean']['output'];
@@ -9325,7 +11687,7 @@ export type User = {
   organizerOfGroups: Array<Localgroup>;
   pagePath?: Maybe<Scalars['String']['output']>;
   pageUrl?: Maybe<Scalars['String']['output']>;
-  partiallyReadSequences?: Maybe<Array<Scalars['JSON']['output']>>;
+  partiallyReadSequences?: Maybe<Array<PartiallyReadSequenceItemOutput>>;
   paymentEmail?: Maybe<Scalars['String']['output']>;
   paymentInfo?: Maybe<Scalars['String']['output']>;
   permanentDeletionRequestedAt?: Maybe<Scalars['Date']['output']>;
@@ -9337,6 +11699,7 @@ export type User = {
   postingDisabled?: Maybe<Scalars['Boolean']['output']>;
   posts?: Maybe<Array<Maybe<Post>>>;
   previousDisplayName?: Maybe<Scalars['String']['output']>;
+  profile?: Maybe<Scalars['JSON']['output']>;
   profileImageId?: Maybe<Scalars['String']['output']>;
   profileTagIds: Array<Scalars['String']['output']>;
   profileTags: Array<Tag>;
@@ -9347,7 +11710,6 @@ export type User = {
   reactPaletteStyle?: Maybe<Scalars['String']['output']>;
   recentKarmaInfo?: Maybe<Scalars['JSON']['output']>;
   recommendationSettings?: Maybe<Scalars['JSON']['output']>;
-  reenableDraftJs?: Maybe<Scalars['Boolean']['output']>;
   revealChecksToAdmins?: Maybe<Scalars['Boolean']['output']>;
   reviewForAlignmentForumUserId?: Maybe<Scalars['String']['output']>;
   reviewVoteCount?: Maybe<Scalars['Int']['output']>;
@@ -9381,6 +11743,7 @@ export type User = {
   spamRiskScore: Scalars['Float']['output'];
   subforumPreferredLayout?: Maybe<Scalars['String']['output']>;
   subscribedToDigest?: Maybe<Scalars['Boolean']['output']>;
+  subscribedToNewsletter?: Maybe<Scalars['Boolean']['output']>;
   sunshineFlagged?: Maybe<Scalars['Boolean']['output']>;
   sunshineNotes?: Maybe<Scalars['String']['output']>;
   sunshineSnoozed?: Maybe<Scalars['Boolean']['output']>;
@@ -9488,6 +11851,15 @@ export type UserEagDetailOutput = {
   data?: Maybe<UserEagDetail>;
 };
 
+export type UserEagDetailSelector = {
+  dataByUser?: InputMaybe<UserEagDetailsDataByUserInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type UserEagDetailsDataByUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UserJobAd = {
   __typename?: 'UserJobAd';
   _id: Scalars['String']['output'];
@@ -9505,6 +11877,15 @@ export type UserJobAd = {
 export type UserJobAdOutput = {
   __typename?: 'UserJobAdOutput';
   data?: Maybe<UserJobAd>;
+};
+
+export type UserJobAdSelector = {
+  adsByUser?: InputMaybe<UserJobAdsAdsByUserInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type UserJobAdsAdsByUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UserLikingTag = {
@@ -9531,6 +11912,16 @@ export type UserMostValuablePostOutput = {
   data?: Maybe<UserMostValuablePost>;
 };
 
+export type UserMostValuablePostSelector = {
+  currentUserMostValuablePosts?: InputMaybe<EmptyViewInput>;
+  currentUserPost?: InputMaybe<UserMostValuablePostsCurrentUserPostInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+export type UserMostValuablePostsCurrentUserPostInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UserOutput = {
   __typename?: 'UserOutput';
   data?: Maybe<User>;
@@ -9541,7 +11932,7 @@ export type UserRateLimit = {
   _id: Scalars['String']['output'];
   actionsPerInterval: Scalars['Float']['output'];
   createdAt: Scalars['Date']['output'];
-  endedAt?: Maybe<Scalars['Date']['output']>;
+  endedAt: Scalars['Date']['output'];
   intervalLength: Scalars['Float']['output'];
   intervalUnit: Scalars['String']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
@@ -9556,9 +11947,45 @@ export type UserRateLimitOutput = {
   data?: Maybe<UserRateLimit>;
 };
 
+export type UserRateLimitSelector = {
+  activeUserRateLimits?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  userRateLimits?: InputMaybe<UserRateLimitsUserRateLimitsInput>;
+};
+
+export type UserRateLimitsUserRateLimitsInput = {
+  active?: InputMaybe<Scalars['String']['input']>;
+  userIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
 export type UserReadHistoryResult = {
   __typename?: 'UserReadHistoryResult';
   posts?: Maybe<Array<Post>>;
+};
+
+export type UserSelector = {
+  LWSunshinesList?: InputMaybe<EmptyViewInput>;
+  LWTrustLevel1List?: InputMaybe<EmptyViewInput>;
+  LWUsersAdmin?: InputMaybe<EmptyViewInput>;
+  alignmentSuggestedUsers?: InputMaybe<EmptyViewInput>;
+  allUsers?: InputMaybe<EmptyViewInput>;
+  default?: InputMaybe<EmptyViewInput>;
+  recentlyActive?: InputMaybe<EmptyViewInput>;
+  reviewAdminUsers?: InputMaybe<EmptyViewInput>;
+  sunshineNewUsers?: InputMaybe<EmptyViewInput>;
+  tagCommunityMembers?: InputMaybe<UsersTagCommunityMembersInput>;
+  usersByUserIds?: InputMaybe<UsersUsersByUserIdsInput>;
+  usersMapLocations?: InputMaybe<EmptyViewInput>;
+  usersProfile?: InputMaybe<UsersUsersProfileInput>;
+  usersWithBannedUsers?: InputMaybe<EmptyViewInput>;
+  usersWithOptedInToDialogueFacilitation?: InputMaybe<EmptyViewInput>;
+  usersWithPaymentInfo?: InputMaybe<EmptyViewInput>;
+};
+
+export type UserSelectorUniqueInput = {
+  _id?: InputMaybe<Scalars['String']['input']>;
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UserTagRel = {
@@ -9571,7 +11998,7 @@ export type UserTagRel = {
   subforumHideIntroPost?: Maybe<Scalars['Boolean']['output']>;
   subforumShowUnreadInSidebar?: Maybe<Scalars['Boolean']['output']>;
   tag?: Maybe<Tag>;
-  tagId?: Maybe<Scalars['String']['output']>;
+  tagId: Scalars['String']['output'];
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
 };
@@ -9581,14 +12008,34 @@ export type UserTagRelOutput = {
   data?: Maybe<UserTagRel>;
 };
 
+export type UserTagRelSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  single?: InputMaybe<UserTagRelsSingleInput>;
+};
+
+export type UserTagRelsSingleInput = {
+  tagId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersTagCommunityMembersInput = {
+  hasBio?: InputMaybe<Scalars['String']['input']>;
+  profileTagId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersUsersByUserIdsInput = {
+  userIds?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersUsersProfileInput = {
+  slug?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type VertexRecommendedPost = {
   __typename?: 'VertexRecommendedPost';
   attributionId?: Maybe<Scalars['String']['output']>;
   post: Post;
-};
-
-export type ViewInput = {
-  slugs?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type Vote = {
@@ -9656,6 +12103,13 @@ export type VoteResultTagRel = {
   __typename?: 'VoteResultTagRel';
   document: TagRel;
   showVotingPatternWarning: Scalars['Boolean']['output'];
+};
+
+export type VoteSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  tagVotes?: InputMaybe<EmptyViewInput>;
+  userPostVotes?: InputMaybe<EmptyViewInput>;
+  userVotes?: InputMaybe<EmptyViewInput>;
 };
 
 export type WrappedDataByYear = {

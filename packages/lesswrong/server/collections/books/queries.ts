@@ -17,10 +17,8 @@ export const graphqlBookQueryTypeDefs = gql`
     result: Book
   }
   
-  input BookViewInput
-  
-  input BookSelector  {
-    default: BookViewInput
+  input BookSelector {
+    default: EmptyViewInput
   }
   
   input MultiBookInput {

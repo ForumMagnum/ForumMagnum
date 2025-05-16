@@ -17,8 +17,6 @@ export const graphqlDialogueCheckQueryTypeDefs = gql`
     result: DialogueCheck
   }
   
-  input DialogueCheckDefaultViewInput
-  
   input DialogueChecksUserDialogueChecksInput {
     userId: String
   }
@@ -28,8 +26,8 @@ export const graphqlDialogueCheckQueryTypeDefs = gql`
     targetUserIds: String
   }
   
-  input DialogueCheckSelector  {
-    default: DialogueCheckDefaultViewInput
+  input DialogueCheckSelector {
+    default: EmptyViewInput
     userDialogueChecks: DialogueChecksUserDialogueChecksInput
     userTargetDialogueChecks: DialogueChecksUserTargetDialogueChecksInput
   }

@@ -17,15 +17,13 @@ export const graphqlUserTagRelQueryTypeDefs = gql`
     result: UserTagRel
   }
   
-  input UserTagRelDefaultViewInput
-  
   input UserTagRelsSingleInput {
     userId: String
     tagId: String
   }
   
-  input UserTagRelSelector  {
-    default: UserTagRelDefaultViewInput
+  input UserTagRelSelector {
+    default: EmptyViewInput
     single: UserTagRelsSingleInput
   }
   

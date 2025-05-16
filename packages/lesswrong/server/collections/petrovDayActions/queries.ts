@@ -17,8 +17,6 @@ export const graphqlPetrovDayActionQueryTypeDefs = gql`
     result: PetrovDayAction
   }
   
-  input PetrovDayActionDefaultViewInput
-  
   input PetrovDayActionsGetActionInput {
     userId: String
     actionType: String
@@ -28,17 +26,15 @@ export const graphqlPetrovDayActionQueryTypeDefs = gql`
     side: String
   }
   
-  input PetrovDayActionsAdminConsoleInput
-  
   input PetrovDayActionsWarningConsoleInput {
     side: String
   }
   
-  input PetrovDayActionSelector  {
-    default: PetrovDayActionDefaultViewInput
+  input PetrovDayActionSelector {
+    default: EmptyViewInput
     getAction: PetrovDayActionsGetActionInput
     launchDashboard: PetrovDayActionsLaunchDashboardInput
-    adminConsole: PetrovDayActionsAdminConsoleInput
+    adminConsole: EmptyViewInput
     warningConsole: PetrovDayActionsWarningConsoleInput
   }
   

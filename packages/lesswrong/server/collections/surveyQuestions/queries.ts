@@ -17,10 +17,8 @@ export const graphqlSurveyQuestionQueryTypeDefs = gql`
     result: SurveyQuestion
   }
   
-  input SurveyQuestionViewInput
-  
-  input SurveyQuestionSelector  {
-    default: SurveyQuestionViewInput
+  input SurveyQuestionSelector {
+    default: EmptyViewInput
   }
   
   input MultiSurveyQuestionInput {

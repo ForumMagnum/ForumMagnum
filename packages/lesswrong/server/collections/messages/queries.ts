@@ -17,8 +17,6 @@ export const graphqlMessageQueryTypeDefs = gql`
     result: Message
   }
   
-  input MessageDefaultViewInput
-  
   input MessagesMessagesConversationInput {
     conversationId: String
   }
@@ -27,8 +25,8 @@ export const graphqlMessageQueryTypeDefs = gql`
     conversationId: String
   }
   
-  input MessageSelector  {
-    default: MessageDefaultViewInput
+  input MessageSelector {
+    default: EmptyViewInput
     messagesConversation: MessagesMessagesConversationInput
     conversationPreview: MessagesConversationPreviewInput
   }

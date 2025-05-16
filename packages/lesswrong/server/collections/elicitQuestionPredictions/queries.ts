@@ -17,10 +17,8 @@ export const graphqlElicitQuestionPredictionQueryTypeDefs = gql`
     result: ElicitQuestionPrediction
   }
   
-  input ElicitQuestionPredictionViewInput
-  
-  input ElicitQuestionPredictionSelector  {
-    default: ElicitQuestionPredictionViewInput
+  input ElicitQuestionPredictionSelector {
+    default: EmptyViewInput
   }
   
   input MultiElicitQuestionPredictionInput {

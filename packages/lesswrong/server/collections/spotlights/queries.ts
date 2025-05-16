@@ -17,8 +17,6 @@ export const graphqlSpotlightQueryTypeDefs = gql`
     result: Spotlight
   }
   
-  input SpotlightDefaultViewInput
-  
   input SpotlightsMostRecentlyPromotedSpotlightsInput {
     limit: String
   }
@@ -39,8 +37,8 @@ export const graphqlSpotlightQueryTypeDefs = gql`
     spotlightIds: String
   }
   
-  input SpotlightSelector  {
-    default: SpotlightDefaultViewInput
+  input SpotlightSelector {
+    default: EmptyViewInput
     mostRecentlyPromotedSpotlights: SpotlightsMostRecentlyPromotedSpotlightsInput
     spotlightsPage: SpotlightsSpotlightsPageInput
     spotlightsPageDraft: SpotlightsSpotlightsPageDraftInput

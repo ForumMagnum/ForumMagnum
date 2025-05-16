@@ -17,14 +17,12 @@ export const graphqlUserEagDetailQueryTypeDefs = gql`
     result: UserEAGDetail
   }
   
-  input UserEAGDetailDefaultViewInput
-  
   input UserEAGDetailsDataByUserInput {
     userId: String
   }
   
-  input UserEAGDetailSelector  {
-    default: UserEAGDetailDefaultViewInput
+  input UserEAGDetailSelector {
+    default: EmptyViewInput
     dataByUser: UserEAGDetailsDataByUserInput
   }
   

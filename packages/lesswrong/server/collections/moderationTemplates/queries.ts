@@ -17,17 +17,13 @@ export const graphqlModerationTemplateQueryTypeDefs = gql`
     result: ModerationTemplate
   }
   
-  input ModerationTemplateDefaultViewInput
-  
-  input ModerationTemplatesModerationTemplatesPageInput
-  
   input ModerationTemplatesModerationTemplatesListInput {
     collectionName: String
   }
   
-  input ModerationTemplateSelector  {
-    default: ModerationTemplateDefaultViewInput
-    moderationTemplatesPage: ModerationTemplatesModerationTemplatesPageInput
+  input ModerationTemplateSelector {
+    default: EmptyViewInput
+    moderationTemplatesPage: EmptyViewInput
     moderationTemplatesList: ModerationTemplatesModerationTemplatesListInput
   }
   
