@@ -16,6 +16,7 @@ export const ForumEventsMinimumInfo = gql(`
     eventFormat
     customComponent
     commentPrompt
+    isGlobal
 
     pollAgreeWording
     pollDisagreeWording
@@ -51,6 +52,7 @@ export const ForumEventsDisplay = gql(`
     pollQuestion {
       _id
       html
+      plaintextMainText
     }
   }
 `)

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
@@ -7,6 +7,7 @@ import moment from "moment";
 import DeferRender from "../common/DeferRender";
 import { Link } from "@/lib/reactRouterWrapper";
 import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "@/lib/cookies/cookies";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,8 +93,6 @@ const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   if (cookies[HIDE_EA_FORUM_SURVEY_BANNER_COOKIE] === "true") {
     return null;
   }
-
-  const {ForumIcon} = Components;
   return (
     <DeferRender ssr={!!currentUser}>
       <div className={classes.root}>
@@ -117,14 +116,10 @@ const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const EASurveyBannerComponent = registerComponent(
+export default registerComponent(
   "EASurveyBanner",
   EASurveyBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EASurveyBanner: typeof EASurveyBannerComponent
-  }
-}
+

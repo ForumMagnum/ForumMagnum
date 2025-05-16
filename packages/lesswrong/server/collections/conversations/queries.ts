@@ -52,6 +52,7 @@ export const graphqlConversationQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiConversationOutput {

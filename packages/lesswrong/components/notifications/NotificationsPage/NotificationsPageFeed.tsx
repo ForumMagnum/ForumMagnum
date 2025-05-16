@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, ChangeEvent } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import {
   isNotificationsPageTabName,
@@ -9,9 +9,15 @@ import {
 import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
 import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
-import type { KarmaChanges } from "../../../server/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { useNotificationDisplays } from "./useNotificationDisplays";
+import NotificationsPageNotification from "./NotificationsPageNotification";
+import NotificationsPageKarmaChangeList from "./NotificationsPageKarmaChangeList";
+import NotificationsPageEmpty from "./NotificationsPageEmpty";
+import LoadMore from "../../common/LoadMore";
+import Loading from "../../vulcan-core/Loading";
+import SectionTitle from "../../common/SectionTitle";
+import type { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 
@@ -77,8 +83,8 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
   realtime: "Karma changes are shown in realtime",
 };
 
-export const NotificationsPageFeed = ({karmaChanges, classes}: {
-  karmaChanges?: KarmaChanges,
+const NotificationsPageFeed = ({karmaChanges, classes}: {
+  karmaChanges?: UserKarmaChanges['karmaChanges']|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -123,11 +129,6 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
       setTab(tabName);
     }
   }, [setTab]);
-
-  const {
-    NotificationsPageNotification, NotificationsPageKarmaChangeList,
-    NotificationsPageEmpty, LoadMore, Loading, SectionTitle,
-  } = Components;
   return (
     <div className={classes.root}>
       <Tabs
@@ -147,9 +148,9 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
         <>
           <SectionTitle title="Karma and reactions" />
           <div className={classes.karmaChanges}>
-            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges ?? undefined} />
             <div className={classes.karmaBatching}>
-              <span>{batchingMessages[karmaChanges!.updateFrequency]}{" "}</span>
+              <span>{batchingMessages[karmaChanges!.updateFrequency as KarmaChangeUpdateFrequency]}{" "}</span>
               <Link to={karmaSettingsLink}>
                 Change settings
               </Link>
@@ -183,14 +184,10 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
   );
 }
 
-const NotificationsPageFeedComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageFeed",
   NotificationsPageFeed,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageFeed: typeof NotificationsPageFeedComponent
-  }
-}
+

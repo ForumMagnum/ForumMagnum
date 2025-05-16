@@ -15,7 +15,11 @@ export const PostsMinimumInfo = gql(`
       quadraticScore
     }
     userId
-    coauthorStatuses
+    coauthorStatuses {
+      userId
+      confirmed
+      requested
+    }
     hasCoauthorPermission
     rejected
     debate
@@ -204,6 +208,23 @@ export const PostsListWithVotesAndSequence = gql(`
   }
 `)
 
+export const UltraFeedPostFragment = gql(`
+  fragment UltraFeedPostFragment on Post {
+    ...PostsDetails
+    ...PostsListWithVotes
+    contents {
+      _id
+      html
+      htmlHighlight
+      wordCount
+      plaintextDescription
+      version
+    }
+    autoFrontpage
+    votingSystem
+  }
+`)
+
 export const PostsReviewVotingList = gql(`
   fragment PostsReviewVotingList on Post {
     ...PostsListWithVotes
@@ -301,7 +322,11 @@ export const PostsList = gql(`
       wordCount
       version
     }
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
   }
 `)
 
@@ -426,7 +451,11 @@ export const PostsDetails = gql(`
     activateRSVPs
 
     # Crossposting
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
 
     # Jargon Terms
     glossary {
@@ -441,6 +470,7 @@ export const PostsExpandedHighlight = gql(`
     contents {
       _id
       html
+      wordCount
     }
   }
 `)
@@ -556,9 +586,17 @@ export const PostsEdit = gql(`
     ...PostSideComments
     myEditorAccess
     version
-    coauthorStatuses
+    coauthorStatuses {
+      userId
+      confirmed
+      requested
+    }
     readTimeMinutesOverride
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
     hideFromRecentDiscussions
     hideFromPopularComments
     moderationGuidelines {
@@ -570,7 +608,10 @@ export const PostsEdit = gql(`
     tableOfContents
     subforumTagId
     socialPreviewImageId
-    socialPreview
+    socialPreview {
+      imageId
+      text
+    }
     socialPreviewData {
       _id
       imageId
@@ -578,6 +619,9 @@ export const PostsEdit = gql(`
     }
     user {
       ...UsersMinimumInfo
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
     }
     usersSharedWith {
       ...UsersMinimumInfo
@@ -651,7 +695,11 @@ export const SunshinePostsList = gql(`
 
     currentUserVote
     currentUserExtendedVote
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
     rejectedReason
     autoFrontpage
 
@@ -661,6 +709,18 @@ export const SunshinePostsList = gql(`
       htmlHighlight
       wordCount
       version
+
+      automatedContentEvaluations {
+        _id
+        score
+        sentenceScores {
+          sentence
+          score
+        }
+        aiChoice
+        aiReasoning
+        aiCoT
+      }
     }
 
     moderationGuidelines {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
@@ -11,6 +10,7 @@ import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
+import ContentStyles from '@/components/common/ContentStyles';
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -124,10 +124,8 @@ function PostsEmailInner({
   const { results: posts } = useMulti({
     collectionName: "Posts",
     fragmentName: "PostsRevision",
-    terms: { postIds },
+    terms: { exactPostIds: postIds },
   });
-
-  const { ContentStyles } = Components;
 
   if (!posts || posts.length === 0) {
     return null;
@@ -135,7 +133,7 @@ function PostsEmailInner({
 
   // Reusable piece to render each post. We take a "truncated" boolean flag:
   const renderPost = ({ post, truncated }: { post: PostsRevision; truncated: boolean; }) => {
-    let eventLocation: string | JSX.Element = post.location;
+    let eventLocation: string | React.JSX.Element = post.location ?? "";
     if (post.onlineEvent) {
       eventLocation = post.joinEventLink ? (
         <a href={post.joinEventLink} target="_blank" rel="noopener noreferrer">

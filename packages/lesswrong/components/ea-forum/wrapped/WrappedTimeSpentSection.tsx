@@ -1,9 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { formatPercentile } from "./wrappedHelpers";
 import { HumanIcon, PathIcon } from "./wrappedIcons";
 import range from "lodash/range";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chartContainer: {
@@ -42,7 +44,6 @@ const WrappedTimeSpentSection = ({classes}: {
   const {data} = useForumWrappedContext();
   const formattedPercentile = formatPercentile(data.engagementPercentile);
   const engagementHours = (data.totalSeconds / 3600).toFixed(1);
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="engagementPercentile">
       <WrappedHeading>
@@ -71,14 +72,10 @@ const WrappedTimeSpentSection = ({classes}: {
   );
 }
 
-const WrappedTimeSpentSectionComponent = registerComponent(
+export default registerComponent(
   "WrappedTimeSpentSection",
   WrappedTimeSpentSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedTimeSpentSection: typeof WrappedTimeSpentSectionComponent
-  }
-}
+

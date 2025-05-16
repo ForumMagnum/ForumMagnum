@@ -47,6 +47,7 @@ export const graphqlLweventQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiLWEventOutput {

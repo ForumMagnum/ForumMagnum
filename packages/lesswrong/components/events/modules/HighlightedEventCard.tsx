@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import Loading from "../../vulcan-core/Loading";
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
@@ -113,9 +116,6 @@ const HighlightedEventCard = ({event, loading, classes}: {
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
-  
-  const { Loading, AddToCalendarButton, PrettyEventDateTime } = Components
-  
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
   const eventImg = event?.eventImageId ?
@@ -180,10 +180,6 @@ const HighlightedEventCard = ({event, loading, classes}: {
   )
 }
 
-const HighlightedEventCardComponent = registerComponent('HighlightedEventCard', HighlightedEventCard, {styles});
+export default registerComponent('HighlightedEventCard', HighlightedEventCard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HighlightedEventCard: typeof HighlightedEventCardComponent
-  }
-}
+

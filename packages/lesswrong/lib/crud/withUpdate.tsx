@@ -40,7 +40,7 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,
-  data: ObjectsByCollectionName[CollectionName],
+  data: FragmentTypes[F],
 }=> {
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
@@ -60,7 +60,7 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
   const [mutate, {loading, error, called, data}] = useMutation(query);
   const wrappedMutate = useCallback(({selector, data, optimisticResponse, ...extraVariables}: {
     selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
-    data: NullablePartial<ObjectsByCollectionName[CollectionName]>,
+    data: NullablePartial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
     optimisticResponse?: FragmentTypes[F],
     extraVariables?: any,
   }) => {

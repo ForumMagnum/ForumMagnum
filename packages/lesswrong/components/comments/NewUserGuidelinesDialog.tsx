@@ -1,14 +1,19 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { DialogActions } from '../widgets/DialogActions';
+import LWDialog from "../common/LWDialog";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import type { PostsMinimumInfo, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const CommentsListQuery = gql(`
   query NewUserGuidelinesDialog($documentId: String) {
@@ -39,7 +44,6 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
-  const { LWDialog, ContentItemBody, ContentStyles, Loading } = Components;
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 
@@ -91,10 +95,6 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   )
 };
 
-const NewUserGuidelinesDialogComponent = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
+export default registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
 
-declare global {
-  interface ComponentTypes {
-    NewUserGuidelinesDialog: typeof NewUserGuidelinesDialogComponent
-  }
-}
+

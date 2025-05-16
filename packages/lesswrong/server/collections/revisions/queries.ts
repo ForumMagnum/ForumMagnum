@@ -47,6 +47,7 @@ export const graphqlRevisionQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiRevisionOutput {

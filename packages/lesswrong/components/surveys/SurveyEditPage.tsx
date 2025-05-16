@@ -3,11 +3,21 @@ import { gql as graphql, useMutation, useQuery } from "@apollo/client";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
-import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/newSchema";
+import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Error404 from "../common/Error404";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumDropdown from "../common/ForumDropdown";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
+import type { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 
 const SurveyMinimumInfoQuery = gql(`
   query SurveyEditPage($documentId: String) {
@@ -105,7 +115,7 @@ export type SurveyQuestionInfo = {
 
 const SurveyForm = ({survey, refetch, classes}: {
   survey: SurveyMinimumInfo,
-  refetch?: () => Promise<void>,
+  refetch?: () => Promise<AnyBecauseHard>,
   classes: ClassesType<typeof styles>,
 }) => {
   const [error, setError] = useState("");
@@ -188,11 +198,6 @@ const SurveyForm = ({survey, refetch, classes}: {
     }
     setSaving(false);
   }, [updateSurvey, refetch, survey._id, name, questions]);
-
-  const {
-    EAOnboardingInput, EAButton, ForumIcon, LWTooltip, ForumDropdown,
-    SectionTitle, Loading,
-  } = Components;
   return (
     <div className={classes.form}>
       <EAOnboardingInput
@@ -276,7 +281,6 @@ const SurveyEditor = ({classes}: {
   });
   const survey = data?.survey?.result;
 
-  const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
@@ -304,17 +308,13 @@ const SurveyEditPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
-const SurveyEditPageComponent = registerComponent(
+export default registerComponent(
   "SurveyEditPage",
   SurveyEditPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyEditPage: typeof SurveyEditPageComponent
-  }
-}
+

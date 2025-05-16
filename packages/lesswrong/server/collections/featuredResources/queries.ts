@@ -30,6 +30,7 @@ export const graphqlFeaturedResourceQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiFeaturedResourceOutput {

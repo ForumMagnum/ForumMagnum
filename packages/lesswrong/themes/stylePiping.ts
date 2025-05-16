@@ -361,8 +361,14 @@ const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
 
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
+// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css
+// and ckEditor/src/ckeditor5-poll/poll.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
+requireCssVar("borderRadius", "default")
+requireCssVar("borderRadius", "small")
+requireCssVar("palette", "buttons", "alwaysPrimary")
+requireCssVar("palette", "text", "alwaysWhite")
+requireCssVar("palette", "primary", "dark")
 requireCssVar("palette", "panelBackground", "default")
 requireCssVar("palette", "error", "main")
 requireCssVar("palette", "grey", 200)
@@ -598,7 +604,7 @@ export const postBodyStyles = (theme: ThemeType) => {
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: boolean) => {
   // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
 
   const pointerEvents = dontIncludePointerEvents ?

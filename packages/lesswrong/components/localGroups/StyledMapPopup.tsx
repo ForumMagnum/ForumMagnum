@@ -85,11 +85,7 @@ const StyledMapPopup = ({
   </Popup>
 }
 
-const StyledMapPopupComponent = registerComponent("StyledMapPopup", StyledMapPopup, {styles});
+export default registerComponent("StyledMapPopup", StyledMapPopup, {styles});
 
-declare global {
-  interface ComponentTypes {
-    StyledMapPopup: typeof StyledMapPopupComponent
-  }
-}
+
 

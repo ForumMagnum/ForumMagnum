@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
+import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
 import { useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
@@ -16,7 +16,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
-import { CAREER_STAGES } from '../../lib/collections/users/newSchema';
+import { CAREER_STAGES } from "@/lib/collections/users/helpers";
 
 type UserCoreTagReads = {
   tagId: string,
@@ -75,7 +75,7 @@ const TargetedJobAdSection = () => {
       skip: !currentUser,
     }
   )
-  const coreTagReads: UserCoreTagReads[]|undefined = coreTagReadsData?.UserReadsPerCoreTag
+  const coreTagReads = coreTagReadsData?.UserReadsPerCoreTag
   
   // we only advertise up to one job per page view
   const [activeJob, setActiveJob] = useState<string>()
@@ -239,9 +239,6 @@ const TargetedJobAdSection = () => {
     }
     flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
   }, [currentUser, userJobAds, activeJob, updateUserJobAd, flash])
-  
-  const { TargetedJobAd } = Components
-  
   // Only show this section if we have a matching job for this user
   if (
     !currentUser ||
@@ -262,10 +259,6 @@ const TargetedJobAdSection = () => {
   </div>
 }
 
-const TargetedJobAdSectionComponent = registerComponent("TargetedJobAdSection", TargetedJobAdSection);
+export default registerComponent("TargetedJobAdSection", TargetedJobAdSection);
 
-declare global {
-  interface ComponentTypes {
-    TargetedJobAdSection: typeof TargetedJobAdSectionComponent
-  }
-}
+

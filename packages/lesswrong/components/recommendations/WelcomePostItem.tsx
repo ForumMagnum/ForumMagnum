@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";
@@ -7,6 +7,7 @@ import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsItem from "../posts/PostsItem";
 
 const PostsListWithVotesQuery = gql(`
   query WelcomePostItem($documentId: String) {
@@ -46,13 +47,9 @@ const WelcomePostItem = () => {
     return null;
   }
 
-  return <Components.PostsItem post={post} />
+  return <PostsItem post={post} />
 }
 
-const WelcomePostItemComponent = registerComponent("WelcomePostItem", WelcomePostItem, {});
+export default registerComponent("WelcomePostItem", WelcomePostItem, {});
 
-declare global {
-  interface ComponentTypes {
-    WelcomePostItem: typeof WelcomePostItemComponent
-  }
-}
+

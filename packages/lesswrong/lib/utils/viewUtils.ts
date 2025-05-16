@@ -109,7 +109,7 @@ function getParameters<N extends CollectionNameString>(
 
   // extend sort to sort posts by _id to break ties, unless there's already an id sort
   // NOTE: always do this last to avoid overriding another sort
-  if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
+  if (!(parameters.options.sort && typeof parameters.options.sort._id !== 'undefined')) {
     parameters = merge(parameters, { options: { sort: { _id: -1 } } });
   }
 

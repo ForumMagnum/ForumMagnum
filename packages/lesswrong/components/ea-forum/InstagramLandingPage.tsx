@@ -1,8 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
+import flatten from "lodash/flatten";
+import PostsLoading from "../posts/PostsLoading";
+import EAPostsItem from "../posts/EAPostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,53 +24,40 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const postIds = [
-  'ZhNaizQgYY9dXdQkM', // Intro to EA
-  'HqmQMmKgX7nfSLaNX', // Moral error as an existential risk
-  'aHqCaNCmrhRreuyBN', // US aid freeze – how to help & where to donate: GWWC's February Newsletter
-  'rxTPv3MdrsHiqK7kM', // Money, Population, and Insecticide Resistance: Why malaria cases haven’t declined since 2015
-  'DZnSFYPzoL2oT3pXX', // Announcing: Existential Choices Debate Week (March 17-24)
-  'S9H86osFKhfFBCday', // How bad would human extinction be?
-  'jCwuozHHjeoLPLemB', // How Long Do Policy Changes Matter?
-  'DgpRaCdvupy6cMbdk', // Nuance in Proxies
-  'RLCfqw9DKchfngv3f', // We need a new Artesunate - the miracle drug fades
-  'ZuWcG3W3rEBxLceWj', // Teaching AI to reason: this year's most important story
-  'dsdSnqf7CALBBwjkL', // DAW announcement
-  'rXYW9GPsmwZYu3doX', // What happens on the average day?
-  'H46HiaQp7YtfNiDZk', // Wild Animal Suffering is the Worst Thing in the World
-  'wYjMsKsEkDPgHeAbS', // Four Ideas You Already Agree With
-  'fMEhpDrpbnHpcgsDE', // Facing up to the Price on Life
-  'JN3kHaiosmdA7kgNY', // The Game Board has been Flipped: Now is a good time to rethink what you’re doing
-  'BRqBvkjskZ6c2G6rn', // The Upcoming PEPFAR Cut Will Kill Millions, Many of Them Children
-  'bYXjejHrvq65jFL9s', // Implications of the inference scaling paradigm for AI safety
-  'j5um9ZhyDCiDXaDqd', // Long-distance development policy
-  'kMz9C5ExGEfqqbr3c', // Cage-free Wins in Africa in 2024
-  'KbREamTda2sZhKtTz', // Will a food carbon tax lead to more animals being slaughtered? A quantitative model
-  'mMYSLTedzLpqwp2Fk', // The EA Opportunity Board is back
-  'SkfMyerJ5bGK7scnW', // What I'm celebrating from EA and adjacent work in 2024
-]
+// A draft sequence under SC's account to store the ordered list of posts
+const SEQUENCE_ID = 'iNAgbC98BnMuNWmxN';
 
 /**
  * This is a page that the EAF links to from our Instagram account bio.
  * Basically this is the way to get visitors from Instagram to go where you want them to go.
  */
 const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { results: posts, loading } = useMulti({
+  const { results: chapters, loading: chaptersLoading } = useMulti({
+    terms: {
+      view: "SequenceChapters",
+      sequenceId: SEQUENCE_ID,
+      limit: 2,
+    },
+    collectionName: "Chapters",
+    fragmentName: 'ChaptersFragment',
+  });
+
+  const postIds = chapters ? flatten(chapters.map(chapter => chapter.postIds || [])) : [];
+
+  const { results: posts, loading: postsLoading } = useMulti({
     terms: {
       postIds,
       limit: postIds.length,
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
+    skip: !postIds.length,
   });
-  const orderedPosts = sortBy(posts, p => postIds.indexOf(p._id))
 
-  const {
-    PostsLoading, EAPostsItem,
-  } = Components;
-
+  const loading = chaptersLoading || postsLoading;
+  const orderedPosts = posts ? sortBy(posts, p => postIds.indexOf(p._id)) : [];
   const postsList = loading ? (
-    <PostsLoading placeholderCount={postIds.length} viewType="card" />
+    <PostsLoading placeholderCount={10} viewType="card" />
   ) : orderedPosts.map((post) => (
     <EAPostsItem
       key={post._id}
@@ -92,14 +82,10 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
   );
 };
 
-const InstagramLandingPageComponent = registerComponent(
+export default registerComponent(
   "InstagramLandingPage",
   InstagramLandingPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    InstagramLandingPage: typeof InstagramLandingPageComponent;
-  }
-}
+

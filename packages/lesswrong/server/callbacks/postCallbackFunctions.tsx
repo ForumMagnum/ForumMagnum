@@ -1,6 +1,6 @@
 import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
-import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/newSchema";
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
 import { Posts } from "@/server/collections/posts/collection";
 import { TOS_NOT_ACCEPTED_ERROR, postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
@@ -11,7 +11,6 @@ import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { isWeekend } from "@/lib/utils/timeUtil";
-import { Components } from '@/lib/vulcan-lib/components';
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
@@ -311,7 +310,7 @@ const utils = {
     }
   },
 
-  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbInsertion<DbPost>) => {
+  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbPost) => {
     const oldLocation = oldPost.googleLocation?.geometry?.location;
     const newLocation = newPost.googleLocation?.geometry?.location;
     if (!!oldLocation !== !!newLocation) {

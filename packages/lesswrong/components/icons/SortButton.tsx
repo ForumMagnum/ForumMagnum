@@ -28,7 +28,7 @@ const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
-  label?: JSX.Element|string,
+  label?: React.JSX.Element|string,
   showIcon?: boolean
 }) => {
   if (label) {
@@ -40,10 +40,6 @@ const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
   return <SwapVert className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SortButtonComponent = registerComponent('SortButton', SortButton, {styles});
+export default registerComponent('SortButton', SortButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SortButton: typeof SortButtonComponent
-  }
-}
+

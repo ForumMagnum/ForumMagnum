@@ -1,20 +1,43 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { BooksForm } from './BooksForm';
+import Loading from "../vulcan-core/Loading";
+import CollectionsEditForm from "./CollectionsEditForm";
+import BooksItem from "./BooksItem";
+import SectionFooter from "../common/SectionFooter";
+import SectionButton from "../common/SectionButton";
+import ContentItemBody from "../common/ContentItemBody";
+import { Typography } from "../common/Typography";
+import ContentStyles from "../common/ContentStyles";
+import ErrorBoundary from "../common/ErrorBoundary";
+import CollectionTableOfContents from "./CollectionTableOfContents";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import HeadTags from "../common/HeadTags";
 
 const CollectionsPageFragmentQuery = gql(`
   query CollectionsPage($documentId: String) {
     collection(input: { selector: { documentId: $documentId } }) {
       result {
         ...CollectionsPageFragment
+      }
+    }
+  }
+`);
+
+const CollectionsEditFragmentQuery = gql(`
+  query CollectionsEdit($documentId: String) {
+    collection(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CollectionsEditFragment
       }
     }
   }
@@ -85,19 +108,22 @@ const CollectionsPage = ({ documentId, classes }: {
   });
   const document = data?.collection?.result;
 
+  const { data: editDocument } = useQuery(CollectionsEditFragmentQuery, {
+    variables: { documentId: documentId },
+    skip: !edit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
   const showCollection = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
-  if (loading || !document) {
-    return <Components.Loading />;
-  } else if (edit) {
-    return <Components.CollectionsEditForm
-      documentId={document._id}
+  if (loading || !document || (edit && !editDocument)) {
+    return <Loading />;
+  } else if (edit && editDocument) {
+    return <CollectionsEditForm
+      initialData={editDocument}
       successCallback={showCollection}
       cancelCallback={showCollection}
     />
@@ -115,7 +141,7 @@ const CollectionsPage = ({ documentId, classes }: {
     // hidden wordcount logged for admin convenience 
     // we don't show to users because it'd be too intimidating
     // (more info in BooksProgressBar for users)
-    const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
+    const posts = collection.books?.flatMap(book => book?.sequences.flatMap(sequence => sequence.chapters?.flatMap(chapter => chapter?.posts)))
     // this shouldn't be enabled in production
     // const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
     // // eslint-disable-next-line no-console
@@ -159,8 +185,8 @@ const CollectionsPage = ({ documentId, classes }: {
           }
         </div>
         <div>
-          {collection.books.map(book => <div className={classes.section} key={`collectionsPage${book._id}`}>
-            <BooksItem key={book._id} book={book} canEdit={canEdit} />
+          {collection.books?.map(book => <div className={classes.section} key={`collectionsPage${book?._id}`}>
+            <BooksItem key={book?._id} book={book} canEdit={canEdit} />
           </div>)}
         </div>
         
@@ -170,7 +196,11 @@ const CollectionsPage = ({ documentId, classes }: {
           </SectionButton>
         </SectionFooter>}
         {addingBook && <SingleColumnSection>
-          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+          <BooksForm
+            collectionId={collection._id}
+            onSuccess={() => setAddingBook(false)}
+            onCancel={() => setAddingBook(false)}
+          />
         </SingleColumnSection>}
       </ToCColumn>
       
@@ -178,11 +208,7 @@ const CollectionsPage = ({ documentId, classes }: {
   }
 }
 
-const CollectionsPageComponent = registerComponent('CollectionsPage', CollectionsPage, {styles});
+export default registerComponent('CollectionsPage', CollectionsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionsPage: typeof CollectionsPageComponent
-  }
-}
+
 

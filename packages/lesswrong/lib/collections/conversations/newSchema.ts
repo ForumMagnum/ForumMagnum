@@ -5,8 +5,6 @@ import {
 } from "../../utils/schemaUtils";
 import * as _ from "underscore";
 import { getWithCustomLoader } from "../../loaders";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import { isLWorAF } from "@/lib/instanceSettings";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -33,9 +31,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title",
-    },
   },
   participantIds: {
     database: {
@@ -55,10 +50,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Participants",
-      control: "FormUserMultiselect",
-    },
   },
   participants: {
     graphql: {
@@ -71,6 +62,7 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
+      nullable: false,
     },
     graphql: {
       outputType: "Date",
@@ -95,9 +87,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: !isLWorAF,
     },
   },
   messageCount: {
@@ -146,7 +135,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   archivedByIds: {
     database: {
@@ -177,9 +165,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   archivedBy: {

@@ -10,9 +10,9 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -23,6 +23,29 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
+import { useSingle } from "@/lib/crud/withSingle";
+import SectionTitle from "../common/SectionTitle";
+import PostsListSortDropdown from "../posts/PostsListSortDropdown";
+import PostsList2 from "../posts/PostsList2";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import AddPostsToTag from "./AddPostsToTag";
+import Error404 from "../common/Error404";
+import { Typography } from "../common/Typography";
+import PermanentRedirect from "../common/PermanentRedirect";
+import HeadTags from "../common/HeadTags";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TagFlagItem from "./TagFlagItem";
+import TagDiscussionSection from "./TagDiscussionSection";
+import TagPageButtonRow from "./TagPageButtonRow";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import SubscribeButton from "./SubscribeButton";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import TagIntroSequence from "./TagIntroSequence";
+import TagTableOfContents from "./TagTableOfContents";
+import TagVersionHistoryButton from "../editor/TagVersionHistory";
+import ContentStyles from "../common/ContentStyles";
+import CommentsListCondensed from "../common/CommentsListCondensed";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -165,7 +188,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
   classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
-  const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
     return (
       <>
@@ -190,14 +212,9 @@ const PostsListHeading: FC<{
 const EATagPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {
-    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-  } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const [editing, setEditing] = useState(!!query.edit)
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
@@ -218,9 +235,16 @@ const EATagPage = ({classes}: {
       contributorsLimit,
     },
   });
+
+  const { document: editableTag } = useSingle({
+    documentId: tag?._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !tag || !editing,
+    ssr: false,
+  });
   
   const [truncated, setTruncated] = useState(true)
-  const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
@@ -283,7 +307,7 @@ const EATagPage = ({classes}: {
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   if (query.sortedBy || tag.postsDefaultSortOrder) {
-    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+    query.sortedBy = (query.sortedBy || tag.postsDefaultSortOrder) ?? query.sortedBy
   }
 
   const terms = {
@@ -315,6 +339,17 @@ const EATagPage = ({classes}: {
     allPages: "allPages",
     myPages: "userPages"
   }
+
+  const editTagForm = editableTag
+    ? <EditTagForm
+        tag={editableTag}
+        successCallback={ async () => {
+          setEditing(false)
+          await client.resetStore()
+        }}
+        cancelCallback={() => setEditing(false)}
+      />
+  : <Loading />;
   
   return <AnalyticsContext
     pageContext='tagPage'
@@ -402,15 +437,8 @@ const EATagPage = ({classes}: {
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
               You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
             </div>}
-            {editing ? <div>
-              <EditTagForm
-                tag={tag}
-                successCallback={ async () => {
-                  setEditing(false)
-                  await client.resetStore()
-                }}
-                cancelCallback={() => setEditing(false)}
-              />
+            {editableTag ? <div>
+              {editTagForm}
               <TagVersionHistoryButton tagId={tag._id} />
             </div> :
             <div onClick={clickReadMore}>
@@ -465,10 +493,6 @@ const EATagPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const EATagPageComponent = registerComponent("EATagPage", EATagPage, {styles});
+export default registerComponent("EATagPage", EATagPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EATagPage: typeof EATagPageComponent
-  }
-}
+

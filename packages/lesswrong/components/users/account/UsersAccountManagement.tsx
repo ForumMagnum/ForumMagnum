@@ -1,8 +1,13 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import DummyFormGroup from "../../form-components/DummyFormGroup";
+import Loading from "../../vulcan-core/Loading";
+import DeactivateAccountSection from "./DeactivateAccountSection";
+import DeleteAccountSection from "./DeleteAccountSection";
 
 const styles = (_theme: ThemeType) => ({
   actionsWrapper: {
@@ -17,8 +22,6 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ErrorAccessDenied, DummyFormGroup, Loading, DeactivateAccountSection, DeleteAccountSection } = Components;
-
   const currentUser = useCurrentUser();
 
   const { user } = useGetUserBySlug(slug, { fragmentName: 'UsersEdit' });
@@ -41,10 +44,6 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   );
 };
 
-const UsersAccountManagementComponent = registerComponent('UsersAccountManagement', UsersAccountManagement, {styles});
+export default registerComponent('UsersAccountManagement', UsersAccountManagement, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersAccountManagement: typeof UsersAccountManagementComponent
-  }
-}
+

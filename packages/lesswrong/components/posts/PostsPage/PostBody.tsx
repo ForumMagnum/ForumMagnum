@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import ContentItemBody, { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
@@ -13,6 +13,10 @@ import { useTracking } from '@/lib/analyticsEvents';
 import * as GQL from '@/lib/generated/gql-codegen/graphql';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { SideCommentIcon } from "../../comments/SideCommentIcon";
+import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import GlossarySidebar from "../../jargon/GlossarySidebar";
+import type { PostsWithNavigation, PostsWithNavigationAndRevision, PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 
 const PostSideCommentsQuery = gql(`
   query PostBody($documentId: String) {
@@ -68,7 +72,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   post: GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes,
   html: string,
   isOldVersion: boolean
-  voteProps: VotingProps<GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes>
+  voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
 
   const { showAllTerms, setShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount } = useDisplayGlossary(post);
@@ -88,10 +92,8 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  
-  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
-  const contentRef = useRef<ContentItemBody>(null);
+  const contentRef = useRef<ContentItemBodyImperative|null>(null);
   let content: React.ReactNode
   
   const highlights = votingSystem.getPostHighlights
@@ -146,10 +148,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   }
 }
 
-const PostBodyComponent = registerComponent('PostBody', PostBody);
+export default registerComponent('PostBody', PostBody);
 
-declare global {
-  interface ComponentTypes {
-    PostBody: typeof PostBodyComponent
-  }
-}
+

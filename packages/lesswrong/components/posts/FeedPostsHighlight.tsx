@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -12,6 +12,10 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import type { PostsExpandedHighlight, PostsList } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsExpandedHighlightQuery = gql(`
   query FeedPostsHighlight($documentId: String) {
@@ -116,8 +120,8 @@ const FeedPostHighlightBody = ({
 
   const {truncatedHtml, wasTruncated, wordsLeft} =  truncateWithGrace(html, maxLengthWords, 20, rawWordCount, suffix);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classes.root}>
-    <Components.ContentItemBody
+  return <ContentStyles contentType="postHighlight" className={classes.root}>
+    <ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
@@ -127,8 +131,8 @@ const FeedPostHighlightBody = ({
       post={post}
       wordsLeft={wordsLeft}
     />}
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const FeedPostsHighlight = ({post, ...rest}: {
@@ -157,10 +161,10 @@ const FeedPostsHighlight = ({post, ...rest}: {
     fetchPolicy: "cache-first",
     client: isForeignCrosspost ? apolloClient : undefined,
   });
-  const expandedDocument = data?.post?.result;
+  const expandedDocument = data?.post?.result ?? undefined;
 
   return loading
-    ? <Components.Loading />
+    ? <Loading />
     : <FeedPostHighlightBody {...{
         post,
         expanded,
@@ -171,11 +175,7 @@ const FeedPostsHighlight = ({post, ...rest}: {
       }}/>;
 }
 
-const FeedPostsHighlightComponent = registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
+export default registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FeedPostsHighlight: typeof FeedPostsHighlightComponent
-  }
-}
+
 

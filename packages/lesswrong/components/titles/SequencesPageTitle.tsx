@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
@@ -7,6 +6,7 @@ import { styles } from '../common/HeaderSubtitle';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const SequencesPageTitleFragmentQuery = gql(`
   query SequencesPageTitle($documentId: String) {
@@ -18,11 +18,14 @@ const SequencesPageTitleFragmentQuery = gql(`
   }
 `);
 
-const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
+const titleComponentStyles = defineStyles('SequencesPageTitle', styles);
+
+export const SequencesPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(titleComponentStyles);
+
   const { params: {_id} } = useLocation();
   
   const { loading, data } = useQuery(SequencesPageTitleFragmentQuery, {
@@ -50,13 +53,4 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   // collections. That special case didn't work, but maybe it's worth building
   // a version that does.
 }
-
-const SequencesPageTitleComponent = registerComponent("SequencesPageTitle", SequencesPageTitle, {styles});
-
-declare global {
-  interface ComponentTypes {
-    SequencesPageTitle: typeof SequencesPageTitleComponent
-  }
-}
-
 

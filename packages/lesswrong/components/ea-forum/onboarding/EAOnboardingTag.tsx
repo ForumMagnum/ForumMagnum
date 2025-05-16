@@ -1,9 +1,11 @@
 import React, { useCallback, MouseEvent } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useSubscribeUserToTag } from "@/lib/filterSettings";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import ForumIcon from "../../common/ForumIcon";
 
 const TAG_SIZE = 103;
 
@@ -91,11 +93,10 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   );
 
   const {name, squareImageId, bannerImageId} = tag;
-  const {CloudinaryImage2, ForumIcon} = Components;
   return (
     <div onClick={toggleSubscribed} className={classes.root}>
       <CloudinaryImage2
-        publicId={squareImageId ?? bannerImageId}
+        publicId={squareImageId ?? bannerImageId ?? ''}
         width={TAG_SIZE}
         height={TAG_SIZE}
         imgProps={{
@@ -117,14 +118,10 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   );
 }
 
-const EAOnboardingTagComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingTag",
   EAOnboardingTag,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingTag: typeof EAOnboardingTagComponent
-  }
-}
+

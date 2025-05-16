@@ -1,10 +1,14 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import UsersProfileImage from "../users/UsersProfileImage";
+import NewConversationButton from "../messaging/NewConversationButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryUserCell', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -22,17 +26,14 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800],
     },
   },
-});
+}));
 
-const PeopleDirectoryUserCell = ({user, classes}: {
+export const PeopleDirectoryUserCell = ({user}: {
   user: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const isCurrentUser = user._id === currentUser?._id;
-  const {
-    UsersProfileImage, NewConversationButton, ForumIcon, LWTooltip,
-  } = Components;
   return (
     <div className={classes.root}>
       <UsersProfileImage user={user} size={32} />
@@ -53,16 +54,4 @@ const PeopleDirectoryUserCell = ({user, classes}: {
       }
     </div>
   );
-}
-
-const PeopleDirectoryUserCellComponent = registerComponent(
-  "PeopleDirectoryUserCell",
-  PeopleDirectoryUserCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryUserCell: typeof PeopleDirectoryUserCellComponent
-  }
 }

@@ -1,12 +1,19 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
-import type { ContentItemBody } from '../common/ContentItemBody';
-import { CommentsListFragment, PostsWithNavigationAndRevisionFragment, PostsWithNavigationFragment } from '@/lib/generated/gql-codegen/graphql';
+import type { CommentsList, PostsWithNavigationAndRevision, PostsWithNavigation } from '@/lib/generated/gql-codegen/graphql';
+import type { ContentItemBodyImperative } from '../common/ContentItemBody';
+import CommentUserName from "./CommentsItem/CommentUserName";
+import CommentsItemDate from "./CommentsItem/CommentsItemDate";
+import CommentBody from "./CommentsItem/CommentBody";
+import CommentsEditForm from "./CommentsEditForm";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import DebateCommentsListSection from "./DebateCommentsListSection";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -85,23 +92,21 @@ const getParticipantBorderStyle = (
 
 export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
   classes: ClassesType<typeof styles>,
-  comment: CommentsListFragment,
-  replies: CommentsListFragment[],
+  comment: CommentsList,
+  replies: CommentsList[],
   idx: number,
   responseCount: number,
   orderedParticipantList: string[],
   responses: DebateResponseWithReplies[],
-  post: PostsWithNavigationFragment | PostsWithNavigationAndRevisionFragment,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, HoveredReactionContextProvider } = Components;
-
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     
     const votingSystemName = comment.votingSystem || "default";
     const votingSystem = getVotingSystemByName(votingSystemName);
     const voteProps = useVote(comment, "Comments", votingSystem);
-    const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+    const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
 
     const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
@@ -111,7 +116,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const isFirstCommentInBlock = idx === 0;
     const isLastCommentInBlock = idx === (responseCount - 1);
-    const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
+    const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId ?? '');
     const readerIsParticipant = currentUser && fullParticipantSet.has(currentUser._id);
 
     const showHeader = isFirstCommentInBlock;
@@ -194,10 +199,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   }
 
 
-const DebateResponseComponent = registerComponent('DebateResponse', DebateResponse, {styles});
+export default registerComponent('DebateResponse', DebateResponse, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateResponse: typeof DebateResponseComponent
-  }
-}
+

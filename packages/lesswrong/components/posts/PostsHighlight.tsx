@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,10 +7,14 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
-
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "./LinkPostMessage";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import Loading from "../vulcan-core/Loading";
+import type { PostsExpandedHighlight, PostsList } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsExpandedHighlightQuery = gql(`
   query PostsHighlight($documentId: String) {
@@ -109,9 +113,9 @@ const HighlightBody = ({
     ev.preventDefault();
   }, [setExpanded]);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
-    <Components.LinkPostMessage post={post} />
-    <Components.ContentItemTruncated
+  return <ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
+    <LinkPostMessage post={post} />
+    <ContentItemTruncated
       maxLengthWords={maxLengthWords}
       graceWords={20}
       rawWordCount={wordCount ?? 0}
@@ -130,8 +134,8 @@ const HighlightBody = ({
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, loading, classes}: {
@@ -150,10 +154,10 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, sm
     fetchPolicy: "cache-first",
     client: apolloClient,
   });
-  const expandedDocument = data?.post?.result;
+  const expandedDocument = data?.post?.result ?? undefined;
 
   return loading
-    ? <Components.Loading />
+    ? <Loading />
     : <HighlightBody {...{
       post,
       maxLengthWords,
@@ -197,7 +201,7 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
     skip: !expanded && !!post.contents,
     fetchPolicy: "cache-first",
   });
-  const expandedDocument = data?.post?.result;
+  const expandedDocument = data?.post?.result ?? undefined;
 
   return <HighlightBody {...{
     post,
@@ -222,10 +226,6 @@ const PostsHighlight = ({post, ...rest}: {
   ? <ForeignPostsHighlight post={post} {...rest} />
   : <LocalPostsHighlight post={post} {...rest} />;
 
-const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});
+export default registerComponent('PostsHighlight', PostsHighlight, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsHighlight: typeof PostsHighlightComponent
-  }
-}
+

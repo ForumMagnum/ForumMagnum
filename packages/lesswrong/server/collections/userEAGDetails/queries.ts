@@ -32,6 +32,7 @@ export const graphqlUserEagDetailQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiUserEAGDetailOutput {

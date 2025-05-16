@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../vulcan-core/Loading";
+import LWDialog from "../common/LWDialog";
+import { DialogTitle } from '../widgets/DialogTitle';
+import { DialogContent } from '../widgets/DialogContent';
+import type { PostsList, SunshinePostsList } from '@/lib/generated/gql-codegen/graphql';
 
 const PostWithGeneratedSummaryQuery = gql(`
   query PostSummaryDialog($documentId: String) {
@@ -19,7 +22,6 @@ const PostSummaryDialog = ({post, onClose}: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void,
 }) => {
-  const { Loading, LWDialog } = Components;
   const { loading, data } = useQuery(PostWithGeneratedSummaryQuery, {
     variables: { documentId: post._id },
   });
@@ -34,13 +36,9 @@ const PostSummaryDialog = ({post, onClose}: {
   </LWDialog>
 }
 
-const PostSummaryDialogComponent = registerComponent(
+export default registerComponent(
   'PostSummaryDialog',
   PostSummaryDialog,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostSummaryDialog: typeof PostSummaryDialogComponent
-  }
-}
+

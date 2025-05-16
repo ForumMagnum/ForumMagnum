@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogContentText from '@/lib/vendor/@material-ui/core/src/DialogContentText';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogContent } from '../widgets/DialogContent';
+import { DialogContentText } from '../widgets/DialogContentText';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
@@ -24,7 +24,8 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-
+import LWDialog from "./LWDialog";
+import { MenuItem } from "./Menus";
 
 const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   thresholdSelector: {
@@ -156,7 +157,7 @@ const SubscribeDialog = (props: {
   }
 
   const subscribeByEmail = () => {
-    let mutation: Partial<DbUser> = { emailSubscribedToCurated: true }
+    let mutation: UpdateUserDataInput = { emailSubscribedToCurated: true };
     if (!currentUser) return;
 
     if (!userEmailAddressIsVerified(currentUser)) {
@@ -213,8 +214,6 @@ const SubscribeDialog = (props: {
 
   const fullScreen = !useIsAboveBreakpoint('sm');
   const { onClose, open } = props;
-  const { LWDialog, MenuItem } = Components;
-
   const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
     <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
     <Select
@@ -261,9 +260,8 @@ const SubscribeDialog = (props: {
             >
               { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
                 <FormControlLabel
-                  control={<Radio />}
+                  control={<Radio value={threshold} />}
                   label={threshold}
-                  value={threshold}
                   key={`labelKarmaThreshold${threshold}`}
                   className={classes.thresholdButton}
                 />
@@ -332,10 +330,6 @@ const SubscribeDialog = (props: {
   );
 }
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog);
+export default registerComponent("SubscribeDialog", SubscribeDialog);
 
-declare global {
-  interface ComponentTypes {
-    SubscribeDialog: typeof SubscribeDialogComponent
-  }
-}
+

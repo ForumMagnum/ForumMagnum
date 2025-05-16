@@ -1,9 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -12,11 +11,32 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
-import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/newSchema';
+import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ForumIcon from "../common/ForumIcon";
+import HeadTags from "../common/HeadTags";
+import CommunityMapWrapper from "./CommunityMapWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import Loading from "../vulcan-core/Loading";
+import SectionButton from "../common/SectionButton";
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import SectionFooter from "../common/SectionFooter";
+import GroupFormLink from "./GroupFormLink";
+import ContentItemBody from "../common/ContentItemBody";
+import Error404 from "../common/Error404";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import EventCards from "../events/modules/EventCards";
+import LoadMore from "../common/LoadMore";
+import ContentStyles from "../common/ContentStyles";
+import { Typography } from "../common/Typography";
+import HoverOver from "../common/HoverOver";
+import LocalGroupSubscribers from "./LocalGroupSubscribers";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const localGroupsHomeFragmentQuery = gql(`
   query LocalGroupPage($documentId: String) {
@@ -243,12 +263,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const {
-    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
-    Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
-    HoverOver, LocalGroupSubscribers, UsersNameDisplay,
-  } = Components
 
   const { loading: groupLoading, data } = useQuery(localGroupsHomeFragmentQuery, {
     variables: { documentId: groupId },
@@ -302,7 +316,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   if (!group || group.deleted) return <Error404 />
 
   const { html = ""} = group.contents || {}
-  const htmlBody = {__html: html}
+  const htmlBody = {__html: html ?? ""}
   const isAdmin = userIsAdmin(currentUser);
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
 
@@ -360,7 +374,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       </Typography>
   }
   
-  let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+  let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
   if (isEAForum) {
     tbdEventsList = tbdEvents?.length ? <>
       <Typography variant="headline" className={classes.eventsHeadline}>
@@ -378,7 +392,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     </> : null
   }
   
-  let pastEventsList: JSX.Element|null = <>
+  let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
       Past Events
     </Typography>
@@ -541,7 +555,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   target="_blank" rel="noopener noreferrer"
                   className={classes.externalLinkBtn}
                 >
-                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
+                  <ForumIcon icon="Link" className={classes.linkIcon} />
                   Explore our website
                 </Button>
               </div>}
@@ -571,10 +585,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   )
 }
 
-const LocalGroupPageComponent = registerComponent('LocalGroupPage', LocalGroupPage, {styles});
+export default registerComponent('LocalGroupPage', LocalGroupPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupPage: typeof LocalGroupPageComponent
-  }
-}
+

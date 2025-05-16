@@ -15,18 +15,11 @@ export interface EditableFieldCallbackOptions {
   normalized: boolean;
 }
 
-export interface EditableFieldClientOptions {
-  hasToc?: boolean,
-  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  revisionsHaveCommitMessages?: boolean,
-}
-
 export type MakeEditableOptions<N extends CollectionNameString> = {
   commentEditor?: boolean,
   commentStyles?: boolean,
   commentLocalStorage?: boolean,
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  formGroup?: () => FormGroupType<N>,
   permissions?: {
     canRead?: FieldPermissions,
     canUpdate?: FieldPermissions,

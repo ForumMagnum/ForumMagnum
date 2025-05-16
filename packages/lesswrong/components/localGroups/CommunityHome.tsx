@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../../lib/collections/users/helpers';
@@ -12,6 +12,20 @@ import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import { WithMessagesFunctions } from '../common/FlashMessages';
+import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
+import LoginPopup from "../users/LoginPopup";
+import EventNotificationsDialog from "./EventNotificationsDialog";
+import CommunityMapWrapper from "./CommunityMapWrapper";
+import LocalGroupsList from "./LocalGroupsList";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import GroupFormLink from "./GroupFormLink";
+import SectionFooter from "../common/SectionFooter";
+import { Typography } from "../common/Typography";
+import SectionButton from "../common/SectionButton";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -30,7 +44,7 @@ const styles = (theme: ThemeType) => ({
 
 interface ExternalProps {
 }
-interface CommunityHomeProps extends ExternalProps, WithMessagesProps, WithLocationProps, WithDialogProps {
+interface CommunityHomeProps extends ExternalProps, WithMessagesFunctions, WithLocationProps, WithDialogProps {
 }
 interface CommunityHomeState {
   currentUserLocation: any,
@@ -98,12 +112,12 @@ const CommunityHome = ({classes}: {
     if (currentUser) {
       openDialog({
         name: "SetPersonalMapLocationDialog",
-        contents: ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />
+        contents: ({onClose}) => <SetPersonalMapLocationDialog onClose={onClose} />
       });
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
@@ -112,12 +126,12 @@ const CommunityHome = ({classes}: {
     if (currentUser) {
       openDialog({
         name: "EventNotificationsDialog",
-        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+        contents: ({onClose}) => <EventNotificationsDialog onClose={onClose} />
       });
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
@@ -128,8 +142,6 @@ const CommunityHome = ({classes}: {
 
   const render = () => {
     const filters = query?.filters || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography, SectionButton } = Components
-
     const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,
@@ -187,7 +199,7 @@ const CommunityHome = ({classes}: {
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
-          <Components.CommunityMapWrapper
+          <CommunityMapWrapper
             terms={mapEventTerms}
             mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
             showUsersByDefault
@@ -238,7 +250,7 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
-                <Components.LocalGroupsList terms={onlineGroupsListTerms}/>
+                <LocalGroupsList terms={onlineGroupsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
@@ -246,10 +258,10 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
-                ? <Components.Loading />
-                : <Components.LocalGroupsList terms={groupsListTerms}>
+                ? <Loading />
+                : <LocalGroupsList terms={groupsListTerms}>
                       <Link to={"/allGroups"}>View All Groups</Link>
-                  </Components.LocalGroupsList>
+                  </LocalGroupsList>
               }
             </SingleColumnSection>
             {!isEAForum && <SingleColumnSection>
@@ -265,10 +277,6 @@ const CommunityHome = ({classes}: {
   return render();
 }
 
-const CommunityHomeComponent = registerComponent('CommunityHome', CommunityHome, {styles});
+export default registerComponent('CommunityHome', CommunityHome, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommunityHome: typeof CommunityHomeComponent
-  }
-}
+

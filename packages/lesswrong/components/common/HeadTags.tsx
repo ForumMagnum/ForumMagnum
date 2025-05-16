@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
@@ -36,7 +36,7 @@ const HeadTags = ({
     const tabLongTitle = tabLongTitleSetting.get() || tabTitleSetting.get()
     const tabShortTitle = tabTitleSetting.get() || tabLongTitle
 
-    const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const TitleComponent = currentRoute?.titleComponent;
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
 
     const rssUrl = `${getSiteUrl()}feed.xml`
@@ -87,10 +87,6 @@ const HeadTags = ({
     );
 }
 
-const HeadTagsComponent = registerComponent('HeadTags', HeadTags);
+export default registerComponent('HeadTags', HeadTags);
 
-declare global {
-  interface ComponentTypes {
-    HeadTags: typeof HeadTagsComponent
-  }
-}
+

@@ -213,6 +213,14 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: FieldNo
         fieldType = fieldSimpleSchema.typescriptType;
       } else if (fieldSchema.graphql?.validation?.allowedValues) {
         fieldType = generateAllowedValuesTypeString(fieldSchema.graphql.validation.allowedValues, fieldSchema);
+      } else if (fieldSchema.graphql?.validation?.simpleSchema) {
+        fieldType = simplSchemaTypeToTypescript(simpleSchema, fieldName, fieldSimpleSchema.type);
+      } else if (fieldSchema.graphql?.outputType) {
+        fieldType = graphqlTypeToTypescript(fieldSchema.graphql?.outputType);
+        // Optimistically try to use the input type if the output type results in "any", and we have a specific input type.
+        if (fieldType === "any" && 'inputType' in fieldSchema.graphql && fieldSchema.graphql.inputType) {
+          fieldType = graphqlTypeToTypescript(fieldSchema.graphql.inputType);
+        }
       } else {
         fieldType = simplSchemaTypeToTypescript(simpleSchema, fieldName, fieldSimpleSchema.type);
       }
@@ -254,7 +262,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: FieldNo
         console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         //throw new Error(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         return {
-          fieldType: "any", subfragment: null
+          fieldType, subfragment: null
         };
       }
       const subfragmentName = `${fragmentName}_${fieldName}`;

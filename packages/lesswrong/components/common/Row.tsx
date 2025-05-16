@@ -19,11 +19,7 @@ export const Row = ({classes, justifyContent="space-between", alignItems="center
   </div>;
 }
 
-const RowComponent = registerComponent('Row', Row, {styles});
+export default registerComponent('Row', Row, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Row: typeof RowComponent
-  }
-}
+
 

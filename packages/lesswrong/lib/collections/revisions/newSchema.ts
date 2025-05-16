@@ -8,15 +8,16 @@ import { extractTableOfContents } from "@/lib/tableOfContents";
 import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
-import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
-import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH, ContentType } from "./revisionConstants";
+import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
+import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
 import { getOriginalContents } from "./helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
+import { isLWorAF } from "@/lib/instanceSettings";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -41,8 +42,8 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
 export const graphqlTypeDefs = gql`
   scalar ContentTypeData
   type ContentType {
-    type: String
-    data: ContentTypeData
+    type: String!
+    data: ContentTypeData!
   }
 `
 
@@ -93,9 +94,10 @@ const schema = {
   editedAt: {
     database: {
       type: "TIMESTAMPTZ",
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -141,6 +143,7 @@ const schema = {
       outputType: "String!",
       inputType: "String",
       canRead: ["guests"],
+      resolver: ({ version }) => version ?? '1.0.0',
       validation: {
         optional: true,
       },
@@ -250,14 +253,6 @@ const schema = {
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
     },
   },
-  draftJS: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: ({ originalContents }) =>
-        originalContents ? dataToDraftJS(originalContents.data, originalContents.type) : null,
-    },
-  },
   ckEditorMarkup: {
     graphql: {
       outputType: "String",
@@ -275,6 +270,7 @@ const schema = {
       outputType: "Float!",
       inputType: "Float",
       canRead: ["guests"],
+      resolver: ({ wordCount }) => wordCount ?? 0,
       validation: {
         optional: true,
       },
@@ -399,6 +395,7 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
+      resolver: ({ skipAttributions }) => skipAttributions ?? false,
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
@@ -482,13 +479,28 @@ const schema = {
       },
     },
   },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (revision, args, context) => {
+        if (!isLWorAF) return null;
+        const {AutomatedContentEvaluations} =  context;
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: revision._id,
+        }, {
+          sort: { createdAt: -1 },
+        })
+      },
+    }
+  },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('Revisions'),
   baseScore: DEFAULT_BASE_SCORE_FIELD,
   extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
   score: DEFAULT_SCORE_FIELD,
-  inactive: DEFAULT_INACTIVE_FIELD,
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,

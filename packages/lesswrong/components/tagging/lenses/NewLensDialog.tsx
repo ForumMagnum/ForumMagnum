@@ -1,9 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogContentText from '@/lib/vendor/@material-ui/core/src/DialogContentText';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogContentText } from "@/components/widgets/DialogContentText";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import { LensForm } from './LensForm';
+import LWDialog from "../../common/LWDialog";
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
@@ -47,8 +49,6 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
   updateSelectedLens: (lensId: string) => void,
   onClose?: () => void,
 }) => {
-  const { LWDialog, WrappedSmartForm } = Components;
-  
   const classes = useStyles(styles);
 
   const wrappedSuccessCallback = async (lens: MultiDocumentMinimumInfo) => {
@@ -56,14 +56,8 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
     updateSelectedLens(lens._id);
     onClose?.();
   };
-
-  const prefilledProps = {
-    parentDocumentId: tag._id,
-    collectionName: 'Tags',
-    fieldName: 'description',
-  };
   
-  return <LWDialog open={true} onClose={onClose} dialogClasses={{ paper: classes.dialog }}>
+  return <LWDialog open={true} onClose={onClose} paperClassName={classes.dialog}>
     <DialogTitle className={classes.dialogTitle}>New Lens</DialogTitle>
     <DialogContent className={classes.dialogContent}>
       <DialogContentText>
@@ -71,26 +65,15 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
         <p /><p />
         The title of the lens is displayed at the top of the content, and the tab title and (optional) subtitle are displayed in the tab bar.
       </DialogContentText>
-      <WrappedSmartForm
-        collectionName='MultiDocuments'
-        queryFragmentName='MultiDocumentMinimumInfo'
-        mutationFragmentName='MultiDocumentMinimumInfo'
-        successCallback={wrappedSuccessCallback}
-        cancelCallback={() => onClose?.()}
-        formProps={{
-          lensForm: true,
-          editorHintText: 'New lens content goes here!'
-        }}
-        prefilledProps={prefilledProps}
+      <LensForm
+        parentDocumentId={tag._id}
+        onSuccess={wrappedSuccessCallback}
+        onCancel={() => onClose?.()}
       />
     </DialogContent>
   </LWDialog>;
 }
 
-const NewLensDialogComponent = registerComponent('NewLensDialog', NewLensDialog);
+export default registerComponent('NewLensDialog', NewLensDialog);
 
-declare global {
-  interface ComponentTypes {
-    NewLensDialog: typeof NewLensDialogComponent
-  }
-}
+

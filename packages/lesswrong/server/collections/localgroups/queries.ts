@@ -84,6 +84,7 @@ export const graphqlLocalgroupQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiLocalgroupOutput {

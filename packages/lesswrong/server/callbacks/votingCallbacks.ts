@@ -13,7 +13,7 @@ import { createAdminContext } from '../vulcan-lib/createContexts';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/newSchema';
+import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
@@ -294,7 +294,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
-  if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
+  if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post || post.draft || post.deletedDraft) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
@@ -337,8 +337,8 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
       return;
     }
   
-    // If the user has already been flagged with this moderator action in the last month, no need to apply it again
-    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
+    // If the user has already been flagged with this moderator action in the last 3 months, no need to apply it again
+    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(3, 'month'))) {
       return;
     }
   

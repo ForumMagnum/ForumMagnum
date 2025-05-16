@@ -68,20 +68,20 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
   }
 
   if (!analyticsConnectionPools.get(connectionString)) {
-    let ssl = sslSetting.get()
+    let ssl = sslSetting.get();
     if (ssl) {
-      const caFilePath = getFullCAFilePath()
-      const ca = caFilePath ? fs.readFileSync(caFilePath).toString() : undefined
+      const caFilePath = getFullCAFilePath();
+      const ca = caFilePath ? fs.readFileSync(caFilePath).toString() : undefined;
 
       ssl = {
         ...ssl,
-        ...(ca && {ca})
-      }
+        ...(ca && { ca })
+      };
     }
 
     const connectionOptions = {
       connectionString: connectionString,
-      ...(ssl && {ssl})
+      ...(ssl && { ssl })
     };
 
     analyticsConnectionPools.set(connectionString, pgPromiseLib(connectionOptions));

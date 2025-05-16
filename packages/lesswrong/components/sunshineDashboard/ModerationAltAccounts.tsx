@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
@@ -7,6 +7,14 @@ import { useQuery, gql as graphql } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import { MenuItem } from "../common/Menus";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import FormatDate from "../common/FormatDate";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import type { UserAltAccountsFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const UserAltAccountsFragmentQuery = gql(`
   query ModerationAltAccounts($documentId: String) {
@@ -60,7 +68,6 @@ const accountIdentifierTypes = [
 const ModerationAltAccounts = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, SectionTitle, MenuItem, ContentStyles } = Components;
   const currentUser = useCurrentUser();
   
   const { query } = useLocation();
@@ -143,9 +150,6 @@ const AltAccountsNodeUserBySlug = ({slug, classes}: {
     skip: !slug,
   });
   const user = results?.[0];
-  
-  const { ContentStyles, Loading } = Components;
-  
   if (!slug) {
     return <ContentStyles contentType="comment"><i>Select a user to continue</i></ContentStyles>
   }
@@ -169,7 +173,6 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
     variables: { documentId: userId },
   });
   const user = data?.user?.result;
-  const { Loading } = Components;
   
   if (loading) return <Loading/>;
   if (!user) return <>{`Couldn't find user with ID ${userId}`}</>
@@ -192,26 +195,26 @@ const AltAccountsNodeUser = ({user, classes}: {
         ? <li className={classes.openListItem}>
             <div>Client IDs</div>
             <ul>
-              {user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
-                <AltAccountsNodeClientID clientId={clientId.clientId} classes={classes}/>
+              {user.associatedClientIds?.map(clientId => <li key={clientId.clientId}>
+                <AltAccountsNodeClientID clientId={clientId.clientId!} classes={classes}/>
               </li>)}
             </ul>
           </li>
         : <li onClick={() => setExpandedClientIDs(true)} className={classes.closedListItem}>
-            Client IDs: {user.associatedClientIds.map(clientId => clientId.clientId).join(", ")}
+            Client IDs: {user.associatedClientIds?.map(clientId => clientId.clientId).join(", ")}
           </li>
       }
       {expandedIPs
         ? <li className={classes.openListItem}>
             <div>IP Addresses</div>
             <ul>
-              {user.IPs.map(ip => <li key={ip}>
+              {user.IPs?.map(ip => <li key={ip}>
                 <AltAccountsNodeIPAddress ipAddress={ip} classes={classes}/>
               </li>)}
             </ul>
           </li>
         : <li onClick={() => setExpandedIPs(true)} className={classes.closedListItem}>
-            IP addresses: {user.IPs.length}x (click to expand)
+            IP addresses: {user.IPs?.length}x (click to expand)
           </li>
       }
     </ul>
@@ -222,7 +225,6 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
   clientId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, FormatDate } = Components;
   const [expanded,setExpanded] = useState(false);
   
   const { results, loading } = useMulti({
@@ -242,7 +244,7 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
     {clientIdInfo && <div>
       <div>First seen referrer: {clientIdInfo.firstSeenReferrer}</div>
       <div>First seen landing page: {clientIdInfo.firstSeenLandingPage}</div>
-      <div>First seen: <FormatDate date={clientIdInfo.createdAt}/></div>
+      <div>First seen: <FormatDate date={clientIdInfo.createdAt!}/></div>
       <ul>
         {expanded
           ? <li className={classes.openListItem}>
@@ -266,7 +268,6 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   ipAddress: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading } = Components;
   const [expanded,setExpanded] = useState(false);
   const {data, loading} = useQuery(graphql`
     query ModeratorIPAddressInfo($ipAddress: String!) {
@@ -315,7 +316,6 @@ const CensoredUserName = ({user, classes}: {
   user: UserAltAccountsFragment,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay } = Components;
   const [revealName,setRevealName] = useState(false);
   
   if (revealName) {
@@ -325,12 +325,8 @@ const CensoredUserName = ({user, classes}: {
   }
 }
 
-const ModerationAltAccountsComponent = registerComponent('ModerationAltAccounts', ModerationAltAccounts, {styles});
+export default registerComponent('ModerationAltAccounts', ModerationAltAccounts, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationAltAccounts: typeof ModerationAltAccountsComponent
-  }
-}
+
 
 

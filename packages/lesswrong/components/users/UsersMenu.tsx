@@ -1,11 +1,11 @@
 import React, { MouseEvent, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper, Card }from '@/components/widgets/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
@@ -14,7 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/newSchema';
+import { MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
@@ -23,8 +23,19 @@ import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequenc
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { InteractionWrapper } from '../common/useClickableCell';
+import NewDialogueDialog from "../posts/NewDialogueDialog";
+import NewShortformDialog from "../shortform/NewShortformDialog";
+import AFApplicationForm from "../alignment-forum/AFApplicationForm";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ThemePickerMenu from "../themes/ThemePickerMenu";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import DropdownDivider from "../dropdowns/DropdownDivider";
+import UsersProfileImage from "./UsersProfileImage";
+import ForumIcon from "../common/ForumIcon";
+import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -116,12 +127,6 @@ const UsersMenu = ({classes}: {
   
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  
-  const {
-    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon,
-    NewWikiTagMenu
-  } = Components
-  
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
     {userGetDisplayName(currentUser)}
@@ -217,7 +222,7 @@ const UsersMenu = ({classes}: {
           title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
           onClick={() => openDialog({
             name:"NewDialogueDialog",
-            contents: ({onClose}) => <Components.NewDialogueDialog onClose={onClose}/>
+            contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
           })}
         />
       )
@@ -234,7 +239,7 @@ const UsersMenu = ({classes}: {
             title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
             onClick={() => openDialog({
               name:"NewShortformDialog",
-              contents: ({onClose}) => <Components.NewShortformDialog onClose={onClose}/>
+              contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
             })}
           />
         )
@@ -265,7 +270,7 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
-  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+  const hasBookmarks = isEAForum || (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
 
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
@@ -342,7 +347,7 @@ const UsersMenu = ({classes}: {
                   title={preferredHeadingCase("Apply for Membership")}
                   onClick={() => openDialog({
                     name: "AFApplicationForm",
-                    contents: ({onClose}) => <Components.AFApplicationForm onClose={onClose}/>
+                    contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
                   })}
                 />
               }
@@ -430,10 +435,6 @@ const UsersMenu = ({classes}: {
   );
 }
 
-const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {styles});
+export default registerComponent('UsersMenu', UsersMenu, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersMenu: typeof UsersMenuComponent
-  }
-}
+

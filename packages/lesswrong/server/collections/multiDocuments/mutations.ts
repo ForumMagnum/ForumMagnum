@@ -1,5 +1,5 @@
 
-import { canMutateParentDocument } from "@/lib/collections/multiDocuments/helpers";
+import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import schema from "@/lib/collections/multiDocuments/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
@@ -13,6 +13,30 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
+
+/**
+ * The logic for validating whether a user can either create or update a multi-document is basically the same.
+ * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
+ */
+async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | CreateMultiDocumentDataInput | null, mutation: 'create' | 'update', context: ResolverContext) {
+  if (!multiDocument) {
+    return false;
+  }
+
+  if (userIsAdmin(user)) {
+    return true;
+  }
+
+  const rootDocumentInfo = await getRootDocument(multiDocument, context);
+  if (!rootDocumentInfo) {
+    return false;
+  }
+
+  const { document: parentDocument } = rootDocumentInfo;
+  const check = mutation === 'create' ? newTagCheck : editTagCheck;
+  return check(user, parentDocument);
+}
 
 function newCheck(user: DbUser | null, multiDocument: CreateMultiDocumentDataInput | null, context: ResolverContext) {
   return canMutateParentDocument(user, multiDocument, 'create', context);

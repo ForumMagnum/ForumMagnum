@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -11,18 +11,30 @@ import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import { metaNoticeStyles } from './CommentsItemMeta';
+import CommentsItemMeta from './CommentsItemMeta';
+import { metaNoticeStyles } from "./metaNoticeStyles";
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { ContentItemBody } from '../../common/ContentItemBody';
-import { CommentsList, CommentsListWithParentMetadata } from '@/lib/generated/gql-codegen/graphql';
-import { TagCommentType } from '@/lib/collections/comments/types';
-
-export const highlightSelectorClassName = "highlighted-substring";
-export const dimHighlightClassName = "dim-highlighted-substring";
-export const faintHighlightClassName = "dashed-highlighted-substring";
+import type { CommentsList, CommentsListWithParentMetadata } from '@/lib/generated/gql-codegen/graphql';
+import type { TagCommentType } from '@/lib/collections/comments/types';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import CommentsEditForm from "../CommentsEditForm";
+import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
+import CommentBody from "./CommentBody";
+import CommentsNewForm from "../CommentsNewForm";
+import ParentCommentSingle from "../ParentCommentSingle";
+import ForumIcon from "../../common/ForumIcon";
+import CommentDiscussionIcon from "./CommentDiscussionIcon";
+import LWTooltip from "../../common/LWTooltip";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import ReviewVotingWidget from "../../review/ReviewVotingWidget";
+import LWHelpIcon from "../../common/LWHelpIcon";
+import CoreTagIcon from "../../tagging/CoreTagIcon";
+import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
+import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
+import CommentBottom from "./CommentBottom";
 
 
 const styles = (theme: ThemeType) => ({
@@ -198,7 +210,7 @@ export const CommentsItem = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
@@ -249,19 +261,19 @@ export const CommentsItem = ({
 
   const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
-      return <Components.CommentsEditForm
+      return <CommentsEditForm
         comment={comment}
         successCallback={editSuccessCallback}
         cancelCallback={editCancelCallback}
       />
     } else if (excerptLines) {
-      return <Components.CommentExcerpt
+      return <CommentExcerpt
         comment={comment}
         lines={excerptLines}
         className={classes.excerpt}
       />
     } else {
-      return <Components.CommentBody
+      return <CommentBody
         commentBodyRef={commentBodyRef}
         truncated={truncated}
         collapsed={collapsed}
@@ -278,7 +290,7 @@ export const CommentsItem = ({
 
     return (
       <div className={classNames(classes.replyForm, levelClass, isMinimalist && classes.replyFormMinimalist)}>
-        <Components.CommentsNewForm
+        <CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
           successCallback={replySuccessCallback}
@@ -293,13 +305,6 @@ export const CommentsItem = ({
       </div>
     )
   }
-
-  const {
-    CommentDiscussionIcon, LWTooltip, PostsTooltip, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay,
-    HoveredReactionContextProvider, CommentBottom,
-  } = Components;
-
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
 
@@ -327,7 +332,7 @@ export const CommentsItem = ({
       )}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>
-            <Components.ParentCommentSingle
+            <ParentCommentSingle
               post={post} tag={tag}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
@@ -342,10 +347,10 @@ export const CommentsItem = ({
         
         <div className={classes.postTitleRow}>
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
-            <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
+            <ForumIcon icon="Pin" className={classes.pinnedIcon} />
           </div>}
           {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
-          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
+          {showPostTitle && !isChild && hasPostField(comment) && comment.postId && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
               <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                 {comment.post.draft && "[Draft] "}
                 {comment.post.title}
@@ -419,7 +424,7 @@ export const CommentsItem = ({
   )
 }
 
-const CommentsItemComponent = registerComponent(
+export default registerComponent(
   'CommentsItem', CommentsItem, {
     styles,
     stylePriority: -1,
@@ -438,8 +443,4 @@ function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): co
   return !!(comment as CommentsListWithParentMetadata).tag
 }
 
-declare global {
-  interface ComponentTypes {
-    CommentsItem: typeof CommentsItemComponent,
-  }
-}
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
@@ -7,6 +7,13 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsItem from "../posts/PostsItem";
+import LWTooltip from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
+import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {
@@ -19,8 +26,6 @@ const PostsListWithVotesQuery = gql(`
 `);
 
 const DialoguesPage = () => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionFooter, LoadMore } = Components
-
   const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
     fragmentName: "PostsPage",
     resolverName: "RecentlyActiveDialogues",
@@ -92,12 +97,8 @@ const DialoguesPage = () => {
   </AnalyticsContext>
 }
 
-const DialoguesPageComponent = registerComponent('DialoguesPage', DialoguesPage, {
+export default registerComponent('DialoguesPage', DialoguesPage, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    DialoguesPage: typeof DialoguesPageComponent
-  }
-}
+

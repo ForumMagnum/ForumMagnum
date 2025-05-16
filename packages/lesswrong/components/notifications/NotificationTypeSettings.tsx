@@ -1,21 +1,25 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
-import PropTypes from 'prop-types';
 import {
   DayOfWeek,
   NotificationTypeSettings,
-  LegacyNotificationTypeSettings,
-  legacyToNewNotificationTypeSettings,
   NotificationBatchingFrequency,
   NotificationChannel,
-  NotificationChannelSettings
-} from '../../lib/collections/users/newSchema';
+  NotificationChannelSettings,
+  LegacyNotificationTypeSettings,
+  legacyToNewNotificationTypeSettings
+} from "@/lib/collections/users/notificationFieldHelpers";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
-import type { PickedTime } from '../common/BatchTimePicker';
+import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { EditableUser } from '@/lib/collections/users/helpers';
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import ToggleSwitch from "../common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,9 +70,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 type NotificationTypeSettingsWidgetProps = {
-  path: keyof DbUser;
-  value: NotificationTypeSettings | LegacyNotificationTypeSettings;
-  updateCurrentValues: Function,
+  field: TypedFieldApi<NotificationTypeSettings | LegacyNotificationTypeSettings, EditableUser>;
   label: string;
   classes: ClassesType<typeof styles>;
 };
@@ -85,14 +87,14 @@ const getChannelLabel = (channel: NotificationChannel): string => {
 }
 
 const NotificationTypeSettingsWidget = ({
-  path,
-  value,
-  updateCurrentValues,
+  field,
   label,
   classes
 }: NotificationTypeSettingsWidgetProps) => {
-  const { BatchTimePicker, Typography, MenuItem, ToggleSwitch } = Components;
-  const notificationType = getNotificationTypeByUserSetting(path);
+  const path = field.name;
+  const value = field.state.value;
+
+  const notificationType = getNotificationTypeByUserSetting(path as keyof EditableUser & `notification${string}`);
 
   const cleanValue = legacyToNewNotificationTypeSettings(value);
 
@@ -101,8 +103,8 @@ const NotificationTypeSettingsWidget = ({
       ...cleanValue,
       [channel]: { ...cleanValue[channel], ...changes }
     };
-    updateCurrentValues({ [path]: newSettings });
-  }, [cleanValue, updateCurrentValues, path]);
+    field.handleChange(newSettings);
+  }, [cleanValue, field]);
 
   return (
     <div className={classes.root}>
@@ -162,13 +164,9 @@ const NotificationTypeSettingsWidget = ({
   );
 }
 
-const NotificationTypeSettingsWidgetComponent = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
+export default registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidgetComponent
-  }
-}
+

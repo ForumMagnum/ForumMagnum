@@ -270,9 +270,10 @@ interface HasUserIdType {
 
 interface VoteableType extends HasIdType {
   score: number
-  baseScore: number
-  extendedScore: any,
+  baseScore: number | null
+  extendedScore?: any,
   voteCount: number
+  votingSystem?: string | null,
   af?: boolean
   afBaseScore?: number | null
   afExtendedScore?: any,
@@ -335,6 +336,7 @@ interface ResolverContext extends CollectionsByName {
   locale: string,
   isSSR: boolean,
   isGreaterWrong: boolean,
+  isIssaRiceReader: boolean,
   /**
    * This means that the request originated from the other FM instance's servers
    *
@@ -365,7 +367,7 @@ interface EditableFieldContents {
   editedAt: Date
   userId: string
   version: string
-  commitMessage?: string
+  commitMessage?: string | null
   googleDocMetadata?: AnyBecauseHard
 }
 
@@ -375,7 +377,7 @@ type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"co
 
 type EditableFieldUpdate = EditableFieldInsertion & {
   dataWithDiscardedSuggestions?: string,
-  updateType?: DbRevision['updateType'],
+  updateType?: DbRevision['updateType'] | null,
 };
 
 // For a DbObject, gets the field-names of all the make_editable fields.
@@ -388,9 +390,11 @@ type EditableCollectionNames = {
 type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
 type DbInsertion<T extends DbObject> = Omit<
-  ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>,
+  ReplaceFieldsOfType<T, EditableFieldContents | null, CreateRevisionDataInput>,
   "_id"
->
+> & {
+  _id?: T["_id"];
+};
 
 type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 

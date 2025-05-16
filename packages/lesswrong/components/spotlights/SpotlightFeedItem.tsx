@@ -5,10 +5,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { Typography } from "../common/Typography";
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
@@ -200,10 +204,12 @@ const useSpotlightFeedItemStyles = defineStyles(
 
 const SpotlightFeedItem = ({
   spotlight,
+  index,
   showSubtitle=true,
   className,
 }: {
   spotlight: SpotlightDisplay,
+  index: number,
   showSubtitle?: boolean,
   className?: string,
 }) => {
@@ -230,14 +236,12 @@ const SpotlightFeedItem = ({
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
-
-  const { ContentItemBody, CloudinaryImage2, Typography } = Components
-
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
 
   return (
+    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
     <div
       ref={elementRef}
       id={spotlight._id}
@@ -305,14 +309,12 @@ const SpotlightFeedItem = ({
         </div>
       </div>
     </div>
-  )}
-
-const SpotlightFeedItemComponent = registerComponent('SpotlightFeedItem', SpotlightFeedItem)
-
-export default SpotlightFeedItemComponent;
-
-declare global {
-  interface ComponentTypes {
-    SpotlightFeedItem: typeof SpotlightFeedItemComponent
-  }
+    </AnalyticsContext>
+  )
 }
+
+export default registerComponent('SpotlightFeedItem', SpotlightFeedItem);
+
+
+
+

@@ -1,9 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../vulcan-core/Loading";
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesListEditorItem($documentId: String) {
@@ -87,14 +88,10 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
       </div>
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const SequencesListEditorItemComponent = registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
+export default registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesListEditorItem: typeof SequencesListEditorItemComponent
-  }
-}
+

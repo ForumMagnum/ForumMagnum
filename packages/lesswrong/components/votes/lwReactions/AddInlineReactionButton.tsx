@@ -1,9 +1,12 @@
 import React, { useRef, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
 import classNames from "classnames";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
+import ReactionsPalette from "../ReactionsPalette";
 
 const styles = (theme: ThemeType) => ({
   tooltip: {
@@ -40,8 +43,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
-  const { LWTooltip, ForumIcon, ReactionsPalette } = Components;
-
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
   const handleOpen = (e: React.MouseEvent) => {
@@ -81,10 +82,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   </LWTooltip>
 }
 
-const AddInlineReactionButtonComponent = registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
+export default registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddInlineReactionButton: typeof AddInlineReactionButtonComponent
-  }
-}
+

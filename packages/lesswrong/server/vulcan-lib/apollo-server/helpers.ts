@@ -47,7 +47,7 @@ export function makeGqlCreateMutation<
 export function makeGqlUpdateMutation<
   N extends CollectionNameString,
   D extends CreateInputsByCollectionName[N]['data'],
-  T extends (args: { selector: SelectorInput, data: D }, context: ResolverContext, skipValidation?: boolean) => Promise<any>,
+  T extends (args: { selector: SelectorInput, data: D }, context: ResolverContext) => Promise<any>,
   O extends UpdateMutationOptions<ObjectsByCollectionName[N], R>,
   R extends { [ACCESS_FILTERED]: true } | null
 >(collectionName: N, func: T, options: O) {

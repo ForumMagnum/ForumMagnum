@@ -1,9 +1,21 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
-import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
+import { useDialog } from '../common/withDialog';
+import { DialogContent } from '../widgets/DialogContent';
+import { highlightHtmlWithLlmDetectionScores } from './helpers';
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import PostsTitle from "../posts/PostsTitle";
+import SmallSideVote from "../votes/SmallSideVote";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import RejectContentButton from "./RejectContentButton";
+import RejectedReasonDisplay from "./RejectedReasonDisplay";
+import LWDialog from "../common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -32,69 +44,143 @@ const styles = (theme: ThemeType) => ({
   },
   rejectButton: {
     marginLeft: 'auto',
-  }
+  },
+  llmScore: {
+    cursor: 'pointer',
+  },
+  automatedContentEvaluations: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    alignItems: 'flex-end',
+  },
+  aiOutput: {
+    fontSize: '0.9em',
+    textWrap: 'pretty',
+  },
 })
+
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
   posts?: SunshinePostsList[],
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components
+  const { openDialog } = useDialog();
 
- 
+  function handleLLMScoreClick(
+    automatedContentEvaluation: SunshinePostsList_contents_automatedContentEvaluations,
+    htmlContent: string | null | undefined
+  ) {
+    const highlightedHtml = highlightHtmlWithLlmDetectionScores(
+      htmlContent || "",
+      automatedContentEvaluation.sentenceScores || []
+    );
+
+    openDialog({
+      name: "LLMScoreDialog",
+      contents: ({onClose}) => (
+        <LWDialog open={true} onClose={onClose}>
+          <DialogContent>
+            <div>
+              <p>LLM Score: {automatedContentEvaluation.score}</p>
+              <p>Post with highlighted sentences:</p>
+              {/* eslint-disable-next-line react/no-danger */}
+              <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+            </div>
+          </DialogContent>
+        </LWDialog>
+      ),
+    });
+  }
+
+  function handleAiJudgementClick(automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations) {
+    openDialog({
+      name: "AiJudgementDialog",
+      contents: ({onClose}) => (
+        <LWDialog open={true} onClose={onClose}>
+          <DialogContent>
+            <p><strong>AI Choice:</strong> {automatedContentEvaluations.aiChoice}</p>
+            <p><strong>AI Reasoning:</strong></p>
+            <pre className={classes.aiOutput}>{automatedContentEvaluations.aiReasoning}</pre>
+            <p><strong>AI CoT:</strong></p>
+            <pre className={classes.aiOutput}>{automatedContentEvaluations.aiCoT}</pre>
+          </DialogContent>
+        </LWDialog>
+      ),
+    });
+  }
+
   if (!posts) return null
 
-  const newPosts = user.reviewedAt ? _filter(posts, post => post.postedAt > user.reviewedAt) : posts
+  const newPosts = user.reviewedAt ? posts.filter(post => post.postedAt > user.reviewedAt!) : posts
 
   return (
     <div>
-      {newPosts.map(post=><div className={classes.post} key={post._id}>
-        <div className={classes.row}>
-          <div>
-            <Link to={`/posts/${post._id}`}>
-              <PostsTitle post={post} showIcons={false} wrap/> 
-              {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
-            </Link>
+      {newPosts.map(post => {
+        const automatedContentEvaluations = post.contents?.automatedContentEvaluations
+        return <div className={classes.post} key={post._id}>
+          <div className={classes.row}>
             <div>
-              <span className={classes.meta}>
-                <span className={classes.vote}>
-                  <SmallSideVote document={post} collectionName="Posts"/>
+              <Link to={`/posts/${post._id}`}>
+                <PostsTitle post={post} showIcons={false} wrap />
+                {(post.status !== 2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
+              </Link>
+              <div>
+                <span className={classes.meta}>
+                  <span className={classes.vote}>
+                    <SmallSideVote document={post} collectionName="Posts" />
+                  </span>
+                  <MetaInfo>
+                    <FormatDate date={post.postedAt} />
+                  </MetaInfo>
+                  <MetaInfo>
+                    <Link to={`${postGetPageUrl(post)}#comments`}>
+                      {postGetCommentCountStr(post)}
+                    </Link>
+                  </MetaInfo>
                 </span>
-                <MetaInfo>
-                  <FormatDate date={post.postedAt}/>
-                </MetaInfo>
-                <MetaInfo>
-                  <Link to={`${postGetPageUrl(post)}#comments`}>
-                    {postGetCommentCountStr(post)}
-                  </Link>
-                </MetaInfo>
-              </span>
+              </div>
             </div>
+
+            {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
+              {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason} />}
+              {automatedContentEvaluations && (
+                <div className={classes.automatedContentEvaluations}>
+                  <span
+                    className={classes.llmScore}
+                    onClick={() => handleLLMScoreClick(
+                      automatedContentEvaluations,
+                      post.contents!.html
+                    )}
+                  >
+                    <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
+                  </span>
+                  <span
+                    className={classes.llmScore}
+                    onClick={() => handleAiJudgementClick(automatedContentEvaluations)}
+                  >
+                    <strong>AI judgement:</strong> {automatedContentEvaluations.aiChoice}
+                  </span>
+                </div>
+              )}
+              <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }} />
+            </span>}
+
+            <PostActionsButton post={post} />
           </div>
-          
-          {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
-            {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
-            <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
-          </span>}
-          
-          <PostActionsButton post={post} />
+          {!post.draft && <div className={classes.postBody}>
+            <LinkPostMessage post={post} />
+            <ContentStyles contentType="postHighlight">
+              <div dangerouslySetInnerHTML={{ __html: (post.contents?.html || "") }} />
+            </ContentStyles>
+          </div>}
         </div>
-        {!post.draft && <div className={classes.postBody}>
-          <LinkPostMessage post={post}/>
-          <ContentStyles contentType="postHighlight">
-            <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
-          </ContentStyles>
-        </div>}
-      </div>)}
+      })}
     </div>
   )
 }
 
-const SunshineNewUserPostsListComponent = registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
+export default registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
-  }
-}
+

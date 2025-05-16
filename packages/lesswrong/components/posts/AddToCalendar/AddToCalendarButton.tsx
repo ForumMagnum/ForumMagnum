@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
@@ -7,6 +7,9 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import LWTooltip from "../../common/LWTooltip";
+import LWPopper from "../../common/LWPopper";
+import type { PostsList, PostsWithNavigation, PostsWithNavigationAndRevision } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsPlaintextDescriptionQuery = gql(`
   query AddToCalendarButton($documentId: String) {
@@ -93,11 +96,8 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     }
     setOpen(!open)
   }
-  
-  const { LWPopper } = Components
-  
   // we use the Facebook link as the default event details text
-  let eventDetails = post.facebookLink;
+  let eventDetails = post.facebookLink ?? null;
   // we try to use plaintextDescription instead if possible
   // (only PostsList should be missing the plaintextDescription, so we pull that in)
   const { data: rawData } = useQuery(PostsPlaintextDescriptionQuery, {
@@ -122,7 +122,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   const urls = makeUrls({
     name: post.title,
     details: eventDetails,
-    location: post.onlineEvent ? post.joinEventLink : post.location,
+    location: (post.onlineEvent ? post.joinEventLink : post.location) ?? null,
     startsAt: moment(post.startTime).format(),
     endsAt: endTime.format()
   })
@@ -161,16 +161,12 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   }
   
   return (
-    <Components.LWTooltip title="Add to calendar" placement="left">
+    <LWTooltip title="Add to calendar" placement="left">
       {calendarIconNode}
-    </Components.LWTooltip>
+    </LWTooltip>
   )
 };
 
-const AddToCalendarButtonComponent = registerComponent('AddToCalendarButton', AddToCalendarButton, {styles});
+export default registerComponent('AddToCalendarButton', AddToCalendarButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddToCalendarButton: typeof AddToCalendarButtonComponent,
-  }
-}
+

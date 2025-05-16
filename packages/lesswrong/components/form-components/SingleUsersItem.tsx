@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Chip from '@/lib/vendor/@material-ui/core/src/Chip';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { Chip } from '@/components/widgets/Chip';
+import Loading from "../vulcan-core/Loading";
 
 const UsersProfileQuery = gql(`
   query SingleUsersItem($documentId: String) {
@@ -46,14 +47,10 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
       />
     </span>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const SingleUsersItemComponent = registerComponent('SingleUsersItem', SingleUsersItem, {styles});
+export default registerComponent('SingleUsersItem', SingleUsersItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SingleUsersItem: typeof SingleUsersItemComponent
-  }
-}
+

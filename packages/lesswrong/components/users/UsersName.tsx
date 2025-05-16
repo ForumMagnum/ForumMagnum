@@ -1,6 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import type { Placement as PopperPlacementType } from "popper.js"
 import React from 'react';
+import UsersNameDisplay from "./UsersNameDisplay";
+import UsersNameWrapper from "./UsersNameWrapper";
+import UserNameDeleted from "./UserNameDeleted";
+import type { UsersMinimumInfo } from '@/lib/generated/gql-codegen/graphql';
 
 /**
  * A user name, with styling, tooltip, etc. Takes either a user object or a
@@ -35,18 +39,14 @@ const UsersName = ({
   className?: string,
 }) => {
   if (user) {
-    return <Components.UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} nowrap={nowrap} className={className} {...otherProps}/>
+    return <UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} nowrap={nowrap} className={className} {...otherProps}/>
   } else if (documentId) {
-    return <Components.UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} nowrap={nowrap} className={className}  {...otherProps}/>
+    return <UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} nowrap={nowrap} className={className}  {...otherProps}/>
   } else {
-    return <Components.UserNameDeleted />
+    return <UserNameDeleted />
   }
 }
 
-const UsersNameComponent = registerComponent('UsersName', UsersName);
+export default registerComponent('UsersName', UsersName);
 
-declare global {
-  interface ComponentTypes {
-    UsersName: typeof UsersNameComponent
-  }
-}
+

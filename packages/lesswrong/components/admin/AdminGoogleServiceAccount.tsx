@@ -5,8 +5,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
 import { useMutation } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
+import ErrorAccessDenied from '../common/ErrorAccessDenied';
+import SingleColumnSection from '../common/SingleColumnSection';
+import EAButton from '../ea-forum/EAButton';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,7 +28,6 @@ const AdminGoogleServiceAccount = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, ErrorAccessDenied, EAButton } = Components;
 
   const { results: serviceAccounts } = useMulti({
     terms: {},
@@ -89,12 +91,8 @@ const AdminGoogleServiceAccount = ({classes}: {
   );
 }
 
-const AdminGoogleServiceAccountComponent = registerComponent(
+export default registerComponent(
   "AdminGoogleServiceAccount", AdminGoogleServiceAccount, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    AdminGoogleServiceAccount: typeof AdminGoogleServiceAccountComponent
-  }
-}
+

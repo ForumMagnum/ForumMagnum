@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import PermanentRedirect from "../common/PermanentRedirect";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
 
 const CurrentOpenThreadPage = () => {
-  const {PermanentRedirect, SingleColumnSection, Loading} = Components;
-  
   const {results, loading} = useMulti({
     collectionName: "Posts",
     terms: {
@@ -27,10 +28,6 @@ const CurrentOpenThreadPage = () => {
   return <PermanentRedirect status={302} url={postGetPageUrl(post)} />
 }
 
-const CurrentOpenThreadPageComponent = registerComponent('CurrentOpenThreadPage', CurrentOpenThreadPage);
+export default registerComponent('CurrentOpenThreadPage', CurrentOpenThreadPage);
 
-declare global {
-  interface ComponentTypes {
-    CurrentOpenThreadPage: typeof CurrentOpenThreadPageComponent
-  }
-}
+

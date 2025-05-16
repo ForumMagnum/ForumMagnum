@@ -1,10 +1,14 @@
 import React, { useCallback } from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import SingleColumnSection from "../common/SingleColumnSection";
+import RevisionSelect from "./RevisionSelect";
+import Loading from "../vulcan-core/Loading";
+import type { RevisionMetadata } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsDetailsQuery = gql(`
   query PostsRevisionSelect($documentId: String) {
@@ -24,7 +28,6 @@ const styles = (theme: ThemeType) => ({
 const PostsRevisionSelect = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();
   const navigate = useNavigate();
   const postId = params._id;
@@ -32,7 +35,9 @@ const PostsRevisionSelect = ({ classes }: {
   const { loading: loadingPost, data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: postId },
   });
+  
   const post = data?.post?.result;
+
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     skip: !post,
     terms: {
@@ -68,10 +73,6 @@ const PostsRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-const PostsRevisionSelectComponent = registerComponent("PostsRevisionSelect", PostsRevisionSelect, {styles});
+export default registerComponent("PostsRevisionSelect", PostsRevisionSelect, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionSelect: typeof PostsRevisionSelectComponent
-  }
-}
+

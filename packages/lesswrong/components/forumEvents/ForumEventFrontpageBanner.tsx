@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
@@ -7,7 +7,14 @@ import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { POLL_MAX_WIDTH } from "./ForumEventPoll";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import ForumIcon from "../common/ForumIcon";
+import ForumEventPoll from "./ForumEventPoll";
+import ForumEventStickers from "./ForumEventStickers";
+
+const POLL_MIN_WIDTH = 800;
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -48,6 +55,11 @@ const styles = (theme: ThemeType) => ({
       textUnderlineOffset: '2px',
     },
   },
+  hideBelowMinWidth: {
+    [`@media(max-width: ${POLL_MIN_WIDTH}px)`]: {
+      display: 'none'
+    },
+  },
   rootWithGradient: {
     height: BANNER_HEIGHT,
     display: "flex",
@@ -57,12 +69,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       background: "var(--forum-event-background)",
       height: "unset",
-    },
-  },
-  expandToggleRow: {
-    padding: '0 20px 20px',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
     },
   },
   expandToggleButton: {
@@ -123,9 +129,6 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 500,
     textWrap: 'pretty',
     padding: '16px 30px 30px',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'block'
-    },
   },
   postsHeading: {
     display: 'flex',
@@ -235,7 +238,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
+const formatDate = ({ startDate, endDate }: { startDate: Date, endDate: Date }) => {
   const start = moment.utc(startDate);
   const end = moment.utc(endDate);
   const startFormatted = start.format("MMMM D");
@@ -249,8 +252,6 @@ const Description = ({forumEvent, classes}: {
   forumEvent: ForumEventsDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody } = Components;
-
   const { frontpageDescription, frontpageDescriptionMobile } = forumEvent;
 
   return (
@@ -293,16 +294,13 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
-  
-  const {CloudinaryImage2, ForumIcon} = Components;
-
+  const {title, bannerImageId, startDate, endDate} = currentForumEvent;
+  const date = endDate ? formatDate({ startDate, endDate }) : null;
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
       <div className={classNames(classes.root, classes.rootWithGradient)}>
         <div className={classes.contentBasic}>
-          <div className={classes.date}>{date}</div>
+          {date && <div className={classes.date}>{date}</div>}
           <div className={classes.title}>{title}</div>
           <Description forumEvent={currentForumEvent} classes={classes} />
         </div>
@@ -339,21 +337,16 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
+  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, startDate, endDate} = currentForumEvent;
+  const date = endDate && formatDate({startDate, endDate});
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
-
-  const {
-    CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
-        <ForumEventPoll />
-        <div className={classes.contentWithPoll}>
+        <ForumEventPoll className={classes.hideBelowMinWidth} />
+        <div className={classNames(classes.contentWithPoll, classes.hideBelowMinWidth)}>
           <div className={classes.titleWithPoll}>{title}</div>
-          <div className={classes.dateWithPoll}>{date}</div>
+          {date && <div className={classes.dateWithPoll}>{date}</div>}
           <div className={classes.descriptionWithPoll}>
               {mobileDescription &&
                 <ContentStyles contentType="comment">
@@ -391,9 +384,6 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   }
 
   const {title, bannerImageId} = currentForumEvent;
-  
-  const { CloudinaryImage2, ForumEventStickers } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
       <div className={classes.root}>
@@ -408,6 +398,11 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   );
 }
 
+const customComponents: Partial<Record<Exclude<DbForumEvent['customComponent'], null>, FC>> = {
+  // This component was presumably deleted, it not being 2024 anymore.
+  // GivingSeason2024Banner,
+};
+
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -418,7 +413,7 @@ export const ForumEventFrontpageBanner = ({classes}: {
 
   const {customComponent, eventFormat} = currentForumEvent;
   if (customComponent) {
-    const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
+    const CustomComponent = customComponents[customComponent];
     if (CustomComponent) {
       return (
         <AnalyticsContext
@@ -441,14 +436,10 @@ export const ForumEventFrontpageBanner = ({classes}: {
   }
 }
 
-const ForumEventFrontpageBannerComponent = registerComponent(
+export default registerComponent(
   "ForumEventFrontpageBanner",
   ForumEventFrontpageBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventFrontpageBanner: typeof ForumEventFrontpageBannerComponent
-  }
-}
+

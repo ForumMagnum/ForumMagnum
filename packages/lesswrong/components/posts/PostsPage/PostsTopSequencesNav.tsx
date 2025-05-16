@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
@@ -8,6 +8,9 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import SequencesTooltip from "../../sequences/SequencesTooltip";
+import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
 
 export const darkGreyAlpha = .7
 
@@ -26,9 +29,23 @@ const styles = (theme: ThemeType) => ({
     marginLeft:-20,
     display: "flex",
     alignItems: "center",
+    
+    ...(isFriendlyUI && {
+      marginBottom: -8,
+    }),
   },
-  title: {  
-    ...titleStyles(theme)
+  title: {
+    ...titleStyles(theme),
+    
+    ...(isFriendlyUI && {
+      textTransform: 'uppercase',
+      fontSize: 18,
+      color: theme.palette.greyAlpha(0.7),
+      fontWeight: 500,
+    }),
+    ...(isFriendlyUI && theme.themeOptions.name === 'dark' && {
+      color: theme.palette.icon.dim,
+    }),
   },
   blackText: {
     '&&': {
@@ -42,7 +59,6 @@ const PostsTopSequencesNav = ({post, classes, blackText}: {
   classes: ClassesType<typeof styles>,
   blackText?: boolean
 }) => {
-  const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -94,15 +110,11 @@ const PostsTopSequencesNav = ({post, classes, blackText}: {
   )
 }
 
-const PostsTopSequencesNavComponent = registerComponent(
+export default registerComponent(
   'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsTopSequencesNav: typeof PostsTopSequencesNavComponent
-  }
-}
+

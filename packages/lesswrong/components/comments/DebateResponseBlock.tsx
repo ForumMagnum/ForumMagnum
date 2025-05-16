@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import DebateResponse from "./DebateResponse";
 
 
 import { CommentsList, PostsWithNavigation, PostsWithNavigationAndRevision } from '@/lib/generated/gql-codegen/graphql';
@@ -35,8 +36,6 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   daySeparator?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponse } = Components;
-
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
@@ -54,10 +53,6 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   </div>;
 }
 
-const DebateResponseBlockComponent = registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
+export default registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
 
-declare global {
-  interface ComponentTypes {
-    DebateResponseBlock: typeof DebateResponseBlockComponent
-  }
-}
+

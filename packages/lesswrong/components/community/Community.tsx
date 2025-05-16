@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useRef } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -15,10 +15,20 @@ import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
-import Chip from '@/lib/vendor/@material-ui/core/src/Chip';
+import { Chip } from "@/components/widgets/Chip";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
+import LoginPopup from "../users/LoginPopup";
+import SetPersonalMapLocationDialog from "../localGroups/SetPersonalMapLocationDialog";
+import CommunityBanner from "./modules/CommunityBanner";
+import LocalGroups from "./modules/LocalGroups";
+import OnlineGroups from "./modules/OnlineGroups";
+import CommunityMembers from "./modules/CommunityMembers";
+import GroupFormLink from "../localGroups/GroupFormLink";
+import DistanceUnitToggle from "./modules/DistanceUnitToggle";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -330,12 +340,12 @@ const Community = ({classes}: {
     if (currentUser) {
       openDialog({
         name: "EventNotificationsDialog",
-        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+        contents: ({onClose}) => <EventNotificationsDialog onClose={onClose} />
       });
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
@@ -344,19 +354,15 @@ const Community = ({classes}: {
     if (currentUser) {
       openDialog({
         name: "SetPersonalMapLocationDialog",
-        contents: ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />
+        contents: ({onClose}) => <SetPersonalMapLocationDialog onClose={onClose} />
       });
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
-  
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
-          DistanceUnitToggle, ForumIcon } = Components
-  
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
@@ -539,10 +545,6 @@ const Community = ({classes}: {
   )
 }
 
-const CommunityComponent = registerComponent('Community', Community, {styles});
+export default registerComponent('Community', Community, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Community: typeof CommunityComponent
-  }
-}
+

@@ -1,7 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsItem from "../posts/PostsItem";
+import type { UsersProfile } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsListWithVotesQuery = gql(`
   query ProfileShortform($documentId: String) {
@@ -23,12 +25,10 @@ export const ProfileShortform = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
-
-  const { PostsItem } = Components
-
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: user.shortformFeedId },
   });
+  
   const document = data?.post?.result;
 
   return <div className={classes.root}>
@@ -36,11 +36,7 @@ export const ProfileShortform = ({classes, user}: {
   </div>;
 }
 
-const ProfileShortformComponent = registerComponent('ProfileShortform', ProfileShortform, {styles});
+export default registerComponent('ProfileShortform', ProfileShortform, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ProfileShortform: typeof ProfileShortformComponent
-  }
-}
+
 

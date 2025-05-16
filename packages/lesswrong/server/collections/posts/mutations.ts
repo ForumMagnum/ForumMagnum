@@ -48,7 +48,7 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
   // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
 }
 
-export async function createPost({ data }: CreatePostInput, context: ResolverContext) {
+export async function createPost({ data }: { data: CreatePostDataInput & { _id?: string }}, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Posts', {

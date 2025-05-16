@@ -1,11 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ConversationContents from "./ConversationContents";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import ConversationDetails from "./ConversationDetails";
+import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const ConversationsListQuery = gql(`
   query ConversationPage($documentId: String) {
@@ -53,8 +60,6 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   });
   const conversation = data?.conversation?.result;
 
-  const { SingleColumnSection, ConversationContents, Error404, Loading, Typography, ConversationDetails } = Components
-
   if (loading) return <Loading />
   if (!conversation) return <Error404 />
 
@@ -82,14 +87,10 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   )
 }
 
-const ConversationPageComponent = registerComponent('ConversationPage', ConversationPage, {
+export default registerComponent('ConversationPage', ConversationPage, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    ConversationPage: typeof ConversationPageComponent
-  }
-}
+
 

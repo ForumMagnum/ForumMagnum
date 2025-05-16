@@ -1,10 +1,12 @@
 import React from 'react';
 import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR } from "../../lib/reviewUtils";
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import ErrorBoundary from "../common/ErrorBoundary";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,15 +43,13 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
 
   if (!commentResults?.length) return null
   const comment = commentResults[0]
-  if (!comment.post) return null
+  if (!comment.post || !comment.postId) return null
 
   const href = commentGetPageUrlFromIds({
     postId: comment.postId,
     commentId: comment._id,
     postSlug: comment.post.slug,
   });
-
-  const {ErrorBoundary, PostsTooltip} = Components;
   return (
     <ErrorBoundary>
       <AnalyticsContext pageSubsectionContext="latestReview">
@@ -74,10 +74,6 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
   );
 }
 
-const LatestReviewComponent = registerComponent('LatestReview', LatestReview, {styles});
+export default registerComponent('LatestReview', LatestReview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LatestReview: typeof LatestReviewComponent
-  }
-}
+

@@ -1,8 +1,11 @@
 import React from 'react';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
 
 const CommentsListQuery = gql(`
   query NewCommentModerationWarning($documentId: String) {
@@ -27,8 +30,6 @@ const styles = (theme: ThemeType) => ({
 export const NewCommentModerationWarning = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody, Loading } = Components
-  
   const documentId = commentModerationWarningCommentIdSetting.get() 
   
   const { loading, data } = useQuery(CommentsListQuery, {
@@ -48,11 +49,7 @@ export const NewCommentModerationWarning = ({classes}: {
   </div>;
 }
 
-const NewCommentModerationWarningComponent = registerComponent('NewCommentModerationWarning', NewCommentModerationWarning, {styles});
+export default registerComponent('NewCommentModerationWarning', NewCommentModerationWarning, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewCommentModerationWarning: typeof NewCommentModerationWarningComponent
-  }
-}
+
 

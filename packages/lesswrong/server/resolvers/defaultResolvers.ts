@@ -168,7 +168,11 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         {...resolverArgs, ...terms},
         parameters.selector,
         parameters.syntheticFields,
-        parameters.options,
+        {
+          comment: `${collectionName}::${terms.view}`,
+          ...parameters.options,
+          skip: terms.offset,
+        },
       );
       const compiledQuery = query.compile();
       const db = getSqlClientOrThrow();

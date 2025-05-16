@@ -1,7 +1,8 @@
 import moment from "moment";
-import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorActions/newSchema";
+import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
 import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
-import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/newSchema";
+import { isActionActive } from "../../lib/collections/moderatorActions/newSchema";
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
@@ -41,7 +42,7 @@ function hasMultipleDownvotes<T extends DbVoteableType>({ votes }: VoteableAutom
  */
 function isDownvotedBelowBar<T extends DbVoteableType>(bar: number) {
   return ({ voteableItem }: { voteableItem: T }) => {
-    return voteableItem.baseScore <= bar && voteableItem.voteCount > 0;
+    return (voteableItem.baseScore ?? 0) <= bar && voteableItem.voteCount > 0;
   }
 }
 

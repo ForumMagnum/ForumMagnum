@@ -1,45 +1,73 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { Link } from "../../lib/reactRouterWrapper";
-import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
-import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
+import { useRecordPostView } from "../hooks/useRecordPostView";
+import classnames from "classnames";
+import { useSingle } from "../../lib/crud/withSingle";
+import { highlightMaxChars } from "../../lib/editor/ellipsize";
+import { useOverflowNav } from "./OverflowNavObserverContext";
+import { useDialog } from "../common/withDialog";
+import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
+import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
+import { Link } from "../../lib/reactRouterWrapper";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import FormatDate from "../common/FormatDate";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import FeedContentBody from "./FeedContentBody";
+import UltraFeedItemFooter from "./UltraFeedItemFooter";
+import Loading from "../vulcan-core/Loading";
+import OverflowNavButtons from "./OverflowNavButtons";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
-    paddingTop: 12,
+    position: 'relative',
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
   },
+  mainContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  tripleDotMenu: {
+    opacity: 0.7,
+    position: 'absolute',
+    right: 2,
+    top: 5,
+    padding: 5,
+    marginLeft: 4,
+    "& svg": {
+      fontSize: 18,
+      cursor: "pointer",
+      color: theme.palette.text.dim,
+    }
+  },
   header: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    gap: '4px',
   },
-  titleRow: {
+  titleContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    marginBottom: 4,
-  },
-  titleContainer: {
-    flexGrow: 1,
-    paddingRight: 8,
-    marginBottom: 4,
+    [theme.breakpoints.down('sm')]: {
+    },
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.6rem',
+    fontSize: '1.4rem',
     fontWeight: 600,
     opacity: 0.8,
     lineHeight: 1.15,
@@ -47,124 +75,172 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     width: '100%',
     '&:hover': {
       opacity: 0.9,
+      textDecoration: 'none',
+      cursor: 'pointer',
+    },
+    flexGrow: 1,
+    paddingRight: 8,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 20.5,
     },
   },
-  headerRightSection: {
-    display: "flex",
-    flexGrow: 0,
+  titleIsRead: {
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 0.9,
+    },
   },
-  tripleDotMenu: {
-    padding: 5,
-    marginLeft: 4,
-    marginRight: -10,
-    "& svg": {
-      fontSize: "1.4rem",
-      cursor: "pointer",
-      color: theme.palette.text.dim,
-    }
-  },
-  metaRoot: {
-    position: "relative",
+  metaRow: {
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "center",
+    alignItems: "baseline",
     rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.3rem",
-    "& > *": {
-      marginRight: 5,
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "1.3rem",
     },
-    "& a:hover, & a:active": {
-      textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
-    },
-  },
-  metaLeftSection: {
-    display: "flex",
-    alignItems: "center",
-    flex: "1 1 auto",
-    flexWrap: "wrap",
-  },
-  metaRightSection: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    marginRight: 0,
-  },
-  metaKarma: {
-    display: "inline-block",
-    textAlign: "center",
-    flexGrow: 0,
-    flexShrink: 0,
-    paddingRight: 8,
-    marginRight: 4,
-  },
-  metaUsername: {
-    marginRight: 12,
-    '& a, & a:hover': {
-      color: theme.palette.link.unmarked,
-    },
-    color: theme.palette.text.dim,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    whiteSpace: 'nowrap',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  metaCoauthors: {
-    marginLeft: 4,
-    marginRight: 0,
-    color: theme.palette.text.dim,
-    whiteSpace: 'nowrap',
   },
   metaDateContainer: {
     marginRight: 8,
   },
   footer: {
-    paddingTop: 12,
-    paddingBottom: 12,
+  },
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center",
+    padding: "20px 0",
+  },
+  authorsList: {
+    fontSize: 'inherit',
+    color: 'inherit',
+    fontFamily: 'inherit',
+    marginRight: 8,
+    flexShrink: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
 }));
 
-// TODO: This is optimized for mobile (only show one author, might want to show more on desktop)
-const PostAuthorsDisplay = ({ authors, isAnon }: { authors: UsersMinimumInfo[]; isAnon: boolean }) => {
+interface UltraFeedPostItemHeaderProps {
+  post: PostsListWithVotes;
+  isRead: boolean;
+  handleOpenDialog: (params?: { textFragment?: string }) => void;
+  postTitlesAreModals: boolean;
+}
+
+const UltraFeedPostItemHeader = ({
+  post,
+  isRead,
+  handleOpenDialog,
+  postTitlesAreModals,
+}: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
-  const { UserNameDeleted, UsersName } = Components;
+  const authorListRef = useRef<HTMLDivElement>(null);
 
-  if (isAnon || authors.length === 0) {
-    return <UserNameDeleted />;
-  }
-
-  const mainAuthor = authors[0];
-  const additionalAuthorsCount = authors.length - 1;
+  const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+      event.preventDefault();
+      handleOpenDialog();
+    }
+  };
 
   return (
-    <span className={classes.metaUsername}>
-      <UsersName user={mainAuthor} />
-      {additionalAuthorsCount > 0 && (
-        <span className={classes.metaCoauthors}>+{additionalAuthorsCount}</span>
-      )}
-    </span>
+    <div className={classes.header}>
+      <div className={classes.titleContainer}>
+        {/* Mobile version: Respects postTitlesAreModals */}
+        <div className={classes.hideOnDesktop}>
+          {postTitlesAreModals ? (
+            <a
+              href={postGetPageUrl(post)}
+              onClick={handleTitleClick}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            >
+              {post.title}
+            </a>
+          ) : (
+            <Link
+              to={postGetPageUrl(post)}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            >
+              {post.title}
+            </Link>
+          )}
+        </div>
+        {/* Desktop version: Always a link */}
+        <div className={classes.hideOnMobile}>
+          <Link
+            to={postGetPageUrl(post)}
+            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          >
+            {post.title}
+          </Link>
+        </div>
+      </div>
+      <div className={classes.metaRow}>
+        <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
+        {post.postedAt && (
+          <span className={classes.metaDateContainer}>
+            <FormatDate date={post.postedAt} />
+          </span>
+        )}
+      </div>
+    </div>
   );
 };
 
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
+  index,
   showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
+  index: number,
   showKarma?: boolean,
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate } = Components;
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const { openDialog } = useDialog();
+  const overflowNav = useOverflowNav(elementRef);
+  const { captureEvent } = useTracking();
+  const { recordPostView, isRead } = useRecordPostView(post);
+  const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
+  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
+  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost);
+  const [shouldShowLoading, setShouldShowLoading] = useState(false);
+  const [resetSig, setResetSig] = useState(0);
 
-  const { isAnon, authors } = usePostsUserAndCoauthors(post);
+  const { displaySettings } = settings;
+  const apolloClient = useForeignApolloClient();
+  
+  const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
+
+  const { document: fullPost, loading: loadingFullPost } = useSingle({
+    documentId,
+    collectionName: "Posts",
+    apolloClient: isForeignCrosspost ? apolloClient : undefined,
+    fragmentName: isForeignCrosspost ? "PostsPage" : "UltraFeedPostFragment",
+    fetchPolicy: "cache-first",
+    skip: !isLoadingFull
+  });
+
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -174,6 +250,20 @@ const UltraFeedPostItem = ({
   }, [observe, post._id]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
+    // Start loading the full post on first expand
+    if (level > 0 && !isLoadingFull && !fullPost) {
+      setIsLoadingFull(true);
+    }
+
+    // Show loading spinner only if we need more content than what we have
+    // Compare requested breakpoint (word count) against highlight char limit
+    // This is an approximation, but better than using full post word count
+    const requestedWordCount = displaySettings.postTruncationBreakpoints?.[level - 1];
+    const needsMoreContentThanHighlight = requestedWordCount ? requestedWordCount > (highlightMaxChars / 5) : false;
+    
+    const showLoading = isLoadingFull && needsMoreContentThanHighlight && !fullPost;
+    setShouldShowLoading(showLoading);
+
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -181,63 +271,118 @@ const UltraFeedPostItem = ({
       maxLevelReached: maxReached,
       wordCount,
     });
-  }, [trackExpansion, post._id]);
+
+    captureEvent("ultraFeedPostItemExpanded", {
+      postId: post._id,
+      level,
+      maxLevelReached: maxReached,
+      wordCount,
+    });
+
+    if (!hasRecordedViewOnExpand) {
+      void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
+      setHasRecordedViewOnExpand(true);
+    }
+
+  }, [
+    trackExpansion, 
+    post, 
+    captureEvent, 
+    recordPostView, 
+    hasRecordedViewOnExpand, 
+    isLoadingFull, 
+    fullPost,
+    displaySettings.postTruncationBreakpoints
+  ]);
+
+  const handleCollapse = () => {
+    setResetSig((s) => s + 1);
+  };
+
+  const handleOpenDialog = useCallback((params?: {textFragment?: string}) => {
+    const textFragment = params?.textFragment;
+    captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+    openDialog({
+      name: "UltraFeedPostDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <UltraFeedPostDialog
+          {...(fullPost ? { post: fullPost } : { postId: post._id })}
+          textFragment={textFragment}
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, post._id, captureEvent, fullPost]);
+
+  const shortformHtml = post.shortform 
+    ? `This is a special post for quick takes (aka "shortform"). Only the owner can create top-level comments.`
+    : undefined
+
+  const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
+  const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount ?? (post.shortform ? 0 : undefined);
+
+  if (!displayHtml) {
+    return <div>No post content found for post with id: {post._id}</div>; 
+  }
+
+
+  // TODO: instead do something like set to 200 words and display and show warning
+  if (!displayWordCount && (!post.shortform && displayWordCount === 0)) {
+    return <div>No word count found for post with id: {post._id}</div>;
+  }
+
 
   return (
-    <div ref={elementRef} className={classes.root}>
-      <div className={classes.header}>
-        <div className={classes.titleRow}>
-          <div className={classes.titleContainer}>
-            <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
-          </div>
-          <span className={classes.headerRightSection}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton
-                post={post}
-                vertical={true}
-                className={classes.tripleDotMenu}
-              />
-            </AnalyticsContext>
-          </span>
-        </div>
-        <div className={classes.metaRoot}>
-          <span className={classes.metaLeftSection}>
-            {showKarma && !post.rejected && <span className={classes.metaKarma}>
-               {postGetKarma(post)}
-            </span>}
-            <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
-            {post.postedAt && (
-              <span className={classes.metaDateContainer}>
-                <FormatDate date={post.postedAt} />
-              </span>
-            )}
-          </span>
-        </div>
-      </div>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
+    <div className={classes.root}>
+      <div ref={elementRef} className={classes.mainContent}>
+        <AnalyticsContext pageElementContext="tripleDotMenu">
+          <PostActionsButton
+            post={post}
+            vertical={true}
+            className={classes.tripleDotMenu}
+          />
+        </AnalyticsContext>
 
-      {post.contents && (
-        <FeedContentBody
+        <UltraFeedPostItemHeader
           post={post}
-          html={post.contents.htmlHighlight ?? ""}
-          breakpoints={settings.postTruncationBreakpoints}
-          initialExpansionLevel={0}
-          wordCount={post.contents.wordCount ?? 0}
-          linkToDocumentOnFinalExpand={true}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onExpand={handleContentExpand}
+          isRead={isRead}
+          handleOpenDialog={handleOpenDialog}
+          postTitlesAreModals={displaySettings.postTitlesAreModals}
         />
-      )}
-      <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
+
+        {shouldShowLoading && loadingFullPost ? (
+          <div className={classes.loadingContainer}>
+            <Loading />
+          </div>
+        ) : (
+          <FeedContentBody
+            html={displayHtml}
+            breakpoints={displaySettings.postTruncationBreakpoints}
+            initialExpansionLevel={0}
+            wordCount={displayWordCount!} // assertion because of shortform case that will at least be zero but isn't detected as such
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            onContinueReadingClick={handleOpenDialog}
+            onExpand={handleContentExpand}
+            hideSuffix={false}
+            resetSignal={resetSig}
+          />
+        )}
+        {loadingFullPost && <div className={classes.loadingContainer}>
+          <Loading />
+        </div>}
+
+        <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
+      </div>
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={handleCollapse} />}
     </div>
+    </AnalyticsContext>
   );
 };
 
-const UltraFeedPostItemComponent = registerComponent("UltraFeedPostItem", UltraFeedPostItem);
+export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
 
-export default UltraFeedPostItemComponent;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPostItem: typeof UltraFeedPostItemComponent
-  }
-} 
+
+ 

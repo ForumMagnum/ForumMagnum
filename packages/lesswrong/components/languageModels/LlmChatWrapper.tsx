@@ -285,7 +285,8 @@ const LlmChatWrapper = ({children}: {
       }
       updatedMessages.push(newMessage);
   
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation: LlmConversation = { ...streamConversation, deleted: false };
+      updatedConversation.messages = updatedMessages;
       
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -320,7 +321,8 @@ const LlmChatWrapper = ({children}: {
       }
       updatedMessages.push(newMessage);
   
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation = { ...streamConversation };
+      updatedConversation.messages = updatedMessages;
       
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -347,7 +349,8 @@ const LlmChatWrapper = ({children}: {
       };
 
       updatedMessages.push(newMessage);
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation = { ...streamConversation };
+      updatedConversation.messages = updatedMessages;
 
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -486,7 +489,7 @@ const LlmChatWrapper = ({children}: {
       : preSaveConversation;
 
     // Sent to the server to create a new message
-    const preSaveMessage: PreSaveLlmMessage = {
+    const preSaveMessage = {
       conversationId: currentConversation?._id,
       userId: currentUser._id,
       content: query
@@ -496,7 +499,8 @@ const LlmChatWrapper = ({children}: {
       // We don't send the role to the server
       const newClientMessage: NewLlmMessage = { ...preSaveMessage, role: 'user' };
       const updatedMessages = [...displayedConversation.messages ?? [], newClientMessage];
-      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation, messages: updatedMessages };
+      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation };
+      conversationWithNewUserMessage.messages = updatedMessages;
 
       return { ...conversations, [conversationWithNewUserMessage._id]: conversationWithNewUserMessage };
     });
@@ -579,10 +583,6 @@ const LlmChatWrapper = ({children}: {
   </LlmChatContext.Provider>
 }
 
-const LlmChatWrapperComponent = registerComponent("LlmChatWrapper", LlmChatWrapper);
+export default registerComponent("LlmChatWrapper", LlmChatWrapper);
 
-declare global {
-  interface ComponentTypes {
-    LlmChatWrapper: typeof LlmChatWrapperComponent
-  }
-}
+

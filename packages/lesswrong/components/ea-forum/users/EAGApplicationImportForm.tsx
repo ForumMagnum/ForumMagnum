@@ -1,12 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import ArrowBack from '@/lib/vendor/@material-ui/icons/src/ArrowBack'
 import pick from 'lodash/pick';
-import { CAREER_STAGES } from '../../../lib/collections/users/newSchema';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { useGoogleMaps } from '../../form-components/LocationFormComponent';
+import LocationPicker, { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
@@ -17,6 +16,12 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../../vulcan-core/Loading";
+import { Typography } from "../../common/Typography";
+import { MultiSelect } from "../../form-components/FormComponentMultiSelect";
+import PrefixedInput from "../../form-components/PrefixedInput";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import type { UsersEdit } from '@/lib/generated/gql-codegen/graphql';
 
 const UsersEditQuery = gql(`
   query EAGApplicationImportForm($documentId: String) {
@@ -28,7 +33,7 @@ const UsersEditQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EAGApplicationImportForm', (theme: ThemeType) => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',
@@ -185,7 +190,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[500]
     }
   }
-})
+}));
 
 type EAGApplicationDataType = {
   jobTitle?: string,
@@ -217,7 +222,6 @@ type EditorFormComponentRefType = {
 // edit bio, howICanHelpOthers.
 const EAGApplicationImportFormWrapper = () => {
   const currentUser = useCurrentUser()
-  const { Loading, EAGApplicationImportForm } = Components;
   const { data } = useQuery(UsersEditQuery, {
     variables: { documentId: currentUser?._id },
     skip: !currentUser,
@@ -233,10 +237,10 @@ const EAGApplicationImportFormWrapper = () => {
   />
 }
 
-const EAGApplicationImportForm = ({currentUser, classes}: {
+const EAGApplicationImportForm = ({currentUser}: {
   currentUser: UsersEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const { pathname } = useLocation()
   const { flash } = useMessages()
@@ -496,10 +500,6 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       setSubmitLoading(false)
     })
   }
-  
-  const { Typography, MultiSelect, EditorFormComponent, SelectLocalgroup, LocationPicker,
-    PrefixedInput, ContentStyles, Loading } = Components
-
   if (!currentUser) {
     return (
       <AnalyticsContext pageContext="eagApplicationImportForm">
@@ -561,7 +561,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Role</label>
-        <Input name="jobTitle" value={formValues.jobTitle} onChange={(e) => handleChangeField(e, 'jobTitle')} />
+        <Input name="jobTitle" value={formValues.jobTitle ?? undefined} onChange={(e) => handleChangeField(e, 'jobTitle')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'jobTitle')}>
             <ArrowBack className={classes.arrowIcon} />
@@ -572,7 +572,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     
       <div className={classes.formRow}>
         <label className={classes.label}>Organization</label>
-        <Input name="organization" value={formValues.organization} onChange={(e) => handleChangeField(e, 'organization')} />
+        <Input name="organization" value={formValues.organization ?? undefined} onChange={(e) => handleChangeField(e, 'organization')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organization')}>
             <ArrowBack className={classes.arrowIcon} />
@@ -720,10 +720,12 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
         <label className={classes.label}>LinkedIn profile</label>
         {/* @ts-ignore: We're skipping some props here, but it should be safe */}
         <PrefixedInput
-          value={formValues.linkedinProfileURL ?? ''}
+          field={{
+            name: 'linkedinProfileURL',
+            state: { value: formValues.linkedinProfileURL ?? '' },
+            handleChange: (newLinkedInProfileURL) => handleUpdateValue({ linkedinProfileURL: newLinkedInProfileURL }),
+          }}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
-          path="linkedinProfileURL"
-          updateCurrentValues={handleUpdateValue}
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'linkedinProfileURL')}>
@@ -758,12 +760,6 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
 }
 
 
-const EAGApplicationImportFormWrapperComponent = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportForm);
-const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm, {styles});
+export default registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapper);
 
-declare global {
-  interface ComponentTypes {
-    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapperComponent
-    EAGApplicationImportForm: typeof EAGApplicationImportFormComponent
-  }
-}
+

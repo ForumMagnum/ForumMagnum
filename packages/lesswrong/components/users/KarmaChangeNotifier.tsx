@@ -1,12 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
@@ -20,6 +20,15 @@ import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmoj
 import classNames from 'classnames';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import UsersName from "./UsersName";
+import { MenuItemLink } from "../common/Menus";
+import { Typography } from "../common/Typography";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
+import ReactionIcon from "../votes/ReactionIcon";
+import LWTooltip from "../common/LWTooltip";
+import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -131,7 +140,6 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   handleClose: (ev: React.MouseEvent) => any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
-  const { MenuItemLink, Typography } = Components;
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
     (posts && (posts.length > 0))
@@ -240,8 +248,8 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     if (!currentUser) return;
     if (document?.karmaChanges) {
       void updateCurrentUser({
-        karmaChangeLastOpened: document.karmaChanges.endDate,
-        karmaChangeBatchStart: document.karmaChanges.startDate
+        ...(document.karmaChanges.endDate && { karmaChangeLastOpened: new Date(document.karmaChanges.endDate) }),
+        ...(document.karmaChanges.startDate && { karmaChangeBatchStart: new Date(document.karmaChanges.startDate) })
       });
 
       if (document.karmaChanges.updateFrequency === "realtime") {
@@ -271,10 +279,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
-    const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
-
-    const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
-
+    const starIsHollow = ((!comments?.length && !posts?.length && !tagRevisions?.length) || cleared || !newKarmaChangesSinceLastVisit)
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classNames(classes.root, className)}>
         <div ref={anchorEl}>
@@ -283,7 +288,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
               ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
               : <Badge badgeContent={
                   <span className={classes.pointBadge}>
-                    {(totalChange !== 0) && <ColoredNumber n={totalChange} classes={classes}/>}
+                    {(!!totalChange) && <ColoredNumber n={totalChange} classes={classes}/>}
                   </span>}
                 >
                   <ForumIcon icon="Karma" className={classes.starIcon}/>
@@ -314,8 +319,6 @@ const NewReactions = ({reactionChanges, classes}: {
   reactionChanges: ReactionChange[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionIcon, LWTooltip } = Components;
-
   const distinctReactionTypes = new Set<string>();
   for (let reactionChange of reactionChanges)
     distinctReactionTypes.add(reactionChange.reactionType);
@@ -341,7 +344,7 @@ const NewReactions = ({reactionChanges, classes}: {
             reactionChanges.filter(r=>r.reactionType===reactionType)
               .map((r,i) => <>
                 {i>0 && <>{", "}</>}
-                <Components.UsersName documentId={r.userId}/>
+                <UsersName documentId={r.userId}/>
               </>)
           }
           disabled={disableTooltip}
@@ -355,12 +358,8 @@ const NewReactions = ({reactionChanges, classes}: {
   </span>
 }
 
-const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
+export default registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
   styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    KarmaChangeNotifier: typeof KarmaChangeNotifierComponent
-  }
-}
+

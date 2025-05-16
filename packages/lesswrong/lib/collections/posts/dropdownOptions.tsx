@@ -4,13 +4,13 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 
 export interface SettingsOption {
-  label: string | JSX.Element;
+  label: string | React.JSX.Element;
   shortLabel?: string | React.ReactNode;
   tooltip?: string;
   icon?: ForumIconName,
 }
 
-export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {
+export const SORT_ORDER_OPTIONS = {
   magic: {
     label: isFriendlyUI ? 'New & upvoted' : 'Magic (New & Upvoted)',
     tooltip: 'Posts with the highest karma from the past few days',
@@ -23,7 +23,7 @@ export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {
   recentComments: { label: isFriendlyUI ? 'Recent comments' : 'Recent Comments' },
   new: { label: 'New' },
   old: { label: 'Old' },
-}
+} satisfies Record<PostSortingMode, SettingsOption>;
 
 export const postsLayouts = new TupleSet(["card", "list"] as const)
 export type PostsLayout = UnionOf<typeof postsLayouts>

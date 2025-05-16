@@ -25,7 +25,7 @@ export const useCreate = <CollectionName extends CollectionNameString, Fragment 
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,
-  data?: FragmentTypes[Fragment],
+  data?: FragmentTypes[Fragment] | null,
 } => {
   const logger = useMemo(() => {
     return loggerConstructor(`mutations-${collectionName.toLowerCase()}`);
@@ -50,7 +50,7 @@ export const useCreate = <CollectionName extends CollectionNameString, Fragment 
     ignoreResults: ignoreResults
   });
   const wrappedCreate = useCallback(({data}: {
-    data: NullablePartial<ObjectsByCollectionName[CollectionName]>,
+    data: NullablePartial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
   }) => {
     logger('useCreate, wrappedCreate()')
     return mutate({

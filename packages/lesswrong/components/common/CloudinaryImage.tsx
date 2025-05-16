@@ -38,10 +38,6 @@ const CloudinaryImage = ({width, height, publicId, imgProps = {}}: {
   />
 };
 
-const CloudinaryImageComponent = registerComponent('CloudinaryImage', CloudinaryImage);
+export default registerComponent('CloudinaryImage', CloudinaryImage);
 
-declare global {
-  interface ComponentTypes {
-    CloudinaryImage: typeof CloudinaryImageComponent
-  }
-}
+

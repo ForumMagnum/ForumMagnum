@@ -1,14 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@/lib/vendor/@material-ui/core/src/Card"
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import Fullscreen from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
-import FullscreenExit from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
 import { useLlmChat } from './LlmChatWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
+import LanguageModelChat from "./LanguageModelChat";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,8 +86,6 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LanguageModelChat, LWTooltip, ForumIcon } = Components;
-
   const { currentConversation } = useLlmChat();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
   const expanded = cookies[LLM_CHAT_EXPANDED] === "true";
@@ -102,7 +101,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
     setCookie(LLM_CHAT_EXPANDED, expanded ? "false" : "true", { path: "/"})
   }
 
-  return <Paper className={classNames(classes.root, {[classes.expanded]: expanded})}>
+  return <Card className={classNames(classes.root, {[classes.expanded]: expanded})}>
     <AnalyticsContext pageSectionContext='llmChatPopup'>
       <div className={classes.header}>
         <div className={classes.title}>
@@ -122,13 +121,9 @@ const PopupLanguageModelChat = ({onClose, classes}: {
         <LanguageModelChat />
       </div>
     </AnalyticsContext>
-  </Paper>
+  </Card>
 }
 
-const PopupLanguageModelChatComponent = registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
+export default registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PopupLanguageModelChat: typeof PopupLanguageModelChatComponent
-  }
-}
+

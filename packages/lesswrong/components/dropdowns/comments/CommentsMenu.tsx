@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentActions from "./CommentActions";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -61,7 +62,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
         anchorEl={anchorEl}
         className={classes.root}
       >
-        {everOpened && <Components.CommentActions
+        {everOpened && <CommentActions
           currentUser={currentUser}
           comment={comment}
           post={post}
@@ -73,11 +74,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   )
 }
 
-const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, {styles});
+export default registerComponent('CommentsMenu', CommentsMenu, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsMenu: typeof CommentsMenuComponent,
-  }
-}
+
 

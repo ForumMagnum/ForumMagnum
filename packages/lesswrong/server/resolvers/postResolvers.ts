@@ -8,7 +8,8 @@ import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
-import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -291,11 +292,13 @@ export const postGqlQueries = {
 
       return {
         post,
-        digestPost: {
-          _id: post.digestPostId,
-          emailDigestStatus: post.emailDigestStatus,
-          onsiteDigestStatus: post.onsiteDigestStatus
-        },
+        digestPost: post.digestPostId
+          ? {
+            _id: post.digestPostId,
+            emailDigestStatus: post.emailDigestStatus,
+            onsiteDigestStatus: post.onsiteDigestStatus
+          }
+          : null,
         rating: 0
       }
     })
@@ -389,7 +392,13 @@ export const postGqlMutations = {
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
-      const revisionType = "major"
+      // Revision type controls whether we increase the major or minor version
+      // number; if we increase the major version number it flags it to
+      // end-users and shows a version-history dropdown. This was built
+      // specifically for Sequences posts which had an editing pass long after
+      // the fact and doesn't make sense for Docs import, which usually happens
+      // before the post is undrafted for the first time.
+      const revisionType = "minor"
 
       const newRevision: Partial<DbRevision> = {
         ...(await buildRevision({
@@ -412,7 +421,7 @@ export const postGqlMutations = {
 
       return await Posts.findOne({_id: postId})
     } else {
-      let afField: Partial<ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>> = {};
+      let afField = {};
       if (isAF) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
@@ -461,8 +470,8 @@ export const postGqlTypeDefs = gql`
     ): UserReadHistoryResult
 
     PostIsCriticism(args: JSON): Boolean
-    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
-    DigestPosts(num: Int): [Post]
+    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]
+    DigestPosts(num: Int): [Post!]
 
     CanAccessGoogleDoc(fileUrl: String!): Boolean
   }

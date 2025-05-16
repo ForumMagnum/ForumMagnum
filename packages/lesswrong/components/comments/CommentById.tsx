@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import CommentsNodeInner from "./CommentsNode";
 
 const CommentsListQuery = gql(`
   query CommentById($documentId: String) {
@@ -24,9 +25,9 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
     variables: { documentId: commentId },
   });
   const comment = data?.comment?.result;
-  const { CommentsNode } = Components;
   if (!comment) return null;
-  return <CommentsNode
+  
+  return <CommentsNodeInner
     comment={comment}
     nestingLevel={nestingLevel}
     isChild={isChild}
@@ -35,10 +36,6 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
   />
 }
 
-const CommentByIdComponent = registerComponent('CommentById', CommentById);
+export default registerComponent('CommentById', CommentById);
 
-declare global {
-  interface ComponentTypes {
-    CommentById: typeof CommentByIdComponent
-  }
-}
+

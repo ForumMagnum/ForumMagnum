@@ -409,6 +409,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiCommentOutput {

@@ -1,16 +1,20 @@
 import React from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
+import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
-import { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useApolloClient, useQuery } from '@apollo/client';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import Error404 from "../../common/Error404";
+import Loading from "../../vulcan-core/Loading";
+import type { PostsListWithVotes, SequencesPageFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -107,8 +111,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     : { terms, queryResponse: commentQueryResult };
     
   // End of performance section
-
-  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading && !postPreloadWithSequence) {
@@ -117,7 +119,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     if (isMissingDocumentError(error)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
-      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
+      return <ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
     } else {
       throw new Error(error.message);
     }
@@ -137,10 +139,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   );
 }
 
-const PostsPageWrapperComponent = registerComponent("PostsPageWrapper", PostsPageWrapper);
+export default registerComponent("PostsPageWrapper", PostsPageWrapper);
 
-declare global {
-  interface ComponentTypes {
-    PostsPageWrapper: typeof PostsPageWrapperComponent
-  }
-}
+

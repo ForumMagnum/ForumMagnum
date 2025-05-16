@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { captureException } from "@sentry/core";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
@@ -14,9 +14,18 @@ import range from "lodash/range";
 import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
-} from "@/lib/collections/surveyQuestions/newSchema";
-import { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
+} from "@/lib/collections/surveyQuestions/constants";
+import type { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 import { SurveyResponseMinimumInfo } from "@/lib/collections/surveyResponses/fragments";
+import EAButton from "../ea-forum/EAButton";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import DropdownItem from "../dropdowns/DropdownItem";
+import PopperCard from "../common/PopperCard";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,8 +109,6 @@ const QuestionReponse = ({format, onRespond, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [value, setValue] = useState("");
-  const {EAButton, EAOnboardingInput} = Components;
-
   useEffect(() => {
     if (!surveyQuestionFormats[format]) {
       captureException(new Error(`Invalid survey question format: ${format}`));
@@ -290,11 +297,6 @@ const SurveyPostsItemInternal = ({
   if (hideSurveyScheduleIds?.includes(surveyScheduleId)) {
     return null;
   }
-
-  const {
-    LWTooltip, ForumIcon, LWClickAwayListener, DropdownMenu, DropdownItem,
-    PopperCard, Loading,
-  } = Components;
   return (
     <div className={classes.root}>
       <LWTooltip
@@ -401,14 +403,10 @@ const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   );
 }
 
-const SurveyPostsItemComponent = registerComponent(
+export default registerComponent(
   "SurveyPostsItem",
   SurveyPostsItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyPostsItem: typeof SurveyPostsItemComponent
-  }
-}
+

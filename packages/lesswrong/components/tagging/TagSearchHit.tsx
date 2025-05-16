@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
+import Loading from "../vulcan-core/Loading";
 
 const TagPreviewFragmentQuery = gql(`
   query TagSearchHit($documentId: String) {
@@ -50,7 +53,6 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   isVotingContext?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PopperCard, TagPreview, Loading } = Components;
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: hit._id },
     fetchPolicy: 'cache-then-network' as any,
@@ -82,11 +84,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   );
 }
 
-const TagSearchHitComponent = registerComponent("TagSearchHit", TagSearchHit, {styles});
+export default registerComponent("TagSearchHit", TagSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSearchHit: typeof TagSearchHitComponent
-  }
-}
+
 

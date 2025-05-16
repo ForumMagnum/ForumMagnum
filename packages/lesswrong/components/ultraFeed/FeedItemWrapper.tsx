@@ -4,9 +4,11 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
-    marginBottom: 0,
-    borderBottom: `2px solid ${theme.palette.greyAlpha(0.05)}`
-
+    marginBottom: 8,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 0,
+      borderBottom: theme.palette.ultraFeed.cardSeparator
+    }
   },
 }));
 
@@ -22,12 +24,8 @@ const FeedItemWrapper = ({children}: {
   );
 };
 
-const FeedItemWrapperComponent = registerComponent('FeedItemWrapper', FeedItemWrapper);
+export default registerComponent('FeedItemWrapper', FeedItemWrapper);
 
-export default FeedItemWrapperComponent;
 
-declare global {
-  interface ComponentTypes {
-    FeedItemWrapper: typeof FeedItemWrapperComponent
-  }
-} 
+
+ 

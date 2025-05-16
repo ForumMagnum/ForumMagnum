@@ -1,14 +1,17 @@
 import React from "react"
 import { useMulti } from "../../lib/crud/withMulti";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import Card from "@/lib/vendor/@material-ui/core/src/Card";
+import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import LWPopper from "../common/LWPopper";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
 const TagFlagFragmentQuery = gql(`
   query TagFlagItem($documentId: String) {
@@ -53,7 +56,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   style?: "white"|"grey"|"black",
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { data } = useQuery(TagFlagFragmentQuery, {
@@ -119,10 +121,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   </span>
 }
 
-const TagFlagItemComponent = registerComponent('TagFlagItem', TagFlagItem, { styles } );
+export default registerComponent('TagFlagItem', TagFlagItem, { styles } );
 
-declare global {
-  interface ComponentTypes {
-    TagFlagItem: typeof TagFlagItemComponent
-  }
-}
+

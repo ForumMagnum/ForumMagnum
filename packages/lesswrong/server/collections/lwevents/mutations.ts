@@ -3,20 +3,15 @@ import schema from "@/lib/collections/lwevents/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { OwnableDocument, userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
 
 function newCheck(user: DbUser | null, document: CreateLWEventDataInput | null) {
   if (!user || !document) return false;
   return userOwns(user, document as OwnableDocument) ? userCanDo(user, 'events.new.own') : userCanDo(user, `events.new.all`)
-}
-
-function editCheck(user: DbUser | null, document: DbLWEvent | null) {
-  if (!user || !document) return false;
-  return userCanDo(user, `events.edit.all`)
 }
 
 export async function createLWEvent({ data }: CreateLWEventInput, context: ResolverContext) {
@@ -54,7 +49,7 @@ export async function createLWEvent({ data }: CreateLWEventInput, context: Resol
   return documentWithId;
 }
 
-export async function updateLWEvent({ selector, data }: UpdateLWEventInput, context: ResolverContext) {
+export async function updateLWEvent({ selector, data }: { selector: SelectorInput, data: Partial<DbLWEvent> }, context: ResolverContext) {
   const { currentUser, LWEvents } = context;
 
   const {
@@ -76,12 +71,6 @@ export const createLWEventGqlMutation = makeGqlCreateMutation('LWEvents', create
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
 });
 
-export const updateLWEventGqlMutation = makeGqlUpdateMutation('LWEvents', updateLWEvent, {
-  editCheck,
-  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
-});
-
-
 
 
 export const graphqlLWEventTypeDefs = gql`
@@ -93,21 +82,11 @@ export const graphqlLWEventTypeDefs = gql`
     data: CreateLWEventDataInput!
   }
   
-  input UpdateLWEventDataInput ${
-    getUpdatableGraphQLFields(schema)
-  }
-
-  input UpdateLWEventInput {
-    selector: SelectorInput!
-    data: UpdateLWEventDataInput!
-  }
-  
   type LWEventOutput {
     data: LWEvent
   }
 
   extend type Mutation {
     createLWEvent(data: CreateLWEventDataInput!): LWEventOutput
-    updateLWEvent(selector: SelectorInput!, data: UpdateLWEventDataInput!): LWEventOutput
   }
 `;

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
@@ -10,7 +10,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
@@ -19,9 +19,20 @@ import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
+import SearchBar from "./SearchBar";
+import UsersMenu from "../users/UsersMenu";
+import UsersAccountMenu from "../users/UsersAccountMenu";
+import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
+import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
+import NotificationsMenu from "../notifications/NotificationsMenu";
+import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import HeaderSubtitle from "./HeaderSubtitle";
+import { Typography } from "./Typography";
+import ForumIcon from "./ForumIcon";
+import ActiveDialogues from "../dialogues/ActiveDialogues";
+import SiteLogo from "../ea-forum/SiteLogo";
+import MessagesMenuButton from "../messaging/MessagesMenuButton";
 
-export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
-export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
@@ -169,7 +180,11 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
-    height: isFriendlyUI ? undefined : '19px'
+    height: isFriendlyUI ? undefined : '19px',
+    
+    ...(isAF && {
+      top: 0,
+    }),
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -284,7 +299,7 @@ const Header = ({
   sidebarHidden: boolean,
   toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
-  searchResultsArea: React.RefObject<HTMLDivElement>,
+  searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
   classes: ClassesType<typeof styles>,
@@ -300,13 +315,6 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
-
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton,
-  } = Components;
-
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
     // the page (unless the hash is set) but Headroom doesn't run this callback
@@ -550,13 +558,9 @@ const Header = ({
   )
 }
 
-const HeaderComponent = registerComponent('Header', Header, {
+export default registerComponent('Header', Header, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    Header: typeof HeaderComponent
-  }
-}
+

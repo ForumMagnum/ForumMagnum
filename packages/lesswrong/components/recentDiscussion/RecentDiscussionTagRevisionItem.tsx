@@ -1,8 +1,9 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { Components, registerComponent } from "../../lib/vulcan-lib/components"
+import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import TagRevisionItem from "../tagging/TagRevisionItem";
 
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
@@ -46,8 +47,6 @@ function RecentDiscussionTagRevisionItem({
   documentId: string,
 }) {
   const classes = useStyles(styles);
-  const { TagRevisionItem } = Components
-  
   if (tag.adminOnly) {
     return null
   }
@@ -58,9 +57,9 @@ function RecentDiscussionTagRevisionItem({
     // Only a problem for the forum
     isEAForum &&
     // Only restrict the most active tag users
-    megaTagUsers.includes(revision.userId) &&
+    megaTagUsers.includes(revision.userId ?? '') &&
     // Restrict all from cleanup-only users, restrict small edits from other mega users
-    (onlyStyleEditors.includes(revision.userId) || revision.changeMetrics.added < 600)
+    (onlyStyleEditors.includes(revision.userId ?? '') || revision.changeMetrics.added < 600)
   ) {
     return null
   }
@@ -76,12 +75,8 @@ function RecentDiscussionTagRevisionItem({
   </div>
 }
 
-const RecentDiscussionTagRevisionItemComponent = registerComponent(
+export default registerComponent(
   'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItemComponent,
-  }
-}
+

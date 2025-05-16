@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { ExpandedDate } from "@/components/common/FormatDate";
@@ -13,6 +13,10 @@ import {
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import moment from "moment";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import LWTooltip from "../../common/LWTooltip";
+import EAReactsSection from "../../votes/EAReactsSection";
+import UserTooltip from "../../users/UserTooltip";
+import ContentStyles from "../../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -90,8 +94,6 @@ const WrappedComment = ({comment, classes}: {
     commentId: comment._id,
     tagCommentType: "DISCUSSION" as TagCommentType,
   });
-
-  const {LWTooltip, EAReactsSection, UserTooltip, ContentStyles} = Components;
   return (
     <article className={classes.root}>
       {"postTitle" in comment &&
@@ -140,14 +142,10 @@ const WrappedComment = ({comment, classes}: {
   );
 }
 
-const WrappedCommentComponent = registerComponent(
+export default registerComponent(
   "WrappedComment",
   WrappedComment,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedComment: typeof WrappedCommentComponent
-  }
-}
+

@@ -64,12 +64,4 @@ const Loading = ({classes, className, white}: {
   );
 };
 
-const LoadingComponent = registerComponent('Loading', Loading, {styles});
-
-declare global {
-  interface ComponentTypes {
-    Loading: typeof LoadingComponent
-  }
-}
-
-export default Loading;
+export default registerComponent('Loading', Loading, {styles});

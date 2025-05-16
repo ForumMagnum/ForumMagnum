@@ -27,7 +27,9 @@ function convertParsedTypeNodeToTypescriptType(parsedType: ParsedType): string {
       return 'any';
     default: {
       if (isValidCollectionName(graphqlTypeToCollectionName(parsedType.type))) {
-        return `Update${parsedType.type}DataInput${nullableSuffix}`;
+        // TODO: this probably isn't the right type to assign,
+        // but I don't actually know what we want in this case
+        return `${parsedType.type}${nullableSuffix}`;
       } else {
         return parsedType.type + nullableSuffix;
       }
@@ -65,7 +67,7 @@ function generateInputType(inputType: InputObjectTypeDefinitionNode | ObjectType
     const convertedType = convertParsedTypeNodeToTypescriptType(parsedType);
     const convertedTypeIsAny = convertedType === 'any';
     const typeIsNullable = parsedType.nullable;
-    const makeOptional = (convertedTypeIsAny || typeIsNullable) ? '?' : '';
+    const makeOptional = (convertedTypeIsAny || typeIsNullable) && inputType.name.value.includes('Input') ? '?' : '';
     return `${field.name.value}${makeOptional}: ${convertedType}`;
   });
 
@@ -87,8 +89,7 @@ export function generateInputTypes() {
     return t.astNode?.kind === 'InputObjectTypeDefinition' || t.astNode?.kind === 'ObjectTypeDefinition';
   });
 
-  const nonCollectionTypes = inputTypes.filter(t => !isValidCollectionName(graphqlTypeToCollectionName(t.astNode.name.value)));
-  const inputTypeDefinitions = nonCollectionTypes.map(t => generateInputType(t.astNode));
+  const inputTypeDefinitions = inputTypes.map(t => generateInputType(t.astNode));
   const inputTypesString = inputTypeDefinitions.filter(t => t.interfaceString !== 'never').map(t => t.interfaceString).join('\n\n');
   const typeNames = inputTypeDefinitions.map(t => t.typeName);
 

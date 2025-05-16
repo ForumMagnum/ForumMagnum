@@ -1,16 +1,26 @@
-// Define source type arrays
-export const feedPostSourceTypesArray = ['recombee-lesswrong-custom', 'hacker-news', 'welcome-post', 'curated', 'stickied'] as const;
-export const feedCommentSourceTypesArray = ['quickTakes', 'topComments'] as const;
+// Define source type arrays for runtime iteration
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptions' ] as const;
+export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks', 'subscriptions'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
+export const allFeedItemSourceTypes = [
+  ...feedPostSourceTypesArray,
+  ...feedCommentSourceTypesArray,
+  ...feedSpotlightSourceTypesArray,
+] as const;
 
-// Derive types from arrays
+// Define types based on the arrays
 export type FeedPostSourceType = typeof feedPostSourceTypesArray[number];
 export type FeedCommentSourceType = typeof feedCommentSourceTypesArray[number];
 export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[number];
 
+// Combined type for all possible sources
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
+
+// Define render types
 export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
+
+export type FeedItemType = FeedItemRenderType | "feedComment";
  
 export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden";
 export interface RecombeeMetaInfo {
@@ -21,11 +31,14 @@ export interface RecombeeMetaInfo {
 export interface FeedPostMetaInfo {
   recommInfo?: RecombeeMetaInfo;
   sources: FeedItemSourceType[];
+  lastServed?: Date | null;
+  lastViewed?: Date | null;
+  lastInteracted?: Date | null;
   displayStatus: FeedItemDisplayStatus;
 }
 export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[] | null;
-  siblingCount: number | null;
+  directDescendentCount: number;
   lastServed: Date | null;
   lastViewed: Date | null;
   lastInteracted: Date | null;
@@ -36,15 +49,24 @@ export interface FeedCommentMetaInfo {
 
 export interface FeedCommentFromDb {
   commentId: string;
+  authorId: string;
   topLevelCommentId: string;
-  parentCommentId: string;
   postId: string;
+  parentCommentId: string | null;
   baseScore: number;
+  shortform: boolean | null;
   sources: string[];
   lastServed: Date | null;
   lastViewed: Date | null;
   lastInteracted: Date | null;
   postedAt: Date | null;
+}
+
+export interface FeedPostFromDb extends DbPost {
+  sourceType: FeedItemSourceType;
+  lastServed: Date | null;
+  lastViewed: Date | null;
+  lastInteracted: Date | null;
 }
 
 export interface PreDisplayFeedComment {
@@ -59,6 +81,11 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
+}
+
+export interface FeedPostStub {
+  postId: string;
+  postMetaInfo: FeedPostMetaInfo;
 }
 
 export interface FeedFullPost {
@@ -123,4 +150,13 @@ export interface LinearCommentThreadStatistics {
   averageTop3Comments: number;
 }
 
-
+export interface UltraFeedAnalyticsContext {
+  sessionId: string;
+}
+export interface ThreadEngagementStats {
+  threadTopLevelId: string;
+  votingActivityScore: number;
+  participationCount: number;
+  viewScore: number;
+  isOnReadPost: boolean;
+}

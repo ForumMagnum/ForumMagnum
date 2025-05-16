@@ -3,7 +3,7 @@ import { fetchFragmentSingle } from "../fetchFragment";
 import { cheerioParse } from "../utils/htmlUtil";
 import { PostsPage } from "@/lib/collections/posts/fragments";
 
-const extractLatestDialogueMessages = async (dialogueHtml: string, numMessages: number): Promise<String[]> => {
+const extractLatestDialogueMessages = async (dialogueHtml: string, numMessages: number): Promise<string[]> => {
   if (numMessages <= 0) return Promise.resolve([])
   const $ = cheerioParse(dialogueHtml);
   const messages = $('.dialogue-message');
@@ -17,7 +17,7 @@ export const dialogueMessageGqlTypeDefs = gql`
 `
 
 export const dialogueMessageGqlQueries = {
-  async latestDialogueMessages (_: void, { dialogueId, numMessages }: { dialogueId: string, numMessages: number }, context: ResolverContext): Promise<String[]> {
+  async latestDialogueMessages (_: void, { dialogueId, numMessages }: { dialogueId: string, numMessages: number }, context: ResolverContext): Promise<string[]> {
     const dialogue = await fetchFragmentSingle({
       collectionName: "Posts",
       fragmentDoc: PostsPage,

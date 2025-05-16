@@ -3,12 +3,17 @@ import take from "lodash/take";
 import React, { useCallback, useState } from "react";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentStyles from "../../common/ContentStyles";
+import FooterTag from "../FooterTag";
+import AddTagButton from "../AddTagButton";
+import Loading from "../../vulcan-core/Loading";
+import type { TagPageFragment, TagPageWithRevisionFragment } from "@/lib/generated/gql-codegen/graphql";
 
 const TagSubtagFragmentQuery = gql(`
   query SidebarSubtagsBox($documentId: String) {
@@ -49,8 +54,6 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
-
   const [isAwaiting, setIsAwaiting] = useState(false)
   const [showAllSubtags, setShowAllSubtags] = useState(false)
   const currentUser = useCurrentUser();
@@ -157,10 +160,6 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
   );
 };
 
-const SidebarSubtagsBoxComponent = registerComponent("SidebarSubtagsBox", SidebarSubtagsBox, { styles });
+export default registerComponent("SidebarSubtagsBox", SidebarSubtagsBox, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SidebarSubtagsBox: typeof SidebarSubtagsBoxComponent;
-  }
-}
+

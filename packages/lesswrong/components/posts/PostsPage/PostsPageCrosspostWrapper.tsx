@@ -1,9 +1,12 @@
 import React, { createContext, useContext } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
-import type { EagerPostComments } from "./PostsPage";
+import PostsPage, { EagerPostComments } from "./PostsPage";
+import Error404 from "../../common/Error404";
+import Loading from "../../vulcan-core/Loading";
+import type { PostsWithNavigation, PostsWithNavigationAndRevision } from "@/lib/generated/gql-codegen/graphql";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -35,7 +38,7 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
 const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
   eagerPostComments?: EagerPostComments,
-  refetch: () => Promise<void>,
+  refetch: () => Promise<AnyBecauseHard>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
   const {
@@ -45,8 +48,6 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
     foreignPost,
     combinedPost,
   } = useForeignCrosspost(post, fetchProps);
-
-  const { Error404, Loading, PostsPage } = Components;
   // If we get a error fetching the foreign xpost data, that should not stop us
   // from rendering the post if we have it locally
   if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
@@ -76,10 +77,6 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
   );
 }
 
-const PostsPageCrosspostWrapperComponent = registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapper);
+export default registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapper);
 
-declare global {
-  interface ComponentTypes {
-    PostsPageCrosspostWrapper: typeof PostsPageCrosspostWrapperComponent
-  }
-}
+

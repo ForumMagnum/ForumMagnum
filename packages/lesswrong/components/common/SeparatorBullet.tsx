@@ -14,10 +14,6 @@ const SeparatorBullet = ({classes}: {
   return <span className={classes.root}>{" "}•{" "}</span>;
 }
 
-const SeparatorBulletComponent = registerComponent("SeparatorBullet", SeparatorBullet, {styles});
+export default registerComponent("SeparatorBullet", SeparatorBullet, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SeparatorBullet: typeof SeparatorBulletComponent
-  }
-}
+

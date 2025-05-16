@@ -1,12 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useDialog } from '../../common/withDialog';
 import { useMutation } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { gql } from '@/lib/generated/gql-codegen/gql';
-
+import LockThreadDialog from "./LockThreadDialog";
+import DropdownItem from "../DropdownItem";
+import type { CommentsList } from '@/lib/generated/gql-codegen/graphql';
 
 const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -25,7 +27,7 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const handleLockThread = () => {
     openDialog({
       name: "LockThreadDialog",
-      contents: ({onClose}) => <Components.LockThreadDialog
+      contents: ({onClose}) => <LockThreadDialog
         onClose={onClose}
         commentId={comment._id}
       />
@@ -42,8 +44,6 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
     // hard-refresh the page
     window.location.reload();
   }
-
-  const {DropdownItem} = Components;
   if (comment.repliesBlockedUntil) {
     return (
       <DropdownItem
@@ -61,12 +61,8 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 }
 
-const LockThreadDropdownItemComponent = registerComponent(
+export default registerComponent(
   'LockThreadDropdownItem', LockThreadDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    LockThreadDropdownItem: typeof LockThreadDropdownItemComponent
-  }
-}
+

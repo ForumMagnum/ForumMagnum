@@ -80,13 +80,10 @@ export function getCreatableGraphQLFieldsWithoutBraces(schema: SchemaType<Collec
     .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canCreate?.length)
     .map(([fieldName, fieldGraphql]) => {
       const inputFieldType = getGraphQLType(fieldGraphql, true);
-      const createFieldType = inputFieldType === 'Revision'
-        ? 'JSON'
-        : inputFieldType;
 
       return {
         name: fieldName,
-        type: createFieldType,
+        type: inputFieldType,
       };
     });
 
@@ -106,14 +103,11 @@ export function getUpdatableGraphQLFieldsWithoutBraces(schema: SchemaType<Collec
     .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canUpdate?.length)
     .map(([fieldName, fieldGraphql]) => {
       const inputFieldType = getGraphQLType(fieldGraphql, true);
-      const createFieldType = inputFieldType === 'Revision'
-        ? 'JSON'
-        : inputFieldType;
 
       // Fields should not be required for updates
-      const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
-        ? createFieldType.slice(0, -1)
-        : createFieldType;
+      const updateFieldType = (typeof inputFieldType === 'string' && inputFieldType.endsWith('!'))
+        ? inputFieldType.slice(0, -1)
+        : inputFieldType;
 
       return {
         name: fieldName,

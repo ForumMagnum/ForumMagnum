@@ -32,6 +32,7 @@ export const graphqlUserJobAdQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiUserJobAdOutput {

@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
@@ -10,6 +10,16 @@ import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
+import PostsTitle from "../PostsTitle";
+import ContentItemBody from "../../common/ContentItemBody";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import BookmarkButton from "../BookmarkButton";
+import FormatDate from "../../common/FormatDate";
+import Loading from "../../vulcan-core/Loading";
+import ContentStyles from "../../common/ContentStyles";
+import EventTime from "../../localGroups/EventTime";
+import type { PostsBase } from '@/lib/generated/gql-codegen/graphql';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -163,8 +173,6 @@ const LWPostsPreviewTooltip = ({
   dialogueMessageInfo,
   classes,
 }: LWPostsPreviewTooltipProps) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
-    Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
   const foreignApolloClient = useForeignApolloClient();
@@ -225,7 +233,7 @@ const LWPostsPreviewTooltip = ({
               { postsList && <span>
                 {post.startTime && <EventTime post={post} />}
                 {eventLocation}
-                {postTags.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
+                {postTags?.map((tag, i) => <span key={tag?._id}>{tag?.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
@@ -241,12 +249,12 @@ const LWPostsPreviewTooltip = ({
             </ContentStyles>
           </div>
           { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton post={post}/>
+            <BookmarkButton documentId={post._id} collectionName="Posts"/>
           </div>}
         </div>
         {renderedComment
           ? <div className={classes.comment}>
-              <CommentsNode
+              <CommentsNodeInner
                 treeOptions={{
                   post,
                   hideReply: true,
@@ -277,10 +285,6 @@ const LWPostsPreviewTooltip = ({
 
 }
 
-const LWPostsPreviewTooltipComponent = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
+export default registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPreviewTooltip: typeof LWPostsPreviewTooltipComponent
-  }
-}
+

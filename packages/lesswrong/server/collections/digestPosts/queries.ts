@@ -27,6 +27,7 @@ export const graphqlDigestPostQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiDigestPostOutput {

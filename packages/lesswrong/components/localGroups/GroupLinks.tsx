@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import SvgIcon from '@/lib/vendor/@material-ui/core/src/SvgIcon';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import SvgIcon from '../icons/SvgIcon';
 import {isFriendlyUI} from '../../themes/forumTheme'
-
+import { TooltipSpan } from '../common/FMTooltip';
+import ForumIcon from "../common/ForumIcon";
 
 // just the "f", used for the FB Group link
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -139,14 +139,12 @@ const tooltips: Partial<Record<string,string>> = {
 
 const GroupLinks = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
-  noMargin?: Boolean,
+  noMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
-  const {ForumIcon} = Components;
-
   const groupLinkProps = {
     className: classes.groupLink,
     target: "_blank",
@@ -157,64 +155,59 @@ const GroupLinks = ({ document, noMargin, classes }: {
       {!isFriendlyUI && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
-            <Tooltip
+            <TooltipSpan
               title={tooltips[type]}
               placement="top-end"
               key={type}
+              className={classes.groupType}
             >
-              <div className={classes.groupType}>
-                {type}
-              </div>
-            </Tooltip>
+              {type}
+            </TooltipSpan>
           )
         })}
       </div>}
       <div className={(noMargin && (isEAForum || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
-          && <Tooltip
+          && <TooltipSpan
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}
             placement="top-end"
           >
             <a href={document.facebookLink} {...groupLinkProps}>
               <FacebookIcon className={classes.facebookGroupIcon}/>
             </a>
-          </Tooltip>}
+          </TooltipSpan>}
         {'facebookPageLink' in document && document.facebookPageLink
-        && <Tooltip
+        && <TooltipSpan
           title={`Link to Facebook ${isEvent ? 'Event' : 'Page'}`}
           placement="top-end"
         >
           <a href={document.facebookPageLink} {...groupLinkProps}>
             <RoundFacebookIcon className={classes.socialIcon}/>
           </a>
-        </Tooltip>}
+        </TooltipSpan>}
         {document.meetupLink
-          && <Tooltip title={`Link to Meetup.com ${isEvent ? 'Event' : 'Group'}`} placement="top-end">
+          && <TooltipSpan title={`Link to Meetup.com ${isEvent ? 'Event' : 'Group'}`} placement="top-end">
             <a href={document.meetupLink} {...groupLinkProps}>
               <MeetupIcon className={classes.socialIcon}/>
             </a>
-          </Tooltip>}
+          </TooltipSpan>}
         {'slackLink' in document && document.slackLink
-          && <Tooltip title={`Link to Slack Workspace`} placement="top-end">
+          && <TooltipSpan title={`Link to Slack Workspace`} placement="top-end">
           <a href={document.slackLink} {...groupLinkProps}>
             <SlackIcon className={classes.socialIcon}/>
           </a>
-        </Tooltip>}
+        </TooltipSpan>}
         {document.website
-          && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
+          && <TooltipSpan title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
             <a href={document.website} {...groupLinkProps} className={classes.websiteLink}>
               <ForumIcon icon="Link" className={classes.linkIcon}/>
             </a>
-          </Tooltip>}
+          </TooltipSpan>}
       </div>
     </div>
   )
 }
 
-const GroupLinksComponent = registerComponent("GroupLinks", GroupLinks, {styles});
+export default registerComponent("GroupLinks", GroupLinks, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GroupLinks: typeof GroupLinksComponent
-  }
-}
+

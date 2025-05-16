@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -12,6 +12,13 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
 import DeferRender from '../common/DeferRender';
+import LWTooltip from "../common/LWTooltip";
+import SectionTitle from "../common/SectionTitle";
+import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
+import FormatDate from "../common/FormatDate";
+import PostsItemDate from "../posts/PostsItemDate";
+import ForumIcon from "../common/ForumIcon";
+import SidebarDigestAd from "./digestAd/SidebarDigestAd";
 
 /**
  * The max screen width where the Home RHS is visible
@@ -133,9 +140,6 @@ const UpcomingEventsSection = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   })
-
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
-  
   if (!upcomingEvents?.length) return null
 
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
@@ -208,11 +212,6 @@ export const EAHomeRightHandSide = ({classes}: {
   }
 
   if (!userHasEAHomeRHS(currentUser)) return null
-  
-  const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd, FormatDate
-  } = Components
-  
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
     <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
       <ForumIcon icon={isHidden ? 'ThickChevronLeft' : 'ThickChevronRight'} className={classes.sidebarToggleIcon} />
@@ -311,10 +310,6 @@ export const EAHomeRightHandSide = ({classes}: {
   </AnalyticsContext>
 }
 
-const EAHomeRightHandSideComponent = registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
+export default registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeRightHandSide: typeof EAHomeRightHandSideComponent
-  }
-}
+

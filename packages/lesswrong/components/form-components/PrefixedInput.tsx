@@ -1,7 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,46 +38,49 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
  * except it also displays an inputPrefix to the left of the cursor.
  */
 const PrefixedInput = ({
-  label,
+  field,
   heading,
   inputPrefix,
-  path,
+  smallBottomMargin,
   classes,
-  ...props
-}: FormComponentProps<string> & {
+}: {
+  field: {
+    name: TypedFieldApi<string | null>['name'];
+    state: Pick<TypedFieldApi<string | null>['state'], 'value'>;
+    handleChange: TypedFieldApi<string | null>['handleChange'];
+  };
   inputPrefix?: string,
   heading?: string,
+  smallBottomMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SocialMediaIcon, FormComponentFriendlyTextInput} = Components;
+  const value = field.state.value;
+  const fieldName = field.name;
 
-  const icon = (path in iconNameByUserFieldName) ? (
+  const icon = (fieldName in iconNameByUserFieldName) ? (
     <SocialMediaIcon
       className={classes.icon}
-      name={iconNameByUserFieldName[path as SocialMediaProfileField|"website"]}
+      name={iconNameByUserFieldName[fieldName as SocialMediaProfileField|"website"]}
     />
   ) : null
 
   return (
     <FormComponentFriendlyTextInput
-      {...props}
+      value={value}
       startAdornment={
         <InputAdornment position="start" className={classes.inputAdornment}>
           {icon}
           <span className={classes.adornmentText}>{inputPrefix}</span>
         </InputAdornment>
       }
-      path={path}
+      updateCurrentValue={field.handleChange}
       label={heading}
       className={classes.root}
+      smallBottomMargin={smallBottomMargin}
     />
   );
 }
 
-const PrefixedInputComponent = registerComponent("PrefixedInput", PrefixedInput, { styles });
+export default registerComponent("PrefixedInput", PrefixedInput, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PrefixedInput: typeof PrefixedInputComponent
-  }
-}
+

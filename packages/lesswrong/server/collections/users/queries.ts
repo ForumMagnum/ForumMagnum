@@ -7,9 +7,15 @@ import { UsersViews } from "@/lib/collections/users/views";
 
 export const graphqlUserQueryTypeDefs = gql`
   type User ${ getAllGraphQLFields(schema) }
+
+  input UserSelectorUniqueInput {
+    _id: String
+    documentId: String
+    slug: String
+  }
   
   input SingleUserInput {
-    selector: SelectorInput
+    selector: UserSelectorUniqueInput
     resolverArgs: JSON
   }
   
@@ -80,6 +86,7 @@ export const graphqlUserQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiUserOutput {

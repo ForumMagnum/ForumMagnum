@@ -1,7 +1,8 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import CalendarDate from "../../common/CalendarDate";
 
 const DeletedCommentsMetaDataQuery = gql(`
   query CommentDeletedMetadata($documentId: String) {
@@ -38,7 +39,7 @@ const CommentDeletedMetadata = ({documentId, classes}: {
       <div className={classes.root}>
         <div className={classes.meta}>
           {deletedByUsername && <span>Deleted by {deletedByUsername}</span>}, {document.deletedDate && <span>
-            <Components.CalendarDate date={document.deletedDate}/>
+            <CalendarDate date={document.deletedDate}/>
           </span>} 
         </div>
         {document.deletedReason &&
@@ -53,13 +54,9 @@ const CommentDeletedMetadata = ({documentId, classes}: {
   }
 };
 
-const CommentDeletedMetadataComponent = registerComponent(
+export default registerComponent(
   'CommentDeletedMetadata', CommentDeletedMetadata, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentDeletedMetadata: typeof CommentDeletedMetadataComponent,
-  }
-}
+
 

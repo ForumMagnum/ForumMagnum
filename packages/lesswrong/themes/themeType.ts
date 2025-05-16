@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@/lib/vendor/@material-ui/core/src';
+import type { Transitions as MuiTransitions } from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
@@ -73,6 +74,7 @@ declare global {
     primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
+    invertIfDarkMode: (color: string) => string,
     
     fonts: {
       sansSerifStack: string,
@@ -99,6 +101,13 @@ declare global {
     lwTertiary: {
       main: ColorString,
       dark: ColorString
+    },
+    action: {
+      active: ColorString,
+      hover: ColorString,
+      hoverOpacity: number,
+      disabled: ColorString,
+      disabledBackground: ColorString,
     },
     error: {
       main: ColorString,
@@ -130,6 +139,7 @@ declare global {
       primary: ColorString,
       secondary: ColorString
       normal: ColorString,
+      disabled: ColorString,
       maxIntensity: ColorString,
       slightlyIntense: ColorString,
       slightlyIntense2: ColorString,
@@ -573,6 +583,10 @@ declare global {
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    ultraFeed: {
+      dim: ColorString,
+      cardSeparator: string,
+    }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
@@ -609,6 +623,7 @@ declare global {
 
       postStyle: JssStyles,
       commentStyle: JssStyles,
+      ultraFeedMobileStyle: JssStyles,
       commentBlockquote: JssStyles,
       commentHeader: JssStyles,
       errorStyle: JssStyles,
@@ -635,9 +650,13 @@ declare global {
       smallText: JssStyles,
       tinyText: JssStyles,
       caption: JssStyles,
+      button: JssStyles,
       blockquote: JssStyles,
       italic: JssStyles,
       smallCaps: JssStyles,
+      
+      /** @deprecated */
+      pxToRem: (px: number) => string
     },
     zIndexes: ZIndexMap,
     overrides: any,
@@ -650,6 +669,12 @@ declare global {
     shadows: string[],
     
     rawCSS: string[],
+    
+    shape: {
+      borderRadius: number,
+    },
+    transitions: MuiTransitions,
+    direction: "ltr"|"rtl",
   };
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };

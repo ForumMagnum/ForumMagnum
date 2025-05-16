@@ -102,7 +102,7 @@ export function getPreviewDocument<N extends CollectionNameString, D extends {} 
   return pickBy({
     ...oldDocument,
     ...data,
-  }, (value) => value !== null) as ObjectsByCollectionName[N];
+  }, (value) => value !== null) as unknown as ObjectsByCollectionName[N];
 }
 
 export async function getOldDocument<N extends CollectionNameString>(collectionName: N, selector: SelectorInput, context: ResolverContext) {

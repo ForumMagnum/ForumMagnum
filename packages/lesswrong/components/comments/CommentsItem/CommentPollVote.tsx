@@ -1,8 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
+import LWTooltip from "../../common/LWTooltip";
+import { CommentsList } from "@/lib/generated/gql-codegen/graphql";
 
 const ForumEventsMinimumInfoQuery = gql(`
   query CommentPollVote($documentId: String) {
@@ -26,21 +29,24 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.warning.main,
   },
   tooltip: {
-    marginBottom: 6,
+    transform: "translateY(-10px)",
   },
 });
 
 const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
-  const { LWTooltip } = Components;
-
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
   const { loading, data } = useQuery(ForumEventsMinimumInfoQuery, {
     variables: { documentId: comment.forumEventId },
     skip: !comment.forumEventId,
+    ssr: false,
   });
+  
   const forumEvent = data?.forumEvent?.result;
+
+  const isGlobal = forumEvent?.isGlobal !== false;
+  const pollLink = (!isGlobal && forumEvent) ? `#${forumEvent._id}` : undefined;
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
@@ -59,6 +65,10 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const showStartAgreement = startAgreement !== endAgreement;
   const showStartPercentage = showStartAgreement || endPercentage !== startPercentage;
 
+  const CurrentVoteTag = isGlobal ? 'span' : 'a';
+
+  const questionWording = forumEvent?.pollQuestion?.html && stripFootnotes(forumEvent.pollQuestion.html);
+
   return (
     <span className={classes.root}>
       {showStartPercentage && (
@@ -73,20 +83,22 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
           &nbsp;&#10132;&nbsp;
         </span>
       )}
-      <span className={endAgreement ? classes.agreePollVote : classes.disagreePollVote}>
-        {endPercentage}
-        {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
-      </span>
+      <LWTooltip
+        title={questionWording && <span>With the question "{questionWording}"</span>}
+        placement="top"
+        popperClassName={classes.tooltip}
+      >
+        <CurrentVoteTag className={endAgreement ? classes.agreePollVote : classes.disagreePollVote} href={pollLink}>
+          {endPercentage}
+          {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
+        </CurrentVoteTag>
+      </LWTooltip>
     </span>
   );
 };
 
-const CommentPollVoteComponent = registerComponent("CommentPollVote", CommentPollVote, {
+export default registerComponent("CommentPollVote", CommentPollVote, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentPollVote: typeof CommentPollVoteComponent;
-  }
-}
+

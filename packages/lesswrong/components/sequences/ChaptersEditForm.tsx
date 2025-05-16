@@ -4,7 +4,9 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { ChaptersForm } from './ChaptersForm';
+import AddDraftPostDialog from "./AddDraftPostDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,10 +28,9 @@ const styles = (theme: ThemeType) => ({
 })
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancelCallback}: {
+const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
   classes: ClassesType<typeof styles>,
-  documentId: string,
-  postIds: string[],
+  chapter: ChaptersEdit,
   successCallback: any,
   cancelCallback: any,
 }) => {
@@ -37,19 +38,18 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
   const [saved, setSaved] = useState(true);
   const { flash } = useMessages();
 
-  const changeCallback = useCallback((doc: ChaptersFragment) => {
-    setSaved(isEqual(doc.postIds, postIds));
-  }, [postIds]);
-
+  const changeCallback = useCallback((newPostIds: string[]) => {
+    setSaved(isEqual(newPostIds, chapter.postIds));
+  }, [chapter.postIds]);
 
   const showAddDraftPostDialog = () => {
     if (saved) {
       openDialog({
         name: "AddDraftPostDialog",
-        contents: ({onClose}) => <Components.AddDraftPostDialog
+        contents: ({onClose}) => <AddDraftPostDialog
           onClose={onClose}
-          documentId={documentId}
-          postIds={postIds}
+          documentId={chapter._id}
+          postIds={chapter.postIds}
         />
       });
     } else {
@@ -60,15 +60,11 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
   return (
     <div className={classes.root}>
       <h3 className={classes.title}>Add/Remove Posts</h3>
-      <Components.WrappedSmartForm
-        collectionName="Chapters"
-        documentId={documentId}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        changeCallback={changeCallback}
-        showRemove={true}
-        queryFragmentName={'ChaptersEdit'}
-        mutationFragmentName={'ChaptersEdit'}
+      <ChaptersForm
+        initialData={chapter}
+        onSuccess={successCallback}
+        onCancel={cancelCallback}
+        onPostIdsChanged={changeCallback}
       />
       <Button color="primary" className={classNames(
         classes.addDraftButton,
@@ -78,11 +74,7 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
   )
 }
 
-const ChaptersEditFormComponent = registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
+export default registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChaptersEditForm: typeof ChaptersEditFormComponent
-  }
-}
+
 

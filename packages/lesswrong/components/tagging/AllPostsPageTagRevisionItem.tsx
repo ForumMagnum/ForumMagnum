@@ -1,8 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../vulcan-core/Loading";
+import TagRevisionItem from "./TagRevisionItem";
+import LensRevisionItem from "./history/LensRevisionItem";
+import type { TagHistoryFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const RevisionHistoryEntryQuery = gql(`
   query AllPostsPageTagRevisionItem($documentId: String) {
@@ -34,7 +38,6 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Loading, TagRevisionItem, LensRevisionItem} = Components;
   const { loading, data } = useQuery(RevisionHistoryEntryQuery, {
     variables: { documentId: revisionId },
     fetchPolicy: 'cache-then-network' as any,
@@ -63,11 +66,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   }
 }
 
-const AllPostsPageTagRevisionItemComponent = registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItem, {styles});
+export default registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPageTagRevisionItem: typeof AllPostsPageTagRevisionItemComponent
-  }
-}
+
 

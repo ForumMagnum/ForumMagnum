@@ -3,13 +3,16 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 const SequencesPageFragmentQuery = gql(`
   query EAHomeHandbook($documentId: String) {
@@ -128,7 +131,6 @@ const EAHomeHandbook = ({ classes, documentId }: {
   classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
-  const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { loading, data } = useQuery(SequencesPageFragmentQuery, {
     variables: { documentId: documentId },
   });
@@ -154,7 +156,7 @@ const EAHomeHandbook = ({ classes, documentId }: {
       <div className={classes.bannerContainer}>
         <div className={classes.bannerImgWrapper}>
           <CloudinaryImage2
-            publicId={document.bannerImageId}
+            publicId={document.bannerImageId ?? ''}
             height={bannerHeight}
             width={SECTION_WIDTH}
             objectFit='cover'
@@ -187,12 +189,8 @@ const EAHomeHandbook = ({ classes, documentId }: {
   </React.Fragment>
 }
 
-const EAHomeHandbookComponent = registerComponent(
+export default registerComponent(
   'EAHomeHandbook', EAHomeHandbook, {styles},
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    EAHomeHandbook: typeof EAHomeHandbookComponent
-  }
-}
+

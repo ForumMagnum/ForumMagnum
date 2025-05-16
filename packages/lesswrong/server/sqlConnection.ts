@@ -4,7 +4,7 @@ import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
+import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
 let sqlBytesDownloaded = 0;
@@ -55,6 +55,14 @@ export const pgPromiseLib = pgp({
     // console.log("SQL:", context.query);
   // },
 });
+
+export const concat = (queries: Query<any>[]): string => {
+  const compiled = queries.map((query) => {
+    const {sql, args} = query.compile();
+    return {query: sql, values: args};
+  });
+  return pgPromiseLib.helpers.concat(compiled);
+}
 
 /**
  * The postgres default for max_connections is 100 - you can view the current setting
@@ -204,12 +212,19 @@ const wrapQueryMethod = <T>(
     values?: SqlQueryArgs,
     describe?: SqlDescription,
     quiet?: boolean,
-  ) => logIfSlow(
-    () => queryMethod(query, values),
-    describe ?? query,
-    query,
-    quiet,
-  ) as ReturnType<typeof queryMethod>;
+  ) => {
+    const description = describe
+      ?? (logQueryArguments
+        ? `${query}: ${JSON.stringify(values)}`
+        : query
+      )
+    return logIfSlow(
+      () => queryMethod(query, values),
+      description,
+      query,
+      quiet,
+    ) as ReturnType<typeof queryMethod>;
+  }
 }
 
 export const createSqlConnection = async (
@@ -237,13 +252,7 @@ export const createSqlConnection = async (
     any: wrapQueryMethod(db.any),
     multi: wrapQueryMethod(db.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
-    concat: (queries: Query<any>[]): string => {
-      const compiled = queries.map((query) => {
-        const {sql, args} = query.compile();
-        return {query: sql, values: args};
-      });
-      return pgPromiseLib.helpers.concat(compiled);
-    },
+    concat,
     isTestingClient,
   };
 

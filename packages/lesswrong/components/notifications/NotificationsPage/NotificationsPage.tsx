@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
-import type { KarmaChanges } from "../../../server/collections/users/karmaChangesGraphQL";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import LoginForm from "../../users/LoginForm";
+import NotificationsPageFeed from "./NotificationsPageFeed";
+import type { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsPage($documentId: String) {
@@ -48,7 +50,7 @@ export const NotificationsPage = ({classes}: {
 
   // Save the initial karma changes to display, as they'll be marked as read
   // once the user visits the page and they'll dissapear
-  const karmaChanges = useRef<KarmaChanges>();
+  const karmaChanges = useRef<UserKarmaChanges['karmaChanges']|null>(null);
   if (fetchedKarmaChanges && !karmaChanges.current) {
     karmaChanges.current = fetchedKarmaChanges.karmaChanges;
   }
@@ -60,20 +62,17 @@ export const NotificationsPage = ({classes}: {
   useEffect(() => {
     if (karmaChanges.current) {
       void updateCurrentUser({
-        karmaChangeLastOpened: karmaChanges.current.endDate,
-        karmaChangeBatchStart: karmaChanges.current.startDate,
+        karmaChangeLastOpened: karmaChanges.current.endDate ? new Date(karmaChanges.current.endDate) : null,
+        karmaChangeBatchStart: karmaChanges.current.startDate ? new Date(karmaChanges.current.startDate) : null,
       });
     }
   }, [fetchedKarmaChanges, updateCurrentUser]);
 
   if (!currentUser) {
-    const {LoginForm} = Components;
     return (
       <LoginForm />
     );
   }
-
-  const {NotificationsPageFeed} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -84,14 +83,10 @@ export const NotificationsPage = ({classes}: {
   );
 }
 
-const NotificationsPageComponent = registerComponent(
+export default registerComponent(
   "NotificationsPage",
   NotificationsPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPage: typeof NotificationsPageComponent
-  }
-}
+

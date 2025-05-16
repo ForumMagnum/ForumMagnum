@@ -1,19 +1,24 @@
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { canUserEditPostMetadata, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
-import Table from "@/lib/vendor/@material-ui/core/src/Table";
-import TableBody from "@/lib/vendor/@material-ui/core/src/TableBody";
-import TableRow from "@/lib/vendor/@material-ui/core/src/TableRow";
-import TableCell from "@/lib/vendor/@material-ui/core/src/TableCell";
+import { Table } from "@/components/widgets/Table"
+import { TableBody } from "@/components/widgets/TableBody"
+import { TableRow } from "@/components/widgets/TableRow"
+import { TableCell } from "@/components/widgets/TableCell"
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
-import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
+import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import classNames from "classnames";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import SingleColumnSection from "../common/SingleColumnSection";
+import LoginForm from "../users/LoginForm";
+import HeadTags from "../common/HeadTags";
+import { Typography } from "../common/Typography";
+import LWTooltip from "../common/LWTooltip";
 
 const PostsPageQuery = gql(`
   query PostsAnalyticsPage($documentId: String) {
@@ -114,12 +119,6 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
     postIds: [query.postId],
   });
   const overallStats = postAnalytics?.posts?.[0];
-
-  const {
-    SingleColumnSection, LoginForm, HeadTags, Typography, AnalyticsGraph,
-    LWTooltip,
-  } = Components;
-
   if (!query.postId) {
     return null;
   }
@@ -233,10 +232,6 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
   );
 };
 
-const PostsAnalyticsPageComponent = registerComponent("PostsAnalyticsPage", PostsAnalyticsPage, { styles });
+export default registerComponent("PostsAnalyticsPage", PostsAnalyticsPage, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsAnalyticsPage: typeof PostsAnalyticsPageComponent;
-  }
-}
+

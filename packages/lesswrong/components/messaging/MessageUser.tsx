@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useGetUserBySlug } from "../hooks/useGetUserBySlug";
+import Loading from "../vulcan-core/Loading";
+import PermanentRedirect from "../common/PermanentRedirect";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   error: {
@@ -15,9 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const MessageUserInner = ({ user, classes }: { user: UsersMinimumInfo; classes: ClassesType<typeof styles> }) => {
-  const { Loading, PermanentRedirect, SingleColumnSection } = Components;
-
+const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; classes: ClassesType<typeof styles> }) => {
   const { conversation, conversationLoading, initiateConversation } = useInitiateConversation();
 
   useEffect(() => {
@@ -40,8 +41,6 @@ const MessageUserInner = ({ user, classes }: { user: UsersMinimumInfo; classes: 
 const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const { params } = useLocation();
-  const { Loading, SingleColumnSection } = Components;
-
   const { user, loading } = useGetUserBySlug(params.slug, { fragmentName: 'UsersMinimumInfo', skip: !currentUser || !params.slug });
 
   if (!currentUser) {
@@ -66,13 +65,9 @@ const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     );
   }
 
-  return <MessageUserInner user={user} classes={classes} />;
+  return <MessageUserInnerInner user={user} classes={classes} />;
 };
 
-const MessageUserComponent = registerComponent("MessageUser", MessageUser, { styles });
+export default registerComponent("MessageUser", MessageUser, { styles });
 
-declare global {
-  interface ComponentTypes {
-    MessageUser: typeof MessageUserComponent;
-  }
-}
+

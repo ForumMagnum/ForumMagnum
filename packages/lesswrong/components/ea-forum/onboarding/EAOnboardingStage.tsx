@@ -1,15 +1,21 @@
 import React, { ReactNode, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import DialogTitle from "@/lib/vendor/@material-ui/core/src/DialogTitle";
-import DialogContent from "@/lib/vendor/@material-ui/core/src/DialogContent";
-import DialogContentText from "@/lib/vendor/@material-ui/core/src/DialogContentText";
-import DialogActions from "@/lib/vendor/@material-ui/core/src/DialogActions";
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogContentText } from '../../widgets/DialogContentText';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from "@/components/common/withUser";
+import EAButton from "../EAButton";
+import LWDialog from "../../common/LWDialog";
+import { Typography } from "../../common/Typography";
+import Loading from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   scrollable: {
-    overflowY: "scroll",
+    overflowY: "auto",
     flexGrow: 1,
   },
   header: {
@@ -139,8 +145,6 @@ const LogoutConfirmationDialog = (
   {open: boolean, onClose: () => void, classes: ClassesType<typeof styles>},
 ) => {
   const currentUser = useCurrentUser();
-  
-  const {EAButton, LWDialog, Typography} = Components;
   return <LWDialog open={open} onClose={onClose} className={classes.logoutDialog}>
     <DialogTitle disableTypography>
       <Typography variant="display1" className={classes.logoutDialogTitle}>
@@ -220,8 +224,6 @@ export const EAOnboardingStage = ({
   if (currentStage !== stageName) {
     return null;
   }
-
-  const {EAButton, Loading, LWTooltip, ForumIcon, LWDialog, Typography} = Components;
   return (
     <AnalyticsContext
       pageElementContext="onboardingFlow"
@@ -288,14 +290,10 @@ export const EAOnboardingStage = ({
   );
 }
 
-const EAOnboardingStageComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingStage",
   EAOnboardingStage,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingStage: typeof EAOnboardingStageComponent
-  }
-}
+

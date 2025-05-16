@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
@@ -14,6 +14,9 @@ import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWith
 import { useMapStyle } from '@/components/hooks/useMapStyle';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import StyledMapPopup from "../../localGroups/StyledMapPopup";
+import GroupLinks from "../../localGroups/GroupLinks";
+import HomepageMapFilter from "./HomepageMapFilter";
 
 const PostsListQuery = gql(`
   query HomepageCommunityMap($documentId: String) {
@@ -60,11 +63,10 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
+export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
-  const { StyledMapPopup, GroupLinks } = Components
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: localEvent._id },
   });
@@ -90,7 +92,6 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
     <div dangerouslySetInnerHTML={htmlBody} />
   </StyledMapPopup>
 }
-const LocalEventWrapperPopUpComponent = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUp);
 
 
 const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
@@ -110,11 +111,11 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
     opacity: 1
   }
 })
-const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
+
+const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
-  const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
     (id: string) => { setOpenWindows([id]) }
@@ -151,7 +152,8 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
     })}
   </React.Fragment>
 }
-const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappers, {
+
+export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner, {
   styles: localEventMapMarkerWrappersStyles
 });
 
@@ -160,8 +162,6 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
-
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
@@ -180,7 +180,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
         <HomepageMapFilter />
       </div>
     </>
-  }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
+  }, [classes.mapButtons])
 
   const mapStyle = useMapStyle();
 
@@ -201,13 +201,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   </div>;
 }
 
-const HomepageCommunityMapComponent = registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
+export default registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomepageCommunityMap: typeof HomepageCommunityMapComponent
-    LocalEventMapMarkerWrappers: typeof LocalEventMapMarkerWrappersComponent
-    LocalEventWrapperPopUp: typeof LocalEventWrapperPopUpComponent
-  }
-}
+
 

@@ -2,11 +2,14 @@ import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import SectionTitle from "../common/SectionTitle";
+import RecommendationsList from "../recommendations/RecommendationsList";
+import PostsItem from "../posts/PostsItem";
 
 const PostsListWithVotesQuery = gql(`
   query FrontpageBestOfLWWidget($documentId: String) {
@@ -79,8 +82,6 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components
-
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: "zajNa9fdr8JYJpxrG" },
   });
@@ -97,14 +98,10 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   </div>;
 }
 
-const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
+export default registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
   styles,
   allowNonThemeColors: true, // Overlayed on an image
 });
 
-declare global {
-  interface ComponentTypes {
-    FrontpageBestOfLWWidget: typeof FrontpageBestOfLWWidgetComponent
-  }
-}
+
 

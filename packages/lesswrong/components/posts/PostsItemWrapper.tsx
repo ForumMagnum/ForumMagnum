@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
@@ -6,6 +6,10 @@ import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import classNames from 'classnames';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../vulcan-core/Loading";
+import PostsTitle from "./PostsTitle";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 
 const PostsListQuery = gql(`
   query PostsItemWrapper($documentId: String) {
@@ -77,7 +81,6 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
   simpleAuthor?: boolean,
   draggable?: boolean
 }) => {
-  const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: documentId },
   });
@@ -102,15 +105,11 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
       {removeItem && <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />}
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
+export default registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemWrapper: typeof PostsItemWrapperComponent
-  }
-}
+
 

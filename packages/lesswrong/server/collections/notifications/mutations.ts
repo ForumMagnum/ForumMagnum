@@ -3,17 +3,11 @@ import schema from "@/lib/collections/notifications/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
-function newCheck(user: DbUser | null, document: DbNotification | null) {
-  if (!user || !document) return false;
-  return userOwns(user, document)
-    ? userCanDo(user, 'notifications.new.own')
-    : userCanDo(user, `notifications.new.all`)
-}
 
 // TODO: I'm pretty sure we shouldn't actually allow users who own notifications to edit them...
 function editCheck(user: DbUser | null, document: DbNotification | null) {
@@ -23,7 +17,7 @@ function editCheck(user: DbUser | null, document: DbNotification | null) {
     : userCanDo(user, `notifications.edit.all`)
 }
 
-export async function createNotification({ data }: CreateNotificationInput & { data: { emailed?: boolean | null; waitingForBatch?: boolean | null } }, context: ResolverContext) {
+export async function createNotification({ data }: { data: Partial<DbNotification> }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Notifications', {
@@ -63,10 +57,6 @@ export async function updateNotification({ selector, data }: { data: UpdateNotif
   return updatedDocument;
 }
 
-export const createNotificationGqlMutation = makeGqlCreateMutation('Notifications', createNotification, {
-  newCheck,
-  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
-});
 
 export const updateNotificationGqlMutation = makeGqlUpdateMutation('Notifications', updateNotification, {
   editCheck,
@@ -76,14 +66,6 @@ export const updateNotificationGqlMutation = makeGqlUpdateMutation('Notification
 
 
 export const graphqlNotificationTypeDefs = gql`
-  input CreateNotificationDataInput ${
-    getCreatableGraphQLFields(schema)
-  }
-
-  input CreateNotificationInput {
-    data: CreateNotificationDataInput!
-  }
-  
   input UpdateNotificationDataInput ${
     getUpdatableGraphQLFields(schema)
   }
@@ -98,7 +80,6 @@ export const graphqlNotificationTypeDefs = gql`
   }
 
   extend type Mutation {
-    createNotification(data: CreateNotificationDataInput!): NotificationOutput
     updateNotification(selector: SelectorInput!, data: UpdateNotificationDataInput!): NotificationOutput
   }
 `;

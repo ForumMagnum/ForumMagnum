@@ -395,6 +395,7 @@ export const TagEditFragment = gql(`
     tagFlagsIds
     postsDefaultSortOrder
     introSequenceId
+    canVoteOnRels
     
     autoTagModel
     autoTagPrompt

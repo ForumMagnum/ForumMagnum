@@ -36,6 +36,7 @@ export const graphqlElectionVoteQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiElectionVoteOutput {

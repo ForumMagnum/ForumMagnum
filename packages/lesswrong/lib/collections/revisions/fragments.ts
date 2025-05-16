@@ -24,22 +24,13 @@ export const RevisionHTML = gql(`
 
 export const RevisionEdit = gql(`
   fragment RevisionEdit on Revision {
-    _id
-    version
-    updateType
-    editedAt
-    userId
+    ...RevisionDisplay
     originalContents {
       type
       data
     }
-    html
     markdown
-    draftJS
     ckEditorMarkup
-    wordCount
-    htmlHighlight
-    plaintextDescription
   }
 `)
 

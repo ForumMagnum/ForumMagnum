@@ -1,10 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
+import FormatDate from "../common/FormatDate";
+import OverallVoteButton from "../votes/OverallVoteButton";
+import FooterTag from "./FooterTag";
+import UsersName from "../users/UsersName";
+import TagSmallPostLink from "./TagSmallPostLink";
+import SingleColumnSection from "../common/SingleColumnSection";
+import LoadMore from "../common/LoadMore";
+import NewTagsList from "./NewTagsList";
 
 const styles = (theme: ThemeType) => ({
   voteRow: {
@@ -53,7 +61,6 @@ const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,
   classes: ClassesType<typeof styles>
 }) => {
-  const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
   const currentUser = useCurrentUser();
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
@@ -64,13 +71,13 @@ const TagVoteActivityRow = ({vote, classes}: {
   
   return (
     <tr key={vote._id} className={classes.voteRow}>
-      <td><UsersName documentId={vote.userId}/></td>
+      <td><UsersName documentId={vote.userId ?? undefined}/></td>
       <td className={classes.postCell}> <TagSmallPostLink hideMeta post={vote.tagRel?.post}/> </td>
       <td className={classes.tagCell}>
         <FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore smallText hoverable={true} />
       </td>
       <td className={classes.smallCell}>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
-      <td className={classes.smallCell}><FormatDate date={vote.votedAt}/></td>
+      <td className={classes.smallCell}><FormatDate date={vote.votedAt!}/></td>
       <td className={classes.votingCell}>
         <div className={classes.voteButtons}>
           <OverallVoteButton
@@ -103,7 +110,6 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   limit?: number,
   itemsPerPage?: number
 }) => {
-  const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collectionName: "Votes",
@@ -135,10 +141,6 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
 }
 
 
-const TagVoteActivityComponent = registerComponent("TagVoteActivity", TagVoteActivity, {styles});
+export default registerComponent("TagVoteActivity", TagVoteActivity, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagVoteActivity: typeof TagVoteActivityComponent
-  }
-}
+

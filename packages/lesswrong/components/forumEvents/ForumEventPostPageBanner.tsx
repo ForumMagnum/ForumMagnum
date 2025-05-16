@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
@@ -9,6 +9,9 @@ import {
 } from "./ForumEventFrontpageBanner";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const PostsDetailsQuery = gql(`
   query ForumEventPostPageBanner($documentId: String) {
@@ -89,8 +92,6 @@ export const ForumEventPostPageBanner = ({classes}: {
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
   if (!postPageDescription?.html) return null;
-
-  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
       <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
@@ -109,14 +110,10 @@ export const ForumEventPostPageBanner = ({classes}: {
   );
 }
 
-const ForumEventPostPageBannerComponent = registerComponent(
+export default registerComponent(
   "ForumEventPostPageBanner",
   ForumEventPostPageBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPostPageBanner: typeof ForumEventPostPageBannerComponent
-  }
-}
+

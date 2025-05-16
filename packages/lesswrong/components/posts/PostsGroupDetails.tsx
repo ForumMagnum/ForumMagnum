@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
 const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
-  inRecentDiscussion?: Boolean,
+  inRecentDiscussion?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { data } = useQuery(localGroupsHomeFragmentQuery, {
@@ -71,12 +71,8 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   </div>
 }
 
-const PostsGroupDetailsComponent = registerComponent(
+export default registerComponent(
   'PostsGroupDetails', PostsGroupDetails, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsGroupDetails: typeof PostsGroupDetailsComponent
-  }
-}
+

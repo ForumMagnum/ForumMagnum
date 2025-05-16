@@ -1,9 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from '../tagging/FooterTag';
 import classNames from 'classnames';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
 
 const TagBasicInfoQuery = gql(`
   query SingleTagItem($documentId: String) {
@@ -53,14 +55,14 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   const document = data?.tag?.result;
 
   if (loading) {
-    return <Components.Loading />
+    return <Loading />
   }
 
   if (document) {
     return <div className={classNames(classes.tag, className)}>
       {document.name}
       <button className={classes.removeTag} onClick={() => onDelete(document._id)}>
-        <Components.ForumIcon icon="Close" />
+        <ForumIcon icon="Close" />
       </button>
     </div>
   }
@@ -68,14 +70,10 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   return null
 };
 
-const SingleTagItemComponent = registerComponent(
+export default registerComponent(
   'SingleTagItem',
   SingleTagItem,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    SingleTagItem: typeof SingleTagItemComponent
-  }
-}
+

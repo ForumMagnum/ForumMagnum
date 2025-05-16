@@ -1,11 +1,13 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
-import type { CommonExcerptProps } from "./ContentExcerpt";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
+import Loading from "../../vulcan-core/Loading";
+import type { PostsList, SunshinePostsList } from "@/lib/generated/gql-codegen/graphql";
 
 const HighlightWithHashQuery = gql(`
   query PostExcerpt($documentId: String, $hash: String) {
@@ -52,7 +54,6 @@ const PostExcerpt = ({
   });
   const postHighlight = data?.post?.result;
 
-  const {Loading, ContentExcerpt} = Components;
   if ((loading && !hash) || (loadingHighlight && hash)) {
     return (
       <Loading />
@@ -84,13 +85,9 @@ const PostExcerpt = ({
   );
 }
 
-const PostExcerptComponent = registerComponent(
+export default registerComponent(
   "PostExcerpt",
   PostExcerpt,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostExcerpt: typeof PostExcerptComponent,
-  }
-}
+

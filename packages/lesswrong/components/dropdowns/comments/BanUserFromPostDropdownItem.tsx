@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import DropdownItem from "../DropdownItem";
 
 const BanUserFromPostDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -24,7 +25,7 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   const handleBanUserFromPost = (event: React.MouseEvent) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedUserIds = clone(post.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
@@ -38,8 +39,6 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
       );
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban user from this post"
@@ -48,13 +47,9 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   );
 };
 
-const BanUserFromPostDropdownItemComponent = registerComponent(
+export default registerComponent(
   'BanUserFromPostDropdownItem', BanUserFromPostDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    BanUserFromPostDropdownItem: typeof BanUserFromPostDropdownItemComponent,
-  }
-}
+
 

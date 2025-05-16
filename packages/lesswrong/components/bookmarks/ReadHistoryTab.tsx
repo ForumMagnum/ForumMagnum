@@ -1,11 +1,16 @@
+import React, { useState } from 'react';
 import { useCurrentUser } from '@/components/common/withUser'
 import moment from 'moment'
-import { AnalyticsContext } from '@/lib/analyticsEvents'
 import { gql } from '@/lib/generated/gql-codegen/gql'
-import { Components, registerComponent } from "@/lib/vulcan-lib/components"
-import { NetworkStatus, useQuery } from '@apollo/client'
-import React, { useState } from 'react'
-import { PostsListWithVotes, UsersCurrent } from '@/lib/generated/gql-codegen/graphql'
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import PostsItem from "../posts/PostsItem";
+import LoadMore from "../common/LoadMore";
+import { Typography } from "../common/Typography";
+import { NetworkStatus, useQuery } from '@apollo/client';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import type { PostsListWithVotes, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -79,10 +84,8 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     filter,
     sort,
   })
-
-  const {SectionTitle, Loading, PostsItem, LoadMore, Typography} = Components
-  
-  const readHistory = (data?.UserReadHistory?.posts ?? []) as (PostsListWithVotes & {lastVisitedAt: string})[]
+  // const readHistory = (data?.UserReadHistory?.posts ?? []) as (PostsListWithVotes & {lastVisitedAt: string})[]
+  const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />
@@ -135,10 +138,6 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
 }
 
 
-const ReadHistoryTabComponent = registerComponent('ReadHistoryTab', ReadHistoryTab, {styles})
+export default registerComponent('ReadHistoryTab', ReadHistoryTab, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReadHistoryTab: typeof ReadHistoryTabComponent
-  }
-}
+

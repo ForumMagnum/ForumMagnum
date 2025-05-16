@@ -8,10 +8,13 @@ import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-d
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { useMulti } from '@/lib/crud/withMulti';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { useQuery } from '@apollo/client';
+import Loading from "../vulcan-core/Loading";
+import WikiTagGroup from "./WikiTagGroup";
+import NewWikiTagButton from "./NewWikiTagButton";
+import type { ConceptItemFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -214,9 +217,6 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   onDismiss: () => void,
 }) => {
   const classes = useStyles(styles);
-  const { Loading } = Components
-
-
   const redirectHtml = <div>
     <h2>You have been redirected from Arbital.com</h2>
     <p>Following the end of the <a href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</a>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
@@ -252,9 +252,6 @@ const TagsQuery = gql(`
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-
-  const { WikiTagGroup, Loading, NewWikiTagButton } = Components;
-
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
 
@@ -370,12 +367,8 @@ const AllWikiTagsPage = () => {
   );
 };
 
-const AllWikiTagsPageComponent = registerComponent("AllWikiTagsPage", AllWikiTagsPage);
+export default registerComponent("AllWikiTagsPage", AllWikiTagsPage);
 
-export default AllWikiTagsPageComponent;
 
-declare global {
-  interface ComponentTypes {
-    AllWikiTagsPage: typeof AllWikiTagsPageComponent
-  }
-}
+
+

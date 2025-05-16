@@ -429,9 +429,10 @@ export const updateReviewWinnerRankings = async (year: number) => {
     )
   );
 
-  sortedWinners.map((winner, i) => ReviewWinners.rawUpdateOne(
+  await Promise.all(
+    sortedWinners.map((winner, i) => ReviewWinners.rawUpdateOne(
       {_id: winner._id},
       {$set: {reviewRanking: i}}
-    )
-  )
+    ))
+  );
 };

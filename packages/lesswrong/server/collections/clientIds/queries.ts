@@ -32,6 +32,7 @@ export const graphqlClientIdQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiClientIdOutput {

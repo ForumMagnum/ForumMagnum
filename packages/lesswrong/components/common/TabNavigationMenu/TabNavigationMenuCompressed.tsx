@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import TabNavigationCompressedItem from "./TabNavigationCompressedItem";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,8 +27,6 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { TabNavigationCompressedItem } = Components
-
   return (
     <div className={classes.root}>
       {forumSelect(menuTabs).map(tab => {
@@ -35,7 +34,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
           return
         }
         if ('divider' in tab) {
-          return <Divider key={tab.id} className={classes.divider} />
+          return <SimpleDivider key={tab.id} className={classes.divider} />
         }
         return <TabNavigationCompressedItem key={tab.id} tab={tab} onClick={onClickSection} />
       })}
@@ -43,12 +42,8 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   )
 };
 
-const TabNavigationMenuCompressedComponent = registerComponent(
+export default registerComponent(
   'TabNavigationMenuCompressed', TabNavigationMenuCompressed, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenuCompressed: typeof TabNavigationMenuCompressedComponent
-  }
-}
+

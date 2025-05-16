@@ -35,10 +35,6 @@ const UrlHintText = () => {
   </>;
 }
 
-export const UrlHintTextComponent = registerComponent("UrlHintText", UrlHintText);
+export default registerComponent("UrlHintText", UrlHintText);
 
-declare global {
-  interface ComponentTypes {
-    UrlHintText: typeof UrlHintTextComponent
-  }
-}
+

@@ -11,11 +11,11 @@ import {
   postGetPrimaryTag,
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
-import type { PopperPlacementType } from "@/lib/vendor/@material-ui/core/src/Popper"
+import type { Placement as PopperPlacementType } from "popper.js"
 import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/collections/posts/annualReviewMarkets";
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
-import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
+import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/constants';
 import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
 import type { PostsListViewType } from "../hooks/usePostsListView";
 

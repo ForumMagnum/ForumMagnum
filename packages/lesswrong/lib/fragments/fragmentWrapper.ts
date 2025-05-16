@@ -1,3 +1,4 @@
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { DocumentNode, print } from 'graphql';
 import mapValues from 'lodash/mapValues';
 
@@ -14,7 +15,18 @@ export function extractFragmentName(fragmentText: string): FragmentName {
 }
 
 export function transformFragments(fragments: Record<string, DocumentNode>) {
-  return mapValues(fragments, print)
+  // return mapValues(fragments, print)
+  return Object.fromEntries(
+    Object.entries(fragments).map(([key, value]) => {
+      try {
+        const result = [key, print(value)];
+        return result;
+      } catch (e) {
+        console.error(`Error printing fragment ${key}:`, e);
+        return [key, value];
+      }
+    })
+  )
 }
 
 export function frag(strings: TemplateStringsArray, ...values: (string|FragmentInfo|(() => FragmentInfo))[]): FragmentInfo {

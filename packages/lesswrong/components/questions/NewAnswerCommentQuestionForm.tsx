@@ -1,12 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useState} from 'react';
 import classNames from 'classnames';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
 import FullscreenExitIcon from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
 import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
+import { TooltipSpan } from '../common/FMTooltip';
+import CommentsNewForm from "../comments/CommentsNewForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,8 +78,6 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const {CommentsNewForm} = Components;
-
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
   }
@@ -89,28 +88,28 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
     <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
     <div className={classes.form}>
       <div className={classes.chooseResponseType}>
-        <Tooltip title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
+        <TooltipSpan title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
           <div onClick={()=>setSelection("answer")}
             className={classNames(classes.responseType, {[classes.selected]: selection === "answer"})}
           >
             New Answer
           </div>
-        </Tooltip>
-        <Tooltip title="Discuss the question or ask clarifying questions">
+        </TooltipSpan>
+        <TooltipSpan title="Discuss the question or ask clarifying questions">
           <div onClick={()=>setSelection("comment")}
             className={classNames(classes.responseType, {[classes.selected]: selection === "comment"})}>
             New Comment
           </div>
-        </Tooltip>
+        </TooltipSpan>
         <div className={classes.toggleFocus} onClick={toggleFormFocus}>
           {formFocus ?
-            <Tooltip title="Exit focus mode">
+            <TooltipSpan title="Exit focus mode">
               <FullscreenExitIcon />
-            </Tooltip>
+            </TooltipSpan>
             :
-            <Tooltip title="Enter focus mode">
+            <TooltipSpan title="Enter focus mode">
               <FullscreenIcon />
-            </Tooltip>
+            </TooltipSpan>
             }
         </div>
       </div>
@@ -125,10 +124,6 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
   </div>
 }
 
-const NewAnswerCommentQuestionFormComponent = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
+export default registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionFormComponent
-  }
-}
+

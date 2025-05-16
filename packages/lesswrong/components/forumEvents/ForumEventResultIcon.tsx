@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
-import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
+import { useIsAboveBreakpoint, useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { POLL_MAX_WIDTH } from './ForumEventPoll';
+import LWTooltip from "../common/LWTooltip";
+import UsersProfileImage from "../users/UsersProfileImage";
+import ForumEventResultPopper from "./ForumEventResultPopper";
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
@@ -61,9 +63,7 @@ const ForumEventResultIcon = ({
   tooltipDisabled: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { LWTooltip, UsersProfileImage, ForumEventResultPopper } = Components;
-
-  const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
+  const isDesktop = useIsAboveBreakpoint('sm');
 
   const { captureEvent } = useTracking();
   const { currentForumEvent } = useCurrentAndRecentForumEvents();
@@ -75,9 +75,7 @@ const ForumEventResultIcon = ({
   const [isPinned, setIsPinned] = useState(false);
   const [newRepliesCount, setNewRepliesCount] = useState(0);
 
-  const popperOpen = hover || isPinned;
-
-  if (!isDesktop) return null;
+  const popperOpen = (hover || isPinned) && isDesktop;
 
   return (
     <AnalyticsContext
@@ -119,14 +117,10 @@ const ForumEventResultIcon = ({
   );
 };
 
-const ForumEventResultIconComponent = registerComponent(
+export default registerComponent(
   'ForumEventResultIcon',
   ForumEventResultIcon,
   { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventResultIcon: typeof ForumEventResultIconComponent;
-  }
-}
+

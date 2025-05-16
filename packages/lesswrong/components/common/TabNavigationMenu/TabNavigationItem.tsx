@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
@@ -8,6 +8,9 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
+import TabNavigationSubItem from "./TabNavigationSubItem";
+import LWTooltip from "../LWTooltip";
+import { MenuItemLink } from "../Menus";
 
 export const iconWidth = 30
 
@@ -39,7 +42,12 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: isFriendlyUI ? 1 : 0.6,
       color: isFriendlyUI ? theme.palette.grey[800] : undefined,
-      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
+      
+      ...(isFriendlyUI && {
+        paddingTop: 10,
+        paddingBottom: 10,
+      }),
     },
     color: theme.palette.grey[isFriendlyUI ? 600 : 800],
     ...(theme.forumType === "LessWrong"
@@ -49,7 +57,7 @@ const styles = (theme: ThemeType) => ({
         paddingLeft: 16,
         paddingRight: 16,
       } : {
-        padding: 16,
+        padding: "10px 16px",
       }
     ),
     display: "flex",
@@ -78,6 +86,9 @@ const styles = (theme: ThemeType) => ({
       color: isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
+    ...(isFriendlyUI && {
+      opacity: 1,
+    }),
   },
   selectedIcon: {
     "& svg": {
@@ -151,7 +162,7 @@ const useFlag = (tab: MenuTabRegular): {
   onClickFlag?: () => void,
 } => {
   const cookieName = `${NAV_MENU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
-  const [cookies, setCookie] = useCookiesWithConsent();
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const cookie = cookies[cookieName];
   const flag = tab.flag;
   if (flag === "new") {
@@ -203,8 +214,6 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   const IconComponent = isSelected
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
-
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}
@@ -216,8 +225,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
       // MenuItem component] a function that return an a tag once. It made the
       // entire sidebar fail on iOS. True story.
       to={tab.link}
-      disableGutters
-      rootClass={classNames(classes.menuItem, className, {
+      className={classNames(classes.menuItem, className, {
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
@@ -245,12 +253,8 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   </LWTooltip>
 }
 
-const TabNavigationItemComponent = registerComponent(
+export default registerComponent(
   'TabNavigationItem', TabNavigationItem, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationItem: typeof TabNavigationItemComponent
-  }
-}
+

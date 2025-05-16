@@ -1,10 +1,14 @@
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQuery, useMutation } from "@apollo/client";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,8 +67,6 @@ const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes
   }, [synonyms, updateSearchSynonyms]);
 
   const isLoading = loading || updateLoading?.loading;
-
-  const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <SectionTitle title="Search synonyms" />
@@ -104,17 +106,13 @@ const AdminSynonymsPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <AdminSynonymsEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
-const AdminSynonymsPageComponent = registerComponent(
+export default registerComponent(
   "AdminSynonymsPage",
   AdminSynonymsPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AdminSynonymsPage: typeof AdminSynonymsPageComponent
-  }
-}
+

@@ -42,17 +42,51 @@ type ArbitalLinkedPages {
 }
 
 type SocialPreviewType {
-  _id: String
+  _id: String!
   imageId: String
-  imageUrl: String
+  imageUrl: String!
   text: String
+}
+
+input CoauthorStatusInput {
+  userId: String!
+  confirmed: Boolean!
+  requested: Boolean!
+}
+
+input SocialPreviewInput {
+  imageId: String!
+  text: String
+}
+
+input CrosspostInput {
+  isCrosspost: Boolean!
+  hostedHere: Boolean
+  foreignPostId: String
+}
+
+type CoauthorStatusOutput {
+  userId: String!
+  confirmed: Boolean!
+  requested: Boolean!
+}
+
+type SocialPreviewOutput {
+  imageId: String!
+  text: String
+}
+
+type CrosspostOutput {
+  isCrosspost: Boolean!
+  hostedHere: Boolean
+  foreignPostId: String
 }
 
 scalar ContentTypeData
 
 type ContentType {
-  type: String
-  data: ContentTypeData
+  type: String!
+  data: ContentTypeData!
 }
 
 type TagContributor {
@@ -64,7 +98,7 @@ type TagContributor {
 }
 
 type TagContributorsList {
-  contributors: [TagContributor!]
+  contributors: [TagContributor!]!
   totalCount: Int!
 }
 
@@ -76,6 +110,67 @@ type UserLikingTag {
 type LatLng {
   lat: Float!
   lng: Float!
+}
+
+input ExpandedFrontpageSectionsSettingsInput {
+  community: Boolean
+  recommendations: Boolean
+  quickTakes: Boolean
+  quickTakesCommunity: Boolean
+  popularComments: Boolean
+}
+
+type ExpandedFrontpageSectionsSettingsOutput {
+  community: Boolean
+  recommendations: Boolean
+  quickTakes: Boolean
+  quickTakesCommunity: Boolean
+  popularComments: Boolean
+}
+
+input PartiallyReadSequenceItemInput {
+  sequenceId: String
+  collectionId: String
+  lastReadPostId: String!
+  nextPostId: String!
+  numRead: Int!
+  numTotal: Int!
+  lastReadTime: Date
+}
+
+type PartiallyReadSequenceItemOutput {
+  sequenceId: String
+  collectionId: String
+  lastReadPostId: String
+  nextPostId: String
+  numRead: Int
+  numTotal: Int
+  lastReadTime: Date
+}
+
+input PostMetadataInput {
+  postId: String!
+}
+
+type PostMetadataOutput {
+  postId: String!
+}
+
+input RecommendationAlgorithmSettingsInput {
+  method: String!
+  count: Int!
+  scoreOffset: Float!
+  scoreExponent: Float!
+  personalBlogpostModifier: Float!
+  frontpageModifier: Float!
+  curatedModifier: Float!
+  onlyUnread: Boolean!
+}
+
+input RecommendationSettingsInput {
+  frontpage: RecommendationAlgorithmSettingsInput!
+  frontpageEA: RecommendationAlgorithmSettingsInput!
+  recommendationspage: RecommendationAlgorithmSettingsInput!
 }
 
 type RecommendResumeSequence {
@@ -252,18 +347,20 @@ extend type Query {
 }
 
 type PostKarmaChange {
-  _id: String
-  scoreChange: Int
-  postId: String
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
+  postId: String!
   title: String
-  slug: String
+  slug: String!
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
 }
 
 type CommentKarmaChange {
-  _id: String
-  scoreChange: Int
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
   commentId: String
   description: String
   postId: String
@@ -272,13 +369,15 @@ type CommentKarmaChange {
   tagSlug: String
   tagName: String
   tagCommentType: String
+  tagId: String
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
 }
 
 type RevisionsKarmaChange {
-  _id: String
-  scoreChange: Int
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
   tagId: String
   tagSlug: String
   tagName: String
@@ -292,20 +391,20 @@ type ReactionChange {
 }
 
 type KarmaChangesSimple {
-  posts: [PostKarmaChange]
-  comments: [CommentKarmaChange]
-  tagRevisions: [RevisionsKarmaChange]
+  posts: [PostKarmaChange!]!
+  comments: [CommentKarmaChange!]!
+  tagRevisions: [RevisionsKarmaChange!]!
 }
 
 type KarmaChanges {
-  totalChange: Int
+  totalChange: Int!
   startDate: Date
   endDate: Date
   nextBatchDate: Date
-  updateFrequency: String
-  posts: [PostKarmaChange]
-  comments: [CommentKarmaChange]
-  tagRevisions: [RevisionsKarmaChange]
+  updateFrequency: String!
+  posts: [PostKarmaChange!]!
+  comments: [CommentKarmaChange!]!
+  tagRevisions: [RevisionsKarmaChange!]!
   todaysKarmaChanges: KarmaChangesSimple
   thisWeeksKarmaChanges: KarmaChangesSimple
 }
@@ -480,8 +579,8 @@ extend type Query {
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostIsCriticism(args: JSON): Boolean
-  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
-  DigestPosts(num: Int): [Post]
+  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]
+  DigestPosts(num: Int): [Post!]
   CanAccessGoogleDoc(fileUrl: String!): Boolean
 }
 
@@ -1098,8 +1197,17 @@ extend type Mutation {
   acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
+input ToggleBookmarkInput {
+  documentId: String!
+  collectionName: String!
+}
+
+type ToggleBookmarkOutput {
+  data: Bookmark
+}
+
 extend type Mutation {
-  setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!
+  toggleBookmark(input: ToggleBookmarkInput!): ToggleBookmarkOutput
 }
 
 extend type Mutation {
@@ -1233,6 +1341,13 @@ extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
 }
 
+type ElicitQuestionPredictionCreator {
+  _id: String!
+  displayName: String!
+  isQuestionCreator: Boolean!
+  sourceUserId: String
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!
@@ -1268,6 +1383,7 @@ input MultiAdvisorRequestInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiAdvisorRequestOutput {
@@ -1320,6 +1436,7 @@ input MultiArbitalTagContentRelInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiArbitalTagContentRelOutput {
@@ -1330,6 +1447,22 @@ type MultiArbitalTagContentRelOutput {
 extend type Query {
   arbitalTagContentRel(input: SingleArbitalTagContentRelInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleArbitalTagContentRelOutput
   arbitalTagContentRels(input: MultiArbitalTagContentRelInput @deprecated(reason: "Use the selector field instead"), selector: ArbitalTagContentRelSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiArbitalTagContentRelOutput
+}
+
+type AutomatedContentEvaluation {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  score: Float!
+  sentenceScores: [SentenceScore!]!
+  aiChoice: String!
+  aiReasoning: String!
+  aiCoT: String!
+}
+
+type SentenceScore {
+  sentence: String!
+  score: Float!
 }
 
 type Ban {
@@ -1365,6 +1498,7 @@ input MultiBanInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiBanOutput {
@@ -1375,6 +1509,45 @@ type MultiBanOutput {
 extend type Query {
   ban(input: SingleBanInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleBanOutput
   bans(input: MultiBanInput @deprecated(reason: "Use the selector field instead"), selector: BanSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiBanOutput
+}
+
+type Bookmark {
+  _id: String!
+  createdAt: Date!
+  documentId: String!
+  collectionName: String!
+  userId: String!
+  post: Post
+  comment: Comment
+  lastUpdated: Date!
+  active: Boolean!
+}
+
+input SingleBookmarkInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  allowNull: Boolean
+}
+
+type SingleBookmarkOutput {
+  result: Bookmark
+}
+
+input MultiBookmarkInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiBookmarkOutput {
+  results: [Bookmark]
+  totalCount: Int
+}
+
+extend type Query {
+  bookmark(input: SingleBookmarkInput): SingleBookmarkOutput
+  bookmarks(input: MultiBookmarkInput): MultiBookmarkOutput
 }
 
 type Book {
@@ -1418,6 +1591,7 @@ input MultiBookInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiBookOutput {
@@ -1471,6 +1645,7 @@ input MultiChapterInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiChapterOutput {
@@ -1513,6 +1688,7 @@ input MultiCkEditorUserSessionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiCkEditorUserSessionOutput {
@@ -1564,6 +1740,7 @@ input MultiClientIdInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiClientIdOutput {
@@ -1617,6 +1794,7 @@ input MultiCollectionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiCollectionOutput {
@@ -1665,6 +1843,7 @@ input MultiCommentModeratorActionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiCommentModeratorActionOutput {
@@ -2183,6 +2362,7 @@ input MultiCommentInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiCommentOutput {
@@ -2257,6 +2437,7 @@ input MultiConversationInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiConversationOutput {
@@ -2325,6 +2506,7 @@ input MultiCurationNoticeInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiCurationNoticeOutput {
@@ -2395,6 +2577,7 @@ input MultiDialogueCheckInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiDialogueCheckOutput {
@@ -2448,6 +2631,7 @@ input MultiDialogueMatchPreferenceInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiDialogueMatchPreferenceOutput {
@@ -2492,6 +2676,7 @@ input MultiDigestPostInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiDigestPostOutput {
@@ -2544,6 +2729,7 @@ input MultiDigestInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiDigestOutput {
@@ -2610,6 +2796,7 @@ input MultiElectionCandidateInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiElectionCandidateOutput {
@@ -2666,6 +2853,7 @@ input MultiElectionVoteInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiElectionVoteOutput {
@@ -2684,7 +2872,7 @@ type ElicitQuestionPrediction {
   prediction: Float
   createdAt: Date!
   notes: String
-  creator: JSON!
+  creator: ElicitQuestionPredictionCreator!
   userId: String
   user: User
   sourceUrl: String
@@ -2713,6 +2901,7 @@ input MultiElicitQuestionPredictionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiElicitQuestionPredictionOutput {
@@ -2755,6 +2944,7 @@ input MultiElicitQuestionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiElicitQuestionOutput {
@@ -2783,7 +2973,7 @@ type FeaturedResource {
   body: String
   ctaText: String!
   ctaUrl: String!
-  expiresAt: Date
+  expiresAt: Date!
 }
 
 input SingleFeaturedResourceInput {
@@ -2808,6 +2998,7 @@ input MultiFeaturedResourceInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiFeaturedResourceOutput {
@@ -2878,7 +3069,7 @@ type ForumEvent {
   postPageDescription_latest: String
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -2889,6 +3080,7 @@ type ForumEvent {
   post: Post
   bannerImageId: String
   includesPoll: Boolean!
+  isGlobal: Boolean!
   eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
@@ -2938,6 +3130,7 @@ input MultiForumEventInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiForumEventOutput {
@@ -3016,6 +3209,7 @@ input MultiGardenCodeInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiGardenCodeOutput {
@@ -3059,6 +3253,7 @@ input MultiGoogleServiceAccountSessionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiGoogleServiceAccountSessionOutput {
@@ -3126,6 +3321,7 @@ input MultiJargonTermInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiJargonTermOutput {
@@ -3191,6 +3387,7 @@ input MultiLWEventInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiLWEventOutput {
@@ -3255,6 +3452,7 @@ input MultiLlmConversationInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiLlmConversationOutput {
@@ -3285,11 +3483,11 @@ type Localgroup {
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  name: String
+  name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
   organizers: [User!]!
-  lastActivity: Date
+  lastActivity: Date!
   types: [String!]!
   categories: [String!]
   isOnline: Boolean!
@@ -3383,6 +3581,7 @@ input MultiLocalgroupInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiLocalgroupOutput {
@@ -3451,6 +3650,7 @@ input MultiMessageInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiMessageOutput {
@@ -3510,6 +3710,7 @@ input MultiModerationTemplateInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiModerationTemplateOutput {
@@ -3561,6 +3762,7 @@ input MultiModeratorActionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiModeratorActionOutput {
@@ -3653,6 +3855,7 @@ input MultiMultiDocumentInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiMultiDocumentOutput {
@@ -3722,6 +3925,7 @@ input MultiNotificationInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiNotificationOutput {
@@ -3789,6 +3993,7 @@ input MultiPetrovDayActionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiPetrovDayActionOutput {
@@ -3845,6 +4050,7 @@ input MultiPodcastEpisodeInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiPodcastEpisodeOutput {
@@ -3886,6 +4092,7 @@ input MultiPodcastInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiPodcastOutput {
@@ -3896,50 +4103,6 @@ type MultiPodcastOutput {
 extend type Query {
   podcast(input: SinglePodcastInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePodcastOutput
   podcasts(input: MultiPodcastInput @deprecated(reason: "Use the selector field instead"), selector: PodcastSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPodcastOutput
-}
-
-type PostEmbedding {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  postId: String
-  post: Post
-  postHash: String
-  lastGeneratedAt: Date
-  model: String
-  embeddings: [Float!]
-}
-
-input SinglePostEmbeddingInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SinglePostEmbeddingOutput {
-  result: PostEmbedding
-}
-
-input PostEmbeddingViewInput
-
-input PostEmbeddingSelector {
-  default: PostEmbeddingViewInput
-}
-
-input MultiPostEmbeddingInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-}
-
-type MultiPostEmbeddingOutput {
-  results: [PostEmbedding]
-  totalCount: Int
-}
-
-extend type Query {
-  postEmbedding(input: SinglePostEmbeddingInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostEmbeddingOutput
-  postEmbeddings(input: MultiPostEmbeddingInput @deprecated(reason: "Use the selector field instead"), selector: PostEmbeddingSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostEmbeddingOutput
 }
 
 type PostRecommendation {
@@ -3996,6 +4159,7 @@ input MultiPostRelationInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiPostRelationOutput {
@@ -4008,82 +4172,6 @@ extend type Query {
   postRelations(input: MultiPostRelationInput @deprecated(reason: "Use the selector field instead"), selector: PostRelationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostRelationOutput
 }
 
-type PostViewTime {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-}
-
-input SinglePostViewTimeInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SinglePostViewTimeOutput {
-  result: PostViewTime
-}
-
-input PostViewTimeViewInput
-
-input PostViewTimeSelector {
-  default: PostViewTimeViewInput
-}
-
-input MultiPostViewTimeInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-}
-
-type MultiPostViewTimeOutput {
-  results: [PostViewTime]
-  totalCount: Int
-}
-
-extend type Query {
-  postViewTime(input: SinglePostViewTimeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostViewTimeOutput
-  postViewTimes(input: MultiPostViewTimeInput @deprecated(reason: "Use the selector field instead"), selector: PostViewTimeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostViewTimeOutput
-}
-
-type PostViews {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-}
-
-input SinglePostViewInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SinglePostViewOutput {
-  result: PostViews
-}
-
-input PostViewViewInput
-
-input PostViewSelector {
-  default: PostViewViewInput
-}
-
-input MultiPostViewInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-}
-
-type MultiPostViewOutput {
-  results: [PostViews]
-  totalCount: Int
-}
-
-extend type Query {
-  postViews(input: SinglePostViewInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostViewOutput
-  postViewses(input: MultiPostViewInput @deprecated(reason: "Use the selector field instead"), selector: PostViewSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostViewOutput
-}
-
 type Post {
   _id: String!
   schemaVersion: Float!
@@ -4091,7 +4179,7 @@ type Post {
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  revisions(limit: Int = 5): [Revision]
+  revisions(limit: Int = 5): [Revision!]
   version: String
   pingbacks: JSON
   moderationGuidelines(version: String): Revision
@@ -4105,7 +4193,7 @@ type Post {
   postCategory: String!
   title: String!
   viewCount: Float
-  lastCommentedAt: Date
+  lastCommentedAt: Date!
   clickCount: Float
   deletedDraft: Boolean!
   status: Float!
@@ -4167,7 +4255,7 @@ type Post {
   finalReviewVotesAF: [Float!]!
   lastCommentPromotedAt: Date
   tagRel(tagId: String): TagRel
-  tags: [Tag]
+  tags: [Tag!]
   tagRelevance: JSON
   lastPromotedComment: Comment
   bestAnswer: Comment
@@ -4202,14 +4290,14 @@ type Post {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusOutput!]
   coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
+  socialPreview: SocialPreviewOutput
   socialPreviewData: SocialPreviewType
-  fmCrosspost: JSON
+  fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
   canonicalCollectionSlug: String
@@ -5541,6 +5629,7 @@ input MultiPostInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiPostOutput {
@@ -5594,6 +5683,7 @@ input MultiRSSFeedInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiRSSFeedOutput {
@@ -5687,6 +5777,7 @@ input MultiReportInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiReportOutput {
@@ -5750,6 +5841,7 @@ input MultiReviewVoteInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiReviewVoteOutput {
@@ -5800,6 +5892,7 @@ input MultiReviewWinnerArtInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiReviewWinnerArtOutput {
@@ -5857,6 +5950,7 @@ input MultiReviewWinnerInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiReviewWinnerOutput {
@@ -5877,7 +5971,7 @@ type Revision {
   documentId: String
   collectionName: String
   fieldName: String
-  editedAt: Date
+  editedAt: Date!
   updateType: String
   version: String!
   commitMessage: String
@@ -5887,7 +5981,6 @@ type Revision {
   originalContents: ContentType
   html: String
   markdown: String
-  draftJS: JSON
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!
@@ -5902,6 +5995,7 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -5952,6 +6046,7 @@ input MultiRevisionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiRevisionOutput {
@@ -6043,6 +6138,7 @@ input MultiSequenceInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSequenceOutput {
@@ -6116,6 +6212,7 @@ input MultiSplashArtCoordinateInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSplashArtCoordinateOutput {
@@ -6205,6 +6302,7 @@ input MultiSpotlightInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSpotlightOutput {
@@ -6263,6 +6361,7 @@ input MultiSubscriptionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSubscriptionOutput {
@@ -6306,6 +6405,7 @@ input MultiSurveyQuestionInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSurveyQuestionOutput {
@@ -6353,6 +6453,7 @@ input MultiSurveyResponseInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSurveyResponseOutput {
@@ -6371,7 +6472,7 @@ type SurveySchedule {
   createdAt: Date!
   legacyData: JSON
   surveyId: String!
-  survey: Survey!
+  survey: Survey
   name: String
   impressionsLimit: Float
   maxVisitorPercentage: Float
@@ -6407,6 +6508,7 @@ input MultiSurveyScheduleInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSurveyScheduleOutput {
@@ -6450,6 +6552,7 @@ input MultiSurveyInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiSurveyOutput {
@@ -6497,6 +6600,7 @@ input MultiTagFlagInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiTagFlagOutput {
@@ -6564,6 +6668,7 @@ input MultiTagRelInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiTagRelOutput {
@@ -6625,7 +6730,7 @@ type Tag {
   isRead: Boolean
   tableOfContents(version: String): JSON
   htmlWithContributorAnnotations: String
-  contributors(limit: Int, version: String): TagContributorsList
+  contributors(limit: Int, version: String): TagContributorsList!
   contributionStats: JSON
   introSequenceId: String
   sequence: Sequence
@@ -6793,6 +6898,7 @@ input MultiTagInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiTagOutput {
@@ -6841,6 +6947,7 @@ input MultiTypingIndicatorInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiTypingIndicatorOutput {
@@ -6942,6 +7049,7 @@ input MultiUserEAGDetailInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiUserEAGDetailOutput {
@@ -6991,6 +7099,7 @@ input MultiUserJobAdInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiUserJobAdOutput {
@@ -7042,6 +7151,7 @@ input MultiUserMostValuablePostInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiUserMostValuablePostOutput {
@@ -7065,7 +7175,7 @@ type UserRateLimit {
   intervalUnit: String!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date
+  endedAt: Date!
 }
 
 input SingleUserRateLimitInput {
@@ -7096,6 +7206,7 @@ input MultiUserRateLimitInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiUserRateLimitOutput {
@@ -7113,7 +7224,7 @@ type UserTagRel {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  tagId: String
+  tagId: String!
   tag: Tag
   userId: String!
   user: User
@@ -7147,6 +7258,7 @@ input MultiUserTagRelInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiUserTagRelOutput {
@@ -7177,6 +7289,7 @@ type User {
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
+  profile: JSON
   services: JSON
   hasAuth0Id: Boolean
   displayName: String!
@@ -7206,7 +7319,7 @@ type User {
   noCollapseCommentsPosts: Boolean!
   noCollapseCommentsFrontpage: Boolean!
   hideCommunitySection: Boolean!
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
   petrovOptOut: Boolean!
@@ -7238,9 +7351,9 @@ type User {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [JSON!]
+  bookmarkedPostsMetadata: [PostMetadataOutput!]
   bookmarkedPosts: [Post!]
-  hiddenPostsMetadata: [JSON!]
+  hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
   legacyId: String
   deleted: Boolean!
@@ -7294,6 +7407,7 @@ type User {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -7345,7 +7459,7 @@ type User {
   shortformFeedId: String
   shortformFeed: Post
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON!]
+  partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -7364,7 +7478,6 @@ type User {
   tagRevisionCount: Float!
   abTestKey: String
   abTestOverrides: JSON
-  reenableDraftJs: Boolean
   walledGardenInvite: Boolean
   hideWalledGardenUI: Boolean
   walledGardenPortalOnboarded: Boolean
@@ -7423,8 +7536,14 @@ type User {
   recommendationSettings: JSON
 }
 
+input UserSelectorUniqueInput {
+  _id: String
+  documentId: String
+  slug: String
+}
+
 input SingleUserInput {
-  selector: SelectorInput
+  selector: UserSelectorUniqueInput
   resolverArgs: JSON
 }
 
@@ -7495,6 +7614,7 @@ input MultiUserInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiUserOutput {
@@ -7559,6 +7679,7 @@ input MultiVoteInput {
   terms: JSON
   resolverArgs: JSON
   enableTotal: Boolean
+  enableCache: Boolean
 }
 
 type MultiVoteOutput {
@@ -7603,80 +7724,9 @@ extend type Mutation {
   updateAdvisorRequest(selector: SelectorInput!, data: UpdateAdvisorRequestDataInput!): AdvisorRequestOutput
 }
 
-input CreateArbitalTagContentRelDataInput {
-  legacyData: JSON
-  parentDocumentId: String!
-  childDocumentId: String!
-  parentCollectionName: String!
-  childCollectionName: String!
-  type: String!
-  level: Float!
-  isStrong: Boolean!
-}
-
-input CreateArbitalTagContentRelInput {
-  data: CreateArbitalTagContentRelDataInput!
-}
-
-input UpdateArbitalTagContentRelDataInput {
-  legacyData: JSON
-}
-
-input UpdateArbitalTagContentRelInput {
-  selector: SelectorInput!
-  data: UpdateArbitalTagContentRelDataInput!
-}
-
-type ArbitalTagContentRelOutput {
-  data: ArbitalTagContentRel
-}
-
-extend type Mutation {
-  createArbitalTagContentRel(data: CreateArbitalTagContentRelDataInput!): ArbitalTagContentRelOutput
-  updateArbitalTagContentRel(selector: SelectorInput!, data: UpdateArbitalTagContentRelDataInput!): ArbitalTagContentRelOutput
-}
-
-input CreateBanDataInput {
-  legacyData: JSON
-  expirationDate: Date!
-  userId: String
-  ip: String
-  reason: String
-  comment: String
-  properties: JSON
-}
-
-input CreateBanInput {
-  data: CreateBanDataInput!
-}
-
-input UpdateBanDataInput {
-  legacyData: JSON
-  expirationDate: Date
-  userId: String
-  ip: String
-  reason: String
-  comment: String
-  properties: JSON
-}
-
-input UpdateBanInput {
-  selector: SelectorInput!
-  data: UpdateBanDataInput!
-}
-
-type BanOutput {
-  data: Ban
-}
-
-extend type Mutation {
-  createBan(data: CreateBanDataInput!): BanOutput
-  updateBan(selector: SelectorInput!, data: UpdateBanDataInput!): BanOutput
-}
-
 input CreateBookDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   tocTitle: String
@@ -7695,7 +7745,7 @@ input CreateBookInput {
 
 input UpdateBookDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   tocTitle: String
@@ -7724,7 +7774,7 @@ extend type Mutation {
 
 input CreateChapterDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   number: Float
@@ -7738,7 +7788,7 @@ input CreateChapterInput {
 
 input UpdateChapterDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   number: Float
@@ -7763,7 +7813,7 @@ extend type Mutation {
 input CreateCollectionDataInput {
   createdAt: Date!
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String!
   slug: String!
   gridImageId: String
@@ -7779,7 +7829,7 @@ input CreateCollectionInput {
 input UpdateCollectionDataInput {
   createdAt: Date
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   slug: String
   gridImageId: String
@@ -7836,7 +7886,7 @@ extend type Mutation {
 
 input CreateCommentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   parentCommentId: String
   topLevelCommentId: String
   postId: String
@@ -7891,7 +7941,7 @@ input CreateCommentInput {
 
 input UpdateCommentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -7989,7 +8039,7 @@ extend type Mutation {
 
 input CreateCurationNoticeDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   userId: String!
   commentId: String
   postId: String!
@@ -8001,7 +8051,7 @@ input CreateCurationNoticeInput {
 
 input UpdateCurationNoticeDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   commentId: String
   deleted: Boolean
 }
@@ -8018,50 +8068,6 @@ type CurationNoticeOutput {
 extend type Mutation {
   createCurationNotice(data: CreateCurationNoticeDataInput!): CurationNoticeOutput
   updateCurationNotice(selector: SelectorInput!, data: UpdateCurationNoticeDataInput!): CurationNoticeOutput
-}
-
-input CreateDialogueMatchPreferenceDataInput {
-  legacyData: JSON
-  dialogueCheckId: String!
-  topicPreferences: [JSON!]!
-  topicNotes: String!
-  syncPreference: String!
-  asyncPreference: String!
-  formatNotes: String!
-  calendlyLink: String
-  generatedDialogueId: String
-  deleted: Boolean
-}
-
-input CreateDialogueMatchPreferenceInput {
-  data: CreateDialogueMatchPreferenceDataInput!
-}
-
-input UpdateDialogueMatchPreferenceDataInput {
-  legacyData: JSON
-  dialogueCheckId: String
-  topicPreferences: [JSON!]
-  topicNotes: String
-  syncPreference: String
-  asyncPreference: String
-  formatNotes: String
-  calendlyLink: String
-  generatedDialogueId: String
-  deleted: Boolean
-}
-
-input UpdateDialogueMatchPreferenceInput {
-  selector: SelectorInput!
-  data: UpdateDialogueMatchPreferenceDataInput!
-}
-
-type DialogueMatchPreferenceOutput {
-  data: DialogueMatchPreference
-}
-
-extend type Mutation {
-  createDialogueMatchPreference(data: CreateDialogueMatchPreferenceDataInput!): DialogueMatchPreferenceOutput
-  updateDialogueMatchPreference(selector: SelectorInput!, data: UpdateDialogueMatchPreferenceDataInput!): DialogueMatchPreferenceOutput
 }
 
 input CreateDigestPostDataInput {
@@ -8266,12 +8272,12 @@ extend type Mutation {
 
 input CreateForumEventDataInput {
   legacyData: JSON
-  frontpageDescription: JSON
-  frontpageDescriptionMobile: JSON
-  postPageDescription: JSON
+  frontpageDescription: CreateRevisionDataInput
+  frontpageDescriptionMobile: CreateRevisionDataInput
+  postPageDescription: CreateRevisionDataInput
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -8280,8 +8286,9 @@ input CreateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean!
   eventFormat: String
-  pollQuestion: JSON
+  pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
@@ -8296,9 +8303,9 @@ input CreateForumEventInput {
 
 input UpdateForumEventDataInput {
   legacyData: JSON
-  frontpageDescription: JSON
-  frontpageDescriptionMobile: JSON
-  postPageDescription: JSON
+  frontpageDescription: CreateRevisionDataInput
+  frontpageDescriptionMobile: CreateRevisionDataInput
+  postPageDescription: CreateRevisionDataInput
   title: String
   startDate: Date
   endDate: Date
@@ -8310,13 +8317,15 @@ input UpdateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean
   eventFormat: String
-  pollQuestion: JSON
+  pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
   customComponent: String
   commentPrompt: String
+  publicData: JSON
 }
 
 input UpdateForumEventInput {
@@ -8333,88 +8342,9 @@ extend type Mutation {
   updateForumEvent(selector: SelectorInput!, data: UpdateForumEventDataInput!): ForumEventOutput
 }
 
-input CreateGardenCodeDataInput {
-  legacyData: JSON
-  contents: JSON
-  slug: String
-  title: String!
-  startTime: Date
-  fbLink: String
-  type: String
-  afOnly: Boolean
-}
-
-input CreateGardenCodeInput {
-  data: CreateGardenCodeDataInput!
-}
-
-input UpdateGardenCodeDataInput {
-  legacyData: JSON
-  contents: JSON
-  slug: String
-  title: String
-  startTime: Date
-  endTime: Date
-  fbLink: String
-  type: String
-  hidden: Boolean
-  deleted: Boolean
-  afOnly: Boolean
-}
-
-input UpdateGardenCodeInput {
-  selector: SelectorInput!
-  data: UpdateGardenCodeDataInput!
-}
-
-type GardenCodeOutput {
-  data: GardenCode
-}
-
-extend type Mutation {
-  createGardenCode(data: CreateGardenCodeDataInput!): GardenCodeOutput
-  updateGardenCode(selector: SelectorInput!, data: UpdateGardenCodeDataInput!): GardenCodeOutput
-}
-
-input CreateGoogleServiceAccountSessionDataInput {
-  legacyData: JSON
-  email: String!
-  refreshToken: String!
-  estimatedExpiry: Date!
-  active: Boolean!
-  revoked: Boolean!
-}
-
-input CreateGoogleServiceAccountSessionInput {
-  data: CreateGoogleServiceAccountSessionDataInput!
-}
-
-input UpdateGoogleServiceAccountSessionDataInput {
-  legacyData: JSON
-  email: String
-  refreshToken: String
-  estimatedExpiry: Date
-  active: Boolean
-  revoked: Boolean
-}
-
-input UpdateGoogleServiceAccountSessionInput {
-  selector: SelectorInput!
-  data: UpdateGoogleServiceAccountSessionDataInput!
-}
-
-type GoogleServiceAccountSessionOutput {
-  data: GoogleServiceAccountSession
-}
-
-extend type Mutation {
-  createGoogleServiceAccountSession(data: CreateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSessionOutput
-  updateGoogleServiceAccountSession(selector: SelectorInput!, data: UpdateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSessionOutput
-}
-
 input CreateJargonTermDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   postId: String!
   term: String!
   approved: Boolean
@@ -8428,7 +8358,7 @@ input CreateJargonTermInput {
 
 input UpdateJargonTermDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   term: String
   approved: Boolean
   deleted: Boolean
@@ -8463,23 +8393,12 @@ input CreateLWEventInput {
   data: CreateLWEventDataInput!
 }
 
-input UpdateLWEventDataInput {
-  legacyData: JSON
-  important: Boolean
-}
-
-input UpdateLWEventInput {
-  selector: SelectorInput!
-  data: UpdateLWEventDataInput!
-}
-
 type LWEventOutput {
   data: LWEvent
 }
 
 extend type Mutation {
   createLWEvent(data: CreateLWEventDataInput!): LWEventOutput
-  updateLWEvent(selector: SelectorInput!, data: UpdateLWEventDataInput!): LWEventOutput
 }
 
 input UpdateLlmConversationDataInput {
@@ -8506,7 +8425,7 @@ extend type Mutation {
 
 input CreateLocalgroupDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
@@ -8533,7 +8452,7 @@ input CreateLocalgroupInput {
 
 input UpdateLocalgroupDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String
   nameInAnotherLanguage: String
   organizerIds: [String!]
@@ -8570,7 +8489,7 @@ extend type Mutation {
 
 input CreateMessageDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   userId: String
   conversationId: String!
   noEmail: Boolean
@@ -8582,7 +8501,7 @@ input CreateMessageInput {
 
 input UpdateMessageDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
 }
 
 input UpdateMessageInput {
@@ -8601,7 +8520,7 @@ extend type Mutation {
 
 input CreateModerationTemplateDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String!
   collectionName: String!
   order: Float
@@ -8613,7 +8532,7 @@ input CreateModerationTemplateInput {
 
 input UpdateModerationTemplateDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String
   collectionName: String
   order: Float
@@ -8668,7 +8587,7 @@ extend type Mutation {
 
 input CreateMultiDocumentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   title: String
   tabTitle: String!
@@ -8685,7 +8604,7 @@ input CreateMultiDocumentInput {
 
 input UpdateMultiDocumentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   title: String
   tabTitle: String
@@ -8708,15 +8627,6 @@ extend type Mutation {
   updateMultiDocument(selector: SelectorInput!, data: UpdateMultiDocumentDataInput!): MultiDocumentOutput
 }
 
-input CreateNotificationDataInput {
-  legacyData: JSON
-  viewed: Boolean
-}
-
-input CreateNotificationInput {
-  data: CreateNotificationDataInput!
-}
-
 input UpdateNotificationDataInput {
   legacyData: JSON
   viewed: Boolean
@@ -8732,7 +8642,6 @@ type NotificationOutput {
 }
 
 extend type Mutation {
-  createNotification(data: CreateNotificationDataInput!): NotificationOutput
   updateNotification(selector: SelectorInput!, data: UpdateNotificationDataInput!): NotificationOutput
 }
 
@@ -8767,117 +8676,19 @@ input CreatePodcastEpisodeInput {
   data: CreatePodcastEpisodeDataInput!
 }
 
-input UpdatePodcastEpisodeDataInput {
-  legacyData: JSON
-}
-
-input UpdatePodcastEpisodeInput {
-  selector: SelectorInput!
-  data: UpdatePodcastEpisodeDataInput!
-}
-
 type PodcastEpisodeOutput {
   data: PodcastEpisode
 }
 
 extend type Mutation {
   createPodcastEpisode(data: CreatePodcastEpisodeDataInput!): PodcastEpisodeOutput
-  updatePodcastEpisode(selector: SelectorInput!, data: UpdatePodcastEpisodeDataInput!): PodcastEpisodeOutput
-}
-
-input CreatePostEmbeddingDataInput {
-  legacyData: JSON
-  postId: String!
-  postHash: String!
-  lastGeneratedAt: Date!
-  model: String!
-  embeddings: [Float!]
-}
-
-input CreatePostEmbeddingInput {
-  data: CreatePostEmbeddingDataInput!
-}
-
-input UpdatePostEmbeddingDataInput {
-  legacyData: JSON
-  postId: String
-  postHash: String
-  lastGeneratedAt: Date
-  model: String
-  embeddings: [Float!]
-}
-
-input UpdatePostEmbeddingInput {
-  selector: SelectorInput!
-  data: UpdatePostEmbeddingDataInput!
-}
-
-type PostEmbeddingOutput {
-  data: PostEmbedding
-}
-
-extend type Mutation {
-  createPostEmbedding(data: CreatePostEmbeddingDataInput!): PostEmbeddingOutput
-  updatePostEmbedding(selector: SelectorInput!, data: UpdatePostEmbeddingDataInput!): PostEmbeddingOutput
-}
-
-input CreatePostViewTimeDataInput {
-  legacyData: JSON
-}
-
-input CreatePostViewTimeInput {
-  data: CreatePostViewTimeDataInput!
-}
-
-input UpdatePostViewTimeDataInput {
-  legacyData: JSON
-}
-
-input UpdatePostViewTimeInput {
-  selector: SelectorInput!
-  data: UpdatePostViewTimeDataInput!
-}
-
-type PostViewTimeOutput {
-  data: PostViewTime
-}
-
-extend type Mutation {
-  createPostViewTime(data: CreatePostViewTimeDataInput!): PostViewTimeOutput
-  updatePostViewTime(selector: SelectorInput!, data: UpdatePostViewTimeDataInput!): PostViewTimeOutput
-}
-
-input CreatePostViewsDataInput {
-  legacyData: JSON
-}
-
-input CreatePostViewsInput {
-  data: CreatePostViewsDataInput!
-}
-
-input UpdatePostViewsDataInput {
-  legacyData: JSON
-}
-
-input UpdatePostViewsInput {
-  selector: SelectorInput!
-  data: UpdatePostViewsDataInput!
-}
-
-type PostViewsOutput {
-  data: PostViews
-}
-
-extend type Mutation {
-  createPostViews(data: CreatePostViewsDataInput!): PostViewsOutput
-  updatePostViews(selector: SelectorInput!, data: UpdatePostViewsDataInput!): PostViewsOutput
 }
 
 input CreatePostDataInput {
   legacyData: JSON
-  contents: JSON
-  moderationGuidelines: JSON
-  customHighlight: JSON
+  contents: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
+  customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
   url: String
@@ -8916,12 +8727,12 @@ input CreatePostDataInput {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusInput!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
-  fmCrosspost: JSON
+  socialPreview: SocialPreviewInput
+  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -8989,9 +8800,9 @@ input CreatePostInput {
 
 input UpdatePostDataInput {
   legacyData: JSON
-  contents: JSON
-  moderationGuidelines: JSON
-  customHighlight: JSON
+  contents: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
+  customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
   url: String
@@ -9031,12 +8842,12 @@ input UpdatePostDataInput {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusInput!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
-  fmCrosspost: JSON
+  socialPreview: SocialPreviewInput
+  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -9196,6 +9007,19 @@ extend type Mutation {
   updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
 }
 
+input ContentTypeInput {
+  type: String!
+  data: ContentTypeData!
+}
+
+input CreateRevisionDataInput {
+  originalContents: ContentTypeInput!
+  commitMessage: String
+  updateType: String
+  dataWithDiscardedSuggestions: JSON
+  googleDocMetadata: JSON
+}
+
 input UpdateRevisionDataInput {
   legacyData: JSON
   skipAttributions: Boolean
@@ -9216,7 +9040,7 @@ extend type Mutation {
 
 input CreateSequenceDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
   title: String!
@@ -9239,7 +9063,7 @@ input CreateSequenceInput {
 
 input UpdateSequenceDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
   title: String
@@ -9294,43 +9118,17 @@ input CreateSplashArtCoordinateInput {
   data: CreateSplashArtCoordinateDataInput!
 }
 
-input UpdateSplashArtCoordinateDataInput {
-  legacyData: JSON
-  reviewWinnerArtId: String
-  leftXPct: Float
-  leftYPct: Float
-  leftHeightPct: Float
-  leftWidthPct: Float
-  leftFlipped: Boolean
-  middleXPct: Float
-  middleYPct: Float
-  middleHeightPct: Float
-  middleWidthPct: Float
-  middleFlipped: Boolean
-  rightXPct: Float
-  rightYPct: Float
-  rightHeightPct: Float
-  rightWidthPct: Float
-  rightFlipped: Boolean
-}
-
-input UpdateSplashArtCoordinateInput {
-  selector: SelectorInput!
-  data: UpdateSplashArtCoordinateDataInput!
-}
-
 type SplashArtCoordinateOutput {
   data: SplashArtCoordinate
 }
 
 extend type Mutation {
   createSplashArtCoordinate(data: CreateSplashArtCoordinateDataInput!): SplashArtCoordinateOutput
-  updateSplashArtCoordinate(selector: SelectorInput!, data: UpdateSplashArtCoordinateDataInput!): SplashArtCoordinateOutput
 }
 
 input CreateSpotlightDataInput {
   legacyData: JSON
-  description: JSON
+  description: CreateRevisionDataInput
   documentId: String!
   documentType: String!
   position: Float
@@ -9357,7 +9155,7 @@ input CreateSpotlightInput {
 
 input UpdateSpotlightDataInput {
   legacyData: JSON
-  description: JSON
+  description: CreateRevisionDataInput
   documentId: String
   documentType: String
   position: Float
@@ -9495,7 +9293,7 @@ input CreateSurveyScheduleDataInput {
   startDate: Date
   endDate: Date
   deactivated: Boolean
-  clientIds: [String!]!
+  clientIds: [String!]
 }
 
 input CreateSurveyScheduleInput {
@@ -9561,7 +9359,7 @@ extend type Mutation {
 
 input CreateTagFlagDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   name: String!
   deleted: Boolean
@@ -9574,7 +9372,7 @@ input CreateTagFlagInput {
 
 input UpdateTagFlagDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   name: String
   deleted: Boolean
@@ -9595,41 +9393,11 @@ extend type Mutation {
   updateTagFlag(selector: SelectorInput!, data: UpdateTagFlagDataInput!): TagFlagOutput
 }
 
-input CreateTagRelDataInput {
-  legacyData: JSON
-  tagId: String!
-  postId: String!
-  userId: String!
-}
-
-input CreateTagRelInput {
-  data: CreateTagRelDataInput!
-}
-
-input UpdateTagRelDataInput {
-  legacyData: JSON
-  deleted: Boolean
-}
-
-input UpdateTagRelInput {
-  selector: SelectorInput!
-  data: UpdateTagRelDataInput!
-}
-
-type TagRelOutput {
-  data: TagRel
-}
-
-extend type Mutation {
-  createTagRel(data: CreateTagRelDataInput!): TagRelOutput
-  updateTagRel(selector: SelectorInput!, data: UpdateTagRelDataInput!): TagRelOutput
-}
-
 input CreateTagDataInput {
   legacyData: JSON
-  description: JSON
-  subforumWelcomeText: JSON
-  moderationGuidelines: JSON
+  description: CreateRevisionDataInput
+  subforumWelcomeText: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
   slug: String
   name: String!
   shortName: String
@@ -9667,9 +9435,9 @@ input CreateTagInput {
 
 input UpdateTagDataInput {
   legacyData: JSON
-  description: JSON
-  subforumWelcomeText: JSON
-  moderationGuidelines: JSON
+  description: CreateRevisionDataInput
+  subforumWelcomeText: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
   slug: String
   name: String
   shortName: String
@@ -9847,7 +9615,7 @@ input CreateUserRateLimitDataInput {
   intervalUnit: String!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date
+  endedAt: Date!
 }
 
 input CreateUserRateLimitInput {
@@ -9914,14 +9682,14 @@ extend type Mutation {
 
 input CreateUserDataInput {
   legacyData: JSON
-  moderationGuidelines: JSON
-  howOthersCanHelpMe: JSON
-  howICanHelpOthers: JSON
+  moderationGuidelines: CreateRevisionDataInput
+  howOthersCanHelpMe: CreateRevisionDataInput
+  howICanHelpOthers: CreateRevisionDataInput
   slug: String
-  biography: JSON
+  biography: CreateRevisionDataInput
   username: String
   isAdmin: Boolean
-  displayName: String
+  displayName: String!
   previousDisplayName: String
   email: String
   groups: [String!]
@@ -9938,7 +9706,7 @@ input CreateUserDataInput {
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
   hideCommunitySection: Boolean
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
@@ -10015,6 +9783,7 @@ input CreateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -10074,11 +9843,11 @@ input CreateUserInput {
 
 input UpdateUserDataInput {
   legacyData: JSON
-  moderationGuidelines: JSON
-  howOthersCanHelpMe: JSON
-  howICanHelpOthers: JSON
+  moderationGuidelines: CreateRevisionDataInput
+  howOthersCanHelpMe: CreateRevisionDataInput
+  howICanHelpOthers: CreateRevisionDataInput
   slug: String
-  biography: JSON
+  biography: CreateRevisionDataInput
   username: String
   isAdmin: Boolean
   displayName: String
@@ -10104,7 +9873,7 @@ input UpdateUserDataInput {
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
   hideCommunitySection: Boolean
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
@@ -10134,8 +9903,8 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [JSON!]
-  hiddenPostsMetadata: [JSON!]
+  bookmarkedPostsMetadata: [PostMetadataInput!]
+  hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
   permanentDeletionRequestedAt: Date
@@ -10187,6 +9956,7 @@ input UpdateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -10213,7 +9983,7 @@ input UpdateUserDataInput {
   fullName: String
   shortformFeedId: String
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON!]
+  partiallyReadSequences: [PartiallyReadSequenceItemInput!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -10263,7 +10033,7 @@ input UpdateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
-  recommendationSettings: JSON
+  recommendationSettings: RecommendationSettingsInput
 }
 
 input UpdateUserInput {

@@ -1,7 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
+import CalendarDate from "../common/CalendarDate";
+import Loading from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const VISITS_TO_SHOW = 4
 const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
@@ -11,8 +14,6 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   currentUser: UsersCurrent,
   clickCallback: (date: Date) => void,
 }) => {
-  const { Loading, MenuItem } = Components;
-  
   const { results, loading } = useMulti({
     terms: {
       view: "postVisits",
@@ -37,7 +38,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   for (let visit of results) {
     if (filteredVisits.length) {
       const prevVisit = filteredVisits[filteredVisits.length-1];
-      const timeSince = new Date(prevVisit.createdAt).getTime() - new Date(visit.createdAt).getTime(); //in milliseconds
+      const timeSince = new Date(prevVisit.createdAt!).getTime() - new Date(visit.createdAt!).getTime(); //in milliseconds
       if (timeSince > MINIMUM_TIME_BETWEEN) {
         filteredVisits.push(visit);
       }
@@ -50,15 +51,11 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
     filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
   
   return <>{filteredVisits.map((visit) =>
-    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt)}>Visit at:&nbsp;<Components.CalendarDate date={visit.createdAt}/> </MenuItem>
+    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt!)}>Visit at:&nbsp;<CalendarDate date={visit.createdAt!}/> </MenuItem>
   )}</>
 }
 
-const LastVisitListComponent = registerComponent("LastVisitList", LastVisitList);
+export default registerComponent("LastVisitList", LastVisitList);
 
-declare global {
-  interface ComponentTypes {
-    LastVisitList: typeof LastVisitListComponent,
-  }
-}
+
 

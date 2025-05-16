@@ -114,7 +114,13 @@ export const UsersCurrent = gql(`
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
-    expandedFrontpageSections
+    expandedFrontpageSections {
+      community
+      recommendations
+      quickTakes
+      quickTakesCommunity
+      popularComments
+    }
     hidePostsRecommendations
     currentFrontpageFilter
     frontpageSelectedTab
@@ -154,6 +160,7 @@ export const UsersCurrent = gql(`
     hideFrontpageMap
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
@@ -171,9 +178,14 @@ export const UsersCurrent = gql(`
     recommendationSettings
     theme
 
-    bookmarkedPostsMetadata
+    bookmarkedPostsMetadata {
+      postId
+    }
 
-    hiddenPostsMetadata
+    hiddenPostsMetadata {
+      postId
+    }
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -528,6 +540,7 @@ export const UsersEdit = gql(`
     whenConfirmationEmailSent
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hasAuth0Id
 
@@ -595,6 +608,8 @@ export const UsersEdit = gql(`
     notificationNewMention
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
+    notificationDialogueMessages
+    notificationPublishedDialogueMessages
 
     hideFrontpageMap
     hideTaggingProgressBar

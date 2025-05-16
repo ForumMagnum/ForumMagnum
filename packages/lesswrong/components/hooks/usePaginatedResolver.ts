@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
@@ -44,7 +44,6 @@ export const usePaginatedResolver = <
   skip?: boolean,
 }): UsePaginatedResolverResult<FragmentName> => {
   const [limit, setLimit] = useState(initialLimit);
-  const [list, setList] = useState<FragmentTypes[FragmentName][] | undefined>();
 
   const queryText = `
     query get${resolverName}($limit: Int) {
@@ -98,11 +97,10 @@ export const usePaginatedResolver = <
     results = take(results, limit);
   }
 
-  useEffect(() => {
-    if (results?.length && results.length >= (list?.length ?? 0) && !isEqual(list, results)) {
-      setList(results);
-    }
-  }, [results, list]);
+  const lastList = useRef<FragmentTypes[FragmentName][] | undefined>(undefined);
+  if (results?.length && results.length >= (lastList.current?.length ?? 0)) {
+    lastList.current = results;
+  }
 
   if (error) {
     // This error was already caught by the apollo middleware, but the
@@ -116,7 +114,7 @@ export const usePaginatedResolver = <
     loading: loading || networkStatus === NetworkStatus.fetchMore,
     loadingInitial: networkStatus === NetworkStatus.loading,
     loadingMore: networkStatus === NetworkStatus.fetchMore,
-    results: list,
+    results: lastList.current,
     refetch,
     error,
     count,

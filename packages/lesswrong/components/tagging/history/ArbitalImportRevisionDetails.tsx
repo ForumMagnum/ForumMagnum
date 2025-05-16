@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import LWDialog from "../../common/LWDialog";
 
 const styles = defineStyles("ArbitalImportRevisionDetails", (theme) => ({
   title: {
@@ -20,7 +21,6 @@ const ArbitalImportRevisionDetails = ({onClose, revision}: {
   onClose: () => void,
   revision: RevisionHistoryEntry
 }) => {
-  const { LWDialog } = Components;
   const classes = useStyles(styles);
 
   return <LWDialog open={true} onClose={onClose}>
@@ -36,11 +36,7 @@ const ArbitalImportRevisionDetails = ({onClose, revision}: {
   </LWDialog>
 }
 
-const ArbitalImportRevisionDetailsComponent = registerComponent('ArbitalImportRevisionDetails', ArbitalImportRevisionDetails);
+export default registerComponent('ArbitalImportRevisionDetails', ArbitalImportRevisionDetails);
 
-declare global {
-  interface ComponentTypes {
-    ArbitalImportRevisionDetails: typeof ArbitalImportRevisionDetailsComponent
-  }
-}
+
 

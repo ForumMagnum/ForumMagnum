@@ -1,7 +1,7 @@
 import fs from 'mz/fs';
 import Papa from 'papaparse';
 import Localgroups from '../../server/collections/localgroups/collection';
-import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/newSchema';
+import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { wrapVulcanAsyncScript } from './utils';
 import { createLocalgroup, updateLocalgroup } from '../collections/localgroups/mutations';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";

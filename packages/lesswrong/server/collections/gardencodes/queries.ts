@@ -52,6 +52,7 @@ export const graphqlGardencodeQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiGardenCodeOutput {

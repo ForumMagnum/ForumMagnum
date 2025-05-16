@@ -1,5 +1,5 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
-import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
 
 export default registerMigration({

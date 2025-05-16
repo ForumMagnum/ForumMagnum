@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components } from '../../../lib/vulcan-lib/components';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsPreviewLoading from "./PostsPreviewLoading";
 
 const TagRelFragmentQuery = gql(`
   query PostsPreviewTooltipSingle4($documentId: String) {
@@ -44,7 +44,6 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   });
   const post = data?.post?.result;
 
-  const {PostsPreviewLoading} = Components;
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -65,7 +64,6 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
   });
   const post = data?.post?.result;
 
-  const {PostsPreviewLoading} = Components;
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -91,7 +89,6 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   });
   const comment = dataComment?.comment?.result;
 
-  const {PostsPreviewLoading} = Components;
   if (postLoading || commentLoading) {
     return <PostsPreviewLoading />
   }
@@ -101,7 +98,7 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   return (
     <PostsPreviewTooltip
       post={post}
-      comment={commentId ? comment : undefined}
+      comment={commentId && comment ? comment : undefined}
     />
   );
 }
@@ -113,12 +110,11 @@ export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
   });
   const tagRel = data?.tagRel?.result;
 
-  const {PostsPreviewLoading} = Components;
   if (tagRelLoading) {
     return <PostsPreviewLoading />
   }
 
-  if (!tagRel) {return null;}
+  if (!tagRel?.post) {return null;}
 
   return <PostsPreviewTooltip post={tagRel.post} />
 }

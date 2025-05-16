@@ -49,6 +49,12 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
+export function urlIsAbsolute(url: string): boolean {
+  // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
+  // or with double slashes (//) which indicates protocol-relative URL
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+}
+
 export const makeAbsolute = function (url: string): string {
   const baseUrl = getSiteUrl();
   if (url.startsWith("/"))
@@ -327,7 +333,7 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
@@ -402,6 +408,7 @@ export const sanitize = function(s: string): string {
         'viewpoints-preview',
         'ck-cta-button',
         'ck-cta-button-centered',
+        'ck-poll',
         'detailsBlockContent',
         'calendly-preview',
         'conditionallyVisibleBlock',

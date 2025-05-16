@@ -1,9 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import UsersName from "../users/UsersName";
+import Loading from "../vulcan-core/Loading";
+import type { NotificationsList } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsMinimumInfoQuery = gql(`
   query CommentOnYourDraftNotificationHover($documentId: String) {
@@ -28,12 +31,12 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
   classes: ClassesType<typeof styles>
 }) => {
-  const { UsersName, Loading } = Components;
-  const postId = notification.documentId;
+  const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
   const { data } = useQuery(PostsMinimumInfoQuery, {
     variables: { documentId: postId },
+    skip: !postId,
   });
   const post = data?.post?.result;
   
@@ -54,10 +57,6 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   </div>
 }
 
-const CommentOnYourDraftNotificationHoverComponent = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
+export default registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHoverComponent
-  }
-}
+

@@ -1,11 +1,10 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useNewEvents } from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { truncatise } from '../../../lib/truncatise';
 import Edit from '@/lib/vendor/@material-ui/icons/src/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
@@ -13,6 +12,10 @@ import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { TooltipSpan } from '@/components/common/FMTooltip';
+import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
+import ContentStyles from "../../common/ContentStyles";
+import type { PostsModerationGuidelines, TagFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsModerationGuidelinesQuery = gql(`
   query PostsModerationGuidelines($documentId: String) {
@@ -36,7 +39,6 @@ const TagModerationGuidelinesQuery = gql(`
   }
 `)
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit * 2,
@@ -54,10 +56,12 @@ const styles = (theme: ThemeType) => ({
   'reign-of-terror': {
     color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
-  'editButton': {
+  editButtonWrapper: {
     cursor: "pointer",
     position: 'absolute',
     right: 16,
+  },
+  editButton: {
     height: '0.8em'
   },
   collapse: {
@@ -116,8 +120,8 @@ const getPostModerationGuidelines = (
 }
 
 const getSubforumModerationGuidelines = (tag: TagFragment) => {
-  const { html = "" } = tag.moderationGuidelines || {}
-  const combinedGuidelines = html
+  const { html } = tag.moderationGuidelines || {}
+  const combinedGuidelines = html ?? ''
   const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
   return { combinedGuidelines, truncatedGuidelines }
 }
@@ -187,7 +191,7 @@ const ModerationGuidelinesBox = ({ classes, commentType = "post", documentId }: 
 
     openDialog({
       name: "ModerationGuidelinesEditForm",
-      contents: ({ onClose }) => <Components.ModerationGuidelinesEditForm
+      contents: ({ onClose }) => <ModerationGuidelinesEditForm
         onClose={onClose}
         commentType={commentType}
         documentId={documentId}
@@ -205,15 +209,18 @@ const ModerationGuidelinesBox = ({ classes, commentType = "post", documentId }: 
       {
         !!(isPostType(document) ? userCanModeratePost(currentUser, document) : userCanModerateSubforum(currentUser, document)) &&
         <span onClick={openEditDialog}>
-          <Tooltip title="Edit moderation guidelines">
-            <Edit className={classes.editButton} />
-          </Tooltip>
+          <TooltipSpan
+            title="Edit moderation guidelines"
+            className={classes.editButtonWrapper}
+          >
+            <Edit className={classes.editButton}/>
+          </TooltipSpan>
         </span>
       }
-      <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
-        <div dangerouslySetInnerHTML={{ __html: displayedGuidelines }} />
+      <ContentStyles contentType="comment" className={classes.moderationGuidelines}>
+        <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
-      </Components.ContentStyles>
+      </ContentStyles>
     </div>
   )
 }
@@ -224,13 +231,9 @@ const moderationStyleLookup: Partial<Record<string, string>> = {
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
+export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    ModerationGuidelinesBox: typeof ModerationGuidelinesBoxComponent
-  }
-}
+

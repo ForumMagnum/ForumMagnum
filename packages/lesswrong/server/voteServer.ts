@@ -9,7 +9,7 @@ import { createAdminContext, createAnonymousContext } from './vulcan-lib/createC
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
-import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/newSchema';
+import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "@/lib/collections/moderatorActions/constants";
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
@@ -28,7 +28,8 @@ import { isElasticEnabled } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
 import { createModeratorAction } from './collections/moderatorActions/mutations';
-import { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+import { getSchema } from '@/lib/schema/allSchemas';
+import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -61,13 +62,18 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     ...document,
     ...(await recalculateDocumentScores(document, collection.collectionName, context)),
   }
+
+  const schema = getSchema(collection.collectionName);
+  const inactiveFieldUpdate = schema.inactive
+    ? { inactive: false }
+    : {};
   
   // update document score & set item as active
   await collection.rawUpdateOne(
     {_id: document._id},
     {
       $set: {
-        inactive: false,
+        ...inactiveFieldUpdate,
         baseScore: newDocument.baseScore,
         score: newDocument.score,
         extendedScore: newDocument.extendedScore,

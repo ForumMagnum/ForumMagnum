@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import CommentsItem from "./CommentsItem/CommentsItem";
+import Loading from "../vulcan-core/Loading";
+import type { PostsMinimumInfo, TagBasicInfo } from '@/lib/generated/gql-codegen/graphql';
 
 const CommentsListWithParentMetadataQuery = gql(`
   query ParentCommentSingle($documentId: String) {
@@ -45,7 +48,7 @@ const ParentCommentSingle = ({
           "comments-node-odd"  : nestingLevel % 2 !== 0,
         }
       )}>
-        <Components.CommentsItem
+        <CommentsItem
           treeOptions={{...treeOptions, tag, post}}
           isParentComment
           comment={document}
@@ -55,15 +58,11 @@ const ParentCommentSingle = ({
       </div>
     )
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 }
 
-const ParentCommentSingleComponent = registerComponent('ParentCommentSingle', ParentCommentSingle, {});
+export default registerComponent('ParentCommentSingle', ParentCommentSingle, {});
 
-declare global {
-  interface ComponentTypes {
-    ParentCommentSingle: typeof ParentCommentSingleComponent,
-  }
-}
+
 

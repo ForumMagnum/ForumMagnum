@@ -44,10 +44,10 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 // TODO there are several functions which do this, some of them should be combined
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string | null,
-  postSlug?: string,
-  tagSlug?: string,
-  tagCommentType?: TagCommentType,
-  commentId: string,
+  postSlug?: string | null,
+  tagSlug?: string | null,
+  tagCommentType?: TagCommentType | null,
+  commentId: string | null,
   permalink?: boolean,
   isAbsolute?: boolean,
 }): string {
@@ -99,7 +99,7 @@ export const commentGetKarma = (comment: CommentsList|DbComment): number => {
   return baseScore || 0
 }
 
-export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+export const commentAllowTitle = (comment: {tagCommentType?: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
 
 /**
  * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.

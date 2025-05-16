@@ -30,6 +30,7 @@ export const graphqlSurveyScheduleQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiSurveyScheduleOutput {

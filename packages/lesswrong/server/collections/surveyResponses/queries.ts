@@ -27,6 +27,7 @@ export const graphqlSurveyResponseQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiSurveyResponseOutput {

@@ -1,6 +1,5 @@
 import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
 import * as _ from 'underscore';
-import { dataToDraftJS } from './toDraft';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { EditorContents } from '../../components/editor/Editor';
@@ -42,6 +41,8 @@ export const revisionResolversGraphQLMutations = {
 
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
+    if (!revertToRevision.originalContents)
+      throw new Error('Revision missing originalContents');
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);
@@ -116,11 +117,6 @@ export const revisionResolversGraphQLQueries = {
           value: await dataToHTML(document.value, document.type, context),
         };
         break;
-      case "draftJS":
-        return {
-          type: "draftJS",
-          value: dataToDraftJS(document.value, document.type)
-        };
       case "ckEditorMarkup":
         return {
           type: "ckEditorMarkup",

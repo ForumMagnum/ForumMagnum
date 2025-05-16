@@ -1,27 +1,41 @@
 import crypto from 'crypto';
 import {
-  FeedItemSourceType, UltraFeedResolverType, FeedItemRenderType, FeedItem,
+  FeedItemSourceType, UltraFeedResolverType,
   FeedSpotlight, FeedFullPost, FeedCommentMetaInfo,
   PreDisplayFeedComment,
   FeedCommentsThread,
   FeedCommentsThreadResolverType,
-  FeedPostResolverType,
-  feedPostSourceTypesArray,
   feedCommentSourceTypesArray,
-  feedSpotlightSourceTypesArray
+  feedSpotlightSourceTypesArray,
+  FeedItemDisplayStatus,
+  FeedPostStub
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { UltraFeedEvents } from '../collections/ultraFeedEvents/collection';
+import gql from 'graphql-tag';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
-import shuffle from 'lodash/shuffle';
-import { aboutPostIdSetting } from '@/lib/instanceSettings';
-import { recombeeApi, recombeeRequestHelpers } from '@/server/recombee/client';
-import { HybridRecombeeConfiguration } from '@/lib/collections/users/recommendationSettings';
-import { getUltraFeedCommentThreads } from '@/lib/ultraFeed/ultraFeedThreadHelpers';
-import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedSettingsType } from '@/components/ultraFeed/ultraFeedSettingsTypes';
+import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
+import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
-import gql from 'graphql-tag';
+import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
+import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
+
+interface UltraFeedDateCutoffs {
+  latestPostsMaxAgeDays: number;
+  subscribedPostsMaxAgeDays: number;
+  initialCommentCandidateLookbackDays: number;
+  commentServedEventRecencyHours: number;
+  threadEngagementLookbackDays: number;
+}
+
+const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
+  latestPostsMaxAgeDays: 45,
+  subscribedPostsMaxAgeDays: 45,
+  initialCommentCandidateLookbackDays: 14,
+  commentServedEventRecencyHours: 48,
+  threadEngagementLookbackDays: 45,
+};
+
 export const ultraFeedGraphQLTypeDefs = gql`
   type FeedPost {
     _id: String!
@@ -66,87 +80,72 @@ export const ultraFeedGraphQLTypeDefs = gql`
   }
 `;
 
+// items now carry `type`
+type SampledItem =
+  | { type: "feedCommentThread"; feedCommentThread: FeedCommentsThread }
+  | { type: "feedPostWithContents"; feedPost: FeedFullPost }
+  | { type: "feedPost"; feedPostStub: FeedPostStub }
+  | { type: "feedSpotlight"; feedSpotlight: FeedSpotlight };
+
 interface WeightedSource {
   weight: number;
-  items: FeedItem[];
-  renderAsType: FeedItemRenderType;
+  items: SampledItem[];
 }
 
-type SampledItem = { renderAsType: "feedCommentThread", feedCommentThread: FeedCommentsThread }
-                 | { renderAsType: "feedPost", feedPost: FeedFullPost }
-                 | { renderAsType: "feedSpotlight", feedSpotlight: FeedSpotlight };
-
 const weightedSample = (
-  inputs: Record<FeedItemSourceType, WeightedSource>,
+  inputs: Partial<Record<FeedItemSourceType, WeightedSource>>,
   totalItems: number
 ): SampledItem[] => {
-  // Create deep copies of the input arrays to avoid modifying the originals
   const sourcesWithCopiedItems = cloneDeep(inputs);
-
   const finalFeed: SampledItem[] = [];
-  let totalWeight = Object.values(sourcesWithCopiedItems).reduce(
-    (sum, src) => sum + (src.items.length > 0 ? src.weight : 0),
-    0
-  );
+
+  let totalWeight = Object.values(sourcesWithCopiedItems)
+    .reduce((sum, s) => sum + (s?.items.length ? s.weight : 0), 0);
 
   for (let i = 0; i < totalItems; i++) {
     if (totalWeight <= 0) break;
-
     const pick = Math.random() * totalWeight;
-
     let cumulative = 0;
-    let chosenSourceKey: FeedItemSourceType | null = null;
+    let chosen: FeedItemSourceType | null = null;
 
-    for (const [key, src] of Object.entries(sourcesWithCopiedItems)) {
-      if (src.items.length === 0) continue;
-
+    for (const [k, src] of Object.entries(sourcesWithCopiedItems)) {
+      if (!src || !src.items.length) continue;
       cumulative += src.weight;
       if (pick < cumulative) {
-        chosenSourceKey = key as FeedItemSourceType;
+        chosen = k as FeedItemSourceType;
         break;
       }
     }
 
-    if (chosenSourceKey) {
-      const sourceItems = sourcesWithCopiedItems[chosenSourceKey];
-      const item = sourceItems.items.shift();
-
-      if (!item) {
-        continue;
+    if (chosen) {
+      const src = sourcesWithCopiedItems[chosen]!;
+      const item = src.items.shift();
+      if (item) {
+        finalFeed.push(item);
       }
-
-      if (sourceItems.renderAsType === "feedCommentThread") {
-        finalFeed.push({
-          renderAsType: "feedCommentThread",
-          feedCommentThread: item as FeedCommentsThread
-        });
-      } else if (sourceItems.renderAsType === "feedPost") {
-        finalFeed.push({
-          renderAsType: "feedPost",
-          feedPost: item as FeedFullPost
-        });
-      } else if (sourceItems.renderAsType === "feedSpotlight") {
-        finalFeed.push({
-          renderAsType: "feedSpotlight",
-          feedSpotlight: item as FeedSpotlight
-        });
-      }
-
-      if (sourceItems.items.length === 0) {
-        totalWeight -= sourceItems.weight;
+      if (!src.items.length) {
+        totalWeight -= src.weight;
       }
     }
   }
-
   return finalFeed;
-}
+};
 
-const parseUltraFeedSettings = (settingsJson?: string): UltraFeedSettingsType => {
-  let parsedSettings: UltraFeedSettingsType = DEFAULT_ULTRAFEED_SETTINGS;
+const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
+
+const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
+  let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS;
   if (settingsJson) {
     try {
       const settingsFromArg = JSON.parse(settingsJson);
-      parsedSettings = { ...DEFAULT_ULTRAFEED_SETTINGS, ...settingsFromArg };
+      const resolverKeys = Object.keys(DEFAULT_RESOLVER_SETTINGS) as Array<keyof UltraFeedResolverSettings>;
+      const filteredSettings: Partial<UltraFeedResolverSettings> = {};
+      resolverKeys.forEach(key => {
+         if (settingsFromArg[key] !== undefined) {
+            filteredSettings[key] = settingsFromArg[key];
+         }
+      });
+      parsedSettings = { ...DEFAULT_RESOLVER_SETTINGS, ...filteredSettings };
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("UltraFeedResolver: Failed to parse settings argument", e);
@@ -156,155 +155,114 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedSettingsType =>
 };
 
 /**
- * Calculate fetch limits for each content type based on source weights and overall number of requested items
- */
-const calculateFetchLimits = (
-  sourceWeights: Record<string, number>,
-  totalLimit: number,
-  bufferMultiplier = 2
-) => {
-  const totalWeight = Object.values(sourceWeights).reduce((sum, weight) => sum + weight, 0);
-  
-  const totalPostWeight = feedPostSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
-  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
-  const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
-
-  return {
-    totalWeight,
-    postFetchLimit: Math.ceil(totalLimit * (totalPostWeight / totalWeight) * bufferMultiplier),
-    commentFetchLimit: Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier),
-    spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier)
-  };
-};
-
-/**
- * Fetch served post IDs for the current user
- */
-const getServedPostIds = async (userId: string) => {
-  const servedPostIds = new Set<string>();
-  const servedEvents = await UltraFeedEvents.find({ 
-    userId: userId, 
-    eventType: "served",
-    collectionName: { $in: ["Posts"] } 
-  }, { projection: { documentId: 1, collectionName: 1 } }).fetch();
-
-  servedEvents.forEach(event => {
-    if (event.collectionName === "Posts") {
-      servedPostIds.add(event.documentId);
-    }
-  });
-  
-  return servedPostIds;
-};
-
-/**
  * Create a map of source type to weighted source with items
  */
 const createSourcesMap = (
   sourceWeights: Record<string, number>,
   postThreadsItems: FeedFullPost[],
   commentThreadsItems: FeedCommentsThread[],
-  spotlightItems: FeedSpotlight[]
-): Record<FeedItemSourceType, WeightedSource> => {
-  const sources = {} as Record<FeedItemSourceType, WeightedSource>;
-  
-  // Initialize sources with empty item arrays
-  Object.entries(sourceWeights).forEach(([source, weight]) => {
-    const sourceType = source as FeedItemSourceType;
-    let renderAsType: FeedItemRenderType;
+  spotlightItems: FeedSpotlight[],
+  bookmarkItems: PreparedBookmarkItem[],
+  subscribedPostItems: FeedPostStub[]
+): Partial<Record<FeedItemSourceType, WeightedSource>> => {
 
-    if ((feedPostSourceTypesArray as readonly string[]).includes(sourceType)) {
-      renderAsType = 'feedPost';
-    } else if ((feedCommentSourceTypesArray as readonly string[]).includes(sourceType)) {
-      renderAsType = 'feedCommentThread';
-    } else if ((feedSpotlightSourceTypesArray as readonly string[]).includes(sourceType)) {
-      renderAsType = 'feedSpotlight';
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn(`UltraFeedResolver: Source type "${sourceType}" found in sourceWeights but not in known type arrays.`);
-      return; // Skip sources not mappable to a render type
-    }
+  const sources = Object.entries(sourceWeights)
+    .filter(([, w]) => w > 0)
+    .reduce((acc, [src, w]) => {
+      acc[src as FeedItemSourceType] = { weight: w, items: [] };
+      return acc;
+    }, {} as Partial<Record<FeedItemSourceType, WeightedSource>>);
 
-    sources[sourceType] = {
-      weight,
-      items: [], // Initialize with empty items
-      renderAsType
-    };
-  });
+  const addedPostIds = new Set<string>();
 
-  // Add spotlight items
   if (sources.spotlights) {
-    sources.spotlights.items = spotlightItems;
-  } else if (spotlightItems.length > 0) {
-     // eslint-disable-next-line no-console
-     console.warn("UltraFeedResolver: Fetched spotlights but 'spotlights' source is not defined in sourceWeights.");
+    spotlightItems.forEach(s => {
+      sources.spotlights?.items.push({ type: "feedSpotlight", feedSpotlight: s });
+    });
   }
 
-  // Add post items to their sources
-  postThreadsItems.forEach(postItem => {
-    const itemSources = postItem.postMetaInfo?.sources;
-    if (Array.isArray(itemSources)) {
-      itemSources.forEach(source => {
-        const sourceType = source as FeedItemSourceType;
-        if (sources[sourceType]) {
-          sources[sourceType].items.push(postItem);
-        }
-      });
+  postThreadsItems.forEach(p => {
+    const postId = p.post?._id;
+    if (!postId || addedPostIds.has(postId)) {
+      return;
     }
-  });
-
-  // Add comment items to their sources
-  commentThreadsItems.forEach(commentThread => {
-    let foundSources = false;
-    // Find the first comment that *has* source info
-    for (const comment of commentThread.comments) {
-      const itemSources = comment?.metaInfo?.sources;
-      if (Array.isArray(itemSources) && itemSources.length > 0) {
-        itemSources.forEach(source => {
-          const sourceType = source as FeedItemSourceType;
-          if (sources[sourceType]) {
-            sources[sourceType].items.push(commentThread);
-            foundSources = true;
-          }
-        });
-        if (foundSources) {
-          break;
-        }
+    let addedToAnySource = false;
+    (p.postMetaInfo?.sources ?? []).forEach(src => {
+      const bucket = sources[src as FeedItemSourceType];
+      if (bucket) {
+        bucket.items.push({ type: "feedPostWithContents", feedPost: p });
+        addedToAnySource = true;
       }
+    });
+    if (addedToAnySource) {
+        addedPostIds.add(postId);
     }
   });
 
-  // Filter out sources with no items
-  return Object.entries(sources).reduce((acc, [key, value]) => {
-    if (value.items.length > 0) {
-      acc[key as FeedItemSourceType] = value;
+  subscribedPostItems.forEach(p => {
+    const postId = p.postId;
+    if (!postId || addedPostIds.has(postId)) {
+      return;
     }
-    return acc;
-  }, {} as Record<FeedItemSourceType, WeightedSource>);
+    const bucket = sources['subscriptions' as const]; 
+    if (bucket) {
+      bucket.items.push({ 
+        type: "feedPost", 
+        feedPostStub: { 
+          postId: postId, 
+          postMetaInfo: p.postMetaInfo 
+        } 
+      });
+      addedPostIds.add(postId);
+    }
+  });
+
+  if (sources.bookmarks) {
+    bookmarkItems.forEach(item => {
+      if (item.type === "feedPost") {
+        const postId = item.feedPostStub.postId;
+        if (addedPostIds.has(postId)) {
+          return;
+        }
+        sources.bookmarks?.items.push(item);
+        addedPostIds.add(postId);
+      } else if (item.type === "feedCommentThread") {
+        sources.bookmarks?.items.push(item);
+      }
+    });
+  }
+
+  if (sources.recentComments) {
+    commentThreadsItems.forEach(t => {
+      sources.recentComments?.items.push({ type: "feedCommentThread", feedCommentThread: t });
+    });
+  }
+
+  return Object.fromEntries(Object.entries(sources).filter(([, v]) => v?.items.length ?? 0 > 0));
 };
 
 /**
  * Extract IDs that need to be loaded from sampled items
  */
-const extractIdsToLoad = (sampledItems: SampledItem[]) => {
-  const spotlightIdsToLoad: string[] = [];
-  const commentIdsToLoad = new Set<string>();
+const extractIdsToLoad = (sampled: SampledItem[]) => {
+  const postIds: string[] = [];
+  const spotlightIds: string[] = [];
+  const commentIdsSet = new Set<string>();
 
-  sampledItems.forEach(item => {
-    if (item.renderAsType === "feedSpotlight") {
-      spotlightIdsToLoad.push(item.feedSpotlight.spotlightId);
-    } else if (item.renderAsType === "feedCommentThread") {
-      item.feedCommentThread.comments?.forEach(comment => {
-        if (comment.commentId) {
-          commentIdsToLoad.add(comment.commentId);
-        }
-      });
+  sampled.forEach(it => {
+    if (it.type === "feedSpotlight") {
+      spotlightIds.push(it.feedSpotlight.spotlightId);
+    } else if (it.type === "feedCommentThread") {
+      it.feedCommentThread.comments?.forEach(c => c.commentId && commentIdsSet.add(c.commentId));
+    } else if (it.type === "feedPost") {
+      postIds.push(it.feedPostStub.postId);
     }
   });
-  
+
   return {
-    spotlightIds: spotlightIdsToLoad,
-    commentIds: Array.from(commentIdsToLoad)
+    spotlightIds,
+    commentIds: Array.from(commentIdsSet),
+    postIds
   };
 };
 
@@ -312,17 +270,18 @@ const extractIdsToLoad = (sampledItems: SampledItem[]) => {
  * Transform sampled items into UltraFeedResolverType results
  */
 const transformItemsForResolver = (
-  sampledItems: SampledItem[],
+  sampled: SampledItem[],
   spotlightsById: Map<string, DbSpotlight>,
-  commentsById: Map<string, DbComment>
+  commentsById: Map<string, DbComment>,
+  postsById: Map<string, DbPost>
 ): UltraFeedResolverType[] => {
-  return filterNonnull(sampledItems.map((item: SampledItem, index: number): UltraFeedResolverType | null => {
-    if (item.renderAsType === "feedSpotlight") {
+  return filterNonnull(sampled.map((item, index): UltraFeedResolverType | null => {
+    if (item.type === "feedSpotlight") {
       const spotlight = spotlightsById.get(item.feedSpotlight.spotlightId);
       if (!spotlight) return null;
       
       return {
-        type: item.renderAsType,
+        type: item.type,
         feedSpotlight: {
           _id: item.feedSpotlight.spotlightId,
           spotlight
@@ -330,7 +289,7 @@ const transformItemsForResolver = (
       };
     }
 
-    if (item.renderAsType === "feedCommentThread") {
+    if (item.type === "feedCommentThread") {
       const { comments: preDisplayComments } = item.feedCommentThread;
       let loadedComments: DbComment[] = [];
 
@@ -372,82 +331,98 @@ const transformItemsForResolver = (
       }
       
       const resultData: FeedCommentsThreadResolverType = {
-        _id: threadId, // Use the hash-based ID
+        _id: threadId,
         comments: loadedComments,
         commentMetaInfos
       };
 
       return {
-        type: item.renderAsType,
+        type: item.type,
         feedCommentThread: resultData
       };
     }
 
-    if (item.renderAsType === "feedPost") {
+    if (item.type === "feedPostWithContents") {
       const { post, postMetaInfo } = item.feedPost;
-
-      if (!post) { 
-        // eslint-disable-next-line no-console
-        console.warn("Resolver: No post for feedPost"); return null; 
-      }
-      const stablePostId = post?._id ? post._id : `feed-post-${index}`;
-
-      const resultData: FeedPostResolverType = {
-        _id: stablePostId,
-        post,
-        postMetaInfo
-      };
-
+      if (!post) return null;
+      const stableId = post._id ?? `feed-post-${index}`;
       return {
-        type: item.renderAsType,
-        feedPost: resultData
+        type: "feedPost",
+        feedPost: { _id: stableId, post, postMetaInfo }
+      };
+    }
+
+    if (item.type === "feedPost") {
+      const post = postsById.get(item.feedPostStub.postId);
+      if (!post) return null;
+      const { postMetaInfo } = item.feedPostStub;
+      const stableId = post._id ?? `feed-post-${index}`;
+      return {
+        type: "feedPost",
+        feedPost: { _id: stableId, post, postMetaInfo }
       };
     }
 
     // eslint-disable-next-line no-console
-    console.error("Unknown item renderAsType:", item);
+    console.error("Unknown item type:", item);
     return null;
   }));
 };
+
+type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: { 
+  sessionId: string;
+  itemIndex: number;
+  commentIndex?: number;
+  displayStatus?: FeedItemDisplayStatus;
+} };
 
 /**
  * Create UltraFeed events for tracking served items
  */
 const createUltraFeedEvents = (
   results: UltraFeedResolverType[],
-  userId: string
+  userId: string,
+  sessionId: string,
+  offset: number
 ): UltraFeedEventInsertData[] => {
   const eventsToCreate: UltraFeedEventInsertData[] = [];
   
-  results.forEach(item => {
+  results.forEach((item, index) => {
+    const actualItemIndex = offset + index;
+    
     if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
       eventsToCreate.push({
         userId,
         eventType: "served",
         collectionName: "Spotlights",
-        documentId: item.feedSpotlight.spotlight._id
+        documentId: item.feedSpotlight.spotlight._id,
+        event: { sessionId, itemIndex: actualItemIndex }
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
         const comments = threadData?.comments;
-        const postId = comments?.[0]?.postId;
-        if (postId) {
-          eventsToCreate.push({ userId, eventType: "served", collectionName: "Posts", documentId: postId });
-        }
-        comments?.forEach((comment: DbComment) => {
+        const commentMetaInfos = threadData?.commentMetaInfos;
+        comments?.forEach((comment: DbComment, commentIndex) => {
           if (comment?._id) {
-             eventsToCreate.push({ userId, eventType: "served", collectionName: "Comments", documentId: comment._id });
+            const displayStatus = commentMetaInfos?.[comment._id]?.displayStatus;
+            eventsToCreate.push({ 
+               userId, 
+               eventType: "served", 
+               collectionName: "Comments", 
+               documentId: comment._id, 
+               event: { sessionId, itemIndex: actualItemIndex, commentIndex, displayStatus }
+              });
           }
         });
     } else if (item.type === "feedPost" && item.feedPost?.post?._id) {
       const feedItem = item.feedPost;
-      // Explicitly check post._id again to satisfy stricter type checking
       if (feedItem.post._id) { 
         eventsToCreate.push({ 
           userId, 
           eventType: "served", 
           collectionName: "Posts", 
-          documentId: feedItem.post._id 
+          documentId: feedItem.post._id,
+          event: { sessionId, itemIndex: actualItemIndex }
         });
       }
     }
@@ -456,95 +431,48 @@ const createUltraFeedEvents = (
   return eventsToCreate;
 };
 
-/**
- * Get post threads for the UltraFeed using Recombee recommendations
- */
-async function getUltraFeedPostThreads(
-  context: ResolverContext,
-  limit = 20,
-  servedPostIds: Set<string> = new Set()
-): Promise<FeedFullPost[]> {
-  const { currentUser } = context;
-  const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
-  let displayPosts: FeedFullPost[] = [];
-
-  if (!recombeeUser) {
-    // eslint-disable-next-line no-console
-    console.warn("UltraFeedResolver: No Recombee user found. Cannot fetch hybrid recommendations.");
-  } else {
-    const settings: HybridRecombeeConfiguration = {
-      hybridScenarios: { fixed: 'hacker-news', configurable: 'recombee-lesswrong-custom' },
-      excludedPostIds: Array.from(servedPostIds),
-      filterSettings: currentUser?.frontpageFilterSettings,
-    };
-
-    try {
-      const recommendedResults = await recombeeApi.getHybridRecommendationsForUser(
-        recombeeUser,
-        limit,
-        settings,
-        context
-      );
-
-      displayPosts = recommendedResults.map((item, idx): FeedFullPost | null => {
-        if (!item.post?._id) return null;
-
-        // Try to determine the scenario - using the same logic hierarchy as RecombeePostsList.tsx
-        let scenario: string | undefined = item.scenario;
-        
-        if (!scenario) {
-          const aboutPostId = aboutPostIdSetting.get();
-          if (aboutPostId && item.post._id === aboutPostId && idx === 0) {
-            scenario = 'welcome-post';
-          } else if (item.curated) {
-            scenario = 'curated';
-          } else if (item.stickied || item.post.sticky) { 
-            scenario = 'stickied';
-          } else if (item.recommId) {
-            if (item.recommId.includes('forum-classic')) {
-              scenario = 'hacker-news';
-            } else if (item.recommId.includes('recombee-lesswrong-custom')) {
-              scenario = 'recombee-lesswrong-custom';
-            }
-          } else {
-            scenario = 'hacker-news';
-          }
-        }
-        
-        const recommInfo = (item.recommId && item.generatedAt) ? {
-          recommId: item.recommId,
-          scenario: scenario || 'unknown',
-          generatedAt: item.generatedAt,
-        } : undefined;
-
-        return {
-          post: item.post,
-          postMetaInfo: {
-            sources: [scenario as FeedItemSourceType],
-            displayStatus: 'expanded',
-            recommInfo: recommInfo,
-          },
-        };
-      }).filter((p): p is FeedFullPost => p !== null);
-
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Error calling getHybridRecommendationsForUser:", error);
-    }
-  }
-  
-  return displayPosts;
-}
-
 interface UltraFeedArgs {
   limit?: number;
   cutoff?: Date;
   offset?: number;
-  sessionId?: string;
-  settings?: string;
+  sessionId: string;
+  settings: string;
 }
 
-type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId'>;
+const calculateFetchLimits = (
+  sourceWeights: Record<string, number>,
+  totalLimit: number,
+  bufferMultiplier = 1.2
+): {
+  totalWeight: number;
+  recombeePostFetchLimit: number;
+  hackerNewsPostFetchLimit: number;
+  subscribedPostFetchLimit: number;
+  commentFetchLimit: number;
+  spotlightFetchLimit: number;
+  bookmarkFetchLimit: number;
+  bufferMultiplier: number;
+} => {
+  const totalWeight = Object.values(sourceWeights).reduce((sum: number, weight) => sum + weight, 0);
+  
+  const recombeePostWeight = sourceWeights['recombee-lesswrong-custom'] ?? 0;
+  const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
+  const subscribedPostWeight = sourceWeights['subscriptions'] ?? 0;
+  const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
+  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+  const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+
+  return {
+    totalWeight,
+    recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * bufferMultiplier),
+    hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * bufferMultiplier),
+    subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * bufferMultiplier),
+    commentFetchLimit: Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier),
+    spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
+    bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
+    bufferMultiplier
+  };
+};
 
 /**
  * UltraFeed resolver
@@ -560,13 +488,13 @@ export const ultraFeedGraphQLQueries = {
 
     const parsedSettings = parseUltraFeedSettings(settingsJson);
     const sourceWeights = parsedSettings.sourceWeights;
+    const incognitoMode = parsedSettings.incognitoMode;
 
     try {
       const spotlightsRepo = context.repos.spotlights;
+      const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
-      // Calculate fetch limits for different content types
-      const { totalWeight, postFetchLimit, commentFetchLimit, spotlightFetchLimit } = 
-        calculateFetchLimits(sourceWeights, limit);
+      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit);
 
       if (totalWeight <= 0) {
         // eslint-disable-next-line no-console
@@ -580,34 +508,61 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      // Fetch previously served post IDs
-      const servedPostIds = await getServedPostIds(currentUser._id);
+      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
 
-      // Fetch content from all sources
-      const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
-        postFetchLimit > 0 ? getUltraFeedPostThreads(context, postFetchLimit, servedPostIds) : Promise.resolve([]),
-        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit) : Promise.resolve([]),
-        spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([])
-      ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[]];
-
-      // Create sources map and organize items
+      const [recombeeAndLatestPostItems, subscribedPostItemsResult, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
+        (recombeePostFetchLimit + hackerNewsPostFetchLimit > 0) 
+          ? getUltraFeedPostThreads( 
+              context, 
+              recombeePostFetchLimit, 
+              hackerNewsPostFetchLimit, 
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
+            ) 
+          : Promise.resolve([]),
+        (subscribedPostFetchLimit > 0)
+          ? getSubscribedPostsForUltraFeed(
+              context, 
+              subscribedPostFetchLimit, 
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.subscribedPostsMaxAgeDays
+            )
+          : Promise.resolve([]),
+        commentFetchLimit > 0 
+          ? getUltraFeedCommentThreads(
+              context, 
+              commentFetchLimit, 
+              parsedSettings, 
+              servedCommentThreadHashes,
+              ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
+              ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
+              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+            ) 
+          : Promise.resolve([]),
+        spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
+        bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([])
+      ]) as [FeedFullPost[], FeedPostStub[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];
+      
       const populatedSources = createSourcesMap(
         sourceWeights,
-        postThreadsItems, 
-        commentThreadsItems, 
-        spotlightItems
+        recombeeAndLatestPostItems,
+        commentThreadsItemsResult,
+        spotlightItemsResult,
+        bookmarkItemsResult,
+        subscribedPostItemsResult
       );
 
       // Sample items from sources based on weights
       const sampledItems = weightedSample(populatedSources, limit);
       
       // Extract IDs to load
-      const { spotlightIds, commentIds } = extractIdsToLoad(sampledItems);
+      const { spotlightIds, commentIds, postIds } = extractIdsToLoad(sampledItems);
       
       // Load full content for sampled items
-      const [spotlightsResults, commentsResults] = await Promise.all([
+      const [spotlightsResults, commentsResults, postsResults] = await Promise.all([
         loadByIds(context, "Spotlights", spotlightIds),
-        loadByIds(context, "Comments", commentIds)
+        loadByIds(context, "Comments", commentIds),
+        loadByIds(context, "Posts",     postIds)
       ]);
       
       // Create lookup maps for loaded content
@@ -624,21 +579,23 @@ export const ultraFeedGraphQLQueries = {
           commentsById.set(result._id, result);
         }
       });
+
+      const postsById = new Map<string, DbPost>();
+      postsResults.forEach(p => p?._id && postsById.set(p._id, p));
       
-      // Transform sampled items into final results
-      const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById);
+      const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById);
       
-      // Create events for tracking served items
-      const eventsToCreate = createUltraFeedEvents(results, currentUser._id);
-      if (eventsToCreate.length > 0) {
-        void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
+      if (!incognitoMode) {
+        const currentOffset = offset ?? 0; 
+        const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
+        if (eventsToCreate.length > 0) {
+          void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
+        }
       }
 
-      // Return response
       const response = {
         __typename: "UltraFeedQueryResults",
-        cutoff: new Date(),
-        hasMoreResults: true,
+        cutoff: results.length > 0 ? new Date() : null,
         endOffset: (offset ?? 0) + results.length,
         results,
         sessionId

@@ -1,5 +1,8 @@
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useState } from "react";
+import LWDialog from "../common/LWDialog";
+import { DatePicker } from "../form-components/FormComponentDateTime";
+import EAButton from "../ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   paper: {
@@ -35,8 +38,6 @@ const DateRangeModal = ({
   updateDisplayDates: (startDate: Date | null, endDate: Date) => void;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { LWDialog, DatePicker, EAButton } = Components;
-
   const [startDateInternal, setStartDateInternal] = useState<Date | null>(startDate);
   const [endDateInternal, setEndDateInternal] = useState<Date>(endDate);
 
@@ -49,9 +50,7 @@ const DateRangeModal = ({
     <LWDialog
       open={true}
       onClose={onClose}
-      dialogClasses={{
-        paper: classes.paper
-      }}
+      paperClassName={classes.paper}
     >
       <div className={classes.datePickers}>
         <DatePicker label="Start date" value={startDateInternal ?? undefined} onChange={setStartDateInternal} />
@@ -77,10 +76,6 @@ const DateRangeModal = ({
   );
 };
 
-const DateRangeModalComponent = registerComponent("DateRangeModal", DateRangeModal, { styles });
+export default registerComponent("DateRangeModal", DateRangeModal, { styles });
 
-declare global {
-  interface ComponentTypes {
-    DateRangeModal: typeof DateRangeModalComponent;
-  }
-}
+

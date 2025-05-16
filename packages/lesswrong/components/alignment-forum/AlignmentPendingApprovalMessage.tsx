@@ -39,10 +39,6 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   }
 }
 
-const AlignmentPendingApprovalMessageComponent = registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
+export default registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AlignmentPendingApprovalMessage: typeof AlignmentPendingApprovalMessageComponent
-  }
-}
+

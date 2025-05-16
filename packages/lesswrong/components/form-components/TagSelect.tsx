@@ -1,9 +1,11 @@
-import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import withUser from '../common/withUser';
-import Chip from '@/lib/vendor/@material-ui/core/src/Chip/Chip';
+import React from 'react';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { Chip } from '@/components/widgets/Chip';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import ErrorBoundary from "../common/ErrorBoundary";
+import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 
 const TagBasicInfoQuery = gql(`
   query TagSelect($documentId: String) {
@@ -15,7 +17,7 @@ const TagBasicInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
   root: {
     display: 'flex',
   },
@@ -25,53 +27,38 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     backgroundColor: theme.palette.background.usersListItem,
   },
-});
+}));
 
-const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
-  value: string,
-  path: string,
-  document: any,
-  classes: ClassesType<typeof styles>,
-  label?: string,
-  updateCurrentValues<T extends {}>(values: T): void,
-}) => {
+interface TagSelectProps {
+  field: TypedFieldApi<string | null>;
+  label: string;
+}
+
+export const TagSelect = ({ field, label }: TagSelectProps) => {
+  const classes = useStyles(styles);
+  const value = field.state.value;
+
   const { loading, data } = useQuery(TagBasicInfoQuery, {
     variables: { documentId: value },
     skip: !value,
   });
+  
   const selectedTag = data?.tag?.result;
-
-  const setSelectedTagId = useCallback((value?: string) => {
-    updateCurrentValues({
-      [path]: value,
-    });
-  }, [updateCurrentValues, path]);
 
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.TagsSearchAutoComplete
-          clickAction={setSelectedTagId}
+      <ErrorBoundary>
+        <TagsSearchAutoComplete
+          clickAction={(id) => field.handleChange(id)}
           placeholder={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       {(!loading && selectedTag?.name) ?
         <Chip
-          onDelete={() => setSelectedTagId(undefined)}
+          onDelete={() => field.handleChange(null)}
           className={classes.chip}
           label={selectedTag?.name}
         />: <></>}
     </div>
   );
-}
-
-const TagSelectComponent = registerComponent('TagSelect', TagSelect, {
-  styles: styles,
-  hocs: [withUser],
-});
-
-declare global {
-  interface ComponentTypes {
-    TagSelect: typeof TagSelectComponent
-  }
 }

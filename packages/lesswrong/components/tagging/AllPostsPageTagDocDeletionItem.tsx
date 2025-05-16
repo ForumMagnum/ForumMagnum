@@ -1,9 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagHistoryFragment } from '@/lib/generated/gql-codegen/graphql';
+import TagsTooltip from "./TagsTooltip";
+import UsersName from "../users/UsersName";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
 
 const styles = defineStyles('AllPostsPageTagDocDeletionItem', (theme: ThemeType) => ({
   root: {
@@ -37,7 +41,6 @@ const DocumentTitle = ({tag, documentDeletion}: {
   tag: TagHistoryFragment,
   documentDeletion: DocumentDeletion
 }) => {
-  const { TagsTooltip } = Components;
   const { netChange, docFields, type } = documentDeletion;
 
   if (type === 'lens') {
@@ -65,8 +68,6 @@ export const AllPostsPageTagDocDeletionItem = ({tag, documentDeletion}: {
   documentDeletion: DocumentDeletion,
 }) => {
   const classes = useStyles(styles);
-  const { UsersName, MetaInfo, FormatDate } = Components;
-  
   const actionText = documentDeletion.netChange;
 
   return <div className={classes.root}>
@@ -83,10 +84,6 @@ export const AllPostsPageTagDocDeletionItem = ({tag, documentDeletion}: {
   </div>;
 }
 
-const AllPostsPageTagDocDeletionItemComponent = registerComponent('AllPostsPageTagDocDeletionItem', AllPostsPageTagDocDeletionItem);
+export default registerComponent('AllPostsPageTagDocDeletionItem', AllPostsPageTagDocDeletionItem);
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPageTagDocDeletionItem: typeof AllPostsPageTagDocDeletionItemComponent
-  }
-}
+

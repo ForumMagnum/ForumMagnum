@@ -1,14 +1,17 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import PopperCard from "../../common/PopperCard";
+import PostActions from "./PostActions";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -65,8 +68,6 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   }
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-  const { PopperCard, PostActions, LWClickAwayListener } = Components
-
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
@@ -88,11 +89,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 }
 
 
-const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton);
-export default PostActionsButtonComponent;
+export default registerComponent('PostActionsButton', PostActionsButton);
 
-declare global {
-  interface ComponentTypes {
-    PostActionsButton: typeof PostActionsButtonComponent
-  }
-}
+
+

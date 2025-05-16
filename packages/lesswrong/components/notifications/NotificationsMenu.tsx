@@ -1,8 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer';
-import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
@@ -11,11 +10,14 @@ import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Drawer } from '@/components/material-ui/Drawer'
+import ForumIcon from "../common/ForumIcon";
+import ErrorBoundary from "../common/ErrorBoundary";
+import NotificationsList from "./NotificationsList";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     verticalAlign: "top",
@@ -68,14 +70,14 @@ const styles = (theme: ThemeType) => ({
     minWidth: "auto",
     width: 24,
   },
-});
+}));
 
-const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
+const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {unreadPrivateMessages} = useUnreadNotifications();
   const [tab,setTab] = useState(0);
@@ -86,27 +88,28 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
-      icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),
+      icon: () => (<ForumIcon icon="Bell" className={classes.icon}/>),
       terms: {view: "userNotifications"},
     },
     {
       name: "New Posts",
-      icon: () => (<PostsIcon classes={{root: classes.icon}}/>),
+      icon: () => (<PostsIcon className={classes.icon}/>),
       terms: {view: 'userNotifications', type: "newPost"},
     },
     {
       name: "New Comments",
-      icon: () => (<CommentsIcon classes={{root: classes.icon}}/>),
+      icon: () => (<CommentsIcon className={classes.icon}/>),
       terms: {view: 'userNotifications', type: "newComment"},
     },
     {
       name: "New Messages",
       icon: () => (
         <Badge
-          classes={{ root: classes.badgeContainer, badge: classes.badge }}
+          className={classes.badgeContainer}
+          badgeClassName={classes.badge}
           badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
         >
-          <MailIcon classes={{root: classes.icon}} />
+          <MailIcon className={classes.icon} />
         </Badge>
       ),
       terms: {view: 'userNotifications', type: "newMessage"},
@@ -117,15 +120,12 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
 
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        {open && <SwipeableDrawer
+      <ErrorBoundary>
+        {open && <Drawer
           open={open}
           anchor="right"
           onClose={() => setIsOpen(false)}
-          onOpen={() => setIsOpen(true)}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
+          paperClassName={classes.drawerPaper}
           variant="persistent"
         >
           { hasOpened && <div className="notifications-menu-content">
@@ -161,22 +161,17 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
               <Tab className={classes.hiddenTab} />
             </Tabs>
             <ClearIcon className={classes.cancel} onClick={() => setIsOpen(false)} />
-            <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
+            <NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
           </div>}
-        </SwipeableDrawer>}
-      </Components.ErrorBoundary>
+        </Drawer>}
+      </ErrorBoundary>
     </div>
   )
 };
 
-const NotificationsMenuComponent = registerComponent('NotificationsMenu', NotificationsMenu, {
-  styles,
+export default registerComponent('NotificationsMenu', NotificationsMenu, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationsMenu: typeof NotificationsMenuComponent
-  }
-}
+
 

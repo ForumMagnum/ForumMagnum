@@ -1,7 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import classNames from "classnames";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import ForumIcon from "../common/ForumIcon";
+import PeopleDirectorySearchableFilter from "./PeopleDirectorySearchableFilter";
+import PeopleDirectoryStaticFilter from "./PeopleDirectoryStaticFilter";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,12 +105,6 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
       filter.clear();
     }
   }, [filters, clearSelection]);
-
-  const {
-    LWClickAwayListener, ForumIcon, PeopleDirectorySearchableFilter,
-    PeopleDirectoryStaticFilter,
-  } = Components;
-
   if (selectedFilter) {
     const {type, filter} = selectedFilter;
     return (
@@ -161,14 +159,10 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
   );
 }
 
-const PeopleDirectoryAllFiltersDropdownComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryAllFiltersDropdown",
   PeopleDirectoryAllFiltersDropdown,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryAllFiltersDropdown: typeof PeopleDirectoryAllFiltersDropdownComponent
-  }
-}
+

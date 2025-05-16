@@ -1,11 +1,11 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
-import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
 const PostsBaseQuery = gql(`
   query EventUpdatedEmail($documentId: String) {
@@ -62,13 +62,11 @@ export const EventUpdatedEmail = ({postId}: {
   const { timezone, timezoneIsKnown } = useTimezone()
   
   if (loading || !post) return null;
-
-  const { PrettyEventDateTime } = Components;
   
   const link = postGetPageUrl(post, true);
   
   // event location - for online events, attempt to show the meeting link
-  let eventLocation: string|JSX.Element = post.location
+  let eventLocation: string|React.JSX.Element = post.location ?? ""
   if (post.onlineEvent) {
     eventLocation = post.joinEventLink ? <a
       className={classes.onlineEventLocation}

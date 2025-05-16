@@ -35,11 +35,7 @@ const SunshineListItem = ({children, classes, hover=false}: {
   </div>
 };
 
-const SunshineListItemComponent = registerComponent('SunshineListItem', SunshineListItem, {styles});
+export default registerComponent('SunshineListItem', SunshineListItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineListItem: typeof SunshineListItemComponent
-  }
-}
+
 

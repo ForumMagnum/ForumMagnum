@@ -1,10 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './PostsPage/PostsPage';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import CompareRevisions from "../revisions/CompareRevisions";
+import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
+import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
+import ErrorPage from "../common/ErrorPage";
 
 const PostsWithNavigationQuery = gql(`
   query PostsCompareRevisions($documentId: String, $sequenceId: String) {
@@ -19,7 +24,6 @@ const PostsWithNavigationQuery = gql(`
 const PostsCompareRevisions = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, LoadingOrErrorPage, ErrorPage } = Components;
   const { params, query } = useLocation();
   const postId = params._id;
   const versionBefore = query.before;
@@ -72,10 +76,6 @@ const PostsCompareRevisions = ({ classes }: {
   </div>;
 }
 
-const PostsCompareRevisionsComponent = registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
+export default registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsCompareRevisions: typeof PostsCompareRevisionsComponent
-  }
-}
+

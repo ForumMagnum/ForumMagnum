@@ -1,8 +1,26 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import EditCommentDropdownItem from "./EditCommentDropdownItem";
+import ReportCommentDropdownItem from "./ReportCommentDropdownItem";
+import DeleteCommentDropdownItem from "./DeleteCommentDropdownItem";
+import RetractCommentDropdownItem from "./RetractCommentDropdownItem";
+import BanUserFromAllPostsDropdownItem from "./BanUserFromAllPostsDropdownItem";
+import DropdownDivider from "../DropdownDivider";
+import MoveToAlignmentCommentDropdownItem from "./MoveToAlignmentCommentDropdownItem";
+import SuggestAlignmentCommentDropdownItem from "./SuggestAlignmentCommentDropdownItem";
+import BanUserFromAllPersonalPostsDropdownItem from "./BanUserFromAllPersonalPostsDropdownItem";
+import MoveToAnswersDropdownItem from "./MoveToAnswersDropdownItem";
+import ToggleIsModeratorCommentDropdownItem from "./ToggleIsModeratorCommentDropdownItem";
+import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
+import DropdownMenu from "../DropdownMenu";
+import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
+import CommentSubscriptionsDropdownItem from "./CommentSubscriptionsDropdownItem";
+import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
+import LockThreadDropdownItem from "./LockThreadDropdownItem";
+import type { UsersCurrent, CommentsList, PostsMinimumInfo, TagBasicInfo } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsDetailsQuery = gql(`
   query CommentActions($documentId: String) {
@@ -21,16 +39,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: () => void,
 }) => {
-  const {
-    EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
-    RetractCommentDropdownItem, BanUserFromAllPostsDropdownItem, DropdownDivider,
-    MoveToAlignmentCommentDropdownItem, SuggestAlignmentCommentDropdownItem,
-    BanUserFromAllPersonalPostsDropdownItem, MoveToAnswersDropdownItem,
-    ToggleIsModeratorCommentDropdownItem, PinToProfileDropdownItem,
-    DropdownMenu, ShortformFrontpageDropdownItem, CommentSubscriptionsDropdownItem,
-    BanUserFromPostDropdownItem, LockThreadDropdownItem,
-  } = Components;
-
   const { data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: post?._id },
     skip: !post,
@@ -76,10 +84,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   );
 }
 
-const CommentActionsComponent = registerComponent("CommentActions", CommentActions);
+export default registerComponent("CommentActions", CommentActions);
 
-declare global {
-  interface ComponentTypes {
-    CommentActions: typeof CommentActionsComponent,
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -9,8 +9,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ReactionIcon from "./ReactionIcon";
+import LWTooltip from "../common/LWTooltip";
+import Row from "../common/Row";
+import ReactionDescription from "./lwReactions/ReactionDescription";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
@@ -151,7 +156,6 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   quote: QuoteLocator|null,
 }) => {
   const classes = useStyles(styles);
-  const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
@@ -368,13 +372,9 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
   );
 }
 
-const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette);
+export default registerComponent('ReactionsPalette', ReactionsPalette);
 
-export default ReactionsPaletteComponent;
 
-declare global {
-  interface ComponentTypes {
-    ReactionsPalette: typeof ReactionsPaletteComponent
-  }
-}
+
+
 

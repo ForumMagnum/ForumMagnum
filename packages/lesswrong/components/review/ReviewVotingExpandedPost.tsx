@@ -1,13 +1,18 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
-import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
+import ReviewPostComments from "./ReviewPostComments";
+import PostsHighlight from "../posts/PostsHighlight";
+import PingbacksList from "../posts/PingbacksList";
+import Loading from "../vulcan-core/Loading";
+import type { PostsReviewVotingList } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsListQuery = gql(`
   query ReviewVotingExpandedPost($documentId: String) {
@@ -78,8 +83,6 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const { PostPageReviewButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
-
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: post?._id },
     fetchPolicy: "cache-first",
@@ -124,10 +127,6 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   </div>
 }
 
-const ReviewVotingExpandedPostComponent = registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
+export default registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingExpandedPost: typeof ReviewVotingExpandedPostComponent
-  }
-}
+

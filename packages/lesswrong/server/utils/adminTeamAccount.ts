@@ -1,4 +1,5 @@
 import { adminAccountSetting } from "@/lib/publicSettings";
+import { createDisplayName } from "@/lib/collections/users/newSchema";
 
 export const getAdminTeamAccount = async (context: ResolverContext) => {
   const { Users } = context;
@@ -13,7 +14,10 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
     const newAccount = await createUser({
-      data: adminAccountData
+      data: {
+        ...adminAccountData,
+        displayName: createDisplayName(adminAccountData)
+      },
     }, context);
     
     return newAccount;

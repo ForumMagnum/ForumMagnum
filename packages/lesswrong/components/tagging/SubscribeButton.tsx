@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
@@ -8,12 +8,18 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
+import LoginPopup from "../users/LoginPopup";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import { Typography } from "../common/Typography";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -117,9 +123,6 @@ const SubscribeButton = ({
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
-
-  const { LWClickAwayListener, LWPopper, Typography, LWTooltip, ForumIcon } = Components;
-  
   // Get existing NOTIFICATIONS subscription, if there is one
   const subscriptionType = "newTagPosts"
   const { results: notifSubscriptions } = useMulti({
@@ -183,7 +186,7 @@ const SubscribeButton = ({
       } else {
         openDialog({
           name: "LoginPopup",
-          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+          contents: ({onClose}) => <LoginPopup onClose={onClose} />
         });
       }
     } catch(error) {
@@ -243,10 +246,6 @@ const SubscribeButton = ({
   );
 }
 
-const SubscribeButtonComponent = registerComponent('SubscribeButton', SubscribeButton, {styles});
+export default registerComponent('SubscribeButton', SubscribeButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubscribeButton: typeof SubscribeButtonComponent
-  }
-}
+

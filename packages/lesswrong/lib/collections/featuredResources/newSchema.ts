@@ -16,9 +16,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {
-      control: "text",
-    },
   },
   body: {
     database: {
@@ -32,9 +29,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {
-      control: "text",
-    },
   },
   ctaText: {
     database: {
@@ -46,9 +40,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-    },
-    form: {
-      control: "text",
     },
   },
   ctaUrl: {
@@ -62,26 +53,20 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {
-      control: "EditUrl",
-    },
   },
   expiresAt: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"FeaturedResources">>;

@@ -114,80 +114,16 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   editFormFetchPolicy?: WatchQueryFetchPolicy
 }
 
-export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
-  typeName: string
-  document?: ObjectsByCollectionName[T]
-  schema: SimpleSchemaType<T>
-  createMutation?: any
-  updateMutation?: any
-  removeMutation?: any
-  currentUser: UsersCurrent|null
-  location?: RouterLocation
-  history?: History
-}
+// export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
+//   typeName: string
+//   document?: ObjectsByCollectionName[T]
+//   schema: SimpleSchemaType<T>
+//   createMutation?: any
+//   updateMutation?: any
+//   removeMutation?: any
+//   currentUser: UsersCurrent|null
+//   location?: RouterLocation
+//   history?: History
+// }
 
-declare global {
-  type UpdateCurrentValues = (newValues: any, options?: {mode: "overwrite"|"merge"}) => Promise<void>
-
-  interface FormComponentWrapperProps<T> {
-    document: any
-    getDocument: any
-    name: string
-    label?: string
-    placeholder?: string
-    input: FormInputType
-    datatype: any
-    path: string
-    disabled?: boolean
-    nestedSchema: any
-    currentValues: any
-    deletedValues: any[]
-    throwError: () => void
-    updateCurrentValues: UpdateCurrentValues
-    errors: any[]
-    addToDeletedValues: any
-    clearFieldErrors: any
-    tooltip?: string
-    formComponents?: FormComponentOverridesType
-    getLabel: (fieldName: string, fieldLocale?: any) => string,
-    locale?: string
-    max?: number
-    nestedInput: any
-    formProps: any
-    formType: "new"|"edit"
-    setFooterContent?: any
-    hideClear?: boolean
-    submitForm: any
-    addToSubmitForm: any
-    addToSuccessForm: any
-  }
-  interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
-    beforeComponent?: any
-    afterComponent?: any
-    formInput: React.ComponentType<FormComponentProps<T>>
-    onChange: any
-    value: T
-    clearField: (ev?: AnyBecauseTodo) => void
-  }
-  type FormComponentProps<T> = Omit<FormComponentInnerWrapperProps<T>, "input"|"formInput">
-
-  interface FormButtonProps {
-    submitLabel: React.ReactNode;
-    cancelLabel: React.ReactNode;
-    revertLabel: React.ReactNode;
-    cancelCallback: any;
-    revertCallback: any;
-    submitForm: any
-    updateCurrentValues: UpdateCurrentValues
-    document: any;
-    deleteDocument: any;
-    collectionName: CollectionNameString;
-    currentValues?: any
-    deletedValues?: any
-    errors?: any[]
-    formType: "edit"|"new"
-    addToSubmitForm: any
-    addToSuccessForm: any;
-    addToDeletedValues: any;
-  }
-}
+export type UpdateCurrentValues = (newValues: any, options?: {mode: "overwrite"|"merge"}) => Promise<void>

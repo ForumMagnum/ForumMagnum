@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -6,6 +6,8 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
+import SectionButton from "../common/SectionButton";
 
 const SunshineUsersListQuery = gql(`
   query SunshineNewUsersProfileInfo($documentId: String) {
@@ -30,8 +32,6 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
 
-  const { SunshineNewUsersInfo, SectionButton } = Components
-
   const { refetch, data } = useQuery(SunshineUsersListQuery, {
     variables: { documentId: userId },
   });
@@ -54,10 +54,6 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
   </div>
 }
 
-const SunshineNewUsersProfileInfoComponent = registerComponent('SunshineNewUsersProfileInfo', SunshineNewUsersProfileInfo, {styles});
+export default registerComponent('SunshineNewUsersProfileInfo', SunshineNewUsersProfileInfo, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfoComponent
-  }
-}
+

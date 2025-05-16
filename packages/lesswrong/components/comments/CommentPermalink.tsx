@@ -2,13 +2,19 @@ import React from 'react';
 import { commentIsHidden } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import Loading from "../vulcan-core/Loading";
+import Divider from "../common/Divider";
+import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
+import HeadTags from "../common/HeadTags";
+import CommentWithReplies from "./CommentWithReplies";
+import type { CommentWithRepliesFragment, PostsDetails } from '@/lib/generated/gql-codegen/graphql';
 
 const CommentWithRepliesFragmentQuery = gql(`
   query CommentPermalink($documentId: String) {
@@ -74,8 +80,6 @@ const CommentPermalink = ({
     skip: isNotRandomId(documentId),
   });
   const comment = data?.comment?.result;
-  
-  const { Loading, Divider, CommentOnPostWithReplies, HeadTags, CommentWithReplies } = Components;
 
   if (silentLoading && !comment) return null;
 
@@ -154,11 +158,7 @@ const CommentPermalink = ({
   );
 }
 
-const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });
+export default registerComponent("CommentPermalink", CommentPermalink, { styles });
 
 
-declare global {
-  interface ComponentTypes {
-    CommentPermalink: typeof CommentPermalinkComponent,
-  }
-}
+

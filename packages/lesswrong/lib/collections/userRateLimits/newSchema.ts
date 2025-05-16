@@ -1,22 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
-const dictionaryToSelectOptions = <T extends Record<string, string>>(dictionary: T) => {
-  return Object.entries(dictionary).map(([value, label]) => ({ value, label }));
-};
-
-export const USER_RATE_LIMIT_TYPES = {
-  allComments: "Comments",
-  allPosts: "Posts",
-};
-
-const INTERVAL_UNITS = {
-  minutes: "minutes",
-  hours: "hours",
-  days: "days",
-  weeks: "weeks",
-};
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -33,9 +17,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      hidden: true,
     },
   },
   user: {
@@ -59,10 +40,6 @@ const schema = {
         allowedValues: ["allComments", "allPosts"],
       },
     },
-    form: {
-      options: () => dictionaryToSelectOptions(USER_RATE_LIMIT_TYPES),
-      control: "select",
-    },
   },
   intervalUnit: {
     database: {
@@ -78,10 +55,6 @@ const schema = {
         allowedValues: ["minutes", "hours", "days", "weeks"],
       },
     },
-    form: {
-      options: () => dictionaryToSelectOptions(INTERVAL_UNITS),
-      control: "select",
-    },
   },
   intervalLength: {
     database: {
@@ -94,7 +67,6 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
-    form: {},
   },
   actionsPerInterval: {
     database: {
@@ -107,24 +79,20 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
-    form: {},
   },
   endedAt: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"UserRateLimits">>;

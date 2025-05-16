@@ -65,14 +65,10 @@ const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) =
     : null;
 }
 
-const HeaderEventSubtitleComponent = registerComponent(
+export default registerComponent(
   "HeaderEventSubtitle",
   HeaderEventSubtitle,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    HeaderEventSubtitle: typeof HeaderEventSubtitleComponent
-  }
-}
+

@@ -1,10 +1,14 @@
 import React, { FC, ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import type { ForumIconName } from "../../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import LWTooltip from "../../common/LWTooltip";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import Loading from "../../vulcan-core/Loading";
+import type { PostsMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 
 const CommentsListWithParentMetadataQuery = gql(`
   query NotificationsPageItem($documentId: String) {
@@ -135,8 +139,7 @@ export const NotificationsPageItem = ({
     skip: !showPreviewComment,
   });
   const previewComment = data?.comment?.result;
-
-  const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
+  
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -178,7 +181,7 @@ export const NotificationsPageItem = ({
             <div className={classes.preview}>
               {previewCommentLoading && <Loading />}
               {previewComment &&
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{
                     scrollOnExpand: true,
                     condensed: true,
@@ -200,14 +203,10 @@ export const NotificationsPageItem = ({
   );
 }
 
-const NotificationsPageItemComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageItem",
   NotificationsPageItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageItem: typeof NotificationsPageItemComponent
-  }
-}
+

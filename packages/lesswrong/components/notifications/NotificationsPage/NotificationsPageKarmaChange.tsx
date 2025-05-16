@@ -1,11 +1,8 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import type {
-  CommentKarmaChange,
   EAReactionChanges,
-  PostKarmaChange,
-  TagRevisionKarmaChange,
 } from "../../../server/collections/users/karmaChangesGraphQL";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
@@ -17,6 +14,10 @@ import {
 import { captureException } from "@sentry/core";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { NotifPopoverLink } from "../useNotificationsPopoverContext";
+import type { TagCommentType } from "@/lib/collections/comments/types";
+import NotificationsPageItem from "./NotificationsPageItem";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import LWTooltip from "../../common/LWTooltip";
 
 const logAndCaptureError = (error: Error) => {
   // eslint-disable-next-line no-console
@@ -131,14 +132,12 @@ export const NotificationsPageKarmaChange = ({
 }: {
   postKarmaChange?: PostKarmaChange,
   commentKarmaChange?: CommentKarmaChange,
-  tagRevisionKarmaChange?: TagRevisionKarmaChange,
+  tagRevisionKarmaChange?: RevisionsKarmaChange,
   classes: ClassesType<typeof styles>,
 }) => {
   let karmaChange: number;
   let reactions: AddedReactions[] = [];
   let display: ReactNode;
-
-  const {NotificationsPageItem, PostsTooltip, LWTooltip} = Components;
   if (postKarmaChange) {
     const postUrl = postGetPageUrl({_id: postKarmaChange.postId, slug: postKarmaChange.slug})
     karmaChange = postKarmaChange.scoreChange;
@@ -158,18 +157,18 @@ export const NotificationsPageKarmaChange = ({
       display = (
         <>
           <PostsTooltip
-            postId={commentKarmaChange.postId}
-            commentId={commentKarmaChange.commentId}
+            postId={commentKarmaChange.postId ?? undefined}
+            commentId={commentKarmaChange.commentId ?? undefined}
           >
             <NotifPopoverLink
-              to={commentGetPageUrlFromIds(commentKarmaChange)}
+              to={commentGetPageUrlFromIds({ ...commentKarmaChange, tagCommentType: commentKarmaChange.tagCommentType as TagCommentType })}
               className={classes.link}
             >
               comment
             </NotifPopoverLink>
           </PostsTooltip>
           {" "}on{" "}
-          <PostsTooltip postId={commentKarmaChange.postId}>
+          <PostsTooltip postId={commentKarmaChange.postId ?? undefined}>
             <NotifPopoverLink
               to={postGetPageUrl({_id: postId, slug: postSlug})}
               className={classes.link}
@@ -183,7 +182,7 @@ export const NotificationsPageKarmaChange = ({
       display = (
         <>
           <NotifPopoverLink
-            to={commentGetPageUrlFromIds(commentKarmaChange)}
+            to={commentGetPageUrlFromIds({ ...commentKarmaChange, tagCommentType: commentKarmaChange.tagCommentType as TagCommentType })}
             className={classes.link}
           >
             comment
@@ -253,14 +252,10 @@ export const NotificationsPageKarmaChange = ({
   );
 }
 
-const NotificationsPageKarmaChangeComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageKarmaChange",
   NotificationsPageKarmaChange,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageKarmaChange: typeof NotificationsPageKarmaChangeComponent
-  }
-}
+

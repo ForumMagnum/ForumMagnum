@@ -13,6 +13,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     locale: localeSetting.get(),
     isSSR: false,
     isGreaterWrong: false,
+    isIssaRiceReader: false,
     repos: getAllRepos(),
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),

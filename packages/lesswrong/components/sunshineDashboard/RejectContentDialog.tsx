@@ -1,14 +1,17 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper, Card }from '@/components/widgets/Paper';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@/lib/vendor/@material-ui/core/src/Card'
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
+import LWTooltip from "../common/LWTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {
@@ -62,8 +65,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
   classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;
-
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
@@ -148,10 +149,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
   )
 };
 
-const RejectContentDialogComponent = registerComponent('RejectContentDialog', RejectContentDialog, { styles });
+export default registerComponent('RejectContentDialog', RejectContentDialog, { styles });
 
-declare global {
-  interface ComponentTypes {
-    RejectContentDialog: typeof RejectContentDialogComponent
-  }
-}
+

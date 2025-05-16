@@ -1,13 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
 import ArchiveIcon from '@/lib/vendor/@material-ui/icons/src/Archive';
 import UnarchiveIcon from '@/lib/vendor/@material-ui/icons/src/Unarchive';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
+import { TooltipSpan } from '../common/FMTooltip';
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import UsersName from "../users/UsersName";
+import FormatDate from "../common/FormatDate";
+import ConversationPreview from "./ConversationPreview";
 
 const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
@@ -33,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
   boxShadow: {
     boxShadow: theme.palette.boxShadow.faint,
-  }
+  },
 });
 
 const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
@@ -43,7 +47,6 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   classes: ClassesType<typeof styles>,
   expanded?: boolean
 }) => {
-  const { PostsItem2MetaInfo, UsersName, FormatDate, ConversationPreview } = Components
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
   if (!conversation) return null
 
@@ -72,9 +75,9 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
           <FormatDate date={conversation.latestActivity} />
         </PostsItem2MetaInfo></span>}
         {<div className={classes.actions} onClick={archiveIconClick}>
-          <Tooltip title={isArchived ? "Restore this conversation" : "Archive this conversation"}>
+          <TooltipSpan title={isArchived ? "Restore this conversation" : "Archive this conversation"} className={classes.leftMargin}>
             {isArchived ? <UnarchiveIcon /> : <ArchiveIcon />}
-          </Tooltip>
+          </TooltipSpan>
         </div>}
     </div>
       {expanded && <div className={classes.expanded}>
@@ -84,11 +87,7 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   )
 }
 
-const ConversationItemComponent = registerComponent('ConversationItem', ConversationItem, {styles});
+export default registerComponent('ConversationItem', ConversationItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConversationItem: typeof ConversationItemComponent
-  }
-}
+
 

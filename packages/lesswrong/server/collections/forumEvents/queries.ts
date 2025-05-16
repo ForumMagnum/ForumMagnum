@@ -45,6 +45,7 @@ export const graphqlForumEventQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiForumEventOutput {

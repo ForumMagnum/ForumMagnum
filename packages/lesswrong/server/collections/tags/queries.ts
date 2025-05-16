@@ -135,6 +135,7 @@ export const graphqlTagQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiTagOutput {
