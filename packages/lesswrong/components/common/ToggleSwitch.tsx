@@ -75,14 +75,10 @@ export const ToggleSwitch = ({value, setValue, smallVersion, className, classes}
   );
 }
 
-const ToggleSwitchComponent = registerComponent(
+export default registerComponent(
   "ToggleSwitch",
   ToggleSwitch,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ToggleSwitch: typeof ToggleSwitchComponent
-  }
-}
+

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import type { KarmaChangesSimple } from "../../../server/collections/users/karmaChangesGraphQL";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import NotificationsPageKarmaChange from "./NotificationsPageKarmaChange";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, classes}: {
-  karmaChanges?: KarmaChangesSimple,
+  karmaChanges?: Pick<KarmaChanges, "posts" | "comments" | "tagRevisions">,
   truncateAt?: number,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -27,9 +27,6 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
       (karmaChanges?.posts.length ?? 0) + (karmaChanges?.comments.length ?? 0) + (karmaChanges?.tagRevisions.length ?? 0) > truncateAt
     )
   )
-  
-  const {NotificationsPageKarmaChange} = Components;
-  
   let posts = karmaChanges?.posts
   let comments = karmaChanges?.comments
   let tagRevisions = karmaChanges?.tagRevisions
@@ -100,14 +97,10 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
   );
 }
 
-const NotificationsPageKarmaChangeListComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageKarmaChangeList",
   NotificationsPageKarmaChangeList,
   {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageKarmaChangeList: typeof NotificationsPageKarmaChangeListComponent
-  }
-}
+

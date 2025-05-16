@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
 import { Posts } from '../../server/collections/posts/collection';
-import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
+import { mapsAPIKeySetting } from '@/lib/publicSettings';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
 import { writeFile } from 'fs/promises';

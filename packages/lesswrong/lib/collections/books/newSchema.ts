@@ -1,5 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
@@ -17,6 +18,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -26,34 +28,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "Books",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 20,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (book, name) => {
-          if (book._id) {
-            return {
-              id: `${book._id}_${name}`,
-              verify: true,
-            };
-          }
-          return {
-            id: `collection: ${book.collectionId}_${name}`,
-            verify: false,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -84,7 +58,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   subtitle: {
     database: {
@@ -99,7 +72,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   // this overrides the book title in the CollectionsPage table of contents,
   // for books whose title needs to be different there for whatever reason.
@@ -117,7 +89,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   collectionId: {
     database: {
@@ -131,7 +102,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["members"],
     },
-    form: {},
   },
   number: {
     database: {
@@ -146,7 +116,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   postIds: {
     database: {
@@ -165,9 +134,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "PostsListEditor",
     },
   },
   posts: {
@@ -195,9 +161,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "SequencesListEditor",
-    },
   },
   sequences: {
     graphql: {
@@ -219,7 +182,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   hideProgressBar: {
     database: {
@@ -234,7 +196,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   showChapters: {
     database: {
@@ -249,7 +210,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
 } satisfies Record<string, CollectionFieldSpecification<"Books">>;
 

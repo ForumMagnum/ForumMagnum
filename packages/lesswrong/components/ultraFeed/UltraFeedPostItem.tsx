@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -16,6 +16,14 @@ import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { Link } from "../../lib/reactRouterWrapper";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import FormatDate from "../common/FormatDate";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import FeedContentBody from "./FeedContentBody";
+import UltraFeedItemFooter from "./UltraFeedItemFooter";
+import Loading from "../vulcan-core/Loading";
+import OverflowNavButtons from "./OverflowNavButtons";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -114,6 +122,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
 }));
 
 interface UltraFeedPostItemHeaderProps {
@@ -129,8 +147,6 @@ const UltraFeedPostItemHeader = ({
   handleOpenDialog,
   postTitlesAreModals,
 }: UltraFeedPostItemHeaderProps) => {
-  const { TruncatedAuthorsList, FormatDate } = Components;
-
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
 
@@ -144,22 +160,34 @@ const UltraFeedPostItemHeader = ({
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        {postTitlesAreModals ? (
-          <a
-            href={postGetPageUrl(post)}
-            onClick={handleTitleClick}
-            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-          >
-            {post.title}
-          </a>
-        ) : (
+        {/* Mobile version: Respects postTitlesAreModals */}
+        <div className={classes.hideOnDesktop}>
+          {postTitlesAreModals ? (
+            <a
+              href={postGetPageUrl(post)}
+              onClick={handleTitleClick}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            >
+              {post.title}
+            </a>
+          ) : (
+            <Link
+              to={postGetPageUrl(post)}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            >
+              {post.title}
+            </Link>
+          )}
+        </div>
+        {/* Desktop version: Always a link */}
+        <div className={classes.hideOnMobile}>
           <Link
             to={postGetPageUrl(post)}
             className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
           >
             {post.title}
           </Link>
-        )}
+        </div>
       </div>
       <div className={classes.metaRow}>
         <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
@@ -187,8 +215,6 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList, OverflowNavButtons } = Components;
-
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
@@ -201,7 +227,7 @@ const UltraFeedPostItem = ({
   const [shouldShowLoading, setShouldShowLoading] = useState(false);
   const [resetSig, setResetSig] = useState(0);
 
-
+  const { displaySettings } = settings;
   const apolloClient = useForeignApolloClient();
   
   const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
@@ -232,7 +258,7 @@ const UltraFeedPostItem = ({
     // Show loading spinner only if we need more content than what we have
     // Compare requested breakpoint (word count) against highlight char limit
     // This is an approximation, but better than using full post word count
-    const requestedWordCount = settings.postTruncationBreakpoints?.[level - 1];
+    const requestedWordCount = displaySettings.postTruncationBreakpoints?.[level - 1];
     const needsMoreContentThanHighlight = requestedWordCount ? requestedWordCount > (highlightMaxChars / 5) : false;
     
     const showLoading = isLoadingFull && needsMoreContentThanHighlight && !fullPost;
@@ -266,7 +292,7 @@ const UltraFeedPostItem = ({
     hasRecordedViewOnExpand, 
     isLoadingFull, 
     fullPost,
-    settings.postTruncationBreakpoints
+    displaySettings.postTruncationBreakpoints
   ]);
 
   const handleCollapse = () => {
@@ -280,7 +306,7 @@ const UltraFeedPostItem = ({
       name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
-        <Components.UltraFeedPostDialog
+        <UltraFeedPostDialog
           {...(fullPost ? { post: fullPost } : { postId: post._id })}
           textFragment={textFragment}
           onClose={onClose}
@@ -323,7 +349,7 @@ const UltraFeedPostItem = ({
           post={post}
           isRead={isRead}
           handleOpenDialog={handleOpenDialog}
-          postTitlesAreModals={settings.postTitlesAreModals}
+          postTitlesAreModals={displaySettings.postTitlesAreModals}
         />
 
         {shouldShowLoading && loadingFullPost ? (
@@ -333,7 +359,7 @@ const UltraFeedPostItem = ({
         ) : (
           <FeedContentBody
             html={displayHtml}
-            breakpoints={settings.postTruncationBreakpoints}
+            breakpoints={displaySettings.postTruncationBreakpoints}
             initialExpansionLevel={0}
             wordCount={displayWordCount!} // assertion because of shortform case that will at least be zero but isn't detected as such
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
@@ -355,12 +381,8 @@ const UltraFeedPostItem = ({
   );
 };
 
-const UltraFeedPostItemComponent = registerComponent("UltraFeedPostItem", UltraFeedPostItem);
+export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
 
-export default UltraFeedPostItemComponent;
 
-declare global {
-  interface ComponentTypes {
-    UltraFeedPostItem: typeof UltraFeedPostItemComponent
-  }
-} 
+
+ 

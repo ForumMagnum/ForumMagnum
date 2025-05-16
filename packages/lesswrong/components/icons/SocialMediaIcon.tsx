@@ -27,11 +27,7 @@ const SocialMediaIcon = ({name, className, classes}: {
   </svg>
 }
 
-const SocialMediaIconComponent = registerComponent('SocialMediaIcon', SocialMediaIcon, {styles});
+export default registerComponent('SocialMediaIcon', SocialMediaIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SocialMediaIcon: typeof SocialMediaIconComponent
-  }
-}
+
 

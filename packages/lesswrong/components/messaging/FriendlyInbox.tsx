@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
@@ -10,6 +10,13 @@ import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import NewConversationDialog from "./NewConversationDialog";
+import ConversationTitleEditForm from "./ConversationTitleEditForm";
+import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
+import ConversationContents from "./ConversationContents";
+import ForumIcon from "../common/ForumIcon";
+import ConversationDetails from "./ConversationDetails";
+import EAButton from "../ea-forum/EAButton";
 
 const MAX_WIDTH = 1100;
 
@@ -191,7 +198,7 @@ const FriendlyInbox = ({
   const navigate = useNavigate();
   const markConversationRead = useMarkConversationRead();
 
-  const selectedConversationRef = useRef<HTMLDivElement>(null);
+  const selectedConversationRef = useRef<HTMLDivElement|null>(null);
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
@@ -203,15 +210,12 @@ const FriendlyInbox = ({
   const openNewConversationDialog = useCallback(() => {
     openDialog({
       name: "NewConversationDialog",
-      contents: ({onClose}) => <Components.NewConversationDialog
+      contents: ({onClose}) => <NewConversationDialog
         onClose={onClose}
         isModInbox={isModInbox}
       />
     });
   }, [isModInbox, openDialog]);
-
-  const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
-
   const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
     terms,
     collectionName: "Conversations",
@@ -249,13 +253,13 @@ const FriendlyInbox = ({
   }, [fetchedSelectedConversation, onOpenConversation]);
 
   const openConversationOptions = () => {
-    if (!conversationId) return;
+    if (!selectedConversation) return;
 
     openDialog({
       name: "ConversationTitleEditForm",
-      contents: ({onClose}) => <Components.ConversationTitleEditForm
+      contents: ({onClose}) => <ConversationTitleEditForm
         onClose={onClose}
-        documentId={conversationId}
+        conversation={selectedConversation}
       />
     });
   };
@@ -336,10 +340,6 @@ const FriendlyInbox = ({
   );
 };
 
-const FriendlyInboxComponent = registerComponent("FriendlyInbox", FriendlyInbox, { styles });
+export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
 
-declare global {
-  interface ComponentTypes {
-    FriendlyInbox: typeof FriendlyInboxComponent;
-  }
-}
+

@@ -212,6 +212,13 @@ export const addV2CrosspostHandlers = (app: Application) => {
             foreignPostId: postId,
           },
           ...postData,
+          contents: {
+            ...postData.contents,
+            originalContents: postData.contents?.originalContents ?? {
+              type: "ckEditorMarkup",
+              data: "",
+            },
+          },
         },
       }, { ...context, currentUser: user, isFMCrosspostRequest: true });
 

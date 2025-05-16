@@ -3,11 +3,12 @@ import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, tagUrlBaseSetting } from "../../instanceSettings";
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import { isFriendlyUI } from "../../../themes/forumTheme";
+import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { allowTypeIIIPlayerSetting } from "../posts/helpers";
+import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -63,7 +64,7 @@ export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
 
 export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
   tagSlug: string,
-  commentId?: string,
+  commentId?: string | null,
   tagCommentType: TagCommentType,
   isAbsolute?: boolean,
 }): string => {
@@ -93,7 +94,7 @@ export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag:
   return false
 }
 
-export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
+export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: Pick<DbTag, "subforumModeratorIds">): boolean => {
   if (!user || !tag) return false;
   return tag.subforumModeratorIds?.includes(user._id);
 }
@@ -142,4 +143,10 @@ export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
   if (!allowTypeIIIPlayerSetting.get()) return false
 
   return !!tag.forceAllowType3Audio && !!tag.description && !tag.deleted
-}
+};
+
+export const TAG_POSTS_SORT_ORDER_OPTIONS = {
+  relevance: { label: preferredHeadingCase("Most Relevant") },
+  ...SORT_ORDER_OPTIONS,
+} satisfies Record<string, SettingsOption>;
+

@@ -6,7 +6,7 @@ export const auth0ProfilePath = "services.auth0";
 
 export const idFromAuth0Profile = (profile: Profile) => profile.id;
 
-export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser> & { displayName: string }> {
+export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbInsertion<DbUser>> & { displayName: string }> {
   const email = profile.emails?.[0].value
   const displayNameMatchesEmail = email === profile.displayName
   const displayName = displayNameMatchesEmail ?

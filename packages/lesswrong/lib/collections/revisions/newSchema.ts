@@ -8,15 +8,16 @@ import { extractTableOfContents } from "@/lib/tableOfContents";
 import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
-import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
-import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH, ContentType } from "./revisionConstants";
+import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
+import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
 import { getOriginalContents } from "./helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
+import { isLWorAF } from "@/lib/instanceSettings";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -41,8 +42,8 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
 export const graphqlTypeDefs = gql`
   scalar ContentTypeData
   type ContentType {
-    type: String
-    data: ContentTypeData
+    type: String!
+    data: ContentTypeData!
   }
 `
 
@@ -250,14 +251,6 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ originalContents }) =>
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
-    },
-  },
-  draftJS: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: ({ originalContents }) =>
-        originalContents ? dataToDraftJS(originalContents.data, originalContents.type) : null,
     },
   },
   ckEditorMarkup: {
@@ -485,6 +478,22 @@ const schema = {
         return await accessFilterSingle(currentUser, "MultiDocuments", lens, context);
       },
     },
+  },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (revision, args, context) => {
+        if (!isLWorAF) return null;
+        const {AutomatedContentEvaluations} =  context;
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: revision._id,
+        }, {
+          sort: { createdAt: -1 },
+        })
+      },
+    }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,

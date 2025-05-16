@@ -1,5 +1,5 @@
-import SimpleSchema from "simpl-schema";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
+import gql from "graphql-tag";
 
 const commonFields = (nullable: boolean) => ({
   hidden: true,
@@ -10,12 +10,14 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const creatorSchema = new SimpleSchema({
-  _id: { type: String },
-  displayName: { type: String },
-  isQuestionCreator: { type: Boolean },
-  sourceUserId: { type: String, nullable: true, optional: true },
-});
+export const elicitQuestionPredictionsGraphQLTypeDefs = gql`
+  type ElicitQuestionPredictionCreator {
+    _id: String!
+    displayName: String!
+    isQuestionCreator: Boolean!
+    sourceUserId: String
+  }
+`;
 
 const schema = {
   _id: {
@@ -86,13 +88,11 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "JSON!",
+      outputType: "ElicitQuestionPredictionCreator!",
+      validation: { blackbox: true },
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      validation: {
-        simpleSchema: creatorSchema,
-      },
     },
   },
   userId: {

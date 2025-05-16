@@ -1,12 +1,12 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
-import { getForumEventVoteForUser } from "./ForumEventPoll";
+import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
@@ -113,9 +113,6 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     })}), ${darkColor}`
     pollAreaStyle.background = background
   }
-
-  const {ForumEventPoll} = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
       <div
@@ -151,14 +148,10 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   );
 }
 
-const ForumEventPostPagePollSectionComponent = registerComponent(
+export default registerComponent(
   "ForumEventPostPagePollSection",
   ForumEventPostPagePollSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPostPagePollSection: typeof ForumEventPostPagePollSectionComponent
-  }
-}
+

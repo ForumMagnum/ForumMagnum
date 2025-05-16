@@ -1,7 +1,5 @@
-import pick from 'lodash/pick'
 import Users from "../../server/collections/users/collection";
 import { randomId } from "../../lib/random";
-import { loggerConstructor } from "../../lib/utils/logging";
 import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { extractDenormalizedData } from "./denormalizedFields";
 import type { Crosspost, DenormalizedCrosspostData } from "./types";
@@ -15,72 +13,62 @@ import {
 } from "@/lib/fmCrosspost/routes";
 import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 import { getLatestContentsRevision } from '../collections/revisions/helpers';
-import { createAdminContext } from '../vulcan-lib/createContexts';
-import Revisions from '../collections/revisions/collection';
 import schema from "@/lib/collections/posts/newSchema";
+import Revisions from '../collections/revisions/collection';
 
-const assertPostIsCrosspostable = (
-  post: CreatePostDataInput | UpdatePostDataInput | Partial<DbPost>,
-  logger: ReturnType<typeof loggerConstructor>,
-) => {
+const assertPostIsCrosspostable = (post: {
+  isEvent?: boolean | null,
+  shortform?: boolean | null,
+}) => {
   if (post.isEvent) {
-    logger('post is an event, throwing')
     throw new Error("Events cannot be crossposted");
   }
   if (post.shortform) {
-    loggerConstructor('post is a shortform, throwing')
     throw new Error("Quick takes cannot be crossposted");
   }
 }
 
-const getCrosspostContents = async <T extends CreatePostDataInput | UpdatePostDataInput>(post: T) => {
-  if (post.contents) {
-    return post.contents;
-  }
-  const revision = await getLatestContentsRevision(
-    post as { contents_latest: string | null },
-    createAdminContext(),
-  );
-  if (!revision) {
-    throw new Error("Couldn't find revision for crosspost");
-  }
-  return revision;
-}
+const performCrosspost = async (
+  context: ResolverContext,
+  data: UpdatePostDataInput,
+  newPost: DbPost,
+): Promise<CrosspostInput | null> => {
+  const post = {...newPost, ...data}
 
-export const performCrosspost = async <T extends CreatePostDataInput | UpdatePostDataInput>(post: T): Promise<T> => {
-  const logger = loggerConstructor('callbacks-posts')
-  logger('performCrosspost()')
-  logger('post info:', pick(post, ['title', 'fmCrosspost']))
   // TODO: validate userId owns foreignPost && currentUser === userId || currentUser.isAdmin
   if (!post.fmCrosspost || !post.userId || post.draft) {
-    logger('post is not a crosspost or is a draft, returning')
-    return post;
+    return post.fmCrosspost;
   }
 
   const {isCrosspost, hostedHere, foreignPostId} = post.fmCrosspost;
   if (!isCrosspost || !hostedHere || foreignPostId) {
-    logger ('post is not a crosspost, or is a foreign-hosted crosspost, or has already been crossposted, returning')
-    return post;
+    return post.fmCrosspost;
   }
 
-  assertPostIsCrosspostable(post, logger);
+  assertPostIsCrosspostable(post);
 
   const user = await Users.findOne({_id: post.userId});
   if (!user || !user.fmCrosspostUserId) {
-    logger('user has not connected an account, throwing')
     throw new Error("You have not connected a crossposting account yet");
   }
 
   // If we're creating a new post without making a draft first then we won't have an ID yet
   if (!('_id' in post)) {
-    logger('we must be creating a new post, assigning a random ID')
     Object.assign(post, {_id: randomId()});
   }
 
   // Grab the normalized contents from the revision
-  const contents = await getCrosspostContents(post);
+  const contents = post.contents
+    ? post.contents
+    : await getLatestContentsRevision(
+      post as { contents_latest: string | null },
+      context,
+    );
+  if (!contents) {
+    throw new Error("Couldn't find contents for crosspost");
+  }
 
-  const postWithDefaultValues: T & DenormalizedCrosspostData = {
+  const postWithDefaultValues = {
     ...post,
     draft: post.draft ?? schema.draft.database.defaultValue,
     deletedDraft: (post as UpdatePostDataInput).deletedDraft ?? schema.deletedDraft.database.defaultValue,
@@ -96,7 +84,7 @@ export const performCrosspost = async <T extends CreatePostDataInput | UpdatePos
     ...extractDenormalizedData(postWithDefaultValues),
     contents: {
       originalContents: contents?.originalContents,
-      draft: contents?.draft ?? post.draft ?? false,
+      draft: (contents as DbRevision)?.draft ?? post.draft ?? false,
     },
   });
 
@@ -106,9 +94,8 @@ export const performCrosspost = async <T extends CreatePostDataInput | UpdatePos
     "Failed to create crosspost",
   );
 
-  logger('crosspost successful, setting foreignPostId:', postId)
   post.fmCrosspost.foreignPostId = postId;
-  return post;
+  return post.fmCrosspost;
 }
 
 const updateCrosspost = async (
@@ -151,32 +138,27 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 }
 
 export const handleCrosspostUpdate = async (
+  context: ResolverContext,
   data: UpdatePostDataInput,
   {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
 ): Promise<UpdatePostDataInput> => {
-  const logger = loggerConstructor('callbacks-posts')
-  logger('handleCrosspostUpdate()')
   const {userId, fmCrosspost} = newDocument;
   const shouldRemoveCrosspost =
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
   if (shouldRemoveCrosspost) {
-    logger('crosspost should be removed, removing')
     await removeCrosspost(newDocument);
   }
   if (!fmCrosspost?.isCrosspost) {
-    logger('post is not a crosspost, returning')
     return data;
   }
   if (!fmCrosspost?.hostedHere) {
-    logger('post is not a hosted here, returning')
     return data;
   }
 
   if (fmCrosspost.foreignPostId) {
-    assertPostIsCrosspostable(newDocument, logger);
+    assertPostIsCrosspostable(newDocument);
 
-    logger('denormalized fields changed, updating crosspost')
     const denormalizedData = extractDenormalizedData(newDocument);
     // Hack to deal with site admins moving posts to draft
     // Admins of non-local posts cannot cause source post to be set to draft
@@ -186,23 +168,19 @@ export const handleCrosspostUpdate = async (
       !fmCrosspost.hostedHere &&
       currentUser?._id !== userId // Users can setting their own posts to draft affects both sites
     ) {
-      logger('needed to use the terrible hack, not updating foreign post draft status')
       denormalizedData.draft = oldDocument.draft;
       denormalizedData.deletedDraft = oldDocument.deletedDraft;
     }
-    logger('denormalizedData:', denormalizedData)
     const latestRevisionId =
       (data as AnyBecauseHard).contents_latest ??
       newDocument.contents_latest ??
       oldDocument.contents_latest;
     await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
-    logger('crosspost updated successfully')
     // TODO-HACK: Drafts are very bad news for crossposts, so we will unlink in
     // such cases. See sad message to users in ForeignCrosspostEditForm.tsx.
     if (newDocument.draft && !oldDocument.draft) {
-      logger('hack: post is now a draft, unlinking crosspost')
       return {
-        ...newDocument,
+        ...data,
         fmCrosspost: {
           ...fmCrosspost,
           foreignPostId: null,
@@ -212,5 +190,9 @@ export const handleCrosspostUpdate = async (
     return data;
   }
 
-  return performCrosspost({ ...newDocument, ...data } as DbPost);
+  const fmCrosspostData = await performCrosspost(context, data, newDocument);
+  return {
+    ...data,
+    fmCrosspost: fmCrosspostData,
+  };
 }

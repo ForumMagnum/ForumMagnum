@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
-import { useTracking } from "../../lib/analyticsEvents";
-import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
-import { userCanDo, userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
-import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
+import React, { useState } from 'react';
+import { useMulti } from '../../lib/crud/withMulti';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentUser } from '../common/withUser';
+import { CurationNoticesForm } from './CurationNoticesForm';
+import SunshineCuratedSuggestionsList from "../sunshineDashboard/SunshineCuratedSuggestionsList";
+import SingleColumnSection from "../common/SingleColumnSection";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import SectionTitle from "../common/SectionTitle";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import CurationNoticesItem from "./CurationNoticesItem";
+import CommentsList from "../comments/CommentsList";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -23,9 +30,6 @@ export const CurationPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-
-  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
-
   const [post, setPost] = useState<PostsList|null>(null)
 
   const { results: curationNotices = [], loading } = useMulti({
@@ -52,10 +56,9 @@ export const CurationPage = ({classes}: {
             {post &&
               <BasicFormStyles>
                 {post.title}
-                <WrappedSmartForm
-                  collectionName="CurationNotices"
-                  mutationFragmentName={'CurationNoticesFragment'}
-                  prefilledProps={{userId: currentUser._id, postId: post._id}}
+                <CurationNoticesForm
+                  currentUser={currentUser}
+                  postId={post._id}
                 />
               </BasicFormStyles>
             }
@@ -82,10 +85,6 @@ export const CurationPage = ({classes}: {
   </div>;
 }
 
-const CurationPageComponent = registerComponent('CurationPage', CurationPage, {styles});
+export default registerComponent('CurationPage', CurationPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CurationPage: typeof CurationPageComponent
-  }
-}
+

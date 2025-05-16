@@ -1,10 +1,7 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
-import type { formProperties } from '../vulcan-forms/schema_utils';
-import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import type { permissionGroups } from "../permissions";
-import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
-import type { EditableFieldCallbackOptions, EditableFieldClientOptions } from '../editor/makeEditableOptions';
+import type { EditableFieldCallbackOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -22,9 +19,6 @@ interface CollectionFieldPermissions {
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
 }
-
-type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
-type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
@@ -223,75 +217,10 @@ type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFiel
   | NotAGraphQLFieldSpecification
 );
 
-interface FormFieldSpecification<N extends CollectionNameString> {
-  description?: string,
-  min?: number,
-  max?: number,
-  minCount?: number,
-  maxCount?: number,
-  options?: (props: SmartFormProps<N>) => any,
-  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
-  beforeComponent?: keyof ComponentTypes,
-  afterComponent?: keyof ComponentTypes,
-  order?: number,
-  label?: string,
-  tooltip?: string,
-  control?: FormInputType,
-  placeholder?: string,
-  hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: () => FormGroupType<N>,
-  editableFieldOptions?: EditableFieldClientOptions,
-  canRead?: FieldPermissions,
-  canUpdate?: FieldPermissions,
-  canCreate?: FieldCreatePermissions,
-}
-
 interface CollectionFieldSpecification<N extends CollectionNameString> {
   database?: DatabaseFieldSpecification<N>,
   graphql?: GraphQLFieldSpecification<N>,
-  form?: FormFieldSpecification<N>,
 }
-
-/** Field specification for a Form field, created from the collection schema */
-type FormField<N extends CollectionNameString> = Pick<
-  FormFieldSpecification<N> & Exclude<GraphQLBaseFieldSpecification['validation'], undefined> & Pick<DatabaseFieldSpecification<N>, 'defaultValue'>,
-  typeof formProperties[number]
-> & {
-  document: any
-  name: string
-  datatype: any
-  layout: string
-  input: FormInputType
-  label: string
-  help: string
-  path: string
-  parentFieldName?: string
-  disabled?: boolean
-  arrayField: any
-  arrayFieldSchema: any
-  nestedInput: any
-  nestedSchema: any
-  nestedFields: any
-}
-
-type FormGroupType<N extends CollectionNameString> = {
-  name: string,
-  order: number,
-  label?: string,
-  startCollapsed?: boolean,
-  helpText?: string,
-  hideHeader?: boolean,
-  //layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
-  layoutComponent?: keyof ComponentTypes
-  layoutComponentProps?: Partial<FormGroupLayoutProps>,
-  fields?: FormField<N>[]
-}
-
-// Using FormGroupType as part of the props of a function causes a circular reference (because ComponentWithProps<T>
-// needs to know the prop types of all registered components), omit `layoutComponent` to fix this
-type FormGroupSafeType<N extends CollectionNameString> = Omit<FormGroupType<N>, "layoutComponent"> & {
-  layoutComponent?: string;
-};
 
 type DerivedSimpleSchemaFieldType = {
   optional: boolean,
@@ -306,7 +235,7 @@ type DerivedSimpleSchemaFieldType = {
       allowedValues: string[]
     }>
   },
-} & FormFieldSpecification<CollectionNameString>;
+};
 
 type DerivedSimpleSchemaType<T extends Partial<Record<string, any>>> = {
   [k in keyof T]: DerivedSimpleSchemaFieldType

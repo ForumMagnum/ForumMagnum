@@ -1,6 +1,6 @@
 import React from "react";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { userCanQuickTake } from "../../lib/vulcan-users/permissions";
@@ -13,6 +13,13 @@ import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
 import { useMulti } from "@/lib/crud/withMulti";
+import ExpandableSection from "../common/ExpandableSection";
+import LWTooltip from "../common/LWTooltip";
+import QuickTakesEntry from "./QuickTakesEntry";
+import QuickTakesListItem from "./QuickTakesListItem";
+import Loading from "../vulcan-core/Loading";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -46,10 +53,6 @@ const styles = (theme: ThemeType) => ({
 const QuickTakesSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesListItem, Loading, SectionFooter, LoadMore
-  } = Components;
-
   const currentUser = useCurrentUser();
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -151,13 +154,9 @@ const QuickTakesSection = ({classes}: {
   );
 }
 
-const QuickTakesSectionComponent = registerComponent("QuickTakesSection", QuickTakesSection, {
+export default registerComponent("QuickTakesSection", QuickTakesSection, {
   styles,
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesSection: typeof QuickTakesSectionComponent
-  }
-}
+

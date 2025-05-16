@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import SnoozeIcon from '@/lib/vendor/@material-ui/icons/src/Snooze';
 import AddAlarmIcon from '@/lib/vendor/@material-ui/icons/src/AddAlarm';
@@ -20,6 +20,11 @@ import { getSignature, getSignatureWithNote } from '../../lib/collections/users/
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
+import NewModeratorActionDialog from "./NewModeratorActionDialog";
+import LWTooltip from "../common/LWTooltip";
+import ModeratorActionItem from "./ModeratorUserInfo/ModeratorActionItem";
+import { MenuItem } from "../common/Menus";
+import UserRateLimitItem from "./UserRateLimitItem";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -89,7 +94,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const { openDialog } = useDialog();
 
@@ -341,7 +345,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     <LWTooltip title="Create a new moderator action for this user">
       <ReportProblemIcon className={classes.modButton} onClick={() => openDialog({
         name: 'NewModeratorActionDialog',
-        contents: ({onClose}) => <Components.NewModeratorActionDialog
+        contents: ({onClose}) => <NewModeratorActionDialog
           onClose={onClose}
           userId={user._id}
         />
@@ -405,11 +409,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   </div>
 }
 
-const ModeratorActionsComponent = registerComponent('ModeratorActions', ModeratorActions, {styles});
+export default registerComponent('ModeratorActions', ModeratorActions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorActions: typeof ModeratorActionsComponent
-  }
-}
+
 

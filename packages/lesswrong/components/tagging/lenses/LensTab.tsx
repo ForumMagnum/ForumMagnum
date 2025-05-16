@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import classNames from 'classnames';
+import { ReactionsAndLikesVote } from "../../votes/lwReactions/ReactionsAndLikesVote";
 
 const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   lensTabBar: {
@@ -188,7 +189,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
 }));
 
-const LensTabBar = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: {
+export const LensTabBar = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: {
   lenses: TagLens[],
   selectedLens: TagLens|undefined,
   switchLens: (lensId: string) => void,
@@ -273,7 +274,7 @@ const LensTab = ({ lens, isSelected, getSelectedLensUrlPath, switchLens }: {
   );
 };
 
-const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
+export const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
   lens: TagLens,
   isSelected: boolean,
   stylingVariant?: "default" | "buttonRow",
@@ -282,7 +283,7 @@ const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
   const lensVotingSystem = getVotingSystemByName("reactionsAndLikes");
   const isMainLens = (lens._id === MAIN_TAB_ID);
 
-  return <Components.ReactionsAndLikesVote
+  return <ReactionsAndLikesVote
     document={isMainLens ? {
       ...lens,
       //HACK: For the main lens we put a placeholder _id (see `getDefaultLens`). Put it back to make an object close-enough to a TagBasicInfo that it will work for voting.
@@ -297,15 +298,4 @@ const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
 }
 
 
-const LensTabBarComponent = registerComponent('LensTabBar', LensTabBar);
-const LensTabComponent = registerComponent('LensTab', LensTab);
-const TagOrLensLikeButtonComponent = registerComponent('TagOrLensLikeButton', TagOrLensLikeButton);
-
-declare global {
-  interface ComponentTypes {
-    LensTabBar: typeof LensTabBarComponent
-    LensTab: typeof LensTabComponent
-    TagOrLensLikeButton: typeof TagOrLensLikeButtonComponent
-  }
-}
 

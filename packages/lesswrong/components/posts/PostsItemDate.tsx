@@ -1,11 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { ExpandedDate } from '../common/FormatDate';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FormatDate, { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '@/lib/utils/timeFormat';
+import EventTime from "../localGroups/EventTime";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import TimeTag from "../common/TimeTag";
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -74,14 +78,12 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   }
 
   const now = useCurrentTime();
-  const { PostsItem2MetaInfo, FormatDate, LWTooltip, TimeTag } = Components;
-
   if (post.isEvent && post.startTime) {
     return <LWTooltip
       placement="right"
       title={<span>
         <div className={classes.tooltipSmallText}>Event starts at</div>
-        <Components.EventTime post={post} />
+        <EventTime post={post} />
       </span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
@@ -145,11 +147,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   </LWTooltip>
 }
 
-const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, {styles});
+export default registerComponent("PostsItemDate", PostsItemDate, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemDate: typeof PostsItemDateComponent
-  }
-}
+
 

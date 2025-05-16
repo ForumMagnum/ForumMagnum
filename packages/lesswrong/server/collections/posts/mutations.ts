@@ -13,7 +13,7 @@ import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { handleCrosspostUpdate, performCrosspost } from "@/server/fmCrosspost/crosspost";
+import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -48,7 +48,7 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
   // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
 }
 
-export async function createPost({ data }: CreatePostInput, context: ResolverContext) {
+export async function createPost({ data }: { data: CreatePostDataInput & { _id?: string }}, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Posts', {
@@ -85,7 +85,6 @@ export async function createPost({ data }: CreatePostInput, context: ResolverCon
   data = await postsNewUserApprovedStatus(data, currentUser, context);
   data = await fixEventStartAndEndTimes(data);
   data = await scheduleCoauthoredPostWithUnconfirmedCoauthors(data);
-  data = await performCrosspost(data);
   data = addLinkSharingKey(data);  
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Posts', callbackProps);
@@ -177,7 +176,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   data = scheduleCoauthoredPostWhenUndrafted(data, updateCallbackProperties);
   // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
   // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
-  data = await handleCrosspostUpdate(data, updateCallbackProperties);
+  data = await handleCrosspostUpdate(context, data, updateCallbackProperties);
   data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({

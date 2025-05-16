@@ -4,20 +4,12 @@ import {
   userGetProfileUrl,
   getUserEmail,
   userOwnsAndInGroup, getAuth0Provider,
-  SOCIAL_MEDIA_PROFILE_FIELDS,
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
-import { formGroups } from "./formGroups";
+import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
 import * as _ from "underscore";
-import {
-  hasEventsSetting,
-  isAF,
-  isEAForum, isLW, isLWorAF,
-  taggingNamePluralSetting,
-  verifyEmailsSetting
-} from "../../instanceSettings";
+import { isAF, isEAForum, verifyEmailsSetting } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -27,31 +19,21 @@ import {
   googleLocationToMongoLocation,
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
-import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from "../../reviewUtils";
+import { REVIEW_YEAR } from "../../reviewUtils";
 import uniqBy from "lodash/uniqBy";
 import { userThemeSettings } from "../../../themes/themeNames";
-import type { ForumIconName } from "../../../components/common/ForumIcon";
-import { getCommentViewOptions } from "../../commentViewOptions";
-import {
-  allowSubscribeToSequencePosts,
-  hasAccountDeletionFlow,
-  hasAuthorModeration,
-  hasPostRecommendations,
-  hasSurveys,
-  userCanViewJargonTerms
-} from "../../betas";
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import GraphQLJSON from "graphql-type-json";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
+import { loadByIds } from "@/lib/loaders";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -69,7 +51,7 @@ import gql from "graphql-tag";
 // Anything else..
 ///////////////////////////////////////
 
-export const createDisplayName = (user: Partial<DbInsertion<DbUser>> | CreateUserDataInput | UpdateUserDataInput): string => {
+export const createDisplayName = (user: Partial<DbUser> | Partial<DbInsertion<DbUser>> | CreateUserDataInput | UpdateUserDataInput): string => {
   const profileName = getNestedProperty(user, "profile.name");
   const twitterName = getNestedProperty(user, "services.twitter.screenName");
   const linkedinFirstName = getNestedProperty(user, "services.linkedin.firstName");
@@ -82,12 +64,6 @@ export const createDisplayName = (user: Partial<DbInsertion<DbUser>> | CreateUse
   return "[missing username]";
 };
 
-const adminGroup = {
-  name: "admin",
-  order: 100,
-  label: "Admin",
-};
-
 const ownsOrIsAdmin = (user: DbUser | null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user);
 };
@@ -95,216 +71,6 @@ const ownsOrIsAdmin = (user: DbUser | null, document: any) => {
 const ownsOrIsMod = (user: DbUser | null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes("sunshineRegiment") ?? false);
 };
-
-export const REACT_PALETTE_STYLES = ["listView", "gridView"];
-
-export const MAX_NOTIFICATION_RADIUS = 300;
-
-export type NotificationChannel = "onsite" | "email";
-
-const NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
-  "realtime",
-  "daily",
-  "weekly",
-] as const);
-export type NotificationBatchingFrequency = UnionOf<typeof NOTIFICATION_BATCHING_FREQUENCIES>;
-
-const DAYS_OF_WEEK = new TupleSet(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const);
-export type DayOfWeek = UnionOf<typeof DAYS_OF_WEEK>;
-
-export type NotificationChannelSettings = {
-  enabled: boolean,
-  /**
-   * Frequency at which we send batched notifications. When enabled is false, this doesn't apply, but is persisted
-   * so the user can restore their old settings
-   */
-  batchingFrequency: NotificationBatchingFrequency,
-  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
-  timeOfDayGMT: number,
-  /** Day of week at which weekly updates are released, always in GMT */
-  dayOfWeekGMT: DayOfWeek
-}
-
-const notificationChannelSettingsSchema = new SimpleSchema({
-  enabled: {
-    type: Boolean,
-  },
-  batchingFrequency: {
-    type: String,
-    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
-  },
-  timeOfDayGMT: {
-    type: SimpleSchema.Integer,
-    min: 0,
-    max: 23
-  },
-  dayOfWeekGMT: {
-    type: String,
-    allowedValues: Array.from(DAYS_OF_WEEK)
-  },
-})
-
-export type NotificationTypeSettings = Record<NotificationChannel, NotificationChannelSettings>
-
-const notificationTypeSettingsSchema = new SimpleSchema({
-  onsite: {
-    type: notificationChannelSettingsSchema,
-  },
-  email: {
-    type: notificationChannelSettingsSchema,
-  },
-});
-
-export const defaultNotificationTypeSettings: NotificationTypeSettings = {
-  onsite: {
-    enabled: true,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  },
-  email: {
-    enabled: false,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  }
-};
-
-const bothChannelsEnabledNotificationTypeSettings: NotificationTypeSettings = {
-  onsite: {
-    enabled: true,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  },
-  email: {
-    enabled: true,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  }
-};
-
-
-///////////////////////////////////////////////
-// Migration of NotificationTypeSettings     //
-//                                           //
-// This section is here to support migrating //
-// NotificationTypeSettings to a new format, //
-// and will be deleted shortly               //
-///////////////////////////////////////////////
-
-export type LegacyNotificationTypeSettings = {
-  channel: "none" | "onsite" | "email" | "both";
-  batchingFrequency: "realtime" | "daily" | "weekly";
-  timeOfDayGMT: number; // 0 to 23
-  dayOfWeekGMT: DayOfWeek;
-};
-
-
-export const legacyDefaultNotificationTypeSettings: LegacyNotificationTypeSettings = {
-  channel: "onsite",
-  batchingFrequency: "realtime",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-};
-
-const legacyBothChannelNotificationTypeSettings: LegacyNotificationTypeSettings = {
-  channel: "both",
-  batchingFrequency: "realtime",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-};
-
-export function isNewNotificationTypeSettings(value: AnyBecauseIsInput): value is NotificationTypeSettings {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'onsite' in value &&
-    'email' in value &&
-    typeof value.onsite === 'object' &&
-    typeof value.email === 'object' &&
-    'batchingFrequency' in value.onsite &&
-    'timeOfDayGMT' in value.onsite &&
-    'dayOfWeekGMT' in value.onsite
-  );
-}
-
-export function legacyToNewNotificationTypeSettings(notificationSettings: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
-  if (!notificationSettings) return defaultNotificationTypeSettings;
-  if (isNewNotificationTypeSettings(notificationSettings)) return notificationSettings
-
-  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = notificationSettings;
-
-  const onsiteEnabled = (channel === "both" || channel === "onsite");
-  const emailEnabled = (channel === "both" || channel === "email");
-
-  return {
-    onsite: {
-      enabled: onsiteEnabled,
-      batchingFrequency,
-      timeOfDayGMT,
-      dayOfWeekGMT,
-    },
-    email: {
-      enabled: emailEnabled,
-      batchingFrequency,
-      timeOfDayGMT,
-      dayOfWeekGMT,
-    },
-  };
-};
-
-export function isLegacyNotificationTypeSettings(value: AnyBecauseIsInput): value is LegacyNotificationTypeSettings {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'channel' in value &&
-    'batchingFrequency' in value &&
-    'timeOfDayGMT' in value &&
-    'dayOfWeekGMT' in value
-  );
-}
-
-export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): LegacyNotificationTypeSettings {
-  if (!newFormat) return legacyDefaultNotificationTypeSettings;
-  if (isLegacyNotificationTypeSettings(newFormat)) return newFormat;
-
-  const { onsite, email } = newFormat;
-
-  let channel: "none" | "onsite" | "email" | "both" = "none";
-  if (onsite.enabled && email.enabled) {
-    channel = "both";
-  } else if (onsite.enabled) {
-    channel = "onsite";
-  } else if (email.enabled) {
-    channel = "email";
-  }
-
-  // Not a one-to-one mapping here because the old format doesn't support different settings for each channel
-  // when both are enabled. If this is the case, choose the faster frequency for both
-  let batchingFrequency: NotificationBatchingFrequency = legacyDefaultNotificationTypeSettings.batchingFrequency;
-  if (channel === "both") {
-    const frequencies = [onsite.batchingFrequency, email.batchingFrequency];
-    if (frequencies.includes("realtime")) {
-      batchingFrequency = "realtime";
-    } else if (frequencies.includes("daily")) {
-      batchingFrequency = "daily";
-    } else {
-      batchingFrequency = "weekly";
-    }
-  } else {
-    batchingFrequency = channel === "onsite" ? onsite.batchingFrequency : email.batchingFrequency;
-  }
-
-  // Use onsite settings as the default for time and day, assuming they are the same for both
-  return {
-    channel,
-    batchingFrequency,
-    timeOfDayGMT: onsite.timeOfDayGMT,
-    dayOfWeekGMT: onsite.dayOfWeekGMT,
-  };
-}
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
   outputType: "JSON",
@@ -319,20 +85,6 @@ const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
     blackbox: true,
   },
 } satisfies GraphQLFieldSpecification<"Users">;
-
-const dailyEmailBatchNotificationSettingOnCreate = {
-  onsite: defaultNotificationTypeSettings.onsite,
-  email: { ...defaultNotificationTypeSettings.email, enabled: true, batchingFrequency: "daily" },
-};
-
-const emailEnabledNotificationSettingOnCreate = {
-  onsite: defaultNotificationTypeSettings.onsite,
-  email: { ...defaultNotificationTypeSettings.email, enabled: true },
-};
-
-///////////////////////////////////////////////
-// End migration of NotificationTypeSettings //
-///////////////////////////////////////////////
 
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
@@ -357,46 +109,6 @@ const karmaChangeSettingsType = new SimpleSchema({
   },
 });
 
-const expandedFrontpageSectionsSettings = new SimpleSchema({
-  community: { type: Boolean, optional: true, nullable: true },
-  recommendations: { type: Boolean, optional: true, nullable: true },
-  quickTakes: { type: Boolean, optional: true, nullable: true },
-  quickTakesCommunity: { type: Boolean, optional: true, nullable: true },
-  popularComments: { type: Boolean, optional: true, nullable: true },
-});
-
-
-const partiallyReadSequenceItem = new SimpleSchema({
-  sequenceId: {
-    type: String,
-    foreignKey: "Sequences",
-    optional: true,
-  },
-  collectionId: {
-    type: String,
-    foreignKey: "Collections",
-    optional: true,
-  },
-  lastReadPostId: {
-    type: String,
-    foreignKey: "Posts",
-  },
-  nextPostId: {
-    type: String,
-    foreignKey: "Posts",
-  },
-  numRead: {
-    type: SimpleSchema.Integer,
-  },
-  numTotal: {
-    type: SimpleSchema.Integer,
-  },
-  lastReadTime: {
-    type: Date,
-    optional: true,
-  },
-});
-
 const userTheme = new SimpleSchema({
   name: {
     type: String,
@@ -412,101 +124,6 @@ const userTheme = new SimpleSchema({
   },
 });
 
-export type CareerStageValue =
-  | "highSchool"
-  | "associateDegree"
-  | "undergradDegree"
-  | "professionalDegree"
-  | "graduateDegree"
-  | "doctoralDegree"
-  | "otherDegree"
-  | "earlyCareer"
-  | "midCareer"
-  | "lateCareer"
-  | "seekingWork"
-  | "retired";
-
-// list of career stage options from EAG
-type EAGCareerStage =
-  | "Student (high school)"
-  | "Pursuing an associates degree"
-  | "Pursuing an undergraduate degree"
-  | "Pursuing a professional degree"
-  | "Pursuing a graduate degree (e.g. Masters)"
-  | "Pursuing a doctoral degree (e.g. PhD)"
-  | "Pursuing other degree/diploma"
-  | "Working (0-5 years of experience)"
-  | "Working (6-15 years of experience)"
-  | "Working (15+ years of experience)"
-  | "Not employed, but looking"
-  | "Retired";
-
-type CareerStage = {
-  value: CareerStageValue;
-  label: string;
-  icon: ForumIconName;
-  EAGLabel: EAGCareerStage;
-};
-
-export const CAREER_STAGES: CareerStage[] = [
-  { value: "highSchool", label: "In high school", icon: "School", EAGLabel: "Student (high school)" },
-  {
-    value: "associateDegree",
-    label: "Pursuing an associate's degree",
-    icon: "School",
-    EAGLabel: "Pursuing an associates degree",
-  },
-  {
-    value: "undergradDegree",
-    label: "Pursuing an undergraduate degree",
-    icon: "School",
-    EAGLabel: "Pursuing an undergraduate degree",
-  },
-  {
-    value: "professionalDegree",
-    label: "Pursuing a professional degree",
-    icon: "School",
-    EAGLabel: "Pursuing a professional degree",
-  },
-  {
-    value: "graduateDegree",
-    label: "Pursuing a graduate degree (e.g. Master's)",
-    icon: "School",
-    EAGLabel: "Pursuing a graduate degree (e.g. Masters)",
-  },
-  {
-    value: "doctoralDegree",
-    label: "Pursuing a doctoral degree (e.g. PhD)",
-    icon: "School",
-    EAGLabel: "Pursuing a doctoral degree (e.g. PhD)",
-  },
-  {
-    value: "otherDegree",
-    label: "Pursuing other degree/diploma",
-    icon: "School",
-    EAGLabel: "Pursuing other degree/diploma",
-  },
-  { value: "earlyCareer", label: "Working (0-5 years)", icon: "Work", EAGLabel: "Working (0-5 years of experience)" },
-  { value: "midCareer", label: "Working (6-15 years)", icon: "Work", EAGLabel: "Working (6-15 years of experience)" },
-  { value: "lateCareer", label: "Working (15+ years)", icon: "Work", EAGLabel: "Working (6-15 years of experience)" },
-  { value: "seekingWork", label: "Seeking work", icon: "Work", EAGLabel: "Not employed, but looking" },
-  { value: "retired", label: "Retired", icon: "Work", EAGLabel: "Retired" },
-];
-
-export const PROGRAM_PARTICIPATION = [
-  { value: "vpIntro", label: "Completed the Introductory EA Virtual Program" },
-  { value: "vpInDepth", label: "Completed the In-Depth EA Virtual Program" },
-  { value: "vpPrecipice", label: "Completed the Precipice Reading Group" },
-  { value: "vpLegal", label: "Completed the Legal Topics in EA Virtual Program" },
-  { value: "vpAltProtein", label: "Completed the Alt Protein Fundamentals Virtual Program" },
-  { value: "vpAGISafety", label: "Completed the AGI Safety Fundamentals Virtual Program" },
-  { value: "vpMLSafety", label: "Completed the ML Safety Scholars Virtual Program" },
-  { value: "eag", label: "Attended an EA Global conference" },
-  { value: "eagx", label: "Attended an EAGx conference" },
-  { value: "localgroup", label: "Attended more than three meetings with a local EA group" },
-  { value: "80k", label: "Received career coaching from 80,000 Hours" },
-];
-
 export type RateLimitReason = "moderator" | "lowKarma" | "downvoteRatio" | "universal";
 
 export const graphqlTypeDefs = gql`
@@ -514,15 +131,68 @@ export const graphqlTypeDefs = gql`
     lat: Float!
     lng: Float!
   }
-`;
 
-const postsMetadataSchema = new SimpleSchema({
-  postId: {
-    type: String,
-    foreignKey: "Posts",
-    optional: true,
-  },
-});
+  input ExpandedFrontpageSectionsSettingsInput {
+    community: Boolean
+    recommendations: Boolean
+    quickTakes: Boolean
+    quickTakesCommunity: Boolean
+    popularComments: Boolean
+  }
+
+  type ExpandedFrontpageSectionsSettingsOutput {
+    community: Boolean
+    recommendations: Boolean
+    quickTakes: Boolean
+    quickTakesCommunity: Boolean
+    popularComments: Boolean
+  }
+
+  input PartiallyReadSequenceItemInput {
+    sequenceId: String
+    collectionId: String
+    lastReadPostId: String!
+    nextPostId: String!
+    numRead: Int!
+    numTotal: Int!
+    lastReadTime: Date
+  }
+
+  type PartiallyReadSequenceItemOutput {
+    sequenceId: String
+    collectionId: String
+    lastReadPostId: String
+    nextPostId: String
+    numRead: Int
+    numTotal: Int
+    lastReadTime: Date
+  }
+
+  input PostMetadataInput {
+    postId: String!
+  }
+
+  type PostMetadataOutput {
+    postId: String!
+  }
+
+  input RecommendationAlgorithmSettingsInput {
+    method: String!
+    count: Int!
+    scoreOffset: Float!
+    scoreExponent: Float!
+    personalBlogpostModifier: Float!
+    frontpageModifier: Float!
+    curatedModifier: Float!
+    onlyUnread: Boolean!
+  }
+
+  input RecommendationSettingsInput {
+    frontpage: RecommendationAlgorithmSettingsInput!
+    frontpageEA: RecommendationAlgorithmSettingsInput!
+    recommendationspage: RecommendationAlgorithmSettingsInput!
+  }
+`;
 
 const emailsSchema = new SimpleSchema({
   address: {
@@ -585,6 +255,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -594,24 +265,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "moderationGuidelines",
-        collectionName: "Users",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 50,
-      control: "EditorFormComponent",
-      hidden: !hasAuthorModeration,
-      group: () => formGroups.moderationGroup,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -625,6 +278,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -634,26 +288,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      order: 7,
-      control: "EditorFormComponent",
-      group: () => formGroups.aboutMe,
-      form: {
-        label: "How others can help me",
-        hintText: () => "Ex: I am looking for opportunities to do...",
-        fieldName: "howOthersCanHelpMe",
-        collectionName: "Users",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-        formVariant: isFriendlyUI ? "grey" : undefined,
-      },
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
-        revisionsHaveCommitMessages: false,  
       },
     },
   },
@@ -668,6 +302,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -677,26 +312,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      order: 8,
-      control: "EditorFormComponent",
-      group: () => formGroups.aboutMe,
-      form: {
-        label: "How I can help others",
-        hintText: () => "Ex: Reach out to me if you have questions about...",
-        fieldName: "howOthersCanHelpMe",
-        collectionName: "Users",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-        formVariant: isFriendlyUI ? "grey" : undefined,
-      },
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
-        revisionsHaveCommitMessages: false,  
       },
     },
   },
@@ -722,10 +337,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 40,
-      group: () => formGroups.adminOptions,
     },
   },
   oldSlugs: {
@@ -758,6 +369,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -767,26 +379,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        label: "Bio",
-        hintText: () => "Tell us about yourself",
-        fieldName: "biography",
-        collectionName: "Users",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-        formVariant: isFriendlyUI ? "grey" : undefined,
-      },
-      order: isEAForum ? 6 : 40,
-      control: "EditorFormComponent",
-      hidden: isEAForum,
-      group: () => (isEAForum ? formGroups.aboutMe : formGroups.default),
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -804,9 +396,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // Emails (not to be confused with email). This field belongs to Meteor's
@@ -857,11 +446,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Admin",
-      control: "checkbox",
-      group: () => adminGroup,
-    },
   },
   // A mostly-legacy field. For OAuth users, includes information that was
   // submitted with the OAuth login; for users imported from old LW, includes
@@ -878,9 +462,6 @@ const schema = {
       resolver: (user, args, context) => ({
         fieldNoLongerSupported: true
       }),
-    },
-    form: {
-      hidden: true,
     },
   },
   services: {
@@ -927,12 +508,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 10,
-      hidden: isFriendlyUI,
-      control: isFriendlyUI ? 'FormComponentFriendlyDisplayNameInput' : undefined,
-      group: () => formGroups.default,
-    },
   },
   /**
    Used for tracking changes of displayName
@@ -949,10 +524,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 11,
-      group: () => formGroups.default,
     },
   },
   email: {
@@ -988,13 +559,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      // Will always be disabled for mods, because they cannot read hasAuth0Id
-      form: { disabled: ({ document }) => isEAForum && !(document as AnyBecauseHard)?.hasAuth0Id },
-      order: 20,
-      control: "text",
-      group: () => formGroups.default,
-    },
   },
   noindex: {
     database: {
@@ -1012,12 +576,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 48,
-      label: "No Index",
-      tooltip: "Hide this user's profile from search engines",
-      group: () => formGroups.adminOptions,
-    },
   },
   groups: {
     database: {
@@ -1032,21 +590,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: {
-        options: function () {
-          const groups = _.without(_.keys(getAllUserGroups()), "guests", "members", "admins");
-          return groups.map((group) => {
-            return {
-              value: group,
-              label: group,
-            };
-          });
-        },
-      },
-      control: "checkboxgroup",
-      group: () => adminGroup,
     },
   },
   pageUrl: {
@@ -1105,12 +648,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 1,
-      control: "ThemeSelect",
-      hidden: isLWorAF,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   lastUsedTimezone: {
     database: {
@@ -1125,9 +662,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
@@ -1137,19 +671,12 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["members"],
-      // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
-      canUpdate: verifyEmailsSetting.get()
-        ? [userOwns, 'sunshineRegiment', 'admins']
-        : [],
+      // Setting this will trigger a verification email to be sent (unless `verifyEmailsSetting` is false, in which case it does nothing)
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
       canCreate: ["members"],
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 1,
-      control: "UsersEmailVerification",
-      group: () => formGroups.emails,
     },
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -1169,9 +696,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   commentSorting: {
     database: {
@@ -1186,15 +710,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      // getCommentViewOptions has optional parameters so it's safer to wrap it
-      // in a lambda. We don't currently enable admin-only sorting options for
-      // admins - we could but it seems not worth the effort.
-      form: { options: () => getCommentViewOptions() },
-      order: 43,
-      control: "select",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   sortDraftsBy: {
     database: {
@@ -1207,26 +722,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: {
-        options: function () {
-          return [
-            {
-              value: "wordCount",
-              label: "Wordcount",
-            },
-            {
-              value: "modifiedAt",
-              label: "Last Modified",
-            },
-          ];
-        },
-      },
-      order: 43,
-      label: "Sort Drafts by",
-      control: "select",
-      group: () => formGroups.siteCustomizations,
     },
   },
   reactPaletteStyle: {
@@ -1245,26 +740,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        options: function () {
-          return [
-            {
-              value: "listView",
-              label: "List View",
-            },
-            {
-              value: "iconView",
-              label: "Icons",
-            },
-          ];
-        },
-      },
-      label: "React Palette Style",
-      control: "select",
-      hidden: isEAForum,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   noKibitz: {
     database: {
@@ -1279,13 +754,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 68,
-      label: "Hide author names until I hover over them",
-      tooltip:
-        "For if you want to not be biased. Adds an option to the user menu to temporarily disable. Does not work well on mobile",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   showHideKarmaOption: {
     database: {
@@ -1299,13 +767,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 69,
-      label: "Enable option on posts to hide karma visibility",
-      control: "checkbox",
-      hidden: !isEAForum,
-      group: () => formGroups.siteCustomizations,
     },
   },
   // We tested this on the EA Forum and it didn't encourage more PMs, but it led to some profile views.
@@ -1322,13 +783,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      control: 'checkbox',
-      group: () => formGroups.siteCustomizations,
-      order: 70,
-      label: "Show my bio at the end of my posts",
     },
   },
   // Intercom: Will the user display the intercom while logged in?
@@ -1349,12 +803,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 71,
-      label: "Hide Intercom",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
@@ -1374,12 +822,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 72,
-      label: "Activate Markdown Editor",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hideElicitPredictions: {
     database: {
@@ -1396,12 +838,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 80,
-      label: "Hide other users' Elicit predictions until I have predicted myself",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hideAFNonMemberInitialWarning: {
     database: {
@@ -1417,13 +853,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 90,
-      label: "Hide explanations of how AIAF submissions work for non-members",
-      control: "checkbox",
-      hidden: !isAF, //TODO: just hide this in prod
-      group: () => formGroups.siteCustomizations,
     },
   },
   noSingleLineComments: {
@@ -1443,12 +872,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 91,
-      label: "Do not collapse comments to Single Line",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   noCollapseCommentsPosts: {
     database: {
@@ -1466,12 +889,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 92,
-      label: "Do not truncate comments (in large threads on Post Pages)",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
     },
   },
   noCollapseCommentsFrontpage: {
@@ -1491,12 +908,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 93,
-      label: "Do not truncate comments (on home page)",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hideCommunitySection: {
     database: {
@@ -1515,13 +926,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 93,
-      label: "Hide community section from the frontpage",
-      control: "checkbox",
-      hidden: !isEAForum,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   expandedFrontpageSections: {
     database: {
@@ -1529,17 +933,11 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "ExpandedFrontpageSectionsSettingsOutput",
+      inputType: "ExpandedFrontpageSectionsSettingsInput",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: expandedFrontpageSectionsSettings,
-        optional: true,
-      },
-    },
-    form: {
-      hidden: true,
     },
   },
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
@@ -1560,13 +958,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 94,
-      label: "Show Community posts in Recent Discussion",
-      control: "checkbox",
-      hidden: !isEAForum,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hidePostsRecommendations: {
     database: {
@@ -1584,13 +975,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 95,
-      label: "Hide recommendations from the posts page",
-      control: "checkbox",
-      hidden: !hasPostRecommendations,
-      group: () => formGroups.siteCustomizations,
     },
   },
   petrovOptOut: {
@@ -1610,16 +994,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 96,
-      label: "Opt out of Petrov Day - you will not be able to launch",
-      control: "checkbox",
-      group: () => formGroups.siteCustomizations,
-      hidden: (new Date()).valueOf() > 1664161200000 
-      // note this date is hard coded as a hack
-      // we originally were using petrovBeforeTime but it didn't work in this file because the database
-      // public settings aren't been loaded yet.
-    },
   },
   optedOutOfSurveys: {
     database: {
@@ -1634,12 +1008,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 97,
-      label: "Opt out of user surveys",
-      hidden: !hasSurveys,
-      group: () => formGroups.siteCustomizations,
     },
   },
   postGlossariesPinned: {
@@ -1658,12 +1026,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 98,
-      label: "Pin glossaries on posts, and highlight all instances of each term",
-      hidden: (props) => userCanViewJargonTerms(props.currentUser),
-      group: () => formGroups.siteCustomizations,
-    },
   },
   generateJargonForDrafts: {
     database: {
@@ -1680,10 +1042,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   generateJargonForPublishedPosts: {
     database: {
@@ -1699,10 +1057,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      group: () => formGroups.siteCustomizations,
     },
   },
   acceptedTos: {
@@ -1721,9 +1075,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   hideNavigationSidebar: {
     database: {
@@ -1737,9 +1088,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   currentFrontpageFilter: {
@@ -1755,9 +1103,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   frontpageSelectedTab: {
     database: {
@@ -1772,9 +1117,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   frontpageFilterSettings: {
@@ -1795,9 +1137,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   hideFrontpageFilterSettingsDesktop: {
     database: {
@@ -1814,9 +1153,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   allPostsTimeframe: {
     database: {
@@ -1830,9 +1166,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   allPostsFilter: {
@@ -1848,9 +1181,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   allPostsSorting: {
     database: {
@@ -1864,9 +1194,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   allPostsShowLowKarma: {
@@ -1882,9 +1209,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   allPostsIncludeEvents: {
     database: {
@@ -1898,9 +1222,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   allPostsHideCommunity: {
@@ -1916,9 +1237,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   allPostsOpenSettings: {
     database: {
@@ -1932,9 +1250,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   draftsListSorting: {
@@ -1950,9 +1265,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   draftsListShowArchived: {
     database: {
@@ -1966,9 +1278,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   draftsListShowShared: {
@@ -1984,9 +1293,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   lastNotificationsCheck: {
     database: {
@@ -2001,9 +1307,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   karma: {
@@ -2048,35 +1351,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      form: {
-        options: function () {
-          return [
-            {
-              value: "",
-              label: "No Moderation",
-            },
-            {
-              value: "easy-going",
-              label: "Easy Going - I just delete obvious spam and trolling.",
-            },
-            {
-              value: "norm-enforcing",
-              label: "Norm Enforcing - I try to enforce particular rules (see below)",
-            },
-            {
-              value: "reign-of-terror",
-              label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
-            },
-          ];
-        },
-      },
-      order: 55,
-      label: "Style",
-      control: "select",
-      hidden: isFriendlyUI,
-      group: () => formGroups.moderationGroup,
-    },
   },
   moderatorAssistance: {
     database: {
@@ -2091,13 +1365,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 55,
-      label: "I'm happy for site moderators to help enforce my policy",
-      control: "checkbox",
-      hidden: isFriendlyUI,
-      group: () => formGroups.moderationGroup,
-    },
   },
   collapseModerationGuidelines: {
     database: {
@@ -2111,13 +1378,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 56,
-      label: "On my posts, collapse my moderation guidelines by default",
-      control: "checkbox",
-      hidden: isFriendlyUI,
-      group: () => formGroups.moderationGroup,
     },
   },
   // bannedUserIds: users who are not allowed to comment on this user's posts
@@ -2135,11 +1395,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Banned Users (All)",
-      control: "FormUserMultiselect",
-      group: () => formGroups.moderationGroup,
-    },
   },
   // bannedPersonalUserIds: users who are not allowed to comment on this user's personal blog posts
   bannedPersonalUserIds: {
@@ -2156,50 +1411,44 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Banned Users (Personal)",
-      tooltip:
-        "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)",
-      control: "FormUserMultiselect",
-      group: () => formGroups.moderationGroup,
-    },
   },
   bookmarkedPostsMetadata: {
-    database: {
-      type: "JSONB[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[PostMetadataOutput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: arrayOfForeignKeysOnCreate,
-      onUpdate: ({ data, currentUser, oldDocument }) => {
-        if (data?.bookmarkedPostsMetadata) {
-          return _.uniq(data?.bookmarkedPostsMetadata, "postId");
-        }
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { Bookmarks } = context;
+        const bookmarks = await Bookmarks.find({ 
+          userId: user._id, 
+          collectionName: "Posts",
+          active: true 
+        }, 
+        {sort: {lastUpdated: -1}}
+        ).fetch();
+        return bookmarks.map((bookmark: DbBookmark) => ({ postId: bookmark.documentId }));
       },
-      validation: {
-        optional: true,
-        simpleSchema: [postsMetadataSchema],
-      },
-    },
-    form: {
-      hidden: true,
     },
   },
   bookmarkedPosts: {
     graphql: {
       outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: generateIdResolverMulti({
-        foreignCollectionName: "Posts",
-        fieldName: "bookmarkedPostsMetadata",
-        getKey: (obj) => obj.postId,
-      }),
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { Bookmarks, currentUser } = context;
+        const bookmarks = await Bookmarks.find({ 
+          userId: user._id, 
+          collectionName: "Posts",
+          active: true 
+        }, 
+        {sort: {lastUpdated: -1}}
+        ).fetch();
+        const postIds = bookmarks.map((bookmark: DbBookmark) => bookmark.documentId);
+        if (postIds.length === 0) {
+          return [];
+        }
+        const posts = await loadByIds(context, "Posts", postIds)
+        return await accessFilterMultiple(currentUser, "Posts", posts, context);
+      },
     },
   },
   // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
@@ -2217,8 +1466,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[PostMetadataOutput!]",
+      inputType: "[PostMetadataInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -2227,13 +1476,6 @@ const schema = {
           return uniqBy(data?.hiddenPostsMetadata, "postId");
         }
       },
-      validation: {
-        optional: true,
-        simpleSchema: [postsMetadataSchema],
-      },
-    },
-    form: {
-      hidden: true,
     },
   },
   hiddenPosts: {
@@ -2261,9 +1503,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   deleted: {
     database: {
@@ -2280,13 +1519,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Deactivate",
-      tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
-      control: "checkbox",
-      hidden: hasAccountDeletionFlow,
-      group: () => formGroups.deactivate,
     },
   },
   // permanentDeletionRequestedAt: The date the user requested their account to be permanently deleted,
@@ -2311,9 +1543,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // DEPRECATED
   // voteBanned: All future votes of this user have weight 0
@@ -2330,12 +1559,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      control: 'checkbox',
-      group: () => formGroups.banUser,
-      label: 'Set all future votes of this user to have zero weight',  
-    },
   },
   // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
   nullifyVotes: {
@@ -2350,11 +1573,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Nullify all past votes",
-      control: "checkbox",
-      group: () => formGroups.banUser,
     },
   },
   // deleteContent: Flag all comments and posts from this user as deleted
@@ -2371,11 +1589,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Delete all user content",
-      control: "checkbox",
-      group: () => formGroups.banUser,
-    },
   },
   banned: {
     database: {
@@ -2389,11 +1602,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Ban user until",
-      control: "datetime",
-      group: () => formGroups.banUser,
     },
   },
   // IPs: All Ips that this user has ever logged in with
@@ -2423,9 +1631,6 @@ const schema = {
         return uniqueIPs;
       },
     },
-    form: {
-      group: () => formGroups.banUser,
-    },
   },
   auto_subscribe_to_my_posts: {
     database: {
@@ -2443,12 +1648,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      beforeComponent: "ManageSubscriptionsLink",
-      label: "Auto-subscribe to comments on my posts",
-      control: "checkbox",
-      group: () => formGroups.notifications,
     },
   },
   auto_subscribe_to_my_comments: {
@@ -2468,11 +1667,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Auto-subscribe to replies to my comments",
-      control: "checkbox",
-      group: () => formGroups.notifications,
-    },
   },
   autoSubscribeAsOrganizer: {
     database: {
@@ -2491,12 +1685,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Auto-subscribe to posts/events in groups I organize",
-      control: "checkbox",
-      hidden: !hasEventsSetting.get(),
-      group: () => formGroups.notifications,
-    },
   },
   notificationCommentsOnSubscribedPost: {
     database: {
@@ -2508,11 +1696,6 @@ const schema = {
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
-    },
-    form: {
-      label: "Comments on posts/events I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
     },
   },
   notificationShortformContent: {
@@ -2526,13 +1709,6 @@ const schema = {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
-    form: {
-      label: isEAForum
-        ? "Quick takes by users I'm subscribed to"
-        : "Shortform by users I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationRepliesToMyComments: {
     database: {
@@ -2544,11 +1720,6 @@ const schema = {
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
-    },
-    form: {
-      label: "Replies to my comments",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -2562,11 +1733,6 @@ const schema = {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
-    form: {
-      label: "Replies to comments I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationSubscribedUserPost: {
     database: {
@@ -2578,11 +1744,6 @@ const schema = {
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
-    },
-    form: {
-      label: "Posts by users I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
     },
   },
   notificationSubscribedUserComment: {
@@ -2596,12 +1757,6 @@ const schema = {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
-    form: {
-      label: "Comments by users I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      hidden: false,
-      group: () => formGroups.notifications,
-    },
   },
   notificationPostsInGroups: {
     database: {
@@ -2611,12 +1766,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Posts/events in groups I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
-      group: () => formGroups.notifications,
-    },
   },
   notificationSubscribedTagPost: {
     database: {
@@ -2626,11 +1775,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Posts added to tags I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationSubscribedSequencePost: {
     database: {
@@ -2640,12 +1784,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Posts added to sequences I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !allowSubscribeToSequencePosts,
-      group: () => formGroups.notifications,
-    },
   },
   notificationPrivateMessage: {
     database: {
@@ -2655,11 +1793,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Private messages",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationSharedWithMe: {
     database: {
@@ -2669,11 +1802,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Draft shared with me",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationAlignmentSubmissionApproved: {
     database: {
@@ -2683,12 +1811,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Alignment Forum submission approvals",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !isLWorAF,
-      group: () => formGroups.notifications,
-    },
   },
   notificationEventInRadius: {
     database: {
@@ -2698,12 +1820,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "New events in my notification radius",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
-      group: () => formGroups.notifications,
-    },
   },
   notificationKarmaPowersGained: {
     database: {
@@ -2716,12 +1832,6 @@ const schema = {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
-    form: {
-      hidden: true,
-      label: "Karma powers gained",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationRSVPs: {
     database: {
@@ -2731,12 +1841,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "New RSVP responses to my events",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
-      group: () => formGroups.notifications,
-    },
   },
   notificationGroupAdministration: {
     database: {
@@ -2746,12 +1850,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Group administration notifications",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
-      group: () => formGroups.notifications,
-    },
   },
   notificationCommentsOnDraft: {
     database: {
@@ -2761,11 +1859,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Comments on unpublished draft posts I've shared",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationPostsNominatedReview: {
     database: {
@@ -2775,13 +1868,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      // Hide this while review is inactive
-      hidden: true,
-      label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationSubforumUnread: {
     database: {
@@ -2794,11 +1880,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "New discussions in topics I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationNewMention: {
     database: {
@@ -2811,11 +1892,6 @@ const schema = {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
       ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
-    form: {
-      label: "Someone has mentioned me in a post or a comment",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   notificationDialogueMessages: {
     database: {
@@ -2825,12 +1901,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "New dialogue content in a dialogue I'm participating in",
-      control: "NotificationTypeSettingsWidget",
-      hidden: false,
-      group: () => formGroups.notifications,
-    },
   },
   notificationPublishedDialogueMessages: {
     database: {
@@ -2840,12 +1910,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "New dialogue content in a dialogue I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      hidden: false,
-      group: () => formGroups.notifications,
-    },
   },
   notificationAddedAsCoauthor: {
     database: {
@@ -2855,11 +1919,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Someone has added me as a coauthor to a post",
-      control: "NotificationTypeSettingsWidget",
-      group: () => formGroups.notifications,
-    },
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
@@ -2873,12 +1932,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
-      group: () => formGroups.notifications,
-    },
   },
   notificationDebateReplies: {
     database: {
@@ -2888,12 +1941,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "[Old Style] New dialogue content in a dialogue I'm participating in",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
-      group: () => formGroups.notifications,
-    },
   },
   notificationDialogueMatch: {
     database: {
@@ -2903,12 +1950,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Another user and I have matched for a dialogue",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
-      group: () => formGroups.notifications,
-    },
   },
   notificationNewDialogueChecks: {
     database: {
@@ -2921,12 +1962,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "You have new people interested in dialogue-ing with you",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
-      group: () => formGroups.notifications,
-    },
   },
   notificationYourTurnMatchForm: {
     database: {
@@ -2936,12 +1971,6 @@ const schema = {
       nullable: false,
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-    form: {
-      label: "Fill in the topics form for your dialogue match",
-      control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
-      group: () => formGroups.notifications,
-    },
   },
   hideDialogueFacilitation: {
     database: {
@@ -2958,11 +1987,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Hide the widget for opting in to being approached about dialogues",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
     },
   },
   revealChecksToAdmins: {
@@ -2981,11 +2005,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Allow users to reveal their checks for better facilitation",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   optedInToDialogueFacilitation: {
     database: {
@@ -3003,11 +2022,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   showDialoguesList: {
     database: {
@@ -3021,11 +2035,6 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-    },
-    form: {
-      label: "Show a list of recently active dialogues inside the frontpage widget",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
     },
   },
   showMyDialogues: {
@@ -3041,11 +2050,6 @@ const schema = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
-    form: {
-      label: "Show a list of dialogues the user participated in inside the frontpage widget",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   showMatches: {
     database: {
@@ -3060,11 +2064,6 @@ const schema = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
-    form: {
-      label: "Show a list of dialogue reciprocity matched users inside frontpage widget",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   showRecommendedPartners: {
     database: {
@@ -3078,11 +2077,6 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-    },
-    form: {
-      label: "Show a list of recommended dialogue partners inside frontpage widget",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
     },
   },
   hideActiveDialogueUsers: {
@@ -3100,11 +2094,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Hides/collapses the active dialogue users in the header",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
     },
   },
   karmaChangeNotifierSettings: {
@@ -3124,10 +2113,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "KarmaChangeNotifierSettings",
-      group: () => formGroups.notifications,
-    },
   },
   karmaChangeLastOpened: {
     database: {
@@ -3142,9 +2127,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
 
@@ -3165,9 +2147,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   emailSubscribedToCurated: {
     database: {
@@ -3181,12 +2160,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Email me new posts in Curated",
-      control: "EmailConfirmationRequiredCheckbox",
-      hidden: !isLW,
-      group: () => formGroups.emails,
     },
   },
   subscribedToDigest: {
@@ -3205,11 +2178,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Subscribe to the EA Forum Digest emails — once a week curated posts from the Forum",
-      hidden: !isEAForum,
-      group: () => formGroups.emails,
-    },
   },
   subscribedToNewsletter: {
     database: {
@@ -3227,11 +2195,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Subscribe to the EA Newsletter — once a month emails with content from around the web",
-      hidden: !isEAForum,
-      group: () => formGroups.emails,
-    },
   },
   unsubscribeFromAll: {
     database: {
@@ -3245,10 +2208,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Do not send me any emails (unsubscribe from all)",
-      group: () => formGroups.emails,
     },
   },
   hideSubscribePoke: {
@@ -3267,9 +2226,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   hideMeetupsPoke: {
     database: {
@@ -3286,9 +2242,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // Used by the EA Forum to allow users to hide the right-hand side of the home page
@@ -3307,9 +2260,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -3450,14 +2400,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      form: { stringVersionFieldName: "location" },
-      order: 100,
-      label: "Account location (used for location-based recommendations)",
-      control: "LocationFormComponent",
-      hidden: !hasEventsSetting.get(),
-      group: () => formGroups.siteCustomizations,
-    },
   },
   location: {
     database: {
@@ -3471,9 +2413,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // Used to place a map marker pin on the where-are-other-users map.
@@ -3491,14 +2430,6 @@ const schema = {
         optional: true,
         blackbox: true,
       },
-    },
-    form: {
-      form: { variant: "grey" },
-      order: isLWorAF ? 101 : 5,
-      label: isLWorAF ? "Public map location" : "Location",
-      control: "LocationFormComponent",
-      hidden: isEAForum,
-      group: () => (isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo),
     },
   },
   mapLocationLatLng: {
@@ -3548,12 +2479,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Your text on the community map",
-      control: "MuiTextField",
-      order: 44,
-    },
   },
   htmlMapMarkerText: {
     database: {
@@ -3590,9 +2515,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
@@ -3608,10 +2530,6 @@ const schema = {
         optional: true,
         blackbox: true,
       },
-    },
-    form: {
-      hidden: true,
-      control: "LocationFormComponent",
     },
   },
   nearbyEventsNotificationsMongoLocation: {
@@ -3646,11 +2564,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      min: 0,
-      max: MAX_NOTIFICATION_RADIUS,
-    },
   },
   nearbyPeopleNotificationThreshold: {
     database: {
@@ -3664,9 +2577,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   hideFrontpageMap: {
@@ -3682,12 +2592,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 44,
-      label: "Hide the frontpage map",
-      hidden: !isLW,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hideTaggingProgressBar: {
     database: {
@@ -3701,12 +2605,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Hide the tagging progress bar",
-      order: 45,
-      group: () => formGroups.siteCustomizations,  
     },
   },
   // this was for the 2018 book, no longer relevant
@@ -3722,12 +2620,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Hide the frontpage book ad",
-      order: 46,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hideFrontpageBook2019Ad: {
     database: {
@@ -3742,12 +2634,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Hide the frontpage book ad",
-      order: 47,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   hideFrontpageBook2020Ad: {
     database: {
@@ -3761,12 +2647,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 47,
-      label: "Hide the frontpage book ad",
-      hidden: !isLWorAF,
-      group: () => formGroups.siteCustomizations,
     },
   },
   sunshineNotes: {
@@ -3784,9 +2664,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   sunshineFlagged: {
     database: {
@@ -3803,9 +2680,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   needsReview: {
     database: {
@@ -3821,9 +2695,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   // DEPRECATED in favor of snoozedUntilContentCount
@@ -3842,9 +2713,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   snoozedUntilContentCount: {
     database: {
@@ -3857,9 +2725,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   // Set after a moderator has approved or purged a new user. NB: reviewed does
@@ -3877,9 +2742,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   reviewedByUser: {
@@ -3907,9 +2769,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
@@ -3957,9 +2816,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Alignment Base Score",
-    },
   },
   voteCount: {
     database: {
@@ -3972,9 +2828,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Small Upvote Count",
     },
   },
   smallUpvoteCount: {
@@ -4120,11 +2973,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 39,
-      hidden: !isLWorAF,
-      group: () => formGroups.default,
-    },
   },
   shortformFeedId: {
     database: {
@@ -4139,10 +2987,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Quick takes feed ID",
-      group: () => formGroups.adminOptions,
     },
   },
   shortformFeed: {
@@ -4165,27 +3009,16 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 0,
-      group: () => formGroups.adminOptions,
-    },
   },
   partiallyReadSequences: {
     database: {
       type: "JSONB[]",
     },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[PartiallyReadSequenceItemOutput!]",
+      inputType: "[PartiallyReadSequenceItemInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
-      validation: {
-        simpleSchema: [partiallyReadSequenceItem],
-        optional: true,
-      },
-    },
-    form: {
-      hidden: true,
     },
   },
   beta: {
@@ -4200,12 +3033,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 70,
-      label: "Opt into experimental (beta) features",
-      tooltip: "Get early access to new in-development features",
-      group: () => formGroups.siteCustomizations,
-    },
   },
   reviewVotesQuadratic: {
     database: {
@@ -4219,9 +3046,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   reviewVotesQuadratic2019: {
     database: {
@@ -4234,9 +3058,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   reviewVoteCount: {
@@ -4265,9 +3086,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   petrovPressedButtonDate: {
     database: {
@@ -4280,11 +3098,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      control: "datetime",
-      group: () => formGroups.adminOptions,
     },
   },
   petrovLaunchCodeDate: {
@@ -4299,11 +3112,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      control: "datetime",
-      group: () => formGroups.adminOptions,
-    },
   },
   defaultToCKEditor: {
     database: {
@@ -4316,10 +3124,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Activate CKEditor by default",
-      group: () => formGroups.adminOptions,
     },
   },
   // ReCaptcha v3 Integration
@@ -4335,10 +3139,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
-      group: () => formGroups.adminOptions,
     },
   },
   noExpandUnreadCommentsReview: {
@@ -4357,9 +3157,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   postCount: {
@@ -4558,9 +3355,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   abTestOverrides: {
     database: {
@@ -4575,29 +3369,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      hidden: true,
-    },
-  },
-  // This is deprecated.
-  reenableDraftJs: {
-    database: {
-      type: "BOOL",
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      order: 73,
-      label: "Restore the previous WYSIWYG editor",
-      tooltip: "Restore the old Draft-JS based editor",
-      hidden: !isEAForum,
-      group: () => formGroups.siteCustomizations,
-    },
   },
   walledGardenInvite: {
     database: {
@@ -4611,10 +3382,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: !isLWorAF,
-      group: () => formGroups.adminOptions,
-    },
   },
   hideWalledGardenUI: {
     database: {
@@ -4626,10 +3393,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: !isLWorAF,
-      group: () => formGroups.siteCustomizations,
     },
   },
   walledGardenPortalOnboarded: {
@@ -4644,9 +3407,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   taggingDashboardCollapsed: {
     database: {
@@ -4659,9 +3419,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   usernameUnset: {
@@ -4679,9 +3436,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   paymentEmail: {
     database: {
@@ -4695,12 +3449,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Payment Contact Email",
-      tooltip: "An email you'll definitely check where you can receive information about receiving payments",
-      hidden: !isLWorAF,
-      group: () => formGroups.paymentInfo,
-    },
   },
   paymentInfo: {
     database: {
@@ -4713,12 +3461,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "PayPal Info",
-      tooltip: "Your PayPal account info, for sending small payments",
-      hidden: !isLWorAF,
-      group: () => formGroups.paymentInfo,
     },
   },
   profileUpdatedAt: {
@@ -4735,9 +3477,6 @@ const schema = {
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
     },
-    form: {
-      hidden: true,
-    },
   },
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
@@ -4750,16 +3489,6 @@ const schema = {
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      order: isLWorAF ? 40 : 1,
-      group: () => formGroups.default,
-      label: "Profile Image",
-      control: "ImageUpload",
-      form: {
-        horizontal: true,
       },
     },
   },
@@ -4776,13 +3505,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      control: "FormComponentFriendlyTextInput",
-      group: () => formGroups.generalInfo,
-      order: 2,
-      label: 'Role',
-    },
   },
   organization: {
     database: {
@@ -4796,12 +3518,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      control: "FormComponentFriendlyTextInput",
-      group: () => formGroups.generalInfo,
-      order: 3,
     },
   },
   careerStage: {
@@ -4817,19 +3533,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      control: "FormComponentMultiSelect",
-      group: () => formGroups.generalInfo,
-      order: 4,
-      label: "Career stage",
-      placeholder: 'Select all that apply',
-      form: {
-        variant: "grey",
-        separator: ", ",
-        options: CAREER_STAGES,
-      },
-    },
   },
   website: {
     database: {
@@ -4842,16 +3545,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      control: "PrefixedInput",
-      group: () => formGroups.socialMedia,
-      order: 6,
-      form: {
-        inputPrefix: 'https://',
-        heading: "Website",
       },
     },
   },
@@ -4889,9 +3582,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   linkedinProfileURL: {
     database: {
@@ -4904,17 +3594,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      control: "PrefixedInput",
-      group: () => formGroups.socialMedia,
-      order: 1,
-      form: {
-        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
-        heading: "Social media",
-        smallBottomMargin: true,
       },
     },
   },
@@ -4931,16 +3610,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      control: "PrefixedInput",
-      group: () => formGroups.socialMedia,
-      order: 2,
-      form: {
-        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
-        smallBottomMargin: true,
-      },
-    },
   },
   blueskyProfileURL: {
     database: {
@@ -4953,16 +3622,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      control: "PrefixedInput",
-      group: () => formGroups.socialMedia,
-      order: 3,
-      form: {
-        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
-        smallBottomMargin: true,
       },
     },
   },
@@ -4981,16 +3640,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      control: "PrefixedInput",
-      group: () => formGroups.socialMedia,
-      order: 4,
-      form: {
-        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
-        smallBottomMargin: true,
       },
     },
   },
@@ -5012,17 +3661,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
-        heading: "Social media (private, for admin use)",
-        smallBottomMargin: false,
-      },
-      order: 11,
-      control: "PrefixedInput",
-      hidden: !isEAForum,
-      group: () => formGroups.adminOptions,
-    },
   },
   githubProfileURL: {
     database: {
@@ -5035,15 +3673,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      control: "PrefixedInput",
-      group: () => formGroups.socialMedia,
-      order: 4,
-      form: {
-        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL,
       },
     },
   },
@@ -5064,17 +3693,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      group: () => formGroups.aboutMe,
-      order: 100,
-      control: "TagMultiselect",
-      form: {
-        variant: "grey",
-      },
-      label: "Interests",
-      placeholder: `Search for ${taggingNamePluralSetting.get()}`
     },
   },
   profileTags: {
@@ -5104,22 +3722,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      group: () => formGroups.activity,
-      order: 2,
-      control: "SelectLocalgroup",
-      label: "Organizer of",
-      placeholder: 'Select groups to display',
-      tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
-      form: {
-        useDocumentAsUser: true,
-        variant: "grey",
-        separator: ", ",
-        multiselect: true,
-        hideClear: true,
-      },
-    },
   },
   organizerOfGroups: {
     graphql: {
@@ -5141,18 +3743,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      group: () => formGroups.activity,
-      order: 3,  
-      control: "FormComponentMultiSelect",
-      placeholder: "Which of these programs have you participated in?",
-      form: {
-        variant: "grey",
-        separator: ", ",
-        options: () => PROGRAM_PARTICIPATION
-      },
-    },
   },
   postingDisabled: {
     database: {
@@ -5166,11 +3756,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 69,
-      control: "checkbox",
-      group: () => formGroups.disabledPrivileges,
     },
   },
   allCommentingDisabled: {
@@ -5186,11 +3771,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 70,
-      control: "checkbox",
-      group: () => formGroups.disabledPrivileges,
-    },
   },
   commentingOnOtherUsersDisabled: {
     database: {
@@ -5205,11 +3785,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 71,
-      control: "checkbox",
-      group: () => formGroups.disabledPrivileges,
-    },
   },
   conversationsDisabled: {
     database: {
@@ -5223,11 +3798,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 72,
-      control: "checkbox",
-      group: () => formGroups.disabledPrivileges,
     },
   },
   associatedClientId: {
@@ -5305,9 +3875,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   moderatorActions: {
     graphql: {
@@ -5335,9 +3902,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // used by the EA Forum to track when a user has dismissed the frontpage job ad
   hideJobAdUntil: {
@@ -5353,9 +3917,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // used by the EA Forum to track if a user has dismissed the post page criticism tips card
@@ -5375,9 +3936,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   hideFromPeopleDirectory: {
     database: {
@@ -5396,11 +3954,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Hide my profile from the People directory",
-      hidden: !isEAForum,
-      group: () => formGroups.privacy,
-    },
   },
   allowDatadogSessionReplay: {
     database: {
@@ -5418,12 +3971,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Allow Session Replay",
-      tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
-      hidden: !isEAForum,
-      group: () => formGroups.privacy,
     },
   },
   afPostCount: {
@@ -5567,11 +4114,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "AF Review UserId",
-      hidden: !isLWorAF,
-      group: () => formGroups.adminOptions,
-    },
   },
   afApplicationText: {
     database: {
@@ -5584,9 +4126,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   afSubmittedApplication: {
@@ -5601,9 +4140,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   rateLimitNextAbleToComment: {
@@ -5658,11 +4194,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Hide Sunshine Sidebar",
-      hidden: isEAForum,
-      group: () => formGroups.adminOptions,
-    },
   },
   // EA Forum emails the user a survey if they haven't read a post in 4 months
   inactiveSurveyEmailSentAt: {
@@ -5679,9 +4210,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // Used by EAF to track when we last emailed the user about the annual user survey
   userSurveyEmailSentAt: {
@@ -5697,9 +4225,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   karmaChanges: {
@@ -5757,16 +4282,10 @@ const schema = {
     },
     graphql: {
       outputType: "JSON",
+      // I've only set the input type here because I don't know that all the existing data conforms to the schema.
+      inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
-      validation: {
-        simpleSchema: recommendationSettingsSchema,
-        optional: true,
-        blackbox: true,
-      },
-    },
-    form: {
-      hidden: true,
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

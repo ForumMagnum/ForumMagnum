@@ -92,13 +92,9 @@ const VoteButton = ({
   return <VoteIconComponent {...voteArrowProps} />
 }
 
-const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {
+export default registerComponent('VoteButton', VoteButton, {
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    VoteButton: typeof VoteButtonComponent
-  }
-}
+
 

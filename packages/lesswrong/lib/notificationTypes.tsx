@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { Components } from './vulcan-lib/components';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
@@ -22,8 +21,10 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
-import { NotificationChannel } from './collections/users/newSchema';
+import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
 import keyBy from 'lodash/keyBy';
+import ForumIcon from '@/components/common/ForumIcon';
+import CommentOnYourDraftNotificationHover from '@/components/notifications/CommentOnYourDraftNotificationHover';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -109,7 +110,7 @@ interface GetDialogueMessageProps {
 
 export interface NotificationType {
   name: string
-  userSettingField: keyof DbUser|null
+  userSettingField: (keyof DbUser & `notification${string}`)|null
   allowedChannels?: NotificationChannel[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>, context: ResolverContext}) => Promise<string>
   getIcon: () => ReactNode,
@@ -270,7 +271,7 @@ export const PostApprovedNotification = createNotificationType({
     return 'Your post "' + document.title + '" has been approved';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({Post}) => <>Your post <Post /> has been approved</>,
 });
@@ -283,7 +284,7 @@ export const PostNominatedNotification = createNotificationType({
     return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
   },
   getIcon() {
-    return <Components.ForumIcon icon="Star" style={iconStyles} />
+    return <ForumIcon icon="Star" style={iconStyles} />
   }
 })
 
@@ -306,7 +307,7 @@ export const NewEventNotification = createNotificationType({
       return await postGetAuthorName(document as DbPost, context) + ' has created a new event';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User, Localgroup, notification: {post}}) => <>
     {post?.groupId ? <Localgroup /> : <User />} has created a new event
@@ -332,7 +333,7 @@ export const NewGroupPostNotification = createNotificationType({
       return await postGetAuthorName(document as DbPost, context) + ' has created a new post in a group';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User, Localgroup, notification: {post}}) => <>
     <User /> has created a new post in {
@@ -617,7 +618,7 @@ export const NewUserNotification = createNotificationType({
     return document.displayName + ' just signed up!';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User}) => <><User /> just signed up</>,
 });
@@ -666,7 +667,7 @@ export const EmailVerificationRequiredNotification = createNotificationType({
     return "Verify your email address to activate email subscriptions.";
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: () => <>Verify your email address to activate email subscriptions</>,
 });
@@ -680,7 +681,7 @@ export const PostSharedWithUserNotification = createNotificationType({
     return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
@@ -740,7 +741,7 @@ export const AlignmentSubmissionApprovalNotification = createNotificationType({
     } else throw new Error("documentType must be post or comment!")
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -805,7 +806,7 @@ export const KarmaPowersGainedNotification = createNotificationType({
     return tagGetUrl({slug: 'vote-strength'});
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   }
 })
 export const CancelledRSVPNotification = createNotificationType({
@@ -866,7 +867,7 @@ export const NewCommentOnDraftNotification = createNotificationType({
   },
   
   onsiteHoverView({notification}: {notification: NotificationsList}) {
-    return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
+    return <CommentOnYourDraftNotificationHover notification={notification}/>
   },
   
   getLink: ({documentType, documentId, extraData}: {
@@ -979,7 +980,7 @@ const notificationTypesArray: NotificationType[] = [
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 
 function groupNotificationTypesByUserSetting(notificationTypes: Record<string,NotificationType>) {
-  const result: Partial<Record<keyof DbUser, NotificationType>> = {};
+  const result: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = {};
   for (const notificationType of Object.values(notificationTypes)) {
     const { userSettingField } = notificationType;
     if (userSettingField) {
@@ -995,7 +996,7 @@ function groupNotificationTypesByUserSetting(notificationTypes: Record<string,No
   }
   return result;
 }
-const notificationTypesByUserSetting: Partial<Record<keyof DbUser, NotificationType>> = groupNotificationTypesByUserSetting(notificationTypes);
+const notificationTypesByUserSetting: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = groupNotificationTypesByUserSetting(notificationTypes);
 
 
 export const getNotificationTypes = () => {
@@ -1009,7 +1010,7 @@ export const getNotificationTypeByName = (name: string) => {
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): NotificationType => {
+export const getNotificationTypeByUserSetting = (settingName: keyof DbUser & `notification${string}`): NotificationType => {
   const result = notificationTypesByUserSetting[settingName];
   if (!result) throw new Error("Setting does not correspond to a notification type");
   return result;

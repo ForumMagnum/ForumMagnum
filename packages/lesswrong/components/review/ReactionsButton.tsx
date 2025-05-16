@@ -102,10 +102,6 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
   </span>
 }
 
-const ReactionsButtonComponent = registerComponent("ReactionsButton", ReactionsButton, {styles});
+export default registerComponent("ReactionsButton", ReactionsButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionsButton: typeof ReactionsButtonComponent
-  }
-}
+

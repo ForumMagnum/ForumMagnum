@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
@@ -8,6 +8,10 @@ import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../li
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
+import OverallVoteButton from "../../votes/OverallVoteButton";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import PostsItemDate from "../../posts/PostsItemDate";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -145,7 +149,6 @@ const styles = (theme: ThemeType) => ({
  * Given a post with a currentUserVote, return the icon representing that vote.
  */
 const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
-  const { OverallVoteButton } = Components
   switch (post.currentUserVote) {
     case 'smallUpvote':
     case 'bigUpvote':
@@ -226,9 +229,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     )
     flash({messageString: "Post copied"})
   }
-  
-  const { ForumIcon, LWTooltip, PostsItemDate } = Components
-  
   const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
@@ -287,10 +287,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   </tr>
 }
 
-const EditDigestTableRowComponent = registerComponent('EditDigestTableRow', EditDigestTableRow, {styles});
+export default registerComponent('EditDigestTableRow', EditDigestTableRow, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestTableRow: typeof EditDigestTableRowComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
@@ -11,7 +11,7 @@ import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
-import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
+import ForumEventResultIcon, { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
@@ -20,6 +20,11 @@ import { PartialDeep } from "type-fest";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { useMessages } from "../common/withMessages";
 import { useSingle } from "@/lib/crud/withSingle";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import UsersProfileImage from "../users/UsersProfileImage";
+import ForumEventCommentForm from "./ForumEventCommentForm";
+import Loading from "../vulcan-core/Loading";
 
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
@@ -397,8 +402,6 @@ function footnotesToTooltips({
   event: ForumEventsDisplay;
   classes: ClassesType<typeof styles>;
 }): React.ReactNode[] {
-  const { LWTooltip } = Components;
-
   const { document } = parseDocumentFromString(html);
 
   const footnotes = Array.from(document.querySelectorAll(".footnote-item"));
@@ -740,9 +743,6 @@ export const ForumEventPoll = ({
     flash
   ]);
   useEventListener("pointerup", saveVotePos);
-
-  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon, Loading } = Components;
-
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
   const tickPositions = useRef<number[]>([]);
@@ -855,7 +855,7 @@ export const ForumEventPoll = ({
                 {ticks.map((tickIndex) => (
                   <div
                     key={tickIndex}
-                    ref={(el) => (tickRefs.current[tickIndex] = el)}
+                    ref={(el) => {tickRefs.current[tickIndex] = el}}
                     className={classNames(
                       classes.tick,
                       isDragging.current && classes.tickDragging,
@@ -957,14 +957,10 @@ export const ForumEventPoll = ({
   );
 }
 
-const ForumEventPollComponent = registerComponent(
+export default registerComponent(
   "ForumEventPoll",
   ForumEventPoll,
   {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPoll: typeof ForumEventPollComponent
-  }
-}
+

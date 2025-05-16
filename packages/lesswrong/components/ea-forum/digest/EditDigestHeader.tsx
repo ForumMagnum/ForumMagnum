@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getDigestName } from '../../../lib/collections/digests/helpers';
 import moment from 'moment';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
+import { ColorPicker } from '@/components/form-components/FormComponentColorPicker';
+import EAButton from "../EAButton";
+import SectionTitle from "../../common/SectionTitle";
+import { DatePicker } from "../../form-components/FormComponentDateTime";
+import ForumIcon from "../../common/ForumIcon";
+import ImageUpload2 from "../../form-components/ImageUpload2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,15 +126,14 @@ export const EditDigestHeader = ({digest, classes}: {
     });
   }
   
-  const updateCurrentValues = async (data: AnyBecauseHard) => {
+  const updatePrimaryColor = async (color: string) => {
     void updateDigest({
       selector: {_id: digest._id},
-      data
+      data: {
+        onsitePrimaryColor: color,
+      },
     });
   }
-
-  const {EAButton, SectionTitle, DatePicker, ForumIcon, FormComponentColorPicker, ImageUpload2} = Components;
-
   const startNode = isEditingStartDate
     ? (
       <div className={classes.datePicker}>
@@ -201,10 +206,9 @@ export const EditDigestHeader = ({digest, classes}: {
       {isOnsiteSettingsExpanded && <div className={classes.onsiteDigestSettings}>
         <div className={classes.colorPickerRow}>
           <div className={classes.label}>Background fade color:</div>
-          <FormComponentColorPicker
+          <ColorPicker
             value={digest.onsitePrimaryColor}
-            updateCurrentValues={updateCurrentValues}
-            path="onsitePrimaryColor"
+            onChange={updatePrimaryColor}
           />
         </div>
         <div className={classes.imageUploadRow}>
@@ -222,10 +226,6 @@ export const EditDigestHeader = ({digest, classes}: {
   </div>
 }
 
-const EditDigestHeaderComponent = registerComponent('EditDigestHeader', EditDigestHeader, {styles});
+export default registerComponent('EditDigestHeader', EditDigestHeader, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestHeader: typeof EditDigestHeaderComponent
-  }
-}
+

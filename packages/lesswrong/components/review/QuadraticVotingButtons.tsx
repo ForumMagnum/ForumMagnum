@@ -37,10 +37,6 @@ const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {c
   </div>
 }
 
-const QuadraticVotingButtonsComponent = registerComponent("QuadraticVotingButtons", QuadraticVotingButtons, {styles});
+export default registerComponent("QuadraticVotingButtons", QuadraticVotingButtons, {styles});
 
-declare global {
-  interface ComponentTypes {
-    QuadraticVotingButtons: typeof QuadraticVotingButtonsComponent
-  }
-}
+

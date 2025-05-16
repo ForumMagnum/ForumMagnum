@@ -92,10 +92,6 @@ const FormGroupLayout = ({
   );
 };
 
-const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles});
+export default registerComponent('FormGroupLayout', FormGroupLayout, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FormGroupLayout: typeof FormGroupLayoutComponent
-  }
-}
+

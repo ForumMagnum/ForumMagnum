@@ -55,10 +55,6 @@ export const GlobalHotkeys = () => {
   return <></>;
 }
 
-const GlobalHotkeysComponent = registerComponent('GlobalHotkeys', GlobalHotkeys);
+export default registerComponent('GlobalHotkeys', GlobalHotkeys);
 
-declare global {
-  interface ComponentTypes {
-    GlobalHotkeys: typeof GlobalHotkeysComponent
-  }
-}
+

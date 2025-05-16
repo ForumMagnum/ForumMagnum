@@ -73,10 +73,6 @@ export const DebateTypingIndicator = ({classes, post}: {
   </div>;
 }
 
-const DebateTypingIndicatorComponent = registerComponent('DebateTypingIndicator', DebateTypingIndicator, {styles});
+export default registerComponent('DebateTypingIndicator', DebateTypingIndicator, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateTypingIndicator: typeof DebateTypingIndicatorComponent
-  }
-}
+

@@ -1,6 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import {isFriendlyUI} from '../../themes/forumTheme'
+import LWDialog from "../common/LWDialog";
+import LoginForm from "./LoginForm";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -21,8 +23,6 @@ const LoginPopup = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {LWDialog, LoginForm} = Components;
-
   if (isFriendlyUI) {
     return (
       <LoginForm onClose={onClose} />
@@ -34,19 +34,13 @@ const LoginPopup = ({onClose, classes}: {
       open={true}
       onClose={onClose}
       className={classes.dialog}
-      dialogClasses={{
-        paper: classes.paper
-      }}
+      paperClassName={classes.paper}
     >
       <LoginForm />
     </LWDialog>
   );
 }
 
-const LoginPopupComponent = registerComponent('LoginPopup', LoginPopup, {styles});
+export default registerComponent('LoginPopup', LoginPopup, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LoginPopup: typeof LoginPopupComponent
-  }
-}
+

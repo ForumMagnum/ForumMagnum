@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
 import { useSingle } from '@/lib/crud/withSingle';
-import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
@@ -11,7 +10,14 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import LWTooltip from "../common/LWTooltip";
+import FormatDate from "../common/FormatDate";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import { LlmChatMessage } from "./LanguageModelChat";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -116,7 +122,6 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, FormatDate, UsersNameDisplay } = Components;
   const isCurrentlySelected = currentConversationId === conversation._id;
   const { title, user, lastUpdatedAt, createdAt } = conversation;
 
@@ -184,7 +189,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   }, []);
 
   if (!results && loading) {
-    return <Components.Loading />
+    return <Loading />
   }
   
   if (!results) {
@@ -217,8 +222,6 @@ const LlmConversationViewer = ({conversationId, classes}: {
   conversationId?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, SectionTitle } = Components
-
   const { document: conversation, loading } = useSingle({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsWithMessagesFragment",
@@ -235,7 +238,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
 
   if (!conversation && loading) {
     return <div className={classes.conversationViewer}>
-      <Components.Loading />
+      <Loading />
     </div>
   }
 
@@ -262,7 +265,7 @@ export const LlmConversationsViewingPage = ({classes}: {
   const [currentConversationId, setCurrentConversationId] = useState<string>();
 
   if (!userIsAdmin(currentUser)) {
-    return <Components.Error404 />
+    return <Error404 />
   }
 
   return <AnalyticsContext pageContext="llmConversationViewingPage">
@@ -282,10 +285,6 @@ export const LlmConversationsViewingPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const LlmConversationsViewingPageComponent = registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
+export default registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LlmConversationsViewingPage: typeof LlmConversationsViewingPageComponent
-  }
-}
+

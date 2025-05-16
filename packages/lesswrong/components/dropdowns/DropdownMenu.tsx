@@ -26,14 +26,10 @@ const DropdownMenu = ({children, className, classes}: {
   );
 }
 
-const DropdownMenuComponent = registerComponent(
+export default registerComponent(
   "DropdownMenu",
   DropdownMenu,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownMenu: typeof DropdownMenuComponent
-  }
-}
+

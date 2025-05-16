@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { generateTextFragment } from './textFragmentHelpers'
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
@@ -133,6 +135,8 @@ export interface FeedContentBodyProps {
   hideSuffix?: boolean;
   /** when changed, resets expansion level to 0 */
   resetSignal?: number;
+  /** If true, use serif style for the content */
+  serifStyle?: boolean;
 }
 
 const FeedContentBody = ({
@@ -148,6 +152,7 @@ const FeedContentBody = ({
   clampOverride,
   hideSuffix,
   resetSignal,
+  serifStyle = false,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -279,6 +284,8 @@ const FeedContentBody = ({
   const isClickableForExpansion = !isMaxLevel;
   const generatedFragment = onContinueReadingClick ? generateTextFragment(truncatedHtmlWithoutSuffix, html) : undefined;
 
+  const styleType = serifStyle ? 'ultraFeedPost' : 'ultraFeed';
+
   return (
     <div
       className={classNames(
@@ -288,9 +295,9 @@ const FeedContentBody = ({
       )}
       onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
-      <Components.ContentStyles contentType="ultraFeed">
+      <ContentStyles contentType={styleType}>
         <div>
-          <Components.ContentItemBody
+          <ContentItemBody
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
             nofollow={nofollow}
             className={classNames({
@@ -301,7 +308,7 @@ const FeedContentBody = ({
             })}
           />
         </div>
-      </Components.ContentStyles>
+      </ContentStyles>
       {showContinueReadingAction && <div
         className={classes.readMoreButton}
         onClick={(e) => {
@@ -315,12 +322,8 @@ const FeedContentBody = ({
   );
 };
 
-const FeedContentBodyComponent = registerComponent('FeedContentBody', FeedContentBody);
+export default registerComponent('FeedContentBody', FeedContentBody);
 
-export default FeedContentBodyComponent;
 
-declare global {
-  interface ComponentTypes {
-    FeedContentBody: typeof FeedContentBodyComponent
-  }
-}
+
+

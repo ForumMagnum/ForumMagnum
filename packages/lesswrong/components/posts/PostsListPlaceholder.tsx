@@ -7,7 +7,7 @@ const PostsListPlaceholder = ({count, classes}: {
   count: number,
   classes: ClassesType<typeof styles>
 }) => {
-  let placeholders: Array<JSX.Element> = [];
+  let placeholders: Array<React.JSX.Element> = [];
   for(let i=0; i<count; i++) {
     placeholders.push(
       <div key={i} className={classNames(
@@ -25,10 +25,6 @@ const PostsListPlaceholder = ({count, classes}: {
   return <React.Fragment>{placeholders}</React.Fragment>;
 }
 
-const PostsListPlaceholderComponent = registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
+export default registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListPlaceholder: typeof PostsListPlaceholderComponent
-  }
-}
+

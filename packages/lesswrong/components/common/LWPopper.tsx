@@ -143,10 +143,6 @@ const LWPopper = ({
   }</>
 };
 
-const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});
+export default registerComponent('LWPopper', LWPopper, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPopper: typeof LWPopperComponent
-  }
-}
+

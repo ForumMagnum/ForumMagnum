@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
-import { SortableHandle as sortableHandle } from "react-sortable-hoc";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
+import { SummaryForm } from "./SummaryForm";
+import LWTooltip from "../common/LWTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import ForumIcon from "../common/ForumIcon";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -35,7 +39,7 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
       marginTop: 0,
       width: '100%',
     },
-    '& .form-component-default, & .MuiTextField-textField': {
+    '& .input-tabTitle, & .MuiTextField-textField': {
       marginBottom: 0,
       marginTop: 0,
       width: 150,
@@ -107,18 +111,6 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-  submitButtons: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    marginTop: 4,
-    marginBottom: -6,
-    justifyContent: 'end',
-    height: 36,
-  },
-  submitButton: {
-    color: theme.palette.secondary.main
-  },
-  cancelButton: {},
   deleteButton: {
     color: theme.palette.error.main,
   },
@@ -166,36 +158,20 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
       pointerEvents: 'none',
     },
   },
+  list: {
+    display: "flex",
+    flexDirection: "column",
+  },
 }));
 
 const NO_SUMMARIES_TEXT = "There are no custom summaries written for this page, so users will see an excerpt from the beginning of the page when hovering over links to this page.  You can create up to 3 custom summaries; by default you should avoid creating more than one summary unless the subject matter benefits substantially from multiple kinds of explanation.";
 const SUMMARIES_TEXT = "You can edit summaries by clicking on them, reorder them by dragging, or add a new one (up to 3).  By default you should avoid creating more than one summary unless the subject matter benefits substantially from multiple kinds of explanation.";
 const MAX_SUMMARIES_TEXT = "You can edit these summaries by clicking on them and reorder them by dragging.  Pages can have up to 3 summaries.";
 
-const SummarySubmitButtons = ({ submitForm, cancelCallback }: FormButtonProps) => {
-  const { Loading } = Components;
-  const classes = useStyles(styles);
-
-  const [loading, setLoading] = useState(false);
-
-  const wrappedSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLoading(true);
-    await submitForm(e);
-    setLoading(false);
-  }
-
-  return <div className={classes.submitButtons}>
-    {!loading && <Button onClick={cancelCallback} className={classes.cancelButton}>Cancel</Button>}
-    {!loading && <Button onClick={wrappedSubmitForm} className={classes.submitButton}>Submit</Button>}
-    {loading && <Loading />}
-  </div>
-};
-
 const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
   refetch: () => Promise<void>,
 }) => {
-  const { WrappedSmartForm, LWTooltip, ContentItemBody, ContentStyles, ForumIcon } = Components;
   const classes = useStyles(styles);
 
   const [edit, setEdit] = useState(false);
@@ -208,7 +184,7 @@ const SummaryEditorRow = ({ summary, refetch }: {
 
   return (<span className={classNames(classes.summaryEditorRow, edit && classes.editing)}>
     <div className={classNames(edit && classes.hide)} onClick={() => setEdit(true)}>
-      <LWTooltip title={tooltipContent} placement="right" className={classes.summaryTooltipWrapperElement}>
+      <LWTooltip title={tooltipContent} placement="bottom-end" className={classes.summaryTooltipWrapperElement}>
         <div className={classNames(classes.summaryTitle, summary.deleted && classes.deletedSummary)}>
           {summary.tabTitle}
           <ForumIcon icon="Edit" className={classes.editIcon} />
@@ -217,73 +193,57 @@ const SummaryEditorRow = ({ summary, refetch }: {
       </LWTooltip>
     </div>
     <div className={classNames(classes.summaryRowFormStyles, !edit && classes.hide)}>
-      <WrappedSmartForm
+      <SummaryForm
         key={mountKey}
-        collectionName="MultiDocuments"
-        documentId={summary._id}
-        mutationFragmentName={'MultiDocumentContentDisplay'}
-        queryFragmentName={'MultiDocumentContentDisplay'}
-        prefetchedDocument={summary}
-        successCallback={() => {
+        initialData={summary}
+        onSuccess={() => {
           setEdit(false);
           // This is a horrible hack to get around the problem where, because we initialize the page with the form mounted for snappy click-through,
           // clicking into the form a second time after editing a summary leaves us with an empty form.  (I still haven't figured out exactly why.)
           void refetch().then(() => setMountKey(mountKey + 1));
         }}
-        cancelCallback={() => setEdit(false)}
-        formComponents={{ FormSubmit: SummarySubmitButtons }}
-        removeFields={['title', 'tabSubtitle']}
+        onCancel={() => setEdit(false)}
       />
     </div>
   </span>);
 }
 
-const NewSummaryEditor = ({ parentDocument, refetchSummaries, setNewSummaryEditorOpen }: {
-  parentDocument: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
+interface NewSummaryEditorProps {
+  parentDocumentId: string,
+  collectionName: 'Tags' | 'MultiDocuments',
   refetchSummaries: () => Promise<void>,
   setNewSummaryEditorOpen: (open: boolean) => void,
-}) => {
-  const { WrappedSmartForm } = Components;
-  const classes = useStyles(styles);
+}
 
-  const collectionName: DbMultiDocument['collectionName'] = 'title' in parentDocument ? 'MultiDocuments' : 'Tags';
+const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, setNewSummaryEditorOpen }: NewSummaryEditorProps) => {
+  const classes = useStyles(styles);
 
   const wrappedSuccessCallback = async () => {
     await refetchSummaries();
     setNewSummaryEditorOpen(false);
   };
 
-  const prefilledProps = {
-    parentDocumentId: parentDocument._id,
-    collectionName,
-    fieldName: 'summary',
-  };
+  const prefilledProps = { parentDocumentId, collectionName };
 
   return <div className={classes.summaryRowFormStyles}>
-    <WrappedSmartForm
-      collectionName="MultiDocuments"
-      mutationFragmentName={'MultiDocumentContentDisplay'}
-      queryFragmentName={'MultiDocumentContentDisplay'}
-      successCallback={wrappedSuccessCallback}
-      cancelCallback={() => setNewSummaryEditorOpen(false)}
-      formComponents={{ FormSubmit: SummarySubmitButtons }}
-      formProps={{
-        editorHintText: "Write a custom summary to be displayed when users hover over links to this page.",
-      }}
+    <SummaryForm
       prefilledProps={prefilledProps}
+      onSuccess={wrappedSuccessCallback}
+      onCancel={() => setNewSummaryEditorOpen(false)}
     />
   </div>
 }
 
-const SortableRowHandle = sortableHandle(() => {
-  const { ForumIcon, LWTooltip } = Components;
+export const SortableRowHandle = ({children}: { children?: React.ReactNode }) => {
   const classes = useStyles(styles);
+
   return <span className={classes.dragHandle}>
     <LWTooltip title="Drag to reorder" placement='left'>
       <ForumIcon icon="DragIndicator" className={classes.dragIndicatorIcon} />
     </LWTooltip>
   </span>;
-});
+};
+
 
 function getSummariesHelpText(results: MultiDocumentContentDisplay[]) {
   if (results.length === 0) {
@@ -295,11 +255,12 @@ function getSummariesHelpText(results: MultiDocumentContentDisplay[]) {
   }
 }
 
-const SummariesEditForm = ({ document }: {
-  document: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
-}) => {
-  const { Loading, ForumIcon, LWTooltip } = Components;
+interface SummariesEditFormProps {
+  parentDocumentId: string,
+  collectionName: 'Tags' | 'MultiDocuments',
+}
 
+const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
@@ -309,7 +270,7 @@ const SummariesEditForm = ({ document }: {
     fragmentName: 'MultiDocumentContentDisplay',
     terms: {
       view: 'summariesByParentId',
-      parentDocumentId: document._id,
+      parentDocumentId,
     },
   });
 
@@ -319,17 +280,9 @@ const SummariesEditForm = ({ document }: {
     }
   `);
 
-  if (loading && !results) {
-    return <Loading />;
-  }
-
-  if (!results) {
-    return <span className={classes.root} />;
-  }
-
   const icon = newSummaryEditorOpen ? 'MinusSmall' : 'PlusSmall';
 
-  const showNewSummaryButton = results.length < 3;
+  const showNewSummaryButton = results && results.length < 3;
   const newSummaryButton = showNewSummaryButton && (
     <LWTooltip title="Add a new summary" placement="right" className={classes.newSummaryButtonTooltip}>
       <a onClick={() => setNewSummaryEditorOpen(!newSummaryEditorOpen)}>
@@ -338,19 +291,13 @@ const SummariesEditForm = ({ document }: {
     </LWTooltip>
   );
 
-  const topRow = <div className={classes.topRow}>
-    <span className={classes.topRowText}>
-      {getSummariesHelpText(results)}
-    </span>
-    {newSummaryButton}
-  </div>;
-
-  const summariesById = Object.fromEntries(results.map((summary) => [summary._id, summary]));
+  const summariesById = results ? Object.fromEntries(results.map((summary) => [summary._id, summary])) : {};
 
   // We need to do this inside of the component to get the summary by id, to pass through to SummaryEditorRow
   // Our sortable list wrapper currently only deal with arrays of strings, and it doesn't seem worth refactoring right now.
   const SortableSummaryRowList = makeSortableListComponent({
-    renderItem: ({contents, removeItem, classes}) => {
+    RenderItem: ({contents, removeItem}) => {
+      const classes = useStyles(styles);
       return <li className={classes.sortableListItem}>
         <SortableRowHandle />
         <SummaryEditorRow summary={summariesById[contents]} refetch={refetch} />
@@ -358,7 +305,20 @@ const SummariesEditForm = ({ document }: {
     }
   });
 
-  const parentDocumentCollectionName = 'title' in document ? 'MultiDocuments' : 'Tags';
+  if (loading && !results) {
+    return <Loading />;
+  }
+
+  if (!results) {
+    return <span className={classes.root} />;
+  }
+
+  const topRow = <div className={classes.topRow}>
+    <span className={classes.topRowText}>
+      {getSummariesHelpText(results)}
+    </span>
+    {newSummaryButton}
+  </div>;
 
   const displayedSummaries = reorderedSummaries
     ? reorderedSummaries.map((summaryId) => summariesById[summaryId])
@@ -366,31 +326,28 @@ const SummariesEditForm = ({ document }: {
 
   return <span className={classes.root}>
     {topRow}
-    {newSummaryEditorOpen && <NewSummaryEditor parentDocument={document} refetchSummaries={refetch} setNewSummaryEditorOpen={setNewSummaryEditorOpen} />}
+    {newSummaryEditorOpen && <NewSummaryEditor
+      parentDocumentId={parentDocumentId}
+      collectionName={collectionName}
+      refetchSummaries={refetch}
+      setNewSummaryEditorOpen={setNewSummaryEditorOpen}
+    />}
     <SortableSummaryRowList
       value={displayedSummaries.map((summary) => summary._id)}
+      axis="xy"
+      className={classes.list}
       setValue={(newValue: string[]) => {
         void reorderSummaries({
           variables: {
-            parentDocumentId: document._id,
-            parentDocumentCollectionName,
+            parentDocumentId,
+            parentDocumentCollectionName: collectionName,
             summaryIds: newValue,
           },
         });
         setReorderedSummaries(newValue);
       }}
-      useDragHandle={true}
-      classes={classes}
     />
   </span>;
 };
 
-const SummariesEditFormComponent = registerComponent("SummariesEditForm", SummariesEditForm);
-
-declare global {
-  interface ComponentTypes {
-    SummariesEditForm: typeof SummariesEditFormComponent
-  }
-}
-
-export default SummariesEditFormComponent;
+export default SummariesEditForm;

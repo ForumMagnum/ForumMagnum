@@ -1,7 +1,12 @@
 // Define source type arrays for runtime iteration
-export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks' ] as const;
-export const feedCommentSourceTypesArray = ['recentComments'] as const;
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptions' ] as const;
+export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks', 'subscriptions'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
+export const allFeedItemSourceTypes = [
+  ...feedPostSourceTypesArray,
+  ...feedCommentSourceTypesArray,
+  ...feedSpotlightSourceTypesArray,
+] as const;
 
 // Define types based on the arrays
 export type FeedPostSourceType = typeof feedPostSourceTypesArray[number];
@@ -44,6 +49,7 @@ export interface FeedCommentMetaInfo {
 
 export interface FeedCommentFromDb {
   commentId: string;
+  authorId: string;
   topLevelCommentId: string;
   postId: string;
   parentCommentId: string | null;
@@ -75,6 +81,11 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
+}
+
+export interface FeedPostStub {
+  postId: string;
+  postMetaInfo: FeedPostMetaInfo;
 }
 
 export interface FeedFullPost {
@@ -141,4 +152,11 @@ export interface LinearCommentThreadStatistics {
 
 export interface UltraFeedAnalyticsContext {
   sessionId: string;
+}
+export interface ThreadEngagementStats {
+  threadTopLevelId: string;
+  votingActivityScore: number;
+  participationCount: number;
+  viewScore: number;
+  isOnReadPost: boolean;
 }

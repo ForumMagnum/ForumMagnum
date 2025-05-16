@@ -4,10 +4,19 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
-import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/newSchema";
+import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import Error404 from "../common/Error404";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumDropdown from "../common/ForumDropdown";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -178,11 +187,6 @@ const SurveyForm = ({survey, refetch, classes}: {
     }
     setSaving(false);
   }, [updateSurvey, refetch, survey._id, name, questions]);
-
-  const {
-    EAOnboardingInput, EAButton, ForumIcon, LWTooltip, ForumDropdown,
-    SectionTitle, Loading,
-  } = Components;
   return (
     <div className={classes.form}>
       <EAOnboardingInput
@@ -266,8 +270,6 @@ const SurveyEditor = ({classes}: {
     fragmentName: "SurveyMinimumInfo",
     documentId: id,
   });
-
-  const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
@@ -295,17 +297,13 @@ const SurveyEditPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
-const SurveyEditPageComponent = registerComponent(
+export default registerComponent(
   "SurveyEditPage",
   SurveyEditPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyEditPage: typeof SurveyEditPageComponent
-  }
-}
+

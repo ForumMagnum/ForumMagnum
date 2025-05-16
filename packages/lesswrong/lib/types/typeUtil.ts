@@ -29,7 +29,9 @@ type TypesEqual<A,B, Equal,NotEqual> =
 type NonAnyFieldsOfType<Interface,Type> = {
   [K in keyof Interface]: IfAny<Interface[K],
     never,
-    TypesEqual<Interface[K],Type, K,never>
+    Interface[K] extends Type
+      ? (Type extends Interface[K] ? K : never)
+      : never
   >
 }[keyof Interface]
 
@@ -37,8 +39,14 @@ type NonAnyFieldsOfType<Interface,Type> = {
 type ReplaceFieldsOfType<Interface, FieldType,ReplacementType> = {
   [K in keyof Interface]: IfAny<Interface[K],
     any,
-    TypesEqual<Interface[K],FieldType, ReplacementType, Interface[K]>
+    Interface[K] extends FieldType
+      ? (FieldType extends Interface[K] ? ReplacementType : Interface[K])
+      : Interface[K]
   >
+}
+
+type OmitBySubtype<T, U> = {
+  [K in keyof T as IfAny<T[K], K, U extends T[K] ? never : K>]: T[K]
 }
 
 type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>
@@ -95,14 +103,6 @@ export type Json = boolean | number | string | null | JsonArray | JsonRecord
 type ComponentProps<C> = C extends React.ComponentType<infer P> ? P : never;
 
 type IsOptional<T, K extends keyof T> = undefined extends T[K] ? true : false;
-
-export type ComponentWithProps<T> = {
-  // The ternary here is to make sure e.g. `{onClose?: any}` only matches components that have onClose as an optional parameter,
-  // and not components that don't have it at all
-  [K in keyof ComponentTypes]: IsOptional<ComponentProps<ComponentTypes[K]>, keyof T & keyof ComponentProps<ComponentTypes[K]>> extends true
-    ? (ComponentProps<ComponentTypes[K]> extends T ? K : never)
-    : (ComponentProps<ComponentTypes[K]> extends Required<T> ? K : never)
-}[keyof ComponentTypes];
 
 }
 

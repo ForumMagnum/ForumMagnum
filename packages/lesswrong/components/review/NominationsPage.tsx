@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
@@ -10,6 +10,15 @@ import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
 import { eligibleToNominate, getReviewPeriodEnd, getReviewPeriodStart, REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import PostsByVoteWrapper from "../posts/PostsByVoteWrapper";
+import ReadHistoryTab from "../bookmarks/ReadHistoryTab";
+import PostsListUserCommentedOn from "./PostsListUserCommentedOn";
+import { Typography } from "../common/Typography";
+import LWTooltip from "../common/LWTooltip";
+import AllPostsPage from "../posts/AllPostsPage";
+import ExternalPostImporter from "../posts/ExternalPostImporter";
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -80,19 +89,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {location, query} = useLocation()
-  
-  const {
-    SectionTitle,
-    SingleColumnSection,
-    PostsByVoteWrapper,
-    ReadHistoryTab,
-    PostsListUserCommentedOn,
-    Typography,
-    LWTooltip,
-    AllPostsPage,
-    ExternalPostImporter,
-  } = Components
-
   if (!eligibleToNominate(currentUser)) {
     return <SingleColumnSection>
       <Typography variant="body2">
@@ -183,13 +179,9 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
   </AnalyticsContext>
 }
 
-const NominationsPageComponent = registerComponent("NominationsPage", NominationsPage, {
+export default registerComponent("NominationsPage", NominationsPage, {
   hocs: [withErrorBoundary],
   styles
 });
 
-declare global {
-  interface ComponentTypes {
-    NominationsPage: typeof NominationsPageComponent
-  }
-}
+

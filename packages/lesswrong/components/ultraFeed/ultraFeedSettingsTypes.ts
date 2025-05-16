@@ -3,56 +3,93 @@
  * This file defines the UltraFeed settings types and default values.
  */
 import { FeedItemSourceType } from './ultraFeedTypes';
+import { ZodFormattedError } from 'zod';
+
+
+export interface UltraFeedDisplaySettings {
+  postTruncationBreakpoints: number[];
+  lineClampNumberOfLines: number;
+  commentTruncationBreakpoints: number[];
+  postTitlesAreModals: boolean;
+}
 
 export interface UltraFeedResolverSettings {
+  incognitoMode: boolean;
   sourceWeights: Record<FeedItemSourceType, number>;
+  threadInterestModel: ThreadInterestModelSettings;
+  commentScoring: CommentScoringSettings;
+}
+
+export interface UltraFeedSettingsType {
+  displaySettings: UltraFeedDisplaySettings;
+  resolverSettings: UltraFeedResolverSettings;
+}
+
+const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
+  postTruncationBreakpoints: [200, 2000],
+  lineClampNumberOfLines: 2,
+  commentTruncationBreakpoints: [50, 200, 1000],
+  postTitlesAreModals: true,
+};
+
+export const SHOW_ALL_BREAKPOINT_VALUE = Number.MAX_SAFE_INTEGER;
+
+export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
+  'recombee-lesswrong-custom': 30,
+  'hacker-news': 30,
+  'recentComments': 60,
+  'spotlights': 10,
+  'bookmarks': 10,
+  'subscriptions': 10,
+};
+export interface CommentScoringSettings {
   commentDecayFactor: number;
   commentDecayBiasHours: number;
   ultraFeedSeenPenalty: number;
   quickTakeBoost: number;
+  commentSubscribedAuthorMultiplier: number;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
   threadScoreFirstN: number;
-  incognitoMode: boolean;
 }
 
-export interface UltraFeedDisplaySettings {
-  postTruncationBreakpoints: (number | null)[];
-  lineClampNumberOfLines: number;
-  commentTruncationBreakpoints: (number | null)[];
-  postTitlesAreModals: boolean;
+const DEFAULT_COMMENT_SCORING_SETTINGS: CommentScoringSettings = {
+  commentDecayFactor: 1.8,
+  commentDecayBiasHours: 2,
+  ultraFeedSeenPenalty: 0.1,
+  quickTakeBoost: 1.5,
+  commentSubscribedAuthorMultiplier: 2,
+  threadScoreAggregation: 'logSum',
+  threadScoreFirstN: 5,
+};
+export interface ThreadInterestModelSettings {
+  commentCoeff: number;
+  voteCoeff: number;
+  viewCoeff: number;
+  onReadPostFactor: number;
+  logImpactFactor: number;
+  minOverallMultiplier: number;
+  maxOverallMultiplier: number;
 }
 
-interface DefaultUltraFeedDisplaySettings {
-  postTruncationBreakpoints: (number | null)[];
-  lineClampNumberOfLines: number;
-  commentTruncationBreakpoints: (number | null)[];
-  postTitlesAreModals: boolean;
-}
+const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
+  commentCoeff: 5,
+  voteCoeff: 2,
+  viewCoeff: 1,
+  onReadPostFactor: 1.1,
+  logImpactFactor: 0.5,
+  minOverallMultiplier: 0.5,
+  maxOverallMultiplier: 20.0,
+};
 
-export type UltraFeedSettingsType = UltraFeedResolverSettings & UltraFeedDisplaySettings;
-
-type UltraFeedDefaultSettingsType = UltraFeedResolverSettings & DefaultUltraFeedDisplaySettings;
-export interface UltraFeedStoredSettings extends UltraFeedSettingsType {
-   viewMode?: 'simple' | 'advanced';
-}
-
-export const getResolverSettings = (settings: UltraFeedSettingsType): UltraFeedResolverSettings => ({
-  sourceWeights: settings.sourceWeights,
-  commentDecayFactor: settings.commentDecayFactor,
-  commentDecayBiasHours: settings.commentDecayBiasHours,
-  ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
-  quickTakeBoost: settings.quickTakeBoost,
-  threadScoreAggregation: settings.threadScoreAggregation,
-  threadScoreFirstN: settings.threadScoreFirstN,
-  incognitoMode: settings.incognitoMode,
-});
-
-export const getDisplaySettings = (settings: UltraFeedSettingsType): UltraFeedDisplaySettings => ({
-  postTruncationBreakpoints: settings.postTruncationBreakpoints,
-  lineClampNumberOfLines: settings.lineClampNumberOfLines,
-  commentTruncationBreakpoints: settings.commentTruncationBreakpoints,
-  postTitlesAreModals: settings.postTitlesAreModals,
-}); 
+export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
+  displaySettings: DEFAULT_DISPLAY_SETTINGS,
+  resolverSettings: {
+    incognitoMode: false,
+    sourceWeights: DEFAULT_SOURCE_WEIGHTS,
+    commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
+    threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
+  },
+};
 
 export interface SourceWeightConfig {
   key: FeedItemSourceType;
@@ -86,33 +123,12 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     label: "Your Bookmarks",
     description: "Items you've bookmarked will be included to remind you about them."
   },
+  {
+    key: 'subscriptions',
+    label: "Posts by Followed Users",
+    description: "Posts from users you've subscribed to or followed (for subscribed comments config, see Advanced Settings)."
+  },
 ];
-
-export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
-  'recombee-lesswrong-custom': 30,
-  'hacker-news': 30,
-  'recentComments': 60,
-  'spotlights': 10,
-  'bookmarks': 10,
-};
-
-export const DEFAULT_SETTINGS: UltraFeedDefaultSettingsType = {
-  // Display Settings Defaults
-  postTruncationBreakpoints: [200, 2000],
-  lineClampNumberOfLines: 2,
-  commentTruncationBreakpoints: [50, 200, 1000],
-  postTitlesAreModals: true,
-
-  // Resolver Settings Defaults
-  sourceWeights: DEFAULT_SOURCE_WEIGHTS,
-  commentDecayFactor: 1.8, 
-  commentDecayBiasHours: 2, 
-  ultraFeedSeenPenalty: 0.1, 
-  quickTakeBoost: 1.5, 
-  threadScoreAggregation: 'logSum', 
-  threadScoreFirstN: 5, 
-  incognitoMode: false, 
-};
 
 export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full', 'Unset'] as const;
 export type TruncationLevel = typeof truncationLevels[number];
@@ -126,112 +142,95 @@ export const levelToCommentLinesMap: Record<TruncationLevel, number> = {
   'Unset': 0,
 };
 
-export const levelToCommentBreakpointMap: Record<TruncationLevel, number | null | undefined> = {
+export const levelToCommentBreakpointMap: Record<TruncationLevel, number | undefined> = {
   'Very Short': 50,
   'Short': 100,
   'Medium': 200,
   'Long': 1000,
-  'Full': null,       // explicit "show all"
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
   'Unset': undefined  // not present
 };
 
-export const levelToPostBreakpointMap: Record<TruncationLevel, number | null | undefined> = {
+export const levelToPostBreakpointMap: Record<TruncationLevel, number | undefined> = {
   'Very Short': 50,
   'Short': 100,
   'Medium': 200,
   'Long': 2000,
-  'Full': null,       // explicit "show all"
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
   'Unset': undefined  // not present
 };
 
-export const getCommentBreakpointLevel = (breakpoint: number | null | undefined): TruncationLevel => {
-  if (breakpoint === null) return 'Full';
-  if (breakpoint === undefined) return 'Unset';
-  if (breakpoint <= 0) return 'Full';
+const getBreakpointLevelInternal = (
+  breakpoint: number | undefined,
+  levelMap: Record<TruncationLevel, number | undefined> 
+): TruncationLevel => {
+  if (breakpoint === undefined || breakpoint <= 0) return 'Unset';
+  if (breakpoint === SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
 
   let closestLevel: TruncationLevel = 'Very Short';
   let minDiff = Infinity;
+
   for (const level of truncationLevels) {
     if (level === 'Full' || level === 'Unset') continue;
-    const mapVal = levelToCommentBreakpointMap[level]; // Use comment map
+    const mapVal = levelMap[level]; 
     if (mapVal === undefined || mapVal === null) continue;
     const diff = Math.abs(mapVal - breakpoint);
-     if (diff < minDiff) {
-       minDiff = diff;
-       closestLevel = level;
-     } else if (diff === minDiff && levelToCommentBreakpointMap[level]! > levelToCommentBreakpointMap[closestLevel]!) {
-       closestLevel = level;
+    if (diff < minDiff) {
+      minDiff = diff;
+      closestLevel = level;
+    } else if (diff === minDiff && levelMap[level]! > levelMap[closestLevel]!) { 
+      closestLevel = level;
     }
   }
   return closestLevel;
 };
 
-export const getFirstCommentLevel = (lines: number, breakpoint: number | null | undefined): TruncationLevel => {
+export const getCommentBreakpointLevel = (breakpoint: number | undefined): TruncationLevel => {
+  return getBreakpointLevelInternal(breakpoint, levelToCommentBreakpointMap);
+};
+
+export const getFirstCommentLevel = (lines: number, breakpoint: number): TruncationLevel => {
   if (lines === 2) {
     return 'Very Short';
   }
   return getCommentBreakpointLevel(breakpoint);
 };
 
-export const getPostBreakpointLevel = (breakpoint: number | null | undefined): TruncationLevel => {
-  if (breakpoint === null) return 'Full';
-  if (breakpoint === undefined) return 'Unset';
-  if (breakpoint <= 0) return 'Full';
-
-  let closestLevel: TruncationLevel = 'Very Short';
-  let minDiff = Infinity;
-  for (const level of truncationLevels) {
-    if (level === 'Full' || level === 'Unset') continue;
-    const mapVal = levelToPostBreakpointMap[level]; // Use post map
-    if (mapVal === undefined || mapVal === null) continue;
-    const diff = Math.abs(mapVal - breakpoint);
-    if (diff < minDiff) {
-       minDiff = diff;
-       closestLevel = level;
-     } else if (diff === minDiff && levelToPostBreakpointMap[level]! > levelToPostBreakpointMap[closestLevel]!) {
-       closestLevel = level;
-    }
-  }
-  return closestLevel;
+export const getPostBreakpointLevel = (breakpoint: number | undefined): TruncationLevel => {
+  return getBreakpointLevelInternal(breakpoint, levelToPostBreakpointMap);
 };
 
 export interface SettingsFormState {
-  sourceWeights: Record<FeedItemSourceType, number | ''>;
-  postLevel0: TruncationLevel;
-  postLevel1: TruncationLevel;
-  postLevel2: TruncationLevel;
-  commentLevel0: TruncationLevel;
-  commentLevel1: TruncationLevel;
-  commentLevel2: TruncationLevel;
   incognitoMode: boolean;
-  quickTakeBoost: number;
-  // Advanced truncation settings
-  lineClampNumberOfLines: number | '';
-  postBreakpoints: (number | null | '')[];
-  commentBreakpoints: (number | null | '')[];
-  // Misc settings
-  ultraFeedSeenPenalty: number | '';
-  postTitlesAreModals: boolean;
+  sourceWeights: SourceWeightFormState;
+  displaySetting: DisplaySettingsFormState;
+  commentScoring: CommentScoringFormState;
+  threadInterestModel: ThreadInterestModelFormState;
 }
 
 export interface SettingsFormErrors {
-  sourceWeights: Record<FeedItemSourceType, boolean>;
-  postLevel0?: boolean;
-  postLevel1?: boolean;
-  postLevel2?: boolean;
-  commentLevel0?: boolean;
-  commentLevel1?: boolean;
-  commentLevel2?: boolean;
-  quickTakeBoost?: boolean;
-  // Advanced truncation errors
+  sourceWeights?: Record<FeedItemSourceType, boolean>;
   lineClampNumberOfLines?: boolean;
   postBreakpoints?: boolean;
   commentBreakpoints?: boolean;
-  // Misc errors
-  ultraFeedSeenPenalty?: boolean;
+  commentScoring?: ZodFormattedError<CommentScoringFormState, string> | null;
+  threadInterestModel?: ZodFormattedError<ThreadInterestModelFormState, string> | null;
 }
 
-export type TruncationGridFields = 'postLevel0' | 'postLevel1' | 'postLevel2' | 'commentLevel0' | 'commentLevel1' | 'commentLevel2';
+export type WithEmptyString<T> = T extends number | string ? T | '' : T;
 
+// Utility type to create a form state version of a settings object (allow values to be empty strings)
+export type ToFormState<T> = {
+  [P in keyof T]: T[P] extends (infer E)[]
+    ? (WithEmptyString<E>)[]
+    : WithEmptyString<T[P]>;
+};
+
+export type SourceWeightFormState = {
+  [key in FeedItemSourceType]: number | '';
+};
+export type DisplaySettingsFormState = ToFormState<typeof DEFAULT_SETTINGS["displaySettings"]>;
+export type CommentScoringFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["commentScoring"]>;
+export type ThreadInterestModelFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["threadInterestModel"]>;
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings';

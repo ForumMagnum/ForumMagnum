@@ -1,4 +1,4 @@
-import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedItemSourceType, FeedPostStub } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
@@ -61,12 +61,43 @@ export async function getRecommendedPostsForUltraFeed(
 }
 
 /**
+ * Fetches posts from subscribed users for UltraFeed.
+ */
+export async function getSubscribedPostsForUltraFeed(
+  context: ResolverContext,
+  limit: number,
+  settings: UltraFeedResolverSettings,
+  maxAgeDays: number
+): Promise<FeedPostStub[]> {
+  const { currentUser, repos } = context;
+
+  if (!currentUser?._id) {
+    return [];
+  }
+
+  const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
+    currentUser._id,
+    maxAgeDays,
+    limit
+  );
+
+  return postIdsFromRepo.map(({ postId }): FeedPostStub => ({
+    postId: postId,
+    postMetaInfo: {
+      sources: ['subscriptions' as const],
+      displayStatus: 'expanded',
+    },
+  }));
+}
+
+/**
  * Fetches the latest posts for UltraFeed by approx Hacker News algorithm
  */
 export async function getLatestPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  settings: UltraFeedResolverSettings
+  settings: UltraFeedResolverSettings,
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
@@ -78,13 +109,14 @@ export async function getLatestPostsForUltraFeed(
 
   const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-  const seenPenalty = settings.ultraFeedSeenPenalty;
+  // TODO: this is for posts and shouldn't be coming out of the comment scoring settings
+  const seenPenalty = settings.commentScoring.ultraFeedSeenPenalty;
 
   return await repos.posts.getLatestPostsForUltraFeed(
     context,
     filterSettings,
     seenPenalty,
-    60,
+    maxAgeDays,
     hiddenPostIds,
     limit
   );
@@ -98,7 +130,8 @@ export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
   latestPostsLimit: number,
-  settings: UltraFeedResolverSettings
+  settings: UltraFeedResolverSettings,
+  latestPostsMaxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const recombeeScenario = 'recombee-lesswrong-custom';
 
@@ -107,7 +140,7 @@ export async function getUltraFeedPostThreads(
       ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
     (latestPostsLimit > 0)
-      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings)
+      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays)
       : Promise.resolve([]),
   ]);
 

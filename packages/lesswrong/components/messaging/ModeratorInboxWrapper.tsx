@@ -1,16 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import InboxNavigation from "./InboxNavigation";
+import FriendlyInbox from "./FriendlyInbox";
 
 const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
-
-  const { InboxNavigation, FriendlyInbox } = Components
-
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
@@ -35,10 +34,6 @@ const ModeratorInboxWrapper = () => {
   );
 }
 
-const ModeratorInboxWrapperComponent = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);
+export default registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);
 
-declare global {
-  interface ComponentTypes {
-    ModeratorInboxWrapper: typeof ModeratorInboxWrapperComponent
-  }
-}
+

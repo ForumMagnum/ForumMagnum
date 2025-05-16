@@ -1,6 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
+import SearchAutoComplete from "./SearchAutoComplete";
+import TagSearchHit from "../tagging/TagSearchHit";
 
 const TagsSearchAutoComplete = ({
   clickAction,
@@ -15,21 +17,17 @@ const TagsSearchAutoComplete = ({
   facetFilters?: Record<string, boolean>,
   isVotingContext?: boolean
 }) => {
-  return <Components.SearchAutoComplete
+  return <SearchAutoComplete
     indexName={getSearchIndexName("Tags")}
     clickAction={clickAction}
-    renderSuggestion={(hit: any) => <Components.TagSearchHit hit={hit} hidePostCount={hidePostCount} isVotingContext={isVotingContext} />}
+    renderSuggestion={(hit: any) => <TagSearchHit hit={hit} hidePostCount={hidePostCount} isVotingContext={isVotingContext} />}
     placeholder={placeholder}
     noSearchPlaceholder='Tag ID'
     facetFilters={facetFilters}
   />
 }
 
-const TagsSearchAutoCompleteComponent = registerComponent("TagsSearchAutoComplete", TagsSearchAutoComplete);
+export default registerComponent("TagsSearchAutoComplete", TagsSearchAutoComplete);
 
-declare global {
-  interface ComponentTypes {
-    TagsSearchAutoComplete: typeof TagsSearchAutoCompleteComponent
-  }
-}
+
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
-import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/newSchema";
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
 import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
@@ -310,7 +310,7 @@ const utils = {
     }
   },
 
-  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbInsertion<DbPost>) => {
+  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbPost) => {
     const oldLocation = oldPost.googleLocation?.geometry?.location;
     const newLocation = newPost.googleLocation?.geometry?.location;
     if (!!oldLocation !== !!newLocation) {

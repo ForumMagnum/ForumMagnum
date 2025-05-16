@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { Card } from "@/components/widgets/Paper";
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import Row from "../common/Row";
+import MetaInfo from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,8 +63,6 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
 }) => {
   const currentUser = useCurrentUser()
   const [truncated, setTruncated] = useState<boolean>(true)
-  const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
-
   // TODO find the place in the code where this is normally set
   const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
     if (user?.karma && user?.karma >= 1000) {
@@ -105,7 +108,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
         </div>
         <div className={classes.reviews}>{reviewUser.reviews.map(review => {
           return <LWTooltip placement="bottom-start" title={<div className={classes.card}>
-            <CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
+            <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
             <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
               <MetaInfo>{(review.baseScore ?? 0) - getSelfUpvotePower(review.user)}</MetaInfo>
             </a>
@@ -134,11 +137,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   </div>
 }
 
-const ReviewsLeaderboardComponent = registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
+export default registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewsLeaderboard: typeof ReviewsLeaderboardComponent
-  }
-}
+
 

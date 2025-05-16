@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useBookmarkPost } from '../hooks/useBookmarkPost';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
-
+import { useBookmark } from '../hooks/useBookmark';
+import LWTooltip from '../common/LWTooltip';
+import ForumIcon from '../common/ForumIcon';
+import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
 const styles = (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
@@ -31,24 +33,28 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
+
 const BookmarkButton = ({
-  post,
+  documentId,
+  collectionName,
   withText,
   placement="right",
+  overrideTooltipText,
   className,
   classes,
 }: {
-  post: PostsMinimumInfo,
+  documentId: string,
+  collectionName: BookmarkableCollectionName,
   withText?: boolean,
   placement?: PopperPlacementType,
+  overrideTooltipText?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {icon, labelText, hoverText, toggleBookmark} = useBookmarkPost(post);
+  const {icon, labelText, hoverText, toggleBookmark} = useBookmark(documentId, collectionName);
   const Component = withText ? "a" : "span";
-  const {LWTooltip, ForumIcon} = Components;
   return (
-    <LWTooltip title={hoverText} placement={withText ? "bottom" : placement}>
+    <LWTooltip title={overrideTooltipText ?? hoverText} placement={withText ? "bottom" : placement}>
       <Component onClick={toggleBookmark} className={classNames({
         [classes.container]: !withText,
         [classes.iconWithText]: withText,
@@ -63,13 +69,9 @@ const BookmarkButton = ({
   );
 }
 
-const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, {
+export default registerComponent('BookmarkButton', BookmarkButton, {
   styles,
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarkButton: typeof BookmarkButtonComponent
-  }
-}
+

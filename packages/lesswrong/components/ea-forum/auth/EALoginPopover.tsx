@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
@@ -11,6 +11,10 @@ import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instan
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
 import { captureException } from '@sentry/core';
 import { auth0FacebookLoginEnabled } from "@/lib/publicSettings";
+import BlurredBackgroundModal from "../../common/BlurredBackgroundModal";
+import ForumIcon from "../../common/ForumIcon";
+import EAButton from "../EAButton";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -234,9 +238,7 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
-const FACEBOOK_DEFAULT_ENABLED = auth0FacebookLoginEnabled.get()
-
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
+export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = auth0FacebookLoginEnabled.get(), googleEnabled = true, classes}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
@@ -401,8 +403,6 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
       : "Welcome back";
 
   const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
-
-  const {BlurredBackgroundModal, ForumIcon, EAButton, Loading} = Components;
   return (
     <BlurredBackgroundModal open={open} onClose={onClose} className={classes.root}>
       <AnalyticsContext pageElementContext="loginPopover">
@@ -563,14 +563,10 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   );
 }
 
-const EALoginPopoverComponent = registerComponent(
+export default registerComponent(
   "EALoginPopover",
   EALoginPopover,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EALoginPopover: typeof EALoginPopoverComponent
-  }
-}
+

@@ -15,7 +15,11 @@ export const PostsMinimumInfo = () => frag`
       quadraticScore
     }
     userId
-    coauthorStatuses
+    coauthorStatuses {
+      userId
+      confirmed
+      requested
+    }
     hasCoauthorPermission
     rejected
     debate
@@ -213,6 +217,8 @@ export const UltraFeedPostFragment = () => frag`
       html
       htmlHighlight
       wordCount
+      plaintextDescription
+      version
     }
     autoFrontpage
     votingSystem
@@ -316,7 +322,11 @@ export const PostsList = () => frag`
       wordCount
       version
     }
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
   }
 `
 
@@ -441,7 +451,11 @@ export const PostsDetails = () => frag`
     activateRSVPs
 
     # Crossposting
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
 
     # Jargon Terms
     glossary {
@@ -572,9 +586,17 @@ export const PostsEdit = () => frag`
     ...PostSideComments
     myEditorAccess
     version
-    coauthorStatuses
+    coauthorStatuses {
+      userId
+      confirmed
+      requested
+    }
     readTimeMinutesOverride
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
     hideFromRecentDiscussions
     hideFromPopularComments
     moderationGuidelines {
@@ -586,7 +608,10 @@ export const PostsEdit = () => frag`
     tableOfContents
     subforumTagId
     socialPreviewImageId
-    socialPreview
+    socialPreview {
+      imageId
+      text
+    }
     socialPreviewData {
       _id
       imageId
@@ -594,6 +619,9 @@ export const PostsEdit = () => frag`
     }
     user {
       ...UsersMinimumInfo
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
     }
     usersSharedWith {
       ...UsersMinimumInfo
@@ -667,7 +695,11 @@ export const SunshinePostsList = () => frag`
 
     currentUserVote
     currentUserExtendedVote
-    fmCrosspost
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
     rejectedReason
     autoFrontpage
 
@@ -677,6 +709,18 @@ export const SunshinePostsList = () => frag`
       htmlHighlight
       wordCount
       version
+
+      automatedContentEvaluations {
+        _id
+        score
+        sentenceScores {
+          sentence
+          score
+        }
+        aiChoice
+        aiReasoning
+        aiCoT
+      }
     }
 
     moderationGuidelines {

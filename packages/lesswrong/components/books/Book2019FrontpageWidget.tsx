@@ -1,9 +1,13 @@
 import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import LoginPopup from "../users/LoginPopup";
+import BookCheckout from "../review/BookCheckout";
+import Book2019Animation from "./Book2019Animation";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -118,7 +122,6 @@ const styles = (theme: ThemeType) => ({
 const Book2019FrontpageWidget = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { BookCheckout, Book2019Animation, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -139,7 +142,7 @@ const Book2019FrontpageWidget = ({ classes }: {
     } else {
       openDialog({
         name: "LoginPopup",
-        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     }
   }
@@ -149,8 +152,8 @@ const Book2019FrontpageWidget = ({ classes }: {
   const BookMarketingText = ({title, subtitle, description, buttons}: {
     title: string;
     subtitle: string;
-    description: string | JSX.Element;
-    buttons: JSX.Element;
+    description: string | React.JSX.Element;
+    buttons: React.JSX.Element;
   }) => {
     return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
@@ -205,10 +208,6 @@ const Book2019FrontpageWidget = ({ classes }: {
 }
 
 
-const Book2019FrontpageWidgetComponent = registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidget, { styles });
+export default registerComponent('Book2019FrontpageWidget', Book2019FrontpageWidget, { styles });
 
-declare global {
-  interface ComponentTypes {
-    Book2019FrontpageWidget: typeof Book2019FrontpageWidgetComponent
-  }
-}
+

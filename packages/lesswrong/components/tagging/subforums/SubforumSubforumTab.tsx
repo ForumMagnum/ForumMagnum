@@ -1,15 +1,25 @@
 import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/newSchema';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { ObservableQuery } from '@apollo/client';
+import CommentPermalink from "../../comments/CommentPermalink";
+import MixedTypeFeed from "../../common/MixedTypeFeed";
+import RecentDiscussionThread from "../../recentDiscussion/RecentDiscussionThread";
+import CommentWithReplies from "../../comments/CommentWithReplies";
+import PostsList2 from "../../posts/PostsList2";
+import CommentsListCondensed from "../../common/CommentsListCondensed";
+import ShortformSubmitForm from "../../shortform/ShortformSubmitForm";
+import LoginForm from "../../users/LoginForm";
+import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
+import PostsLayoutDropdown from "../../posts/PostsLayoutDropdown";
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -70,19 +80,6 @@ const SubforumSubforumTab = ({
   setNewShortformOpen: (open: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    CommentPermalink,
-    MixedTypeFeed,
-    RecentDiscussionThread,
-    CommentWithReplies,
-    PostsList2,
-    CommentsListCondensed,
-    ShortformSubmitForm,
-    LoginForm,
-    PostsListSortDropdown,
-    PostsLayoutDropdown,
-  } = Components;
-
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
@@ -241,7 +238,7 @@ const SubforumSubforumTab = ({
     </div>
   );
 
-  const layoutComponents: Record<PostsLayout, JSX.Element> = {
+  const layoutComponents: Record<PostsLayout, React.JSX.Element> = {
     card: cardLayoutComponent,
     list: listLayoutComponent
   }
@@ -280,12 +277,8 @@ const SubforumSubforumTab = ({
   );
 }
 
-const SubforumSubforumTabComponent = registerComponent(
+export default registerComponent(
   'SubforumSubforumTab', SubforumSubforumTab, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SubforumSubforumTab: typeof SubforumSubforumTabComponent
-  }
-}
+

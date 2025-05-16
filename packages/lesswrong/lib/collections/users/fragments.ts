@@ -114,7 +114,13 @@ export const UsersCurrent = () => frag`
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
-    expandedFrontpageSections
+    expandedFrontpageSections {
+      community
+      recommendations
+      quickTakes
+      quickTakesCommunity
+      popularComments
+    }
     hidePostsRecommendations
     currentFrontpageFilter
     frontpageSelectedTab
@@ -172,9 +178,14 @@ export const UsersCurrent = () => frag`
     recommendationSettings
     theme
 
-    bookmarkedPostsMetadata
+    bookmarkedPostsMetadata {
+      postId
+    }
 
-    hiddenPostsMetadata
+    hiddenPostsMetadata {
+      postId
+    }
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -597,6 +608,8 @@ export const UsersEdit = () => frag`
     notificationNewMention
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
+    notificationDialogueMessages
+    notificationPublishedDialogueMessages
 
     hideFrontpageMap
     hideTaggingProgressBar
