@@ -11,7 +11,7 @@
     "migrate": "ts-node -r tsconfig-paths/register --project tsconfig-repl.json ./migrate.ts",
     "gfrepl": "NODE_OPTIONS='--inspect --no-deprecation' SETTINGS_FILE=settings-local-dev-devdb-ea.json ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
     "repl": "NODE_OPTIONS='--inspect --no-deprecation' ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
-    "upload-ckeditor-bundle": "node -r tsconfig-paths/register deployCkEditorBundle",
+    "upload-ckeditor-bundle": "ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json ./deployCkEditorBundle.ts",
     "branchdb": "ts-node -r tsconfig-paths/register scripts/branchDb.ts",
     "start": "yarn start-local-db",
     "start-local-db": "ts-node --transpile-only ./build.ts -run --watch --lint --settings settings-dev.json --db ../LessWrong-Credentials/connectionConfigs/local.json",

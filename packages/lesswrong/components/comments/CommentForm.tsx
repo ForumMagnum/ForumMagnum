@@ -277,7 +277,7 @@ export const CommentForm = ({
 
         if (formType === 'new') {
           const { af, ...rest } = formApi.state.values;
-          const submitData = showAfCheckbox ? { ...rest, af } : rest;
+          const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
 
           const { data } = await create({ data: submitData });
           result = data?.createComment.data;
