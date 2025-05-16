@@ -174,15 +174,18 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
   data = setPostUndraftedFields(data, updateCallbackProperties);
   data = scheduleCoauthoredPostWhenUndrafted(data, updateCallbackProperties);
-  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
-  // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
-  data = await handleCrosspostUpdate(context, data, updateCallbackProperties);
   data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({
     docData: data,
     props: updateCallbackProperties,
   });
+
+  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
+  // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
+  // TODO TODO: I'm still confused
+  // This has to be done _after_ the new revision is created
+  data = await handleCrosspostUpdate(context, data, updateCallbackProperties);
 
   let modifier = dataToModifier(data);
   modifier = clearCourseEndTime(modifier, oldDocument);
