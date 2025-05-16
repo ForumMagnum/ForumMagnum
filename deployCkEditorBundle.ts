@@ -1,27 +1,35 @@
-// @ts-check
 /**
  * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [forumType]
  *
  * If no environment is specified, you can use the environment variables PG_URL
  * and SETTINGS_FILE
  */
-require("ts-node/register");
-const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
-const { exec } = require('child_process');
-const { promisify } = require('util');
+import { getDatabaseConfig, startSshTunnel } from "./scripts/startup/buildUtil";
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-const initGlobals = (args, isProd) => {
+const initGlobals = (args: any, isProd: boolean) => {
+  // @ts-ignore
   global.bundleIsServer = true;
+  // @ts-ignore
   global.bundleIsTest = false;
+  // @ts-ignore
   global.bundleIsIntegrationTest = false;
+  // @ts-ignore
   global.bundleIsCodegen = false;
+  // @ts-ignore
   global.bundleIsE2E = false;
+  // @ts-ignore
   global.bundleIsProduction = isProd;
+  // @ts-ignore
   global.bundleIsMigrations = true;
+  // @ts-ignore
   global.enableVite = false;
+  // @ts-ignore
   global.defaultSiteAbsoluteUrl = "";
+
   global.serverPort = 5001;
   global.estrellaPid = -1;
 
@@ -29,9 +37,7 @@ const initGlobals = (args, isProd) => {
   getInstanceSettings(args); // These args will be cached for later
 }
 
-const fetchImports = (args, isProd) => {
-  initGlobals(args, isProd);
-
+const fetchImports = () => {
   const { ckEditorApi: { checkEditorBundle, uploadEditorBundle } } = require('./packages/lesswrong/server/ckEditor/ckEditorApi');
   const { ckEditorBundleVersion } = require('./packages/lesswrong/lib/wrapCkEditor')
 
@@ -55,11 +61,11 @@ const credentialsPath = (forumType) => {
   return `${base}/${repoName}`;
 }
 
-const settingsFilePath = (fileName, forumType) => {
+const settingsFilePath = (fileName: string, forumType: string) => {
   return `${credentialsPath(forumType)}/${fileName}`;
 }
 
-const databaseConfig = (mode, forumType) => {
+const databaseConfig = (mode: string, forumType: string): Partial<{ postgresUrl: string; sshTunnelCommand: string[] | null }> => {
   if (!mode) {
     return {};
   }
@@ -77,7 +83,7 @@ const databaseConfig = (mode, forumType) => {
   return getDatabaseConfig(configPath);
 };
 
-const settingsFileName = (mode, forumType) => {
+const settingsFileName = (mode: string, forumType: string) => {
   if (!mode) {
     // With the state of the code when this comment was written, this indicates
     // an error condition, but it will be handled later, around L60
@@ -114,10 +120,12 @@ const settingsFileName = (mode, forumType) => {
   
   await startSshTunnel(databaseConfig(mode, forumType).sshTunnelCommand);
 
-  const { ckEditorBundleVersion, checkEditorBundle, uploadEditorBundle } = fetchImports(args, mode === "prod");
+  initGlobals(args, mode === "prod");
 
   const {initServer} = require("./packages/lesswrong/server/serverStartup");
   await initServer(args);
+
+  const { ckEditorBundleVersion, checkEditorBundle, uploadEditorBundle } = fetchImports();
 
   let exitCode = 0;
 

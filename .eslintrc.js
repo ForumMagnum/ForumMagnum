@@ -190,9 +190,8 @@ module.exports = {
     // interface members non-optional.
     "@typescript-eslint/member-delimiter-style": 0,
     
-    // type-annotation-spacing: Disabled. Would enforce spaces around => and
-    // after : in type annotations.
-    "@typescript-eslint/type-annotation-spacing": 0,
+    // type-annotation-spacing: Enforces spaces around => and after : in type annotations.
+    "@stylistic/ts/type-annotation-spacing": 1,
     
     // no-empty-function: Disabled. Would forbid functions with empty bodies.
     "@typescript-eslint/no-empty-function": 0,
@@ -211,6 +210,15 @@ module.exports = {
     
     // no-this-alias. Currently disabled. Would forbid 'const self=this'.
     "@typescript-eslint/no-this-alias": 0,
+
+    // no-require-imports: Disabled. Would forbit any usage of require()
+    "@typescript-eslint/no-require-imports": 0,
+
+    // consistent-type-imports: Would enforce that imports of types use "import type"
+    "@typescript-eslint/consistent-type-imports": 0,
+
+    // no-empty-object-type: Forbids using {} as a type
+    "@typescript-eslint/no-empty-object-type": 0,
     
     // class-name-casing: Disabled. Forbids types from deviating from upper-
     // camelcase, which would forbid the naming convention we are using for
@@ -249,8 +257,13 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
-    "@typescript-eslint/type-annotation-spacing": 1,
-    "@typescript-eslint/switch-exhaustiveness-check": 1,
+
+    "@typescript-eslint/no-unused-expressions": 0,
+    "@typescript-eslint/no-unsafe-function-type": 0,
+
+    "@typescript-eslint/switch-exhaustiveness-check": [1, {
+      considerDefaultExhaustiveForUnions: true
+    }],
 
     "no-barrel-files/no-barrel-files": 1,
   },
@@ -286,7 +299,8 @@ module.exports = {
     "react",
     "react-hooks",
     "import",
-    "no-barrel-files"
+    "no-barrel-files",
+    "@stylistic/ts",
   ],
   "settings": {
     "import/core-modules": [

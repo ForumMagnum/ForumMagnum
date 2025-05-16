@@ -73,6 +73,21 @@ CREATE TABLE "ArbitalTagContentRels" (
 -- Index "idx_ArbitalTagContentRels_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
 
+-- Table "AutomatedContentEvaluations"
+CREATE TABLE "AutomatedContentEvaluations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "score" DOUBLE PRECISION NOT NULL,
+  "sentenceScores" JSONB NOT NULL,
+  "aiChoice" TEXT NOT NULL,
+  "aiReasoning" TEXT NOT NULL,
+  "aiCoT" TEXT NOT NULL
+);
+
+-- Index "idx_AutomatedContentEvaluations_revisionId"
+CREATE INDEX IF NOT EXISTS "idx_AutomatedContentEvaluations_revisionId" ON "AutomatedContentEvaluations" USING btree ("revisionId");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -92,6 +107,23 @@ CREATE INDEX IF NOT EXISTS "idx_Bans_schemaVersion" ON "Bans" USING btree ("sche
 
 -- Index "idx_Bans_ip"
 CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");
+
+-- Table "Bookmarks"
+CREATE TABLE "Bookmarks" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "active" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_Bookmarks_userId_documentId_collectionName"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Bookmarks_userId_documentId_collectionName" ON "Bookmarks" USING btree ("userId", "documentId", "collectionName");
+
+-- Index "idx_Bookmarks_userId_active_lastUpdated"
+CREATE INDEX IF NOT EXISTS "idx_Bookmarks_userId_active_lastUpdated" ON "Bookmarks" USING btree ("userId", "active", "lastUpdated");
 
 -- Table "Books"
 CREATE TABLE "Books" (
@@ -564,22 +596,6 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_forumEventId_userId_postedAt_authorIsUn
   "debateResponse"
 );
 
--- Index "idx_comments_alignmentSuggestedComments"
-CREATE INDEX IF NOT EXISTS "idx_comments_alignmentSuggestedComments" ON "Comments" USING gin (
-  "reviewForAlignmentUserId",
-  "af",
-  "suggestForAlignmentUserIds",
-  "postedAt",
-  "authorIsUnreviewed",
-  "deleted",
-  "deletedPublic",
-  "hideAuthor",
-  "userId",
-  "debateResponse"
-)
-WHERE
-  ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
-
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
 
@@ -594,7 +610,7 @@ CREATE TABLE "Conversations" (
   "legacyData" JSONB,
   "title" TEXT,
   "participantIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "latestActivity" TIMESTAMPTZ,
+  "latestActivity" TIMESTAMPTZ NOT NULL,
   "af" BOOL,
   "messageCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "moderator" BOOL,
@@ -908,7 +924,7 @@ CREATE TABLE "FeaturedResources" (
   "body" TEXT,
   "ctaText" TEXT NOT NULL,
   "ctaUrl" TEXT NOT NULL,
-  "expiresAt" TIMESTAMPTZ
+  "expiresAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_FeaturedResources_schemaVersion"
@@ -951,7 +967,7 @@ CREATE TABLE "ForumEvents" (
   "postPageDescription_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ,
   "darkColor" TEXT NOT NULL DEFAULT '#000000',
   "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
   "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',
@@ -960,6 +976,7 @@ CREATE TABLE "ForumEvents" (
   "postId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
+  "isGlobal" BOOL NOT NULL DEFAULT TRUE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
   "pollQuestion_latest" TEXT,
   "pollAgreeWording" TEXT,
@@ -1155,10 +1172,10 @@ CREATE TABLE "Localgroups" (
   "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
-  "name" TEXT,
+  "name" TEXT NOT NULL,
   "nameInAnotherLanguage" TEXT,
   "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "lastActivity" TIMESTAMPTZ,
+  "lastActivity" TIMESTAMPTZ NOT NULL,
   "types" TEXT[] NOT NULL DEFAULT '{''LW''}',
   "categories" TEXT[],
   "isOnline" BOOL NOT NULL DEFAULT FALSE,
@@ -1608,7 +1625,7 @@ CREATE TABLE "Posts" (
   "postCategory" TEXT NOT NULL DEFAULT 'post',
   "title" VARCHAR(500) NOT NULL,
   "viewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "lastCommentedAt" TIMESTAMPTZ,
+  "lastCommentedAt" TIMESTAMPTZ NOT NULL,
   "clickCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "deletedDraft" BOOL NOT NULL DEFAULT FALSE,
   "status" DOUBLE PRECISION NOT NULL,
@@ -2572,7 +2589,7 @@ CREATE TABLE "Revisions" (
   "documentId" TEXT,
   "collectionName" TEXT,
   "fieldName" TEXT,
-  "editedAt" TIMESTAMPTZ,
+  "editedAt" TIMESTAMPTZ NOT NULL,
   "autosaveTimeoutStart" TIMESTAMPTZ,
   "updateType" TEXT,
   "version" TEXT NOT NULL,
@@ -2589,7 +2606,6 @@ CREATE TABLE "Revisions" (
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
   "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
   "afVoteCount" DOUBLE PRECISION
@@ -3112,6 +3128,17 @@ CREATE TABLE "UltraFeedEvents" (
 -- Index "idx_ultraFeedEvents_document_user_event_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_document_user_event_createdAt" ON "UltraFeedEvents" USING btree ("documentId", "userId", "eventType", "createdAt");
 
+-- Index "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx" ON "UltraFeedEvents" USING btree (
+  "userId",
+  "collectionName",
+  "eventType",
+  "createdAt"
+);
+
+-- Index "idx_ultraFeedEvents_userId_collectionName_documentId_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_documentId_idx" ON "UltraFeedEvents" USING btree ("userId", "collectionName", "documentId");
+
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3209,7 +3236,7 @@ CREATE TABLE "UserRateLimits" (
   "intervalUnit" TEXT NOT NULL,
   "intervalLength" DOUBLE PRECISION NOT NULL,
   "actionsPerInterval" DOUBLE PRECISION NOT NULL,
-  "endedAt" TIMESTAMPTZ
+  "endedAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_UserRateLimits_schemaVersion"
@@ -3224,7 +3251,7 @@ CREATE TABLE "UserTagRels" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "tagId" VARCHAR(27),
+  "tagId" VARCHAR(27) NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "subforumLastVisitedAt" TIMESTAMPTZ,
   "subforumShowUnreadInSidebar" BOOL NOT NULL DEFAULT TRUE,
@@ -3236,7 +3263,7 @@ CREATE TABLE "UserTagRels" (
 CREATE INDEX IF NOT EXISTS "idx_UserTagRels_schemaVersion" ON "UserTagRels" USING btree ("schemaVersion");
 
 -- Index "idx_UserTagRels_tagId_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree (COALESCE("tagId", ''), "userId");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree ("tagId", "userId");
 
 -- Table "Users"
 CREATE TABLE "Users" (
@@ -3259,7 +3286,7 @@ CREATE TABLE "Users" (
   "isAdmin" BOOL NOT NULL DEFAULT FALSE,
   "profile" JSONB,
   "services" JSONB,
-  "displayName" TEXT,
+  "displayName" TEXT NOT NULL,
   "previousDisplayName" TEXT,
   "email" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
@@ -3368,6 +3395,7 @@ CREATE TABLE "Users" (
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
   "subscribedToDigest" BOOL NOT NULL DEFAULT FALSE,
+  "subscribedToNewsletter" BOOL NOT NULL DEFAULT FALSE,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
   "hideMeetupsPoke" BOOL NOT NULL DEFAULT FALSE,
@@ -3431,7 +3459,6 @@ CREATE TABLE "Users" (
   "tagRevisionCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "abTestKey" TEXT NOT NULL,
   "abTestOverrides" JSONB,
-  "reenableDraftJs" BOOL,
   "walledGardenInvite" BOOL,
   "hideWalledGardenUI" BOOL,
   "walledGardenPortalOnboarded" BOOL,
@@ -3671,6 +3698,14 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_i
   "votedAt"
 );
 
+-- Index "idx_Votes_userId_collectionName_cancelled_votedAt"
+CREATE INDEX IF NOT EXISTS "idx_Votes_userId_collectionName_cancelled_votedAt" ON "Votes" USING btree (
+  "userId",
+  "collectionName",
+  "cancelled",
+  "votedAt"
+);
+
 -- Index "idx_Votes_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
@@ -3689,6 +3724,17 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" (
 CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
 WHERE
   ("baseScore" >= 15);
+
+-- CustomIndex "idx_Comments_suggestForAlignmentUserIds"
+CREATE INDEX IF NOT EXISTS "idx_Comments_suggestForAlignmentUserIds" ON "Comments" USING btree (
+  "reviewForAlignmentUserId" ASC NULLS LAST,
+  af ASC NULLS LAST,
+  "postedAt" ASC NULLS LAST
+)
+WITH
+  (deduplicate_items = TRUE)
+WHERE
+  "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
