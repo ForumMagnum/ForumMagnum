@@ -4,7 +4,7 @@ import mapValues from "lodash/mapValues";
 import isPlainObject from "lodash/isPlainObject";
 
 type EditableFieldsOf<T> = {
-  [k in keyof T & string]: IfAny<T[k], never, T[k] extends { _id: string; __typename?: 'Revision'; originalContents?: any } | null | undefined ? k : never>;
+  [k in keyof T & string]: IfAny<T[k], never, T[k] extends { originalContents?: ContentTypeInput } | null | undefined ? k : never>;
 }[keyof T & string];
 
 export function sanitizeEditableFieldValues<T extends Record<string, AnyBecauseHard>>(data: T, editableFields: Array<EditableFieldsOf<T>>) {
