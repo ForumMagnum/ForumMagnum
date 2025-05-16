@@ -4177,7 +4177,7 @@ type Post {
   finalReviewVotesAF: [Float!]!
   lastCommentPromotedAt: Date
   tagRel(tagId: String): TagRel
-  tags: [Tag!]
+  tags: [Tag!]!
   tagRelevance: JSON
   lastPromotedComment: Comment
   bestAnswer: Comment

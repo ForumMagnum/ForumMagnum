@@ -1600,9 +1600,9 @@ const schema = {
   },
   tags: {
     graphql: {
-      outputType: "[Tag!]",
+      outputType: "[Tag!]!",
       canRead: ["guests"],
-      resolver: async (post, args, context) => {
+      resolver: async (post, args, context): Promise<Partial<DbTag>[]> => {
         const { currentUser } = context;
         const tagRelevanceRecord = post.tagRelevance || {};
         const tagIds = Object.keys(tagRelevanceRecord).filter((id) => tagRelevanceRecord[id] > 0);

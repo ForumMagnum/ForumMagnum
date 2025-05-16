@@ -1,4 +1,4 @@
-import type { GraphQLScalarType } from '@apollo/client/node_modules/graphql';
+import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
 import type { permissionGroups } from "../permissions";
 import type { EditableFieldCallbackOptions } from '../editor/makeEditableOptions';
@@ -10,9 +10,9 @@ declare global {
 
 type PermissionGroups = typeof permissionGroups[number];
 
-type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null) => boolean);
+type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|null) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
-type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any) => boolean)
+type SingleFieldPermissions = PermissionGroups | ((user: DbUser|null, object: any) => boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {

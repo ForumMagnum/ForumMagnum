@@ -28,6 +28,21 @@ const config: CodegenConfig = {
         {
           typescript: {
             avoidOptionals: false,
+            scalars: {
+              Date: {
+                input: 'Date',
+                output: 'string',
+              }
+            }
+          }
+        }, {
+          'typescript-operations': {
+            scalars: {
+              Date: {
+                input: 'Date',
+                output: 'string',
+              }
+            }
           }
         }
       ],
@@ -36,6 +51,8 @@ const config: CodegenConfig = {
         inputMaybeValue: 'T | null | undefined',
         namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
         enumsAsTypes: true,
+        inlineFragmentTypes: 'combine',
+        noExport: true,
       }
     }
   }

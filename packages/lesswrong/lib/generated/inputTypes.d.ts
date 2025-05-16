@@ -3512,7 +3512,7 @@ interface Post {
   finalReviewVotesAF: Array<number>;
   lastCommentPromotedAt: Date | null;
   tagRel: TagRel | null;
-  tags: Array<Tag> | null;
+  tags: Array<Tag>;
   tagRelevance: any;
   lastPromotedComment: Comment | null;
   bestAnswer: Comment | null;
