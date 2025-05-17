@@ -117,7 +117,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     if (clickedPushing) return;
     setClickedPushing(true)
 
-    if (!contents) throw Error("Curation notice is missing contents")
+    if (!contents?.originalContents) throw Error("Curation notice is missing contents")
 
     const { originalContents: { data, type } } = contents;
 

@@ -206,7 +206,7 @@ export const CommentForm = ({
   onCancel,
   onError,
 }: {
-  initialData?: UpdateCommentDataInput & { _id: string; tagCommentType: TagCommentType };
+  initialData?: CommentEdit;
   prefilledProps?: {
     parentAnswerId?: string;
     debateResponse?: boolean;

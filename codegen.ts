@@ -11,7 +11,10 @@ const config: CodegenConfig = {
       preset: "client",
       config: {
         scalars: {
-          Date: "string|Date",
+          Date: {
+            input: 'Date',
+            output: 'string',
+          }
         },
         avoidOptionals: false,
         namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
@@ -27,7 +30,6 @@ const config: CodegenConfig = {
       plugins: [
         {
           typescript: {
-            avoidOptionals: false,
             scalars: {
               Date: {
                 input: 'Date',
@@ -42,7 +44,17 @@ const config: CodegenConfig = {
                 input: 'Date',
                 output: 'string',
               }
-            }
+            },
+            avoidOptionals: {
+              inputValue: false,
+              field: true,
+              object: true,
+              defaultValue: true,
+              resolvers: true,
+              query: true,
+              mutation: true,
+              subscription: true,
+            },
           }
         }
       ],

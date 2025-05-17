@@ -82,7 +82,6 @@ function findFragmentsInFile(
       if (ts.isNoSubstitutionTemplateLiteral(template)) {
         const maybeFragmentString = template.text;
         if (/fragment\s+([a-zA-Z0-9-_]+)\s+on\s+([a-zA-Z0-9-_]+)\s*\{/g.test(maybeFragmentString)) {
-          console.log(`Found fragment in ${sourceFile.fileName}: ${maybeFragmentString}`);
           fragments.push(maybeFragmentString);
         }
       }

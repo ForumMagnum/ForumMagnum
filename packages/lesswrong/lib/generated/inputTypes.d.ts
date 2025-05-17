@@ -1346,7 +1346,7 @@ interface Comment {
   forumEventId: string | null;
   forumEvent: ForumEvent | null;
   forumEventMetadata: any;
-  tagCommentType: string;
+  tagCommentType: TagCommentType;
   subforumStickyPriority: number | null;
   userId: string | null;
   user: User | null;
@@ -1929,15 +1929,15 @@ interface CurationNotice {
   schemaVersion: number;
   createdAt: Date;
   legacyData: any;
-  contents: Revision | null;
+  contents: Revision;
   contents_latest: string | null;
-  userId: string | null;
-  user: User | null;
+  userId: string;
+  user: User;
   commentId: string | null;
   comment: Comment | null;
-  postId: string | null;
-  post: Post | null;
-  deleted: boolean | null;
+  postId: string;
+  post: Post;
+  deleted: boolean;
 }
 
 interface SingleCurationNoticeInput {
@@ -5175,7 +5175,7 @@ interface Revision {
   userId: string | null;
   user: User | null;
   draft: boolean | null;
-  originalContents: ContentType | null;
+  originalContents: ContentType;
   html: string | null;
   markdown: string | null;
   ckEditorMarkup: string | null;
@@ -6878,7 +6878,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   forumEventId?: string | null;
   forumEventMetadata?: any;
-  tagCommentType?: string | null;
+  tagCommentType?: TagCommentType | null;
   subforumStickyPriority?: number | null;
   userId?: string | null;
   authorIsUnreviewed?: boolean | null;

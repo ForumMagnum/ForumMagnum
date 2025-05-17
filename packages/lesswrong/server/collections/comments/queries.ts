@@ -7,6 +7,11 @@ import { CommentsViews } from "@/lib/collections/comments/views";
 
 export const graphqlCommentQueryTypeDefs = gql`
   type Comment ${ getAllGraphQLFields(schema) }
+
+  enum TagCommentType {
+    SUBFORUM
+    DISCUSSION
+  }
   
   input SingleCommentInput {
     selector: SelectorInput

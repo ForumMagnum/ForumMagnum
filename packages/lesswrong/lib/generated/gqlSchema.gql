@@ -1866,7 +1866,7 @@ type Comment {
   forumEventId: String
   forumEvent: ForumEvent
   forumEventMetadata: JSON
-  tagCommentType: String!
+  tagCommentType: TagCommentType!
   subforumStickyPriority: Float
   userId: String
   user: User
@@ -1947,6 +1947,11 @@ type Comment {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+}
+
+enum TagCommentType {
+  SUBFORUM
+  DISCUSSION
 }
 
 input SingleCommentInput {
@@ -2459,15 +2464,15 @@ type CurationNotice {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  contents(version: String): Revision
+  contents(version: String): Revision!
   contents_latest: String
-  userId: String
-  user: User
+  userId: String!
+  user: User!
   commentId: String
   comment: Comment
-  postId: String
-  post: Post
-  deleted: Boolean
+  postId: String!
+  post: Post!
+  deleted: Boolean!
 }
 
 input SingleCurationNoticeInput {
@@ -5870,7 +5875,7 @@ type Revision {
   userId: String
   user: User
   draft: Boolean
-  originalContents: ContentType
+  originalContents: ContentType!
   html: String
   markdown: String
   ckEditorMarkup: String
@@ -7703,7 +7708,7 @@ input CreateCommentDataInput {
   tagId: String
   forumEventId: String
   forumEventMetadata: JSON
-  tagCommentType: String
+  tagCommentType: TagCommentType
   subforumStickyPriority: Float
   userId: String
   authorIsUnreviewed: Boolean

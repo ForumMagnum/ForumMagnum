@@ -211,15 +211,15 @@ const schema = {
   originalContents: {
     database: {
       type: "JSONB",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "ContentType",
+      outputType: "ContentType!",
       canRead: ["guests"],
       validation: {
         simpleSchema: ContentType,
       },
-      resolver: async (document, args, context) => {
+      resolver: async (document, args, context): Promise<ContentType> => {
         // Original contents sometimes contains private data (ckEditor suggestions
         // via Track Changes plugin). In those cases the html field strips out the
         // suggestion. Original contents is only visible to people who are invited

@@ -25,7 +25,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
   formProps?: Record<string, any>,
   prefilledProps?: AnyBecauseTodo
 }) => {
-  const { data: editableComment, loading } = useQuery(CommentEditQuery, {
+  const { data, loading } = useQuery(CommentEditQuery, {
     variables: { documentId: comment._id },
     fetchPolicy: 'network-only',
   });
@@ -33,6 +33,8 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
   if (loading) {
     return <Loading />;
   }
+
+  const editableComment = data?.comment?.result ?? undefined;
 
   return ( 
     <div className={classNames("comments-edit-form", className)}>

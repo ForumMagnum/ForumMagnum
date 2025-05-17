@@ -268,8 +268,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "TagCommentType!",
+      inputType: "TagCommentType",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
