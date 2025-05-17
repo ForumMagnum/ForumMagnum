@@ -10,7 +10,6 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import LoginPopup from "../users/LoginPopup";
 import AllTagsAlphabetical from "./AllTagsAlphabetical";
@@ -21,6 +20,18 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import CoreTagsSection from "./CoreTagsSection";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagEditFragmentQuery = gql(`
+  query EAAllTagsPage($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -77,13 +88,12 @@ const EAAllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { document: editableTag } = useSingle({
-    documentId: tag?._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag?._id },
     skip: !tag || !editing,
     ssr: false,
   });
+  const editableTag = data?.tag?.result;
   const portalTitle = `EA Forum ${`${taggingNamePluralCapitalSetting.get()} `}Wiki`
   
   const htmlWithAnchors = tag?.tableOfContents?.html || tag?.description?.html || "";

@@ -8,7 +8,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import { useSingle } from '@/lib/crud/withSingle';
 import TagFlagEditAndNewForm from "./TagFlagEditAndNewForm";
 import SectionTitle from "../common/SectionTitle";
 import TagsDetailsItem from "./TagsDetailsItem";
@@ -19,6 +18,18 @@ import LoadMore from "../common/LoadMore";
 import TagActivityFeed from "./TagActivityFeed";
 import TagVoteActivity from "./TagVoteActivity";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagFlagEditFragmentQuery = gql(`
+  query TaggingDashboard($documentId: String) {
+    tagFlag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagFlagEditFragment
+      }
+    }
+  }
+`);
 
 const SECTION_WIDTH = 960
 
@@ -120,12 +131,11 @@ const TaggingDashboard = ({classes}: {
   
   const focusedTagFlagId = tagFlags?.find(tagFlag => tagFlag._id === query.focus)?._id;
 
-  const { document: focusedTagFlag } = useSingle({
-    documentId: focusedTagFlagId,
-    collectionName: "TagFlags",
-    fragmentName: "TagFlagEditFragment",
+  const { data } = useQuery(TagFlagEditFragmentQuery, {
+    variables: { documentId: focusedTagFlagId },
     skip: !focusedTagFlagId,
   });
+  const focusedTagFlag = data?.tagFlag?.result;
 
   const { openDialog } = useDialog();
   

@@ -14,7 +14,6 @@ import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useSingle } from '@/lib/crud/withSingle';
 import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
 import PostsList2 from "../../posts/PostsList2";
 import ContentItemBody from "../../common/ContentItemBody";
@@ -26,6 +25,18 @@ import TagIntroSequence from "../TagIntroSequence";
 import SectionTitle from "../../common/SectionTitle";
 import ContentStyles from "../../common/ContentStyles";
 import Loading from "../../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagEditFragmentQuery = gql(`
+  query SubforumWikiTab($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -62,12 +73,11 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   const { captureEvent } =  useTracking()
   const [editing, setEditing] = useState(!!query.edit || !!query.flagId)
 
-  const { document: editableTag } = useSingle({
-    documentId: tag._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag._id },
     skip: !editing,
   });
+  const editableTag = data?.tag?.result;
 
   const terms = {
     ...tagPostTerms(tag, query),

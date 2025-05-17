@@ -13,7 +13,6 @@ import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useSingle } from '@/lib/crud/withSingle';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";

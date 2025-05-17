@@ -17,12 +17,23 @@ import { FormComponentDatePicker } from "../form-components/FormComponentDateTim
 import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
-import { useSingle } from "@/lib/crud/withSingle";
 import { EVENT_FORMATS } from "@/lib/collections/forumEvents/types";
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ForumEventsEditQuery = gql(`
+  query ForumEventForm($documentId: String) {
+    forumEvent(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ForumEventsEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
@@ -428,12 +439,11 @@ export const ForumEventForm = ({ documentId }: {
   const title = documentId ? "Edit forum event" : "New forum event";
   const [remountingForm, setRemountingForm] = useState(false);
 
-  const { document: editableDocument, loading } = useSingle({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsEdit",
-    documentId,
+  const { loading, data } = useQuery(ForumEventsEditQuery, {
+    variables: { documentId: documentId },
     skip: !documentId,
-  })
+  });
+  const editableDocument = data?.forumEvent?.result;
 
   useEffect(() => {
     if (remountingForm) {

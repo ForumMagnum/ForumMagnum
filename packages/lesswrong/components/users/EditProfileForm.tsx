@@ -25,7 +25,6 @@ import { LocationFormComponent } from '@/components/form-components/LocationForm
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { useSingle } from '@/lib/crud/withSingle';
 import { FormComponentFriendlyDisplayNameInput } from '../form-components/FormComponentFriendlyDisplayNameInput';
 import Error404 from "../common/Error404";
 import FormGroupFriendlyUserProfile from "../form-components/FormGroupFriendlyUserProfile";
@@ -34,6 +33,18 @@ import PrefixedInput from "../form-components/PrefixedInput";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileEditQuery = gql(`
+  query EditProfileForm($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersProfileEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -503,12 +514,11 @@ const EditProfileForm = () => {
     { fragmentName: 'UsersProfileEdit', skip: skipSlugLoading }
   );
 
-  const { document: userByDocumentId, loading: loadingUserByDocumentId } = useSingle({
-    collectionName: 'Users',
-    fragmentName: 'UsersProfileEdit',
-    documentId: terms.documentId,
+  const { loading: loadingUserByDocumentId, data } = useQuery(UsersProfileEditQuery, {
+    variables: { documentId: terms.documentId },
     skip: skipDocumentIdLoading,
   });
+  const userByDocumentId = data?.user?.result;
 
   const formUser = terms.slug ? userBySlug : userByDocumentId;
 

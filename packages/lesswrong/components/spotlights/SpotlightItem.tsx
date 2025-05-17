@@ -17,7 +17,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { useSingle } from '@/lib/crud/withSingle';
 import { SpotlightForm } from './SpotlightForm';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
@@ -30,6 +29,18 @@ import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SpotlightEditQueryFragmentQuery = gql(`
+  query SpotlightItem($documentId: String) {
+    spotlight(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SpotlightEditQueryFragment
+      }
+    }
+  }
+`);
 
 const TEXT_WIDTH = 350;
 
@@ -456,12 +467,11 @@ export const SpotlightItem = ({
     refetchAllSpotlights?.();
   }, [refetchAllSpotlights]);
 
-  const { document: editableSpotlight } = useSingle({
-    collectionName: "Spotlights",
-    fragmentName: "SpotlightEditQueryFragment",
-    documentId: spotlight._id,
+  const { data } = useQuery(SpotlightEditQueryFragmentQuery, {
+    variables: { documentId: spotlight._id },
     skip: !(edit || editDescription),
   });
+  const editableSpotlight = data?.spotlight?.result;
 
   const { mutate: updateSpotlight } = useUpdate({
     collectionName: "Spotlights",
