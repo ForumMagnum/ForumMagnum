@@ -30,7 +30,7 @@ const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
 }));
 
 interface TagSelectProps {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   label: string;
 }
 

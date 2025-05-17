@@ -75,7 +75,19 @@ const config: CodegenConfig = {
         inlineFragmentTypes: 'combine',
         noExport: true,
       }
-    }
+    },
+    "./client-schema.json": {
+      plugins: ["introspection"],
+      documents: ["./packages/lesswrong/lib/generated/gqlSchema.gql"],
+      config: {
+        minify: true,
+        descriptions: false,
+        schemaDescription: false,
+      },
+    },
+  },
+  hooks: {
+    afterAllFileWrite: ["node ./prune-schema.js"]
   }
 };
 

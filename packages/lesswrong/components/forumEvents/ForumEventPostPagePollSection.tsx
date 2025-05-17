@@ -95,7 +95,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     variables: { documentId: forumEventId },
     skip: !forumEventId,
   });
-  const event = forumEventId ? eventFromId : currentForumEvent;
+  const event = forumEventId ? eventFromId?.forumEvent?.result : currentForumEvent;
 
   const currentUser = useCurrentUser()
   const hasVoted = getForumEventVoteForUser(event, currentUser) !== null

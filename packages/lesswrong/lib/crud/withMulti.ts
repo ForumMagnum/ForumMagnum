@@ -48,7 +48,7 @@ export function getGraphQLMultiQueryFromOptions<F>({ collectionName, typeName, f
 
 export interface UseMultiOptions<
   F extends keyof FragmentTypes,
-  V,
+  // V,
   CollectionName extends CollectionNameString
 > {
   terms?: ViewTermsByCollectionName[CollectionName],
@@ -111,7 +111,6 @@ export type UseMultiResult<
  */
 export function useMulti<
   F extends keyof FragmentTypes,
-  V,
   CollectionName extends CollectionNameString
 >({
   terms,
@@ -129,7 +128,7 @@ export function useMulti<
   queryLimitName,
   alwaysShowLoadMore = false,
   ssr = true,
-}: UseMultiOptions<F, V, CollectionName>): UseMultiResult<FragmentTypes[F]> {
+}: UseMultiOptions<F, CollectionName>): UseMultiResult<FragmentTypes[F]> {
   const { query: locationQuery, location } = useLocation();
   const navigate = useNavigate();
 

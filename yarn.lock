@@ -6311,6 +6311,11 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@types/zen-observable@0.8.3":
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/@types/zen-observable/-/zen-observable-0.8.3.tgz#781d360c282436494b32fe7d9f7f8e64b3118aa3"
+  integrity sha512-fbF6oTd4sGGy0xjHPKAt+eS2CrxJ3+6gQ3FGcBoIJR2TLAyCkCyI8JqZNy+FeON0AhVgNJoUumVoZQjBFUqHkw==
+
 "@typescript-eslint/eslint-plugin@^5.26.0":
   version "5.59.7"
   resolved "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.59.7.tgz"
@@ -6973,6 +6978,13 @@ apollo-graphql@^0.9.0:
     core-js-pure "^3.10.2"
     lodash.sortby "^4.7.0"
     sha.js "^2.4.11"
+
+apollo-link-scalars@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/apollo-link-scalars/-/apollo-link-scalars-4.0.3.tgz#7b86d73deff69955f33178e37ce600d9584611d9"
+  integrity sha512-mKH/1oGLK8hUZ+VkY36OM0Ejgq25Jb+XcS3bu3OKH1416dGPlT3Jo6Oe3FtodDKjzTEda518vXF5TmaWupUNqA==
+  dependencies:
+    zen-observable-ts "^1.1.0"
 
 apollo-link@^1.2.14:
   version "1.2.14"
@@ -19865,6 +19877,14 @@ zen-observable-ts@^0.8.21:
   dependencies:
     tslib "^1.9.3"
     zen-observable "^0.8.0"
+
+zen-observable-ts@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/zen-observable-ts/-/zen-observable-ts-1.1.0.tgz#2d1aa9d79b87058e9b75698b92791c1838551f83"
+  integrity sha512-1h4zlLSqI2cRLPJUHJFL8bCWHhkpuXkF+dbGkRaWjgDIG26DmzyshUMrdV/rL3UnR+mhaX4fRq8LPouq0MYYIA==
+  dependencies:
+    "@types/zen-observable" "0.8.3"
+    zen-observable "0.8.15"
 
 zen-observable-ts@^1.2.5:
   version "1.2.5"
