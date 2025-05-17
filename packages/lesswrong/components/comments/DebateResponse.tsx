@@ -5,7 +5,6 @@ import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
-import type { CommentsList, PostsWithNavigationAndRevision, PostsWithNavigation } from '@/lib/generated/gql-codegen/graphql';
 import type { ContentItemBodyImperative } from '../common/ContentItemBody';
 import CommentUserName from "./CommentsItem/CommentUserName";
 import CommentsItemDate from "./CommentsItem/CommentsItemDate";

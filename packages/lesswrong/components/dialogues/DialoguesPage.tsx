@@ -13,7 +13,6 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
-import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {

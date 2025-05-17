@@ -182,7 +182,7 @@ const RemoveButton: FC<{
 }
 
 interface ImageUploadProps {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   document?: Partial<UsersMinimumInfo>;
   label?: string;
   croppingAspectRatio?: number;

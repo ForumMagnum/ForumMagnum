@@ -21,14 +21,14 @@ interface ArbitalLinkedPage {
 }
 
 interface ArbitalLinkedPages {
-  faster: Array<ArbitalLinkedPage | null> | null;
-  slower: Array<ArbitalLinkedPage | null> | null;
-  moreTechnical: Array<ArbitalLinkedPage | null> | null;
-  lessTechnical: Array<ArbitalLinkedPage | null> | null;
-  requirements: Array<ArbitalLinkedPage | null> | null;
-  teaches: Array<ArbitalLinkedPage | null> | null;
-  parents: Array<ArbitalLinkedPage | null> | null;
-  children: Array<ArbitalLinkedPage | null> | null;
+  faster: Array<ArbitalLinkedPage>;
+  slower: Array<ArbitalLinkedPage>;
+  moreTechnical: Array<ArbitalLinkedPage>;
+  lessTechnical: Array<ArbitalLinkedPage>;
+  requirements: Array<ArbitalLinkedPage>;
+  teaches: Array<ArbitalLinkedPage>;
+  parents: Array<ArbitalLinkedPage>;
+  children: Array<ArbitalLinkedPage>;
 }
 
 interface SocialPreviewType {

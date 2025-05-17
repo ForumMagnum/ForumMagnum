@@ -16,7 +16,16 @@ const config: CodegenConfig = {
             output: 'string',
           }
         },
-        avoidOptionals: false,
+        avoidOptionals: {
+          inputValue: false,
+          field: true,
+          object: true,
+          defaultValue: true,
+          resolvers: true,
+          query: true,
+          mutation: true,
+          subscription: true,
+        },
         namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
         enumsAsTypes: true,
       },

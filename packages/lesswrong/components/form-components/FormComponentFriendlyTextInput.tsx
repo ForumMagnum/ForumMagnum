@@ -34,8 +34,8 @@ export const FormComponentFriendlyTextInput = ({
   smallBottomMargin,
   className,
 }: {
-  value: string | null,
-  updateCurrentValue: (value: string | null) => void,
+  value: string | null | undefined,
+  updateCurrentValue: (value: string | null | undefined) => void,
   label?: string,
   disabled?: boolean,
   multiline?: boolean,

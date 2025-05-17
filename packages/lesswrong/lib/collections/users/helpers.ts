@@ -10,7 +10,6 @@ import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
-import type { CommentsList, PostsBase, PostsDetails, PostsModerationGuidelines, TagBasicInfo, UsersCurrent, UsersEdit, UsersMapEntry, UsersMinimumInfo, UsersProfile } from '@/lib/generated/gql-codegen/graphql';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
 

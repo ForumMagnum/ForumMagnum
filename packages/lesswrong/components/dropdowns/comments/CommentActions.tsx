@@ -44,7 +44,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     skip: !post,
     fetchPolicy: "cache-first",
   });
-  const postDetails = data?.post?.result;
+  const postDetails = data?.post?.result ?? undefined;
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,

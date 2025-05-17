@@ -6,7 +6,6 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import Loading from "../vulcan-core/Loading";
 import TagRevisionItem from "./TagRevisionItem";
 import LensRevisionItem from "./history/LensRevisionItem";
-import type { TagHistoryFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const RevisionHistoryEntryQuery = gql(`
   query AllPostsPageTagRevisionItem($documentId: String) {

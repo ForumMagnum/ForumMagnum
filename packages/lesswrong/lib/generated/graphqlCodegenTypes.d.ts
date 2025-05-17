@@ -84,14 +84,14 @@ type ArbitalLinkedPage = {
 
 type ArbitalLinkedPages = {
   __typename?: 'ArbitalLinkedPages';
-  children?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  faster?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  lessTechnical?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  moreTechnical?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  parents?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  requirements?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  slower?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
-  teaches?: Maybe<Array<Maybe<ArbitalLinkedPage>>>;
+  children: Array<ArbitalLinkedPage>;
+  faster: Array<ArbitalLinkedPage>;
+  lessTechnical: Array<ArbitalLinkedPage>;
+  moreTechnical: Array<ArbitalLinkedPage>;
+  parents: Array<ArbitalLinkedPage>;
+  requirements: Array<ArbitalLinkedPage>;
+  slower: Array<ArbitalLinkedPage>;
+  teaches: Array<ArbitalLinkedPage>;
 };
 
 type ArbitalPageData = {
@@ -15255,7 +15255,7 @@ type TagWithFlagsAndRevisionFragment = (
   & TagRevisionFragment
 );
 
-type ArbitalLinkedPagesFragment = { __typename?: 'ArbitalLinkedPages', faster: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, slower: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, moreTechnical: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, lessTechnical: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, requirements: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, teaches: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, parents: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null, children: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string } | null> | null };
+type ArbitalLinkedPagesFragment = { __typename?: 'ArbitalLinkedPages', faster: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, slower: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, moreTechnical: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, lessTechnical: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, requirements: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, teaches: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, parents: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }>, children: Array<{ __typename?: 'ArbitalLinkedPage', _id: string, name: string, slug: string }> };
 
 type TagPageArbitalContentFragment = { __typename?: 'Tag', lenses: Array<(
     { __typename?: 'MultiDocument' }
