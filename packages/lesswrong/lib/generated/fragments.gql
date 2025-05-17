@@ -844,6 +844,19 @@ fragment DigestsMinimumInfo on Digest {
   onsitePrimaryColor
 }
 
+fragment DraftComments on Comment {
+  ...CommentsList
+  post {
+    ...PostsMinimumInfo
+  }
+  parentComment {
+    _id
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+}
+
 fragment ElectionCandidateBasicInfo on ElectionCandidate {
   _id
   electionName

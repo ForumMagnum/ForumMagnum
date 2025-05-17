@@ -113,6 +113,21 @@ export const ShortformComments = () => frag`
   }
 `
 
+export const DraftComments = () => frag`
+  fragment DraftComments on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    parentComment {
+      _id
+      user {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`
+
 export const CommentWithRepliesFragment = () => frag`
   fragment CommentWithRepliesFragment on Comment {
     ...CommentsList

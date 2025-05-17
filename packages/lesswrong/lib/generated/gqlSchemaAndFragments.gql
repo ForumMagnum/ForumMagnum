@@ -7207,7 +7207,6 @@ input UpdateUserDataInput {
   groups: [String!]
   theme: JSON
   lastUsedTimezone: String
-  whenConfirmationEmailSent: Date
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String
@@ -8270,6 +8269,19 @@ fragment DigestsMinimumInfo on Digest {
   publishedDate
   onsiteImageId
   onsitePrimaryColor
+}
+
+fragment DraftComments on Comment {
+  ...CommentsList
+  post {
+    ...PostsMinimumInfo
+  }
+  parentComment {
+    _id
+    user {
+      ...UsersMinimumInfo
+    }
+  }
 }
 
 fragment ElectionCandidateBasicInfo on ElectionCandidate {
