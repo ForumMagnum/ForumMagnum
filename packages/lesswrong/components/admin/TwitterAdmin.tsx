@@ -8,6 +8,8 @@ import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
+import { UsersSocialMediaInfo } from '@/lib/generated/gql-codegen/graphql';
+import { PostsTwitterAdmin } from '@/lib/generated/gql-codegen/graphql';
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";

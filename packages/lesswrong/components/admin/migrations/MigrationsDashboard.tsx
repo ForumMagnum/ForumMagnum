@@ -23,7 +23,7 @@ const MigrationsDashboard = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
     query MigrationsDashboardQuery {
       MigrationsDashboard {
         migrations {
@@ -34,7 +34,7 @@ const MigrationsDashboard = ({classes}: {
         }
       }
     }
-  `, { ssr: true });
+  `), { ssr: true });
   
   if (!userIsAdmin(currentUser)) {
     return <SingleColumnSection>Sorry, you need to be logged in as an admin to use this page.</SingleColumnSection>;

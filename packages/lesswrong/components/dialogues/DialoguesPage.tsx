@@ -4,14 +4,25 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsItem from "../posts/PostsItem";
 import LWTooltip from "../common/LWTooltip";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
+
+const PostsListWithVotesQuery = gql(`
+  query DialoguesPage($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const DialoguesPage = () => {
   const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
@@ -30,11 +41,10 @@ const DialoguesPage = () => {
 
   const renderMyDialogues = currentUser && myDialogues?.length
 
-  const { document: announcementPost } = useSingle({
-    documentId: "kQuSZG8ibfW6fJYmo",
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: "kQuSZG8ibfW6fJYmo" },
   });
+  const announcementPost = data?.post?.result;
 
   const dialoguesTooltip = <div>
     <p>Dialogues between a small group of users.</p>

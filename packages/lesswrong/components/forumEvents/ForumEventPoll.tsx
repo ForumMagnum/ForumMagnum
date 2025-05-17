@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
-import { gql, useMutation } from "@apollo/client";
+import { gql as graphql, useMutation, useQuery } from "@apollo/client";
 import { useMulti } from "@/lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
@@ -19,12 +19,22 @@ import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
 import { PartialDeep } from "type-fest";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { useMessages } from "../common/withMessages";
-import { useSingle } from "@/lib/crud/withSingle";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import Loading from "../vulcan-core/Loading";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ForumEventsDisplayQuery = gql(`
+  query ForumEventPoll($documentId: String) {
+    forumEvent(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ForumEventsDisplay
+      }
+    }
+  }
+`);
 
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
@@ -494,12 +504,11 @@ export const ForumEventPoll = ({
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
-  const { document: eventFromId, refetch: refetchOverrideEvent } = useSingle({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsDisplay",
-    documentId: forumEventId,
+  const { refetch: refetchOverrideEvent, data } = useQuery(ForumEventsDisplayQuery, {
+    variables: { documentId: forumEventId },
     skip: !forumEventId,
   });
+  const eventFromId = data?.forumEvent?.result;
 
   const event = forumEventId ? eventFromId : currentForumEvent;
   const refetch = forumEventId ? refetchOverrideEvent : refectCurrentEvent;
@@ -600,12 +609,12 @@ export const ForumEventPoll = ({
     return comments?.find(comment => comment.userId === currentUser?._id) || null;
   }, [comments, currentUser]);
 
-  const [addVote] = useMutation(gql`
+  const [addVote] = useMutation(graphql`
     mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
       AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
     }
   `);
-  const [removeVote] = useMutation(gql`
+  const [removeVote] = useMutation(graphql`
     mutation RemoveForumEventVote($forumEventId: String!) {
       RemoveForumEventVote(forumEventId: $forumEventId)
     }

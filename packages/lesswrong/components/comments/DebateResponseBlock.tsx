@@ -2,6 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import DebateResponse from "./DebateResponse";
 
+
+import { CommentsList, PostsWithNavigation, PostsWithNavigationAndRevision } from '@/lib/generated/gql-codegen/graphql';
+
 const styles = (theme: ThemeType) => ({
   divider: {
     display: 'flex',

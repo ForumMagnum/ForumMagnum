@@ -6,13 +6,25 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
-import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import UsersProfileImage from "../users/UsersProfileImage";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ImageUploadDefaultsDialog from "./ImageUploadDefaultsDialog";
+import type { UsersMinimumInfo } from '@/lib/generated/gql-codegen/graphql';
+
+const UsersMinimumInfoQuery = gql(`
+  query ImageUpload($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   root: {
@@ -102,12 +114,11 @@ const FormProfileImage: FC<{
   profileImageId: string,
   size: number,
 }> = ({document, profileImageId, size}) => {
-  const {document: user} = useSingle({
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
+  const { data } = useQuery(UsersMinimumInfoQuery, {
+    variables: { documentId: document?._id },
     fetchPolicy: "cache-and-network",
-    documentId: document?._id,
   });
+  const user = data?.user?.result;
   return (
     <UsersProfileImage
       user={user ? {...user, profileImageId} : undefined}
@@ -171,7 +182,7 @@ const RemoveButton: FC<{
 }
 
 interface ImageUploadProps {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   document?: Partial<UsersMinimumInfo>;
   label?: string;
   croppingAspectRatio?: number;

@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
-import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
@@ -13,6 +12,18 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const LlmConversationsWithMessagesFragmentQuery = gql(`
+  query LlmChatWrapper($documentId: String) {
+    llmConversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...LlmConversationsWithMessagesFragment
+      }
+    }
+  }
+`);
 
 // FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
 const mdi = markdownIt({ linkify: true });
@@ -179,12 +190,11 @@ const LlmChatWrapper = ({children}: {
 
   const [currentConversationId, setCurrentConversationId] = useState<string>();
 
-  const { document: currentConversationWithMessages } = useSingle({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsWithMessagesFragment",
-    documentId: currentConversationId,
+  const { data } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
+    variables: { documentId: currentConversationId },
     skip: !currentConversationId,
   });
+  const currentConversationWithMessages = data?.llmConversation?.result;
 
   const currentConversationLoading = useMemo(() => (
     !!currentConversationId && loadingConversationIds.includes(currentConversationId)

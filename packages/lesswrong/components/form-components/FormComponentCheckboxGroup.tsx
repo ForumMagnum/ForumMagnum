@@ -11,7 +11,7 @@ const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => 
 }))
 
 export const FormComponentCheckboxGroup = ({ field, label, options }: {
-  field: TypedFieldApi<string[] | null>
+  field: TypedFieldApi<string[] | null | undefined>
   label: string
   options: Array<{value: string, label: string}>
 }) => {

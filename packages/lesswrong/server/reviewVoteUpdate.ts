@@ -9,6 +9,7 @@ import { userBigVotePower } from "@/lib/voting/voteTypes";
 import { Tags } from "@/server/collections/tags/collection";
 import { createAdminContext } from "./vulcan-lib/createContexts";
 import { createReviewWinner as createReviewWinnerMutator } from "@/server/collections/reviewWinners/mutations";
+import { ReviewWinners } from "./collections/reviewWinners/collection";
 
 export interface Dictionary<T> {
   [index: string]: T;

@@ -1,11 +1,21 @@
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { gql, useQuery } from '@apollo/client';
+import { gql as graphql, useQuery } from '@apollo/client';
 import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
-import { useSingle } from '@/lib/crud/withSingle';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import SpotlightItem from "../spotlights/SpotlightItem";
+
+const SpotlightDisplayQuery = gql(`
+  query RotatingReviewWinnerSpotlightDisplay($documentId: String) {
+    spotlight(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SpotlightDisplay
+      }
+    }
+  }
+`);
 
 const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
   const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)
@@ -26,8 +36,8 @@ const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, categ
 export const RotatingReviewWinnerSpotlight = () => {
   const category = "ai safety"
   const { data } = useQuery(
-    gql`
-      query GetAllReviewWinners {
+    graphql`
+      query RotatingReviewWinnerSpotlight {
         GetAllReviewWinners {
           ...PostForReviewWinnerItem
         }
@@ -35,16 +45,15 @@ export const RotatingReviewWinnerSpotlight = () => {
       ${fragmentTextForQuery('PostForReviewWinnerItem')}
     `,
   )
-  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.RotatingReviewWinnerSpotlight ?? []];
   const winner = getTodayReviewInfo(reviewWinnersWithPosts, category);
 
-  const { document } = useSingle({
-    documentId: winner?.spotlight?._id,
-    collectionName: "Spotlights",
-    fragmentName: 'SpotlightDisplay',
+  const { data: dataSpotlight } = useQuery(SpotlightDisplayQuery, {
+    variables: { documentId: winner?.spotlight?._id },
     skip: !winner?.spotlight?._id,
     ssr: true,
   });
+  const document = dataSpotlight?.spotlight?.result;
   if (!document) return null;
 
   return <AnalyticsContext pageSectionContext="reviewWinnerItem">

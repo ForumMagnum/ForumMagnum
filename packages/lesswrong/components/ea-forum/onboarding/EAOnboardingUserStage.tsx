@@ -4,7 +4,7 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useMutation, useQuery } from "@apollo/client";
 import classNames from "classnames";
-import gql from "graphql-tag";
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
 import {useCurrentUser} from '../../common/withUser'
 import EAOnboardingStage from "./EAOnboardingStage";
@@ -67,7 +67,7 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   const [name, setName] = useState("");
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
-  const [updateUser] = useMutation(gql`
+  const [updateUser] = useMutation(gql(`
     mutation NewUserCompleteProfile(
       $username: String!,
       $subscribeToDigest: Boolean!,
@@ -85,8 +85,8 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
         displayName
       }
     }
-  `);
-  const inputRef = useRef<HTMLInputElement|null>(null);
+  `));
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const currentUser = useCurrentUser()
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
@@ -121,11 +121,11 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
     await onContinue();
   }, [onContinue]);
 
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQuery(gql(`
     query isDisplayNameTaken($displayName: String!) {
       IsDisplayNameTaken(displayName: $displayName)
     }
-  `, {
+  `), {
     ssr: false,
     skip: !name,
     pollInterval: 0,

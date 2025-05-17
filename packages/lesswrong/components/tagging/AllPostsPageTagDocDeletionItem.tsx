@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { TagHistoryFragment } from '@/lib/generated/gql-codegen/graphql';
 import TagsTooltip from "./TagsTooltip";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";

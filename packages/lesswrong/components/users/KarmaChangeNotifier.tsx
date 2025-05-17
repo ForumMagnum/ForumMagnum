@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { Paper }from '@/components/widgets/Paper';
@@ -19,6 +18,8 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import UsersName from "./UsersName";
 import { MenuItemLink } from "../common/Menus";
 import { Typography } from "../common/Typography";
@@ -27,6 +28,17 @@ import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import ReactionIcon from "../votes/ReactionIcon";
 import LWTooltip from "../common/LWTooltip";
+import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+
+const UserKarmaChangesQuery = gql(`
+  query KarmaChangeNotifier($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserKarmaChanges
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -219,11 +231,10 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
   
-  const { document } = useSingle({
-    documentId: currentUser._id,
-    collectionName: "Users",
-    fragmentName: "UserKarmaChanges",
+  const { data } = useQuery(UserKarmaChangesQuery, {
+    variables: { documentId: currentUser._id },
   });
+  const document = data?.user?.result;
   
   const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
 
@@ -237,8 +248,8 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     if (!currentUser) return;
     if (document?.karmaChanges) {
       void updateCurrentUser({
-        karmaChangeLastOpened: document.karmaChanges.endDate,
-        karmaChangeBatchStart: document.karmaChanges.startDate
+        ...(document.karmaChanges.endDate && { karmaChangeLastOpened: new Date(document.karmaChanges.endDate) }),
+        ...(document.karmaChanges.startDate && { karmaChangeBatchStart: new Date(document.karmaChanges.startDate) })
       });
 
       if (document.karmaChanges.updateFrequency === "realtime") {
@@ -268,7 +279,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
-    const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
+    const starIsHollow = ((!comments?.length && !posts?.length && !tagRevisions?.length) || cleared || !newKarmaChangesSinceLastVisit)
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classNames(classes.root, className)}>
         <div ref={anchorEl}>
@@ -277,7 +288,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
               ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
               : <Badge badgeContent={
                   <span className={classes.pointBadge}>
-                    {(totalChange !== 0) && <ColoredNumber n={totalChange} classes={classes}/>}
+                    {(!!totalChange) && <ColoredNumber n={totalChange} classes={classes}/>}
                   </span>}
                 >
                   <ForumIcon icon="Karma" className={classes.starIcon}/>

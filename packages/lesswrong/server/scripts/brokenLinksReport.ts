@@ -5,6 +5,8 @@ import { URL } from 'url';
 import fs from 'fs';
 import * as _ from 'underscore';
 import { fetchFragment } from '../fetchFragment';
+import { PostsPage } from '@/lib/generated/gql-codegen/graphql';
+import { PostsPage as PostsPageType } from '@/lib/collections/posts/fragments';
 
 const whitelistedImageHosts = [
   "lesswrong.com",
@@ -147,7 +149,7 @@ export const findBrokenLinks = async (
   }
   const postsToCheck = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPageType,
     selector: filter,
     currentUser: null,
     skipFiltering: true,

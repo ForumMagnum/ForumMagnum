@@ -1,10 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import UsersName from "../users/UsersName";
 import Loading from "../vulcan-core/Loading";
+import type { NotificationsList } from '@/lib/generated/gql-codegen/graphql';
+
+const PostsMinimumInfoQuery = gql(`
+  query CommentOnYourDraftNotificationHover($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,12 +34,11 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
-  const { document: post, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsMinimumInfo",
+  const { data } = useQuery(PostsMinimumInfoQuery, {
+    variables: { documentId: postId },
     skip: !postId,
   });
+  const post = data?.post?.result;
   
   const senderUserId = notification.extraData?.senderUserID;
   

@@ -1,9 +1,21 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
-import { useSingle } from "@/lib/crud/withSingle";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import LWTooltip from "../../common/LWTooltip";
+import { CommentsList } from "@/lib/generated/gql-codegen/graphql";
+
+const ForumEventsMinimumInfoQuery = gql(`
+  query CommentPollVote($documentId: String) {
+    forumEvent(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ForumEventsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,13 +37,13 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
-  const { document: forumEvent, loading } = useSingle({
-    documentId: comment.forumEventId ?? '',
-    collectionName: "ForumEvents",
-    fragmentName: 'ForumEventsDisplay',
+  const { loading, data } = useQuery(ForumEventsMinimumInfoQuery, {
+    variables: { documentId: comment.forumEventId },
     skip: !comment.forumEventId,
-    ssr: false
+    ssr: false,
   });
+  
+  const forumEvent = data?.forumEvent?.result;
 
   const isGlobal = forumEvent?.isGlobal !== false;
   const pollLink = (!isGlobal && forumEvent) ? `#${forumEvent._id}` : undefined;

@@ -1,19 +1,29 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const localGroupsBaseQuery = gql(`
+  query LocalgroupPageTitle($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsBase
+      }
+    }
+  }
+`);
 
 export const LocalgroupPageTitle = ({siteName}: {
   siteName: string,
 }) => {
   const { params: {groupId} } = useLocation();
   
-  const { document: group, loading } = useSingle({
-    documentId: groupId,
-    collectionName: "Localgroups",
-    fragmentName: "localGroupsBase",
+  const { loading, data } = useQuery(localGroupsBaseQuery, {
+    variables: { documentId: groupId },
     fetchPolicy: 'cache-only',
   });
+  const group = data?.localgroup?.result;
   
   if (!group || loading) return null;
 

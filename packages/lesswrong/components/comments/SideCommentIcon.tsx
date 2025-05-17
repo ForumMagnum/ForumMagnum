@@ -7,9 +7,11 @@ import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
 import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
-import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
+import { useApolloClient, useQuery } from '@apollo/client';
+import { CommentWithRepliesFragment } from '@/lib/collections/comments/fragments';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import LWDialog from "../common/LWDialog";
 import { SideItem } from "../contents/SideItems";
 import SideItemLine from "../contents/SideItemLine";
@@ -17,6 +19,7 @@ import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import CommentWithReplies from "./CommentWithReplies";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { CommentWithRepliesFragment as CommentWithRepliesFragmentType, PostsList } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
@@ -259,6 +262,16 @@ const SideCommentHover = ({commentIds, post, closeDialog}: {
   </div>
 }
 
+const SideCommentSingleQuery = gql(`
+  query SideCommentSingle($commentId: String!) {
+    comment(input: { selector: { _id: $commentId } }) {
+      result {
+        ...CommentWithRepliesFragment
+      }
+    }
+  }
+`);
+
 const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
   commentId: string,
   post: PostsList,
@@ -268,19 +281,29 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
-  const { bestResult: comment, fetchedResult: { document: loadedComment } } = useSingleWithPreload({
-    collectionName: 'Comments',
-    fragmentName: 'CommentWithRepliesFragment',
-    preloadFragmentName: 'CommentsList',
-    documentId: commentId,
+
+  const apolloClient = useApolloClient();
+
+  const cachedComment = apolloClient.cache.readFragment<typeof CommentWithRepliesFragment>({
+    fragment: CommentWithRepliesFragment,
+    fragmentName: "CommentWithRepliesFragment",
+    id: `Comments:`+commentId,
   });
 
-  const optimisticComment: CommentWithRepliesFragment | null = comment
+  const { data: fetchedResult } = useQuery(SideCommentSingleQuery, {
+    variables: { commentId },
+  });
+
+  const fetchedComment = fetchedResult?.comment?.result;
+
+  const bestComment = fetchedComment ?? cachedComment;
+
+  const optimisticComment = bestComment
     ? {
-      ...comment,
+      ...bestComment,
       post: post,
       tag: null,
-      latestChildren: loadedComment?.latestChildren ?? [],
+      latestChildren: fetchedComment?.latestChildren ?? [],
     }
     : null;
 

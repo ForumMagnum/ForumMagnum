@@ -8,13 +8,27 @@ import { type DocumentNode, type DefinitionNode, Kind, FragmentDefinitionNode } 
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { generateDefaultFragments } from './generateDefaultFragments';
 
+function fileMightIncludeFragment(filePath: string): boolean {
+  try {
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    return fileContents.includes('fragment ');
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Error reading file ${filePath} when checking if it might include a fragment: ${error}`);
+    return false;
+  }
+}
 
 function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
   const tsFiles = getAllTypeScriptFilesIn(srcDir);
+  console.log(`Examining ${tsFiles.length} files in ${srcDir} for fragments`);
   const program = ts.createProgram(tsFiles, {});
   const fragmentStrings: string[] = [];
   
   for (const sourceFile of program.getSourceFiles()) {
+    if (sourceFile.fileName.includes('fragments.ts')) {
+      console.log(`Visiting ${sourceFile.fileName}`);
+    }
     const fragmentStringsInFile = findFragmentsInFile(sourceFile, functionToFind);
     fragmentStrings.push(...fragmentStringsInFile);
   }
@@ -36,6 +50,7 @@ function getAllTypeScriptFilesIn(dir: string): string[] {
       } else if (entry.isFile()
         && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))
         && !entry.name.endsWith('.d.ts')
+        && fileMightIncludeFragment(fullPath)
       ) {
         files.push(fullPath);
       }
@@ -46,6 +61,15 @@ function getAllTypeScriptFilesIn(dir: string): string[] {
   return files;
 }
 
+function isGqlCall(node: ts.Node): node is ts.CallExpression {
+  if (!ts.isCallExpression(node) || ts.isTemplateExpression(node)) return false;
+  const expression = node.expression;
+  if (!ts.isIdentifier(expression)) return false;
+  if (expression.text !== 'gql') return false;
+  if (node.arguments.length !== 1) return false;
+  return true;
+}
+
 function findFragmentsInFile(
   sourceFile: ts.SourceFile,
   functionToFind: string,
@@ -53,26 +77,16 @@ function findFragmentsInFile(
   let fragments: string[] = [];
 
   function visit(node: ts.Node) {
-    if (ts.isTaggedTemplateExpression(node)) {
-      if (node.tag.getText(sourceFile) === functionToFind) {
-        const template = node.template;
-        // Add the fragment to `fragments`. Replace each expression interpolated into the template string with its text, preceded by "...".
-        if (ts.isTemplateExpression(template)) {
-          let fragment = template.head.text;
-          
-          for (const span of template.templateSpans) {
-            // Add the expression text preceded by "..."
-            fragment += `...${span.expression.getText(sourceFile)}${span.literal.text}`;
-          }
-          
-          fragments.push(fragment);
-        } else if (ts.isNoSubstitutionTemplateLiteral(template)) {
-          // Handle simple template literals with no substitutions
-          fragments.push(template.text);
+    if (isGqlCall(node)) {
+      const template = node.arguments[0];
+      if (ts.isNoSubstitutionTemplateLiteral(template)) {
+        const maybeFragmentString = template.text;
+        if (/fragment\s+([a-zA-Z0-9-_]+)\s+on\s+([a-zA-Z0-9-_]+)\s*\{/g.test(maybeFragmentString)) {
+          fragments.push(maybeFragmentString);
         }
       }
     }
-    
+
     ts.forEachChild(node, visit);
   }
   
@@ -94,7 +108,7 @@ let allFragmentsInSource: FragmentsFromSource|null = null;
 
 export function findFragmentsInSource(collectionNameToTypeName: Record<string, string>): FragmentsFromSource {
   if (allFragmentsInSource) return allFragmentsInSource;
-  const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "frag");
+  const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "gql");
   const defaultFragmentStrings = generateDefaultFragments(collectionNameToTypeName);
   const fragmentStrings = [
     ...foundFragmentStrings,
@@ -105,12 +119,19 @@ export function findFragmentsInSource(collectionNameToTypeName: Record<string, s
     let parsedFragment: DocumentNode;
     try {
       parsedFragment = gql(f);
-    } catch {
+    } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(`Error parsing fragment: ${f}`);
+      console.error(`Error parsing fragment: ${f}`, e);
       return null;
     }
-    const fragmentDefinition: FragmentDefinitionNode = getFragmentDefinitionInGraphQL(parsedFragment);
+    let fragmentDefinition: FragmentDefinitionNode;
+    try {
+      fragmentDefinition = getFragmentDefinitionInGraphQL(parsedFragment);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(`Error getting fragment definition for string ${f}: ${e}`);
+      return null;
+    }
     if (!fragmentDefinition.typeCondition) {
       throw new Error('Fragment definition does not have a type condition');
     }

@@ -6,15 +6,15 @@ import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
-import { useSingle } from '@/lib/crud/withSingle';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { useMulti } from '@/lib/crud/withMulti';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { gql } from '@/lib/generated/gql-codegen/gql';
+import { useQuery } from '@apollo/client';
 import Loading from "../vulcan-core/Loading";
 import WikiTagGroup from "./WikiTagGroup";
 import NewWikiTagButton from "./NewWikiTagButton";
+import type { ConceptItemFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -239,22 +239,40 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   );
 }
 
+const TagsQuery = gql(`
+  query TagsQuery($slugs: [String!]!) {
+    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {
+      results {
+        ...ConceptItemFragment
+      }
+    }
+  }
+`)
+
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
 
-  const { results: priorityTagsRaw } = useMulti({
-    collectionName: "Tags",
-    fragmentName: "ConceptItemFragment",
-    terms: { 
-      view: "tagsBySlugs",
-      slugs: [...prioritySlugs]
-    },
+  const { data: tagsData } = useQuery(TagsQuery, {
+    variables: { slugs: [...prioritySlugs] },
     fetchPolicy: 'cache-and-network',
-    ssr: true,
+    ssr: true
   });
+
+  const priorityTagsRaw = tagsData?.tags?.results;
+
+  // const { results: priorityTagsRaw } = useMulti({
+  //   collectionName: "Tags",
+  //   fragmentName: "ConceptItemFragment",
+  //   terms: { 
+  //     view: "tagsBySlugs",
+  //     slugs: [...prioritySlugs]
+  //   },
+  //   fetchPolicy: 'cache-and-network',
+  //   ssr: true,
+  // });
 
   const priorityTags = useMemo(() => {
     if (!priorityTagsRaw) return [];

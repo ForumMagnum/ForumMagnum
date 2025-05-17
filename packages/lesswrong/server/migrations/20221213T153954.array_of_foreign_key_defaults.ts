@@ -35,7 +35,7 @@ export const up = async ({db}: MigrationContext) => {
   await updateDefaultValue(db, Posts, "suggestForAlignmentUserIds");
   await updateDefaultValue(db, Tags, "tagFlagsIds");
   await updateDefaultValue(db, Tags, "subforumModeratorIds");
-  // await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
+  await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
   await updateDefaultValue(db, Users, "hiddenPostsMetadata");
   await updateDefaultValue(db, Users, "profileTagIds");
   await updateDefaultValue(db, Users, "organizerOfGroupIds");

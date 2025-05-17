@@ -10,6 +10,8 @@ import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
+import { PostsPage as PostsPageType } from '@/lib/generated/gql-codegen/graphql.ts';
+import { PostsPage } from '@/lib/collections/posts/fragments.ts';
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 
@@ -74,20 +76,20 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
 
   const essays = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: {_id: {$in: postsToFind.map(p => p.postId)}},
     currentUser: null,
     skipFiltering: true,
   });
 
-  const toGenerate = (p: PostsPage) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
+  const toGenerate = (p: PostsPageType) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
 
   return essays.map(e => {
     return {post: e, title: e.title, content: e.contents?.html ?? "", toGenerate: toGenerate(e) }
   })
 }
 
-type Essay = {post: PostsPage, title: string, content: string, toGenerate: number}
+type Essay = {post: PostsPageType, title: string, content: string, toGenerate: number}
 type MyMidjourneyResponse = {messageId: "string", uri?: string, progress: number, error?: string}
 
 const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {

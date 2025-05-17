@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlLegacyDataQueryTypeDefs = gql`
-  type LegacyData {
-    ${getAllGraphQLFields(schema)}
+  type LegacyData ${
+    getAllGraphQLFields(schema)
   }
 `;
 

@@ -12,10 +12,21 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { useSingle } from '../../lib/crud/withSingle';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWDialog from "../common/LWDialog";
+
+const UsersEditQuery = gql(`
+  query SetPersonalMapLocationDialog($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -30,12 +41,11 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { document: currentUserWithMarkdownBio, loading } = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersEdit",
+  const { loading, data } = useQuery(UsersEditQuery, {
+    variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
+  const currentUserWithMarkdownBio = data?.user?.result;
   const { mapLocation, googleLocation, } = currentUser || {}
   const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(mapLocation || googleLocation)

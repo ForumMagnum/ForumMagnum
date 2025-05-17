@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient, useQuery } from "@apollo/client";
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
@@ -23,7 +23,6 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
-import { useSingle } from "@/lib/crud/withSingle";
 import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";
 import PostsList2 from "../posts/PostsList2";
@@ -46,6 +45,17 @@ import TagTableOfContents from "./TagTableOfContents";
 import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagEditFragmentQuery = gql(`
+  query EATagPage($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -236,13 +246,12 @@ const EATagPage = ({classes}: {
     },
   });
 
-  const { document: editableTag } = useSingle({
-    documentId: tag?._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag?._id },
     skip: !tag || !editing,
     ssr: false,
   });
+  const editableTag = data?.tag?.result;
   
   const [truncated, setTruncated] = useState(true)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);

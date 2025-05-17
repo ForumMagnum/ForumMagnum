@@ -8,6 +8,7 @@ import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { TagPreviewFragment } from '@/lib/collections/tags/fragments';
 import TagsListItem from "./TagsListItem";
 import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
@@ -37,7 +38,7 @@ const AllTagsAlphabetical = ({classes}: {
       view: "allTagsHierarchical",
     },
     collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
+    fragmentDoc: TagPreviewFragment,
     limit: 750,
   });
   const currentUser = useCurrentUser()

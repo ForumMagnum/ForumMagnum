@@ -119,8 +119,7 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
         initialProb,
         marketTier: "play",
         groupIds: [manifoldLessWrongAnnualReviewTag],
-        idempotencyKey: idKey.slice(0, 10),
-        liquidityTier: 1_000
+        idempotencyKey: idKey.slice(0, 10)
       })
     })
 

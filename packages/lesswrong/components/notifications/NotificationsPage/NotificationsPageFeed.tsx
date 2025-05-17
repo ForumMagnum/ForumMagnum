@@ -17,6 +17,7 @@ import NotificationsPageEmpty from "./NotificationsPageEmpty";
 import LoadMore from "../../common/LoadMore";
 import Loading from "../../vulcan-core/Loading";
 import SectionTitle from "../../common/SectionTitle";
+import type { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 
@@ -83,7 +84,7 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
 };
 
 const NotificationsPageFeed = ({karmaChanges, classes}: {
-  karmaChanges?: KarmaChanges|null,
+  karmaChanges?: UserKarmaChanges['karmaChanges']|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);

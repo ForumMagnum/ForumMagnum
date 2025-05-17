@@ -1,22 +1,24 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useDialog } from '../../common/withDialog';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import LockThreadDialog from "./LockThreadDialog";
 import DropdownItem from "../DropdownItem";
+import type { CommentsList } from '@/lib/generated/gql-codegen/graphql';
 
 const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
-  const [unlockThread] = useMutation(gql`
+  const [unlockThread] = useMutation(gql(`
     mutation unlockThread($commentId: String!) {
       unlockThread(commentId: $commentId)
     }
-  `);
+  `));
 
   if (!userIsAdminOrMod(currentUser)) {
     return null;

@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
@@ -15,6 +14,8 @@ import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import ForumIcon from "../common/ForumIcon";
 import HeadTags from "../common/HeadTags";
 import CommunityMapWrapper from "./CommunityMapWrapper";
@@ -36,6 +37,16 @@ import { Typography } from "../common/Typography";
 import HoverOver from "../common/HoverOver";
 import LocalGroupSubscribers from "./LocalGroupSubscribers";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+
+const localGroupsHomeFragmentQuery = gql(`
+  query LocalGroupPage($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -252,11 +263,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const { document: group, loading: groupLoading } = useSingle({
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
-    documentId: groupId
-  })
+
+  const { loading: groupLoading, data } = useQuery(localGroupsHomeFragmentQuery, {
+    variables: { documentId: groupId },
+  });
+  const group = data?.localgroup?.result;
   
   const {
     results: upcomingEvents,

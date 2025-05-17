@@ -5,11 +5,12 @@ import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
 import type { InboxComponentProps } from "./InboxWrapper";
-import { useSingle } from "../../lib/crud/withSingle";
 import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import NewConversationDialog from "./NewConversationDialog";
 import ConversationTitleEditForm from "./ConversationTitleEditForm";
 import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
@@ -17,6 +18,16 @@ import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
+
+const ConversationsListWithReadStatusQuery = gql(`
+  query FriendlyInbox($documentId: String) {
+    conversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ConversationsListWithReadStatus
+      }
+    }
+  }
+`);
 
 const MAX_WIDTH = 1100;
 
@@ -216,7 +227,7 @@ const FriendlyInbox = ({
       />
     });
   }, [isModInbox, openDialog]);
-  const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
+  const conversationsResult = useMulti({
     terms,
     collectionName: "Conversations",
     fragmentName: "ConversationsListWithReadStatus",
@@ -233,12 +244,11 @@ const FriendlyInbox = ({
   const eagerSelectedConversation = useMemo(() => {
     return conversations?.find((c) => c._id === conversationId);
   }, [conversations, conversationId]);
-  const { document: fetchedSelectedConversation } = useSingle({
-    documentId: conversationId,
-    collectionName: "Conversations",
-    fragmentName: "ConversationsListWithReadStatus",
+  const { data } = useQuery(ConversationsListWithReadStatusQuery, {
+    variables: { documentId: conversationId },
     skip: !conversationId,
   });
+  const fetchedSelectedConversation = data?.conversation?.result;
   const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;
 
   const onOpenConversation = useCallback(async (conversationId: string) => {

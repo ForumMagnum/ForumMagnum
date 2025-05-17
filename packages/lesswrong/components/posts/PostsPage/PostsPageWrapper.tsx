@@ -6,14 +6,35 @@ import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
-import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
-import { useDisplayedPost } from '../usePost';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient, useQuery } from '@apollo/client';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
+import type { PostsListWithVotes, SequencesPageFragment } from '@/lib/generated/gql-codegen/graphql';
+
+const PostsWithNavigationAndRevisionQuery = gql(`
+  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigationAndRevision
+      }
+    }
+  }
+`);
+
+const PostsWithNavigationQuery = gql(`
+  query PostsPageWrapper($documentId: String, $sequenceId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigation
+      }
+    }
+  }
+`);
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -44,7 +65,22 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     sequence: sequencePreload,
   } : postPreload;
 
-  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
+  const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
+    variables: { documentId: documentId, sequenceId, batchKey: "singlePost" },
+    skip: !version,
+  });
+  const postWithoutRevision = postWithoutRevisionData?.post?.result;
+
+  const { loading: postWithRevisionLoading, error: postWithRevisionError, refetch: refetchPostWithRevision, data: postWithRevisionData } = useQuery(PostsWithNavigationAndRevisionQuery, {
+    variables: { documentId: documentId, sequenceId, version, batchKey: "singlePost" },
+    skip: !!version,
+  });
+  const postWithRevision = postWithRevisionData?.post?.result;
+
+  const post = version ? postWithRevision : postWithoutRevision;
+  const loading = version ? postWithRevisionLoading : postWithoutRevisionLoading;
+  const error = version ? postWithRevisionError : postWithoutRevisionError;
+  const refetch = version ? refetchPostWithRevision : refetchPostWithoutRevision;
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR. We don't preload comments if the post was preloaded

@@ -1,8 +1,11 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useSingle } from "@/lib/crud/withSingle";
+import { gql as dynamicGql, useQuery } from '@apollo/client';
+import { getFragment } from "@/lib/vulcan-lib/fragments";
 import Loading from "../vulcan-core/Loading";
 import NotifyMeButton from "../notifications/NotifyMeButton";
+import type { SubscriptionState } from "@/lib/generated/gql-codegen/graphql";
+import { SubscriptionType } from "@/lib/collections/subscriptions/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,11 +42,25 @@ const SubscribedItem = ({
   renderDocument: (document: AnyBecauseTodo) => ReactNode,
   classes: ClassesType<typeof styles>
 }) => {
-  const {document, loading} = useSingle({
-    documentId: subscription.documentId ?? undefined,
-    collectionName, fragmentName,
+  const fragment = getFragment(fragmentName);
+
+  const query = dynamicGql`
+    query SubscribedItem($documentId: String!) {
+      ${collectionName}(input: { selector: { _id: $documentId } }) {
+        ${`...${fragmentName}`}
+      }
+    }
+    ${fragment}
+  `;
+
+  const { data: fetchedResult, loading } = useQuery(query, {
+    variables: {
+      documentId: subscription.documentId,
+    },
     skip: !subscription.documentId,
   });
+
+  const document = fetchedResult?.[collectionName];
 
   if (!document && !loading) {
     return null;
@@ -56,7 +73,7 @@ const SubscribedItem = ({
     <div className={classes.root}>
       <NotifyMeButton
         document={document}
-        subscriptionType={subscription.type}
+        subscriptionType={(subscription.type ?? undefined) as SubscriptionType | undefined}
         subscribeMessage="Resubscribe"
         unsubscribeMessage="Unsubscribe"
         className={classes.unsubscribeButton}

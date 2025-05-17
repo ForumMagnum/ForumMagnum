@@ -7,8 +7,8 @@ import { assignUserIdToData, insertAndReturnDocument } from "@/server/vulcan-lib
 import gql from "graphql-tag";
 
 export const graphqlUltraFeedEventTypeDefs = gql`
-  input CreateUltraFeedEventDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateUltraFeedEventDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateUltraFeedEventInput {

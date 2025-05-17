@@ -1,9 +1,10 @@
 import { cheerioParse } from "../utils/htmlUtil";
 import type { FetchedFragment } from '../fetchFragment';
 import { getLatestContentsRevision } from '../collections/revisions/helpers';
+import { PostsHtml } from "@/lib/generated/gql-codegen/graphql";
 
 export const getPostHTML = async (
-  post: DbPost|FetchedFragment<"PostsHTML">,
+  post: DbPost|FetchedFragment<PostsHtml, "Posts">,
   context: ResolverContext,
 ): Promise<string> => {
   if ("contents" in post && post.contents) {

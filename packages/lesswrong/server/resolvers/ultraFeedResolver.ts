@@ -78,7 +78,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
       settings: JSON
     ): UltraFeedQueryResults!
   }
-`
+`;
 
 // items now carry `type`
 type SampledItem =

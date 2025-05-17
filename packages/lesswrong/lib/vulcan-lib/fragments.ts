@@ -64,7 +64,7 @@ export function initializeFragment(fragmentName: FragmentName): DocumentNode {
 }
 
 export function getAllFragmentNames(): Array<FragmentName> {
-  return Object.values(getAllFragments()).map(fragmentText => extractFragmentName(fragmentText)) as Array<FragmentName>;
+  return Object.values(getAllFragments()).map(fragmentText => extractFragmentName(fragmentText!)) as Array<FragmentName>;
 }
 
 

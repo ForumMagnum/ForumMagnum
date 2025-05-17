@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const DialogueCheckInfo = () => frag`
+export const DialogueCheckInfo = gql(`
   fragment DialogueCheckInfo on DialogueCheck {
     _id
     userId
@@ -9,10 +9,10 @@ export const DialogueCheckInfo = () => frag`
     checkedAt
     hideInRecommendations
     matchPreference {
-      ...DialogueMatchPreferencesDefaultFragment
+      ...DialogueMatchPreferenceInfo
     }
     reciprocalMatchPreference {
-      ...DialogueMatchPreferencesDefaultFragment
+      ...DialogueMatchPreferenceInfo
     }
   }
-`
+`)

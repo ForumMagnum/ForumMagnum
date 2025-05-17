@@ -160,12 +160,12 @@ export function getDbIndexesOnPosts() {
   
   // indexSet.addIndex("Posts",
   //   augmentForDefaultView({ nominationCount2018: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
-  //   { name: "posts.2018reviewRecentDiscussionThreadsList", }
+  //   { name: "posts.reviewRecentDiscussionThreadsList2018", }
   // );
   
   // indexSet.addIndex("Posts",
   //   augmentForDefaultView({ nominationCount2019: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
-  //   { name: "posts.2019reviewRecentDiscussionThreadsList", }
+  //   { name: "posts.reviewRecentDiscussionThreadsList2019", }
   // );
   
   indexSet.addIndex("Posts",

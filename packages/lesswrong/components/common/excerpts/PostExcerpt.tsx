@@ -3,9 +3,21 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
-import { useSingle } from "../../../lib/crud/withSingle";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 import Loading from "../../vulcan-core/Loading";
+import type { PostsList, SunshinePostsList } from "@/lib/generated/gql-codegen/graphql";
+
+const HighlightWithHashQuery = gql(`
+  query PostExcerpt($documentId: String, $hash: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...HighlightWithHash
+      }
+    }
+  }
+`);
 
 const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
   "user" in post;
@@ -34,16 +46,14 @@ const PostExcerpt = ({
     !post.fmCrosspost.hostedHere &&
     !!post.fmCrosspost.foreignPostId;
   const foreignApolloClient = useForeignApolloClient();
-  const {document: postHighlight, loading: loadingHighlight} = useSingle({
-    collectionName: "Posts",
-    fragmentName: "HighlightWithHash",
-    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
+  const { loading: loadingHighlight, data } = useQuery(HighlightWithHashQuery, {
+    variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
     skip: !hash && !!post.contents,
     fetchPolicy: "cache-first",
-    extraVariables: {hash: "String"},
-    extraVariablesValues: {hash},
-    apolloClient: isForeign ? foreignApolloClient : undefined,
+    client: isForeign ? foreignApolloClient : undefined,
   });
+  const postHighlight = data?.post?.result;
+
   if ((loading && !hash) || (loadingHighlight && hash)) {
     return (
       <Loading />

@@ -17,8 +17,8 @@ interface SelectLocalgroupBaseProps {
 }
 
 type SelectLocalgroupProps = SelectLocalgroupBaseProps & (
-  { field: TypedFieldApi<string[] | null>; multiselect: true } |
-  { field: TypedFieldApi<string | null>; multiselect?: false }
+  { field: TypedFieldApi<string[] | null | undefined>; multiselect: true } |
+  { field: TypedFieldApi<string | null | undefined>; multiselect?: false }
 );
 
 /**

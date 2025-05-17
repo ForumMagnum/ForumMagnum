@@ -72,6 +72,7 @@ import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { PostSideComments, UsersMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -88,7 +89,7 @@ export const graphqlTypeDefs = gql`
   }
 
   input SocialPreviewInput {
-    imageId: String
+    imageId: String!
     text: String
   }
 
@@ -105,7 +106,7 @@ export const graphqlTypeDefs = gql`
   }
 
   type SocialPreviewOutput {
-    imageId: String
+    imageId: String!
     text: String
   }
 
@@ -265,7 +266,7 @@ const schema = {
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   revisions: {
     graphql: {
-      outputType: "[Revision]",
+      outputType: "[Revision!]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("contents"),
@@ -1599,9 +1600,9 @@ const schema = {
   },
   tags: {
     graphql: {
-      outputType: "[Tag]",
+      outputType: "[Tag!]!",
       canRead: ["guests"],
-      resolver: async (post, args, context) => {
+      resolver: async (post, args, context): Promise<Partial<DbTag>[]> => {
         const { currentUser } = context;
         const tagRelevanceRecord = post.tagRelevance || {};
         const tagIds = Object.keys(tagRelevanceRecord).filter((id) => tagRelevanceRecord[id] > 0);
@@ -3582,7 +3583,9 @@ const schema = {
 
         if (cacheIsValid) {
           unfilteredResult = {
-            annotatedHtml: cache.annotatedHtml ?? "",
+            // We know that annotatedHtml is not null, it just looks that way cos of GraphQL-based perms
+            // TODO: rip out the GraphQL stuff for sideCommentsCache
+            annotatedHtml: cache.annotatedHtml!,
             commentsByBlock: cache.commentsByBlock,
           };
         } else {

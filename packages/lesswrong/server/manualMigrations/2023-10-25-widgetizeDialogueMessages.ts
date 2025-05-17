@@ -8,6 +8,8 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
 import { sleep } from '../../lib/helpers';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
+import { PostsOriginalContents as PostsOriginalContentsType } from '@/lib/generated/gql-codegen/graphql';
+import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
 
 const widgetizeDialogueMessages = (html: string, _postId: string) => {
   const $ = cheerioParse(html);
@@ -27,7 +29,7 @@ const widgetizeDialogueMessages = (html: string, _postId: string) => {
   return { anyChanges, migratedHtml: $.html() };
 }
 
-async function wrapMessageContents(dialogue: PostsOriginalContents) {
+async function wrapMessageContents(dialogue: PostsOriginalContentsType) {
   const postId = dialogue._id;
   const latestRevisionPromise = Revisions.findOne({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } });
   const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
@@ -66,7 +68,7 @@ async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string,
   }
 }
 
-async function _migrateDialogue(dialogue: PostsOriginalContents) {
+async function _migrateDialogue(dialogue: PostsOriginalContentsType) {
   const postId = dialogue._id;
   const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
   const { anyChanges, migratedHtml, remoteDocument } = await wrapMessageContents(dialogue);
@@ -101,7 +103,7 @@ async function _migrateDialogue(dialogue: PostsOriginalContents) {
 export const migrateDialogue = async (postId: string) => {
   const dialogue = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
+    fragmentDoc: PostsOriginalContents,
     selector: {_id: postId},
     currentUser: null,
     skipFiltering: true,
@@ -116,7 +118,7 @@ export default registerMigration({
   action: async () => {
     const dialogues = await fetchFragment({
       collectionName: "Posts",
-      fragmentName: "PostsOriginalContents",
+      fragmentDoc: PostsOriginalContents,
       selector: {collabEditorDialogue: true},
       currentUser: null,
       skipFiltering: true,

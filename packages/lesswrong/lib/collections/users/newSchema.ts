@@ -33,7 +33,6 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import GraphQLJSON from "graphql-type-json";
 import gql from "graphql-tag";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { loadByIds } from "@/lib/loaders";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -671,8 +670,10 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["members"],
-      // Setting this will trigger a verification email to be sent (unless `verifyEmailsSetting` is false, in which case it does nothing)
-      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
+      canUpdate: verifyEmailsSetting.get()
+        ? [userOwns, 'sunshineRegiment', 'admins']
+        : [],
       canCreate: ["members"],
       validation: {
         optional: true,
@@ -1413,19 +1414,22 @@ const schema = {
     },
   },
   bookmarkedPostsMetadata: {
+    database: {
+      type: "JSONB[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
     graphql: {
       outputType: "[PostMetadataOutput!]",
+      inputType: "[PostMetadataInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
-        const { Bookmarks } = context;
-        const bookmarks = await Bookmarks.find({ 
-          userId: user._id, 
-          collectionName: "Posts",
-          active: true 
-        }, 
-        {sort: {lastUpdated: -1}}
-        ).fetch();
-        return bookmarks.map((bookmark: DbBookmark) => ({ postId: bookmark.documentId }));
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      onCreate: arrayOfForeignKeysOnCreate,
+      onUpdate: ({ data, currentUser, oldDocument }) => {
+        if (data?.bookmarkedPostsMetadata) {
+          return _.uniq(data?.bookmarkedPostsMetadata, "postId");
+        }
       },
     },
   },
@@ -1433,22 +1437,11 @@ const schema = {
     graphql: {
       outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
-        const { Bookmarks, currentUser } = context;
-        const bookmarks = await Bookmarks.find({ 
-          userId: user._id, 
-          collectionName: "Posts",
-          active: true 
-        }, 
-        {sort: {lastUpdated: -1}}
-        ).fetch();
-        const postIds = bookmarks.map((bookmark: DbBookmark) => bookmark.documentId);
-        if (postIds.length === 0) {
-          return [];
-        }
-        const posts = await loadByIds(context, "Posts", postIds)
-        return await accessFilterMultiple(currentUser, "Posts", posts, context);
-      },
+      resolver: generateIdResolverMulti({
+        foreignCollectionName: "Posts",
+        fieldName: "bookmarkedPostsMetadata",
+        getKey: (obj) => obj.postId,
+      }),
     },
   },
   // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
@@ -2736,7 +2729,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: ["sunshineRegiment", "admins", "guests"],
+      canRead: ["guests", "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
@@ -2747,7 +2740,7 @@ const schema = {
   reviewedByUser: {
     graphql: {
       outputType: "User",
-      canRead: ["sunshineRegiment", "admins", "guests"],
+      canRead: ["guests", "sunshineRegiment", "admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reviewedByUserId" }),
     },
   },

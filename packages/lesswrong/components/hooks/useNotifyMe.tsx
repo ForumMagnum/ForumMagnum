@@ -13,6 +13,7 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
+import { CommentsList, PostsAuthors, PostsBase, PostsMinimumInfo, SequencesPageTitleFragment, SubscriptionState, UserOnboardingAuthor, UserOnboardingTag, UsersCurrent, UsersMinimumInfo, UsersProfile } from "@/lib/generated/gql-codegen/graphql";
 import LoginPopup from "../users/LoginPopup";
 
 export type NotifyMeDocument =
@@ -24,8 +25,8 @@ export type NotifyMeDocument =
   CommentsList |
   PostsBase |
   PostsMinimumInfo |
-  PostsBase_group |
-  PostsAuthors_user;
+  PostsBase['group'] |
+  PostsAuthors['user'];
 
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,
@@ -102,7 +103,7 @@ export const useNotifyMe = ({
   });
 
   // Get existing subscription, if there is one
-  const {results, loading, invalidateCache} = useMulti({
+  const {results, loading} = useMulti({
     terms: {
       view: "subscriptionState",
       documentId: document._id,
@@ -154,7 +155,8 @@ export const useNotifyMe = ({
       // unmounted before the create mutation has finished (eg; when used inside
       // a dropdown item) which means that the automatic cache invalidation code
       // won't be able to find the relevant query
-      invalidateCache();
+      // May 7, 2025: I am removing this because I don't think it's worth the complexity
+      // invalidateCache();
 
       // Success message will be for example posts.subscribed
       if (!hideFlashes) {
@@ -169,8 +171,7 @@ export const useNotifyMe = ({
     }
   }, [
     currentUser, openDialog, isSubscribed, captureEvent, document._id,
-    collectionName, subscriptionType, createSubscription, invalidateCache,
-    flash, hideFlashes,
+    collectionName, subscriptionType, createSubscription, flash, hideFlashes,
   ]);
 
   // If we are hiding the notify element, don't return an onSubscribe.

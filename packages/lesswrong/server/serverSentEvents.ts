@@ -10,6 +10,7 @@ import { ActiveDialogue, ActiveDialogueServer, ServerSentEventsMessage, TypingIn
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 import UsersRepo from './repos/UsersRepo';
 import { isEAForum } from '../lib/instanceSettings';
+import { TypingIndicatorInfo } from '@/lib/generated/gql-codegen/graphql';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 

@@ -1,12 +1,24 @@
 import React, { useCallback } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import SingleColumnSection from "../common/SingleColumnSection";
 import RevisionSelect from "./RevisionSelect";
 import Loading from "../vulcan-core/Loading";
+import type { RevisionMetadata } from '@/lib/generated/gql-codegen/graphql';
+
+const PostsDetailsQuery = gql(`
+  query PostsRevisionSelect($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   revisionList: {
@@ -20,11 +32,12 @@ const PostsRevisionSelect = ({ classes }: {
   const navigate = useNavigate();
   const postId = params._id;
   
-  const { document: post, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
+  const { loading: loadingPost, data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: postId },
   });
+  
+  const post = data?.post?.result;
+
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     skip: !post,
     terms: {

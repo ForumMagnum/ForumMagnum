@@ -6,6 +6,7 @@ import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
 import PostsPage, { EagerPostComments } from "./PostsPage";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
+import type { PostsWithNavigation, PostsWithNavigationAndRevision } from "@/lib/generated/gql-codegen/graphql";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -37,7 +38,7 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
 const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
   eagerPostComments?: EagerPostComments,
-  refetch: () => Promise<void>,
+  refetch: () => Promise<AnyBecauseHard>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
   const {

@@ -1,4 +1,6 @@
-export const AdvisorRequestsDefaultFragment = `
+import { gql } from '@/lib/generated/gql-codegen/gql';
+
+export const AdvisorRequestsDefaultFragment = gql(`
   fragment AdvisorRequestsDefaultFragment on AdvisorRequest {
     _id
     schemaVersion
@@ -8,18 +10,18 @@ export const AdvisorRequestsDefaultFragment = `
     interestedInMetaculus
     jobAds
   }
-`;
+`);
 
-export const ArbitalCachesDefaultFragment = `
+export const ArbitalCachesDefaultFragment = gql(`
   fragment ArbitalCachesDefaultFragment on ArbitalCaches {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const ArbitalTagContentRelsDefaultFragment = `
+export const ArbitalTagContentRelsDefaultFragment = gql(`
   fragment ArbitalTagContentRelsDefaultFragment on ArbitalTagContentRel {
     _id
     schemaVersion
@@ -33,9 +35,9 @@ export const ArbitalTagContentRelsDefaultFragment = `
     level
     isStrong
   }
-`;
+`);
 
-export const AutomatedContentEvaluationsDefaultFragment = `
+export const AutomatedContentEvaluationsDefaultFragment = gql(`
   fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluation {
     _id
     createdAt
@@ -45,9 +47,9 @@ export const AutomatedContentEvaluationsDefaultFragment = `
     aiReasoning
     aiCoT
   }
-`;
+`);
 
-export const BansDefaultFragment = `
+export const BansDefaultFragment = gql(`
   fragment BansDefaultFragment on Ban {
     _id
     schemaVersion
@@ -60,9 +62,9 @@ export const BansDefaultFragment = `
     comment
     properties
   }
-`;
+`);
 
-export const BookmarksDefaultFragment = `
+export const BookmarksDefaultFragment = gql(`
   fragment BookmarksDefaultFragment on Bookmark {
     _id
     createdAt
@@ -72,9 +74,9 @@ export const BookmarksDefaultFragment = `
     lastUpdated
     active
   }
-`;
+`);
 
-export const BooksDefaultFragment = `
+export const BooksDefaultFragment = gql(`
   fragment BooksDefaultFragment on Book {
     _id
     schemaVersion
@@ -93,9 +95,9 @@ export const BooksDefaultFragment = `
     hideProgressBar
     showChapters
   }
-`;
+`);
 
-export const ChaptersDefaultFragment = `
+export const ChaptersDefaultFragment = gql(`
   fragment ChaptersDefaultFragment on Chapter {
     _id
     schemaVersion
@@ -108,9 +110,9 @@ export const ChaptersDefaultFragment = `
     sequenceId
     postIds
   }
-`;
+`);
 
-export const CkEditorUserSessionsDefaultFragment = `
+export const CkEditorUserSessionsDefaultFragment = gql(`
   fragment CkEditorUserSessionsDefaultFragment on CkEditorUserSession {
     _id
     schemaVersion
@@ -121,9 +123,9 @@ export const CkEditorUserSessionsDefaultFragment = `
     endedAt
     endedBy
   }
-`;
+`);
 
-export const ClientIdsDefaultFragment = `
+export const ClientIdsDefaultFragment = gql(`
   fragment ClientIdsDefaultFragment on ClientId {
     _id
     schemaVersion
@@ -137,9 +139,9 @@ export const ClientIdsDefaultFragment = `
     lastSeenAt
     timesSeen
   }
-`;
+`);
 
-export const CollectionsDefaultFragment = `
+export const CollectionsDefaultFragment = gql(`
   fragment CollectionsDefaultFragment on Collection {
     _id
     schemaVersion
@@ -154,9 +156,9 @@ export const CollectionsDefaultFragment = `
     hideStartReadingButton
     noindex
   }
-`;
+`);
 
-export const CommentModeratorActionsDefaultFragment = `
+export const CommentModeratorActionsDefaultFragment = gql(`
   fragment CommentModeratorActionsDefaultFragment on CommentModeratorAction {
     _id
     schemaVersion
@@ -166,9 +168,9 @@ export const CommentModeratorActionsDefaultFragment = `
     type
     endedAt
   }
-`;
+`);
 
-export const CommentsDefaultFragment = `
+export const CommentsDefaultFragment = gql(`
   fragment CommentsDefaultFragment on Comment {
     _id
     schemaVersion
@@ -247,9 +249,9 @@ export const CommentsDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const ConversationsDefaultFragment = `
+export const ConversationsDefaultFragment = gql(`
   fragment ConversationsDefaultFragment on Conversation {
     _id
     schemaVersion
@@ -263,9 +265,9 @@ export const ConversationsDefaultFragment = `
     moderator
     archivedByIds
   }
-`;
+`);
 
-export const CronHistoriesDefaultFragment = `
+export const CronHistoriesDefaultFragment = gql(`
   fragment CronHistoriesDefaultFragment on CronHistory {
     _id
     intendedAt
@@ -274,9 +276,9 @@ export const CronHistoriesDefaultFragment = `
     finishedAt
     result
   }
-`;
+`);
 
-export const CurationEmailsDefaultFragment = `
+export const CurationEmailsDefaultFragment = gql(`
   fragment CurationEmailsDefaultFragment on CurationEmail {
     _id
     schemaVersion
@@ -285,9 +287,9 @@ export const CurationEmailsDefaultFragment = `
     userId
     postId
   }
-`;
+`);
 
-export const CurationNoticesDefaultFragment = `
+export const CurationNoticesDefaultFragment = gql(`
   fragment CurationNoticesDefaultFragment on CurationNotice {
     _id
     schemaVersion
@@ -299,27 +301,27 @@ export const CurationNoticesDefaultFragment = `
     postId
     deleted
   }
-`;
+`);
 
-export const DatabaseMetadataDefaultFragment = `
+export const DatabaseMetadataDefaultFragment = gql(`
   fragment DatabaseMetadataDefaultFragment on DatabaseMetadata {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const DebouncerEventsDefaultFragment = `
+export const DebouncerEventsDefaultFragment = gql(`
   fragment DebouncerEventsDefaultFragment on DebouncerEvents {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const DialogueChecksDefaultFragment = `
+export const DialogueChecksDefaultFragment = gql(`
   fragment DialogueChecksDefaultFragment on DialogueCheck {
     _id
     schemaVersion
@@ -331,9 +333,9 @@ export const DialogueChecksDefaultFragment = `
     checkedAt
     hideInRecommendations
   }
-`;
+`);
 
-export const DialogueMatchPreferencesDefaultFragment = `
+export const DialogueMatchPreferencesDefaultFragment = gql(`
   fragment DialogueMatchPreferencesDefaultFragment on DialogueMatchPreference {
     _id
     schemaVersion
@@ -349,9 +351,9 @@ export const DialogueMatchPreferencesDefaultFragment = `
     generatedDialogueId
     deleted
   }
-`;
+`);
 
-export const DigestPostsDefaultFragment = `
+export const DigestPostsDefaultFragment = gql(`
   fragment DigestPostsDefaultFragment on DigestPost {
     _id
     schemaVersion
@@ -362,9 +364,9 @@ export const DigestPostsDefaultFragment = `
     emailDigestStatus
     onsiteDigestStatus
   }
-`;
+`);
 
-export const DigestsDefaultFragment = `
+export const DigestsDefaultFragment = gql(`
   fragment DigestsDefaultFragment on Digest {
     _id
     schemaVersion
@@ -377,9 +379,9 @@ export const DigestsDefaultFragment = `
     onsiteImageId
     onsitePrimaryColor
   }
-`;
+`);
 
-export const ElectionCandidatesDefaultFragment = `
+export const ElectionCandidatesDefaultFragment = gql(`
   fragment ElectionCandidatesDefaultFragment on ElectionCandidate {
     _id
     schemaVersion
@@ -407,9 +409,9 @@ export const ElectionCandidatesDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const ElectionVotesDefaultFragment = `
+export const ElectionVotesDefaultFragment = gql(`
   fragment ElectionVotesDefaultFragment on ElectionVote {
     _id
     schemaVersion
@@ -424,9 +426,9 @@ export const ElectionVotesDefaultFragment = `
     userExplanation
     userOtherComments
   }
-`;
+`);
 
-export const ElicitQuestionPredictionsDefaultFragment = `
+export const ElicitQuestionPredictionsDefaultFragment = gql(`
   fragment ElicitQuestionPredictionsDefaultFragment on ElicitQuestionPrediction {
     _id
     prediction
@@ -438,9 +440,9 @@ export const ElicitQuestionPredictionsDefaultFragment = `
     binaryQuestionId
     isDeleted
   }
-`;
+`);
 
-export const ElicitQuestionsDefaultFragment = `
+export const ElicitQuestionsDefaultFragment = gql(`
   fragment ElicitQuestionsDefaultFragment on ElicitQuestion {
     _id
     schemaVersion
@@ -451,18 +453,18 @@ export const ElicitQuestionsDefaultFragment = `
     resolution
     resolvesBy
   }
-`;
+`);
 
-export const EmailTokensDefaultFragment = `
+export const EmailTokensDefaultFragment = gql(`
   fragment EmailTokensDefaultFragment on EmailTokens {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const FeaturedResourcesDefaultFragment = `
+export const FeaturedResourcesDefaultFragment = gql(`
   fragment FeaturedResourcesDefaultFragment on FeaturedResource {
     _id
     schemaVersion
@@ -474,9 +476,9 @@ export const FeaturedResourcesDefaultFragment = `
     ctaUrl
     expiresAt
   }
-`;
+`);
 
-export const FieldChangesDefaultFragment = `
+export const FieldChangesDefaultFragment = gql(`
   fragment FieldChangesDefaultFragment on FieldChange {
     _id
     schemaVersion
@@ -489,9 +491,9 @@ export const FieldChangesDefaultFragment = `
     oldValue
     newValue
   }
-`;
+`);
 
-export const ForumEventsDefaultFragment = `
+export const ForumEventsDefaultFragment = gql(`
   fragment ForumEventsDefaultFragment on ForumEvent {
     _id
     schemaVersion
@@ -521,9 +523,9 @@ export const ForumEventsDefaultFragment = `
     commentPrompt
     publicData
   }
-`;
+`);
 
-export const GardenCodesDefaultFragment = `
+export const GardenCodesDefaultFragment = gql(`
   fragment GardenCodesDefaultFragment on GardenCode {
     _id
     schemaVersion
@@ -543,9 +545,9 @@ export const GardenCodesDefaultFragment = `
     deleted
     afOnly
   }
-`;
+`);
 
-export const GoogleServiceAccountSessionsDefaultFragment = `
+export const GoogleServiceAccountSessionsDefaultFragment = gql(`
   fragment GoogleServiceAccountSessionsDefaultFragment on GoogleServiceAccountSession {
     _id
     schemaVersion
@@ -556,18 +558,18 @@ export const GoogleServiceAccountSessionsDefaultFragment = `
     active
     revoked
   }
-`;
+`);
 
-export const ImagesDefaultFragment = `
+export const ImagesDefaultFragment = gql(`
   fragment ImagesDefaultFragment on Images {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const JargonTermsDefaultFragment = `
+export const JargonTermsDefaultFragment = gql(`
   fragment JargonTermsDefaultFragment on JargonTerm {
     _id
     schemaVersion
@@ -580,9 +582,9 @@ export const JargonTermsDefaultFragment = `
     deleted
     altTerms
   }
-`;
+`);
 
-export const LWEventsDefaultFragment = `
+export const LWEventsDefaultFragment = gql(`
   fragment LWEventsDefaultFragment on LWEvent {
     _id
     schemaVersion
@@ -595,18 +597,18 @@ export const LWEventsDefaultFragment = `
     properties
     intercom
   }
-`;
+`);
 
-export const LegacyDataDefaultFragment = `
+export const LegacyDataDefaultFragment = gql(`
   fragment LegacyDataDefaultFragment on LegacyData {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const LlmConversationsDefaultFragment = `
+export const LlmConversationsDefaultFragment = gql(`
   fragment LlmConversationsDefaultFragment on LlmConversation {
     _id
     schemaVersion
@@ -618,9 +620,9 @@ export const LlmConversationsDefaultFragment = `
     systemPrompt
     deleted
   }
-`;
+`);
 
-export const LlmMessagesDefaultFragment = `
+export const LlmMessagesDefaultFragment = gql(`
   fragment LlmMessagesDefaultFragment on LlmMessage {
     _id
     schemaVersion
@@ -631,9 +633,9 @@ export const LlmMessagesDefaultFragment = `
     role
     content
   }
-`;
+`);
 
-export const LocalgroupsDefaultFragment = `
+export const LocalgroupsDefaultFragment = gql(`
   fragment LocalgroupsDefaultFragment on Localgroup {
     _id
     schemaVersion
@@ -660,9 +662,9 @@ export const LocalgroupsDefaultFragment = `
     inactive
     deleted
   }
-`;
+`);
 
-export const ManifoldProbabilitiesCachesDefaultFragment = `
+export const ManifoldProbabilitiesCachesDefaultFragment = gql(`
   fragment ManifoldProbabilitiesCachesDefaultFragment on ManifoldProbabilitiesCache {
     _id
     schemaVersion
@@ -675,9 +677,9 @@ export const ManifoldProbabilitiesCachesDefaultFragment = `
     lastUpdated
     url
   }
-`;
+`);
 
-export const MessagesDefaultFragment = `
+export const MessagesDefaultFragment = gql(`
   fragment MessagesDefaultFragment on Message {
     _id
     schemaVersion
@@ -688,18 +690,18 @@ export const MessagesDefaultFragment = `
     conversationId
     noEmail
   }
-`;
+`);
 
-export const MigrationsDefaultFragment = `
+export const MigrationsDefaultFragment = gql(`
   fragment MigrationsDefaultFragment on Migration {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const ModerationTemplatesDefaultFragment = `
+export const ModerationTemplatesDefaultFragment = gql(`
   fragment ModerationTemplatesDefaultFragment on ModerationTemplate {
     _id
     schemaVersion
@@ -711,9 +713,9 @@ export const ModerationTemplatesDefaultFragment = `
     order
     deleted
   }
-`;
+`);
 
-export const ModeratorActionsDefaultFragment = `
+export const ModeratorActionsDefaultFragment = gql(`
   fragment ModeratorActionsDefaultFragment on ModeratorAction {
     _id
     schemaVersion
@@ -723,9 +725,9 @@ export const ModeratorActionsDefaultFragment = `
     type
     endedAt
   }
-`;
+`);
 
-export const MultiDocumentsDefaultFragment = `
+export const MultiDocumentsDefaultFragment = gql(`
   fragment MultiDocumentsDefaultFragment on MultiDocument {
     _id
     schemaVersion
@@ -755,9 +757,9 @@ export const MultiDocumentsDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const NotificationsDefaultFragment = `
+export const NotificationsDefaultFragment = gql(`
   fragment NotificationsDefaultFragment on Notification {
     _id
     schemaVersion
@@ -776,18 +778,18 @@ export const NotificationsDefaultFragment = `
     emailed
     waitingForBatch
   }
-`;
+`);
 
-export const PageCacheDefaultFragment = `
+export const PageCacheDefaultFragment = gql(`
   fragment PageCacheDefaultFragment on PageCacheEntry {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const PetrovDayActionsDefaultFragment = `
+export const PetrovDayActionsDefaultFragment = gql(`
   fragment PetrovDayActionsDefaultFragment on PetrovDayAction {
     _id
     schemaVersion
@@ -797,9 +799,9 @@ export const PetrovDayActionsDefaultFragment = `
     data
     userId
   }
-`;
+`);
 
-export const PetrovDayLaunchsDefaultFragment = `
+export const PetrovDayLaunchsDefaultFragment = gql(`
   fragment PetrovDayLaunchsDefaultFragment on PetrovDayLaunch {
     _id
     schemaVersion
@@ -809,9 +811,9 @@ export const PetrovDayLaunchsDefaultFragment = `
     hashedLaunchCode
     userId
   }
-`;
+`);
 
-export const PodcastEpisodesDefaultFragment = `
+export const PodcastEpisodesDefaultFragment = gql(`
   fragment PodcastEpisodesDefaultFragment on PodcastEpisode {
     _id
     schemaVersion
@@ -822,9 +824,9 @@ export const PodcastEpisodesDefaultFragment = `
     episodeLink
     externalEpisodeId
   }
-`;
+`);
 
-export const PodcastsDefaultFragment = `
+export const PodcastsDefaultFragment = gql(`
   fragment PodcastsDefaultFragment on Podcast {
     _id
     schemaVersion
@@ -834,23 +836,9 @@ export const PodcastsDefaultFragment = `
     applePodcastLink
     spotifyPodcastLink
   }
-`;
+`);
 
-export const PostEmbeddingsDefaultFragment = `
-  fragment PostEmbeddingsDefaultFragment on PostEmbedding {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    postId
-    postHash
-    lastGeneratedAt
-    model
-    embeddings
-  }
-`;
-
-export const PostRecommendationsDefaultFragment = `
+export const PostRecommendationsDefaultFragment = gql(`
   fragment PostRecommendationsDefaultFragment on PostRecommendation {
     _id
     schemaVersion
@@ -865,9 +853,9 @@ export const PostRecommendationsDefaultFragment = `
     lastRecommendedAt
     clickedAt
   }
-`;
+`);
 
-export const PostRelationsDefaultFragment = `
+export const PostRelationsDefaultFragment = gql(`
   fragment PostRelationsDefaultFragment on PostRelation {
     _id
     schemaVersion
@@ -878,27 +866,9 @@ export const PostRelationsDefaultFragment = `
     targetPostId
     order
   }
-`;
+`);
 
-export const PostViewTimesDefaultFragment = `
-  fragment PostViewTimesDefaultFragment on PostViewTime {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-  }
-`;
-
-export const PostViewsDefaultFragment = `
-  fragment PostViewsDefaultFragment on PostViews {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-  }
-`;
-
-export const PostsDefaultFragment = `
+export const PostsDefaultFragment = gql(`
   fragment PostsDefaultFragment on Post {
     _id
     schemaVersion
@@ -1066,9 +1036,9 @@ export const PostsDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const RSSFeedsDefaultFragment = `
+export const RSSFeedsDefaultFragment = gql(`
   fragment RSSFeedsDefaultFragment on RSSFeed {
     _id
     schemaVersion
@@ -1084,18 +1054,18 @@ export const RSSFeedsDefaultFragment = `
     setCanonicalUrl
     importAsDraft
   }
-`;
+`);
 
-export const ReadStatusesDefaultFragment = `
+export const ReadStatusesDefaultFragment = gql(`
   fragment ReadStatusesDefaultFragment on ReadStatus {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const RecommendationsCachesDefaultFragment = `
+export const RecommendationsCachesDefaultFragment = gql(`
   fragment RecommendationsCachesDefaultFragment on RecommendationsCache {
     _id
     schemaVersion
@@ -1108,9 +1078,9 @@ export const RecommendationsCachesDefaultFragment = `
     attributionId
     ttlMs
   }
-`;
+`);
 
-export const ReportsDefaultFragment = `
+export const ReportsDefaultFragment = gql(`
   fragment ReportsDefaultFragment on Report {
     _id
     schemaVersion
@@ -1127,9 +1097,9 @@ export const ReportsDefaultFragment = `
     markedAsSpam
     reportedAsSpam
   }
-`;
+`);
 
-export const ReviewVotesDefaultFragment = `
+export const ReviewVotesDefaultFragment = gql(`
   fragment ReviewVotesDefaultFragment on ReviewVote {
     _id
     schemaVersion
@@ -1144,9 +1114,9 @@ export const ReviewVotesDefaultFragment = `
     dummy
     reactions
   }
-`;
+`);
 
-export const ReviewWinnerArtsDefaultFragment = `
+export const ReviewWinnerArtsDefaultFragment = gql(`
   fragment ReviewWinnerArtsDefaultFragment on ReviewWinnerArt {
     _id
     schemaVersion
@@ -1156,9 +1126,9 @@ export const ReviewWinnerArtsDefaultFragment = `
     splashArtImagePrompt
     splashArtImageUrl
   }
-`;
+`);
 
-export const ReviewWinnersDefaultFragment = `
+export const ReviewWinnersDefaultFragment = gql(`
   fragment ReviewWinnersDefaultFragment on ReviewWinner {
     _id
     schemaVersion
@@ -1171,9 +1141,9 @@ export const ReviewWinnersDefaultFragment = `
     reviewRanking
     isAI
   }
-`;
+`);
 
-export const RevisionsDefaultFragment = `
+export const RevisionsDefaultFragment = gql(`
   fragment RevisionsDefaultFragment on Revision {
     _id
     schemaVersion
@@ -1201,9 +1171,9 @@ export const RevisionsDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const SequencesDefaultFragment = `
+export const SequencesDefaultFragment = gql(`
   fragment SequencesDefaultFragment on Sequence {
     _id
     schemaVersion
@@ -1225,27 +1195,27 @@ export const SequencesDefaultFragment = `
     noindex
     af
   }
-`;
+`);
 
-export const SessionsDefaultFragment = `
+export const SessionsDefaultFragment = gql(`
   fragment SessionsDefaultFragment on Session {
     _id
     session
     expires
     lastModified
   }
-`;
+`);
 
-export const SideCommentCachesDefaultFragment = `
+export const SideCommentCachesDefaultFragment = gql(`
   fragment SideCommentCachesDefaultFragment on SideCommentCache {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const SplashArtCoordinatesDefaultFragment = `
+export const SplashArtCoordinatesDefaultFragment = gql(`
   fragment SplashArtCoordinatesDefaultFragment on SplashArtCoordinate {
     _id
     schemaVersion
@@ -1268,9 +1238,9 @@ export const SplashArtCoordinatesDefaultFragment = `
     rightWidthPct
     rightFlipped
   }
-`;
+`);
 
-export const SpotlightsDefaultFragment = `
+export const SpotlightsDefaultFragment = gql(`
   fragment SpotlightsDefaultFragment on Spotlight {
     _id
     schemaVersion
@@ -1297,9 +1267,9 @@ export const SpotlightsDefaultFragment = `
     spotlightImageId
     spotlightDarkImageId
   }
-`;
+`);
 
-export const SubscriptionsDefaultFragment = `
+export const SubscriptionsDefaultFragment = gql(`
   fragment SubscriptionsDefaultFragment on Subscription {
     _id
     schemaVersion
@@ -1312,9 +1282,9 @@ export const SubscriptionsDefaultFragment = `
     deleted
     type
   }
-`;
+`);
 
-export const SurveyQuestionsDefaultFragment = `
+export const SurveyQuestionsDefaultFragment = gql(`
   fragment SurveyQuestionsDefaultFragment on SurveyQuestion {
     _id
     schemaVersion
@@ -1325,9 +1295,9 @@ export const SurveyQuestionsDefaultFragment = `
     format
     order
   }
-`;
+`);
 
-export const SurveyResponsesDefaultFragment = `
+export const SurveyResponsesDefaultFragment = gql(`
   fragment SurveyResponsesDefaultFragment on SurveyResponse {
     _id
     schemaVersion
@@ -1339,9 +1309,9 @@ export const SurveyResponsesDefaultFragment = `
     clientId
     response
   }
-`;
+`);
 
-export const SurveySchedulesDefaultFragment = `
+export const SurveySchedulesDefaultFragment = gql(`
   fragment SurveySchedulesDefaultFragment on SurveySchedule {
     _id
     schemaVersion
@@ -1359,9 +1329,9 @@ export const SurveySchedulesDefaultFragment = `
     deactivated
     clientIds
   }
-`;
+`);
 
-export const SurveysDefaultFragment = `
+export const SurveysDefaultFragment = gql(`
   fragment SurveysDefaultFragment on Survey {
     _id
     schemaVersion
@@ -1369,9 +1339,9 @@ export const SurveysDefaultFragment = `
     legacyData
     name
   }
-`;
+`);
 
-export const TagFlagsDefaultFragment = `
+export const TagFlagsDefaultFragment = gql(`
   fragment TagFlagsDefaultFragment on TagFlag {
     _id
     schemaVersion
@@ -1383,9 +1353,9 @@ export const TagFlagsDefaultFragment = `
     deleted
     order
   }
-`;
+`);
 
-export const TagRelsDefaultFragment = `
+export const TagRelsDefaultFragment = gql(`
   fragment TagRelsDefaultFragment on TagRel {
     _id
     schemaVersion
@@ -1404,9 +1374,9 @@ export const TagRelsDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const TagsDefaultFragment = `
+export const TagsDefaultFragment = gql(`
   fragment TagsDefaultFragment on Tag {
     _id
     schemaVersion
@@ -1469,18 +1439,18 @@ export const TagsDefaultFragment = `
     afExtendedScore
     afVoteCount
   }
-`;
+`);
 
-export const TweetsDefaultFragment = `
+export const TweetsDefaultFragment = gql(`
   fragment TweetsDefaultFragment on Tweet {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const TypingIndicatorsDefaultFragment = `
+export const TypingIndicatorsDefaultFragment = gql(`
   fragment TypingIndicatorsDefaultFragment on TypingIndicator {
     _id
     schemaVersion
@@ -1490,9 +1460,9 @@ export const TypingIndicatorsDefaultFragment = `
     documentId
     lastUpdated
   }
-`;
+`);
 
-export const UltraFeedEventsDefaultFragment = `
+export const UltraFeedEventsDefaultFragment = gql(`
   fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
     _id
     createdAt
@@ -1503,18 +1473,18 @@ export const UltraFeedEventsDefaultFragment = `
     event
     feedItemId
   }
-`;
+`);
 
-export const UserActivitiesDefaultFragment = `
+export const UserActivitiesDefaultFragment = gql(`
   fragment UserActivitiesDefaultFragment on UserActivity {
     _id
     schemaVersion
     createdAt
     legacyData
   }
-`;
+`);
 
-export const UserEAGDetailsDefaultFragment = `
+export const UserEAGDetailsDefaultFragment = gql(`
   fragment UserEAGDetailsDefaultFragment on UserEAGDetail {
     _id
     schemaVersion
@@ -1529,9 +1499,9 @@ export const UserEAGDetailsDefaultFragment = `
     interestedIn
     lastUpdated
   }
-`;
+`);
 
-export const UserJobAdsDefaultFragment = `
+export const UserJobAdsDefaultFragment = gql(`
   fragment UserJobAdsDefaultFragment on UserJobAd {
     _id
     schemaVersion
@@ -1543,9 +1513,9 @@ export const UserJobAdsDefaultFragment = `
     reminderSetAt
     lastUpdated
   }
-`;
+`);
 
-export const UserMostValuablePostsDefaultFragment = `
+export const UserMostValuablePostsDefaultFragment = gql(`
   fragment UserMostValuablePostsDefaultFragment on UserMostValuablePost {
     _id
     schemaVersion
@@ -1555,9 +1525,9 @@ export const UserMostValuablePostsDefaultFragment = `
     postId
     deleted
   }
-`;
+`);
 
-export const UserRateLimitsDefaultFragment = `
+export const UserRateLimitsDefaultFragment = gql(`
   fragment UserRateLimitsDefaultFragment on UserRateLimit {
     _id
     schemaVersion
@@ -1570,9 +1540,9 @@ export const UserRateLimitsDefaultFragment = `
     actionsPerInterval
     endedAt
   }
-`;
+`);
 
-export const UserTagRelsDefaultFragment = `
+export const UserTagRelsDefaultFragment = gql(`
   fragment UserTagRelsDefaultFragment on UserTagRel {
     _id
     schemaVersion
@@ -1584,9 +1554,9 @@ export const UserTagRelsDefaultFragment = `
     subforumEmailNotifications
     subforumHideIntroPost
   }
-`;
+`);
 
-export const UsersDefaultFragment = `
+export const UsersDefaultFragment = gql(`
   fragment UsersDefaultFragment on User {
     _id
     schemaVersion
@@ -1817,9 +1787,9 @@ export const UsersDefaultFragment = `
     userSurveyEmailSentAt
     recommendationSettings
   }
-`;
+`);
 
-export const VotesDefaultFragment = `
+export const VotesDefaultFragment = gql(`
   fragment VotesDefaultFragment on Vote {
     _id
     schemaVersion
@@ -1839,46 +1809,4 @@ export const VotesDefaultFragment = `
     documentIsAf
     silenceNotification
   }
-`;
-
-export const TestCollectionDefaultFragment = `
-  fragment TestCollectionDefaultFragment on undefined {
-    _id
-    a
-    b
-    c
-    d
-    schemaVersion
-  }
-`;
-
-export const TestCollection2DefaultFragment = `
-  fragment TestCollection2DefaultFragment on undefined {
-    _id
-    data
-    schemaVersion
-  }
-`;
-
-export const TestCollection3DefaultFragment = `
-  fragment TestCollection3DefaultFragment on undefined {
-    _id
-    notNullData
-  }
-`;
-
-export const TestCollection4DefaultFragment = `
-  fragment TestCollection4DefaultFragment on undefined {
-    _id
-    testCollection3Id
-    schemaVersion
-  }
-`;
-
-export const TestCollection5DefaultFragment = `
-  fragment TestCollection5DefaultFragment on undefined {
-    _id
-    jsonField
-    schemaVersion
-  }
-`;
+`);

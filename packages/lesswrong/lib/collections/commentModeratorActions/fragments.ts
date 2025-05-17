@@ -1,11 +1,9 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
-import { CommentsListWithModerationMetadata } from "../comments/fragments";
-
-export const CommentModeratorActionDisplay = () => frag`
+import { gql } from "@/lib/generated/gql-codegen/gql";
+export const CommentModeratorActionDisplay = gql(`
   fragment CommentModeratorActionDisplay on CommentModeratorAction {
     _id
     comment {
-      ${CommentsListWithModerationMetadata}
+      ...CommentsListWithModerationMetadata
     }
     commentId
     type
@@ -13,4 +11,4 @@ export const CommentModeratorActionDisplay = () => frag`
     createdAt
     endedAt
   }
-`
+`)

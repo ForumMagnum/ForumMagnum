@@ -3,22 +3,23 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import moment from '../../../lib/moment-timezone';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import TimeTag from "../../common/TimeTag";
+import type { PostsBase } from '@/lib/generated/gql-codegen/graphql';
 
 /**
  * Returns the event datetimes in a user-friendly format,
  * ex: Mon, Jan 3 at 4:30 - 5:30 PM
  * 
- * @param {(PostsBase|DbPost)} post - The event to be checked.
- * @param {string} [timezone] - (Optional) Convert datetimes to this timezone.
- * @param {string} [dense] - (Optional) Exclude the day of the week.
- * @returns {string} The formatted event datetimes.
+ * @param post - The event to be checked.
+ * @param timezone - (Optional) Convert datetimes to this timezone.
+ * @param dense - (Optional) Exclude the day of the week.
+ * @returns The formatted event datetimes.
  */
 export const PrettyEventDateTime = ({
   post,
   timezone,
   dense = false,
 }: {
-  post: Pick<DbPost, 'startTime' | 'endTime' | 'localStartTime' | 'localEndTime'>,
+  post: Pick<DbPost | PostsBase, 'startTime' | 'endTime' | 'localStartTime' | 'localEndTime'>,
   timezone?: string;
   dense?: boolean;
 }) => {

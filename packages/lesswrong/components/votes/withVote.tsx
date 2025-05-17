@@ -11,11 +11,12 @@ import { VotingProps } from './votingProps';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
+import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
-  
-  return gql`
+
+  const gqlText = `
     mutation ${mutationName}($documentId: String, $voteType: String, $extendedVote: JSON) {
       ${mutationName}(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
         document {
@@ -26,9 +27,11 @@ const getVoteMutationQuery = (typeName: string) => {
     }
     ${fragmentTextForQuery(`WithVote${typeName}` as any)}
   `
+  
+  return gql`${gqlText}`
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
+export const useVote = <T extends VoteableTypeClient>(document: Omit<T, "baseScore" | "extendedScore">, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});

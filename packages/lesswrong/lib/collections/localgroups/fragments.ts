@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const localGroupsBase = () => frag`
+export const localGroupsBase = gql(`
   fragment localGroupsBase on Localgroup {
     _id
     createdAt
@@ -27,30 +27,30 @@ export const localGroupsBase = () => frag`
     inactive
     deleted
   }
-`
+`)
 
-export const localGroupsHomeFragment = () => frag`
+export const localGroupsHomeFragment = gql(`
   fragment localGroupsHomeFragment on Localgroup {
     ...localGroupsBase
     contents {
       ...RevisionDisplay
     }
   }
-`
+`)
 
-export const localGroupsEdit = () => frag`
+export const localGroupsEdit = gql(`
   fragment localGroupsEdit on Localgroup {
     ...localGroupsBase
     contents {
       ...RevisionEdit
     }
   }
-`
+`)
 
-export const localGroupsIsOnline = () => frag`
+export const localGroupsIsOnline = gql(`
   fragment localGroupsIsOnline on Localgroup {
     _id
     name
     isOnline
   }
-`
+`)

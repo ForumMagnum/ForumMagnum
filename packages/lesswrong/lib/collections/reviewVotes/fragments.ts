@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const reviewVoteFragment = () => frag`
+export const reviewVoteFragment = gql(`
   fragment reviewVoteFragment on ReviewVote {
     _id
     createdAt
@@ -13,10 +13,10 @@ export const reviewVoteFragment = () => frag`
     dummy
     reactions
   }
-`
+`)
 
 
-export const reviewVoteWithUserAndPost = () => frag`
+export const reviewVoteWithUserAndPost = gql(`
   fragment reviewVoteWithUserAndPost on ReviewVote {
     ...reviewVoteFragment
     user {
@@ -28,9 +28,9 @@ export const reviewVoteWithUserAndPost = () => frag`
       ...PostsMinimumInfo
     }
   }
-`
+`)
 
-export const reviewAdminDashboard = () => frag`
+export const reviewAdminDashboard = gql(`
   fragment reviewAdminDashboard on ReviewVote {
     _id
     createdAt
@@ -41,6 +41,6 @@ export const reviewAdminDashboard = () => frag`
       karma
     }
   }
-`
+`)
 
 

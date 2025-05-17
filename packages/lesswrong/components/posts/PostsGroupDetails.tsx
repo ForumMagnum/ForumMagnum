@@ -1,9 +1,20 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const localGroupsHomeFragmentQuery = gql(`
+  query PostsGroupDetails($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -36,11 +47,10 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   inRecentDiscussion?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document } = useSingle({
-    documentId,
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
+  const { data } = useQuery(localGroupsHomeFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.localgroup?.result;
 
   if (!document) {
     return null

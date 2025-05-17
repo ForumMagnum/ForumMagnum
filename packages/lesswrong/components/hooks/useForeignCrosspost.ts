@@ -37,11 +37,11 @@ const overrideFields = [
   "readTimeMinutes",
 ] as const;
 
-const getCrosspostQuery = `
+const getCrosspostQuery = gql(`
   query GetCrosspostQuery($args: JSON) {
     getCrosspost(args: $args)
   }
-`;
+`);
 
 /**
  * These queries can be slow (and the timing is unpredictable), so use
@@ -96,7 +96,7 @@ export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragment
     throw new Error("Crosspost has not been created yet");
   }
 
-  const {data, loading, error} = useQuery(gql(getCrosspostQuery), {
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,
@@ -161,7 +161,7 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
   const isCrosspost = isPostWithForeignId(post);
   const isForeign = isCrosspost && !post.fmCrosspost.hostedHere;
 
-  const {data, loading, error} = useQuery(gql(getCrosspostQuery), {
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,

@@ -13,8 +13,10 @@ import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import range from "lodash/range";
 import {
   SurveyQuestionFormat,
-  surveyQuestionFormats
+  surveyQuestionFormats,
 } from "@/lib/collections/surveyQuestions/constants";
+import type { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
+import { SurveyResponseMinimumInfo } from "@/lib/collections/surveyResponses/fragments";
 import EAButton from "../ea-forum/EAButton";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import LWTooltip from "../common/LWTooltip";
@@ -190,7 +192,7 @@ const SurveyPostsItemInternal = ({
 
   const {create: createResponse} = useCreate({
     collectionName: "SurveyResponses",
-    fragmentName: "SurveyResponseMinimumInfo",
+    fragment: SurveyResponseMinimumInfo,
   });
 
   const onSubmit = useCallback(async (response: Record<string, QuestionResponse>) => {

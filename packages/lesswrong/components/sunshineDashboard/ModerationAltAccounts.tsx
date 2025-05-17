@@ -2,11 +2,11 @@ import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql as graphql } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
@@ -14,6 +14,17 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import type { UserAltAccountsFragment } from '@/lib/generated/gql-codegen/graphql';
+
+const UserAltAccountsFragmentQuery = gql(`
+  query ModerationAltAccounts($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserAltAccountsFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   selectUser: {
@@ -158,11 +169,11 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {document: user, loading} = useSingle({
-    documentId: userId,
-    collectionName: "Users",
-    fragmentName: "UserAltAccountsFragment",
+  const { loading, data } = useQuery(UserAltAccountsFragmentQuery, {
+    variables: { documentId: userId },
   });
+  const user = data?.user?.result;
+  
   if (loading) return <Loading/>;
   if (!user) return <>{`Couldn't find user with ID ${userId}`}</>
   return <AltAccountsNodeUser user={user} classes={classes}/>
@@ -184,26 +195,26 @@ const AltAccountsNodeUser = ({user, classes}: {
         ? <li className={classes.openListItem}>
             <div>Client IDs</div>
             <ul>
-              {user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
+              {user.associatedClientIds?.map(clientId => <li key={clientId.clientId}>
                 <AltAccountsNodeClientID clientId={clientId.clientId!} classes={classes}/>
               </li>)}
             </ul>
           </li>
         : <li onClick={() => setExpandedClientIDs(true)} className={classes.closedListItem}>
-            Client IDs: {user.associatedClientIds.map(clientId => clientId.clientId).join(", ")}
+            Client IDs: {user.associatedClientIds?.map(clientId => clientId.clientId).join(", ")}
           </li>
       }
       {expandedIPs
         ? <li className={classes.openListItem}>
             <div>IP Addresses</div>
             <ul>
-              {user.IPs.map(ip => <li key={ip}>
+              {user.IPs?.map(ip => <li key={ip}>
                 <AltAccountsNodeIPAddress ipAddress={ip} classes={classes}/>
               </li>)}
             </ul>
           </li>
         : <li onClick={() => setExpandedIPs(true)} className={classes.closedListItem}>
-            IP addresses: {user.IPs.length}x (click to expand)
+            IP addresses: {user.IPs?.length}x (click to expand)
           </li>
       }
     </ul>
@@ -258,7 +269,7 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQuery(graphql`
     query ModeratorIPAddressInfo($ipAddress: String!) {
       moderatorViewIPAddress(ipAddress: $ipAddress) {
         ip

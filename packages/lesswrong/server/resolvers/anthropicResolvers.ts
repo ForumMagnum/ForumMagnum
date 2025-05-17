@@ -20,6 +20,8 @@ import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
 import { createLlmMessage } from "../collections/llmMessages/mutations";
+import { PostsPage as PostsPageType } from "@/lib/generated/gql-codegen/graphql";
+import { PostsPage } from "@/lib/collections/posts/fragments";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -125,7 +127,7 @@ async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContext
   return parsedResponse.strategy_choice;
 }
 
-async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostsPage[]> {
+async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostsPageType[]> {
   const postIdRegex = /\/([a-zA-Z0-9]{17})(?=[/#?&)]|$)/g;
   const postIdMatches = [];
   let match;

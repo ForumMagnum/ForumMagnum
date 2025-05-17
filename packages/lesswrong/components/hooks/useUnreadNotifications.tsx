@@ -6,6 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
+import type { TypingIndicatorInfo, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 export type NotificationCountsResult = {
   checkedAt: Date,

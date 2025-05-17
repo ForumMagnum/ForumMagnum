@@ -764,7 +764,7 @@ const schema = {
   },
   contributors: {
     graphql: {
-      outputType: "TagContributorsList",
+      outputType: "TagContributorsList!",
       canRead: ["guests"],
       arguments: "limit: Int, version: String",
       resolver: getContributorsFieldResolver({ collectionName: "Tags", fieldName: "description" }),
