@@ -9,6 +9,8 @@ import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import ElicitBlock from '../posts/ElicitBlock';
+import { hasCollapsedFootnotes } from '@/lib/betas';
+import { CollapsedFootnotes2 } from './CollapsedFootnotes2';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -27,9 +29,9 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   replaceSubstrings
  *   applyIdInsertions
  *   markConditionallyVisibleBlocks
- * Functionality from ContentItemBody which is not yet implemented:
- *   collapseFootnotes
  *   markElicitBlocks
+ *   collapseFootnotes
+ * Functionality from ContentItemBody which is not yet implemented:
  *   wrapStrawPoll
  *   addCTAButtonEventListeners
  *   replaceForumEventPollPlaceholders
@@ -108,13 +110,20 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     case htmlparser2.ElementType.Tag:
       const TagName = parsedHtml.tagName.toLowerCase() as any;
       const attribs = translateAttribs(parsedHtml.attribs);
-      let result: React.ReactNode|React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
+      const id = attribs.id;
+      const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
+
+      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
       />)
 
-      const id = attribs.id;
+      if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
+        return <CollapsedFootnotes2 attributes={attribs} footnoteElements={mappedChildren}/>
+      }
+
+      let result: React.ReactNode|React.ReactNode[] = mappedChildren;
       if (id && passedThroughProps.idInsertions?.[id]) {
         const idInsertion = passedThroughProps.idInsertions[id];
         result = [
@@ -123,7 +132,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         ];
       }
       
-      const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
       if (classNames.includes("conditionallyVisibleBlock")) {
         const visibilityOptionsStr = attribs["data-visibility"];
         if (visibilityOptionsStr) {
@@ -138,9 +146,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
             console.error("Error parsing conditional visibility options", visibilityOptionsStr);
           }
         }
-      }
-      if (classNames.includes("footnotes")) {
-        // TODO: collapseFootnotes
       }
       if (classNames.includes("elicit-binary-prediction")) {
         const elicitId = attribs['data-elicit-id'];
