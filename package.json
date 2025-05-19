@@ -11,7 +11,7 @@
     "migrate": "ts-node -r tsconfig-paths/register --project tsconfig-repl.json ./migrate.ts",
     "gfrepl": "NODE_OPTIONS='--inspect --no-deprecation' SETTINGS_FILE=settings-local-dev-devdb-ea.json ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
     "repl": "NODE_OPTIONS='--inspect --no-deprecation' ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
-    "upload-ckeditor-bundle": "node -r tsconfig-paths/register deployCkEditorBundle",
+    "upload-ckeditor-bundle": "ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json ./deployCkEditorBundle.ts",
     "branchdb": "ts-node -r tsconfig-paths/register scripts/branchDb.ts",
     "start": "yarn start-local-db",
     "start-local-db": "ts-node --transpile-only ./build.ts -run --watch --lint --settings settings-dev.json --db ../LessWrong-Credentials/connectionConfigs/local.json",
@@ -389,7 +389,7 @@
     "ts-loader": "^8.0.5",
     "ts-morph": "^25.0.1",
     "tsconfig-paths": "^4.2.0",
-    "vite": "^5.4.18"
+    "vite": "^5.4.19"
   },
   "resolutions": {
     "esbuild": "^0.24.0",
@@ -401,7 +401,7 @@
     "@types/react": "^19.0.0"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=22.12.0"
   },
   "knip": {
     "entry": [
