@@ -63,14 +63,14 @@ jobs:
         log-output: true
         log-output-resume: stderr
     - name: Run code generation (EA Forum)
-      run: yarn generate ea
+      run: yarn generate test
     - name: Throw if code changed
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run yarn generate"; exit 1; fi
     - name: Switch forum type
       run: |
         sed -i -e 's/"forumType": "EAForum"/"forumType": "LessWrong"/g' settings-test.json
     - name: Run code generation (LessWrong)
-      run: yarn generate lw
+      run: yarn generate test
     - name: Throw if forum schemas differ
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
 
