@@ -23,6 +23,7 @@ import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
 import gql from "graphql-tag";
 import type { TagCommentType } from "../comments/types";
+import { CommentsViews } from "../comments/views";
 
 export const graphqlTypeDefs = gql`
   type TagContributor {
@@ -546,7 +547,7 @@ const schema = {
         const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
         const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, "hours").toDate();
         const comments = await Comments.find({
-          ...getDefaultViewSelector("Comments"),
+          ...getDefaultViewSelector(CommentsViews),
           tagId: tag._id,
           score: { $gt: 0 },
           deletedPublic: false,

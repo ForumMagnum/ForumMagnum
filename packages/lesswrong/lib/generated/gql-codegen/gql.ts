@@ -70,6 +70,8 @@ type Documents = {
     "\n  query SingleTagItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": typeof types.SingleTagItemDocument,
     "\n  query SingleUsersItem($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.SingleUsersItemDocument,
     "\n  query TagSelect($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": typeof types.TagSelectDocument,
+    "\n  query ForumEventForm($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": typeof types.ForumEventFormDocument,
+    "\n  query ForumEventPoll($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n": typeof types.ForumEventPollDocument,
     "\n    mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {\n      AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)\n    }\n  ": typeof types.AddForumEventVoteDocument,
     "\n    mutation RemoveForumEventVote($forumEventId: String!) {\n      RemoveForumEventVote(forumEventId: $forumEventId)\n    }\n  ": typeof types.RemoveForumEventVoteDocument,
     "\n  query ForumEventPostPageBanner($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.ForumEventPostPageBannerDocument,
@@ -99,6 +101,7 @@ type Documents = {
     "\n  query PostLinkPreviewComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewPostDocument,
     "\n    query ArbitalPageRequest {\n      ArbitalPageData(pageAlias: \"\") {\n        title\n        html\n      }\n    }\n  ": typeof types.ArbitalPageRequestDocument,
+    "\n  query GroupFormDialog($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsEdit\n      }\n    }\n  }\n": typeof types.GroupFormDialogDocument,
     "\n  query LocalGroupPage($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": typeof types.LocalGroupPageDocument,
     "\n  query SetPersonalMapLocationDialog($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.SetPersonalMapLocationDialogDocument,
     "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.ConversationPageDocument,
@@ -170,6 +173,8 @@ type Documents = {
     "\n    query petrovDayLaunchResolvers {\n      PetrovDayCheckIfIncoming {\n        launched\n        createdAt\n      }\n    }\n  ": typeof types.PetrovDayLaunchResolversDocument,
     "\n    query petrov2024checkIfNuked {\n      petrov2024checkIfNuked\n    }\n  ": typeof types.Petrov2024checkIfNukedDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": typeof types.PetrovDay2024ResolversDocument,
+    "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n": typeof types.BooksItemDocument,
+    "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.ChaptersItemDocument,
     "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.CollectionsPageDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": typeof types.CollectionsEditDocument,
     "\n  query SequencesPage($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": typeof types.SequencesPageDocument,
@@ -177,6 +182,7 @@ type Documents = {
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n    \n  ": typeof types.GetAllReviewWinnersDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": typeof types.UpdateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.ProfileShortformDocument,
+    "\n  query SpotlightItem($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": typeof types.SpotlightItemDocument,
     "\n  query ModerationAltAccounts($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserAltAccountsFragment\n      }\n    }\n  }\n": typeof types.ModerationAltAccountsDocument,
     "\n    query ModeratorIPAddressInfo($ipAddress: String!) {\n      moderatorViewIPAddress(ipAddress: $ipAddress) {\n        ip\n        userIds\n      }\n    }\n  ": typeof types.ModeratorIpAddressInfoDocument,
     "\n  query NewCommentModerationWarning($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.NewCommentModerationWarningDocument,
@@ -184,11 +190,15 @@ type Documents = {
     "\n  query SunshineNewUsersProfileInfo($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.SunshineNewUsersProfileInfoDocument,
     "\n  query SurveyEditPage($documentId: String) {\n    survey(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyMinimumInfo\n      }\n    }\n  }\n": typeof types.SurveyEditPageDocument,
     "\n    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {\n      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {\n        ...SurveyMinimumInfo\n      }\n    }\n    \n  ": typeof types.EditSurveyDocument,
+    "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": typeof types.SurveyScheduleEditPageDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  ": typeof types.AddPostsToTagDocument,
     "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n": typeof types.AllPostsPageTagRevisionItemDocument,
     "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": typeof types.TagsQueryDocument,
+    "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.EaAllTagsPageDocument,
+    "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.EaTagPageDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.FilterModeDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  ": typeof types.AddOrUpvoteTagDocument,
+    "\n  query LWTagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.LwTagPageDocument,
     "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  ": typeof types.GetRandomTagDocument,
     "\n    mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {\n      reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)\n    }\n  ": typeof types.ReorderSummariesDocument,
     "\n  query TagContributorsList($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFullContributorsList\n      }\n    }\n  }\n": typeof types.TagContributorsListDocument,
@@ -198,13 +208,20 @@ type Documents = {
     "\n    mutation mergeTags(\n      $sourceTagId: String!\n      $targetTagId: String!\n      $transferSubtags: Boolean!\n      $redirectSource: Boolean!\n    ) {\n      mergeTags(\n        sourceTagId: $sourceTagId\n        targetTagId: $targetTagId\n        transferSubtags: $transferSubtags\n        redirectSource: $redirectSource\n      )\n    }\n  ": typeof types.MergeTagsDocument,
     "\n    mutation promoteLensToMain($lensId: String!) {\n      promoteLensToMain(lensId: $lensId)\n    }\n  ": typeof types.PromoteLensToMainDocument,
     "\n  query TagSearchHit($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.TagSearchHitDocument,
+    "\n  query TaggingDashboard($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagEditFragment\n      }\n    }\n  }\n": typeof types.TaggingDashboardDocument,
+    "\n  query TagsDetailsItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.TagsDetailsItemDocument,
     "\n    query GetTagsByCoreTagId(\n      $coreTagId: String,\n      $limit: Int,\n      $searchTagIds: [String]\n    ) {\n      TagsByCoreTagId(\n        coreTagId: $coreTagId,\n        limit: $limit,\n        searchTagIds: $searchTagIds\n      ) {\n        tags {\n          ...ConceptItemFragment\n        }\n        totalCount\n      }\n    }\n    \n  ": typeof types.GetTagsByCoreTagIdDocument,
     "\n  query SidebarSubtagsBox($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagSubtagFragment\n      }\n    }\n  }\n": typeof types.SidebarSubtagsBoxDocument,
     "\n    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {\n      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {\n        ...UsersCurrent\n      }\n    }\n    \n  ": typeof types.UserUpdateSubforumMembershipDocument,
+    "\n  query SubforumWikiTab($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.SubforumWikiTabDocument,
     "\n  query LocalgroupPageTitle($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": typeof types.LocalgroupPageTitleDocument,
     "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": typeof types.PostsPageHeaderTitleDocument,
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SequencesPageTitleDocument,
+    "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.UltraFeedCommentsDialogDocument,
+    "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
+    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.ConnectCrossposterDocument,
+    "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": typeof types.EditProfileFormDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": typeof types.SendEventTriggeredDmDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
     "\n    mutation login($username: String, $password: String) {\n      login(username: $username, password: $password) {\n        token\n      }\n    }\n  ": typeof types.LoginDocument,
@@ -614,6 +631,8 @@ const documents: Documents = {
     "\n  query SingleTagItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": types.SingleTagItemDocument,
     "\n  query SingleUsersItem($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n": types.SingleUsersItemDocument,
     "\n  query TagSelect($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": types.TagSelectDocument,
+    "\n  query ForumEventForm($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": types.ForumEventFormDocument,
+    "\n  query ForumEventPoll($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n": types.ForumEventPollDocument,
     "\n    mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {\n      AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)\n    }\n  ": types.AddForumEventVoteDocument,
     "\n    mutation RemoveForumEventVote($forumEventId: String!) {\n      RemoveForumEventVote(forumEventId: $forumEventId)\n    }\n  ": types.RemoveForumEventVoteDocument,
     "\n  query ForumEventPostPageBanner($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.ForumEventPostPageBannerDocument,
@@ -643,6 +662,7 @@ const documents: Documents = {
     "\n  query PostLinkPreviewComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.PostLinkPreviewPostDocument,
     "\n    query ArbitalPageRequest {\n      ArbitalPageData(pageAlias: \"\") {\n        title\n        html\n      }\n    }\n  ": types.ArbitalPageRequestDocument,
+    "\n  query GroupFormDialog($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsEdit\n      }\n    }\n  }\n": types.GroupFormDialogDocument,
     "\n  query LocalGroupPage($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": types.LocalGroupPageDocument,
     "\n  query SetPersonalMapLocationDialog($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersEdit\n      }\n    }\n  }\n": types.SetPersonalMapLocationDialogDocument,
     "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": types.ConversationPageDocument,
@@ -714,6 +734,8 @@ const documents: Documents = {
     "\n    query petrovDayLaunchResolvers {\n      PetrovDayCheckIfIncoming {\n        launched\n        createdAt\n      }\n    }\n  ": types.PetrovDayLaunchResolversDocument,
     "\n    query petrov2024checkIfNuked {\n      petrov2024checkIfNuked\n    }\n  ": types.Petrov2024checkIfNukedDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": types.PetrovDay2024ResolversDocument,
+    "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n": types.BooksItemDocument,
+    "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.ChaptersItemDocument,
     "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.CollectionsPageDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": types.CollectionsEditDocument,
     "\n  query SequencesPage($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": types.SequencesPageDocument,
@@ -721,6 +743,7 @@ const documents: Documents = {
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n    \n  ": types.GetAllReviewWinnersDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": types.UpdateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.ProfileShortformDocument,
+    "\n  query SpotlightItem($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": types.SpotlightItemDocument,
     "\n  query ModerationAltAccounts($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserAltAccountsFragment\n      }\n    }\n  }\n": types.ModerationAltAccountsDocument,
     "\n    query ModeratorIPAddressInfo($ipAddress: String!) {\n      moderatorViewIPAddress(ipAddress: $ipAddress) {\n        ip\n        userIds\n      }\n    }\n  ": types.ModeratorIpAddressInfoDocument,
     "\n  query NewCommentModerationWarning($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.NewCommentModerationWarningDocument,
@@ -728,11 +751,15 @@ const documents: Documents = {
     "\n  query SunshineNewUsersProfileInfo($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.SunshineNewUsersProfileInfoDocument,
     "\n  query SurveyEditPage($documentId: String) {\n    survey(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyMinimumInfo\n      }\n    }\n  }\n": types.SurveyEditPageDocument,
     "\n    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {\n      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {\n        ...SurveyMinimumInfo\n      }\n    }\n    \n  ": types.EditSurveyDocument,
+    "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": types.SurveyScheduleEditPageDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  ": types.AddPostsToTagDocument,
     "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n": types.AllPostsPageTagRevisionItemDocument,
     "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": types.TagsQueryDocument,
+    "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.EaAllTagsPageDocument,
+    "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.EaTagPageDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.FilterModeDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  ": types.AddOrUpvoteTagDocument,
+    "\n  query LWTagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.LwTagPageDocument,
     "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  ": types.GetRandomTagDocument,
     "\n    mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {\n      reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)\n    }\n  ": types.ReorderSummariesDocument,
     "\n  query TagContributorsList($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFullContributorsList\n      }\n    }\n  }\n": types.TagContributorsListDocument,
@@ -742,13 +769,20 @@ const documents: Documents = {
     "\n    mutation mergeTags(\n      $sourceTagId: String!\n      $targetTagId: String!\n      $transferSubtags: Boolean!\n      $redirectSource: Boolean!\n    ) {\n      mergeTags(\n        sourceTagId: $sourceTagId\n        targetTagId: $targetTagId\n        transferSubtags: $transferSubtags\n        redirectSource: $redirectSource\n      )\n    }\n  ": types.MergeTagsDocument,
     "\n    mutation promoteLensToMain($lensId: String!) {\n      promoteLensToMain(lensId: $lensId)\n    }\n  ": types.PromoteLensToMainDocument,
     "\n  query TagSearchHit($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.TagSearchHitDocument,
+    "\n  query TaggingDashboard($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagEditFragment\n      }\n    }\n  }\n": types.TaggingDashboardDocument,
+    "\n  query TagsDetailsItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.TagsDetailsItemDocument,
     "\n    query GetTagsByCoreTagId(\n      $coreTagId: String,\n      $limit: Int,\n      $searchTagIds: [String]\n    ) {\n      TagsByCoreTagId(\n        coreTagId: $coreTagId,\n        limit: $limit,\n        searchTagIds: $searchTagIds\n      ) {\n        tags {\n          ...ConceptItemFragment\n        }\n        totalCount\n      }\n    }\n    \n  ": types.GetTagsByCoreTagIdDocument,
     "\n  query SidebarSubtagsBox($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagSubtagFragment\n      }\n    }\n  }\n": types.SidebarSubtagsBoxDocument,
     "\n    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {\n      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {\n        ...UsersCurrent\n      }\n    }\n    \n  ": types.UserUpdateSubforumMembershipDocument,
+    "\n  query SubforumWikiTab($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.SubforumWikiTabDocument,
     "\n  query LocalgroupPageTitle($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": types.LocalgroupPageTitleDocument,
     "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": types.PostsPageHeaderTitleDocument,
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SequencesPageTitleDocument,
+    "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.UltraFeedCommentsDialogDocument,
+    "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
+    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.ConnectCrossposterDocument,
+    "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": types.EditProfileFormDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": types.SendEventTriggeredDmDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
     "\n    mutation login($username: String, $password: String) {\n      login(username: $username, password: $password) {\n        token\n      }\n    }\n  ": types.LoginDocument,
@@ -1343,6 +1377,14 @@ export function gql(source: "\n  query TagSelect($documentId: String) {\n    tag
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query ForumEventForm($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query ForumEventForm($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ForumEventPoll($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  query ForumEventPoll($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {\n      AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)\n    }\n  "): (typeof documents)["\n    mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {\n      AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1456,6 +1498,10 @@ export function gql(source: "\n  query PostLinkPreviewPost($documentId: String) 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query ArbitalPageRequest {\n      ArbitalPageData(pageAlias: \"\") {\n        title\n        html\n      }\n    }\n  "): (typeof documents)["\n    query ArbitalPageRequest {\n      ArbitalPageData(pageAlias: \"\") {\n        title\n        html\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query GroupFormDialog($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query GroupFormDialog($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1743,6 +1789,14 @@ export function gql(source: "\n    query petrovDay2024Resolvers {\n      PetrovD
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1768,6 +1822,10 @@ export function gql(source: "\n    mutation updateContinueReading($sequenceId: S
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SpotlightItem($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SpotlightItem($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1799,6 +1857,10 @@ export function gql(source: "\n    mutation editSurvey($surveyId: String!, $name
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  "): (typeof documents)["\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1811,11 +1873,23 @@ export function gql(source: "\n  query TagsQuery($slugs: [String!]!) {\n    tags
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  "): (typeof documents)["\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query LWTagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query LWTagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1855,6 +1929,14 @@ export function gql(source: "\n  query TagSearchHit($documentId: String) {\n    
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query TaggingDashboard($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query TaggingDashboard($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagEditFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query TagsDetailsItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query TagsDetailsItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query GetTagsByCoreTagId(\n      $coreTagId: String,\n      $limit: Int,\n      $searchTagIds: [String]\n    ) {\n      TagsByCoreTagId(\n        coreTagId: $coreTagId,\n        limit: $limit,\n        searchTagIds: $searchTagIds\n      ) {\n        tags {\n          ...ConceptItemFragment\n        }\n        totalCount\n      }\n    }\n    \n  "): (typeof documents)["\n    query GetTagsByCoreTagId(\n      $coreTagId: String,\n      $limit: Int,\n      $searchTagIds: [String]\n    ) {\n      TagsByCoreTagId(\n        coreTagId: $coreTagId,\n        limit: $limit,\n        searchTagIds: $searchTagIds\n      ) {\n        tags {\n          ...ConceptItemFragment\n        }\n        totalCount\n      }\n    }\n    \n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1864,6 +1946,10 @@ export function gql(source: "\n  query SidebarSubtagsBox($documentId: String) {\
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {\n      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {\n        ...UsersCurrent\n      }\n    }\n    \n  "): (typeof documents)["\n    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {\n      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {\n        ...UsersCurrent\n      }\n    }\n    \n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubforumWikiTab($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubforumWikiTab($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1879,7 +1965,23 @@ export function gql(source: "\n  query SequencesPageTitle($documentId: String) {
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  "): (typeof documents)["\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

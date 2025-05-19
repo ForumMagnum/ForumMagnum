@@ -116,7 +116,9 @@ export const dateLink = withScalars({
   typesMap: {
     Date: {
       serialize: (value: Date) => value.toISOString(),
-      parseValue: (value: string) => new Date(value),
+      parseValue: (value: string) => {
+        return new Date(value);
+      },
       // parseLiteral: (ast) => {
       //   if (ast.kind === Kind.STRING) {
       //     return new Date(ast.value);

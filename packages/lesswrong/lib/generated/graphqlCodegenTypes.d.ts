@@ -12657,6 +12657,26 @@ type TagSelectQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutp
       & TagBasicInfo
     ) | null } | null };
 
+type ForumEventFormQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ForumEventFormQuery = { __typename?: 'Query', forumEvent: { __typename?: 'SingleForumEventOutput', result: (
+      { __typename?: 'ForumEvent' }
+      & ForumEventsEdit
+    ) | null } | null };
+
+type ForumEventPollQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ForumEventPollQuery = { __typename?: 'Query', forumEvent: { __typename?: 'SingleForumEventOutput', result: (
+      { __typename?: 'ForumEvent' }
+      & ForumEventsDisplay
+    ) | null } | null };
+
 type AddForumEventVoteMutationVariables = Exact<{
   forumEventId: Scalars['String']['input'];
   x: Scalars['Float']['input'];
@@ -12916,6 +12936,16 @@ type ArbitalPageRequestQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type ArbitalPageRequestQuery = { __typename?: 'Query', ArbitalPageData: { __typename?: 'ArbitalPageData', title: string | null, html: string | null } | null };
+
+type GroupFormDialogQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type GroupFormDialogQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: (
+      { __typename?: 'Localgroup' }
+      & LocalGroupsEdit
+    ) | null } | null };
 
 type LocalGroupPageQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13594,6 +13624,26 @@ type PetrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type PetrovDay2024ResolversQuery = { __typename?: 'Query', PetrovDay2024CheckNumberOfIncoming: { __typename?: 'PetrovDay2024CheckNumberOfIncomingData', count: number | null } | null };
 
+type BooksItemQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type BooksItemQuery = { __typename?: 'Query', book: { __typename?: 'SingleBookOutput', result: (
+      { __typename?: 'Book' }
+      & BookEdit
+    ) | null } | null };
+
+type ChaptersItemQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ChaptersItemQuery = { __typename?: 'Query', chapter: { __typename?: 'SingleChapterOutput', result: (
+      { __typename?: 'Chapter' }
+      & ChaptersEdit
+    ) | null } | null };
+
 type CollectionsPageQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13658,6 +13708,16 @@ type ProfileShortformQueryVariables = Exact<{
 type ProfileShortformQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsListWithVotes
+    ) | null } | null };
+
+type SpotlightItemQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SpotlightItemQuery = { __typename?: 'Query', spotlight: { __typename?: 'SingleSpotlightOutput', result: (
+      { __typename?: 'Spotlight' }
+      & SpotlightEditQueryFragment
     ) | null } | null };
 
 type ModerationAltAccountsQueryVariables = Exact<{
@@ -13729,6 +13789,16 @@ type EditSurveyMutation = { __typename?: 'Mutation', editSurvey: (
     & SurveyMinimumInfo
   ) | null };
 
+type SurveyScheduleEditPageQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SurveyScheduleEditPageQuery = { __typename?: 'Query', surveySchedule: { __typename?: 'SingleSurveyScheduleOutput', result: (
+      { __typename?: 'SurveySchedule' }
+      & SurveyScheduleEdit
+    ) | null } | null };
+
 type AddPostsToTagMutationVariables = Exact<{
   tagId: InputMaybe<Scalars['String']['input']>;
   postId: InputMaybe<Scalars['String']['input']>;
@@ -13760,6 +13830,26 @@ type TagsQueryQuery = { __typename?: 'Query', tags: { __typename?: 'MultiTagOutp
       & ConceptItemFragment
     ) | null> | null } | null };
 
+type EaAllTagsPageQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type EaAllTagsPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+      { __typename?: 'Tag' }
+      & TagEditFragment
+    ) | null } | null };
+
+type EaTagPageQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type EaTagPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+      { __typename?: 'Tag' }
+      & TagEditFragment
+    ) | null } | null };
+
 type FilterModeQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13780,6 +13870,16 @@ type AddOrUpvoteTagMutation = { __typename?: 'Mutation', addOrUpvoteTag: (
     { __typename?: 'TagRel' }
     & TagRelMinimumFragment
   ) | null };
+
+type LwTagPageQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type LwTagPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+      { __typename?: 'Tag' }
+      & TagEditFragment
+    ) | null } | null };
 
 type GetRandomTagQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13866,6 +13966,26 @@ type TagSearchHitQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagO
       & TagPreviewFragment
     ) | null } | null };
 
+type TaggingDashboardQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type TaggingDashboardQuery = { __typename?: 'Query', tagFlag: { __typename?: 'SingleTagFlagOutput', result: (
+      { __typename?: 'TagFlag' }
+      & TagFlagEditFragment
+    ) | null } | null };
+
+type TagsDetailsItemQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type TagsDetailsItemQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+      { __typename?: 'Tag' }
+      & TagEditFragment
+    ) | null } | null };
+
 type GetTagsByCoreTagIdQueryVariables = Exact<{
   coreTagId: InputMaybe<Scalars['String']['input']>;
   limit: InputMaybe<Scalars['Int']['input']>;
@@ -13899,6 +14019,16 @@ type UserUpdateSubforumMembershipMutation = { __typename?: 'Mutation', UserUpdat
     & UsersCurrent
   ) | null };
 
+type SubforumWikiTabQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SubforumWikiTabQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+      { __typename?: 'Tag' }
+      & TagEditFragment
+    ) | null } | null };
+
 type LocalgroupPageTitleQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13929,12 +14059,52 @@ type SequencesPageTitleQuery = { __typename?: 'Query', sequence: { __typename?: 
       & SequencesPageTitleFragment
     ) | null } | null };
 
+type UltraFeedCommentsDialogQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedCommentsDialogQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsDetails
+    ) | null } | null };
+
+type UltraFeedPostDialogQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedPostDialogQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & UltraFeedPostFragment
+    ) | null } | null };
+
+type UltraFeedThreadItemQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedThreadItemQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsListWithVotes
+    ) | null } | null };
+
 type ConnectCrossposterMutationVariables = Exact<{
   token: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
 type ConnectCrossposterMutation = { __typename?: 'Mutation', connectCrossposter: string | null };
+
+type EditProfileFormQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type EditProfileFormQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
+      { __typename?: 'User' }
+      & UsersProfileEdit
+    ) | null } | null };
 
 type SendEventTriggeredDmMutationVariables = Exact<{
   eventType: Scalars['String']['input'];

@@ -10,27 +10,60 @@ import { getFragment } from "../vulcan-lib/fragments";
 import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 import { useLocation, useNavigate } from "../routeUtil";
 import { FragmentDefinitionNode, print } from 'graphql';
-interface GetGraphQLMultiQueryFromOptionsArgs<F> {
+// interface GetGraphQLMultiQueryFromOptionsArgs<F> {
+//   collectionName: CollectionNameString,
+//   typeName: string,
+//   fragmentDoc: TypedDocumentNode<F, unknown>,
+//   resolverName: string,
+//   extraVariables?: Record<string, PrimitiveGraphQLType>,
+// }
+
+interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
   typeName: string,
-  fragmentDoc: TypedDocumentNode<F, unknown>,
+  fragmentName: FragmentName,
+  fragment: any,
   resolverName: string,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }
 
-export function getGraphQLMultiQueryFromOptions<F>({ collectionName, typeName, fragmentDoc, resolverName, extraVariables }: GetGraphQLMultiQueryFromOptionsArgs<F>) {
-  const fragmentDefinition = fragmentDoc.definitions.find((d): d is FragmentDefinitionNode => d.kind === 'FragmentDefinition')
-  const fragmentName = fragmentDefinition?.name.value;
-  const fragmentText = print(fragmentDoc);
-  if (!fragmentName) {
-    throw new Error('Fragment name not found');
-  }
+// export function getGraphQLMultiQueryFromOptions<F>({ collectionName, typeName, fragmentDoc, resolverName, extraVariables }: GetGraphQLMultiQueryFromOptionsArgs<F>) {
+//   const fragmentDefinition = fragmentDoc.definitions.find((d): d is FragmentDefinitionNode => d.kind === 'FragmentDefinition')
+//   const fragmentName = fragmentDefinition?.name.value;
+//   const fragmentText = print(fragmentDoc);
+//   if (!fragmentName) {
+//     throw new Error('Fragment name not found');
+//   }
+
+//   let extraVariablesString = ''
+//   if (extraVariables) {
+//     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
+//   }
+//   const graphQLQueryText = `
+//     query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+//       ${resolverName}(input: $input) {
+//         results {
+//           ...${fragmentName}
+//         }
+//         totalCount
+//         __typename
+//       }
+//     }
+//     ${fragmentText}
+//   `
+//   // build graphql query from options
+//   return gql(graphQLQueryText);
+// }
+
+export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, resolverName, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
   if (extraVariables) {
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
-  const graphQLQueryText = `
+  // build graphql query from options
+  return gql`
     query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
       ${resolverName}(input: $input) {
         results {
@@ -40,10 +73,8 @@ export function getGraphQLMultiQueryFromOptions<F>({ collectionName, typeName, f
         __typename
       }
     }
-    ${fragmentText}
-  `
-  // build graphql query from options
-  return gql(graphQLQueryText);
+    ${fragment}
+  `;
 }
 
 export interface UseMultiOptions<
@@ -142,7 +173,7 @@ export function useMulti<
   const typeName = collectionNameToTypeName[collectionName];
 
   const resolverName = getMultiResolverName(typeName);
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentDoc, resolverName, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: getFragment(fragmentName), resolverName, extraVariables });
 
   const graphQLVariables = useMemo(() => ({
     input: {

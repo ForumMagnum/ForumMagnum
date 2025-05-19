@@ -85,7 +85,7 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     sort,
   })
   // const readHistory = (data?.UserReadHistory?.posts ?? []) as (PostsListWithVotes & {lastVisitedAt: string})[]
-  const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
+  const readHistory = data?.UserReadHistory?.posts
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />

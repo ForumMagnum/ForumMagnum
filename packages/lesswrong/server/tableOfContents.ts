@@ -1,4 +1,4 @@
-import { questionAnswersSortings } from '../lib/collections/comments/views';
+import { CommentsViews, questionAnswersSortings } from '../lib/collections/comments/views';
 import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
@@ -33,7 +33,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
   const { Comments } = context;
 
   const commentSelector: any = {
-    ...getDefaultViewSelector("Comments"),
+    ...getDefaultViewSelector(CommentsViews),
     answer: false,
     parentAnswerId: null,
     postId: document._id

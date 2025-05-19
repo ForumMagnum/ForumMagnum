@@ -73,6 +73,7 @@ import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { PostSideComments, UsersMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
+import { CommentsViews } from "../comments/views";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -3563,7 +3564,7 @@ const schema = {
           Partial<Pick<DbComment, "contents">>;
 
         const comments: CommentForSideComments[] = await Comments.find({
-          ...getDefaultViewSelector("Comments"),
+          ...getDefaultViewSelector(CommentsViews),
           postId: post._id,
           ...(cacheIsValid && {
             _id: {
@@ -3875,7 +3876,7 @@ const schema = {
         const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
-          ...getDefaultViewSelector("Comments"),
+          ...getDefaultViewSelector(CommentsViews),
           score: { $gt: 0 },
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
@@ -4100,7 +4101,7 @@ const schema = {
         const { Comments } = context;
         const firstComment = await Comments.findOne(
           {
-            ...getDefaultViewSelector("Comments"),
+            ...getDefaultViewSelector(CommentsViews),
             postId: post._id,
             // This actually forces `deleted: false` by combining with the default view selector
             deletedPublic: false,
