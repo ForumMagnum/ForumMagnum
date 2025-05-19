@@ -3,15 +3,15 @@ import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementCo
 import * as htmlparser2 from "htmlparser2";
 import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
 import pick from 'lodash/pick';
-import { MaybeScrollableBlock } from '../common/HorizScrollBlock';
+import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
-import ElicitBlock from '../posts/ElicitBlock';
+import ElicitBlock from './ElicitBlock';
 import { hasCollapsedFootnotes } from '@/lib/betas';
-import { CollapsedFootnotes2 } from './CollapsedFootnotes2';
-import { WrappedStrawPoll2 } from '../common/WrappedStrawPoll';
+import { CollapsedFootnotes } from './CollapsedFootnotes';
+import { WrappedStrawPoll } from './WrappedStrawPoll';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { captureEvent } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
@@ -140,7 +140,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       />)
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
-        return <CollapsedFootnotes2 attributes={attribs} footnoteElements={mappedChildren}/>
+        return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
       }
 
       let result: React.ReactNode|React.ReactNode[] = mappedChildren;
@@ -174,9 +174,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         }
       }
       if (classNames.includes("strawpoll-embed")) {
-        result = <WrappedStrawPoll2>
+        result = <WrappedStrawPoll>
           {result}
-        </WrappedStrawPoll2>
+        </WrappedStrawPoll>
       }
       if (classNames.includes("ck-cta-button")) {
         if (attribs['data-href']) {

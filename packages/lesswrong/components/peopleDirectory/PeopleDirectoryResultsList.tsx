@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { HorizScrollBlock, SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
+import { HorizScrollBlock, SCROLL_INDICATOR_SIZE } from "../contents/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";
 import PeopleDirectoryHeading from "./PeopleDirectoryHeading";
 import PeopleDirectoryResultRow from "./PeopleDirectoryResultRow";

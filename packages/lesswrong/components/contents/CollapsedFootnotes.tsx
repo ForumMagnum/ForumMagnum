@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
-import { InteractionWrapper } from '../common/useClickableCell';
+import { InteractionWrapper } from '@/components/common/useClickableCell';
 import { useLocation } from "@/lib/routeUtil";
 import classNames from 'classnames';
 
-const styles = defineStyles("CollapsedFootnotes2", (theme: ThemeType) => ({
+const styles = defineStyles("CollapsedFootnotes", (theme: ThemeType) => ({
   collapse: {
     marginTop: "-1.5em",
   },
@@ -35,7 +35,7 @@ export const locationHashIsFootnote = (hash: string) =>
 export const locationHashIsFootnoteBackreference = (hash: string) =>
   hash.startsWith("#fnref");
 
-export function CollapsedFootnotes2({ previewCount=3, attributes, footnoteElements }: {
+export function CollapsedFootnotes({ previewCount=3, attributes, footnoteElements }: {
   previewCount?: number,
   attributes: Record<string, unknown>,
   footnoteElements: React.ReactNode[],

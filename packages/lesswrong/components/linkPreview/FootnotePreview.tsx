@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
-import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
+import { EXPAND_FOOTNOTES_EVENT } from '../contents/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
