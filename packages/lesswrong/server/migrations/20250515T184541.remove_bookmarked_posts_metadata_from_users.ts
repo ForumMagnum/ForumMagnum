@@ -30,9 +30,10 @@ export async function up({ db }: MigrationContext): Promise<void> {
       FROM information_schema.columns
       WHERE table_name = 'Users'
       AND column_name = 'bookmarkedPostsMetadata'
-    `);
+    )
+  `);
 
-  if (!columnExists) {
+  if (!columnExists?.exists) {
     // eslint-disable-next-line no-console
     console.log("bookmarkedPostsMetadata column does not exist, skipping migration");
     return;
