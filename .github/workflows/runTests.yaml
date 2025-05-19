@@ -53,7 +53,7 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
-    - name: Craete database connection string file
+    - name: Create database connection string file
       run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt
     - name: Start the server
       uses: JarvusInnovations/background-action@v1
