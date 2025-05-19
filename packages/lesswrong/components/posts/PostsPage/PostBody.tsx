@@ -6,7 +6,7 @@ import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../contents/contentBodyUtil';
-import { ContentItemBody2 } from '@/components/contents/ContentItemBody2';
+import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
@@ -101,7 +101,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
 
-    content = <ContentItemBody2
+    content = <ContentItemBody
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       ref={contentRef}
       key={`${post._id}_${sideCommentMode}`}
@@ -111,7 +111,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       idInsertions={sideCommentsMap}
     />
   } else {
-    content = <ContentItemBody2
+    content = <ContentItemBody
       dangerouslySetInnerHTML={{__html: html}}
       ref={contentRef}
       description={`post ${post._id}`}

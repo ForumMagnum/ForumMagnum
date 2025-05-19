@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import ContentItemBody from '../../common/ContentItemBody';
+import { ContentItemBody } from '../../contents/ContentItemBody';
 import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../contents/contentBodyUtil';
 
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';

@@ -17,7 +17,7 @@ import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
 import FootnoteDialog from "./FootnoteDialog";
 import SideItemLine from "../contents/SideItemLine";
 import LWPopper from "../common/LWPopper";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {

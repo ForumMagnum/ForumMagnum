@@ -49,7 +49,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * we're walking a parsed HTML tree, this is a better place for the
  * functionality that's currently handled by `truncatize`.
  */
-export const ContentItemBody2 = (props: ContentItemBodyProps) => {
+export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const html = (nofollow
