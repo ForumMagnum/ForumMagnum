@@ -484,7 +484,7 @@ const fillInNullWithDefaultCommands = `
     "autoSubscribeAsOrganizer" = COALESCE("autoSubscribeAsOrganizer", true),
     "auto_subscribe_to_my_comments" = COALESCE("auto_subscribe_to_my_comments", true),
     "auto_subscribe_to_my_posts" = COALESCE("auto_subscribe_to_my_posts", true),
-    "bookmarkedPostsMetadata" = COALESCE("bookmarkedPostsMetadata", '{}'::jsonb[]),
+    -- "bookmarkedPostsMetadata" = COALESCE("bookmarkedPostsMetadata", '{}'::jsonb[]),
     "commentCount" = COALESCE("commentCount", 0),
     "deleted" = COALESCE("deleted", false),
     "frontpagePostCount" = COALESCE("frontpagePostCount", 0),
@@ -560,7 +560,7 @@ const fillInNullWithDefaultCommands = `
     "autoSubscribeAsOrganizer" IS NULL OR
     "auto_subscribe_to_my_comments" IS NULL OR
     "auto_subscribe_to_my_posts" IS NULL OR
-    "bookmarkedPostsMetadata" IS NULL OR
+    -- "bookmarkedPostsMetadata" IS NULL OR
     "commentCount" IS NULL OR
     "deleted" IS NULL OR
     "frontpagePostCount" IS NULL OR
@@ -1002,7 +1002,7 @@ const setNotnullCommands = `
     ALTER COLUMN "autoSubscribeAsOrganizer" SET NOT NULL,
     ALTER COLUMN "auto_subscribe_to_my_comments" SET NOT NULL,
     ALTER COLUMN "auto_subscribe_to_my_posts" SET NOT NULL,
-    ALTER COLUMN "bookmarkedPostsMetadata" SET NOT NULL,
+    -- ALTER COLUMN "bookmarkedPostsMetadata" SET NOT NULL,
     ALTER COLUMN "commentCount" SET NOT NULL,
     ALTER COLUMN "deleted" SET NOT NULL,
     ALTER COLUMN "frontpagePostCount" SET NOT NULL,
@@ -1477,7 +1477,7 @@ const dropNotnullCommands = `
     ALTER COLUMN "autoSubscribeAsOrganizer" DROP NOT NULL,
     ALTER COLUMN "auto_subscribe_to_my_comments" DROP NOT NULL,
     ALTER COLUMN "auto_subscribe_to_my_posts" DROP NOT NULL,
-    ALTER COLUMN "bookmarkedPostsMetadata" DROP NOT NULL,
+    -- ALTER COLUMN "bookmarkedPostsMetadata" DROP NOT NULL,
     ALTER COLUMN "commentCount" DROP NOT NULL,
     ALTER COLUMN "deleted" DROP NOT NULL,
     ALTER COLUMN "frontpagePostCount" DROP NOT NULL,
