@@ -1,5 +1,5 @@
 import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
@@ -51,7 +51,7 @@ import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import EyeSlashIcon from "@heroicons/react/24/solid/EyeSlashIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
-import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
+import SettingsIcon from "@heroicons/react/24/outline/Cog6ToothIcon";
 import EnvelopeIcon from "@heroicons/react/24/outline/EnvelopeIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
@@ -59,6 +59,7 @@ import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
 import DocumentIcon from "@heroicons/react/24/solid/DocumentIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
+import ChartBarOutlineIcon from "@heroicons/react/24/outline/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
@@ -80,47 +81,52 @@ import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
 import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
-import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
-import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
-import MuiBookmarksIcon from "@material-ui/icons/Bookmarks";
-import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
-import MuiStarIcon from "@material-ui/icons/Star";
-import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
-import MuiPersonIcon from "@material-ui/icons/Person";
-import MuiPeopleIcon from "@material-ui/icons/People";
-import MuiNotificationsIcon from '@material-ui/icons/Notifications';
-import MuiLinkIcon from "@material-ui/icons/Link";
-import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
-import MuiReportIcon from "@material-ui/icons/ReportOutlined";
-import MuiVisibilityOff from "@material-ui/icons/VisibilityOff";
-import MuiVisibility from "@material-ui/icons/Visibility";
-import MuiEditIcon from "@material-ui/icons/Edit";
-import MuiShowChartIcon from "@material-ui/icons/ShowChart";
-import MuiNotesIcon from "@material-ui/icons/Notes";
-import MuiWarningIcon from "@material-ui/icons/Warning";
-import MuiLocationIcon from "@material-ui/icons/LocationOn";
-import MuiSettingsIcon from "@material-ui/icons/Settings";
-import MuiEmailIcon from "@material-ui/icons/Email";
-import MuiPuzzleIcon from "@material-ui/icons/Extension";
-import MuiCheckIcon from "@material-ui/icons/Check";
-import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
-import MuiShareIcon from "@material-ui/icons/Share";
-import MuiSearchIcon from '@material-ui/icons/Search';
-import MuiMenuIcon from "@material-ui/icons/Menu";
-import MuiForumIcon from '@material-ui/icons/Forum';
-import MuiVoteIcon from '@material-ui/icons/HowToVote'
-import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
-import MuiExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MuiExpandLessIcon from "@material-ui/icons/ExpandLess";
-import MuiPlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
-import PlusOneIcon from '@material-ui/icons/PlusOne';
-import UndoIcon from '@material-ui/icons/Undo';
-import ClearIcon from '@material-ui/icons/Clear';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
-import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-
+import MuiBookmarkIcon from "@/lib/vendor/@material-ui/icons/src/Bookmark";
+import MuiBookmarkBorderIcon from "@/lib/vendor/@material-ui/icons/src/BookmarkBorder";
+import MuiBookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
+import MuiBellBorderIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
+import MuiStarIcon from "@/lib/vendor/@material-ui/icons/src/Star";
+import MuiStarBorderIcon from "@/lib/vendor/@material-ui/icons/src/StarBorder";
+import MuiPersonIcon from "@/lib/vendor/@material-ui/icons/src/Person";
+import MuiPeopleIcon from "@/lib/vendor/@material-ui/icons/src/People";
+import MuiNotificationsIcon from '@/lib/vendor/@material-ui/icons/src/Notifications';
+import MuiLinkIcon from "@/lib/vendor/@material-ui/icons/src/Link";
+import MuiTagIcon from "@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined";
+import MuiReportIcon from "@/lib/vendor/@material-ui/icons/src/ReportOutlined";
+import MuiVisibilityOff from "@/lib/vendor/@material-ui/icons/src/VisibilityOff";
+import MuiVisibility from "@/lib/vendor/@material-ui/icons/src/Visibility";
+import MuiEditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
+import MuiShowChartIcon from "@/lib/vendor/@material-ui/icons/src/ShowChart";
+import MuiNotesIcon from "@/lib/vendor/@material-ui/icons/src/Notes";
+import MuiWarningIcon from "@/lib/vendor/@material-ui/icons/src/Warning";
+import MuiLocationIcon from "@/lib/vendor/@material-ui/icons/src/LocationOn";
+import MuiSettingsIcon from "@/lib/vendor/@material-ui/icons/src/Settings";
+import MuiEmailIcon from "@/lib/vendor/@material-ui/icons/src/Email";
+import MuiPuzzleIcon from "@/lib/vendor/@material-ui/icons/src/Extension";
+import MuiCheckIcon from "@/lib/vendor/@material-ui/icons/src/Check";
+import MuiEllipsisVerticalIcon from "@/lib/vendor/@material-ui/icons/src/MoreVert";
+import MuiShareIcon from "@/lib/vendor/@material-ui/icons/src/Share";
+import MuiSearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
+import MuiMenuIcon from "@/lib/vendor/@material-ui/icons/src/Menu";
+import MuiForumIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
+import MuiVoteIcon from '@/lib/vendor/@material-ui/icons/src/HowToVote'
+import MuiNotInterestedIcon from '@/lib/vendor/@material-ui/icons/src/NotInterested';
+import MuiExpandMoreIcon from "@/lib/vendor/@material-ui/icons/src/ExpandMore";
+import MuiExpandLessIcon from "@/lib/vendor/@material-ui/icons/src/ExpandLess";
+import MuiPlaylistAddIcon from "@/lib/vendor/@material-ui/icons/src/PlaylistAdd";
+import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
+import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
+import FullscreenExitIcon from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
+import MuiArrowDownRightIcon from '@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowRight';
+import MuiDragIndicatorIcon from '@/lib/vendor/@material-ui/icons/src/DragIndicator';
+import MuiNoteAddOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/NoteAddOutlined';
+import ThumbsUpIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUp';
+import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutlined';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -291,7 +297,12 @@ export type ForumIconName =
   "TickReaction" |
   "CrossReaction" |
   "CrossReactionCap" |
-  "Dictionary";
+  "Dictionary" |
+  "ArrowDownRight" |
+  "DragIndicator" |
+  "NoteAdd" |
+  "ThumbUp" |
+  "ThumbUpOutline";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -418,7 +429,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
-    Dictionary: DictionaryIcon
+    Dictionary: DictionaryIcon,
+    ArrowDownRight: MuiArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -515,7 +531,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
-    BarChart: ChartBarIcon,
+    BarChart: ChartBarOutlineIcon,
     Funnel: FunnelIcon,
     FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
@@ -545,6 +561,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
     Dictionary: DictionaryIcon,
+    ArrowDownRight: ArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
 };
 
@@ -635,12 +656,8 @@ const ForumIcon = ({
   return <Icon className={fullClassName} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {
+export default registerComponent("ForumIcon", ForumIcon, {
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    ForumIcon: typeof ForumIconComponent
-  }
-}
+

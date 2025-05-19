@@ -1,4 +1,4 @@
-import Users from "../../lib/vulcan-users";
+import Users from "../../server/collections/users/collection";
 import { BoolType } from "@/server/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 

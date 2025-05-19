@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type { PodcastData } from "../../../lib/eaPodcasts";
 
@@ -64,14 +64,10 @@ export const EAOnboardingPodcast = ({podcast, classes}: {
   );
 }
 
-const EAOnboardingPodcastComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingPodcast",
   EAOnboardingPodcast,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingPodcast: typeof EAOnboardingPodcastComponent
-  }
-}
+

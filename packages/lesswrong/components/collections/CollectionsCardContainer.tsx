@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 
 const styles = (theme: ThemeType) => ({
@@ -24,11 +24,7 @@ const CollectionsCardContainer = ({ classes, children }: {
   </div>
 }
 
-const CollectionsCardContainerComponent = registerComponent(
+export default registerComponent(
   "CollectionsCardContainer", CollectionsCardContainer, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CollectionsCardContainer: typeof CollectionsCardContainerComponent
-  }
-}
+

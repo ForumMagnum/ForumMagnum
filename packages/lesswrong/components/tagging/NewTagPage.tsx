@@ -1,9 +1,17 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useUpdate } from '@/lib/crud/withUpdate';
+import { slugify } from '@/lib/utils/slugify';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { useTagBySlug } from './useTag';
+import { TagForm } from './TagForm';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import NewTagInfoBox from "./NewTagInfoBox";
+import Loading from "../vulcan-core/Loading";
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -22,10 +30,21 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const {
-    SingleColumnSection, SectionTitle, WrappedSmartForm, NewTagInfoBox,
-  } = Components;
+  const {mutate: updateTag} = useUpdate({
+    collectionName: "Tags",
+    fragmentName: "TagEditFragment",
+  });
 
+  const { query } = useLocation();
+  const createdType = ["tag","wiki"].includes(query.type) ? query.type : "tag";
+  const prefillName = query.name ?? null;
+
+  const { tag: existingTag, loading: loadingExistingTag } = useTagBySlug(
+    slugify(prefillName),
+    'TagEditFragment',
+    { skip: !prefillName }
+  );
+  
   if (!currentUser) {
     return (
       <SingleColumnSection>
@@ -48,17 +67,37 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
       </SingleColumnSection>
     );
   }
-  
+
   return (
     <SingleColumnSection className={classes.root}>
-      <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
-      <WrappedSmartForm
-        collectionName="Tags"
-        mutationFragment={getFragment('TagFragment')}
-        successCallback={(tag: any) => {
-          navigate({pathname: tagGetUrl(tag)});
-        }}
-      />
+      {loadingExistingTag && <Loading/>}
+      
+      {existingTag?.isPlaceholderPage &&
+        <p>Some pages already link to this page.</p>
+      }
+
+      {createdType === "tag"
+        ? <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        : <SectionTitle title={`New Wiki Page`}/>
+      }
+      {!loadingExistingTag && (
+        <TagForm
+          initialData={existingTag ?? undefined}
+          prefilledProps={{
+            name: prefillName,
+            wikiOnly: (createdType === "wiki"),
+          }}
+          onSuccess={async (tag) => {
+            if (existingTag) {
+              await updateTag({
+                selector: { _id: existingTag._id },
+                data: { isPlaceholderPage: false },
+              });
+            }
+            navigate({pathname: tagGetUrl(tag)});
+          }}
+        />
+      )}
       {isEAForum &&
         <div className={classes.guide}>
           <NewTagInfoBox />
@@ -68,10 +107,6 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage, {styles});
+export default registerComponent('NewTagPage', NewTagPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagPage: typeof NewTagPageComponent
-  }
-}
+

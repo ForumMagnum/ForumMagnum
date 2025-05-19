@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import CommentsNodeInner from "../comments/CommentsNode";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,12 +25,12 @@ export const AllReactedCommentsPage = ({classes}: {
   })
   
   return (
-    <Components.SingleColumnSection>
-      <Components.SectionTitle title="All Reacted Comments"/>
+    <SingleColumnSection>
+      <SectionTitle title="All Reacted Comments"/>
       <div className={classes.root}>
         {results && results.map((comment: CommentsListWithParentMetadata) =>
           <div key={comment._id}>
-            <Components.CommentsNode
+            <CommentsNodeInner
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -38,16 +42,12 @@ export const AllReactedCommentsPage = ({classes}: {
             />
           </div>
         )}
-        <Components.LoadMore {...loadMoreProps}/>
+        <LoadMore {...loadMoreProps}/>
       </div>
-    </Components.SingleColumnSection>
+    </SingleColumnSection>
   )
 }
 
-const AllReactedCommentsPageComponent = registerComponent('AllReactedCommentsPage', AllReactedCommentsPage, {styles});
+export default registerComponent('AllReactedCommentsPage', AllReactedCommentsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AllReactedCommentsPage: typeof AllReactedCommentsPageComponent
-  }
-}
+

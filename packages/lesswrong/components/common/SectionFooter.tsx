@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Typography } from "./Typography";
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({
   '& > *': {
@@ -48,15 +49,11 @@ const SectionFooter = ({ children, className, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <Components.Typography variant="body2" className={classNames(classes.root, className)}>
+    <Typography variant="body2" className={classNames(classes.root, className)}>
       { children }
-    </Components.Typography>
+    </Typography>
   )
 }
-const SectionFooterComponent = registerComponent('SectionFooter', SectionFooter, {styles})
+export default registerComponent('SectionFooter', SectionFooter, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SectionFooter: typeof SectionFooterComponent
-  }
-}
+

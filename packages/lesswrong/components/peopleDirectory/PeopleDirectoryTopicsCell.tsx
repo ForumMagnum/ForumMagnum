@@ -1,5 +1,5 @@
+
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { tagStyle, smallTagTextStyle, coreTagStyle } from "../tagging/FooterTag";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
@@ -8,8 +8,11 @@ import {
   emptyTextCellStyles,
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import TagsTooltip from "../tagging/TagsTooltip";
+import LWTooltip from "../common/LWTooltip";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectoryTopicsCell', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -43,17 +46,16 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     maxWidth: "calc(min(100vw, 300px))",
   },
-});
+}));
 
 const TAG_COUNT = 2;
 
-const TagDisplay = ({name, slug, classes}: {
+const TagDisplay = ({name, slug}: {
   name: string,
   slug: string,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const {TagsTooltip} = Components;
+  const classes = useStyles(styles);
   return (
     <InteractionWrapper
       key={slug}
@@ -69,11 +71,10 @@ const TagDisplay = ({name, slug, classes}: {
   );
 }
 
-const PeopleDirectoryTopicsCell = ({user, classes}: {
+export const PeopleDirectoryTopicsCell = ({user}: {
   user: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const {LWTooltip} = Components;
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       {(user.tags?.length ?? 0) === 0 &&
@@ -82,7 +83,7 @@ const PeopleDirectoryTopicsCell = ({user, classes}: {
         </div>
       }
       {user.tags?.slice(0, TAG_COUNT).map(({name, slug}) => (
-        <TagDisplay key={slug} name={name} slug={slug} classes={classes} />
+        <TagDisplay key={slug} name={name} slug={slug} />
       ))}
       {(user.tags?.length ?? 0) > TAG_COUNT &&
         <div className={classes.more}>
@@ -94,7 +95,6 @@ const PeopleDirectoryTopicsCell = ({user, classes}: {
                     key={slug}
                     name={name}
                     slug={slug}
-                    classes={classes}
                   />
                 ))}
               </div>
@@ -109,16 +109,4 @@ const PeopleDirectoryTopicsCell = ({user, classes}: {
       }
     </div>
   );
-}
-
-const PeopleDirectoryTopicsCellComponent = registerComponent(
-  "PeopleDirectoryTopicsCell",
-  PeopleDirectoryTopicsCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryTopicsCell: typeof PeopleDirectoryTopicsCellComponent
-  }
 }

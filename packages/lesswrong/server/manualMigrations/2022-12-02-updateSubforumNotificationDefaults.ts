@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import { registerMigration, forEachDocumentBatchInCollection } from "./migrationUtils";
-import Users from "../../lib/collections/users/collection";
-import Tags from "../../lib/collections/tags/collection";
-import { Subscriptions } from "../../lib/collections/subscriptions";
+import Users from "../../server/collections/users/collection";
+import Tags from "../../server/collections/tags/collection";
+import { Subscriptions } from "../../server/collections/subscriptions/collection";
 import { randomId } from "../../lib/random";
 
-registerMigration({
+export default registerMigration({
   name: "updateSubforumNotificationDefaults",
   dateWritten: "2022-12-02",
   idempotent: true,

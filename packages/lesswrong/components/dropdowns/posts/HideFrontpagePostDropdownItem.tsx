@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { AllowHidingFrontPagePostsContext, IsRecommendationContext } from './PostActions';
@@ -7,6 +6,10 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import LoginPopup from "../../users/LoginPopup";
+import DropdownItem from "../DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -33,8 +36,8 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   const toggleShown = () => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return;
     }
@@ -49,8 +52,6 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   // Named to be consistent with bookmark / un-bookmark
   const title = hidden ? "Un-hide from frontpage" : "Hide from frontpage";
   const icon = hidden ? "EyeOutline" : "Eye";
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -60,7 +61,7 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const HideFrontPageButtonComponent = registerComponent(
+export default registerComponent(
   'HideFrontpagePostDropdownItem',
   HideFrontpagePostDropdownItem,
   {
@@ -69,8 +70,4 @@ const HideFrontPageButtonComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    HideFrontpagePostDropdownItem: typeof HideFrontPageButtonComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { descriptionStyles } from './SpotlightItem';
 
 const styles = (theme: ThemeType) => ({
@@ -42,10 +42,6 @@ export const SpotlightEditorStyles = ({classes, children}: {
   </div>;
 }
 
-const SpotlightEditorStylesComponent = registerComponent('SpotlightEditorStyles', SpotlightEditorStyles, {styles});
+export default registerComponent('SpotlightEditorStyles', SpotlightEditorStyles, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SpotlightEditorStyles: typeof SpotlightEditorStylesComponent
-  }
-}
+

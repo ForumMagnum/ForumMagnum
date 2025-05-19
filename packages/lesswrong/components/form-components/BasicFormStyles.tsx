@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,11 +27,7 @@ export const BasicFormStyles = ({classes, children}: {
   </div>;
 }
 
-const BasicFormStylesComponent = registerComponent('BasicFormStyles', BasicFormStyles, {styles});
+export default registerComponent('BasicFormStyles', BasicFormStyles, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BasicFormStyles: typeof BasicFormStylesComponent
-  }
-}
+
 

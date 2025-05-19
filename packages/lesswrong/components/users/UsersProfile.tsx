@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,13 +7,12 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD, POST_SORTING_MODES } from '../../lib/collections/posts/views'
-import StarIcon from '@material-ui/icons/Star'
-import DescriptionIcon from '@material-ui/icons/Description'
-import MessageIcon from '@material-ui/icons/Message'
-import PencilIcon from '@material-ui/icons/Create'
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star'
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
+import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
@@ -21,13 +20,43 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
-import CopyIcon from '@material-ui/icons/FileCopy'
+import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
-import { postListSettingUrlParameterNames } from '../posts/PostsListSettings';
+import PostsListSettings, { postListSettingUrlParameterNames } from '../posts/PostsListSettings';
+import { TooltipSpan } from '../common/FMTooltip';
+import MetaInfo from "../common/MetaInfo";
+import OmegaIcon from "../icons/OmegaIcon";
+import Error404 from "../common/Error404";
+import NewFeedButton from "../rss/NewFeedButton";
+import NewDialogueDialog from "../posts/NewDialogueDialog";
+import SequencesGridWrapper from "../sequences/SequencesGridWrapper";
+import DraftsList from "../posts/DraftsList";
+import PostsList2 from "../posts/PostsList2";
+import LocalGroupsList from "../localGroups/LocalGroupsList";
+import LWTooltip from "../common/LWTooltip";
+import ProfileShortform from "../shortform/ProfileShortform";
+import RecentComments from "../comments/RecentComments";
+import SunshineNewUsersProfileInfo from "../sunshineDashboard/SunshineNewUsersProfileInfo";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SequencesNewButton from "../sequences/SequencesNewButton";
+import NewConversationButton from "../messaging/NewConversationButton";
+import TagEditsByUser from "../tagging/TagEditsByUser";
+import DialogGroup from "../common/DialogGroup";
+import SettingsButton from "../icons/SettingsButton";
+import ContentItemBody from "../common/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import PermanentRedirect from "../common/PermanentRedirect";
+import HeadTags from "../common/HeadTags";
+import { Typography } from "../common/Typography";
+import ContentStyles from "../common/ContentStyles";
+import ReportUserButton from "./ReportUserButton";
+import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
+import CommentsSortBySelector from "../comments/CommentsSortBySelector";
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -167,59 +196,44 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
       return <div className={classes.meta}>
 
-        { !isAF && <Tooltip title={`${userKarma} karma`}>
-          <span className={classes.userMetaInfo}>
-            <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Karma">
-              {userKarma}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>}
+        { !isAF && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
+          <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <MetaInfo title="Karma">
+            {userKarma}
+          </MetaInfo>
+        </TooltipSpan>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`}>
-          <span className={classes.userMetaInfo}>
-            <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Alignment Karma">
-              {userAfKarma}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>}
+        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
+          <OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <MetaInfo title="Alignment Karma">
+            {userAfKarma}
+          </MetaInfo>
+        </TooltipSpan>}
 
-        <Tooltip title={`${userPostCount} posts`}>
-          <span className={classes.userMetaInfo}>
-            <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Posts">
-              {userPostCount}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>
+        <TooltipSpan title={`${userPostCount} posts`} className={classes.userMetaInfo}>
+          <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <MetaInfo title="Posts">
+            {userPostCount}
+          </MetaInfo>
+        </TooltipSpan>
 
-        <Tooltip title={`${userCommentCount} comments`}>
-          <span className={classes.userMetaInfo}>
-            <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Comments">
-              { userCommentCount }
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>
+        <TooltipSpan title={`${userCommentCount} comments`} className={classes.userMetaInfo}>
+          <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <MetaInfo title="Comments">
+            { userCommentCount }
+          </MetaInfo>
+        </TooltipSpan>
 
-        <Tooltip title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`}>
-          <span className={classes.userMetaInfo}>
-            <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo>
-              { tagRevisionCount||0 }
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>
+        <TooltipSpan title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`} className={classes.userMetaInfo}>
+          <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <MetaInfo>
+            { tagRevisionCount||0 }
+          </MetaInfo>
+        </TooltipSpan>
       </div>
   }
 
   const render = () => {
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
-      SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector, NewDialogueDialog } = Components
-
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -232,7 +246,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug) && !user.deleted) {
+    if (slug !== user.slug && user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
@@ -246,7 +260,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         // Anyone else gets a 404 here
         // eslint-disable-next-line no-console
         console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
-        return <Components.Error404/>
+        return <Error404/>
       }
     }
 
@@ -319,7 +333,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                     actions={[]}
                     trigger={<a>Register RSS</a>}
                   >
-                    <div><Components.NewFeedButton user={user} /></div>
+                    <div><NewFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }
@@ -333,8 +347,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <div
                   className={classes.subscribeButton}
                   onClick={() => openDialog({ 
-                    componentName: "NewDialogueDialog", 
-                    componentProps: { initialParticipantIds: [user._id] } 
+                    name: "NewDialogueDialog", 
+                    contents: ({onClose}) => <NewDialogueDialog
+                      onClose={onClose}
+                      initialParticipantIds={[user._id]}
+                    />
                   })}
                 >
                   <a>Dialogue</a>
@@ -364,7 +381,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             <SectionTitle title="Sequences">
               {ownPage && <SequencesNewButton />}
             </SectionTitle>
-            <Components.SequencesGridWrapper
+            <SequencesGridWrapper
                 terms={ownPage ? sequenceAllTerms : sequenceTerms}
                 showLoadMore={true}/>
           </SingleColumnSection> }
@@ -372,21 +389,21 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.DraftsList limit={5}/>
-              <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+              <DraftsList limit={5}/>
+              <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {hasEventsSetting.get() && <Components.LocalGroupsList
+            {hasEventsSetting.get() && <LocalGroupsList
               terms={{view: 'userInactiveGroups', userId: currentUser?._id}}
               showNoResults={false}
             />}
           </SingleColumnSection> }
           {/* AF Submissions Section */}
           {ownPage && nonAFMember && <SingleColumnSection>
-            <Components.LWTooltip inlineBlock={false} title="Your posts are pending approval to the Alignment Forum and are only visible to you on the Forum. 
+            <LWTooltip inlineBlock={false} title="Your posts are pending approval to the Alignment Forum and are only visible to you on the Forum. 
             They are visible to everyone on LessWrong.">
               <SectionTitle title="My Submissions"/>
-            </Components.LWTooltip>
-            <Components.PostsList2 hideAuthor showDraftTag={false} terms={afSubmissionTerms}/>
+            </LWTooltip>
+            <PostsList2 hideAuthor showDraftTag={false} terms={afSubmissionTerms}/>
           </SingleColumnSection>
           }
           {/* Posts Section */}
@@ -404,7 +421,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentIncludeEvents={currentIncludeEvents}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
-              {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
+              {user.shortformFeedId && <ProfileShortform user={user}/>}
               <PostsList2 terms={postTerms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
@@ -428,11 +445,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             {ownPage && nonAFMember && <SingleColumnSection>
-              <Components.LWTooltip inlineBlock={false } title="Your comments are pending approval to the Alignment Forum and are only visible to you on the Forum. 
+              <LWTooltip inlineBlock={false } title="Your comments are pending approval to the Alignment Forum and are only visible to you on the Forum. 
               They are visible to everyone on LessWrong.">
                 <SectionTitle title={"Comment Submissions"} />
-              </Components.LWTooltip>
-              <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
+              </LWTooltip>
+              <RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
             </SingleColumnSection>}
             <SingleColumnSection>
               <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
@@ -440,7 +457,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   Sorted by <CommentsSortBySelector setRestoreScrollPos={setRestoreScrollPos} />
                 </AnalyticsContext>
               </SectionTitle>
-              <Components.RecentComments
+              <RecentComments
                 terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile
               />
@@ -456,12 +473,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   return render();
 }
 
-const UsersProfileComponent = registerComponent(
+export default registerComponent(
   'UsersProfile', UsersProfileFn, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersProfile: typeof UsersProfileComponent
-  }
-}
+

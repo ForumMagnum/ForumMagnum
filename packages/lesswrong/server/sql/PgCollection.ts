@@ -10,6 +10,9 @@ import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
+import TableIndex from "./TableIndex";
+import { getSchema } from "@/lib/schema/allSchemas";
 
 let executingQueries = 0;
 
@@ -21,7 +24,7 @@ type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
   projection: MongoProjection<T>;
   data: T;
-  modifier: MongoModifier<T>;
+  modifier: MongoModifier;
   fieldOrSpec: MongoIndexFieldOrKey<T>;
   pipeline: MongoAggregationPipeline<T>;
   operations: MongoBulkWriteOperations<T>;
@@ -45,19 +48,16 @@ class PgCollection<
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  defaultView: ViewFunction<N> | undefined;
-  views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
-  _schemaFields: SchemaType<N>;
-  _simpleSchema: any;
-  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
-  private table: Table<ObjectsByCollectionName[N]>;
-  private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  private table: Table<ObjectsByCollectionName[N]>;
+
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
   }
 
@@ -65,22 +65,23 @@ class PgCollection<
     return !!getSqlClient();
   }
 
-  isVoteable(): this is PgCollection<VoteableCollectionName> {
-    return this.voteable;
-  }
-
-  makeVoteable() {
-    this.voteable = true;
+  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollection<VoteableCollectionName> {
+    return !!this.options.voteable;
   }
 
   hasSlug(): this is PgCollection<CollectionNameWithSlug> {
-    return !!this._schemaFields.slug;
+    const schema = getSchema(this.collectionName);
+    return !!schema.slug;
   }
 
   getTable() {
     return this.table;
   }
 
+  getIndexes() {
+    return this.options.getIndexes?.() ?? new DatabaseIndexSet();
+  }
+ 
   buildPostgresTable() {
     this.table = Table.fromCollection<N>(this);
   }
@@ -138,11 +139,7 @@ class PgCollection<
     return this.executeQuery(query, data, "write");
   }
 
-  find(
-    selector?: MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ): FindResult<ObjectsByCollectionName[N]> {
+  find: FindFn<ObjectsByCollectionName[N]> = (selector, options, projection) => {
     return {
       fetch: async () => {
         const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, { ...options, projection });
@@ -157,11 +154,7 @@ class PgCollection<
     };
   }
 
-  async findOne(
-    selector?: string | MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ): Promise<ObjectsByCollectionName[N]|null> {
+  findOne: FindOneFn<ObjectsByCollectionName[N]> = async (selector, options, projection) => {
     const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, {limit: 1, ...options, projection});
     const result = await this.executeReadQuery(select, {selector, options, projection});
     return result ? result[0] : null;
@@ -184,7 +177,7 @@ class PgCollection<
 
   private async upsert(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier,
     options: MongoUpdateOptions<ObjectsByCollectionName[N]> & {upsert: true},
   ) {
     const {$set, ...rest} = modifier;
@@ -215,7 +208,7 @@ class PgCollection<
 
   async rawUpdateOne(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier,
     options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) {
     if (options?.upsert) {
@@ -228,7 +221,7 @@ class PgCollection<
 
   async rawUpdateMany(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier,
     options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) {
     const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options);
@@ -256,7 +249,7 @@ class PgCollection<
     const key: MongoIndexKeyObj<ObjectsByCollectionName[N]> = typeof fieldOrSpec === "string"
       ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;
-    const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
+    const index = new TableIndex(this.tableName, key, options);
     const query = new CreateIndexQuery({ table: this.getTable(), index, ifNotExists: true });
 
     if (!options?.concurrently) {
@@ -314,7 +307,7 @@ class PgCollection<
     },
     findOneAndUpdate: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier,
       options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
@@ -328,12 +321,9 @@ class PgCollection<
       const dropIndex = new DropIndexQuery(this.getTable(), indexName);
       await this.executeWriteQuery(dropIndex, {indexName, options})
     },
-    indexes: (_options: never) => {
-      return Promise.resolve(this.getTable().getRequestedIndexes().map((index) => index.getDetails()));
-    },
     updateOne: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier,
       options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const result = await this.rawUpdateOne(selector, modifier, options);
@@ -345,7 +335,7 @@ class PgCollection<
     },
     updateMany: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier,
       options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       await this.rawUpdateMany(selector, modifier, options);
@@ -355,20 +345,6 @@ class PgCollection<
       };
     },
   });
-
-  /**
-   * Add a default view function.
-   */
-  addDefaultView(view: ViewFunction<N>) {
-    this.defaultView = view;
-  }
-
-  /**
-   * Add a named view function.
-   */
-  addView(viewName: string, view: ViewFunction<N>) {
-    this.views[viewName] = view;
-  }
 }
 
 export default PgCollection;

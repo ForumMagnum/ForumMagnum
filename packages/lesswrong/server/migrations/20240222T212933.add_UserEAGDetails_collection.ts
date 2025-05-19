@@ -43,7 +43,7 @@
  */
 export const acceptsSchemaHash = "c88a556fe6f1bc2d5ce4f08149eb3388";
 
-import UserEAGDetails from "../../lib/collections/userEAGDetails/collection"
+import UserEAGDetails from "../../server/collections/userEAGDetails/collection"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { ArrowSVG } from './Icons';
-import RoomIcon from '@material-ui/icons/Room';
+import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import GroupLinks from "./GroupLinks";
+import StyledMapPopup from "./StyledMapPopup";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -35,8 +37,6 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}
-  const { GroupLinks, StyledMapPopup } = Components
-  
   const htmlBody = {__html: htmlHighlight};
 
   // FIXME: Unstable component will lose state on rerender
@@ -72,11 +72,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-const LocalEventMarkerComponent = registerComponent("LocalEventMarker", LocalEventMarker, {styles});
+export default registerComponent("LocalEventMarker", LocalEventMarker, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalEventMarker: typeof LocalEventMarkerComponent
-  }
-}
+
 

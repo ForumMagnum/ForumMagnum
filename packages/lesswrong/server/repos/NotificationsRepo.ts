@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
-import Notifications from "../../lib/collections/notifications/collection";
-import { READ_WORDS_PER_MINUTE } from "../../lib/collections/posts/schema";
+import Notifications from "../../server/collections/notifications/collection";
+import { READ_WORDS_PER_MINUTE } from "../../lib/collections/posts/newSchema";
 import { getSocialPreviewSql } from "../../lib/collections/posts/helpers";
 import type { NotificationDisplay } from "../../lib/notificationTypes";
 
@@ -122,6 +122,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."_id",
         n."type",
         n."link",
+        n."viewed",
         n."message",
         n."createdAt",
         n."extraData",

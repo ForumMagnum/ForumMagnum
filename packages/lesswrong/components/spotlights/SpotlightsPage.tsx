@@ -1,9 +1,19 @@
 import React, { useMemo } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import SpotlightItem, { getSpotlightDisplayTitle } from './SpotlightItem';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { SpotlightForm } from './SpotlightForm';
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SpotlightEditorStyles from "./SpotlightEditorStyles";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -17,8 +27,6 @@ const styles = (theme: ThemeType) => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
-
   const currentUser = useCurrentUser();
 
   const { query } = useLocation();
@@ -68,7 +76,7 @@ export const SpotlightsPage = ({classes}: {
         level: 1
       },
       ...upcomingSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
+        title: getSpotlightDisplayTitle(spotlight),
         anchor: spotlight._id,
         level: 2
       })),
@@ -79,7 +87,7 @@ export const SpotlightsPage = ({classes}: {
           level: 1
         },
         ...draftSpotlights.map(spotlight => ({
-          title: spotlight.document.title,
+          title: getSpotlightDisplayTitle(spotlight),
           anchor: spotlight._id,
           level: 2
         }))
@@ -95,9 +103,8 @@ export const SpotlightsPage = ({classes}: {
       <SectionTitle title={'New Spotlight'} />
       <div className={classes.form}>
         <SpotlightEditorStyles>
-          <WrappedSmartForm
-            collectionName="Spotlights"
-            mutationFragment={getFragment('SpotlightEditQueryFragment')}
+          <SpotlightForm
+            onSuccess={() => refetch()}
           />
         </SpotlightEditorStyles>
       </div>
@@ -118,11 +125,7 @@ export const SpotlightsPage = ({classes}: {
   </ToCColumn>
 }
 
-const SpotlightsPageComponent = registerComponent('SpotlightsPage', SpotlightsPage, {styles});
+export default registerComponent('SpotlightsPage', SpotlightsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SpotlightsPage: typeof SpotlightsPageComponent
-  }
-}
+
 

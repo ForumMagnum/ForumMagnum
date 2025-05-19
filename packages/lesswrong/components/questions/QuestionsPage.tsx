@@ -1,18 +1,21 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser'
-import AddBoxIcon from '@material-ui/icons/AddBox'
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import SectionButton from "../common/SectionButton";
+import LWTooltip from "../common/LWTooltip";
 
 const includeRelatedQuestionsParam = new TupleSet(['true', 'false'] as const);
 
 const QuestionsPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
-  const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
-
   const includeRelatedQuestions = includeRelatedQuestionsParam.has(query.includeRelatedQuestions)
     ? query.includeRelatedQuestions
     : 'false';
@@ -57,11 +60,7 @@ const QuestionsPage = () => {
   )
 }
 
-const QuestionsPageComponent = registerComponent('QuestionsPage', QuestionsPage);
+export default registerComponent('QuestionsPage', QuestionsPage);
 
-declare global {
-  interface ComponentTypes {
-    QuestionsPage: typeof QuestionsPageComponent
-  }
-}
+
 

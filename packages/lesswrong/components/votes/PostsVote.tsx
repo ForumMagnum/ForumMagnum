@@ -1,6 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
+import PostsVoteDefault from "./PostsVoteDefault";
 
 const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   post: PostsWithVotes,
@@ -11,7 +12,6 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
 }) => {
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  const {PostsVoteDefault} = Components;
   const Component = votingSystem?.getPostBottomVotingComponent?.();
   return Component
     ? (
@@ -31,10 +31,6 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
     );
 }
 
-const PostsVoteComponent = registerComponent('PostsVote', PostsVote);
+export default registerComponent('PostsVote', PostsVote);
 
-declare global {
-  interface ComponentTypes {
-    PostsVote: typeof PostsVoteComponent
-  }
-}
+

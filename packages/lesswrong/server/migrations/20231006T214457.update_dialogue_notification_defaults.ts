@@ -1,4 +1,4 @@
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import {updateDefaultValue} from "./meta/utils";
 /**
  * Generated on 2023-10-06T21:44:57.384Z by `yarn makemigrations`

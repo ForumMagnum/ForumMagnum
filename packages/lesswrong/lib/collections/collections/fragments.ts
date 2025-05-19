@@ -1,22 +1,24 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
+import { UsersMinimumInfo } from "../users/fragments"
+import { BookPageFragment } from "../books/fragments"
 
-registerFragment(`
+export const CollectionContinueReadingFragment = () => frag`
   fragment CollectionContinueReadingFragment on Collection {
     _id
     title
     slug
     gridImageId
   }
-`);
+`
 
-registerFragment(`
+export const CollectionsPageFragment = () => frag`
   fragment CollectionsPageFragment on Collection {
     _id
     createdAt
     slug
     userId
     user {
-      ...UsersMinimumInfo
+      ${UsersMinimumInfo}
     }
     title
     contents {
@@ -25,30 +27,30 @@ registerFragment(`
     firstPageLink
     gridImageId
     books {
-      ...BookPageFragment
+      ${BookPageFragment}
     }
     hideStartReadingButton
     noindex
   }
-`);
+`
 
-registerFragment(`
+export const CollectionsEditFragment = () => frag`
   fragment CollectionsEditFragment on Collection {
-    ...CollectionsPageFragment
+    ${CollectionsPageFragment}
     contents {
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const CollectionsBestOfFragment = () => frag`
   fragment CollectionsBestOfFragment on Collection {
     _id
     createdAt
     slug
     userId
     user {
-      ...UsersMinimumInfo
+      ${UsersMinimumInfo}
     }
     title
     gridImageId
@@ -59,4 +61,4 @@ registerFragment(`
       ...RevisionDisplay
     }
   }
-`);
+`

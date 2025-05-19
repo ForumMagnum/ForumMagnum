@@ -1,9 +1,9 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "setMaxCommentAndPostCount",
   dateWritten: "2020-02-23",
   idempotent: true,

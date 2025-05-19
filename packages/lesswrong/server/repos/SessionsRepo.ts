@@ -1,4 +1,4 @@
-import { Sessions } from "../../lib/collections/sessions";
+import { Sessions } from "../../server/collections/sessions/collection";
 import AbstractRepo from "./AbstractRepo";
 
 export type UpsertSessionData = Pick<DbSession, "_id" | "session" | "expires" | "lastModified">

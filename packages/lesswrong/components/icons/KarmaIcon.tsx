@@ -1,6 +1,6 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import KeyboardArrowUpIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -37,10 +37,6 @@ const KarmaIcon = ({classes, className}: {
     </span>
 }
 
-const KarmaIconComponent = registerComponent('KarmaIcon', KarmaIcon, {styles});
+export default registerComponent('KarmaIcon', KarmaIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    KarmaIcon: typeof KarmaIconComponent
-  }
-}
+

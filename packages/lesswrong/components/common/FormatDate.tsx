@@ -1,12 +1,13 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useContext } from 'react';
 import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
+import LWTooltip from "./LWTooltip";
+import TimeTag from "./TimeTag";
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
-  const { FormatDate } = Components
   return <FormatDate date={date} format={"LLL z"} />
 };
 
@@ -18,7 +19,7 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   date: Date | string,
   format?: string,
   includeAgo?: boolean,
-  tooltip?: boolean,
+  tooltip?: React.ReactNode | boolean,
   /**
    * For the machine-readable (but not visible) datetime attribute that is set
    * on the <time> tag, whether to render as a full datetime or just a date
@@ -31,8 +32,6 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   const { cacheFriendly=false } = useContext(EnvironmentOverrideContext);
   const dateToRender = date||now;
   const dateTimeAttr = granularity === "datetime" ? dateToRender : moment(dateToRender).tz(timezone).format("YYYY-MM-DD")
-  const { LWTooltip, TimeTag } = Components
-
   let displayFormat = format;
   if (cacheFriendly && !format) {
     displayFormat = "MMM D YYYY"
@@ -49,7 +48,11 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   );
 
   if (tooltip) {
-    return <LWTooltip title={<ExpandedDate date={date}/>}>
+    return <LWTooltip title={
+      (typeof tooltip === 'boolean'
+        ? <ExpandedDate date={date}/>
+        : tooltip)
+    }>
       {formatted}
     </LWTooltip>
   } else {
@@ -57,10 +60,6 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   }
 };
 
-const FormatDateComponent = registerComponent('FormatDate', FormatDate);
+export default registerComponent('FormatDate', FormatDate);
 
-declare global {
-  interface ComponentTypes {
-    FormatDate: typeof FormatDateComponent
-  }
-}
+

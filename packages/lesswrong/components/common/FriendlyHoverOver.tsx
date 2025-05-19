@@ -1,8 +1,9 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import type { Placement as PopperPlacementType } from "popper.js"
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
+import LWTooltip from "./LWTooltip";
 
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;
@@ -24,7 +25,7 @@ export type FriendlyHoverOverProps = {
   title: ReactNode,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
-  As?: keyof JSX.IntrinsicElements,
+  As?: keyof React.JSX.IntrinsicElements,
   clickable?: boolean,
   flip?: boolean,
   analyticsProps?: AnalyticsProps,
@@ -33,6 +34,7 @@ export type FriendlyHoverOverProps = {
   onShow?: () => void,
   onHide?: () => void,
   children: ReactNode,
+  forceOpen?: boolean,
   classes: ClassesType<typeof styles>,
 }
 
@@ -54,9 +56,9 @@ const FriendlyHoverOver = ({
   onShow,
   onHide,
   children,
+  forceOpen,
   classes,
 }: FriendlyHoverOverProps) => {
-  const {LWTooltip} = Components;
   return (
     <LWTooltip
       title={title}
@@ -72,20 +74,17 @@ const FriendlyHoverOver = ({
       onShow={onShow}
       onHide={onHide}
       className={className}
+      forceOpen={forceOpen}
     >
       {children}
     </LWTooltip>
   );
 }
 
-const FriendlyHoverOverComponent = registerComponent(
+export default registerComponent(
   "FriendlyHoverOver",
   FriendlyHoverOver,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    FriendlyHoverOver: typeof FriendlyHoverOverComponent
-  }
-}
+

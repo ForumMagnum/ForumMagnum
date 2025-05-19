@@ -1,29 +1,42 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import AddBoxIcon from '@material-ui/icons/AddBox'
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';
+import RecentDiscussionThread from "./RecentDiscussionThread";
+import RecentDiscussionTag from "./RecentDiscussionTag";
+import RecentDiscussionTagRevisionItem from "./RecentDiscussionTagRevisionItem";
+import RecentDiscussionSubscribeReminder from "./RecentDiscussionSubscribeReminder";
+import RecentDiscussionMeetupsPoke from "./RecentDiscussionMeetupsPoke";
+import EARecentDiscussionThread from "./EARecentDiscussionThread";
+import EARecentDiscussionQuickTake from "./EARecentDiscussionQuickTake";
+import EARecentDiscussionTagCommented from "./EARecentDiscussionTagCommented";
+import EARecentDiscussionTagRevision from "./EARecentDiscussionTagRevision";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import MixedTypeFeed from "../common/MixedTypeFeed";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 
 const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
-    ThreadComponent: Components.RecentDiscussionThread,
-    ShortformComponent: Components.RecentDiscussionThread,
-    TagCommentedComponent: Components.RecentDiscussionTag,
-    TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
-    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
+    ThreadComponent: RecentDiscussionThread,
+    ShortformComponent: RecentDiscussionThread,
+    TagCommentedComponent: RecentDiscussionTag,
+    TagRevisionComponent: RecentDiscussionTagRevisionItem,
+    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: RecentDiscussionMeetupsPoke,
   },
   default: {
-    ThreadComponent: Components.EARecentDiscussionThread,
-    ShortformComponent: Components.EARecentDiscussionQuickTake,
-    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
-    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
-    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    ThreadComponent: EARecentDiscussionThread,
+    ShortformComponent: EARecentDiscussionQuickTake,
+    TagCommentedComponent: EARecentDiscussionTagCommented,
+    TagRevisionComponent: EARecentDiscussionTagRevision,
+    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
     MeetupsPokeComponent: () => null,
   },
 });
@@ -57,14 +70,6 @@ const RecentDiscussionFeed = ({
     },
     [setShowShortformFeed, showShortformFeed]
   );
-
-  const {
-    SingleColumnSection,
-    SectionTitle,
-    MixedTypeFeed,
-    AnalyticsInViewTracker,
-  } = Components;
-
   const refetch = useCallback(() => {
     if (refetchRef.current)
       void refetchRef.current();
@@ -138,7 +143,7 @@ const RecentDiscussionFeed = ({
               tagRevised: {
                 fragmentName: "RecentDiscussionRevisionTagFragment",
                 render: (revision: RecentDiscussionRevisionTagFragment) => <div>
-                  {revision.tag && <TagRevisionComponent
+                  {revision.tag && revision.documentId && <TagRevisionComponent
                     tag={revision.tag}
                     revision={revision}
                     headingStyle="full"
@@ -164,12 +169,8 @@ const RecentDiscussionFeed = ({
   )
 }
 
-const RecentDiscussionFeedComponent = registerComponent('RecentDiscussionFeed', RecentDiscussionFeed, {
+export default registerComponent('RecentDiscussionFeed', RecentDiscussionFeed, {
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionFeed: typeof RecentDiscussionFeedComponent,
-  }
-}
+

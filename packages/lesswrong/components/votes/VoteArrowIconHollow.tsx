@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import IconButton from '@material-ui/core/IconButton';
+import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 
@@ -75,8 +75,8 @@ const VoteArrowIconHollow = ({
   classes: ClassesType<typeof styles>
 }) => {
   const { mainColor, lightColor } = useVoteColors(color);
-
   const handlers = enabled ? eventHandlers : {};
+  const nodeRef = useRef<SVGSVGElement|null>(null);
 
   return (
     <IconButton
@@ -96,10 +96,11 @@ const VoteArrowIconHollow = ({
         className={classNames(classes.smallArrow)}
         viewBox="6 6 12 12"
       />
-      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
+      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay} nodeRef={nodeRef as any}>
         {(state) => (
           <UpArrowIcon
             style={bigVoteCompleted || bigVoted ? { color: lightColor } : undefined}
+            nodeRef={nodeRef}
             className={classNames(
               classes.bigArrow,
               bigVoteCompleted && classes.bigArrowCompleted,
@@ -112,14 +113,10 @@ const VoteArrowIconHollow = ({
   );
 };
 
-const VoteArrowIconHollowComponent = registerComponent(
+export default registerComponent(
   'VoteArrowIconHollow',
   VoteArrowIconHollow,
   { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    VoteArrowIconHollow: typeof VoteArrowIconHollowComponent;
-  }
-}
+

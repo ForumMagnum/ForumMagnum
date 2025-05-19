@@ -1,6 +1,29 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { Components, registerComponent } from "../../lib/vulcan-lib"
+import { registerComponent } from "../../lib/vulcan-lib/components"
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import TagRevisionItem from "../tagging/TagRevisionItem";
+
+const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
+  root: {
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    position: "relative",
+    boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 18,
+    paddingBottom: 12,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      paddingLeft: 14,
+      paddingRight: 14,
+    },
+  },
+}));
 
 // Pablo, Leo, Lizka
 const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM', 'SuPnfB9qqKWsucNzm']
@@ -20,11 +43,10 @@ function RecentDiscussionTagRevisionItem({
   tag: TagBasicInfo,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
-  revision: RevisionMetadataWithChangeMetrics,
+  revision: RevisionHistoryEntry,
   documentId: string,
 }) {
-  const { TagRevisionItem } = Components
-  
+  const classes = useStyles(styles);
   if (tag.adminOnly) {
     return null
   }
@@ -35,27 +57,26 @@ function RecentDiscussionTagRevisionItem({
     // Only a problem for the forum
     isEAForum &&
     // Only restrict the most active tag users
-    megaTagUsers.includes(revision.userId) &&
+    megaTagUsers.includes(revision.userId ?? '') &&
     // Restrict all from cleanup-only users, restrict small edits from other mega users
-    (onlyStyleEditors.includes(revision.userId) || revision.changeMetrics.added < 600)
+    (onlyStyleEditors.includes(revision.userId ?? '') || revision.changeMetrics.added < 600)
   ) {
     return null
   }
-  return <TagRevisionItem
-    tag={tag}
-    collapsed={collapsed}
-    headingStyle={headingStyle}
-    revision={revision}
-    documentId={documentId}
-  />
+  return <div className={classes.root}>
+    <TagRevisionItem
+      noContainer
+      tag={tag}
+      collapsed={collapsed}
+      headingStyle={headingStyle}
+      revision={revision}
+      documentId={documentId}
+    />
+  </div>
 }
 
-const RecentDiscussionTagRevisionItemComponent = registerComponent(
+export default registerComponent(
   'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItemComponent,
-  }
-}
+

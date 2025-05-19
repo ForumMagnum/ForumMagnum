@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { PostsListViewType } from '../hooks/usePostsListView';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
@@ -138,10 +138,6 @@ const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
   );
 }
 
-const FriendlyPlaceholderPostsItemComponent = registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItem, {styles});
+export default registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FriendlyPlaceholderPostsItem: typeof FriendlyPlaceholderPostsItemComponent
-  }
-}
+

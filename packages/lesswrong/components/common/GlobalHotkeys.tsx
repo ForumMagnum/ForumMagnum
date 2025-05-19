@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { useGlobalKeydown } from './withGlobalKeydown';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useGlobalKeydown, useOnSearchHotkey } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
-import { userIsAdminOrMod } from '../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { userHasDarkModeHotkey } from '../../lib/betas';
 import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
 import { isLW } from '@/lib/instanceSettings';
@@ -40,14 +40,21 @@ export const GlobalHotkeys = () => {
       replaceText();
     }
   });
+  
+  useOnSearchHotkey(() => {
+    // When you press Cmd+F/Ctrl+F/etc, expand all collapsible sections
+    const collapsibleSections = document.getElementsByTagName("details");
+    for (let i=0; i<collapsibleSections.length; i++) {
+      const detailsTag = collapsibleSections.item(i);
+      if (detailsTag && !detailsTag.getAttribute("open")) {
+        detailsTag.setAttribute("open", "true");
+      }
+    }
+  });
 
   return <></>;
 }
 
-const GlobalHotkeysComponent = registerComponent('GlobalHotkeys', GlobalHotkeys);
+export default registerComponent('GlobalHotkeys', GlobalHotkeys);
 
-declare global {
-  interface ComponentTypes {
-    GlobalHotkeys: typeof GlobalHotkeysComponent
-  }
-}
+

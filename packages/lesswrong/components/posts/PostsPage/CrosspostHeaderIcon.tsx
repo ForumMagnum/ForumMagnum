@@ -1,5 +1,4 @@
 import React from "react";
-import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -8,6 +7,9 @@ import {
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { isFriendlyUI } from "../../../themes/forumTheme";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { combineUrls } from "../../../lib/vulcan-lib/utils";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,8 +31,6 @@ const CrosspostHeaderIcon = ({post, classes}: {
   if (!post.fmCrosspost) {
     return null;
   }
-
-  const {LWTooltip} = Components;
   const icon = isLW ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
@@ -48,12 +48,8 @@ const CrosspostHeaderIcon = ({post, classes}: {
   );
 }
 
-const CrosspostHeaderIconComponent = registerComponent(
+export default registerComponent(
   "CrosspostHeaderIcon", CrosspostHeaderIcon, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CrosspostHeaderIcon: typeof CrosspostHeaderIconComponent,
-  }
-}
+

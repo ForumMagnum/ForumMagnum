@@ -1,14 +1,15 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Input from '@material-ui/core/Input';
-import Checkbox from '@material-ui/core/Checkbox';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
 export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -79,7 +80,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   showAdvanced?: boolean,
   classes: ClassesType<typeof styles>
 }) => {
-  const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings: DefaultRecommendationsAlgorithm) {
@@ -225,10 +225,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   </div>;
 }
 
-const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
+export default registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPickerComponent
-  }
-}
+

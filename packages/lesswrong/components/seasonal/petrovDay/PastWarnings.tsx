@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -52,10 +52,6 @@ export const PastWarnings = ({classes, petrovDayActions, side, general}: {
   </div>;
 }
 
-const PastWarningsComponent = registerComponent('PastWarnings', PastWarnings, {styles});
+export default registerComponent('PastWarnings', PastWarnings, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PastWarnings: typeof PastWarningsComponent
-  }
-}
+

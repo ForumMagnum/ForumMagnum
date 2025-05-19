@@ -1,12 +1,12 @@
-import { createMutator } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection';
+import Users from '../../server/collections/users/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import * as _ from 'underscore';
+import { createSubscription } from '../collections/subscriptions/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
-registerMigration({
+export default registerMigration({
   name: "migrateSubscriptions",
   dateWritten: "2019-05-01",
   idempotent: true,
@@ -94,12 +94,7 @@ registerMigration({
           if (newSubscriptions.length > 0) {
             numTotalSubscriptions += newSubscriptions.length;
             await Promise.all(_.map(newSubscriptions, async sub => {
-              await createMutator({
-                collection: Subscriptions,
-                document: sub,
-                currentUser: user,
-                validate: false,
-              });
+              await createSubscription({ data: sub }, await computeContextFromUser({ user, isSSR: false }));
             }));
           }
           

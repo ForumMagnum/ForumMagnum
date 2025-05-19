@@ -1,10 +1,10 @@
 import React, { MutableRefObject } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import {
   SearchIndexCollectionName,
   ElasticSorting,
@@ -12,8 +12,12 @@ import {
   formatElasticSorting,
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
-import { communityPath } from '../../lib/routes';
-import IconButton from '@material-ui/core/IconButton';
+import { communityPath } from '@/lib/pathConstants';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import TagMultiselect from "../form-components/TagMultiselect";
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {
@@ -91,14 +95,13 @@ type TagsRefinementProps = {
 const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
   RefinementListProvided & TagsRefinementProps
 ) => {
-  return <Components.TagMultiselect
+  return <TagMultiselect
     value={tagsFilter ?? []}
-    path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
     startWithBorder
-    updateCurrentValues={(values: {tags?: Array<string>}) => {
-      setTagsFilter && setTagsFilter(values.tags)
+    updateCurrentValues={(values: Array<string>) => {
+      setTagsFilter && setTagsFilter(values)
     }}
   />
 }
@@ -116,8 +119,6 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
 }) => {
 
   const [pastDay, pastWeek, pastMonth, pastYear] = dateRangeValues;
-  const { Typography, MenuItem, ForumIcon } = Components;
-
   return <div className={classes.filtersColumn}>
     <div className={classes.filtersHeadlineWrapper}>
       <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
@@ -141,7 +142,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
       />
     </>}
     {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
-      attribute="tags"
+      attribute="tags._id"
       defaultRefinement={tagsFilter}
       tagsFilter={tagsFilter}
       setTagsFilter={handleUpdateTagsFilter}
@@ -191,10 +192,6 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
 }
 
 
-const SearchFiltersComponent = registerComponent("SearchFilters", SearchFilters, {styles})
+export default registerComponent("SearchFilters", SearchFilters, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchFilters: typeof SearchFiltersComponent
-  }
-}
+

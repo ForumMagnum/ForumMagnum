@@ -1,19 +1,17 @@
-import Stripe from "stripe";
 import { getStripeIntentsCache } from "../lesswrongFundraiser/stripeIntentsCache";
 import { lightconeFundraiserStripeSecretKeySetting } from "../serverSettings";
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
+import gql from "graphql-tag";
 
-const intentToAmount = (intent: Stripe.PaymentIntent) => intent.amount
+export const lightcone2024FundraiserGraphQLTypeDefs = gql`
+  extend type Query {
+    Lightcone2024FundraiserStripeAmounts: [Int!]
+  }
+`
 
-const lightcone2024FundraiserResolvers = {
-  Query: {
-    async Lightcone2024FundraiserStripeAmounts(root: void, args: void, context: ResolverContext) {
-      if (!lightconeFundraiserStripeSecretKeySetting.get()) return; 
-      const intents = getStripeIntentsCache();
-      return intents.map(intentToAmount);
-    }
+export const lightcone2024FundraiserGraphQLQueries = {
+  async Lightcone2024FundraiserStripeAmounts(root: void, args: void, context: ResolverContext) {
+    if (!lightconeFundraiserStripeSecretKeySetting.get()) return; 
+    const intents = getStripeIntentsCache();
+    return intents.map(intent => intent.amount);
   }
 }
-addGraphQLResolvers(lightcone2024FundraiserResolvers);
-
-addGraphQLQuery('Lightcone2024FundraiserStripeAmounts: [Int!]');

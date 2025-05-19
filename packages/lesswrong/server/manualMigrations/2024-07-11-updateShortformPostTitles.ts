@@ -2,9 +2,9 @@ import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "../repos/helpers";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/server/collections/posts/collection.ts";
 
-registerMigration({
+export default registerMigration({
   name: "updateShortformPostTitles",
   dateWritten: "2024-07-11",
   idempotent: true,

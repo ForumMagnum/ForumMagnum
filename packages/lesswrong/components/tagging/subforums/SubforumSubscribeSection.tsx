@@ -1,12 +1,15 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import LoginPopup from "../../users/LoginPopup";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -48,10 +51,8 @@ const SubforumSubscribeSection = ({
         ...UsersCurrent
       }
     }
-    ${getFragment("UsersCurrent")}
+    ${fragmentTextForQuery("UsersCurrent")}
   `, {refetchQueries: ['getCurrentUser']});
-  const { LWTooltip } = Components
-
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       e.preventDefault();
@@ -63,8 +64,8 @@ const SubforumSubscribeSection = ({
         await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <LoginPopup onClose={onClose} />
         });
       }
     } catch(error) {
@@ -99,10 +100,6 @@ const SubforumSubscribeSection = ({
   </div>
 }
 
-const SubforumSubscribeSectionComponent = registerComponent('SubforumSubscribeSection', SubforumSubscribeSection, {styles, stylePriority: 1});
+export default registerComponent('SubforumSubscribeSection', SubforumSubscribeSection, {styles, stylePriority: 1});
 
-declare global {
-  interface ComponentTypes {
-    SubforumSubscribeSection: typeof SubforumSubscribeSectionComponent
-  }
-}
+

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
+import LoadMore from "../common/LoadMore";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,7 +118,6 @@ const TagsChecklist = ({
   smallText?: boolean,
   shortNames?: boolean,
 }) => {
-  const { LWTooltip, LoadMore, ForumIcon } = Components;
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
@@ -208,10 +210,6 @@ const TagsChecklist = ({
 };
 
 
-const TagsChecklistComponent = registerComponent("TagsChecklist", TagsChecklist, {styles});
+export default registerComponent("TagsChecklist", TagsChecklist, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagsChecklist: typeof TagsChecklistComponent
-  }
-}
+

@@ -1,7 +1,3 @@
-import SimpleSchema from 'simpl-schema';
-import { addFieldsDict } from '../../utils/schemaUtils';
-import Users from "../users/collection";
-import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { FilterSettings } from '@/lib/filterSettings';
@@ -137,6 +133,7 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   lwRationalityOnly?: boolean,
   scenario: string,
   filterSettings?: FilterSettings,
+  skipTopOfListPosts?: boolean,
 }
 
 export interface HybridRecombeeConfiguration {
@@ -173,32 +170,3 @@ export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   curatedModifier: 50,
   onlyUnread: true,
 };
-
-const recommendationAlgorithmSettingsSchema = new SimpleSchema({
-  method: String,
-  count: SimpleSchema.Integer,
-  scoreOffset: Number,
-  scoreExponent: Number,
-  personalBlogpostModifier: Number,
-  frontpageModifier: Number,
-  curatedModifier: Number,
-  onlyUnread: Boolean,
-});
-
-const recommendationSettingsSchema = new SimpleSchema({
-  frontpage: recommendationAlgorithmSettingsSchema,
-  frontpageEA: recommendationAlgorithmSettingsSchema,
-  recommendationspage: recommendationAlgorithmSettingsSchema,
-});
-
-addFieldsDict(Users, {
-  // Admin-only options for configuring Recommendations placement, for experimentation
-  recommendationSettings: {
-    type: recommendationSettingsSchema,
-    blackbox: true,
-    hidden: true,
-    canRead: [userOwns],
-    canUpdate: [userOwns],
-    optional: true,
-  },
-});

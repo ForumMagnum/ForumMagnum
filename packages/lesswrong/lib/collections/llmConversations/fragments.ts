@@ -1,6 +1,6 @@
-import { registerFragment } from "@/lib/vulcan-lib";
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const LlmConversationsFragment = () => frag`
   fragment LlmConversationsFragment on LlmConversation {
     _id
     userId
@@ -9,9 +9,9 @@ registerFragment(`
     lastUpdatedAt
     deleted
   }
-`);
+`
 
-registerFragment(`
+export const LlmConversationsViewingPageFragment = () => frag`
   fragment LlmConversationsViewingPageFragment on LlmConversation {
     ...LlmConversationsFragment
     totalCharacterCount
@@ -19,14 +19,14 @@ registerFragment(`
       ...UsersMinimumInfo
     }
   }
-`)
+`
 
 
-registerFragment(`
+export const LlmConversationsWithMessagesFragment = () => frag`
   fragment LlmConversationsWithMessagesFragment on LlmConversation {
     ...LlmConversationsFragment
     messages {
       ...LlmMessagesFragment
     }
   }
-`);
+`

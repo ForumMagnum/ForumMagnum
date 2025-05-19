@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 
 const styles = (theme: ThemeType) => ({
@@ -50,10 +50,6 @@ const WrappedStrawPoll = ({ id, src, classes }: {
   }
 }
 
-const WrappedStrawPollComponent = registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles})
+export default registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WrappedStrawPoll: typeof WrappedStrawPollComponent
-  }
-}
+

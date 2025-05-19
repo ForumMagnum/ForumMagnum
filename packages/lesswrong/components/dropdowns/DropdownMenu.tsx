@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
@@ -26,14 +26,10 @@ const DropdownMenu = ({children, className, classes}: {
   );
 }
 
-const DropdownMenuComponent = registerComponent(
+export default registerComponent(
   "DropdownMenu",
   DropdownMenu,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownMenu: typeof DropdownMenuComponent
-  }
-}
+

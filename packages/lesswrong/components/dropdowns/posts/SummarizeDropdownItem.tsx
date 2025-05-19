@@ -1,8 +1,10 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
+import PostSummaryDialog from "../../languageModels/PostSummaryDialog";
+import DropdownItem from "../DropdownItem";
 
 const SummarizeDropdownItem = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
@@ -17,12 +19,13 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
   const showPostSummary = () => {
     closeMenu?.();
     openDialog({
-      componentName: "PostSummaryDialog",
-      componentProps: {post},
+      name: "PostSummaryDialog",
+      contents: ({onClose}) => <PostSummaryDialog
+        onClose={onClose}
+        post={post}
+      />
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Summarize"
@@ -31,13 +34,9 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
   );
 }
 
-const SummarizeDropdownItemComponent = registerComponent(
+export default registerComponent(
   "SummarizeDropdownItem",
   SummarizeDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    SummarizeDropdownItem: typeof SummarizeDropdownItemComponent
-  }
-}
+

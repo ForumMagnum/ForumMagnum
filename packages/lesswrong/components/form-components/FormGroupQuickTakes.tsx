@@ -1,5 +1,5 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 
 const styles = (_theme: ThemeType) => ({
@@ -27,14 +27,10 @@ const FormGroupQuickTakes = ({
   );
 }
 
-const FormGroupQuickTakesComponent = registerComponent(
+export default registerComponent(
   'FormGroupQuickTakes',
   FormGroupQuickTakes,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    FormGroupQuickTakes: typeof FormGroupQuickTakesComponent
-  }
-}
+

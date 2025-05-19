@@ -1,11 +1,12 @@
 import React from 'react';
 import moment from '../../lib/moment-timezone';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
+import { MenuItem } from "./Menus";
 
 type TimeChange = {
   timeOfDay: number;
@@ -20,16 +21,15 @@ export interface PickedTime {
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange}: {
+const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
   mode: string,
   value: PickedTime,
   onChange: (value: PickedTime) => void,
+  disabled?: boolean,
 }) => {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;
-  const { MenuItem } = Components;
-  
   const applyChange = (change: TimeChange) => {
     const newTimeLocal = { ...valueLocal, ...change };
     const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocal.timeOfDay, newTimeLocal.dayOfWeek, timezone, "GMT");
@@ -44,6 +44,7 @@ const BatchTimePicker = ({ mode, value, onChange}: {
       <Select
         value={timeOfDay}
         onChange={(event) => applyChange({ timeOfDay: parseInt(event.target.value) })}
+        disabled={disabled}
       >
         { _.range(24).map(hour =>
             <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
@@ -55,8 +56,10 @@ const BatchTimePicker = ({ mode, value, onChange}: {
     
     { mode==="weekly" && <span>
         {" on "}
-        <Select value={dayOfWeek}
+        <Select
+          value={dayOfWeek}
           onChange={(event) => applyChange({ dayOfWeek: event.target.value })}
+          disabled={disabled}
         >
           <MenuItem value="Sunday">Sunday</MenuItem>
           <MenuItem value="Monday">Monday</MenuItem>
@@ -71,10 +74,6 @@ const BatchTimePicker = ({ mode, value, onChange}: {
   </React.Fragment>;
 }
 
-const BatchTimePickerComponent = registerComponent("BatchTimePicker", BatchTimePicker, {hocs:[withErrorBoundary]});
+export default registerComponent("BatchTimePicker", BatchTimePicker, {hocs:[withErrorBoundary]});
 
-declare global {
-  interface ComponentTypes {
-    BatchTimePicker: typeof BatchTimePickerComponent
-  }
-}
+

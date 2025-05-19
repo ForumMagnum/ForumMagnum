@@ -1,7 +1,7 @@
 import { registerMigration, fillDefaultValues } from "./migrationUtils";
-import Posts from "../../lib/collections/posts/collection";
+import Posts from "../../server/collections/posts/collection";
 
-registerMigration({
+export default registerMigration({
   name: "fillHasCoauthorPermission",
   dateWritten: "2022-10-12",
   idempotent: true,

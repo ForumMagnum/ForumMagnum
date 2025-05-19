@@ -1,8 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import UsersProfileImage from "../../users/UsersProfileImage";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   authors: {
@@ -39,7 +42,6 @@ const WrappedMostReadAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {mostReadAuthors, postsReadCount}} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="mostReadAuthors">
       <WrappedHeading>
@@ -53,7 +55,7 @@ const WrappedMostReadAuthorSection = ({classes}: {
       <div className={classes.authors}>
         {mostReadAuthors.map((author) => {
           return <article key={author.slug} className={classes.author}>
-            <Components.UsersProfileImage size={40} user={author} />
+            <UsersProfileImage size={40} user={author} />
             <div>
               <h3 className={classes.authorName}>
                 <Link to={getUserProfileLink(author.slug, year)} target="_blank">
@@ -71,14 +73,10 @@ const WrappedMostReadAuthorSection = ({classes}: {
   );
 }
 
-const WrappedMostReadAuthorSectionComponent = registerComponent(
+export default registerComponent(
   "WrappedMostReadAuthorSection",
   WrappedMostReadAuthorSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedMostReadAuthorSection: typeof WrappedMostReadAuthorSectionComponent
-  }
-}
+

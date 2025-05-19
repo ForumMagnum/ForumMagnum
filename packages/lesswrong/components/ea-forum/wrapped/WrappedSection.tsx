@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import classNames from "classnames";
 
@@ -90,14 +90,10 @@ const WrappedSection = ({
   );
 }
 
-const WrappedSectionComponent = registerComponent(
+export default registerComponent(
   "WrappedSection",
   WrappedSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedSection: typeof WrappedSectionComponent
-  }
-}
+

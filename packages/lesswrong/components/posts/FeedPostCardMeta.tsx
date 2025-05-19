@@ -1,10 +1,14 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
 import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
+import TruncatedAuthorsList from "./TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -76,11 +80,6 @@ const FeedPostCardMeta = ({post, className, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
-
-  const {
-    TruncatedAuthorsList, ForumIcon, LWTooltip, FormatDate
-  } = Components;
-
   // TODO: Think about styling for events
 
   const baseScore = (isAF ? post.afBaseScore : post.baseScore) ?? 0
@@ -159,14 +158,10 @@ const FeedPostCardMeta = ({post, className, classes}: {
   );
 }
 
-const FeedPostCardMetaComponent = registerComponent(
+export default registerComponent(
   "FeedPostCardMeta",
   FeedPostCardMeta,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    FeedPostCardMeta: typeof FeedPostCardMetaComponent,
-  }
-}
+

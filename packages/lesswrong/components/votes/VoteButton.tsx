@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isMobile } from '../../lib/utils/isMobile'
 import { useTheme } from '../themes/useTheme';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
@@ -92,13 +92,9 @@ const VoteButton = ({
   return <VoteIconComponent {...voteArrowProps} />
 }
 
-const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {
+export default registerComponent('VoteButton', VoteButton, {
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    VoteButton: typeof VoteButtonComponent
-  }
-}
+
 

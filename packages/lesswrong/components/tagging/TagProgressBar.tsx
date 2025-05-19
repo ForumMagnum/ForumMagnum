@@ -1,12 +1,17 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import LinearProgress from '@/lib/vendor/@material-ui/core/src/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
+import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import LoginPopup from "../users/LoginPopup";
+import LWTooltip from "../common/LWTooltip";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import SeparatorBullet from "../common/SeparatorBullet";
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -76,8 +81,6 @@ const styles = (theme: ThemeType) => ({
 const TagProgressBar = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();
@@ -97,8 +100,8 @@ const TagProgressBar = ({ classes }: {
       })
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
@@ -116,7 +119,7 @@ const TagProgressBar = ({ classes }: {
             What's the Import?
             </Link>
           <SeparatorBullet />
-          <Link className={classes.allTagsBarColor} to="/tags/dashboard">
+          <Link className={classes.allTagsBarColor} to={`/${taggingNamePluralSetting.get()}/dashboard`}>
             Help Process Pages
           </Link>
         </PostsItem2MetaInfo>
@@ -152,11 +155,7 @@ const TagProgressBar = ({ classes }: {
   </div>
 }
 
-const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
+export default registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
 
-declare global {
-  interface ComponentTypes {
-    TagProgressBar: typeof TagProgressBarComponent
-  }
-}
+
 

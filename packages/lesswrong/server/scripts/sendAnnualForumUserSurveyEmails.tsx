@@ -3,9 +3,8 @@ import { isEAForum } from "@/lib/instanceSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import UsersRepo from "../repos/UsersRepo";
 import { wrapAndSendEmail } from "../emails/renderEmail";
-import { Components, Globals } from "@/lib/vulcan-lib";
-import './../emailComponents/EmailAnnualForumUserSurvey';
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
+import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForumUserSurvey';
 
 /**
  * Used by the EA Forum to send an email to a subset of users
@@ -16,8 +15,10 @@ import Users from '@/lib/collections/users/collection';
  * have already emailed via the userSurveyEmailSentAt field.
  *
  * In 2024, we emailed approximately 20k users total.
+ *
+ * Exported to allow running manually with "yarn repl"
  */
-const sendUserSurveyEmails = async (limit=10) => {
+export const sendUserSurveyEmails = async (limit=10) => {
   if (!isEAForum) return
   
   const logger = loggerConstructor(`sendUserSurveyEmails`)
@@ -37,7 +38,7 @@ const sendUserSurveyEmails = async (limit=10) => {
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `We’d love to hear from you! Fill out the 2024 EA Forum user survey`,
-        body: <Components.EmailAnnualForumUserSurvey user={user} />,
+        body: <EmailAnnualForumUserSurvey user={user} />,
       })
       await Users.rawUpdateOne(
         {_id: user._id},
@@ -51,4 +52,3 @@ const sendUserSurveyEmails = async (limit=10) => {
   logger(`Sent user survey emails to ${users.length} users`)
 }
 
-Globals.sendUserSurveyEmails = sendUserSurveyEmails;

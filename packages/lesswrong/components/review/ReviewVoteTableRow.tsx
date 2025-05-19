@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { voteTextStyling } from './PostsItemReviewVote';
+import PostsItemReviewVote, { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { usePostsItem } from '../posts/usePostsItem';
+import PostsTitle from "../posts/PostsTitle";
+import LWTooltip from "../common/LWTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import MetaInfo from "../common/MetaInfo";
+import ReviewVotingButtons from "./ReviewVotingButtons";
+import PostsItemComments from "../posts/PostsItemComments";
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import ReviewPostComments from "./ReviewPostComments";
+import PostInteractionStripe from "./PostInteractionStripe";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import ForumIcon from "../common/ForumIcon";
+import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +75,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   postVotingPhase: {
-    width: "100%"
+    width: "100%",
+    maxWidth: "calc(100% - 50px)",
   },
   reviews: {
     width: "100%",
@@ -86,11 +100,16 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       padding: 7,
-      width: "100%"
+      width: "100%",
+      textAlign: "center",
     }
   },
   votesVotingPhase: {
     backgroundColor: "unset",
+    marginLeft: "auto",
+    [theme.breakpoints.down('xs')]: {
+      width: "unset",
+    }
   },
   yourVote: {
     marginLeft: 6,
@@ -183,6 +202,9 @@ const styles = (theme: ThemeType) => ({
   },
   expanded: {
     opacity: 1,
+  },
+  newCommentsSection: {
+    marginLeft: 16
   }
 });
 
@@ -208,12 +230,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
-  const {
-    PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
-    PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon
-  } = Components
-
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
@@ -223,25 +239,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
     setMarkedVisitedAt(new Date()) 
   }
 
+  const { commentTerms } = usePostsItem({post})
+
   const expanded = expandedPostId === post._id
 
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
-  const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
-  const afVotes = post.reviewVotesAF || []
-
-  let displayedVotes = allVotes
-  switch (voteTooltip) {
-    case 'Showing votes by 1000+ Karma LessWrong users':
-      displayedVotes = highVotes;
-      break;
-    case 'Showing votes from Alignment Forum members':
-      displayedVotes = afVotes;
-      break;
-    case 'Showing all votes':
-      break;
-  }
 
   let positiveVoteCountText = "0"
   let positiveVoteCountTooltip = "0 positive votes"
@@ -263,6 +267,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
 
   const visitedDate = markedVisitedAt ?? post.lastVisitedAt
   const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
+
+  const [commentsVisible, setCommentsVisible] = useState(false);
+
+  const toggleComments = () => {
+    setCommentsVisible(!commentsVisible);
+  };
+  
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
@@ -286,6 +297,15 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             <UsersNameDisplay user={post.user}/>
           </span>
         </div>
+        <div className={classes.commentsCount}>
+          <PostsItemComments
+            small={false}
+            commentCount={postGetCommentCount(post)}
+            unreadComments={unreadComments}
+            newPromotedComments={false}
+            onClick={toggleComments}
+          />
+        </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
@@ -300,14 +320,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             post={post}
           />
         </div>}
-        <div className={classes.commentsCount} onClick={() => handleSetExpandedPost(post)}>
-          <PostsItemComments
-            small={false}
-            commentCount={postGetCommentCount(post)}
-            unreadComments={unreadComments}
-            newPromotedComments={false}
-          />
-        </div>
         {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={<div>
             <div>This post has {positiveVoteCountTooltip}.</div>
@@ -324,7 +336,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
           <LWTooltip title={voteTooltip} placement="top-end">
             <div className={classes.voteResults}>
-              { displayedVotes.map((v, i)=>
+              { allVotes.map((v, i)=>
                 <span className={classes.reviewVote} key={`${post._id}${i}H`}>
                   {v}
                 </span>
@@ -344,21 +356,29 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
           </LWTooltip>}
         </div>}
         {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
-          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}><ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} /></div>}
+          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}>
+            <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />
+          </div>}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
       </div>
+      {commentsVisible && <div className={classes.newCommentsSection} onClick={toggleComments}>
+        <PostsItemNewCommentsWrapper
+          terms={commentTerms}
+          post={post}
+          treeOptions={{
+            highlightDate: post.lastVisitedAt ?? undefined,
+            condensed: true,
+          }}
+        />
+      </div>}
     </div>
   </AnalyticsContext>
 }
 
-const ReviewVoteTableRowComponent = registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
+export default registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
   styles,
   //areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    ReviewVoteTableRow: typeof ReviewVoteTableRowComponent
-  }
-}
+

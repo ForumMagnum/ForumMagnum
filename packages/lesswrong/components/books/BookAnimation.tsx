@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const collapsedStyles = (theme: ThemeType) => ({
   [theme.breakpoints.up('lg')]: {
@@ -273,15 +273,11 @@ const BookAnimation = ({ classes, children, successContent }: {
 }
 
 
-const BookAnimationComponent = registerComponent('BookAnimation', BookAnimation, {
+export default registerComponent('BookAnimation', BookAnimation, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    BookAnimation: typeof BookAnimationComponent
-  }
-}
+

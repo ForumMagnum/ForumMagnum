@@ -1,10 +1,12 @@
 import React, { Fragment } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { getDigestInfo } from '../../../lib/collections/digests/helpers';
+import Error404 from "../../common/Error404";
+import SectionTitle from "../../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,9 +39,6 @@ const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
     limit: 100,
     skip: !userIsAdmin(currentUser)
   })
-  
-  const { Error404, SectionTitle } = Components
-  
   if (!userIsAdmin(currentUser)) {
     return <Error404 />
   }
@@ -72,10 +71,6 @@ const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const DigestsComponent = registerComponent('Digests', Digests, {styles});
+export default registerComponent('Digests', Digests, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Digests: typeof DigestsComponent
-  }
-}
+

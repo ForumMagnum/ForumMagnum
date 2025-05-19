@@ -1,8 +1,8 @@
 import { registerMigration } from './migrationUtils';
 
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "petrovButtonReset",
   dateWritten: "2022-09-21",
   idempotent: true,

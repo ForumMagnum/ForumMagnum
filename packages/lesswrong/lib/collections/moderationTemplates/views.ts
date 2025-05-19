@@ -1,5 +1,4 @@
-import { ensureIndex } from '../../collectionIndexUtils';
-import ModerationTemplates from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   type ModerationTemplatesViewTerms = Omit<ViewTermsBase, 'view'> & ({
@@ -8,16 +7,20 @@ declare global {
   })
 }
 
-ModerationTemplates.addView('moderationTemplatesPage', function (terms: ModerationTemplatesViewTerms) {
+function moderationTemplatesPage(terms: ModerationTemplatesViewTerms) {
   return {
     options: { sort: { deleted: 1, order: 1 } }
   };
-})
-ensureIndex(ModerationTemplates, { deleted: 1, order: 1 })
+}
 
-ModerationTemplates.addView('moderationTemplatesList', function (terms) {
+function moderationTemplatesList(terms: ModerationTemplatesViewTerms) {
   return {
-    selector: { deleted: false, collectionName: terms.collectionName }, options: {sort: {order: 1}}
+    selector: { deleted: false, collectionName: terms.collectionName }, 
+    options: {sort: {order: 1}}
   };
+}
+
+export const ModerationTemplatesViews = new CollectionViewSet('ModerationTemplates', {
+  moderationTemplatesPage,
+  moderationTemplatesList
 });
-ensureIndex(ModerationTemplates, { collectionName: 1, deleted: 1, order: 1 })

@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -64,12 +64,4 @@ const Loading = ({classes, className, white}: {
   );
 };
 
-const LoadingComponent = registerComponent('Loading', Loading, {styles});
-
-declare global {
-  interface ComponentTypes {
-    Loading: typeof LoadingComponent
-  }
-}
-
-export default Loading;
+export default registerComponent('Loading', Loading, {styles});

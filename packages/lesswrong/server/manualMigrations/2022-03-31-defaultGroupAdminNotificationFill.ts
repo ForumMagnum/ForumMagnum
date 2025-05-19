@@ -1,8 +1,8 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "defaultGroupAdminNotificationFill",
   dateWritten: "2022-03-31",
   idempotent: true,

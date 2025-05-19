@@ -1,19 +1,18 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib';
+import { getEditableFieldsByCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getCollection } from '../collections/allCollections';
 import { htmlToPingbacks } from '../pingbacks';
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
-import Revisions from '@/lib/collections/revisions/collection';
+import Revisions from '@/server/collections/revisions/collection';
 
-registerMigration({
+export default registerMigration({
   name: "generatePingbacks",
   dateWritten: "2019-10-10",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections) {
-      for (let editableField of editableCollectionsFields[collectionName]!) {
-        if (editableCollectionsFieldOptions[collectionName][editableField].pingbacks) {
-          await updatePingbacks(collectionName, editableField);
+    for (let [collectionName, editableFields] of Object.entries(getEditableFieldsByCollection())) {
+      for (let [fieldName, editableField] of Object.entries(editableFields)) {
+        if (editableField.graphql.editableFieldOptions.pingbacks) {
+          await updatePingbacks(collectionName as CollectionNameString, fieldName);
         }
       }
     }
@@ -44,7 +43,7 @@ const updatePingbacks = async (collectionName: CollectionNameString, fieldName: 
         }
         const html = rev.html;
         if (html) {
-          const pingbacks = await htmlToPingbacks(html);
+          const pingbacks = await htmlToPingbacks(html, null);
           if (JSON.stringify(document.pingbacks) !== JSON.stringify(pingbacks)) {
             updates.push({
               updateOne: {

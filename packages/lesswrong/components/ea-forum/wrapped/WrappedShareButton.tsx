@@ -1,9 +1,10 @@
 import React, { RefObject, useCallback } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
 import { captureException } from "@sentry/core";
+import ForumIcon from "../../common/ForumIcon";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
 
 const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes}: {
   name: string,
-  screenshotRef: RefObject<HTMLElement>,
+  screenshotRef: RefObject<HTMLElement|null>,
   onRendered?: (canvas: HTMLCanvasElement) => void,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -71,8 +72,6 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
       link.click();
     }
   }, [name, screenshotRef, onRendered]);
-
-  const {ForumIcon} = Components;
   return (
     <button className={classNames(classes.root, className)} onClick={onClick}>
       <ForumIcon icon="Share" className={classes.icon} /> Share
@@ -80,14 +79,10 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
   );
 }
 
-const WrappedShareButtonComponent = registerComponent(
+export default registerComponent(
   "WrappedShareButton",
   WrappedShareButton,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedShareButton: typeof WrappedShareButtonComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
@@ -9,6 +9,14 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import moment from "moment";
+import KarmaDisplay from "../common/KarmaDisplay";
+import ForumIcon from "../common/ForumIcon";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import FooterTag from "../tagging/FooterTag";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -114,7 +122,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
   const primaryTag = quickTake.relevantTags?.[0];
-  const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
+  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5 && !isMobile();
 
   const commentsUrl = quickTake.post
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`
@@ -141,11 +149,6 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
       }, 0);
     }
   }, [commentsAreClickable, quickTake]);
-
-  const {
-    KarmaDisplay, ForumIcon, UsersName, LWTooltip, FooterTag, CommentsMenu,
-    LWPopper, CommentsNode,
-  } = Components;
   return (
     <div
       onClick={onClick}
@@ -168,7 +171,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         {quickTake.relevantTags.length > 0 &&
           <InteractionWrapper className={classes.relevantTags}>
             {quickTake.relevantTags.map((tag) =>
-              <FooterTag key={tag._id} tag={tag} smallText />
+              <FooterTag key={tag._id} tag={tag} smallText hoverable={true} />
             )}
           </InteractionWrapper>
         }
@@ -207,7 +210,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         clickable={false}
       >
         <div className={classes.hoverOver}>
-          <CommentsNode
+          <CommentsNodeInner
             truncated
             nestingLevel={1}
             comment={quickTake}
@@ -226,14 +229,10 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   );
 }
 
-const QuickTakesCollapsedListItemComponent = registerComponent(
+export default registerComponent(
   "QuickTakesCollapsedListItem",
   QuickTakesCollapsedListItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesCollapsedListItem: typeof QuickTakesCollapsedListItemComponent
-  }
-}
+

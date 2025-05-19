@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isLW } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { isLW, isLWorAF } from '../../lib/instanceSettings';
+import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import TagExcerpt from "../common/excerpts/TagExcerpt";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +29,7 @@ const CoreTagCustomDescriptions: Record<string, string> = {
   'Community': 'The <strong>Community</strong> tag is for LessWrong/Rationality community events, analysis of community health, norms and directions of the community, and posts about understanding communities in general.' 
 };
 
-const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
+export const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
   if (!tag.description) {
     return undefined;
   } else if ('htmlHighlight' in tag.description) {
@@ -40,12 +43,13 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
   // Show two paragraphs for links to tag section headers
-  return 2;
+  return isLWorAF ? 8 : 2;
 }
 
-const TagPreviewDescription = ({tag, hash, classes}: {
-  tag: TagPreviewFragment | TagSectionPreviewFragment,
+const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
+  activeTab?: number,
   classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
@@ -55,7 +59,6 @@ const TagPreviewDescription = ({tag, hash, classes}: {
   }
 
   if (isFriendlyUI) {
-    const {TagExcerpt} = Components;
     return (
       <TagExcerpt
         tag={tag}
@@ -86,9 +89,15 @@ const TagPreviewDescription = ({tag, hash, classes}: {
 
   const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
+  let html: string | undefined;
 
-  if (highlight) {
-    const {ContentItemBody, ContentStyles} = Components;
+  if (activeTab !== undefined && tag.summaries) {
+    html = tag.summaries[activeTab].contents?.html ?? ''
+  } else {
+    html = highlight;
+  }
+
+  if (html) {
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
@@ -101,7 +110,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
       <ContentStyles contentType="comment">
         <ContentItemBody
           className={classes.root}
-          dangerouslySetInnerHTML={{__html: highlight}}
+          dangerouslySetInnerHTML={{__html: html}}
           description={`tag ${tag.name}`}
         />
       </ContentStyles>
@@ -112,10 +121,6 @@ const TagPreviewDescription = ({tag, hash, classes}: {
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
 
-const TagPreviewDescriptionComponent = registerComponent("TagPreviewDescription", TagPreviewDescription, {styles});
+export default registerComponent("TagPreviewDescription", TagPreviewDescription, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagPreviewDescription: typeof TagPreviewDescriptionComponent
-  }
-}
+

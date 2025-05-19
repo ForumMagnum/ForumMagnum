@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { eaForumDigestSubscribeURL } from '../../recentDiscussion/RecentDiscussionSubscribeReminder';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useDigestAd } from './useDigestAd';
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
+import ForumIcon from "../../common/ForumIcon";
+import EAButton from "../EAButton";
 
 export const DIGEST_AD_HEADLINE_TEXT = 'Sign up for the weekly EA Forum Digest'
 export const DIGEST_AD_BODY_TEXT = 'A curated reading list of Forum posts, every Wednesday'
@@ -101,9 +104,6 @@ const SidebarDigestAd = ({className, classes}: {
   const { showDigestAd, emailRef, showForm, loading, subscribeClicked, handleClose, handleUserSubscribe } = useDigestAd()
   
   if (!showDigestAd) return null
-  
-  const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
-  
   const buttonProps = loading ? {disabled: true} : {}
   const arrow = <ForumIcon icon="ArrowRight" className={classes.formBtnArrow} />
   
@@ -118,7 +118,7 @@ const SidebarDigestAd = ({className, classes}: {
     </form>
   ) : (
     <div className={classes.form}>
-      <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
+      <input value={currentUser.email ?? undefined} className={classes.formInput} disabled={true} required={true} />
       <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
         {arrow}
       </EAButton>
@@ -154,10 +154,6 @@ const SidebarDigestAd = ({className, classes}: {
   </AnalyticsContext>
 }
 
-const SidebarDigestAdComponent = registerComponent("SidebarDigestAd", SidebarDigestAd, {styles, stylePriority: -1});
+export default registerComponent("SidebarDigestAd", SidebarDigestAd, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SidebarDigestAd: typeof SidebarDigestAdComponent
-  }
-}
+

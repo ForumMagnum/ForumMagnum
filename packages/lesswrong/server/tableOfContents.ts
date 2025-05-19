@@ -1,19 +1,19 @@
-import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
-import { Revisions } from '../lib/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
-import { Utils } from '../lib/vulcan-lib';
-import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
+import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
-import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
-import { FetchedFragment } from './fetchFragment';
-import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
+import type { FetchedFragment } from './fetchFragment';
+import { getLatestContentsRevision } from './collections/revisions/helpers';
+import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
+import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getCollectionAccessFilter } from './permissions/accessFilters';
 
+async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
+  const { Comments } = context;
 
-async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
 
   let answersTerms: MongoSelector<DbComment> = {
@@ -28,7 +28,9 @@ async function getTocAnswersServer (document: DbPost) {
   return getTocAnswers({post: document, answers})
 }
 
-async function getTocCommentsServer (document: DbPost) {
+async function getTocCommentsServer(document: DbPost, context: ResolverContext) {
+  const { Comments } = context;
+
   const commentSelector: any = {
     ...getDefaultViewSelector("Comments"),
     answer: false,
@@ -42,16 +44,75 @@ async function getTocCommentsServer (document: DbPost) {
   return getTocComments({post: document, commentCount})
 }
 
+async function getHtmlWithContributorAnnotations({
+  document,
+  collectionName,
+  fieldName,
+  version,
+  context,
+}: UpdateDenormalizedHtmlAttributionsOptions & {
+  version: string | null,
+  context: ResolverContext,
+}) {
+  const { Revisions } = context;
+
+  if (!getEditableFieldNamesForCollection(collectionName).includes(fieldName)) {
+    // eslint-disable-next-line no-console
+    console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
+    return null;
+  }
+
+  if (version) {
+    try {
+      const html = await annotateAuthors(document._id, collectionName, fieldName, context, version);
+      return html;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      const revision = await Revisions.findOne({ documentId: document._id, version, fieldName });
+      if (!revision?.html) return null;
+      const checkAccess = getCollectionAccessFilter('Revisions');
+      if (!await checkAccess(context.currentUser, revision, context))
+        return null;
+      return revision.html;
+    }
+  } else {
+    try {
+      if (document.htmlWithContributorAnnotations) {
+        return document.htmlWithContributorAnnotations;
+      } else {
+        const updateOptions: UpdateDenormalizedHtmlAttributionsOptions = collectionName === 'Tags'
+          ? {document, collectionName: 'Tags', fieldName: 'description', context}
+          : {document, collectionName: 'MultiDocuments', fieldName: 'contents', context};
+        const html = await updateDenormalizedHtmlAttributions(updateOptions);
+        return html;
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      // already validated fieldName is in editableCollectionsFields[collectionName]
+      return (document as any)[fieldName]?.html ?? "";
+    }
+  }
+}
+
 export const getToCforPost = async ({document, version, context}: {
   document: DbPost|FetchedFragment<"PostsHTML">,
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
+  const { Revisions } = context;
+
   let html: string;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
     if (!revision?.html) return null;
-    if (!await Revisions.checkAccess(context.currentUser, revision, context))
+    const checkAccess = getCollectionAccessFilter('Revisions');
+    if (!await checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
   } else if ("contents" in document && document.contents) {
@@ -65,8 +126,8 @@ export const getToCforPost = async ({document, version, context}: {
   let tocSections = tableOfContents?.sections || []
   
   if (shouldShowTableOfContents({ sections: tocSections, post: document })) {
-    const tocAnswers = await getTocAnswersServer(document)
-    const tocComments = await getTocCommentsServer(document)
+    const tocAnswers = await getTocAnswersServer(document, context)
+    const tocComments = await getTocCommentsServer(document, context)
     tocSections.push(...tocAnswers)
     tocSections.push(...tocComments)
   
@@ -84,35 +145,17 @@ export const getToCforTag = async ({document, version, context}: {
   context: ResolverContext,
 }): Promise<ToCData|null> => {
   let html: string;
-  if (version) {
-    try {
-      html = await annotateAuthors(document._id, "Tags", "description", version);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Author annotation failed");
-      // eslint-disable-next-line no-console
-      console.log(e);
-      const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
-      if (!revision?.html) return null;
-      if (!await Revisions.checkAccess(context.currentUser, revision, context))
-        return null;
-      html = revision.html;
-    }
-  } else {
-    try {
-      if (document.htmlWithContributorAnnotations) {
-        html = document.htmlWithContributorAnnotations;
-      } else {
-        html = await updateDenormalizedHtmlAttributions(document);
-      }
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Author annotation failed");
-      // eslint-disable-next-line no-console
-      console.log(e);
-      html = document.description?.html ?? "";
-    }
-  }
+  html = await getHtmlWithContributorAnnotations({
+    document,
+    collectionName: 'Tags',
+    fieldName: 'description',
+    version,
+    context,
+  });
+
+  if (!html) return { html, sections: [] };
+
+  html = await applyCustomArbitalScripts(html);
   
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
@@ -123,16 +166,29 @@ export const getToCforTag = async ({document, version, context}: {
   }
 }
 
-/** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
-defineQuery({
-  name: "generateTableOfContents",
-  resultType: "JSON",
-  argTypes: "(html: String!)",
-  fn: (root: void, {html}: {html: string}, context: ResolverContext) => {
-    if (html) {
-      return extractTableOfContents(parseDocumentFromString(html))
-    } else {
-      return {html: null, sections: []}
-    }
+export const getToCforMultiDocument = async ({document, version, context}: {
+  document: DbMultiDocument,
+  version: string|null,
+  context: ResolverContext,
+}): Promise<ToCData | null> => {
+  let html: string;
+  html = await getHtmlWithContributorAnnotations({
+    document,
+    collectionName: 'MultiDocuments',
+    fieldName: 'contents',
+    version,
+    context,
+  });
+
+  if (!html) return { html, sections: [] };
+
+  html = await applyCustomArbitalScripts(html);
+  
+  const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
+  let tocSections = tableOfContents?.sections || []
+  
+  return {
+    html: tableOfContents?.html||null,
+    sections: tocSections,
   }
-})
+}

@@ -1,6 +1,5 @@
 import { isAF, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
@@ -10,8 +9,8 @@ import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } fr
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
-export async function commentGetAuthorName(comment: DbComment): Promise<string> {
-  var user = await mongoFindOne("Users", comment.userId);
+export async function commentGetAuthorName(comment: DbComment, context: ResolverContext): Promise<string> {
+  var user = await context.Users.findOne({_id: comment.userId});
   return user ? userGetDisplayName(user) : comment.author ?? "[unknown author]";
 };
 
@@ -44,10 +43,10 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 // TODO there are several functions which do this, some of them should be combined
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string | null,
-  postSlug?: string,
-  tagSlug?: string,
-  tagCommentType?: TagCommentType,
-  commentId: string,
+  postSlug?: string | null,
+  tagSlug?: string | null,
+  tagCommentType?: TagCommentType | null,
+  commentId: string | null,
   permalink?: boolean,
   isAbsolute?: boolean,
 }): string {
@@ -99,7 +98,7 @@ export const commentGetKarma = (comment: CommentsList|DbComment): number => {
   return baseScore || 0
 }
 
-export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+export const commentAllowTitle = (comment: {tagCommentType?: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
 
 /**
  * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.

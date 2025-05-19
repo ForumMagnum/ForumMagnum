@@ -33,11 +33,11 @@
  */
 export const acceptsSchemaHash = "daef9f83fd77670b6fe1ee98ffff75f1";
 
-import ManifoldProbabilitiesCaches from "@/lib/collections/manifoldProbabilitiesCaches/collection";
+import ManifoldProbabilitiesCaches from "@/server/collections/manifoldProbabilitiesCaches/collection";
 import { addField, dropField } from "./meta/utils";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { postGetMarketInfoFromManifold } from "@/lib/collections/posts/annualReviewMarkets";
-import { createAdminContext } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 export const up = async ({db}: MigrationContext) => {

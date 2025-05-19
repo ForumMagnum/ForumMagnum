@@ -14,14 +14,14 @@
 export const acceptsSchemaHash = "9e733b575316b2cdd41d3a1d9032131a";
 
 import { updateDefaultValue } from "./meta/utils";
-import Books from "../../lib/collections/books/collection";
-import Chapters from "../../lib/collections/chapters/collection";
-import Comments from "../../lib/collections/comments/collection";
-import Conversations from "../../lib/collections/conversations/collection";
-import Localgroups from "../../lib/collections/localgroups/collection";
-import Posts from "../../lib/collections/posts/collection";
-import Tags from "../../lib/collections/tags/collection";
-import Users from "../../lib/collections/users/collection";
+import Books from "../../server/collections/books/collection";
+import Chapters from "../../server/collections/chapters/collection";
+import Comments from "../../server/collections/comments/collection";
+import Conversations from "../../server/collections/conversations/collection";
+import Localgroups from "../../server/collections/localgroups/collection";
+import Posts from "../../server/collections/posts/collection";
+import Tags from "../../server/collections/tags/collection";
+import Users from "../../server/collections/users/collection";
 
 export const up = async ({db}: MigrationContext) => {
   await updateDefaultValue(db, Books, "postIds");
@@ -35,7 +35,7 @@ export const up = async ({db}: MigrationContext) => {
   await updateDefaultValue(db, Posts, "suggestForAlignmentUserIds");
   await updateDefaultValue(db, Tags, "tagFlagsIds");
   await updateDefaultValue(db, Tags, "subforumModeratorIds");
-  await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
+  // await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
   await updateDefaultValue(db, Users, "hiddenPostsMetadata");
   await updateDefaultValue(db, Users, "profileTagIds");
   await updateDefaultValue(db, Users, "organizerOfGroupIds");

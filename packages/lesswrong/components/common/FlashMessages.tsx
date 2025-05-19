@@ -1,119 +1,186 @@
-import React, { useState, useCallback, ReactNode, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { MessageContext, useMessages } from './withMessages';
-import classnames from 'classnames';
-import Snackbar from '@material-ui/core/Snackbar';
-import Button from '@material-ui/core/Button';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import React, { useState, useCallback, ReactNode, useMemo, useContext, type ReactElement, useEffect } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { MessageFunctionsContext } from './withMessages';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { Snackbar } from '../widgets/Snackbar';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Paper } from '../widgets/Paper';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import { Typography } from "./Typography";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FlashMessages", (theme) => ({
   root: {
-    '& .MuiSnackbarContent-message': {
-      color: theme.palette.text.maxIntensity,
-      fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  },
+  paper: {
+    backgroundColor: theme.palette.panelBackground.default,
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    padding: '6px 24px',
+    [theme.breakpoints.up('md')]: {
+      minWidth: 288,
+      maxWidth: 568,
+      borderRadius: 4,
+    },
+    [theme.breakpoints.down('sm')]: {
+      flexGrow: 1,
     },
   },
-});
+  message: {
+    padding: '8px 0',
+    color: theme.palette.text.maxIntensity,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  },
+  action: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    paddingLeft: 24,
+    marginRight: -8,
+  },
+}));
+
+const messageExpirationTime = 6000
+const closeAnimationDelay = 500;
+
+export type WithMessagesMessage = string|{
+  messageString?: string|ReactElement,
+  type?: "success"|"error"|"failure",
+  action?: () => void
+  actionName?: string
+};
+
+export interface WithMessagesFunctions {
+  flash: (message: WithMessagesMessage) => void,
+  clear: () => void,
+  tick: () => void,
+}
+
+type MessagesState = {
+  messages: WithMessagesMessage[]
+  expiryTimer: ReturnType<typeof setTimeout>|null
+  animationState: "opening"|"open"|"closing"|"closed"
+};
+
+const MessagesStateContext = React.createContext<MessagesState|null>(null);
 
 export const MessageContextProvider = ({children}: {
   children: ReactNode
 }) => {
-  const [messages,setMessages] = useState<AnyBecauseTodo[]>([]);
+  const [messages,setMessages] = useState<MessagesState>(() => ({
+    messages: [],
+    expiryTimer: null,
+    animationState: "closed",
+  }));
   
-  const flash = useCallback((message: AnyBecauseTodo) => {
-    if (!messages.length) {
-      setMessages([message])
-    } else {
-      // Show the transition for clearing the old message, then pop up the new one
-      setMessages(messages.map((message: AnyBecauseTodo) => ({...message, hide:true})));
-      setTimeout(() => {
-        setMessages([message]);
-      }, 500);
-    }
-  }, [messages]);
-
   const clear = useCallback(() => {
-    setMessages(messages.map((message: AnyBecauseTodo) => ({...message, hide:true})));
-    setTimeout(() => {
-      setMessages([]);
-    }, 500);
-  }, [messages]);
+    setMessages(messages => {
+      if (messages.expiryTimer) {
+        clearTimeout(messages.expiryTimer);
+      }
+      if (messages.animationState === "closing") {
+        return {
+          messages: [],
+          expiryTimer: null,
+          animationState: "closed",
+        };
+      } else {
+        return {
+          messages: messages.messages,
+          expiryTimer: setTimeout(clear, closeAnimationDelay),
+          animationState: "closing",
+        }
+      }
+    });
+  }, []);
+  
+  const flash = useCallback((message: WithMessagesMessage) => {
+    setMessages(messages => {
+      if (messages.expiryTimer) {
+        clearTimeout(messages.expiryTimer);
+      }
+      return {
+        messages: [
+          ...messages.messages,
+          message
+        ],
+        expiryTimer: setTimeout(clear, messageExpirationTime),
+        animationState: messages.animationState === "closed" ? "opening" : "open",
+      };
+    });
+  }, [clear]);
+
+  const tick = useCallback(() => {
+    setMessages(messages => {
+      if (messages.animationState === "opening") {
+        return {
+          ...messages,
+          animationState: "open",
+        };
+      } else {
+        return messages;
+      }
+    });
+  }, []);
 
   const messagesContext = useMemo(
-    () => ({ messages, flash, clear }),
-    [messages, flash, clear]
+    () => ({ flash, clear, tick }),
+    [flash, clear, tick]
   );
 
-  // FIXME: While this is mostly referentially stable, MessageContext will change
-  // when flash-messages are added or removed. This means that when a flash-message
-  // is added, every component on the page that called useMessages() will rerender,
-  // even if it was intended to be send-only. That includes a lot of components
-  // including vote buttons, so on a page with a lot of comments, this can be
-  // very slow.
-  
-  return <MessageContext.Provider value={messagesContext}>
-    {children}
-  </MessageContext.Provider>
+  return <MessageFunctionsContext.Provider value={messagesContext}>
+    <MessagesStateContext.Provider value={messages}>
+      {children}
+    </MessagesStateContext.Provider>
+  </MessageFunctionsContext.Provider>
 }
 
-const FlashMessages = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const getProperties = (message: WithMessagesMessage) => {
-    if (typeof message === 'string') {
-      // if error is a string, use it as message
-      return {
-        message: message,
-        type: 'error'
-      }
-    } else {
-      // else return full error object after internationalizing message
-      const { messageString } = message;
-      return {
-        ...message,
-        message: messageString,
-      };
+const FlashMessages = () => {
+  const messagesState = useContext(MessagesStateContext);
+  const messagesFunctions = useContext(MessageFunctionsContext);
+  const clear = messagesFunctions?.clear;
+  const tick = messagesFunctions?.tick;
+  const classes = useStyles(styles);
+  useEffect(() => {
+    if (messagesState?.animationState === "opening") {
+      setTimeout(() => tick?.(), 0);
     }
+  }, [messagesState?.animationState, tick]);
+
+  if (!messagesState || messagesState.animationState === "closed") {
+    return null;
   }
 
-  const { messages, clear } = useMessages();
-  let messageObject = messages.length > 0 ? getProperties(messages[0]) : undefined;
   return (
-    <div className={classnames("flash-messages", classes.root)}>
-      <Snackbar
-        // @ts-ignore there is no hide property on the message props!
-        open={!!messageObject && !messageObject.hide}
-        message={messageObject && messageObject.message}
-        autoHideDuration={6000}
-        onClose={clear}
-        ClickAwayListenerProps={{
-          // Don't close flash messages on click
-          // This breaks some unit tests in Playwright, since a click that was
-          // supposed to go to a button instead gets eaten by the clickaway. And
-          // it's not actually a good UI interaction, since the message is going
-          // to close soon anyways and it's easy to dismiss by accident when you
-          // wanted to read it by clicking something unrelated.
-          mouseEvent: false
-        }}
-        action={
-          messageObject?.action &&
-          <Button
-            onClick={messageObject?.action}
-            color="primary"
-          >
-            {/* @ts-ignore there is no actionName property on the message props! */}
-            {messageObject?.actionName || "UNDO"}
-          </Button>
-        }
-      />
+    <div className={classes.root}>
+      <Snackbar open={messagesState.animationState==="open"}>
+        <Paper
+          square
+          elevation={6}
+          className={classes.paper}
+        >
+          <Typography variant="body1">
+            {messagesState.messages.map((message,i) => {
+              if(typeof message === 'string') {
+                return message;
+              } else {
+                return <div key={i}>
+                  {message.messageString}
+                  {message.action && <div className={classes.action}>
+                    <Button onClick={message.action}>
+                      {message.actionName ?? "UNDO"}
+                    </Button>
+                  </div>}
+                </div>
+              }
+            })}
+          </Typography>
+        </Paper>
+      </Snackbar>
     </div>
   );
 }
 
-const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages, {styles});
+export default registerComponent('FlashMessages', FlashMessages);
 
-declare global {
-  interface ComponentTypes {
-    FlashMessages: typeof FlashMessagesComponent
-  }
-}
+

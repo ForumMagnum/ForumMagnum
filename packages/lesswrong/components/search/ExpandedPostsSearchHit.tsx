@@ -1,10 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/routeUtil";
+import FormatDate from "../common/FormatDate";
+import UserNameDeleted from "../users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +64,6 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const post: SearchPost = hit
   
   const handleClick = () => {
@@ -87,11 +89,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedPostsSearchHitComponent = registerComponent("ExpandedPostsSearchHit", ExpandedPostsSearchHit, {styles});
+export default registerComponent("ExpandedPostsSearchHit", ExpandedPostsSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedPostsSearchHit: typeof ExpandedPostsSearchHitComponent
-  }
-}
+
 

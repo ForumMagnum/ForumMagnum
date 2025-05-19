@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
 const styles = (theme: ThemeType) => ({
@@ -15,10 +15,6 @@ const Footer = ({classes}: {
   )
 }
 
-const FooterComponent = registerComponent('Footer', Footer, {styles});
+export default registerComponent('Footer', Footer, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Footer: typeof FooterComponent
-  }
-}
+

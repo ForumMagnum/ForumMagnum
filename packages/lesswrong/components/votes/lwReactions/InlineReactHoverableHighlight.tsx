@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
-import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/namesAttachedReactions';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { QuoteLocator, NamesAttachedReactionsList } from '@/lib/voting/namesAttachedReactions';
+import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import classNames from 'classnames';
 import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
@@ -8,6 +9,12 @@ import { useHover, UseHoverEventHandlers } from '@/components/common/withHover';
 import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
 import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import ReactionIcon from "../ReactionIcon";
+import InlineReactHoverInfo from "./InlineReactHoverInfo";
+import { SideItem } from "../../contents/SideItems";
+import LWTooltip from "../../common/LWTooltip";
+import SideItemLine from "../../contents/SideItemLine";
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -31,17 +38,18 @@ const styles = (theme: ThemeType) => ({
   
   // Keeping this empty class around is necessary for the following @global style to work properly
   highlight: {},
-})
+});
 
-const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children, classes}: {
+const inlineReactHoverableHighlightStyles = defineStyles('InlineReactHoverableHighlight', styles);
+
+export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   isSplitContinuation?: boolean
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const { InlineReactHoverInfo, SideItem, LWTooltip } = Components;
-
+  const classes = useStyles(inlineReactHoverableHighlightStyles);
+  
   const hoveredReactions = useContext(HoveredReactionListContext);
   const voteProps = useContext(InlineReactVoteContext);
 
@@ -87,7 +95,7 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   const shouldUnderline = isHovered || anyPositive;
 
   if (!voteProps) {
-    return null;
+    return <>{children}</>
   }
 
   return (
@@ -113,7 +121,6 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, cla
   hoverEventHandlers: UseHoverEventHandlers,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItemLine, LWTooltip, InlineReactHoverInfo } = Components;
   const currentUser = useCurrentUser();
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
@@ -136,7 +143,7 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, cla
           inlineBlock={false}
           clickable={true}
         >
-          <Components.ReactionIcon react={r}/>
+          <ReactionIcon react={r}/>
         </LWTooltip>
       </span>)}
     </span>
@@ -158,11 +165,7 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
   return false;
 }
 
-const InlineReactHoverableHighlightComponent = registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlight, {styles});
+export default registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlight);
 
-declare global {
-  interface ComponentTypes {
-    InlineReactHoverableHighlight: typeof InlineReactHoverableHighlightComponent
-  }
-}
+
 

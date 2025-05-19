@@ -1,16 +1,20 @@
-import { Components, getSiteUrl, registerComponent } from "../../lib/vulcan-lib";
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import Popper from "@material-ui/core/Popper";
-import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
+import { Paper }from '@/components/widgets/Paper';
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useRerenderOnce } from "../hooks/useFirstRender";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
 import { forumTitleSetting } from "../../lib/instanceSettings";
 import { getPostDescription } from "./PostsPage/PostsPage";
-import { siteImageSetting } from "../vulcan-core/App";
+import { siteImageSetting } from '@/lib/publicSettings';
 import classNames from "classnames";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import LWPopper from "../common/LWPopper";
+import { Typography } from "../common/Typography";
+import ForumIcon from "../common/ForumIcon";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const ANIMATION_DURATION = 300;
 
@@ -182,7 +186,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
+type ShareButtonProps = { label: string; icon: React.JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
 
 const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) => {
   return (
@@ -208,9 +212,6 @@ const SharePostPopup = ({
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
-
-  const { Typography, ForumIcon, SocialMediaIcon } = Components;
-
   const urlHostname = new URL(getSiteUrl()).hostname;
 
   // Force rerender because the element we are anchoring to is created after the first render
@@ -297,7 +298,7 @@ const SharePostPopup = ({
   }, [onClose]);
 
   return (
-    <Popper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper} transition>
+    <LWPopper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper}>
       <Paper>
         <div className={classNames(classes.root, {[classes.rootAnimateOut]: isClosing})}>
           <div className={classes.closeButtonRow}>
@@ -327,16 +328,10 @@ const SharePostPopup = ({
           </div>
         </div>
       </Paper>
-    </Popper>
+    </LWPopper>
   );
 };
 
-export default SharePostPopup;
+export default registerComponent("SharePostPopup", SharePostPopup, { styles });
 
-const SharePostPopupComponent = registerComponent("SharePostPopup", SharePostPopup, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SharePostPopup: typeof SharePostPopupComponent;
-  }
-}

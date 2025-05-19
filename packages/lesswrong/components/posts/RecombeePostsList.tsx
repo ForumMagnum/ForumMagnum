@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
@@ -9,6 +8,12 @@ import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import LoadMore from "../common/LoadMore";
+import PostsItem from "./PostsItem";
+import SectionFooter from "../common/SectionFooter";
+import PostsLoading from "./PostsLoading";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -124,8 +129,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
-
   const [loadMoreCount, setLoadMoreCount] = useState(1);
   const currentUser = useCurrentUser();
 
@@ -234,10 +237,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   </div>;
 }
 
-const RecombeePostsListComponent = registerComponent('RecombeePostsList', RecombeePostsList, {styles});
+export default registerComponent('RecombeePostsList', RecombeePostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RecombeePostsList: typeof RecombeePostsListComponent
-  }
-}
+

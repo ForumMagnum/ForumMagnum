@@ -1,37 +1,43 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { CommentForm } from './CommentForm';
+import { useSingle } from '@/lib/crud/withSingle';
+import Loading from "../vulcan-core/Loading";
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {} }: {
+const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
   className?: string,
-  formProps?: Record<string, any>
+  formProps?: Record<string, any>,
+  prefilledProps?: AnyBecauseTodo
 }) => {
-  return (
+  const { document: editableComment, loading } = useSingle({
+    collectionName: 'Comments',
+    fragmentName: 'CommentEdit',
+    documentId: comment._id,
+    fetchPolicy: 'network-only',
+  });
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return ( 
     <div className={classNames("comments-edit-form", className)}>
-      <Components.WrappedSmartForm
-        layout="elementOnly"
-        collectionName="Comments"
-        documentId={comment._id}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        showRemove={false}
-        queryFragment={getFragment('CommentEdit')}
-        mutationFragment={getFragment('CommentsList')}
+      <CommentForm
+        initialData={editableComment}
+        prefilledProps={prefilledProps}
+        onSuccess={successCallback}
+        onCancel={cancelCallback}
         submitLabel="Save"
-        formProps={formProps}
       />
     </div>
   )
 }
 
-const CommentsEditFormComponent = registerComponent('CommentsEditForm', CommentsEditForm);
+export default registerComponent('CommentsEditForm', CommentsEditForm);
 
-declare global {
-  interface ComponentTypes {
-    CommentsEditForm: typeof CommentsEditFormComponent,
-  }
-}
+
 

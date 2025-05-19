@@ -1,10 +1,10 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const UserMostValuablePostInfo = () => frag`
   fragment UserMostValuablePostInfo on UserMostValuablePost {
     _id
     userId
     postId
     deleted
   }
-`);
+`

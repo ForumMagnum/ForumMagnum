@@ -1,21 +1,42 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection';
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
-import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
-import DebateIcon from '@material-ui/icons/Forum';
+import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
+import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
 import { isLW } from '@/lib/instanceSettings';
-
+import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
+import EventVicinity from "../localGroups/EventVicinity";
+import PostsItemComments from "./PostsItemComments";
+import KarmaDisplay from "../common/KarmaDisplay";
+import PostsTitle from "./PostsTitle";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import LWTooltip from "../common/LWTooltip";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import { PostsItemIcons } from "./PostsItemIcons";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import BookmarkButton from "./BookmarkButton";
+import PostsItemDate from "./PostsItemDate";
+import PostsItemNewCommentsWrapper from "./PostsItemNewCommentsWrapper";
+import PostsItemNewDialogueResponses from "./PostsItemNewDialogueResponses";
+import AnalyticsTracker from "../common/AnalyticsTracker";
+import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
+import PostsItemReviewVote from "../review/PostsItemReviewVote";
+import ReviewPostButton from "../review/ReviewPostButton";
+import PostReadCheckbox from "./PostReadCheckbox";
+import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
+import { ResponseIcon } from "./PostsPage/RSVPs";
 
 export const KARMA_WIDTH = 32;
 
@@ -430,16 +451,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   if (isRepeated) {
     return null;
   }
-
-  const {
-    PostsItemComments, KarmaDisplay, PostsTitle, PostsUserAndCoauthors, LWTooltip,
-    PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
-    AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
-    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons, ResponseIcon,
-  } = Components;
-
-
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";
@@ -475,7 +486,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 }
               )}
             >
-              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
+              {tagRel && <PostsItemTagRelevance tagRel={tagRel} />}
               {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
                   [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
@@ -522,7 +533,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               }
 
               {post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
-                <Components.EventVicinity post={post} />
+                <EventVicinity post={post} />
               </PostsItem2MetaInfo>}
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
@@ -590,10 +601,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 </LWTooltip>}
               </div>
               {bookmark && <div className={classes.bookmark}>
-                <BookmarkButton post={post}/>
+                <BookmarkButton documentId={post._id} collectionName="Posts"/>
               </div>}
               <div className={classes.mobileDismissButton}>
-                <DismissButton {...{showDismissButton, onDismiss}} />
+                {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
               </div>
 
               {resumeReading &&
@@ -646,7 +657,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   )
 };
 
-const LWPostsItemComponent = registerComponent('LWPostsItem', LWPostsItem, {
+export default registerComponent('LWPostsItem', LWPostsItem, {
   styles,
   stylePriority: 1,
   hocs: [withErrorBoundary],
@@ -655,8 +666,4 @@ const LWPostsItemComponent = registerComponent('LWPostsItem', LWPostsItem, {
   },
 });
 
-declare global {
-  interface ComponentTypes {
-    LWPostsItem: typeof LWPostsItemComponent
-  }
-}
+

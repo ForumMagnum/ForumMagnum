@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import HistoryIcon from '@material-ui/icons/History';
-import Menu from '@material-ui/core/Menu';
-import Tooltip from '@material-ui/core/Tooltip';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import { Menu } from '@/components/widgets/Menu';
 import moment from '../../../lib/moment-timezone';
-
+import { TooltipSpan } from '@/components/common/FMTooltip';
+import PostsRevisionsList from "./PostsRevisionsList";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -32,14 +32,12 @@ const PostsRevisionSelector = ({ post, format, classes }: {
   const closeMenu = useCallback(() => {
     setAnchorEl(null);
   }, [setAnchorEl]);
-  
-  const { PostsRevisionsList } = Components
   const tooltip = anchorEl ? null : <span>
     This post has major past revisions. Click to view. <br/>
     <em>Originally published: {moment(new Date(post.postedAt)).format("LLL z")}</em>
   </span>
   return <React.Fragment>
-    <Tooltip title={tooltip}>
+    <TooltipSpan title={tooltip}>
       <span onClick={openMenu} className={classes.button}>
         <HistoryIcon className={classes.icon}/>
         <span>{ format ? 
@@ -47,7 +45,7 @@ const PostsRevisionSelector = ({ post, format, classes }: {
           moment(new Date(post.postedAt)).fromNow()
         }</span>
       </span>
-    </Tooltip>
+    </TooltipSpan>
     <Menu
       anchorEl={anchorEl}
       open={Boolean(anchorEl)}
@@ -58,10 +56,6 @@ const PostsRevisionSelector = ({ post, format, classes }: {
   </React.Fragment>
 }
 
-const PostsRevisionSelectorComponent = registerComponent('PostsRevisionSelector', PostsRevisionSelector, {styles});
+export default registerComponent('PostsRevisionSelector', PostsRevisionSelector, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionSelector: typeof PostsRevisionSelectorComponent
-  }
-}
+

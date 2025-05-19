@@ -1,10 +1,8 @@
 import compose from 'lodash/flowRight';
-import React, { forwardRef } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
-import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
-import { classNameProxy, withAddClasses } from '@/components/hooks/useStyles';
+import { withAddClasses } from '@/components/hooks/useStyles';
 import type { StyleOptions } from '@/server/styleGeneration';
 
 type ComparisonFn = (prev: any, next: any) => boolean
@@ -16,7 +14,12 @@ type ComponentOptions = StyleOptions & {
   // JSS styles for this component. These will generate class names, which will
   // be passed as an extra prop named "classes".
   styles?: any
-  
+
+  // Whether this component can take a ref. If set, forwardRef is used to pass
+  // the ref across any higher-order components. If not set, and HoCs are
+  // present, the ref may not work work.
+  allowRef?: boolean
+
   // Array of higher-order components that this component should be wrapped
   // with.
   hocs?: Array<any>
@@ -46,99 +49,51 @@ interface ComponentsTableEntry {
   options?: ComponentOptions,
 }
 
-const componentsProxyHandler = {
-  get: function(obj: {}, prop: string) {
-    if (prop === "__isProxy") {
-      return true;
-    } else if (prop in PreparedComponents) {
-      return PreparedComponents[prop];
-    } else {
-      return prepareComponent(prop);
-    }
-  }
-}
-
-/**
- * Acts like a mapping from component-name to component, based on
- * registerComponents calls. Lazily loads those components when you dereference,
- * using a proxy.
- */
-export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
-
-const PreparedComponents: Record<string,any> = {};
-
-// storage for infos about components
-export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
-
-export const DeferredComponentsTable: Record<string,() => void> = {};
-
 type EmailRenderContextType = {
   isEmailRender: boolean
 }
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const addClassnames = (componentName: string, styles: any) => {
-  const classesProxy = classNameProxy(componentName+'-');
-  return (WrappedComponent: any) => forwardRef((props, ref) => {
-    const emailRenderContext = React.useContext(EmailRenderContext);
-    if (emailRenderContext?.isEmailRender) {
-      const withStylesHoc = withStyles(styles, {name: componentName})
-      const StylesWrappedComponent = withStylesHoc(WrappedComponent)
-      return <StylesWrappedComponent {...props}/>
-    }
-    return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
-  })
-}
+/**
+ * Takes a props type, and, if it doesn't mention `ref`, set its type to
+ * `never`. This is used to enforce that components don't take a ref unless
+ * that's specified explicitly in their props list.
+ *
+ * "Taking a ref" means being used with <MyComponent ref={...}/>. This is
+ * useful if that the component either is a class component that can have its
+ * methods called by a parent component, or calls a useImperativeHandle.
+ * However if a component takes a ref, then any higher-order components need to
+ * be careful about forwarding that ref properly, which requires sticking extra
+ * HoCs related to that in the component tree. We don't want to do that
+ * implicitly because most components don't take refs.
+ */
+type NoImplicitRef<T> = (T extends {ref?: any} ? T : T & {ref?: never});
 
-// Register a component. Takes a name, a raw component, and ComponentOptions
-// (see above). Components should be in their own file, imported with
-// `importComponent`, and registered in that file; components that are
-// registered this way can be accessed via the Components object and are lazy-
-// loaded.
-//
-// Returns a dummy value--null, but coerced to a type that you can add to the
-// ComponentTypes interface to type-check usages of the component in other
-// files.
-export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>,
-  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
-{
+/**
+ * Register a component. Takes a name, a raw component, and ComponentOptions
+ * (see above). Components should be in their own file, imported with
+ * `importComponent`, and registered in that file; components that are
+ * registered this way can be accessed via the Components object and are lazy-
+ * loaded.
+ *
+ * Returns a dummy value--null, but coerced to a type that you can add to the
+ * ComponentTypes interface to type-check usages of the component in other
+ * files.
+ */
+export function registerComponent<PropType>(
+  name: string,
+  rawComponent: React.ComponentType<PropType>,
+  options?: ComponentOptions
+): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window?.missingMainStylesheet || enableVite)) {
-      hocs.push(withAddClasses(styles, name, options));
-    } else {
-      hocs.push(addClassnames(name, styles));
-    }
+    hocs.push(withAddClasses(styles, name, options));
   }
   
   rawComponent.displayName = name;
   
-  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    // Don't warn about duplicate components if using HMR because vite can trigger this
-    if (!enableVite) {
-      throw new Error(`Two components with the same name: ${name}`);
-    }
-  }
-  
-  // store the component in the table
-  ComponentsTable[name] = {
-    name,
-    rawComponent,
-    hocs,
-    options,
-  };
-  
-  if (enableVite) {
-    delete PreparedComponents[name as keyof ComponentTypes];
-    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<PropType,"classes">>;
-  }
-  
-  // The Omit is a hacky way of ensuring that hocs props are omitted from the
-  // ones required to be passed in by parent components. It doesn't work for
-  // hocs that share prop names that overlap with actually passed-in props, like
-  // `location`.
-  return (null as any as React.ComponentType<Omit<PropType,"classes">>);
+  return composeComponent({ name, rawComponent, hocs, options });
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until
@@ -146,54 +101,16 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
-  if (Array.isArray(componentName)) {
-    for (let name of componentName) {
-      DeferredComponentsTable[name] = importFn;
-    }
-  } else {
-    DeferredComponentsTable[componentName] = importFn;
-  }
-}
 
 export function importAllComponents() {
-  for (let componentName of Object.keys(DeferredComponentsTable)) {
-    prepareComponent(componentName);
-  }
+  require('@/lib/generated/allComponents');
 }
 
-export function prepareComponent(componentName: string): any
-{
-  if (componentName in PreparedComponents) {
-    return PreparedComponents[componentName];
-  } else if (componentName in ComponentsTable) {
-    PreparedComponents[componentName] = getComponent(componentName);
-    return PreparedComponents[componentName];
-  } else if (componentName in DeferredComponentsTable) {
-    DeferredComponentsTable[componentName]();
-    if (!(componentName in ComponentsTable)) {
-      throw new Error(`Import did not provide component ${componentName}`);
-    }
-    return prepareComponent(componentName);
-  } else {
-    // eslint-disable-next-line no-console
-    console.error(`Missing component: ${componentName}`);
-    return null;
-  }
-}
-
-// Get a component registered with registerComponent, applying HoCs and other
-// wrappings.
-const getComponent = (name: string): any => {
-  const componentMeta = ComponentsTable[name];
-  if (!componentMeta) {
-    throw new Error(`Component ${name} not registered.`);
-  }
-  
+const composeComponent = (componentMeta: ComponentsTableEntry) => {
   const componentWithMemo = componentMeta.options?.areEqual
-    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, name, !!componentMeta.options.debugRerenders)
+    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, componentMeta.name, !!componentMeta.options.debugRerenders)
     : componentMeta.rawComponent;
-  
+
   if (componentMeta.hocs && componentMeta.hocs.length) {
     const hocs = componentMeta.hocs.map(hoc => {
       if (!Array.isArray(hoc)) {
@@ -294,56 +211,3 @@ export const populateComponentsAppDebug = (): void => {
     importAllComponents();
   }
 };
-
-// Returns an instance of the given component name of function
-//
-// @param {string|function} component  A component or registered component name
-// @param {Object} [props]  Optional properties to pass to the component
-export const instantiateComponent = (component: any, props: any) => {
-  if (!component) {
-    return null;
-  } else if (typeof component === 'string') {
-    const Component: any = Components[component as keyof ComponentTypes];
-    return <Component {...props} />;
-  } else if (
-    typeof component === 'function' &&
-    component.prototype &&
-    component.prototype.isReactComponent
-  ) {
-    const Component = component;
-    return <Component {...props} />;
-  } else if (typeof component === 'function') {
-    return component(props);
-  } else {
-    return component;
-  }
-};
-
-/**
- * Given an optional set of override-components, return a Components object
- * which wraps the main Components table, preserving Components'
- * proxy/deferred-execution tricks.
- */
-export const mergeWithComponents = (myComponents: Partial<ComponentTypes>|null|undefined): ComponentTypes => {
-  if (!myComponents) return Components;
-  
-  if ((myComponents as any).__isProxy)
-    return (myComponents as any);
-  
-  const mergedComponentsProxyHandler = {
-    get: function(obj: any, prop: string) {
-      if (prop === "__isProxy") {
-        return true;
-      } else if (prop in myComponents) {
-        return (myComponents as any)[prop];
-      } else if (prop in PreparedComponents) {
-        return PreparedComponents[prop];
-      } else {
-        return prepareComponent(prop);
-      }
-    }
-  }
-  
-  
-  return new Proxy({}, mergedComponentsProxyHandler );
-}

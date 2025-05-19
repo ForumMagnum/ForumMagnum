@@ -1,12 +1,12 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
+import LWPopper from "../common/LWPopper";
 
 const EventVicinity = ({post}: {
   post: PostsBase
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
-  const { LWPopper } = Components
   if (post.googleLocation && post.googleLocation.vicinity) {
     return <span {...eventHandlers}>
       <LWPopper 
@@ -25,11 +25,7 @@ const EventVicinity = ({post}: {
   }
 };
 
-const EventVicinityComponent = registerComponent('EventVicinity', EventVicinity, {})
+export default registerComponent('EventVicinity', EventVicinity, {});
 
-declare global {
-  interface ComponentTypes {
-    EventVicinity: typeof EventVicinityComponent
-  }
-}
+
 

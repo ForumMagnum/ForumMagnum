@@ -1,33 +1,10 @@
 import { useCallback } from 'react';
-import { extractFragmentInfo, collectionNameToTypeName } from '../vulcan-lib';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
-
-// Delete mutation query used on the client. Eg:
-//
-// mutation deleteMovie($selector: MovieSelectorUniqueInput!) {
-//   deleteMovie(selector: $selector) {
-//     data {
-//       _id
-//       name
-//       __typename
-//     }
-//     __typename
-//   }
-// }
-const deleteClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) =>
-`mutation delete${typeName}($selector: ${typeName}SelectorUniqueInput!, ${extraVariablesString || ''}) {
-  delete${typeName}(selector: $selector) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`;
+import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
+import { collectionNameToTypeName } from "../generated/collectionTypeNames";
+import { getDeleteMutationName } from './utils';
 
 /**
  * Hook that returns a function for a delete operation. This should mostly never
@@ -45,11 +22,18 @@ export const useDelete = <CollectionName extends CollectionNameString>(options: 
   called: boolean,
   data: ObjectsByCollectionName[CollectionName],
 } => {
-  const typeName = collectionNameToTypeName(options.collectionName);
+  const typeName = collectionNameToTypeName[options.collectionName];
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
+  const mutationName = getDeleteMutationName(typeName);
 
   const query = gql`
-    ${deleteClientTemplate({ typeName, fragmentName })}
+    mutation delete${typeName}($selector: ${typeName}SelectorUniqueInput!) {
+      ${mutationName}(selector: $selector) {
+        data {
+          ...${fragmentName}
+        }
+      }
+    }
     ${fragment}
   `;
 

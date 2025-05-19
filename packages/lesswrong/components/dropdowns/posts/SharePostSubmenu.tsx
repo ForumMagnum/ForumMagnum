@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isMobile } from '@/lib/utils/isMobile';
+import SharePostActions from "./SharePostActions";
+import DropdownItem from "../DropdownItem";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
 })
@@ -13,13 +16,12 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
   closeMenu?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SharePostActions, DropdownItem, LWTooltip } = Components;
   const { hover, eventHandlers } = useHover();
   
   function shareClicked() {
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (isMobile() && !!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare?.()) {
       const sharingOptions = {
         title: post.title,
         text: post.title,
@@ -33,7 +35,7 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
     }
   }
   
-  const hasSubmenu = isServer || !navigator.canShare;
+  const hasSubmenu = isServer || !navigator.canShare?.();
   const MaybeWrapWithSubmenu = hasSubmenu
     ? ({children}: {children: React.ReactNode}) => <LWTooltip
         title={<SharePostActions post={post} onClick={closeMenu} />}
@@ -56,9 +58,5 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
     </MaybeWrapWithSubmenu>
   </div>
 }
-const SharePostSubmenuComponent = registerComponent('SharePostSubmenu', SharePostSubmenu, {styles});
-declare global {
-  interface ComponentTypes {
-    SharePostSubmenu: typeof SharePostSubmenuComponent
-  }
-}
+export default registerComponent('SharePostSubmenu', SharePostSubmenu, {styles});
+

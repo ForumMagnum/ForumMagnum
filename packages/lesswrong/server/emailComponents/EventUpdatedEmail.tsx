@@ -1,10 +1,12 @@
 import React from 'react';
-import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   root: {
     marginBottom: 40
   },
@@ -34,13 +36,14 @@ const styles = (theme: ThemeType) => ({
   },
   data: {
     fontSize: 18,
-  }
-});
+  },
+  onlineEventLocation: {},
+}));
 
-const EventUpdatedEmail = ({postId, classes}: {
+export const EventUpdatedEmail = ({postId}: {
   postId: string,
-  classes: any,
 }) => {
+  const classes = useStyles(styles);
   const { document: post, loading } = useSingle({
     documentId: postId,
     collectionName: "Posts",
@@ -49,13 +52,11 @@ const EventUpdatedEmail = ({postId, classes}: {
   const { timezone, timezoneIsKnown } = useTimezone()
   
   if (loading || !post) return null;
-
-  const { PrettyEventDateTime } = Components;
   
   const link = postGetPageUrl(post, true);
   
   // event location - for online events, attempt to show the meeting link
-  let eventLocation: string|JSX.Element = post.location
+  let eventLocation: string|React.JSX.Element = post.location ?? ""
   if (post.onlineEvent) {
     eventLocation = post.joinEventLink ? <a
       className={classes.onlineEventLocation}
@@ -83,12 +84,4 @@ const EventUpdatedEmail = ({postId, classes}: {
       <div className={classes.data}>{eventLocation}</div>
     </p>
   </div>
-}
-
-const EventUpdatedEmailComponent = registerComponent("EventUpdatedEmail", EventUpdatedEmail, {styles});
-
-declare global {
-  interface ComponentTypes {
-    EventUpdatedEmail: typeof EventUpdatedEmailComponent
-  }
 }

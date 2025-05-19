@@ -1,18 +1,21 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { getAllTagsPath } from '../../lib/routes';
+import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { getAllTagsPath } from '@/lib/pathConstants';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const TagHistoryPageTitle = ({isSubtitle, classes, siteName}: {
+const titleComponentStyles = defineStyles('TagHistoryPageTitle', styles);
+
+export const TagHistoryPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
-  classes: ClassesType<typeof styles>,
   siteName: string
 }) => {
+  const classes = useStyles(titleComponentStyles);
+
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug, "TagFragment");
@@ -32,10 +35,3 @@ const TagHistoryPageTitle = ({isSubtitle, classes, siteName}: {
   }
 }
 
-const TagHistoryPageTitleComponent = registerComponent("TagHistoryPageTitle", TagHistoryPageTitle, {styles});
-
-declare global {
-  interface ComponentTypes {
-    TagHistoryPageTitle: typeof TagHistoryPageTitleComponent
-  }
-}

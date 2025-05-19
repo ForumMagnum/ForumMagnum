@@ -1,11 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { socialMediaSiteNameToHref } from "../../lib/collections/users/helpers";
 import { objectKeys } from "../../lib/utils/typeGuardUtils";
 import { useTracking } from "../../lib/analyticsEvents";
 import { EMPTY_TEXT_PLACEHOLDER, emptyTextCellStyles } from "./PeopleDirectoryTextCell";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectorySocialMediaCell', (theme: ThemeType) => ({
   root: {
     display: "flex",
     gap: "12px",
@@ -29,18 +30,16 @@ const styles = (theme: ThemeType) => ({
   empty: {
     ...emptyTextCellStyles(theme),
   },
-});
+}));
 
-const PeopleDirectorySocialMediaCell = ({user, classes}: {
+export const PeopleDirectorySocialMediaCell = ({user}: {
   user: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
 
   const urls = user.socialMediaUrls ?? {};
   const keys = objectKeys(urls);
-
-  const {SocialMediaIcon} = Components;
   return (
     <div className={classes.root}>
       {keys.length < 1 &&
@@ -72,16 +71,4 @@ const PeopleDirectorySocialMediaCell = ({user, classes}: {
       })}
     </div>
   );
-}
-
-const PeopleDirectorySocialMediaCellComponent = registerComponent(
-  "PeopleDirectorySocialMediaCell",
-  PeopleDirectorySocialMediaCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectorySocialMediaCell: typeof PeopleDirectorySocialMediaCellComponent
-  }
 }

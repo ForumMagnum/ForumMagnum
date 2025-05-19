@@ -2,7 +2,7 @@ import passport, { Profile } from 'passport'
 import { createAndSetToken } from './vulcan-lib/apollo-server/authentication';
 import { Strategy as CustomStrategy } from 'passport-custom'
 import { getUser } from './vulcan-lib/apollo-server/context';
-import { Users } from '../lib/collections/users/collection';
+import { Users } from '../server/collections/users/collection';
 import { getCookieFromReq } from './utils/httpUtil';
 import { Strategy as GoogleOAuthStrategy, Profile as GoogleProfile, VerifyCallback as GoogleVerifyCallback } from 'passport-google-oauth20';
 import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'passport-facebook';
@@ -10,7 +10,7 @@ import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passp
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
-import { combineUrls, getSiteUrl, slugify } from '../lib/vulcan-lib/utils';
+import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { isEAForum, siteUrlSetting } from '../lib/instanceSettings';
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from './authentication/auth0Accounts';
@@ -23,9 +23,10 @@ import { promisify } from 'util';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { oauth2 } from '@googleapis/oauth2';
 import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
-import { userIsAdmin } from '../lib/vulcan-users';
+import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { isE2E } from '../lib/executionEnvironment';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from './utils/slugUtil';
+import { slugify } from '@/lib/utils/slugify';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify

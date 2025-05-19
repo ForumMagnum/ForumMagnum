@@ -1,12 +1,17 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
+import PostPageReviewButton from "../posts/PostsPage/PostPageReviewButton";
+import ReviewPostComments from "./ReviewPostComments";
+import PostsHighlight from "../posts/PostsHighlight";
+import PingbacksList from "../posts/PingbacksList";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,8 +72,6 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const { PostPageReviewButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
-
   const {document: postWithContents, loading} = useSingle({
     documentId: post?._id,
     collectionName: "Posts",
@@ -114,10 +117,6 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   </div>
 }
 
-const ReviewVotingExpandedPostComponent = registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
+export default registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingExpandedPost: typeof ReviewVotingExpandedPostComponent
-  }
-}
+

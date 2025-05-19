@@ -5,6 +5,9 @@ import rng from './seedrandom';
 import { CLIENT_ID_COOKIE } from './cookies/cookies';
 import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
 import { randomId } from './random';
+import keyBy from 'lodash/keyBy';
+import { allABTests } from './abTests';
+import type { ABTest, ABTestGroup } from './abTestClass';
 
 //
 // A/B tests. Each A/B test has a name (which should be unique across all A/B
@@ -55,11 +58,6 @@ import { randomId } from './random';
 //
 //
 
-type ABTestGroup = {
-  description: string,
-  weight: number,
-}
-
 type ABKeyInfo = {
   /**
    * clientId can now be undefined on the server, in the case where a new user's first request is
@@ -69,47 +67,6 @@ type ABKeyInfo = {
   clientId?: string
 } | {
   user: DbUser | UsersCurrent
-}
-
-// The generic permits type-safe checks for group assignment with `useABTest`
-export class ABTest<T extends string = string> {
-  name: string;
-  active: boolean;
-  affectsLoggedOut: boolean;
-  description: string;
-  groups: Record<T, ABTestGroup>;
-  
-  constructor({name, active, affectsLoggedOut, description, groups}: {
-    name: string,
-    active: boolean,
-    affectsLoggedOut: boolean,
-    description: string,
-    groups: Record<T, ABTestGroup>
-  }) {
-    const totalWeight = _.reduce(
-      Object.keys(groups),
-      (sum: number, key: T) => sum+groups[key].weight,
-      0
-    );
-    if (totalWeight === 0) {
-      throw new Error("A/B test has no groups defined with nonzero weight");
-    }
-    
-    this.name = name;
-    this.active = active;
-    this.affectsLoggedOut = affectsLoggedOut;
-    this.description = description;
-    this.groups = groups;
-    
-    registerABTest(this);
-  }
-  
-  // JSS selector for if the current user is in the named A/B test group. Nest
-  // this inside the JSS for a className, similar to how you would make JSS for
-  // a breakpoint. For example:
-  styleIfInGroup(groupName: string) {
-    return `.${this.name}_${groupName} &&`;
-  }
 }
 
 // CompleteTestGroupAllocation: A dictionary from the names of A/B tests, to
@@ -125,21 +82,13 @@ export type RelevantTestGroupAllocation = Record<string,string>
 // Used for tracking which A/B test groups were relevant to the page rendering
 export const ABTestGroupsUsedContext = React.createContext<RelevantTestGroupAllocation>({});
 
-let allABTests: Record<string,ABTest> = {};
-
-function registerABTest(abtest: ABTest): void {
-  if (abtest.name in allABTests)
-    throw new Error(`Two A/B tests with the same name: ${abtest.name}`);
-  allABTests[abtest.name] = abtest;
-}
-
 export function getABTestsMetadata(): Record<string,ABTest> {
-  return allABTests;
+  return keyBy(allABTests, ab=>ab.name);
 }
 
 export function getUserABTestKey(abKeyInfo: ABKeyInfo): string | undefined {
   if ('user' in abKeyInfo) {
-    return abKeyInfo.user.abTestKey;
+    return abKeyInfo.user.abTestKey ?? undefined;
   } else {
     return abKeyInfo.clientId;
   }
@@ -163,8 +112,10 @@ export function getUserABTestGroup<Groups extends string>(abKeyInfo: ABKeyInfo, 
 
 export function getAllUserABTestGroups(abKeyInfo: ABKeyInfo): CompleteTestGroupAllocation {
   let abTestGroups: CompleteTestGroupAllocation = {};
-  for (let abTestName in allABTests)
-    abTestGroups[abTestName] = getUserABTestGroup(abKeyInfo, allABTests[abTestName]);
+  for (const abTest of allABTests) {
+    const group = getUserABTestGroup<any>(abKeyInfo, abTest);
+    abTestGroups[abTest.name] = group;
+  }
   return abTestGroups;
 }
 

@@ -1,10 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-
+import { Typography } from "../../common/Typography";
+import ContentStyles from "../../common/ContentStyles";
+import NewConversationButton from "../../messaging/NewConversationButton";
+import NotifyMeButton from "../../notifications/NotifyMeButton";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,8 +75,6 @@ const PostAuthorCard = ({author, currentUser, classes}: {
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Typography, ContentStyles, NewConversationButton, NotifyMeButton, CloudinaryImage2 } = Components
-  
     return <AnalyticsContext pageSectionContext="postAuthorCard">
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
@@ -113,17 +115,13 @@ const PostAuthorCard = ({author, currentUser, classes}: {
           />}
         </div>
       </div>
-      {author.biography?.html && <ContentStyles contentType="comment" className={classes.bio}>
-        <div dangerouslySetInnerHTML={{__html: truncate(author.biography.html, 100, 'words')}} />
+      {author.htmlBio && <ContentStyles contentType="comment" className={classes.bio}>
+        <div dangerouslySetInnerHTML={{__html: truncate(author.htmlBio, 100, 'words')}} />
       </ContentStyles>}
     </div>
   </AnalyticsContext>
 }
 
-const PostAuthorCardComponent = registerComponent("PostAuthorCard", PostAuthorCard, {styles});
+export default registerComponent("PostAuthorCard", PostAuthorCard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostAuthorCard: typeof PostAuthorCardComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import ReactMapGL from 'react-map-gl';
 import { mapboxAPIKeySetting } from '@/lib/publicSettings';
 import { Helmet } from '@/lib/utils/componentsWithChildren';
@@ -62,10 +62,6 @@ export const PetrovWorldmapWrapper = ({classes, children}: {
   </div>;
 }
 
-const PetrovWorldmapWrapperComponent = registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
+export default registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovWorldmapWrapper: typeof PetrovWorldmapWrapperComponent
-  }
-}
+

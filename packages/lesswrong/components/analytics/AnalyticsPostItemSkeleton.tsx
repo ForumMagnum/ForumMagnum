@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -40,14 +40,10 @@ export const AnalyticsPostItemSkeleton = ({className, classes}: {
   );
 }
 
-const AnalyticsPostItemSkeletonComponent = registerComponent(
+export default registerComponent(
   "AnalyticsPostItemSkeleton",
   AnalyticsPostItemSkeleton,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPostItemSkeleton: typeof AnalyticsPostItemSkeletonComponent
-  }
-}
+

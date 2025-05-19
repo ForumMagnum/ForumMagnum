@@ -1,9 +1,7 @@
 import React, { useContext } from 'react';
-import { hookToHoc } from '../../lib/hocUtils';
+import type { WithMessagesFunctions } from './FlashMessages';
 
-export const MessageContext = React.createContext<WithMessagesProps|null>(null);
+export const MessageFunctionsContext = React.createContext<WithMessagesFunctions|null>(null);
 
 // Hook/HoC that provides access to flash messages stored in context
-export const useMessages = (): WithMessagesProps => useContext(MessageContext)!;
-export const withMessages = hookToHoc(useMessages);
-export default withMessages;
+export const useMessages = (): WithMessagesFunctions => useContext(MessageFunctionsContext)!;

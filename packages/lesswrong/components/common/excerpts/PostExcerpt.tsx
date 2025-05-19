@@ -1,8 +1,9 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { useSingle } from "../../../lib/crud/withSingle";
-import type { CommonExcerptProps } from "./ContentExcerpt";
+import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
+import Loading from "../../vulcan-core/Loading";
 
 const PostExcerpt = ({
   post,
@@ -25,7 +26,6 @@ const PostExcerpt = ({
     extraVariablesValues: {hash},
   });
 
-  const {Loading, ContentExcerpt} = Components;
   if (loadingHighlight && hash) {
     return (
       <Loading />
@@ -52,13 +52,9 @@ const PostExcerpt = ({
   );
 }
 
-const PostExcerptComponent = registerComponent(
+export default registerComponent(
   "PostExcerpt",
   PostExcerpt,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostExcerpt: typeof PostExcerptComponent,
-  }
-}
+

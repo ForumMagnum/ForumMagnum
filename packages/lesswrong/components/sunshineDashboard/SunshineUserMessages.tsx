@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
-import EmailIcon from '@material-ui/icons/Email';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
+import MessagesNewForm from "../messaging/MessagesNewForm";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (_theme: ThemeType) => ({
   row: {
@@ -26,7 +31,6 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineSendMessageWithDefaults, MessagesNewForm, UsersName, LWTooltip, MetaInfo } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
 
@@ -84,10 +88,6 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   </div>;
 }
 
-const SunshineUserMessagesComponent = registerComponent('SunshineUserMessages', SunshineUserMessages, {styles});
+export default registerComponent('SunshineUserMessages', SunshineUserMessages, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineUserMessages: typeof SunshineUserMessagesComponent
-  }
-}
+

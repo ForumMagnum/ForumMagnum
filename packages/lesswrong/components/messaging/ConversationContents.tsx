@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
@@ -8,6 +8,11 @@ import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import MessagesNewForm from "./MessagesNewForm";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import MessageItem from "./MessageItem";
+import Divider from "../common/Divider";
 
 const styles = (theme: ThemeType) => ({
   conversationTitle: {
@@ -46,7 +51,7 @@ const ConversationContents = ({
 }: {
   conversation: ConversationsList;
   currentUser: UsersCurrent;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement|null>;
   classes: ClassesType<typeof styles>;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
@@ -119,9 +124,6 @@ const ConversationContents = ({
       profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from;
     }
   }, [query.from, conversation, currentUser._id]);
-
-  const { MessagesNewForm, Error404, Loading, MessageItem, Divider } = Components;
-
   const renderMessages = () => {
     if (loading && !results) return <Loading />;
     if (!results?.length) return null;
@@ -163,13 +165,9 @@ const ConversationContents = ({
   );
 };
 
-const ConversationContentsComponent = registerComponent("ConversationContents", ConversationContents, {
+export default registerComponent("ConversationContents", ConversationContents, {
   styles,
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    ConversationContents: typeof ConversationContentsComponent;
-  }
-}
+

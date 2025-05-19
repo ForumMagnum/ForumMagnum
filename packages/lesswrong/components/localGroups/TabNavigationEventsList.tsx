@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import moment from '../../lib/moment-timezone';
@@ -8,6 +8,12 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { twoLineEventsSidebarABTest } from '../../lib/abTests';
 import { useABTest } from '../../lib/abTestImpl';
 import classNames from 'classnames';
+import LWTooltip from "../common/LWTooltip";
+import TabNavigationSubItem from "../common/TabNavigationMenu/TabNavigationSubItem";
+import { MenuItemLink } from "../common/Menus";
+import TimeTag from "../common/TimeTag";
+import FormatDate from "../common/FormatDate";
+import EventTime from "./EventTime";
 
 const YESTERDAY_STRING = "[Yesterday]"
 const TODAY_STRING = "[Today]"
@@ -109,8 +115,6 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
   const abTestGroup = useABTest(twoLineEventsSidebarABTest);
   const EventComponent = (abTestGroup === "expanded") ? TabNavigationEventTwoLines : TabNavigationEventSingleLine;
-  const {LWTooltip} = Components;
-
   if (!results) return null
   
   return <div>
@@ -135,8 +139,6 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
-  const { TabNavigationSubItem, MenuItemLink, TimeTag } = Components
-  
   const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
   const displayTime = startTime ? startTime.calendar(undefined, {
@@ -151,7 +153,7 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   return <MenuItemLink
     onClick={onClick}
     to={postGetPageUrl(event)}
-    rootClass={classes.eventWrapper}
+    className={classes.eventWrapper}
   >
     <TabNavigationSubItem className={classes.event}>
       {(event.startTime && displayTime && displayTime !== " ") && <TimeTag className={classNames(
@@ -169,14 +171,12 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   onClick: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TabNavigationSubItem, MenuItemLink, FormatDate } = Components
-  
   const cityName = event.onlineEvent ? "Online" : getCityName(event)
   
   return <MenuItemLink
     onClick={onClick}
     to={postGetPageUrl(event)}
-    rootClass={classNames(classes.eventWrapper, classes.twoLine)}
+    className={classNames(classes.eventWrapper, classes.twoLine)}
   >
     <TabNavigationSubItem className={classNames(classes.event, classes.twoLineEvent)}>
       <span>{event.title}</span>
@@ -213,8 +213,6 @@ const EventSidebarTooltip = ({event, classes}: {
 }) => {
   const { htmlHighlight = "" } = event.contents || {}
   const highlight = truncate(htmlHighlight, HIGHLIGHT_LENGTH)
-  const { EventTime } = Components;
-
   return <div>
     {event.group && <div className={classes.tooltipGroup}>{event.group.name}</div>}
     <div className={classes.tooltipTitle}>{event.title}</div>
@@ -236,10 +234,6 @@ const EventSidebarTooltip = ({event, classes}: {
   </div>
 }
 
-const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList, {styles});
+export default registerComponent('TabNavigationEventsList', TabNavigationEventsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationEventsList: typeof TabNavigationEventsListComponent
-  }
-}
+

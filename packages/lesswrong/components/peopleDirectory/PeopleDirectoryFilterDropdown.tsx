@@ -1,8 +1,10 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useEventListener } from "../hooks/useEventListener";
-import type { ForumIconName } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -122,8 +124,6 @@ const PeopleDirectoryFilterDropdown = ({
   }, [onOpen, onClose]);
 
   useEventListener("resize", () => setOpen(false));
-
-  const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
     <div ref={anchorRef} className={classes.root}>
       <div
@@ -167,14 +167,10 @@ const PeopleDirectoryFilterDropdown = ({
   );
 }
 
-const PeopleDirectoryFilterDropdownComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryFilterDropdown",
   PeopleDirectoryFilterDropdown,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryFilterDropdown: typeof PeopleDirectoryFilterDropdownComponent
-  }
-}
+

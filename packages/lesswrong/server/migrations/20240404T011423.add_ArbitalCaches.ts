@@ -24,7 +24,7 @@
  */
 export const acceptsSchemaHash = "86723d78e7eb5d43201e0be72ee6f5f0";
 
-import ArbitalCaches from "../../lib/collections/arbitalCache/collection";
+import ArbitalCaches from "../collections/arbitalCache/collection";
 import { createTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

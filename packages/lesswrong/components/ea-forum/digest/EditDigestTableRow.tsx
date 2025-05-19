@@ -1,12 +1,16 @@
 import React, { useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import CheckIcon from '@material-ui/icons/Check';
-import CloseIcon from '@material-ui/icons/Close';
+import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import OverallVoteButton from "../../votes/OverallVoteButton";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import PostsItemDate from "../../posts/PostsItemDate";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -144,7 +148,6 @@ const styles = (theme: ThemeType) => ({
  * Given a post with a currentUserVote, return the icon representing that vote.
  */
 const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
-  const { OverallVoteButton } = Components
   switch (post.currentUserVote) {
     case 'smallUpvote':
     case 'bigUpvote':
@@ -160,7 +163,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 
 const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
-  postStatus: DigestPost,
+  postStatus: Partial<DigestPost>,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
@@ -175,7 +178,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   /**
    * Build the cell with the given status icon
    */
-  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: DigestPost) => {
+  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: Partial<DigestPost>) => {
     const status = postStatus[statusField]
     let iconNode = null
     switch (status) {
@@ -188,7 +191,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       case 'no':
         iconNode = <CloseIcon />
         break
-      case 'pending':
+      default:
         iconNode = <CheckIcon /> // this has opacity: 0, it's just here to appear on hover
         break
     }
@@ -225,13 +228,10 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     )
     flash({messageString: "Post copied"})
   }
-  
-  const { ForumIcon, LWTooltip, PostsItemDate } = Components
-  
   const readTime = `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
-  
+
   return <tr className={classes.row}>
     {getStatusIconCell(post._id, 'emailDigestStatus', postStatus)}
     {getStatusIconCell(post._id, 'onsiteDigestStatus', postStatus)}
@@ -286,10 +286,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   </tr>
 }
 
-const EditDigestTableRowComponent = registerComponent('EditDigestTableRow', EditDigestTableRow, {styles});
+export default registerComponent('EditDigestTableRow', EditDigestTableRow, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestTableRow: typeof EditDigestTableRowComponent
-  }
-}
+

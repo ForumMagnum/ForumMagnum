@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const AdvisorRequestsMinimumInfo = () => frag`
   fragment AdvisorRequestsMinimumInfo on AdvisorRequest {
     _id
     userId
@@ -8,4 +8,4 @@ registerFragment(`
     interestedInMetaculus
     jobAds
   }
-`);
+`

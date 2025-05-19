@@ -1,6 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import ForumIcon from "../../common/ForumIcon";
+import WrappedPost from "./WrappedPost";
+import Loading from "../../vulcan-core/Loading";
+import LoadMore from "../../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   textRow: {
@@ -59,9 +65,6 @@ const WrappedMostValuablePostsSection = ({classes}: {
     mostValuablePostsLoading,
     mostValuablePostsLoadMoreProps,
   } = useForumWrappedContext();
-  const {
-    WrappedSection, WrappedHeading, ForumIcon, WrappedPost, Loading, LoadMore,
-  } = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">
       <WrappedHeading>
@@ -92,14 +95,10 @@ const WrappedMostValuablePostsSection = ({classes}: {
   );
 }
 
-const WrappedMostValuablePostsSectionComponent = registerComponent(
+export default registerComponent(
   "WrappedMostValuablePostsSection",
   WrappedMostValuablePostsSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedMostValuablePostsSection: typeof WrappedMostValuablePostsSectionComponent
-  }
-}
+

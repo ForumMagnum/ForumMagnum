@@ -1,9 +1,14 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import moment from 'moment';
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
+import PostsItem from "../posts/PostsItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -59,7 +64,7 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
       );
     } else if (vote.comment) {
       const item = vote.comment;
-      return <CommentsNode
+      return <CommentsNodeInner
         key={item._id}
         comment={item}
         treeOptions={{showPostTitle: true, forceNotSingleLine: true, post: item.post || undefined}}
@@ -68,9 +73,6 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
     }
     return null
   }
-  
-  const {Loading, SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
-
   if (loading && !votes) {
     return <Loading />
   }
@@ -103,10 +105,6 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
 }
 
 
-const VoteHistoryTabComponent = registerComponent('VoteHistoryTab', VoteHistoryTab, {styles})
+export default registerComponent('VoteHistoryTab', VoteHistoryTab, {styles});
 
-declare global {
-  interface ComponentTypes {
-    VoteHistoryTab: typeof VoteHistoryTabComponent
-  }
-}
+

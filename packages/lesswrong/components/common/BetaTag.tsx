@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,10 +17,6 @@ const BetaTag = ({classes}: {
   return <span className={classes.root}>[Beta]</span>
 }
 
-const BetaTagComponent = registerComponent('BetaTag', BetaTag, {styles});
+export default registerComponent('BetaTag', BetaTag, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BetaTag: typeof BetaTagComponent
-  }
-}
+

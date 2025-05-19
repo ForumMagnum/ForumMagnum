@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect } from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { Redirect } from '../../lib/reactRouterWrapper';
@@ -46,10 +46,6 @@ function urlIsAbsolute(url: string): boolean {
   return (url.startsWith('http://') || url.startsWith('https://'));
 }
 
-const PermanentRedirectComponent = registerComponent('PermanentRedirect', PermanentRedirect);
+export default registerComponent('PermanentRedirect', PermanentRedirect);
 
-declare global {
-  interface ComponentTypes {
-    PermanentRedirect: typeof PermanentRedirectComponent
-  }
-}
+

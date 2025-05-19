@@ -4,10 +4,21 @@ import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSe
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { useSingle } from '@/lib/crud/withSingle';
+import TagFlagEditAndNewForm from "./TagFlagEditAndNewForm";
+import SectionTitle from "../common/SectionTitle";
+import TagsDetailsItem from "./TagsDetailsItem";
+import SectionButton from "../common/SectionButton";
+import TagFlagItem from "./TagFlagItem";
+import NewTagsList from "./NewTagsList";
+import LoadMore from "../common/LoadMore";
+import TagActivityFeed from "./TagActivityFeed";
+import TagVoteActivity from "./TagVoteActivity";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const SECTION_WIDTH = 960
 
@@ -75,7 +86,6 @@ const styles = (theme: ThemeType) => ({
 const TaggingDashboard = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
@@ -107,6 +117,15 @@ const TaggingDashboard = ({classes}: {
     fragmentName: "TagFlagFragment",
     limit: 100,
   });
+  
+  const focusedTagFlagId = tagFlags?.find(tagFlag => tagFlag._id === query.focus)?._id;
+
+  const { document: focusedTagFlag } = useSingle({
+    documentId: focusedTagFlagId,
+    collectionName: "TagFlags",
+    fragmentName: "TagFlagEditFragment",
+    skip: !focusedTagFlagId,
+  });
 
   const { openDialog } = useDialog();
   
@@ -127,14 +146,18 @@ const TaggingDashboard = ({classes}: {
           <SectionButton>
             {query.focus && <QueryLink query={{}}> Reset Filter </QueryLink>}
             {currentUser?.isAdmin &&
-                <span className={classes.editButton} onClick={() => openDialog({
-                  componentName: "TagFlagEditAndNewForm",
-                  componentProps: query.focus ? {tagFlagId: query.focus} : {}
-                })}>
-                  {query.focus ?
-                    `Edit ${taggingNameCapitalSetting.get()} Flag` :
-                    `New ${taggingNameCapitalSetting.get()} Flag`}
-                </span>
+              <span className={classes.editButton} onClick={() => openDialog({
+                name: "TagFlagEditAndNewForm",
+                contents: ({onClose}) => <TagFlagEditAndNewForm
+                  onClose={onClose}
+                  {...(query.focus && focusedTagFlag) ? { initialData: focusedTagFlag } : {}}
+                />
+              })}>
+                {query.focus
+                  ? `Edit ${taggingNameCapitalSetting.get()} Flag`
+                  : `New ${taggingNameCapitalSetting.get()} Flag`
+                }
+              </span>
             }
             <a
               className={classes.collapseButton}
@@ -162,12 +185,12 @@ const TaggingDashboard = ({classes}: {
           </QueryLink>)}
         </div>
         {!loading && tagsFiltered?.map(tag => <TagsDetailsItem
-              key={tag._id}
-              tag={tag}
-              showFlags
-              flagId={query.focus}
-              collapse={collapsed}
-            />)}
+          key={tag._id}
+          tag={tag}
+          showFlags
+          flagId={query.focus}
+          collapse={collapsed}
+        />)}
         <div className={classes.loadMore}>
           <LoadMore {...loadMoreProps}/>
         </div>
@@ -190,10 +213,6 @@ const TaggingDashboard = ({classes}: {
 }
 
 
-const TaggingDashboardComponent = registerComponent("TaggingDashboard", TaggingDashboard, { styles });
+export default registerComponent("TaggingDashboard", TaggingDashboard, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TaggingDashboard: typeof TaggingDashboardComponent
-  }
-}
+

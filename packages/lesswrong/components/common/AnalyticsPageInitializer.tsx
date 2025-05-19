@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { flushClientEvents, useTracking } from "../../lib/analyticsEvents";
 import { isClient } from '../../lib/executionEnvironment';
 import { useEventListener } from '../hooks/useEventListener';
@@ -120,10 +120,6 @@ const AnalyticsPageInitializer = () => {
   return <span/>
 };
 
-const AnalyticsPageInitializerComponent = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
+export default registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer);
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPageInitializer: typeof AnalyticsPageInitializerComponent
-  }
-}
+

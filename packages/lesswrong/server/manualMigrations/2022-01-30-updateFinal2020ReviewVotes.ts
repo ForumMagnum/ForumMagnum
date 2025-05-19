@@ -1,9 +1,9 @@
 import { registerMigration } from './migrationUtils';
-import ReviewVotes from '../../lib/collections/reviewVotes/collection';
+import ReviewVotes from '../../server/collections/reviewVotes/collection';
 import { getCostData, REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../../lib/collections/posts';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
 import { isLW } from '../../lib/instanceSettings';
@@ -12,7 +12,7 @@ import fs from 'fs';
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value
 
-registerMigration({
+export default registerMigration({
   name: "updateFinal2020ReviewVotes",
   dateWritten: "2022-01-30",
   idempotent: true,

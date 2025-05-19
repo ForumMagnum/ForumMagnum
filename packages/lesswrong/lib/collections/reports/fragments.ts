@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const UnclaimedReportsList = () => frag`
   fragment UnclaimedReportsList on Report {
     _id
     userId
@@ -38,4 +38,4 @@ registerFragment(`
     reportedAsSpam
     markedAsSpam
   }
-`);
+`

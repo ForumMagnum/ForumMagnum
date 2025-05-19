@@ -1,15 +1,20 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import LWTooltip from "../common/LWTooltip";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import ConversationPreview from "../messaging/ConversationPreview";
+import PostNominatedNotification from "../review/PostNominatedNotification";
+import TagRelNotificationItem from "./TagRelNotificationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,7 +76,6 @@ const TooltipWrapper: FC<{
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({title, children, classes}) => {
-  const {LWTooltip} = Components;
   return (
     <LWTooltip
       {...tooltipProps}
@@ -98,7 +102,8 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();
   const navigate = useNavigate();
-  const notificationType = getNotificationTypeByName(notification.type);
+  const notificationType = getNotificationTypeByName(notification.type ?? '');
+  const documentId = notification.documentId ?? '';
 
   const notificationLink = (notificationType.getLink
     ? notificationType.getLink({
@@ -106,14 +111,10 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       documentId: notification.documentId,
       extraData: notification.extraData,
     })
-    : notification.link
+    : notification.link ?? ''
   );
 
   const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
-    const {
-      PostsTooltip, ConversationPreview, PostNominatedNotification,
-    } = Components;
-
     if (notificationType.onsiteHoverView) {
       return (
         <TooltipWrapper
@@ -128,7 +129,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     if (notification.type === "postNominated") {
       return (
         <TooltipWrapper
-          title={<PostNominatedNotification postId={notification.documentId}/>}
+          title={<PostNominatedNotification postId={documentId}/>}
           classes={classes}
         >
           {children}
@@ -138,7 +139,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
 
     if (notification.type === "newDialogueMessages") {
       const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo
-      const postId = notification.documentId
+      const postId = notification.documentId ?? undefined
       return (
         <PostsTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} {...tooltipProps}>
           {children}
@@ -150,13 +151,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     switch (notification.documentType) {
       case "tagRel":
         return (
-          <PostsTooltip tagRelId={notification.documentId} {...tooltipProps}>
+          <PostsTooltip tagRelId={documentId} {...tooltipProps}>
             {children}
           </PostsTooltip>
         );
       case "post":
         return (
-          <PostsTooltip postId={notification.documentId} {...tooltipProps}>
+          <PostsTooltip postId={documentId} {...tooltipProps}>
             {children}
           </PostsTooltip>
         );
@@ -166,7 +167,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           ? (
             <PostsTooltip
               postId={postId}
-              commentId={notification.documentId}
+              commentId={documentId}
               {...tooltipProps}
             >
               {children}
@@ -196,14 +197,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     return (
       <>{children}</>
     );
-  }, [classes, currentUser, notification, notificationLink, notificationType]);
+  }, [classes, currentUser, notification, notificationLink, notificationType, documentId]);
 
   const renderMessage = () => {
-    const { TagRelNotificationItem } = Components
     switch (notification.documentType) {
       // TODO: add case for tagRel
       case 'tagRel': 
-        return <TagRelNotificationItem tagRelId={notification.documentId}/>
+        return <TagRelNotificationItem tagRelId={documentId}/>
       default:
         return notification.message
     }
@@ -216,8 +216,8 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         className={classNames(
           classes.root,
           {
-            [classes.read]:     notification.createdAt < lastNotificationsCheck || clicked,
-            [classes.unread]: !(notification.createdAt < lastNotificationsCheck || clicked)
+            [classes.read]:     (!notification.createdAt || notification.createdAt < lastNotificationsCheck) || clicked,
+            [classes.unread]: !((!notification.createdAt || notification.createdAt < lastNotificationsCheck) || clicked)
           }
         )}
         onClick={(ev) => {
@@ -259,13 +259,9 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   );
 }
 
-const NotificationsItemComponent = registerComponent('NotificationsItem', NotificationsItem, {
+export default registerComponent('NotificationsItem', NotificationsItem, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationsItem: typeof NotificationsItemComponent
-  }
-}
+

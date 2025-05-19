@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { Typography } from "../../common/Typography";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   coauthorRequest: {
@@ -58,7 +61,7 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
           ...PostsDetails
         }
     }
-    ${getFragment('PostsDetails')}
+    ${fragmentTextForQuery('PostsDetails')}
   `)
 
   if (!isRequestedCoauthor(post, currentUser)) {
@@ -80,8 +83,6 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
 
   const onDecline = () => onResponse(false);
   const onAccept = () => onResponse(true);
-
-  const { Typography, Loading } = Components;
   return (
     <div className={classes.coauthorRequest}>
       <div className={classes.content}>
@@ -107,12 +108,8 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
   );
 }
 
-const PostCoauthorRequestComponent = registerComponent(
+export default registerComponent(
   'PostCoauthorRequest', PostCoauthorRequest, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostCoauthorRequest: typeof PostCoauthorRequestComponent,
-  }
-}
+

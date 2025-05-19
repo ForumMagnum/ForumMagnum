@@ -1,8 +1,16 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { formatStat } from "../users/EAUserTooltipContent";
 import sum from "lodash/sum";
+import PeopleDirectoryFilterDropdown from "./PeopleDirectoryFilterDropdown";
+import PeopleDirectorySelectOption from "./PeopleDirectorySelectOption";
+import PeopleDirectoryStaticFilter from "./PeopleDirectoryStaticFilter";
+import PeopleDirectorySearchableFilter from "./PeopleDirectorySearchableFilter";
+import PeopleDirectoryClearAll from "./PeopleDirectoryClearAll";
+import PeopleDirectoryViewToggle from "./PeopleDirectoryViewToggle";
+import PeopleDirectoryCheckOption from "./PeopleDirectoryCheckOption";
+import PeopleDirectoryAllFiltersDropdown from "./PeopleDirectoryAllFiltersDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -78,13 +86,6 @@ const PeopleDirectoryFilters = ({classes}: {
   const filterCount = sum(filters.map(
     ({filter: {selectedValues}}) => selectedValues.length),
   );
-
-  const {
-    PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
-    PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
-    PeopleDirectoryClearAll, PeopleDirectoryViewToggle,
-    PeopleDirectoryCheckOption, PeopleDirectoryAllFiltersDropdown,
-  } = Components;
   return (
     <div className={classes.root}>
       <div className={classes.desktopFilters}>
@@ -163,14 +164,10 @@ const PeopleDirectoryFilters = ({classes}: {
   );
 }
 
-const PeopleDirectoryFiltersComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryFilters",
   PeopleDirectoryFilters,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryFilters: typeof PeopleDirectoryFiltersComponent
-  }
-}
+

@@ -1,8 +1,9 @@
 import React from 'react';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,14 +28,12 @@ export const CollectionTableOfContents = ({classes, collection}: {
   classes: ClassesType<typeof styles>,
   collection: CollectionsPageFragment
 }) => {
-  const { TableOfContents } = Components 
-
   const sections: ToCSection[] = [] 
 
   collection.books.forEach(book => {
     if (book.tocTitle || book.title) {
       sections.push(({
-        title: book.tocTitle || book.title,
+        title: (book.tocTitle || book.title) ?? undefined,
         anchor: getBookAnchor(book), // this needs to match the anchor in 
         level: 1
       }))
@@ -61,11 +60,7 @@ export const CollectionTableOfContents = ({classes, collection}: {
   />
 }
 
-const CollectionTableOfContentsComponent = registerComponent('CollectionTableOfContents', CollectionTableOfContents, {styles});
+export default registerComponent('CollectionTableOfContents', CollectionTableOfContents, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionTableOfContents: typeof CollectionTableOfContentsComponent
-  }
-}
+
 

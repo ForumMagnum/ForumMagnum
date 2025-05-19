@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
-  inRecentDiscussion?: Boolean,
+  inRecentDiscussion?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { document } = useSingle({
@@ -61,12 +61,8 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   </div>
 }
 
-const PostsGroupDetailsComponent = registerComponent(
+export default registerComponent(
   'PostsGroupDetails', PostsGroupDetails, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsGroupDetails: typeof PostsGroupDetailsComponent
-  }
-}
+

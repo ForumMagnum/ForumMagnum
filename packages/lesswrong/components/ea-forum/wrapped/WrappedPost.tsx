@@ -1,10 +1,14 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { InteractionWrapper, useClickableCell } from "@/components/common/useClickableCell";
 import { Link } from "@/lib/reactRouterWrapper";
 import { SoftUpArrowIcon } from "@/components/icons/softUpArrowIcon";
 import type { WrappedTopPost } from "./hooks";
+import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
+import TruncatedAuthorsList from "../../posts/TruncatedAuthorsList";
+import PostMostValuableCheckbox from "../../posts/PostMostValuableCheckbox";
+import BookmarkButton from "../../posts/BookmarkButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,11 +95,6 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
   const readTimeText = isRecommendedPost
     ? `, ${post.readTimeMinutes ?? 1} min read`
     : "";
-
-  const {
-    PostsItemTooltipWrapper, TruncatedAuthorsList, PostMostValuableCheckbox,
-    BookmarkButton,
-  } = Components;
   return (
     <article className={classes.root} ref={authorExpandContainer} onClick={onClick}>
       <div className={classes.score}>
@@ -132,7 +131,7 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
       </div>
       {isRecommendedPost && !showMostValuableCheckbox &&
         <InteractionWrapper>
-          <BookmarkButton post={post} className={classes.bookmarkIcon} />
+          <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkIcon} />
         </InteractionWrapper>
       }
       {showMostValuableCheckbox &&
@@ -144,14 +143,10 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
   );
 }
 
-const WrappedPostComponent = registerComponent(
+export default registerComponent(
   "WrappedPost",
   WrappedPost,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedPost: typeof WrappedPostComponent
-  }
-}
+

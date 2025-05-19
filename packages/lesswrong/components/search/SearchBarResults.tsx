@@ -1,11 +1,17 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Hits, Configure } from 'react-instantsearch-dom';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
 import { Index } from '../../lib/utils/componentsWithChildren';
+import ErrorBoundary from "../common/ErrorBoundary";
+import PostsSearchHit from "./PostsSearchHit";
+import SequencesSearchHit from "./SequencesSearchHit";
+import UsersSearchHit from "./UsersSearchHit";
+import TagsSearchHit from "./TagsSearchHit";
+import CommentsSearchHit from "./CommentsSearchHit";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +32,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   searchResults: {
-    overflow:"scroll",
+    overflowX: "hidden",
+    overflowY: "scroll",
     width: "100%",
     height: "calc(100vh - 48px)",
     backgroundColor: theme.palette.panelBackground.default,
@@ -73,8 +80,6 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   currentQuery: string,
   classes: ClassesType<typeof styles>
 }) => {
-  const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
-
   const searchTypes: Array<{
     type: SearchIndexCollectionName;
     Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
@@ -89,14 +94,14 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   return <div className={classes.root}>
     <div className={classes.searchResults}>
         {searchTypes.map(({ type, Component }) => (
-          <Components.ErrorBoundary key={type}>
+          <ErrorBoundary key={type}>
             <div className={classes.list}>
               <Index indexName={getSearchIndexName(type)}>
                 <Configure hitsPerPage={3} />
                 <Hits hitComponent={(props) => <Component clickAction={closeSearch} {...props} showIcon/>} />
               </Index>
             </div>
-          </Components.ErrorBoundary>
+          </ErrorBoundary>
         ))}
         <Link to={`/search?query=${currentQuery}`} className={classes.seeAll}>
           See all results
@@ -105,10 +110,6 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   </div>
 }
 
-const SearchBarResultsComponent = registerComponent("SearchBarResults", SearchBarResults, {styles});
+export default registerComponent("SearchBarResults", SearchBarResults, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchBarResults: typeof SearchBarResultsComponent
-  }
-}
+

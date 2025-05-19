@@ -1,20 +1,19 @@
+import { getSchema } from "@/lib/schema/allSchemas";
+
 class ClientCollection<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  defaultView: ViewFunction<N> | undefined;
-  views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
-  _schemaFields: SchemaType<N>;
-  _simpleSchema: any;
-  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
   }
 
@@ -23,15 +22,12 @@ class ClientCollection<
   }
 
   isVoteable(): this is ClientCollection<VoteableCollectionName> {
-    return this.voteable;
-  }
-
-  makeVoteable() {
-    this.voteable = true;
+    return !!this.options.voteable;
   }
 
   hasSlug(): this is ClientCollection<CollectionNameWithSlug> {
-    return !!this._schemaFields.slug;
+    const schema = getSchema(this.collectionName);
+    return 'slug' in schema;
   }
 
   private executeQuery(): never {
@@ -40,6 +36,10 @@ class ClientCollection<
 
   getTable() {
     return this.executeQuery();
+  }
+
+  getIndexes(): never {
+    throw new Error("ClientCollection: getIndexes called on client");
   }
 
   rawCollection() {
@@ -80,14 +80,6 @@ class ClientCollection<
 
   _ensureIndex() {
     return this.executeQuery();
-  }
-
-  addDefaultView(view: ViewFunction<N>) {
-    this.defaultView = view;
-  }
-
-  addView(viewName: string, view: ViewFunction<N>) {
-    this.views[viewName] = view;
   }
 }
 

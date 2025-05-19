@@ -1,20 +1,18 @@
-import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ManageSubscriptionsLink', (theme: ThemeType) => ({
   button: {
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit
   }
-});
+}));
 
-const ManageSubscriptionsLink = ({document, removeItem, classes }: {
-  document?: any,
-  removeItem?: any,
-  classes: ClassesType<typeof styles>,
-}) => {
+export const ManageSubscriptionsLink = () => {
+  const classes = useStyles(styles);
+
   return <Link to="/manageSubscriptions">
     <Button color="secondary" variant="outlined"
       className={classes.button}
@@ -24,10 +22,3 @@ const ManageSubscriptionsLink = ({document, removeItem, classes }: {
   </Link>
 };
 
-const ManageSubscriptionsLinkComponent = registerComponent('ManageSubscriptionsLink', ManageSubscriptionsLink, {styles});
-
-declare global {
-  interface ComponentTypes {
-    ManageSubscriptionsLink: typeof ManageSubscriptionsLinkComponent
-  }
-}

@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const DialogueCheckInfo = () => frag`
   fragment DialogueCheckInfo on DialogueCheck {
     _id
     userId
@@ -15,4 +15,4 @@ registerFragment(`
       ...DialogueMatchPreferencesDefaultFragment
     }
   }
-`);
+`

@@ -1,14 +1,24 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
+import { MenuItem } from "../common/Menus";
 
-type SelectLocalgroupProps = {
-  useDocumentAsUser?: boolean,
-  variant?: "default" | "grey",
-  separator?: string,
-} & (
-  (FormComponentProps<string[]> & {multiselect: true}) |
-  (FormComponentProps<string> & {multiselect?: false})
+interface SelectLocalgroupBaseProps {
+  useDocumentAsUser?: boolean;
+  variant?: "default" | "grey";
+  separator?: string;
+  document: { _id?: string };
+  label?: string;
+  placeholder?: string;
+  hideClear?: boolean;
+}
+
+type SelectLocalgroupProps = SelectLocalgroupBaseProps & (
+  { field: TypedFieldApi<string[] | null>; multiselect: true } |
+  { field: TypedFieldApi<string | null>; multiselect?: false }
 );
 
 /**
@@ -16,19 +26,18 @@ type SelectLocalgroupProps = {
  * the options are a list of groups for which the current user is an organizer,
  * or all groups if the user is an admin.
  */
-const SelectLocalgroup = (props: SelectLocalgroupProps) => {
-  const { MenuItem } = Components;
-
+export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
+  const currentUser = useCurrentUser();
   // Default to currentUser, but use props.document if necessary
   // (ex. you want to be able to select groups for another user).
-  const user = props.useDocumentAsUser ? props.document : props.currentUser
+  const user = props.useDocumentAsUser ? props.document : currentUser
 
   const { results: groups } = useMulti({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsBase',
     terms: {
-      view: props.currentUser?.isAdmin ? 'all' : 'userActiveGroups',
-      userId: user._id,
+      view: currentUser?.isAdmin ? 'all' : 'userActiveGroups',
+      userId: user?._id,
       limit: 500
     },
     skip: !user
@@ -36,9 +45,9 @@ const SelectLocalgroup = (props: SelectLocalgroupProps) => {
 
   if (props.multiselect) {
     const options = groups?.map(group => {
-      return {value: group._id, label: group.name}
+      return {value: group._id, label: group.name ?? ''}
     })
-    return <Components.FormComponentMultiSelect {...props} options={options || []} />
+    return <FormComponentMultiSelect {...props} options={options || []} />
   }
 
   const selectOptions = groups?.map(group => {
@@ -47,19 +56,11 @@ const SelectLocalgroup = (props: SelectLocalgroupProps) => {
     </MenuItem>
   })
   const {variant, separator, ...textFieldProps} = props;
-  return <Components.MuiTextField
+  return <MuiTextField
     select
     {...textFieldProps}
     {...!selectOptions?.length ? {disabled: true} : {}}
   >
     {selectOptions || []}
-  </Components.MuiTextField>
-}
-
-const SelectLocalgroupComponent = registerComponent("SelectLocalgroup", SelectLocalgroup);
-
-declare global {
-  interface ComponentTypes {
-    SelectLocalgroup: typeof SelectLocalgroupComponent
-  }
+  </MuiTextField>
 }

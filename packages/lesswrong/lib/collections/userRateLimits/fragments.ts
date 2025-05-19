@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const UserRateLimitDisplay = () => frag`
   fragment UserRateLimitDisplay on UserRateLimit {
     _id
     user {
@@ -14,4 +14,4 @@ registerFragment(`
     createdAt
     endedAt
   }
-`);
+`

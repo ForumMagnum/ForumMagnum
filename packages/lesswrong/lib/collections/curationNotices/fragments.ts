@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const CurationNoticesFragment = () => frag`
   fragment CurationNoticesFragment on CurationNotice {
     _id
     createdAt
@@ -21,4 +21,4 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`

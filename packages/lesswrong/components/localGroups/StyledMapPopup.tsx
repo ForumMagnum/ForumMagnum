@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
 import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
@@ -85,11 +85,7 @@ const StyledMapPopup = ({
   </Popup>
 }
 
-const StyledMapPopupComponent = registerComponent("StyledMapPopup", StyledMapPopup, {styles});
+export default registerComponent("StyledMapPopup", StyledMapPopup, {styles});
 
-declare global {
-  interface ComponentTypes {
-    StyledMapPopup: typeof StyledMapPopupComponent
-  }
-}
+
 

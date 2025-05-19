@@ -1,10 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-
-
-export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
+import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 
 const styles = (theme: ThemeType) => ({
   warningText: {
@@ -43,10 +41,6 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
 }
 
 
-const RecaptchaWarningComponent = registerComponent('RecaptchaWarning', RecaptchaWarning, { styles }) 
+export default registerComponent('RecaptchaWarning', RecaptchaWarning, { styles }); 
 
-declare global {
-  interface ComponentTypes {
-    RecaptchaWarning: typeof RecaptchaWarningComponent
-  }
-}
+

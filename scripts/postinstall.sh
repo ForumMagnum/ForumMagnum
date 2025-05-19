@@ -94,6 +94,7 @@ else
   echo 'N/A'
 fi
 
-echo 'Running yarn install in ckEditor/'
-(cd ckEditor && yarn install)
+#echo 'Running yarn install in ckEditor/'
+#(cd ckEditor && yarn install)
+echo 'For development, you might need to run (cd ckEditor && yarn install)'
 

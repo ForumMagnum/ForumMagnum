@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { voteButtonsDisabledForUser } from "../../lib/collections/users/helpers";
 import { useDialog } from "../common/withDialog";
@@ -7,6 +7,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useVote } from "../votes/withVote";
 import { useMessages } from "../common/withMessages";
 import classNames from "classnames";
+import LoginPopup from "../users/LoginPopup";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -71,17 +74,14 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
       flash(whyYouCantVote ?? "You can't vote on this");
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
 
   const isUpvoted = document.currentUserVote ? document.currentUserVote.indexOf("Up") > 0 : false;
   const isDownvoted = document.currentUserVote ? document.currentUserVote.indexOf("Down") > 0 : false;
-
-  const {LWTooltip, ForumIcon} = Components;
-
   return (
     <div className={classes.root}>
       <ForumIcon
@@ -115,14 +115,10 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   );
 }
 
-const EAPostsItemTagRelevanceComponent = registerComponent(
+export default registerComponent(
   "EAPostsItemTagRelevance",
   EAPostsItemTagRelevance,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsItemTagRelevance: typeof EAPostsItemTagRelevanceComponent
-  }
-}
+

@@ -1,11 +1,14 @@
-import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React, { useEffect, useRef, useState } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
+import ContentItemBody from "./ContentItemBody";
+
+const TRUNCATION_MAX_HEIGHT = 600;
 
 const styles = (theme: ThemeType) => ({
   maxHeight: {
-    maxHeight: 600,
+    maxHeight: TRUNCATION_MAX_HEIGHT,
     overflow: "hidden"
   }
 })
@@ -18,8 +21,12 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   graceWords?: number,
   expanded?: boolean,
   rawWordCount: number,
-  // Suffix, shown only if truncated
-  getTruncatedSuffix?: (props: {wordsLeft: number}) => React.ReactNode,
+  /**
+   * Suffix, shown only if truncated. If the truncation was due to the word
+   * count limit, includes the number of words left; if it was due to the height
+   * limit instead of the word-count limit, wordsLeft is null.
+   */
+  getTruncatedSuffix?: (props: {wordsLeft: number|null}) => React.ReactNode,
   // Alternate suffix, shown if truncated didn't happen (because it wasn't long
   // enough to need it)
   nonTruncatedSuffix?: React.ReactNode
@@ -29,7 +36,8 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   description?: string,
   nofollow?: boolean
 }) => {
-  const {ContentItemBody} = Components;
+  const contentsRef = useRef<HTMLDivElement>(null);
+  const [hasHeightLimit, setHasHeightLimit] = useState(false);
   
   const html = dangerouslySetInnerHTML.__html;
   const {truncatedHtml, wasTruncated, wordsLeft} =
@@ -39,22 +47,36 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
       wordsLeft: 0,
     } : truncateWithGrace(html, maxLengthWords, graceWords, rawWordCount);
   
+  useEffect(() => {
+    if (contentsRef.current) {
+      const measuredHeight = contentsRef.current.offsetHeight;
+      if (measuredHeight > TRUNCATION_MAX_HEIGHT) {
+        setHasHeightLimit(true);
+      }
+    }
+  }, [truncatedHtml]);
+
+  const showSuffix = (wasTruncated || (hasHeightLimit && !expanded));
+
   return <>
-    <ContentItemBody
-      dangerouslySetInnerHTML={{__html: truncatedHtml}}
-      className={classNames(className, !expanded && classes.maxHeight)}
-      description={description}
-      nofollow={nofollow}
-    />
-    {wasTruncated && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
-    {!wasTruncated && nonTruncatedSuffix}
+    <div
+      ref={contentsRef}
+      className={classNames(
+        !expanded && hasHeightLimit && classes.maxHeight
+      )}
+    >
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: truncatedHtml}}
+        className={className}
+        description={description}
+        nofollow={nofollow}
+      />
+    </div>
+    {showSuffix && getTruncatedSuffix && getTruncatedSuffix({wordsLeft: hasHeightLimit ? null : wordsLeft})}
+    {!showSuffix && nonTruncatedSuffix}
   </>
 }
 
-const ContentItemTruncatedComponent = registerComponent('ContentItemTruncated', ContentItemTruncated, {styles});
+export default registerComponent('ContentItemTruncated', ContentItemTruncated, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ContentItemTruncated: typeof ContentItemTruncatedComponent
-  }
-}
+

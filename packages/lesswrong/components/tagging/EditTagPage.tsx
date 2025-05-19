@@ -1,43 +1,49 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil'
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { TagForm } from './TagForm';
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
 
-export const EditTagForm = ({tag, successCallback, cancelCallback}: {
-  tag: TagFragment,
+export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
+  tag: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] },
   successCallback?: any,
-  cancelCallback?: any
+  cancelCallback?: any,
+  changeCallback?: any,
+  warnUnsavedChanges?: boolean,
 }) => {
-  return <Components.WrappedSmartForm
-    key={`${tag?._id}_${tag?.description?.version}`}
-    collectionName="Tags"
-    documentId={tag._id}
-    queryFragment={getFragment('TagEditFragment')}
-    mutationFragment={getFragment('TagWithFlagsFragment')}
-    successCallback={successCallback}
-    cancelCallback={cancelCallback}
-  />
+  return <ContentStyles contentType="tag">
+    <TagForm
+      initialData={tag}
+      onSuccess={successCallback}
+      onCancel={cancelCallback}
+      onChange={changeCallback}
+    />
+  </ContentStyles>
 }
 
 const EditTagPage = () => {
   const { params } = useLocation();
   const { slug } = params;
-  const { tag, loading } = useTagBySlug(slug, "TagFragment");
+  const { tag, loading } = useTagBySlug(slug, "TagEditFragment");
   const navigate = useNavigate();
   const client = useApolloClient()
 
   if (loading)
-    return <Components.Loading/>
+    return <Loading/>
   if (!tag)
-    return <Components.Error404/>
+    return <Error404/>
   
   return (
-    <Components.SingleColumnSection>
-      <Components.SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
+    <SingleColumnSection>
+      <SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
         successCallback={ async (tag: any) => {
@@ -45,14 +51,10 @@ const EditTagPage = () => {
           navigate({pathname: tagGetUrl(tag)})
         }}
       />
-    </Components.SingleColumnSection>
+    </SingleColumnSection>
   );
 }
 
-const EditTagPageComponent = registerComponent('EditTagPage', EditTagPage);
+export default registerComponent('EditTagPage', EditTagPage);
 
-declare global {
-  interface ComponentTypes {
-    EditTagPage: typeof EditTagPageComponent
-  }
-}
+

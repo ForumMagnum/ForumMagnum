@@ -1,36 +1,27 @@
-import { getCollectionHooks } from '../mutationCallbacks';
+import type { AfterCreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import difference from 'lodash/difference';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import Users from '../../lib/vulcan-users';
 
-
-getCollectionHooks("Localgroups").createValidate.add((validationErrors: Array<any>, {document: group}: {document: DbLocalgroup}) => {
+export function validateGroupIsOnlineOrHasLocation(group: CreateLocalgroupDataInput | DbLocalgroup) {
   if (!group.isOnline && !group.location)
     throw new Error("Location is required for local groups");
-  
-  return validationErrors;
-});
+}
 
-getCollectionHooks("Localgroups").updateValidate.add((validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbLocalgroup, newDocument: DbLocalgroup}) => {
-  if (!newDocument.isOnline && !newDocument.location)
-    throw new Error("Location is required for local groups");
-  
-  return validationErrors;
-});
-
-getCollectionHooks("Localgroups").createAsync.add(async ({document}: {document: DbLocalgroup}) => {
+export async function createGroupNotifications({document}: AfterCreateCallbackProperties<'Localgroups'>) {
   await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
-})
+}
 
-getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}: {document: DbLocalgroup, oldDocument: DbLocalgroup}) => {
+export async function handleOrganizerUpdates({ newDocument, oldDocument, context }: UpdateCallbackProperties<'Localgroups'>) {
+  const { Users } = context;
+
   // notify new organizers that they have been added to this group
-  const newOrganizerIds = difference(document.organizerIds, oldDocument.organizerIds)
-  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+  const newOrganizerIds = difference(newDocument.organizerIds, oldDocument.organizerIds)
+  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: newDocument._id})
   
   // if this group is being marked as inactive or deleted, remove it from the profile of all associated organizers
-  const groupIsBeingHidden = (!oldDocument.inactive && document.inactive) || (!oldDocument.deleted && document.deleted)
+  const groupIsBeingHidden = (!oldDocument.inactive && newDocument.inactive) || (!oldDocument.deleted && newDocument.deleted)
   // otherwise, remove this group from the profile of any organizers who have been removed
-  const removedOrganizerIds = groupIsBeingHidden ? oldDocument.organizerIds : difference(oldDocument.organizerIds, document.organizerIds)
+  const removedOrganizerIds = groupIsBeingHidden ? oldDocument.organizerIds : difference(oldDocument.organizerIds, newDocument.organizerIds)
 
   if (!removedOrganizerIds || !removedOrganizerIds.length) return
   const removedOrganizers = await Users.find({_id: {$in: removedOrganizerIds}}).fetch()
@@ -38,7 +29,7 @@ getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}
   removedOrganizers.forEach(organizer => {
     if (!organizer.organizerOfGroupIds) return
 
-    const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [document._id])
+    const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [newDocument._id])
     if (organizer.organizerOfGroupIds.length > newOrganizerOfGroupIds.length) {
       void Users.rawUpdateOne(
         {_id: organizer._id},
@@ -46,4 +37,4 @@ getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}
       )
     }
   })
-})
+}

@@ -1,9 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import ForumIcon from "../common/ForumIcon";
+import StyledMapPopup from "./StyledMapPopup";
+import GroupLinks from "./GroupLinks";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -34,13 +37,12 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const { geometry: {location: {lat, lng}}} = location
 
   const { html = "" } = group.contents || {}
-  const { StyledMapPopup, GroupLinks } = Components
   const htmlBody = {__html: html};
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const GroupIcon = () => forumTypeSetting.get() === 'EAForum'
-    ? <Components.ForumIcon icon="Star" className={classes.eaIcon}/>
+    ? <ForumIcon icon="Star" className={classes.eaIcon}/>
     : <GroupIconSVG className={classes.icon}/>;
 
   return <React.Fragment>
@@ -69,11 +71,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-const LocalGroupMarkerComponent = registerComponent("LocalGroupMarker", LocalGroupMarker, {styles});
+export default registerComponent("LocalGroupMarker", LocalGroupMarker, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupMarker: typeof LocalGroupMarkerComponent
-  }
-}
+
 

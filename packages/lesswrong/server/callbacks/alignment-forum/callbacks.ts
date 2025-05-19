@@ -1,11 +1,9 @@
-import Users from "../../../lib/collections/users/collection";
+import Users from "../../../server/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { Votes } from '../../../lib/collections/votes';
+import { Votes } from '../../../server/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
-import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
-import { ensureIndex } from "../../../lib/collectionIndexUtils";
-import { UsersRepo } from "../../repos";
+import UsersRepo from "../../repos/UsersRepo";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -55,7 +53,7 @@ export async function revokeUserAFKarmaForCancelledVote ({newDocument, vote}: Vo
 
 }
 
-export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
+export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
       $inc: {afKarma: document.afBaseScore ?? 0},
@@ -80,6 +78,10 @@ export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, ol
     }, {multi: true})
   }
 }
-ensureIndex(Votes, {documentId:1});
 
-getCollectionHooks("Posts").editAsync.add(moveToAFUpdatesUserAFKarma);
+
+export async function postsMoveToAFAddsAlignmentVoting (post: DbPost, oldPost: DbPost) {
+  if (post.af && !oldPost.af) {
+    await Users.rawUpdateOne({_id:post.userId}, {$addToSet: {groups: 'alignmentVoters'}})
+  }
+}

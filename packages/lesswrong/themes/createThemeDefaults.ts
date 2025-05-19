@@ -1,3 +1,4 @@
+import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 
@@ -54,6 +55,9 @@ export const baseTheme: BaseThemeSpecification = {
         commentStyle: {
           fontFamily: palette.fonts.sansSerifStack,
         },
+        ultraFeedMobileStyle: {
+          fontFamily: palette.fonts.sansSerifStack,
+        },
         errorStyle: {
           color: palette.error.main,
           fontFamily: palette.fonts.sansSerifStack
@@ -70,14 +74,26 @@ export const baseTheme: BaseThemeSpecification = {
         },
         body1: {
           fontSize: 18.2,
-          lineHeight: "26px"
+          lineHeight: "26px",
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          color: palette.text.primary,
         },
         body2: {
           fontWeight: 400,
           fontSize: 14.3,
           lineHeight: "19.5px",
+
+          fontFamily: palette.fonts.sansSerifStack,
+          color: palette.text.primary,
         },
-        headline: {},
+        headline: {
+          fontSize: "1.5rem",
+          fontWeight: 400,
+          fontFamily: palette.fonts.serifStack,
+          lineHeight: `1.35417em`,
+          color: palette.text.primary,
+        },
         postsItemTitle: {
           fontSize: 16.9
         },
@@ -114,25 +130,46 @@ export const baseTheme: BaseThemeSpecification = {
         display1: {
           color: palette.grey[800],
           fontSize: 26,
-          marginTop: '1em'
+          marginTop: '1em',
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.20588em`,
         },
         display2: {
           color: palette.grey[800],
           fontSize: 36.4,
-          marginTop: '1em'
+          marginTop: '1em',
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.13333em`,
+          marginLeft: '-.02em',
         },
         display3: {
           color: palette.grey[800],
           marginTop: '1.2em',
-          fontSize: 39
+          fontSize: 39,
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          letterSpacing: '-.02em',
+          lineHeight: `$1.30357em`,
+          marginLeft: '-.02em',
         },
         display4: {
           color: palette.grey[800],
+          fontSize: "7rem",
+          fontWeight: 300,
+          fontFamily: palette.fonts.sansSerifStack,
+          letterSpacing: '-.04em',
+          lineHeight: `1.14286em`,
+          marginLeft: '-.04em',
         },
         title: {
           fontSize: 18,
           fontWeight: 400,
           marginBottom: 3,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.16667em`,
+          color: palette.text.primary,
         },
         // Used for ui text that's (on LW) serifed rather than the primary
         // sans-serif ui font. On the EA Forum this is overridden with sans-serif
@@ -141,6 +178,17 @@ export const baseTheme: BaseThemeSpecification = {
         },
         caption: {
           fontSize: 11.7,
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.375em`,
+          color: palette.text.secondary,
+        },
+        button: {
+          fontSize: "0.875rem",
+          textTransform: 'uppercase',
+          fontWeight: 500,
+          fontFamily: palette.fonts.sansSerifStack,
+          color: palette.text.primary,
         },
         blockquote: {
           fontWeight: 400,
@@ -188,8 +236,11 @@ export const baseTheme: BaseThemeSpecification = {
           fontWeight:500,
         },
         subheading: {
-          fontSize:15,
-          color: palette.grey[600]
+          fontSize: 15,
+          color: palette.grey[600],
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.5em`,
         },
         headerStyle: {},
         subtitle: {
@@ -203,6 +254,8 @@ export const baseTheme: BaseThemeSpecification = {
         smallCaps: {
           fontVariant: "small-caps",
         },
+        
+        pxToRem: (px: number) => `${px * .0625}rem`
       },
       zIndexes: {
         ...defaultZIndexes
@@ -239,49 +292,18 @@ export const baseTheme: BaseThemeSpecification = {
         `0px 11px 14px -7px ${palette.boxShadowColor(0.2)},0px 23px 36px 3px ${palette.boxShadowColor(0.14)},0px 9px 44px 8px ${palette.boxShadowColor(0.12)}`,
         `0px 11px 15px -7px ${palette.boxShadowColor(0.2)},0px 24px 38px 3px ${palette.boxShadowColor(0.14)},0px 9px 46px 8px ${palette.boxShadowColor(0.12)}`,
       ],
+      shape: {
+        borderRadius: 4,
+      },
+      transitions: transitions,
+      direction: "ltr",
+
       overrides: {
-        MuiTooltip: {
-          tooltip: {
-            backgroundColor: palette.panelBackground.tooltipBackground,
-            color: palette.text.tooltipText,
-          },
-        },
-        MuiChip: {
-          root: {
-            color: palette.text.normal, //Necessary because this uses getContrastText() which produces a non-theme color
-          },
-        },
-        MuiButton: {
-          contained: {
-            // TODO: Override color, for which material-UI uses getContrastText() which produces a non-theme color
-          },
-        },
         MuiSelect: {
           selectMenu: {
             paddingLeft: spacingUnit
           }
         },
-        MuiFormControlLabel: {
-          label: {
-            fontFamily: palette.fonts.sansSerifStack,
-            fontSize: 14.3,
-            fontWeight: 400,
-            lineHeight: "19.5px",
-          }
-        },
-        MuiTableCell: {
-          body: {
-            fontSize: 14.3,
-            lineHeight: "19.5px",
-            paddingLeft: 16,
-            paddingRight: 16,
-            paddingTop: 12,
-            paddingBottom: 12,
-            marginTop: 0,
-            marginBottom: 0,
-            wordBreak: "normal",
-          }
-        }
       },
       rawCSS: [
         `@property --top-posts-page-scrim-opacity {

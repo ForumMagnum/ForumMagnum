@@ -1,8 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
+import UsersName from "../users/UsersName";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,14 +19,14 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
   classes: ClassesType<typeof styles>
 }) => {
-  const { UsersName, Loading } = Components;
-  const postId = notification.documentId;
+  const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
   const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsMinimumInfo",
+    skip: !postId,
   });
   
   const senderUserId = notification.extraData?.senderUserID;
@@ -44,10 +46,6 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   </div>
 }
 
-const CommentOnYourDraftNotificationHoverComponent = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
+export default registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHoverComponent
-  }
-}
+

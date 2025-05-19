@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
 import { CausePrioIcon } from '../icons/causePrioIcon';
@@ -64,10 +64,6 @@ const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
 }
 
-const CoreTagIconComponent = registerComponent("CoreTagIcon", CoreTagIcon, {styles});
+export default registerComponent("CoreTagIcon", CoreTagIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagIcon: typeof CoreTagIconComponent
-  }
-}
+

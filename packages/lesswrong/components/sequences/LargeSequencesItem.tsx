@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import UsersName from "../users/UsersName";
+import ContentStyles from "../common/ContentStyles";
+import SequencesSmallPostLink from "./SequencesSmallPostLink";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import LWTooltip from "../common/LWTooltip";
+import ChapterTitle from "./ChapterTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -148,8 +154,6 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
-
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -229,11 +233,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   </div>
 }
 
-const LargeSequencesItemComponent = registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
+export default registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LargeSequencesItem: typeof LargeSequencesItemComponent
-  }
-}
+
 

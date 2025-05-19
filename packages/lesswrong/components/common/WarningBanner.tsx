@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ForumIcon from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -9,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.warning,
     fontSize: 14,
-    lineHeight: '18px',
+    lineHeight: '20px',
     fontWeight: '500',
     padding: '10px 8px',
     borderRadius: 4,
@@ -17,12 +18,15 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
   },
   icon: {
-    transform: "translateY(1px)",
+    transform: "translateY(3px)",
     fontSize: 16,
   },
   message: {
-    flexGrow: 1
-  }
+    flexGrow: 1,
+    '& a': {
+      textDecoration: 'underline',
+    }
+  },
 });
 
 const WarningBanner = ({message, classes}: {
@@ -31,17 +35,11 @@ const WarningBanner = ({message, classes}: {
 }) => {
   
   return <div className={classes.root}>
-    <Components.ForumIcon icon="Warning" className={classes.icon} />
-    <div className={classes.message}>
-      {message}
-    </div>
+    <ForumIcon icon="Warning" className={classes.icon} />
+    <div className={classes.message} dangerouslySetInnerHTML={{__html: message}} />
   </div>
 }
 
-const WarningBannerComponent = registerComponent('WarningBanner', WarningBanner, {styles});
+export default registerComponent('WarningBanner', WarningBanner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WarningBanner: typeof WarningBannerComponent
-  }
-}
+

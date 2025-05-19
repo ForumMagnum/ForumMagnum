@@ -1,9 +1,14 @@
 import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import LoginPopup from "../users/LoginPopup";
+import BookCheckout from "../review/BookCheckout";
+import Book2020Animation from "./Book2020Animation";
+import ContentStyles from "../common/ContentStyles";
+import Row from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,7 +108,6 @@ const styles = (theme: ThemeType) => ({
 const Book2020FrontpageWidget = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { BookCheckout, Book2020Animation, ContentStyles, Row } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -123,8 +127,8 @@ const Book2020FrontpageWidget = ({ classes }: {
       })
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     }
   }
@@ -134,8 +138,8 @@ const Book2020FrontpageWidget = ({ classes }: {
   const BookMarketingText = ({title, subtitle, description, buttons}: {
     title: string;
     subtitle: string;
-    description: string | JSX.Element;
-    buttons: JSX.Element;
+    description: string | React.JSX.Element;
+    buttons: React.JSX.Element;
   }) => {
     return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
@@ -174,10 +178,6 @@ const Book2020FrontpageWidget = ({ classes }: {
 }
 
 
-const Book2020FrontpageWidgetComponent = registerComponent('Book2020FrontpageWidget', Book2020FrontpageWidget, { styles });
+export default registerComponent('Book2020FrontpageWidget', Book2020FrontpageWidget, { styles });
 
-declare global {
-  interface ComponentTypes {
-    Book2020FrontpageWidget: typeof Book2020FrontpageWidgetComponent
-  }
-}
+

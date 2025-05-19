@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { IsRecommendationContext } from './PostActions';
@@ -9,6 +8,10 @@ import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import LoginPopup from "../../users/LoginPopup";
+import DropdownItem from "../DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -33,8 +36,8 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   const dislikeRecommendation = () => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return;
     }
@@ -49,8 +52,6 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
 
   const title = 'Dismiss recommendation'
   const icon = 'NotInterested'
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -60,7 +61,7 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const DislikeRecommendationDropdownItemComponent = registerComponent(
+export default registerComponent(
   'DislikeRecommendationDropdownItem',
   DislikeRecommendationDropdownItem,
   {
@@ -69,8 +70,4 @@ const DislikeRecommendationDropdownItemComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    DislikeRecommendationDropdownItem: typeof DislikeRecommendationDropdownItemComponent
-  }
-}
+

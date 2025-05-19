@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   sidebarInlineReactMobile: {
@@ -28,11 +28,7 @@ const SideItemLine = ({colorClass, classes}: {
   </span>
 }
 
-const SideItemLineComponent = registerComponent('SideItemLine', SideItemLine, {styles});
+export default registerComponent('SideItemLine', SideItemLine, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SideItemLine: typeof SideItemLineComponent
-  }
-}
+
 

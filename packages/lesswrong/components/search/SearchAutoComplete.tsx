@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -117,11 +117,7 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-const SearchAutoCompleteComponent = registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
+export default registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchAutoComplete: typeof SearchAutoCompleteComponent
-  }
-}
+
 

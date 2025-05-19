@@ -3,11 +3,16 @@ import { commentIsHidden } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
+import Loading from "../vulcan-core/Loading";
+import Divider from "../common/Divider";
+import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
+import HeadTags from "../common/HeadTags";
+import CommentWithReplies from "./CommentWithReplies";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -65,8 +70,6 @@ const CommentPermalink = ({
     skip: isNotRandomId(documentId)
   });
   const refetch = data?.refetch;
-  const { Loading, Divider, CommentOnPostWithReplies, HeadTags, CommentWithReplies } = Components;
-
   if (silentLoading && !comment) return null;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -144,11 +147,7 @@ const CommentPermalink = ({
   );
 }
 
-const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });
+export default registerComponent("CommentPermalink", CommentPermalink, { styles });
 
 
-declare global {
-  interface ComponentTypes {
-    CommentPermalink: typeof CommentPermalinkComponent,
-  }
-}
+

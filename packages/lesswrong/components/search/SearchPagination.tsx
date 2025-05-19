@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Pagination } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType) => ({
@@ -63,11 +63,7 @@ const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
   </div>
 }
 
-const SearchPaginationComponent = registerComponent("SearchPagination", SearchPagination, {styles});
+export default registerComponent("SearchPagination", SearchPagination, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchPagination: typeof SearchPaginationComponent
-  }
-}
+
 

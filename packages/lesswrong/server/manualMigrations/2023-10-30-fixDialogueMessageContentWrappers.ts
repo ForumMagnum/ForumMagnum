@@ -1,13 +1,12 @@
 import merge from 'lodash/merge';
-import { Posts } from '../../lib/collections/posts';
-import Revisions from '../../lib/collections/revisions/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Revisions from '../../server/collections/revisions/collection';
 import { sleep } from '../../lib/helpers';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
 import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
-import { Globals } from '../vulcan-lib';
 import { registerMigration } from './migrationUtils';
 
 function wrapMessageContents(html: string) {
@@ -106,12 +105,12 @@ async function migrateDialogue(dialogue: DbPost) {
   }
 }
 
-Globals.migrateDialogueAgain = async (postId: string) => {
+export const migrateDialogueAgain = async (postId: string) => {
   const dialogue = await Posts.findOne(postId);
   if (dialogue) await migrateDialogue(dialogue);
 }
 
-registerMigration({
+export default registerMigration({
   name: "fixDialogueMessageContentWrappers",
   dateWritten: "2023-10-30",
   idempotent: true,

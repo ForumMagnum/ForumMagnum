@@ -1,12 +1,18 @@
-import Comments from "../lib/collections/comments/collection";
-import Posts from "../lib/collections/posts/collection";
-import Users from "../lib/collections/users/collection";
-import { getAdminTeamAccount, noDeletionPmReason } from "./callbacks/commentCallbacks";
+import Comments from "../server/collections/comments/collection";
+import Posts from "../server/collections/posts/collection";
+import Users from "../server/collections/users/collection";
+import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
-import { createAdminContext, Globals, updateMutator } from './vulcan-lib';
 import { sleep } from "../lib/utils/asyncUtils";
+import { createAdminContext } from "./vulcan-lib/createContexts";
+import { updateComment } from "./collections/comments/mutations";
+import { updatePost } from "./collections/posts/mutations";
+import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 
-/** Please ensure that we know that the user is who they say they are! */
+/**
+ * Please ensure that we know that the user is who they say they are!
+ * Exported to allow running manually with "yarn repl"
+ */
 export const deleteUserContent = async (
   selector: {_id?: string, slug?: string, email?: string},
   outfile?: string,
@@ -33,22 +39,19 @@ export const deleteUserContent = async (
   }
 
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount();
+  const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   for (const userComment of userComments) {
-    await updateMutator({
-      collection: Comments,
-      documentId: userComment._id,
-      set: {
+    await updateComment({
+      data: {
         deleted: true,
         deletedPublic: true,
         deletedByUserId: adminTeamAccount._id,
-        deletedReason: noDeletionPmReason
+        deletedReason: noDeletionPmReason,
       },
-      context: adminContext,
-      currentUser: adminContext.currentUser
-    });
+      selector: { _id: userComment._id },
+    }, adminContext);
 
     await sleep(50);
   }
@@ -59,19 +62,14 @@ export const deleteUserContent = async (
   }
 
   for (const userPost of userPosts) {
-    await updateMutator({
-      collection: Posts,
-      documentId: userPost._id,
-      set: {
+    await updatePost({
+      data: {
         draft: true,
         deletedDraft: true,
       },
-      context: adminContext,
-      currentUser: adminContext.currentUser
-    });
+      selector: { _id: userPost._id },
+    }, adminContext);
 
     await sleep(50);
   }
 };
-
-Globals.deleteUserContent = deleteUserContent;

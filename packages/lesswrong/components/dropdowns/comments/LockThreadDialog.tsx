@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMutation, gql } from '@apollo/client';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import Button from '@material-ui/core/Button';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import { DialogContent } from '@/components/widgets/DialogContent';
+import { DialogTitle } from '@/components/widgets/DialogTitle';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import LWDialog from "../../common/LWDialog";
+import { DatePicker } from "../../form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
   message: {
@@ -40,8 +42,6 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
     // hard-refresh the page
     window.location.reload();
   }
-
-  const {LWDialog, DatePicker} = Components;
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>Lock Comment Thread</DialogTitle>
@@ -66,12 +66,8 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
   );
 }
 
-const LockThreadDialogComponent = registerComponent(
+export default registerComponent(
   'LockThreadDialog', LockThreadDialog, {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LockThreadDialog: typeof LockThreadDialogComponent
-  }
-}
+

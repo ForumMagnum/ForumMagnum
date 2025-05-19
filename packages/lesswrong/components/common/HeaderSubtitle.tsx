@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
+import HeaderEventSubtitle from "./HeaderEventSubtitle";
 
 export const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -23,7 +24,7 @@ const HeaderSubtitle = ({classes}: {
     return null;
   }
 
-  const SubtitleComponent: any = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
+  const SubtitleComponent = currentRoute.subtitleComponent;
   const subtitleString = currentRoute.headerSubtitle ?? currentRoute.subtitle;
   const subtitleLink = currentRoute.subtitleLink;
 
@@ -38,16 +39,12 @@ const HeaderSubtitle = ({classes}: {
       {subtitleString}
     </span>
   } else {
-    return <Components.HeaderEventSubtitle />;
+    return <HeaderEventSubtitle />;
   }
 }
 
-const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle, {
+export default registerComponent("HeaderSubtitle", HeaderSubtitle, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    HeaderSubtitle: typeof HeaderSubtitleComponent
-  }
-}
+

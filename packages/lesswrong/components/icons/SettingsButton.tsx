@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -51,9 +52,6 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   textShadow?: boolean,
   labelClassName?: string,
 }) => {
-
-  const { ForumIcon } = Components
-
   const iconType = !!useArrow ? "ThickChevronDown" : "Settings"
 
   if (label) {
@@ -65,13 +63,9 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
 }
 
-const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {
+export default registerComponent('SettingsButton', SettingsButton, {
   styles,
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    SettingsButton: typeof SettingsButtonComponent
-  }
-}
+

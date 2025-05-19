@@ -1,6 +1,5 @@
 import moment from "moment";
-import ModeratorActions from "./collection";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, PostAndCommentRateLimitTypes, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./constants";
 import {DatabasePublicSetting} from '../../publicSettings.ts'
 
 /**
@@ -23,33 +22,9 @@ export function getTimeframeForRateLimit(type: AllRateLimitTypes): number {
   }
 }
 
-/**
- * Fetches the most recent, active rate limit affecting a user.
- */
-export function getModeratorRateLimit(userId: string) {
-  return ModeratorActions.findOne({
-    userId: userId,
-    type: {$in: postAndCommentRateLimits},
-    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
-  }, {
-    sort: {
-      createdAt: -1
-    }
-  }) as Promise<DbModeratorAction & {type: PostAndCommentRateLimitTypes} | null>
-}
-
 export function getAverageContentKarma(content: VoteableType[]) {
-  const runningContentKarma = content.reduce((prev, curr) => prev + curr.baseScore, 0);
+  const runningContentKarma = content.reduce((prev, curr) => prev + (curr.baseScore ?? 0), 0);
   return runningContentKarma / content.length;
-}
-
-export async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES): Promise<boolean> {
-  const action = await ModeratorActions.findOne({
-    userId: userId,
-    type: moderatorActionType,
-    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
-  });
-  return !!action;
 }
 
 interface ModeratableContent extends VoteableType {

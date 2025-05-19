@@ -1,15 +1,13 @@
-import { makeVoteable } from '../../make_voteable';
-import { Comments } from './collection';
+import type { CollectionVoteOptions } from '../../make_voteable';
 import { userCanDo } from '../../vulcan-users/permissions';
 
 // Comments have the custom behavior in that they sometimes have hidden karma
-const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
+export const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
   return !comment.hideKarma || userCanDo(user, 'posts.moderate.all')
 }
 
-makeVoteable(Comments, {
+export const commentVotingOptions: CollectionVoteOptions = {
   timeDecayScoresCronjob: true,
-  customBaseScoreReadAccess,
   userCanVoteOn: (user: DbUser|null, comment: DbComment, voteType: string, extendedVote: any) => {
     if (!user) {
       return {fail: true, reason: 'You must be logged in to vote.'};
@@ -24,4 +22,4 @@ makeVoteable(Comments, {
     }
     return {fail: false};
   }
-});
+};

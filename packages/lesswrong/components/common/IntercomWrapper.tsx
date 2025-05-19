@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { useCurrentUser } from './withUser';
 import { getUserEmail } from "../../lib/collections/users/helpers";
@@ -57,13 +57,9 @@ const IntercomWrapper = () => {
   }
 }
 
-const IntercomWrapperComponent = registerComponent('IntercomWrapper', IntercomWrapper, {
+export default registerComponent('IntercomWrapper', IntercomWrapper, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    IntercomWrapper: typeof IntercomWrapperComponent
-  }
-}
+

@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
@@ -16,6 +16,9 @@ import {
 } from "../../lib/petrovHelpers";
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';
+import LWTooltip from "../common/LWTooltip";
+import LoginPopupButton from "../users/LoginPopupButton";
+import { Typography } from "../common/Typography";
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -161,9 +164,6 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   );
   
   const { flash } = useMessages();
-  
-  const { LWTooltip, LoginPopupButton, Typography } = Components
-
   const updateCurrentUser = useUpdateCurrentUser();
   
   const pressButton = () => {
@@ -277,11 +277,7 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   )
 }
 
-const PetrovDayButtonComponent = registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+export default registerComponent('PetrovDayButton', PetrovDayButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayButton: typeof PetrovDayButtonComponent
-  }
-}
+
 

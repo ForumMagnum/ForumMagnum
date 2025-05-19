@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 
 const SmallSideVote = ({document, hideKarma=false, collectionName}: {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
@@ -23,10 +23,6 @@ const SmallSideVote = ({document, hideKarma=false, collectionName}: {
     : null;
 }
 
-const SmallSideVoteComponent = registerComponent('SmallSideVote', SmallSideVote, {areEqual: "auto"});
+export default registerComponent('SmallSideVote', SmallSideVote, {areEqual: "auto"});
 
-declare global {
-  interface ComponentTypes {
-    SmallSideVote: typeof SmallSideVoteComponent
-  }
-}
+

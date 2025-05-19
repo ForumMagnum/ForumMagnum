@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
+import LWTooltip from "../common/LWTooltip";
 
 const AlignmentCrosspostLink = ({post}: {
   post: PostsBase,
 }) => {
-  const { LWTooltip } = Components
   if (post.af && !isAF) {
     return (
       <LWTooltip title={<div><p>This is an alignment forum post. <br/>May contain more technical jargon than usual.</p>
@@ -20,10 +20,6 @@ const AlignmentCrosspostLink = ({post}: {
   }
 }
 
-const AlignmentCrosspostLinkComponent = registerComponent('AlignmentCrosspostLink', AlignmentCrosspostLink);
+export default registerComponent('AlignmentCrosspostLink', AlignmentCrosspostLink);
 
-declare global {
-  interface ComponentTypes {
-    AlignmentCrosspostLink: typeof AlignmentCrosspostLinkComponent
-  }
-}
+

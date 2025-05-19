@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type {
   CommentVotingComponentProps,
   PostVotingComponentProps,
@@ -14,9 +14,13 @@ import {
   getEmojiMutuallyExclusivePartner,
 } from "../../lib/voting/eaEmojiPalette";
 import type { VotingProps } from "./votingProps";
-import Menu from "@material-ui/core/Menu";
+import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
+import LoginPopup from "../users/LoginPopup";
+import EAEmojiPalette from "./EAEmojiPalette";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -253,8 +257,8 @@ const EAReactsSection: FC<{
     
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
       return;
     }
@@ -277,8 +281,6 @@ const EAReactsSection: FC<{
   }, [currentUser, openDialog, voteProps, viewOnly]);
 
   const reactions = getCurrentReactions(voteProps.document?.extendedScore);
-
-  const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
       {reactions.map(({emojiOption, anonymous, score}) => {
@@ -351,15 +353,6 @@ const EAReactsSection: FC<{
         onClick={onCloseMenu}
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        getContentAnchorEl={null}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
         className={classes.menu}
       >
         {everOpened && <EAEmojiPalette onSelectEmoji={onSelectEmoji} />}
@@ -368,14 +361,10 @@ const EAReactsSection: FC<{
   );
 }
 
-const EAReactsSectionComponent = registerComponent(
+export default registerComponent(
   "EAReactsSection",
   EAReactsSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAReactsSection: typeof EAReactsSectionComponent
-  }
-}
+

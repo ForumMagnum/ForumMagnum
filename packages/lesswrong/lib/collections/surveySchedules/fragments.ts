@@ -1,15 +1,15 @@
-import { registerFragment } from "@/lib/vulcan-lib";
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SurveyScheduleMinimumInfo = () => frag`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
     survey {
       ...SurveyMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const SurveyScheduleEdit = () => frag`
   fragment SurveyScheduleEdit on SurveySchedule {
     ...SurveyScheduleMinimumInfo
     surveyId
@@ -24,4 +24,4 @@ registerFragment(`
     deactivated
     createdAt
   }
-`);
+`

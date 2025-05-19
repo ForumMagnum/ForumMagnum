@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,11 +19,7 @@ export const Row = ({classes, justifyContent="space-between", alignItems="center
   </div>;
 }
 
-const RowComponent = registerComponent('Row', Row, {styles});
+export default registerComponent('Row', Row, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Row: typeof RowComponent
-  }
-}
+
 

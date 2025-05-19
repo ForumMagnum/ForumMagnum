@@ -1,8 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
+import { Typography } from "../common/Typography";
+import SidebarInfo from "./SidebarInfo";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 
 const styles = (theme: ThemeType) => ({
   comment: {
@@ -19,35 +22,31 @@ const SunshineCommentsItemOverview = ({ comment, classes }: {
   const commentExcerpt = markdown && markdown.substring(0,38);
   return (
     <div>
-      <Components.Typography variant="body2">
+      <Typography variant="body2">
         <Link to={comment.post && postGetPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
           { comment.deleted ? <span>COMMENT DELETED</span>
             : <span>{ commentExcerpt }</span>
           }
         </Link>
-      </Components.Typography>
+      </Typography>
       <div>
-        <Components.SidebarInfo>
+        <SidebarInfo>
           { comment.baseScore }
-        </Components.SidebarInfo>
-        <Components.SidebarInfo>
+        </SidebarInfo>
+        <SidebarInfo>
           <Link to={userGetProfileUrl(comment.user)}>
               {comment.user && comment.user.displayName}
           </Link>
-        </Components.SidebarInfo>
-        <Components.SidebarInfo>
-          <Components.CommentsItemDate comment={comment} post={comment.post}/>
-        </Components.SidebarInfo>
+        </SidebarInfo>
+        <SidebarInfo>
+          <CommentsItemDate comment={comment} post={comment.post}/>
+        </SidebarInfo>
       </div>
     </div>
   )
 }
 
-const SunshineCommentsItemOverviewComponent = registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, {styles});
+export default registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineCommentsItemOverview: typeof SunshineCommentsItemOverviewComponent
-  }
-}
+
 

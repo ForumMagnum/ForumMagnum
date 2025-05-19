@@ -1,11 +1,12 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const CommentsList = () => frag`
   fragment CommentsList on Comment {
     _id
     postId
     tagId
     tag {
+      _id
       slug
     }
     relevantTagIds
@@ -24,6 +25,7 @@ registerFragment(`
       wordCount
     }
     postedAt
+    lastEditedAt
     repliesBlockedUntil
     userId
     deleted
@@ -74,19 +76,32 @@ registerFragment(`
     rejectedReason
     modGPTRecommendation
     originalDialogueId
-  }
-`);
 
-registerFragment(`
+    forumEventId
+    forumEventMetadata
+  }
+`
+
+export const CommentsListWithTopLevelComment = () => frag`
   fragment CommentsListWithTopLevelComment on Comment {
     ...CommentsList
     topLevelComment {
       ...CommentsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const UltraFeedComment = () => frag`
+  fragment UltraFeedComment on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+      votingSystem
+    }
+  }
+`
+
+export const ShortformComments = () => frag`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
@@ -96,9 +111,9 @@ registerFragment(`
       ...TagPreviewFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const CommentWithRepliesFragment = () => frag`
   fragment CommentWithRepliesFragment on Comment {
     ...CommentsList
     lastSubthreadActivity
@@ -112,9 +127,9 @@ registerFragment(`
       ...PostsBase
     }
   }
-`);
+`
 
-registerFragment(`
+export const CommentEdit = () => frag`
   fragment CommentEdit on Comment {
     ...CommentsList
     relevantTagIds
@@ -122,9 +137,9 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const DeletedCommentsMetaData = () => frag`
   fragment DeletedCommentsMetaData on Comment {
     _id
     deleted
@@ -136,9 +151,9 @@ registerFragment(`
     deletedReason
     deletedPublic
   }
-`)
+`
 
-registerFragment(`
+export const DeletedCommentsModerationLog = () => frag`
   fragment DeletedCommentsModerationLog on Comment {
     ...DeletedCommentsMetaData
     user {
@@ -150,9 +165,9 @@ registerFragment(`
       _id
     }
   }
-`)
+`
 
-registerFragment(`
+export const CommentsListWithParentMetadata = () => frag`
   fragment CommentsListWithParentMetadata on Comment {
     ...CommentsList
     post {
@@ -163,20 +178,20 @@ registerFragment(`
       ...TagBasicInfo
     }
   }
-`);
+`
 
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
-registerFragment(`
+export const StickySubforumCommentFragment = () => frag`
   fragment StickySubforumCommentFragment on Comment {
     ...CommentWithRepliesFragment
     tag {
       ...TagBasicInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const WithVoteComment = () => frag`
   fragment WithVoteComment on Comment {
     __typename
     _id
@@ -189,18 +204,18 @@ registerFragment(`
     afExtendedScore
     voteCount
   }
-`);
+`
 
-registerFragment(`
+export const CommentsListWithModerationMetadata = () => frag`
   fragment CommentsListWithModerationMetadata on Comment {
     ...CommentWithRepliesFragment
     allVotes {
       voteType
     }
   }
-`);
+`
 
-registerFragment(`
+export const CommentsListWithModGPTAnalysis = () => frag`
   fragment CommentsListWithModGPTAnalysis on Comment {
     ...CommentsList
     post {
@@ -208,9 +223,9 @@ registerFragment(`
     }
     modGPTAnalysis
   }
-`);
+`
 
-registerFragment(`
+export const CommentsForAutocomplete = () => frag`
   fragment CommentsForAutocomplete on Comment {
     _id
     postId
@@ -226,22 +241,59 @@ registerFragment(`
     post {
       ...PostsForAutocomplete
     }
-  }`)
+  }`
 
-registerFragment(`
+/**
+ * Fragment that gets a comment with parents recursed up to 10 times. This was
+ * previously implemented by dynamically constructing a graphql string with a
+ * recursive function, but that didn't work well with codegen so it's now
+ * fully unrolled.
+ */
+export const CommentsForAutocompleteWithParents = () => frag`
   fragment CommentsForAutocompleteWithParents on Comment {
     ...CommentsForAutocomplete
-    ${/* We dynamically construct a fragment that gets the parentComment and its parentComment, etc. for up to 10 levels */ ''}
-    ${((depth: number): string => {
-      const nested = (currentDepth: number): string => currentDepth === 0 ? '' : `
+    parentComment {
+      ...CommentsForAutocomplete
+      parentComment {
+        ...CommentsForAutocomplete
         parentComment {
-          ...CommentsForAutocomplete${nested(currentDepth - 1)}
+          ...CommentsForAutocomplete
+          parentComment {
+            ...CommentsForAutocomplete
+            parentComment {
+              ...CommentsForAutocomplete
+              parentComment {
+                ...CommentsForAutocomplete
+                parentComment {
+                  ...CommentsForAutocomplete
+                  parentComment {
+                    ...CommentsForAutocomplete
+                    parentComment {
+                      ...CommentsForAutocomplete
+                      parentComment {
+                        ...CommentsForAutocomplete
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
-      `;
-    
-      return `parentComment {
-        ...CommentsForAutocomplete${nested(depth - 1)}
-      }`.trim();
-    })(10)}
+      }
+    }
   }
-`);
+`
+
+export const SuggestAlignmentComment = () => frag`
+  fragment SuggestAlignmentComment on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    suggestForAlignmentUserIds
+    suggestForAlignmentUsers {
+      _id
+      displayName
+    }
+  }`

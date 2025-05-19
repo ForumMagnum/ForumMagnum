@@ -1,10 +1,11 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
-import { userCanDo } from "../../../lib/vulcan-users";
+import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "../DropdownItem";
 
 const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -31,8 +32,6 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
       },
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase("Approve New User")}
@@ -41,13 +40,9 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const ApproveNewUserDropdownItemComponent = registerComponent(
+export default registerComponent(
   "ApproveNewUserDropdownItem",
   ApproveNewUserDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    ApproveNewUserDropdownItem: typeof ApproveNewUserDropdownItemComponent
-  }
-}
+

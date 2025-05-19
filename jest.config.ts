@@ -68,6 +68,8 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsIntegrationTest: false,
+    bundleIsCodegen: false,
     bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
@@ -183,7 +185,7 @@ export default {
   // A map from regular expressions to paths to transformers
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": [
-      "esbuild-jest",
+      "<rootDir>/esbuild-jest-vendored.js",
       {
         sourcemap: true,
       },
@@ -198,6 +200,15 @@ export default {
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
     // An incantation found at https://github.com/axios/axios/issues/5101
     '^axios$': require.resolve('axios'),
+    // react-dom/server.edge is apparently needed instead of react-dom/server to avoid this error:
+    // > Uncaught ReferenceError: MessageChannel is not defined
+    // See https://github.com/facebook/react/issues/31827#issuecomment-2563094822
+    // While that issue is in the context of MessageChannel being used by
+    // React Server Components, the issue where this crashes the unit-test
+    // environment for us is actually upon importing draft-convert, which has
+    // nothing to do with that. I guess React 19 contains a broken polyfill or
+    // something?
+    "react-dom/server": "react-dom/server.edge",
   },
 
   // react-instantsearch contains a file (connectors.js) that requires

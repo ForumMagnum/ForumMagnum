@@ -1,7 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isPostAllowedType3Audio } from '../../../lib/collections/posts/helpers';
+import PostsPodcastPlayer from "./PostsPodcastPlayer";
+import T3AudioPlayer from "./T3AudioPlayer";
 
 const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
@@ -13,7 +15,8 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) => {
-  return post.podcastEpisode || isPostAllowedType3Audio(post);
+  return (('podcastEpisode' in post) && post.podcastEpisode)
+    || isPostAllowedType3Audio(post);
 }
 
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
@@ -21,21 +24,14 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
   showEmbeddedPlayer: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { PostsPodcastPlayer, T3AudioPlayer } = Components;
-
   return <>
-    {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+    {('podcastEpisode' in post) && post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
     </div>}
-    {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} postId={post._id}/>}
+    {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
   </>;
 }
 
-const PostsAudioPlayerWrapperComponent = registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapper, {styles});
+export default registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapper, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAudioPlayerWrapper: typeof PostsAudioPlayerWrapperComponent
-  }
-}
+

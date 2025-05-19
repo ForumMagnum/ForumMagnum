@@ -1,6 +1,6 @@
 import React from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -28,8 +28,6 @@ const styles = (_theme: ThemeType) => ({
 const SmallpoxBanner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection } = Components
-  
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>
       <picture>
@@ -41,12 +39,8 @@ const SmallpoxBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-const SmallpoxBannerComponent = registerComponent(
+export default registerComponent(
   'SmallpoxBanner', SmallpoxBanner, {styles},
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    SmallpoxBanner: typeof SmallpoxBannerComponent
-  }
-}
+

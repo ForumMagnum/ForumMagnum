@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { Helmet, componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';
 import BadlyTypedReactMapGL from 'react-map-gl';
 import without from 'lodash/without';
+import LocalEventMarker from "./LocalEventMarker";
+import LocalGroupMarker from "./LocalGroupMarker";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 
@@ -63,7 +65,7 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
         onViewportChange={setViewport}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
       >
-        {post && <Components.LocalEventMarker
+        {post && <LocalEventMarker
           key={post._id}
           event={post}
           location={post.googleLocation}
@@ -71,7 +73,7 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
           handleInfoWindowClose={onInfoWindowClose}
           infoOpen={openWindows.includes(post._id)}
         /> }
-        {group && <Components.LocalGroupMarker
+        {group && <LocalGroupMarker
           key={group._id}
           group={group}
           location={group.googleLocation}
@@ -84,10 +86,6 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
   );
 }
 
-const SmallMapPreviewComponent = registerComponent("SmallMapPreview", SmallMapPreview, {styles});
+export default registerComponent("SmallMapPreview", SmallMapPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SmallMapPreview: typeof SmallMapPreviewComponent
-  }
-}
+

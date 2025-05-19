@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -6,6 +6,10 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "./LinkPostMessage";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
@@ -30,17 +34,18 @@ const styles = (theme: ThemeType) => ({
 const TruncatedSuffix: FC<{
   post: PostsList,
   forceSeeMore?: boolean,
-  wordsLeft: number,
+  wordsLeft: number|null,
   clickExpand: (ev: MouseEvent) => void,
 }> = ({post, forceSeeMore, wordsLeft, clickExpand}) => {
-  if (forceSeeMore || wordsLeft < 1000) {
+  if (forceSeeMore || (wordsLeft && wordsLeft < 1000)) {
     return (
       <Link
         to={postGetPageUrl(post)}
         onClick={clickExpand}
         eventProps={{intent: 'expandPost'}}
       >
-        ({preferredHeadingCase("See More")} – {wordsLeft} more words)
+        {"("}{preferredHeadingCase("See More")}
+        {wordsLeft && <>{" – "}{wordsLeft} more words</>}{")"}
       </Link>
     );
   }
@@ -88,9 +93,9 @@ const HighlightBody = ({
     ev.preventDefault();
   }, [setExpanded]);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
-    <Components.LinkPostMessage post={post} />
-    <Components.ContentItemTruncated
+  return <ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
+    <LinkPostMessage post={post} />
+    <ContentItemTruncated
       maxLengthWords={maxLengthWords}
       graceWords={20}
       rawWordCount={wordCount ?? 0}
@@ -109,8 +114,8 @@ const HighlightBody = ({
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
@@ -140,10 +145,4 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts,
   }} />
 };
 
-const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});
-
-declare global {
-  interface ComponentTypes {
-    PostsHighlight: typeof PostsHighlightComponent
-  }
-}
+export default registerComponent('PostsHighlight', PostsHighlight, {styles});

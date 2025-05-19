@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
-import { Podcasts } from '../../lib/collections/podcasts/collection';
-import { PodcastEpisodes } from '../../lib/collections/podcastEpisodes/collection';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Podcasts } from '../../server/collections/podcasts/collection';
+import { PodcastEpisodes } from '../../server/collections/podcastEpisodes/collection';
+import { Posts } from '../../server/collections/posts/collection';
 
 import razPostToBuzzsproutMappings from './resources/razPostToBuzzsproutMappings.json';
 import curatedPostToBuzzsproutMappings from './resources/curatedPostToBuzzsproutMappings.json';
@@ -36,7 +36,7 @@ const convertEpisodeData = (podcastId: string, episodeData: EpisodeMapping[keyof
   externalEpisodeId: episodeData.externalEpisodeId.toString()
 });
 
-registerMigration({
+export default registerMigration({
   name: 'CreatePodcastsForPosts',
   dateWritten: '2022-08-19',
   idempotent: true,

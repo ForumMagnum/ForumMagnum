@@ -1,12 +1,18 @@
-import React, { useState, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Checkbox from '@material-ui/core/Checkbox';
+import React, { useCallback } from 'react';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
+import type { EditablePost } from '../../lib/collections/posts/helpers';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import SingleUsersItem from "./SingleUsersItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import LWTooltip from "../common/LWTooltip";
 
-const coauthorsListEditorStyles = (theme: ThemeType) => ({
+const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     marginLeft: 8,
@@ -32,7 +38,7 @@ const coauthorsListEditorStyles = (theme: ThemeType) => ({
     color: theme.palette.text.normal,
     cursor: 'pointer'
   },
-});
+}));
 
 type CoauthorListItem = {
   userId: string
@@ -41,54 +47,55 @@ type CoauthorListItem = {
 }
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(coauthorsListEditorStyles);
     return <li className={classes.item}>
-      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
-  value: CoauthorListItem[],
-  document: Partial<DbPost>,
-  classes: ClassesType<typeof coauthorsListEditorStyles>,
-}) => {
-  const [initialValue] = useState(value);
-  const hasPermission = !!document.hasCoauthorPermission;
-  
+interface CoauthorsListEditorProps {
+  field: TypedFieldApi<CoauthorListItem[] | null>;
+  post: EditablePost;
+  label: string;
+}
+
+export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorProps) => {
+  const classes = useStyles(coauthorsListEditorStyles);
+  const value = field.state.value ?? [];
+  const hasPermission = !!post.hasCoauthorPermission;
+
   const toggleHasPermission = () => {
     const newValue = value.map((author) => ({ ...author, confirmed: !hasPermission }));
-    void updateCurrentValues({
-      [path]: newValue,
-      hasCoauthorPermission: !hasPermission,
-    });
+    field.handleChange(newValue);
+    field.form.setFieldValue('hasCoauthorPermission', !hasPermission);
   }
 
-  // Note: currently broken. This component needs to somehow deal with lists of objects instead of strings
   const addUserId = (userId: string) => {
     const newValue = [...value, { userId, confirmed: hasPermission, requested: false }];
-    void updateCurrentValues({ [path]: newValue });
+    field.handleChange(newValue);
   }
 
-  const setValue = useCallback((newValue: any[]) => {
-    void updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+  const setValue = useCallback((newValue: CoauthorListItem[]) => {
+    field.handleChange(newValue);
+  }, [field]);
 
   return (
     <>
       <div className={classes.root}>
-        <Components.ErrorBoundary>
-          <Components.UsersSearchAutoComplete 
-            clickAction={addUserId} 
-            label={document.collabEditorDialogue ? "Add participant" : label} 
+        <ErrorBoundary>
+          <UsersSearchAutoComplete
+            clickAction={addUserId}
+            label={post.collabEditorDialogue ? "Add participant" : label}
             />
-        </Components.ErrorBoundary>
+        </ErrorBoundary>
         <SortableList
           axis="xy"
           value={value.map(v=>v.userId)}
           setValue={(newValue: string[]) => {
             setValue(newValue.map(userId => {
-              const userWithStatus = find(initialValue, u=>u.userId===userId);
+              const userWithStatus = find(value, u=>u.userId===userId);
               return {
                 userId,
                 confirmed: userWithStatus?.confirmed||false,
@@ -97,11 +104,10 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
             }));
           }}
           className={classes.list}
-          classes={classes}
         />
       </div>
       {isEAForum && <div className={classes.checkboxContainer}>
-        <Components.LWTooltip
+        <LWTooltip
           title='If this box is left unchecked then these users will be asked if they want to be co-authors. If you click Publish with pending co-authors, publishing will be delayed for up to 24 hours to allow for co-authors to give permission.'
           placement='left'
         >
@@ -109,18 +115,8 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
             <Checkbox className={classes.checkbox} checked={hasPermission} onChange={toggleHasPermission} />
             These users have agreed to co-author this post
           </InputLabel>
-        </Components.LWTooltip>
+        </LWTooltip>
       </div>}
     </>
   );
-}
-
-const CoauthorsListEditorComponent = registerComponent('CoauthorsListEditor', CoauthorsListEditor, {
-  styles: coauthorsListEditorStyles,
-});
-
-declare global {
-  interface ComponentTypes {
-    CoauthorsListEditor: typeof CoauthorsListEditorComponent
-  }
 }

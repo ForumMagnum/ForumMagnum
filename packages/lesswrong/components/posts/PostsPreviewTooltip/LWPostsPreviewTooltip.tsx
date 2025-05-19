@@ -1,13 +1,22 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
+import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
+import PostsTitle from "../PostsTitle";
+import ContentItemBody from "../../common/ContentItemBody";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import BookmarkButton from "../BookmarkButton";
+import FormatDate from "../../common/FormatDate";
+import Loading from "../../vulcan-core/Loading";
+import ContentStyles from "../../common/ContentStyles";
+import EventTime from "../../localGroups/EventTime";
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -123,8 +132,6 @@ const LWPostsPreviewTooltip = ({
   dialogueMessageInfo,
   classes,
 }: LWPostsPreviewTooltipProps) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
-    Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
   const {document: postWithHighlight, loading} = useSingle({
@@ -203,12 +210,12 @@ const LWPostsPreviewTooltip = ({
             </ContentStyles>
           </div>
           { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton post={post}/>
+            <BookmarkButton documentId={post._id} collectionName="Posts"/>
           </div>}
         </div>
         {renderedComment
           ? <div className={classes.comment}>
-              <CommentsNode
+              <CommentsNodeInner
                 treeOptions={{
                   post,
                   hideReply: true,
@@ -239,10 +246,6 @@ const LWPostsPreviewTooltip = ({
 
 }
 
-const LWPostsPreviewTooltipComponent = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
+export default registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPreviewTooltip: typeof LWPostsPreviewTooltipComponent
-  }
-}
+

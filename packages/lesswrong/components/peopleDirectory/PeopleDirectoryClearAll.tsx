@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,14 +24,10 @@ const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
   );
 }
 
-const PeopleDirectoryClearAllComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryClearAll",
   PeopleDirectoryClearAll,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryClearAll: typeof PeopleDirectoryClearAllComponent
-  }
-}
+

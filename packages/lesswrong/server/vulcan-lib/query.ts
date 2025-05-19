@@ -3,16 +3,15 @@
 Run a GraphQL request from the server with the proper context
 
 */
-import { DocumentNode, graphql, GraphQLError, print, ExecutionResult } from 'graphql';
-import { localeSetting } from '../../lib/publicSettings';
-import { getExecutableSchema } from './apollo-server/initGraphQL';
-import { generateDataLoaders } from './apollo-server/context';
-import { getAllRepos } from '../repos';
-import { collectionNameToTypeName, getCollectionsByName } from '../../lib/vulcan-lib/getCollection';
-import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
-import { getMultiResolverName } from '@/lib/crud/utils';
 import { PrimitiveGraphQLType } from '@/lib/crud/types';
-import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from '@/lib/crud/withSingle';
+import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
+import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
+import { getGraphQLSingleQueryFromOptions } from '@/lib/crud/withSingle';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { DocumentNode, ExecutionResult, graphql, GraphQLError, print } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
+import { typeDefs, resolvers } from './apollo-server/initGraphQL';
+import { createAnonymousContext } from './createContexts';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -33,7 +32,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 
 // note: if no context is passed, default to running requests with full admin privileges
 export const runQuery = async <T = Record<string, any>>(query: string | DocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
-  const executableSchema = getExecutableSchema();
+  const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
   const queryContext = createAnonymousContext(context);
 
   const stringQuery = typeof query === 'string'
@@ -62,9 +61,10 @@ export const runFragmentSingleQuery = async <
   extraVariablesValues?: Record<string, unknown>,
   context?: ResolverContext,
 }) => {
-  const resolverName = getResolverNameFromOptions(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName);
 
-  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
     input: { selector: { documentId }, resolverArgs: extraVariablesValues },
@@ -87,10 +87,10 @@ export const runFragmentMultiQuery = async <
   extraVariablesValues?: Record<string, unknown>,
   context?: ResolverContext,
 }) => {
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getMultiResolverName(typeName);
 
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
     input: { terms, resolverArgs: extraVariablesValues },
@@ -101,30 +101,3 @@ export const runFragmentMultiQuery = async <
 
   return result.data?.[resolverName]?.results ?? [];
 };
-
-export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
-  const queryContext = {
-    userId: null,
-    clientId: null,
-    visitorActivity: null,
-    currentUser: null,
-    headers: null,
-    locale: localeSetting.get(),
-    isSSR: false,
-    isGreaterWrong: false,
-    repos: getAllRepos(),
-    ...getCollectionsByName(),
-    ...generateDataLoaders(),
-    ...options,
-  };
-  
-  return queryContext;
-}
-export const createAdminContext = (options?: Partial<ResolverContext>): ResolverContext => {
-  return {
-    ...createAnonymousContext(),
-    // HACK: Instead of a full user object, this is just a mostly-empty object with isAdmin set to true
-    currentUser: {isAdmin: true} as DbUser,
-    ...options,
-  };
-}

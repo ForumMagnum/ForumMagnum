@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -7,9 +7,17 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId, getVotingPhaseEnd, getNominationPhaseEndDisplay, getReviewPhaseEndDisplay, getVotingPhaseEndDisplay } from '../../lib/reviewUtils';
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import SectionTitle from "../common/SectionTitle";
+import SettingsButton from "../icons/SettingsButton";
+import LWTooltip from "../common/LWTooltip";
+import PostsList2 from "../posts/PostsList2";
+import ReviewProgressReviews from "./ReviewProgressReviews";
+import ReviewProgressVoting from "./ReviewProgressVoting";
+import ReviewProgressNominations from "./ReviewProgressNominations";
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -41,7 +49,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   reviewSectionTitle: {
-  marginBottom: -2
+    marginTop: -24,
+    marginBottom: -2,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: -16,
+    }
   },
   reviewPhaseTitle: {
     fontSize: "3rem",
@@ -199,10 +211,14 @@ export function ReviewOverviewTooltip() {
   const nominationStartDate = getReviewStart(REVIEW_YEAR)
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
   const reviewEndDate = getReviewPhaseEnd(REVIEW_YEAR)
-  const voteEndDate = getResultsPhaseEnd(REVIEW_YEAR)
-  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDate.format('MMM Do')}</span>
-  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
-  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
+
+  const nominationEndDateDisplay = getNominationPhaseEndDisplay(REVIEW_YEAR)
+  const reviewEndDateDisplay = getReviewPhaseEndDisplay(REVIEW_YEAR)
+  const voteEndDateDisplay = getVotingPhaseEndDisplay(REVIEW_YEAR)
+
+  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDateDisplay.format('MMM Do')}</span>
+  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDateDisplay.format('MMM Do')}</span>
+  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDateDisplay.format('MMM Do')}</span>
   
   return <div>
     <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
@@ -217,13 +233,16 @@ export function ReviewOverviewTooltip() {
 }
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations } = Components
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)
   const nominationEndDate = getNominationPhaseEnd(reviewYear)
   const reviewEndDate = getReviewPhaseEnd(reviewYear)
-  const voteEndDate = getResultsPhaseEnd(reviewYear)
+  const voteEndDate = getVotingPhaseEnd(reviewYear)
+
+  const nominationEndDateDisplay = getNominationPhaseEndDisplay(reviewYear)
+  const reviewEndDateDisplay = getReviewPhaseEndDisplay(reviewYear)
+  const voteEndDateDisplay = getVotingPhaseEndDisplay(reviewYear)
 
   // These should be calculated at render
   const currentDate = moment.utc()
@@ -268,7 +287,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <div className={classes.nominationBlock}>
       <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Nomination Voting</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDateDisplay.format('MMM Do')}</div>
         {activeRange === "NOMINATIONS" && <div
           className={classes.coloredProgress}
           style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
@@ -278,14 +297,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <div className={classes.reviewBlock}>     
       <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Discussion</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDateDisplay.format('MMM Do')}</div>
         {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
       </LWTooltip>   
     </div>
     <div className={classes.votingBlock}>
       <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDate.format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDateDisplay.format('MMM Do')}</div>
         {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
       </LWTooltip>
     </div>
@@ -368,9 +387,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <PostsList2 
       itemsPerPage={10}
       terms={{
-        view:"reviewVoting",
-        before: `${reviewYear+1}-01-01`,
-        after: `${reviewYear}-01-01`,
+        view:"frontpageReviewWidget",
+        reviewYear: reviewYear,
         limit: 3,
       }}
     >
@@ -402,6 +420,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
               <SettingsButton showIcon={false} label={`What is this?`}/>
             </Link>
           </LWTooltip>}
+          {!showFrontpageItems && userIsAdmin(currentUser) && <Link to={`/reviewAdmin/${reviewYear}`}><SettingsButton showIcon={false} label={`Admin Dashboard`}/></Link>}
         </SectionTitle>
 
         {reviewTimeline}
@@ -443,10 +462,6 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
   return result.toFixed(2)
 }
 
-const FrontpageReviewWidgetComponent = registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
+export default registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FrontpageReviewWidget: typeof FrontpageReviewWidgetComponent
-  }
-}
+

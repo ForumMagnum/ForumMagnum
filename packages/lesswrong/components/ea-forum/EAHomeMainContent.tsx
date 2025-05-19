@@ -1,12 +1,16 @@
 import React, {ComponentType, useState} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
-import {tagPostTerms} from '../tagging/TagPage'
+import {tagPostTerms} from '../tagging/TagPageUtils'
 import {Link} from '../../lib/reactRouterWrapper'
-import {TopicsBarTab} from '../common/HomeTagBar'
+import HomeTagBar, {TopicsBarTab } from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
 import { isFriendlyUI } from '../../themes/forumTheme'
 import { PostsListViewProvider } from '../hooks/usePostsListView'
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import PostsListViewToggle from "../posts/PostsListViewToggle";
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
@@ -87,11 +91,6 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
     sortedBy: 'magic',
     limit: 30
   }
-
-  const {
-    SingleColumnSection, SectionTitle, PostsList2, HomeTagBar,
-    PostsListViewToggle,
-  } = Components;
   return (
     <PostsListViewProvider>
       <HomeTagBar onTagSelectionUpdated={setActiveTab} sortTopics={sortTopics} frontpageTab={frontpageTab}/>
@@ -122,10 +121,6 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
   )
 }
 
-const EAHomeMainContentComponent = registerComponent('EAHomeMainContent', EAHomeMainContent, {styles});
+export default registerComponent('EAHomeMainContent', EAHomeMainContent, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeMainContent: typeof EAHomeMainContentComponent
-  }
-}
+

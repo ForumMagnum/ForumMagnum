@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -10,6 +10,8 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import classNames from 'classnames';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +50,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
-  const { MetaInfo, FormatDate } = Components
   const user = hit as SearchUser
   
   const isSubscribed = existingSubscriptionIds?.includes(user._id);
@@ -99,7 +100,7 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
     fragmentName: "SubscriptionState",
   });
 
-  const existingSubscriptionIds = results?.map(sub => sub.documentId) ?? [];
+  const existingSubscriptionIds = results?.map(sub => sub.documentId).filter(id => id !== null) ?? [];
   
 
   // When this appears, yield to the event loop once, use getElementsByTagName
@@ -163,10 +164,6 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
   </div>
 }
 
-const FollowUserSearchComponent = registerComponent("FollowUserSearch", FollowUserSearch, {styles});
+export default registerComponent("FollowUserSearch", FollowUserSearch, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FollowUserSearch: typeof FollowUserSearchComponent
-  }
-}
+

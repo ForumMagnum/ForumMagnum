@@ -1,10 +1,10 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const TypingIndicatorInfo = () => frag`
   fragment TypingIndicatorInfo on TypingIndicator {
     _id
     userId
     documentId
     lastUpdated
   }
-`);
+`

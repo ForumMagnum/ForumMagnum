@@ -1,8 +1,7 @@
 import { Application, Request, Response, json } from "express";
 import { ZodType, z } from "zod";
-import { Utils } from "@/lib/vulcan-lib";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
-import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
+import { assertCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   ApiError,
@@ -26,9 +25,9 @@ import {
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { updateMutator } from "../vulcan-lib";
-import { Posts } from "@/lib/collections/posts";
-import Users from "@/lib/collections/users/collection";
+import { createPost, updatePost } from "../collections/posts/mutations";
+import Posts from "@/server/collections/posts/collection";
+import Users from "@/server/collections/users/collection";
 
 const onRequestError = (
   req: Request,
@@ -104,7 +103,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
       }
       const user = await accessFilterSingle(
         context.currentUser,
-        Users,
+        "Users",
         rawUser,
         context,
       );
@@ -128,7 +127,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
       }
       const post = await accessFilterSingle(
         context.currentUser,
-        Posts,
+        "Posts",
         rawPost,
         context,
       );
@@ -149,7 +148,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
       if (!currentUser) {
         throw new UnauthorizedError();
       }
-      validateCrosspostingKarmaThreshold(currentUser);
+      assertCrosspostingKarmaThreshold(currentUser);
       const token = await connectCrossposterToken.create({
         userId: currentUser._id,
       });
@@ -204,8 +203,8 @@ export const addV2CrosspostHandlers = (app: Application) => {
         throw new InvalidUserError();
       }
 
-      const {data: post} = await Utils.createMutator({
-        document: {
+      const post = await createPost({
+        data: {
           userId: user._id,
           fmCrosspost: {
             isCrosspost: true,
@@ -213,15 +212,15 @@ export const addV2CrosspostHandlers = (app: Application) => {
             foreignPostId: postId,
           },
           ...postData,
+          contents: {
+            ...postData.contents,
+            originalContents: postData.contents?.originalContents ?? {
+              type: "ckEditorMarkup",
+              data: "",
+            },
+          },
         },
-        collection: context.Posts,
-        validate: false,
-        currentUser: user,
-        context: {
-          ...context,
-          isFMCrosspostRequest: true,
-        },
-      });
+      }, { ...context, currentUser: user, isFMCrosspostRequest: true });
 
       return {
         status: "posted" as const,
@@ -246,14 +245,11 @@ export const addV2CrosspostHandlers = (app: Application) => {
         throw new InvalidUserError();
       }
 
-      await updateMutator({
-        collection: Posts,
-        documentId: postId,
-        set: postData,
-        currentUser,
-        validate: false,
-        context,
-      });
+      await updatePost({
+        selector: {_id: postId},
+        data: postData,
+      }, {...context, currentUser});
+
       return {status: "updated" as const};
     },
   );

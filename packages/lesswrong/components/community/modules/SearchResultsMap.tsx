@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
-import PersonIcon from '@material-ui/icons/PersonPin';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
 import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import StyledMapPopup from "../../localGroups/StyledMapPopup";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -113,9 +115,6 @@ const SearchResultsMap = ({
   }, [hits])
 
   const mapStyle = useMapStyle();
-
-  const { StyledMapPopup } = Components
-  
   return <div className={classNames(classes.root, className)}>
     <Helmet>
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -145,7 +144,7 @@ const SearchResultsMap = ({
             lng={markerLocations[hit._id].lng}
             link={`/users/${hit.slug}?from=${from}`}
             title={<div className={classes.popupTitle}>
-              {hit.profileImageId && <Components.CloudinaryImage2
+              {hit.profileImageId && <CloudinaryImage2
                 height={50}
                 width={50}
                 imgProps={{q: '100'}}
@@ -178,12 +177,8 @@ type SearchResultsMapProps = {
   className?: string
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
-const SearchResultsMapComponent = registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
-const RawSearchResultsMapComponent = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SearchResultsMap: typeof SearchResultsMapComponent
-    RawSearchResultsMap: typeof RawSearchResultsMapComponent
-  }
-}
+export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
+export default registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
+
+

@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 
@@ -25,10 +25,6 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   }
 }
 
-const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
+export default registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AlignmentCrosspostMessage: typeof AlignmentCrosspostMessageComponent
-  }
-}
+
