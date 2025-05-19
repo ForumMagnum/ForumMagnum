@@ -15,7 +15,7 @@ import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHover
 import ConditionalVisibilityBlockDisplay from "../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
 import CollapsedFootnotes from "../posts/PostsPage/CollapsedFootnotes";
 import ElicitBlock from "../posts/ElicitBlock";
-import WrappedStrawPoll from "./WrappedStrawPoll";
+import { WrappedStrawPoll } from "./WrappedStrawPoll";
 import ForumEventPostPagePollSection from "../forumEvents/ForumEventPostPagePollSection";
 import { shallowEqualExcept } from '@/lib/utils/componentUtils';
 import { HorizScrollBlock } from './HorizScrollBlock';

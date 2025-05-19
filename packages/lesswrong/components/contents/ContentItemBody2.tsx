@@ -11,6 +11,7 @@ import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBl
 import ElicitBlock from '../posts/ElicitBlock';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes2 } from './CollapsedFootnotes2';
+import { WrappedStrawPoll2 } from '../common/WrappedStrawPoll';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -31,8 +32,8 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   markConditionallyVisibleBlocks
  *   markElicitBlocks
  *   collapseFootnotes
- * Functionality from ContentItemBody which is not yet implemented:
  *   wrapStrawPoll
+ * Functionality from ContentItemBody which is not yet implemented:
  *   addCTAButtonEventListeners
  *   replaceForumEventPollPlaceholders
  *   exposeInternalIds
@@ -154,7 +155,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         }
       }
       if (classNames.includes("strawpoll-embed")) {
-        // TODO: wrapStrawPoll
+        result = <WrappedStrawPoll2>
+          {result}
+        </WrappedStrawPoll2>
       }
       if (classNames.includes("ck-cta-button")) {
         // TODO: addCTAButtonEventListeners CTA button event listeners
@@ -223,9 +226,21 @@ function translateAttribs(attribs: Record<string,string>): Record<string,any> {
   }
   return attribsCopy;
 }
+
+/**
+ * Mapping from HTML attribute names as they appear in HTML, to attribute names as React
+ * wants them (ie, with camel-casing). Missing mappings will cause warnings from React,
+ *  which look like:
+ *   ```Invalid DOM property `allowfullscreen`. Did you mean `allowFullScreen`?```
+ * Which don't break anything important but are spammy.
+ */
 const mapAttributeNames: Record<string,string> = {
   "srcset": "srcSet",
   "class": "className",
+  "colspan": "colSpan",
+  "columnspan": "columnSpan",
+  "rowspan": "rowSpan",
+  "allowfullscreen": "allowFullScreen",
 }
 
 function camelCaseCssAttribute(input: string) {
