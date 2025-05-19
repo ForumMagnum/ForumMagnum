@@ -7253,7 +7253,6 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [PostMetadataInput!]
   hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
