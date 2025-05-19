@@ -107,11 +107,27 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     case htmlparser2.ElementType.CDATA:
     case htmlparser2.ElementType.Directive:
     case htmlparser2.ElementType.Root:
-    case htmlparser2.ElementType.Script:
-    case htmlparser2.ElementType.Style:
       return null;
 
-    case htmlparser2.ElementType.Tag:
+    case htmlparser2.ElementType.Script: {
+      // Embedded script tag. This can appear in posts/etc if they were last edited
+      // by an admin (otherwise the validator will have stripped it out.)
+      const scriptText: string = parsedHtml.childNodes
+        .map((c,i) => c.type === htmlparser2.ElementType.Text ? c.data : "")
+        .join("");
+      return <script>{scriptText}</script>;
+    }
+    case htmlparser2.ElementType.Style: {
+      // Embedded script tag. This can appear in posts/etc if they were last edited
+      // by an admin (otherwise the validator will have stripped it out.) All children
+      // must be text nodes.
+      const styleText: string = parsedHtml.childNodes
+        .map((c,i) => c.type === htmlparser2.ElementType.Text ? c.data : "")
+        .join("");
+      return <style>{styleText}</style>;
+    }
+
+    case htmlparser2.ElementType.Tag: {
       const TagName = parsedHtml.tagName.toLowerCase() as any;
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
@@ -220,6 +236,8 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       } else {
         return <TagName {...attribs}/>
       }
+    }
+
     case htmlparser2.ElementType.Text:
       return parsedHtml.data;
 
