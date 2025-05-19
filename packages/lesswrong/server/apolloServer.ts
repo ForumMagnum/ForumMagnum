@@ -1,8 +1,8 @@
 import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, isE2E } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
+import { isDevelopment } from '../lib/executionEnvironment';
+import { renderWithCache, getThemeOptionsFromReq, handleRequest } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
@@ -14,28 +14,21 @@ import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
 
 import * as Sentry from '@sentry/node';
-import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
-import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { clientIdMiddleware } from './clientIdMiddleware';
-import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
-import { renderJssSheetImports, renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
@@ -44,75 +37,18 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib/createContexts';
-import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
-import { SSRMetadata } from '../lib/utils/timeUtil';
-import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
-import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
-import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
-import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
+import express from 'express';
 
-/**
- * End-to-end tests automate interactions with the page. If we try to, for
- * instance, click on a button before the page has been hydrated then the "click"
- * will occur but nothing will happen as the event listener won't be attached
- * yet which leads to flaky tests. To avoid this we add some static styles to
- * the top of the SSR'd page which are then manually deleted _after_ React
- * hydration has finished. Be careful editing this - it would ve very bad for
- * this to end up in production builds.
- */
-const ssrInteractionDisable = isE2E
-  ? `
-    <style id="ssr-interaction-disable">
-      #react-app * {
-        display: none;
-      }
-    </style>
-  `
-  : "";
-
-/**
- * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
- */
-const maybePrefetchResources = ({
-  request,
-  response,
-  parsedRoute,
-  prefetchPrefix
-}: {
-  request: express.Request;
-  response: express.Response;
-  parsedRoute: RouterLocation,
-  prefetchPrefix: string;
-}) => {
-
-  const maybeWritePrefetchedResourcesToResponse = async () => {
-    const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
-    const prefetchResources =
-      typeof enableResourcePrefetch === "function"
-        ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
-        : enableResourcePrefetch;
-
-    if (prefetchResources) {
-      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      trySetResponseStatus({ response, status: 200 });
-      response.write(prefetchPrefix);
-    }
-    return prefetchResources;
-  };
-
-  return maybeWritePrefetchedResourcesToResponse;
-};
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -369,145 +305,7 @@ export function startWebserver() {
     }
   });
 
-  app.get('*', async (request, response) => {
-    response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
-
-    const bundleHash = getClientBundle().resource.hash;
-    const clientScript = enableVite
-      ? ""
-      : `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
-    const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
-
-    // Check whether the requested route has enableResourcePrefetch. If it does,
-    // we send HTTP status and headers early, before we actually rendered the
-    // page, so that the browser can get started on loading the stylesheet and
-    // JS bundle while SSR is still in progress.
-    const parsedRoute = parseRoute({
-      location: parsePath(request.url)
-    });
-    
-    const user = getUserFromReq(request);
-    const themeOptions = getThemeOptionsFromReq(request, user);
-    const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
-    const jssStylePreload = renderJssSheetPreloads(themeOptions);
-    const externalStylesPreload = globalExternalStylesheets.map(url =>
-      `<link rel="stylesheet" type="text/css" href="${url}">`
-    ).join("");
-    
-    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
-
-    // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable. If the response is cacheable (same html may be used
-    // by multiple tabs), this is generated in `clientStartup.ts` instead.
-    const tabId = responseIsCacheable(response) ? null : randomId();
-    
-    const jssSheetImports = renderJssSheetImports(themeOptions);
-    
-    const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
-
-    // The part of the header which can be sent before the page is rendered.
-    // This includes an open tag for <html> and <head> but not the matching
-    // close tags, since there's stuff inside that depends on what actually
-    // gets rendered. The browser will pick up any references in the still-open
-    // tag and start fetching the, without waiting for the closing tag.
-    const prefetchPrefix = (
-      '<!doctype html>\n'
-      + '<html lang="en">\n'
-      + '<head>\n'
-        + jssStylePreload
-        + externalStylesPreload
-        + ssrInteractionDisable
-        + instanceSettingsHeader
-        + faviconHeader
-        // Embedded script tags that must precede the client bundle
-        + publicSettingsHeader
-        + embedAsGlobalVar("tabId", tabId)
-        + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
-        // The client bundle. Because this uses <script async>, its load order
-        // relative to any scripts that come later than this is undetermined and
-        // varies based on timings and the browser cache.
-        + clientScript
-        + themeOptionsHeader
-    );
-    
-    const isStreaming = !!parsedRoute.currentRoute?.enableSuspenseStreaming;
-
-    // Note: this may write to the response
-    let prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
-    
-    if (isStreaming) {
-      await prefetchResourcesPromise();
-      prefetchResourcesPromise = async () => true
-      response.write(jssSheetImports + "</head>");
-    }
-
-    const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, prefetchResourcesPromise, isStreaming))
-      : renderWithCache(request, response, user, tabId, prefetchResourcesPromise, isStreaming);
-
-    const renderResult = await renderResultPromise;
-
-    if (renderResult.aborted) {
-      trySetResponseStatus({ response, status: 499 });
-      response.end();
-      return;
-    }
-
-    const prefetchingResources = await renderResult.prefetchedResources;
-
-    const {
-      ssrBody,
-      headers,
-      serializedApolloState,
-      serializedForeignApolloState,
-      jssSheets,
-      status,
-      redirectUrl,
-      renderedAt,
-      timezone,
-      cacheFriendly,
-      allAbTestGroups,
-    } = renderResult;
-    
-    // Finally send generated HTML with initial data to the client
-    if (redirectUrl) {
-      // eslint-disable-next-line no-console
-      console.log(`Redirecting to ${redirectUrl}`);
-      const absoluteRedirectUrl = urlIsAbsolute(redirectUrl) ? redirectUrl : makeAbsolute(redirectUrl);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(absoluteRedirectUrl);
-    } else {
-      trySetResponseStatus({ response, status: status || 200 });
-      const ssrMetadata: SSRMetadata = {
-        renderedAt: renderedAt.toISOString(),
-        cacheFriendly,
-        timezone
-      }
-
-      if (!isStreaming) {
-        response.write(
-          (prefetchingResources ? '' : prefetchPrefix)
-            + headers.join('\n')
-            + themeOptionsHeader
-            + jssSheets
-          + '</head>\n'
-          + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-            + ssrBody + '\n'
-          + '</body>\n'
-        );
-      }
-
-      response.write(
-        embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
-        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
-        + serializedApolloState + '\n'
-        + serializedForeignApolloState + '\n'
-        + '</html>\n')
-      response.end();
-    }
-  })
+  app.get('*', async (request, response) => handleRequest(request, response));
 
   // Start Server
   const listenPort = getCommandLineArguments().listenPort;
