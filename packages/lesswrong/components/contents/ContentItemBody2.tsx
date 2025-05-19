@@ -12,6 +12,9 @@ import ElicitBlock from '../posts/ElicitBlock';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes2 } from './CollapsedFootnotes2';
 import { WrappedStrawPoll2 } from '../common/WrappedStrawPoll';
+import { validateUrl } from '@/lib/vulcan-lib/utils';
+import { captureEvent } from '@/lib/analyticsEvents';
+import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -24,7 +27,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * ContentItemBody, by parsing and recursing through an HTML parse tree rather
  * than doing post-mount modifications.
  *
- * Functionality from ContentItemBody which is supported:
+ * Functionality from the old ContentItemBody which is supported:
  *   markHoverableLinks
  *   markScrollableBlocks
  *   replaceSubstrings
@@ -33,7 +36,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   markElicitBlocks
  *   collapseFootnotes
  *   wrapStrawPoll
- * Functionality from ContentItemBody which is not yet implemented:
+ * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
  *   replaceForumEventPollPlaceholders
  *   exposeInternalIds
@@ -160,13 +163,35 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         </WrappedStrawPoll2>
       }
       if (classNames.includes("ck-cta-button")) {
-        // TODO: addCTAButtonEventListeners CTA button event listeners
+        if (attribs['data-href']) {
+          attribs.href = validateUrl(attribs['data-href']);
+        }
+        const originalOnClick = attribs['onClick'];
+        attribs['onClick'] = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+          captureEvent("ctaButtonClicked", {href: attribs['data-href']});
+          originalOnClick?.(ev);
+        }
       }
       if (classNames.includes("ck-poll")) {
-        // TODO: replaceForumEventPollPlaceholders
+        const forumEventId = attribs['data-internal-id'];
+        if (forumEventId) {
+          return <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />
+        }
       }
       if (attribs['data-internal-id']) {
-        // TODO: exposeInternalIds
+        // If the element has a data-internal-id attribute, translate it into `id`. This is used in
+        // some ckeditor plugins (Google Docs import, ckeditor5-poll, internal-block-links) to
+        // support internal linking.
+        // If the element already has an ID, create a wrapper span with the added ID. Otherwise add
+        // it to the element.
+        // TODO: The previous implementation of this also checked the document for elements with
+        // the same ID, which is not implemented here (and is complicated significantly by render
+        // timings). I'm not sure whether that's actually important.
+        if (attribs.id) {
+          result = <span id={attribs['data-internal-id']}>{result}</span>
+        } else {
+          attribs.id = attribs['data-internal-id'];
+        }
       }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
