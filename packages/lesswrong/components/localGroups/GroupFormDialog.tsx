@@ -103,7 +103,6 @@ const LocalGroupForm = ({
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
       organizerIds: initialData ? initialData.organizerIds : [currentUser._id],
       bannerImageId: initialData?.bannerImageId ?? null,
-      deleted: initialData?.deleted ?? false,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -354,17 +353,16 @@ const LocalGroupForm = ({
         </div>
       )}
 
-      {/* <div className={classes.formSubmit}> */}
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
-            <GroupFormSubmit
-              formApi={form}
-              document={form.state.values}
-              formType={formType}
-            />
-          )}
-        </form.Subscribe>
-      {/* </div> */}
+      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+        {([canSubmit, isSubmitting]) => (
+          <GroupFormSubmit
+            formApi={form}
+            document={form.state.values}
+            formType={formType}
+            disabled={!canSubmit || isSubmitting}
+          />
+        )}
+      </form.Subscribe>
     </form>
   );
 };
