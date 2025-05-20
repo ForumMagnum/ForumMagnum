@@ -11,7 +11,8 @@ import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 import { useDialog } from "../common/withDialog";
-import BookmarkButton, { bookmarkableCollectionNames } from "../posts/BookmarkButton";
+import { bookmarkableCollectionNames } from "@/lib/collections/bookmarks/constants";
+import BookmarkButton from "../posts/BookmarkButton";
 import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
@@ -46,6 +47,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
   },
   commentCount: {
+    position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "flex",
     alignItems: "center",
@@ -56,9 +58,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       [theme.breakpoints.down('sm')]: {
         height: 20,
         width: 20,
-        top: 2,
       },
     },
+    [theme.breakpoints.down('sm')]: {
+      top: 2,
+    }
   },
   commentCountClickable: {
     cursor: "pointer",
@@ -68,14 +72,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCountText: {
     marginLeft: 4,
-    [theme.breakpoints.down('sm')]: {
-      position: 'relative',
-    }
   },
   addReactionButton: {
     opacity: 0.7,
     position: "relative",
-    top: 1,
+    top: 0,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
     marginRight: 6,
@@ -106,7 +107,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   bookmarkButton: {
     position: "relative", 
-    top: 3,
+    top: 2,
     opacity: 0.7,
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
@@ -127,13 +128,23 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
   },
   overallVoteButtons: {
+    position: 'relative',
+    top: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 3,
     }
   },
   agreementButtons: {
+    position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
-    marginLeft: -8
+    top: 1,
+    marginLeft: -8,
+    [theme.breakpoints.down('sm')]: {
+      top: 3,
+    }
   },
   footerVoteScoreOverride: {
     fontSize: `${theme.typography.body2.fontSize}px !important`, 
@@ -227,9 +238,10 @@ const UltraFeedItemFooterCore = ({
       className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
     >
       <CommentIcon />
-      {commentCount && <span className={classes.commentCountText}>
-        {commentCount}
-      </span>}
+      {(commentCount ?? 0 > 0) 
+        ? <span className={classes.commentCountText}>{commentCount}</span>
+        : null
+      }
     </div>
   );
 

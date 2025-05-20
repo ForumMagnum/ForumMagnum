@@ -17,6 +17,8 @@ export function getDbIndexesOnVotes() {
   
   indexSet.addIndex("Votes", {collectionName: 1, userId: 1, voteType: 1, cancelled: 1, isUnvote: 1, votedAt: 1})
 
+  indexSet.addIndex("Votes", {userId: 1, collectionName: 1, cancelled: 1, votedAt: 1})
+
   indexSet.addIndex("Votes", {documentId:1});
 
   return indexSet;

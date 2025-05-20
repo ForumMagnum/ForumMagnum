@@ -3731,6 +3731,8 @@ interface UltraFeedPostFragment_contents { // fragment on Revisions
   readonly html: string|null,
   readonly htmlHighlight: string,
   readonly wordCount: number,
+  readonly plaintextDescription: string,
+  readonly version: string,
 }
 
 interface UnclaimedReportsList { // fragment on Reports

@@ -8,9 +8,9 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
-    width: SECTION_WIDTH,
-    marginLeft: "auto",
-    marginRight: "auto",
+    maxWidth: SECTION_WIDTH,
+    marginLeft: -8,
+    marginRight: -8,
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
   },

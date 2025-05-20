@@ -3342,7 +3342,6 @@ CREATE TABLE "Users" (
   "collapseModerationGuidelines" BOOL,
   "bannedUserIds" VARCHAR(27) [],
   "bannedPersonalUserIds" VARCHAR(27) [],
-  "bookmarkedPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
   "hiddenPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
   "legacyId" TEXT,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
@@ -3695,6 +3694,14 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_i
   "voteType",
   "cancelled",
   "isUnvote",
+  "votedAt"
+);
+
+-- Index "idx_Votes_userId_collectionName_cancelled_votedAt"
+CREATE INDEX IF NOT EXISTS "idx_Votes_userId_collectionName_cancelled_votedAt" ON "Votes" USING btree (
+  "userId",
+  "collectionName",
+  "cancelled",
   "votedAt"
 );
 

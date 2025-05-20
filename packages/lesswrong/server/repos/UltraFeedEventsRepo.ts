@@ -19,10 +19,8 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
     sessionId: string,
     lookbackHours = 48
   ): Promise<Set<string>> {
-    const db = this.getRawDb();
-
     // Fetch relevant 'served' comment events for the session
-    const servedEvents = await db.manyOrNone<{ documentId: string, itemIndex: number | null, commentIndex: number | null }>(`
+    const servedEvents = await this.getRawDb().manyOrNone<{ documentId: string, itemIndex: number | null, commentIndex: number | null }>(`
       -- UltraFeedEventsRepo.getRecentlyServedCommentThreadHashes
       SELECT
           "documentId", -- The comment ID
@@ -47,7 +45,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
 
     // Group events by the itemIndex they appeared at in the feed
     // Filter out any groups with null itemIndex just in case
-    const groupedByItemIndex = groupBy(servedEvents.filter(e => e.itemIndex !== null), 'itemIndex');
+    const groupedByItemIndex = groupBy(servedEvents.filter((e: { itemIndex: number | null }) => e.itemIndex !== null), 'itemIndex');
 
     const servedThreadHashes = new Set<string>();
 

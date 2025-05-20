@@ -39,10 +39,16 @@ const BookmarksFeed = () => {
 
   const settings: UltraFeedSettingsType = {
     ...DEFAULT_SETTINGS,
-    postTruncationBreakpoints: [50, 2000],
-    commentTruncationBreakpoints: [50, 500, 1000],
-    postTitlesAreModals: true,
-    incognitoMode: true, 
+    displaySettings: {
+      ...DEFAULT_SETTINGS.displaySettings,
+      postTruncationBreakpoints: [50, 2000],
+      commentTruncationBreakpoints: [50, 500, 1000],
+      postTitlesAreModals: true,
+    },
+    resolverSettings: {
+      ...DEFAULT_SETTINGS.resolverSettings,
+      incognitoMode: true,
+    },
   };
 
   return (

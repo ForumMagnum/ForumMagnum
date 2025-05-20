@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { 
-  UltraFeedSettingsType, 
+  UltraFeedSettingsType,
   DEFAULT_SOURCE_WEIGHTS, 
   DEFAULT_SETTINGS,
   TruncationLevel,
@@ -11,7 +11,9 @@ import {
   getFirstCommentLevel,
   getPostBreakpointLevel,
   SettingsFormState,
-  TruncationGridFields,
+  ThreadInterestModelFormState,
+  CommentScoringFormState,
+  DisplaySettingsFormState
 } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -22,10 +24,26 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { 
   ultraFeedSettingsSchema, 
   UltraFeedSettingsZodErrors,
-  ValidatedUltraFeedSettings
+  ValidatedUltraFeedSettings,
+  ValidatedCommentScoring,
+  ValidatedThreadInterestModel
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
-import { SourceWeightsSettings, TruncationGridSettings, AdvancedTruncationSettings, MultipliersSettings, MiscSettings } from "./settingsComponents/UltraFeedSettingsComponents";
+import mergeWith from 'lodash/mergeWith';
+import cloneDeep from 'lodash/cloneDeep';
+import {
+  SourceWeightsSettings,
+  TruncationGridSettings,
+  AdvancedTruncationSettings,
+  MultipliersSettings,
+  MiscSettings,
+  ExploreExploitBiasSettings,
+  ThreadInterestTuningSettings,
+  AdvancedTruncationSettingsProps,
+  ExploreExploitBiasSettingsProps,
+  TruncationGridSettingsProps,
+  MiscSettingsProps
+} from "./settingsComponents/UltraFeedSettingsComponents";
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -121,6 +139,167 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
+// Helper components for Simple and Advanced views
+interface SimpleViewProps {
+  exploreExploitBiasProps: ExploreExploitBiasSettingsProps;
+  sourceWeights: SettingsFormState['sourceWeights'];
+  sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
+  onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
+  truncationGridProps: TruncationGridSettingsProps;
+  miscSettingsProps: MiscSettingsProps;
+}
+
+const SimpleView: React.FC<SimpleViewProps> = ({
+  exploreExploitBiasProps,
+  sourceWeights,
+  sourceWeightErrors,
+  onSourceWeightChange,
+  truncationGridProps,
+  miscSettingsProps,
+}) => (
+  <>
+    <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
+    <SourceWeightsSettings
+      weights={sourceWeights}
+      errors={sourceWeightErrors}
+      onChange={onSourceWeightChange}
+    />
+    <TruncationGridSettings {...truncationGridProps} defaultOpen={true} />
+    <MiscSettings {...miscSettingsProps} defaultOpen={false} />
+  </>
+);
+
+interface AdvancedViewProps {
+  sourceWeights: SettingsFormState['sourceWeights'];
+  sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
+  onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
+  advancedTruncationProps: AdvancedTruncationSettingsProps;
+  commentScoringFormValues: CommentScoringFormState;
+  commentScoringErrors: ZodFormattedError<ValidatedCommentScoring, string> | null;
+  onCommentScoringFieldChange: (field: keyof CommentScoringFormState, value: number | string) => void;
+  threadInterestModelFormValues: ThreadInterestModelFormState;
+  threadInterestModelErrors: ZodFormattedError<ValidatedThreadInterestModel, string> | null;
+  onThreadInterestFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
+  miscSettingsProps: MiscSettingsProps;
+}
+
+const AdvancedView: React.FC<AdvancedViewProps> = ({
+  sourceWeights,
+  sourceWeightErrors,
+  onSourceWeightChange,
+  advancedTruncationProps,
+  commentScoringFormValues,
+  commentScoringErrors,
+  onCommentScoringFieldChange,
+  threadInterestModelFormValues,
+  threadInterestModelErrors,
+  onThreadInterestFieldChange,
+  miscSettingsProps,
+}) => (
+  <>
+    <SourceWeightsSettings
+      weights={sourceWeights}
+      errors={sourceWeightErrors}
+      onChange={onSourceWeightChange}
+    />
+    <AdvancedTruncationSettings {...advancedTruncationProps} />
+    <MultipliersSettings
+      formValues={commentScoringFormValues}
+      errors={commentScoringErrors}
+      onFieldChange={onCommentScoringFieldChange}
+      defaultOpen={false}
+    />
+    <ThreadInterestTuningSettings
+      formValues={threadInterestModelFormValues}
+      errors={threadInterestModelErrors}
+      onFieldChange={onThreadInterestFieldChange}
+      defaultOpen={false}
+    />
+    <MiscSettings {...miscSettingsProps} />
+  </>
+);
+
+const parseNumericInputAsZeroOrNumber = (
+  value: string | number | '',
+  defaultValueOnNaN: number 
+): number => {
+  if (value === '') {
+    return 0; 
+  }
+  const num = Number(value);
+  return isNaN(num) ? defaultValueOnNaN : num;
+};
+
+const customNullishCoalesceProperties = (objValue: any, srcValue: any): any => {
+  return srcValue ?? objValue;
+};
+
+const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): SettingsFormState => {
+  const { displaySettings: defaultDisplaySettings, resolverSettings: defaultResolverSettings } = DEFAULT_SETTINGS;
+  const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel } = defaultResolverSettings;
+
+  const { displaySettings, resolverSettings } = settings;
+
+  return {
+    sourceWeights: mergeWith(
+      cloneDeep(DEFAULT_SOURCE_WEIGHTS),
+      resolverSettings.sourceWeights,
+      customNullishCoalesceProperties
+    ),
+    incognitoMode: resolverSettings.incognitoMode ?? defaultResolverSettings.incognitoMode,
+    displaySetting: {
+      lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
+      postTruncationBreakpoints: [...(displaySettings.postTruncationBreakpoints || [])],
+      commentTruncationBreakpoints: [...(displaySettings.commentTruncationBreakpoints || [])],
+      postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
+    },
+    commentScoring: mergeWith(
+      cloneDeep(defaultCommentScoring),
+      resolverSettings.commentScoring,
+      customNullishCoalesceProperties
+    ),
+    threadInterestModel: mergeWith(
+      cloneDeep(defaultThreadInterestModel),
+      resolverSettings.threadInterestModel,
+      customNullishCoalesceProperties
+    ),
+  };
+};
+
+const deriveSimpleViewTruncationLevelsFromSettings = (settings: UltraFeedSettingsType) => ({
+  commentLevel0: getFirstCommentLevel(settings.displaySettings.lineClampNumberOfLines, settings.displaySettings.commentTruncationBreakpoints?.[0]),
+  commentLevel1: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[1]),
+  commentLevel2: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[2]),
+  postLevel0: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[0]),
+  postLevel1: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[1]),
+  postLevel2: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[2]),
+});
+
+const ViewModeButton: React.FC<{
+  mode: 'simple' | 'advanced';
+  currentViewMode: 'simple' | 'advanced';
+  onClick: (mode: 'simple' | 'advanced') => void;
+}> = ({
+  mode,
+  currentViewMode,
+  onClick,
+}) => {
+  const classes = useStyles(styles);
+  return (
+    <div
+      onClick={() => onClick(mode)}
+      className={classNames(
+      classes.viewModeButton,
+      currentViewMode === mode
+        ? classes.viewModeButtonActive
+        : classes.viewModeButtonInactive
+    )}
+  >
+      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+    </div>
+  );
+};
+
 const UltraFeedSettings = ({
   settings,
   updateSettings,
@@ -138,99 +317,56 @@ const UltraFeedSettings = ({
   const classes = useStyles(styles);
   const { flash } = useMessages();
 
+
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
   const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode);
 
-  const [formValues, setFormValues] = useState<SettingsFormState>(() => ({
-    sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
-    commentLevel0: getFirstCommentLevel(settings.lineClampNumberOfLines, settings.commentTruncationBreakpoints?.[0]),
-    commentLevel1: getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[1]),
-    commentLevel2: getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[2]),
-    postLevel0: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[0]),
-    postLevel1: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[1]),
-    postLevel2: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[2]),
-    incognitoMode: settings.incognitoMode,
-    quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
+  const [simpleViewTruncationLevels, setSimpleViewTruncationLevels] = useState(() => 
+    deriveSimpleViewTruncationLevelsFromSettings(settings)
+  );
 
-    lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
-    postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
-    commentBreakpoints: [...(settings.commentTruncationBreakpoints || [])],
-    ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty ?? DEFAULT_SETTINGS.ultraFeedSeenPenalty,
-    postTitlesAreModals: settings.postTitlesAreModals ?? DEFAULT_SETTINGS.postTitlesAreModals,
-  }));
+  const [formValues, setFormValues] = useState<SettingsFormState>(() => 
+    deriveFormValuesFromSettings(settings)
+  );
 
   const [zodErrors, setZodErrors] = useState<UltraFeedSettingsZodErrors>(null);
 
-  const getSourceWeightError = useCallback(
-    (k: FeedItemSourceType): string | undefined =>
-      zodErrors?.sourceWeights?.[k]?._errors[0],
-    [zodErrors]
-  );
-
-  const getScalarError = useCallback(<K extends keyof ValidatedUltraFeedSettings>(k: K): string | undefined =>
-    zodErrors?.[k]?._errors[0], [zodErrors]);
-
-  const getArrayError = useCallback(
-    (k: 'postTruncationBreakpoints' | 'commentTruncationBreakpoints'): ZodFormattedError<(number | null)[]> | undefined =>
-      zodErrors?.[k],
-    [zodErrors]
-  );
-
   const sourceWeightErrors: Record<FeedItemSourceType, string | undefined> = React.useMemo(() => {
+    const errors = zodErrors as ZodFormattedError<ValidatedUltraFeedSettings, string>;
     return Object.keys(DEFAULT_SOURCE_WEIGHTS).reduce((acc, key) => {
-      acc[key as FeedItemSourceType] = getSourceWeightError(key as FeedItemSourceType);
+      acc[key as FeedItemSourceType] = errors?.resolverSettings?.sourceWeights?.[key as FeedItemSourceType]?._errors[0];
       return acc;
     }, {} as Record<FeedItemSourceType, string | undefined>);
-  }, [getSourceWeightError]);
+  }, [zodErrors]);
 
   useEffect(() => {
-    const derivedCommentLevel0 = getFirstCommentLevel(settings.lineClampNumberOfLines, settings.commentTruncationBreakpoints?.[0]);
-    const derivedCommentLevel1 = getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[1]) || 'Long';
-    const derivedCommentLevel2 = getCommentBreakpointLevel(settings.commentTruncationBreakpoints?.[2]) || 'Long';
-    const derivedPostLevel0 = getPostBreakpointLevel(settings.postTruncationBreakpoints?.[0]);
-    const derivedPostLevel1 = getPostBreakpointLevel(settings.postTruncationBreakpoints?.[1]);
-    const derivedPostLevel2 = getPostBreakpointLevel(settings.postTruncationBreakpoints?.[2]) || 'Unset';
-
-    setFormValues(currentValues => ({
-      ...currentValues,
-      sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
-      commentLevel0: derivedCommentLevel0,
-      commentLevel1: derivedCommentLevel1,
-      commentLevel2: derivedCommentLevel2,
-      postLevel0: derivedPostLevel0,
-      postLevel1: derivedPostLevel1,
-      postLevel2: derivedPostLevel2,
-      incognitoMode: settings.incognitoMode,
-      quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
-      // Advanced
-      lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
-      postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
-      commentBreakpoints: [...(settings.commentTruncationBreakpoints || [])],
-      // Misc
-      ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty ?? DEFAULT_SETTINGS.ultraFeedSeenPenalty,
-      postTitlesAreModals: settings.postTitlesAreModals ?? DEFAULT_SETTINGS.postTitlesAreModals,
-    }));
-  }, [
-      settings.sourceWeights,
-      settings.lineClampNumberOfLines,
-      settings.commentTruncationBreakpoints,
-      settings.postTruncationBreakpoints,
-      settings.incognitoMode,
-      settings.quickTakeBoost,
-      settings.ultraFeedSeenPenalty,
-      settings.postTitlesAreModals
-     ]);
+    setFormValues(deriveFormValuesFromSettings(settings));
+    setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(settings));
+  }, [settings]);
 
   const updateForm = useCallback(<K extends keyof SettingsFormState>(
     key: K,
     value: SettingsFormState[K] | ((prev: SettingsFormState[K]) => SettingsFormState[K])
   ) => {
     setZodErrors(null);
-
+    setFormValues(prev => {
+      const newValue = typeof value === 'function' ? (value as any)(prev[key]) : value;
+      return { ...prev, [key]: newValue };
+    });
+  }, []);
+  
+  const updateDisplaySettingForm = useCallback(<K extends keyof DisplaySettingsFormState>(
+    key: K,
+    value: DisplaySettingsFormState[K] | ((prev: DisplaySettingsFormState[K]) => DisplaySettingsFormState[K])
+  ) => {
+    setZodErrors(null);
     setFormValues(prev => ({
       ...prev,
-      [key]: typeof value === 'function' ? (value as any)(prev[key]) : value,
+      displaySetting: {
+        ...prev.displaySetting,
+        [key]: typeof value === 'function' ? (value as any)(prev.displaySetting[key]) : value,
+      }
     }));
   }, []);
 
@@ -241,138 +377,196 @@ const UltraFeedSettings = ({
       numValue = '';
     } else {
       const parsedValue = parseInt(strValue, 10);
+      // Keep storing integers or '' in form state. Saving logic will handle final conversion.
       numValue = (!isNaN(parsedValue) && Number.isInteger(Number(strValue))) ? parsedValue : '';
     }
-
-    updateForm('sourceWeights', prev => ({
-      ...prev,
-      [key]: numValue,
-    }));
+    updateForm('sourceWeights', prev => ({ ...prev, [key]: numValue }));
   }, [updateForm]);
 
-  const handleTruncationLevelChange = useCallback((
-    field: TruncationGridFields,
+  const handleSimpleTruncationLevelChange = useCallback((
+    field: keyof typeof simpleViewTruncationLevels,
     value: TruncationLevel
   ) => {
-    updateForm(field, value);
-  }, [updateForm]);
+    setZodErrors(null);
+    setSimpleViewTruncationLevels(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleBooleanChange = useCallback((
-    field: keyof SettingsFormState,
+    field: 'incognitoMode' | 'postTitlesAreModals',
     checked: boolean
   ) => {
-    updateForm(field, checked);
-  }, [updateForm]);
-
-  const handleQuickTakeBoostChange = useCallback((value: number | string) => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    updateForm('quickTakeBoost', numValue);
-  }, [updateForm]);
-
-  const handleSeenPenaltyChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateForm('ultraFeedSeenPenalty', '');
-    } else {
-      const numValue = parseFloat(strValue);
-      updateForm('ultraFeedSeenPenalty', numValue);
+    setZodErrors(null);
+    if (field === 'incognitoMode') {
+      updateForm(field, checked);
+    } else if (field === 'postTitlesAreModals') {
+      updateDisplaySettingForm(field, checked);
     }
-  }, [updateForm]);
-  
+  }, [updateForm, updateDisplaySettingForm]);
+
   const handleLineClampChange = useCallback((value: number | string) => {
     const strValue = String(value).trim();
     if (strValue === '') {
-      updateForm('lineClampNumberOfLines', '');
+      updateDisplaySettingForm('lineClampNumberOfLines', '');
     } else {
       const numValue = parseInt(strValue, 10);
-      updateForm('lineClampNumberOfLines', isNaN(numValue) ? '' : numValue);
+      updateDisplaySettingForm('lineClampNumberOfLines', isNaN(numValue) ? '' : numValue);
     }
-  }, [updateForm]);
+  }, [updateDisplaySettingForm]);
 
   const handleBreakpointChange = useCallback((
     kind: 'post' | 'comment',
     index: number,
-    value: string | number | null
+    value: string | number
   ) => {
-    const field = kind === 'post' ? 'postBreakpoints' : 'commentBreakpoints';
-    
-    updateForm(field, prev => {
+    const field = kind === 'post' ? 'postTruncationBreakpoints' : 'commentTruncationBreakpoints';
+    updateDisplaySettingForm(field, (prev: (number | '')[]) => {
       const currentArray = [...prev];
       if (value === '') {
         currentArray[index] = '';
-      } 
-      else if (value === null) {
-        currentArray[index] = null;
-      } 
-      else if (typeof value === 'string') {
+      } else if (typeof value === 'string') {
         const parsed = parseInt(value, 10);
         currentArray[index] = isNaN(parsed) ? '' : parsed;
-      } 
-      else {
+      } else {
         currentArray[index] = value;
       }
-      return currentArray;
+      while (currentArray.length < 3) {
+        currentArray.push('');
+      }
+      return currentArray.slice(0, 3);
     });
+  }, [updateDisplaySettingForm]);
+
+  const handleCommentScoringFieldChange = useCallback((
+    field: keyof CommentScoringFormState, 
+    value: number | string 
+  ) => {
+    let processedValue: string | number = value;
+
+    if (field === 'threadScoreAggregation') {
+      processedValue = value as string; 
+    } else {
+      const strValue = String(value).trim();
+      if (strValue === '') {
+        processedValue = '';
+      } else {
+        const num = parseFloat(strValue);
+        processedValue = isNaN(num) ? '' : num; 
+      }
+    }
+    updateForm('commentScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 
+  const handleThreadInterestFieldChange = useCallback((field: keyof ThreadInterestModelFormState, value: number | string) => {
+    const strValue = String(value).trim();
+    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
+    updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue, }));
+  }, [updateForm]);
+
+  const handleExploreBiasChange = useCallback((newExploreBiasValue: number) => {
+    setZodErrors(null); 
+    const newLogImpactFactor = 2 - newExploreBiasValue;
+    const newCommentSubscribedAuthorMultiplier = (2 - newExploreBiasValue) * 2.5;
+
+    const totalSourceWeight = Object.values(formValues.sourceWeights).reduce((acc: number, value: number | '') => acc + (value === '' ? 0 : value), 0) || 0;
+    const newSubscribedAuthorSourceWeight = Math.max(1, Math.min(totalSourceWeight * ((0.05 + ((2-newExploreBiasValue) / 2)) * 0.25), totalSourceWeight));
+
+    setFormValues(prev => ({
+      ...prev,
+      threadInterestModel: {
+        ...prev.threadInterestModel,
+        logImpactFactor: newLogImpactFactor,
+      },
+      commentScoring: {
+        ...prev.commentScoring,
+        commentSubscribedAuthorMultiplier: newCommentSubscribedAuthorMultiplier,
+      },
+      sourceWeights: {
+        ...prev.sourceWeights,
+        subscriptions: Math.round(newSubscribedAuthorSourceWeight),
+      }
+      
+    }));
+  }, [setFormValues, formValues.sourceWeights]);
 
   const handleSave = useCallback(() => {
-    const settingsToUpdate: Record<string, any> = {};
+    const defaultResolverSettings = DEFAULT_SETTINGS.resolverSettings;
+    const defaultThreadInterestModel = defaultResolverSettings.threadInterestModel;
+    const defaultCommentScoring = defaultResolverSettings.commentScoring;
 
-    settingsToUpdate.sourceWeights = Object.entries(formValues.sourceWeights)
-      .reduce((acc, [key, value]) => {
-        acc[key as FeedItemSourceType] = value === '' ? 0 : Number(value);
-        return acc;
-      }, {} as Record<FeedItemSourceType, number>);
-
-    settingsToUpdate.quickTakeBoost = isNaN(formValues.quickTakeBoost) 
-        ? DEFAULT_SETTINGS.quickTakeBoost 
-        : formValues.quickTakeBoost;
-        
-    settingsToUpdate.ultraFeedSeenPenalty = formValues.ultraFeedSeenPenalty === '' || isNaN(Number(formValues.ultraFeedSeenPenalty))
-        ? DEFAULT_SETTINGS.ultraFeedSeenPenalty
-        : Number(formValues.ultraFeedSeenPenalty);
-
-    settingsToUpdate.incognitoMode = formValues.incognitoMode;
-    settingsToUpdate.postTitlesAreModals = formValues.postTitlesAreModals;
-
+    const settingsToUpdate: Partial<UltraFeedSettingsType> = {
+      resolverSettings: {
+        sourceWeights: mergeWith(
+          cloneDeep(DEFAULT_SOURCE_WEIGHTS), 
+          formValues.sourceWeights,
+          (defaultWeightVal, formWeightVal) => parseNumericInputAsZeroOrNumber(formWeightVal, 0)
+        ),
+        incognitoMode: formValues.incognitoMode,
+        commentScoring: mergeWith(
+          cloneDeep(defaultCommentScoring),
+          formValues.commentScoring,
+          (defaultVal, formVal, key) => {
+            if (key === 'threadScoreAggregation') {
+              return formVal || defaultVal; // Handles empty string, null, undefined from formVal
+            }
+            return parseNumericInputAsZeroOrNumber(formVal, defaultVal);
+          }
+        ),
+        threadInterestModel: mergeWith(
+          cloneDeep(defaultThreadInterestModel),
+          formValues.threadInterestModel,
+          (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
+        ),
+      },
+      displaySettings: {
+        postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
+        lineClampNumberOfLines: 0, // Placeholder, will be set below
+        postTruncationBreakpoints: [], // Placeholder, will be set below
+        commentTruncationBreakpoints: [], // Placeholder, will be set below
+      }
+    };
+    
     if (viewMode === 'simple') {
-      settingsToUpdate.lineClampNumberOfLines = levelToCommentLinesMap[formValues.commentLevel0];
+      settingsToUpdate.displaySettings!.lineClampNumberOfLines = levelToCommentLinesMap[simpleViewTruncationLevels.commentLevel0];
 
-      const commentLevels = [formValues.commentLevel0, formValues.commentLevel1, formValues.commentLevel2];
-      let commentBreakpoints: (number | null)[] = commentLevels
-        .map(lvl => levelToCommentBreakpointMap[lvl])        // (num|null|undef)[]
-        .filter(bp => bp !== undefined) as (number | null)[];// drop undefined, keep null
-      // trim trailing nulls
-      while (commentBreakpoints.at(-1) === null) commentBreakpoints.pop();
-      settingsToUpdate.commentTruncationBreakpoints = commentBreakpoints;
+      const commentLevels = [simpleViewTruncationLevels.commentLevel0, simpleViewTruncationLevels.commentLevel1, simpleViewTruncationLevels.commentLevel2];
+      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = commentLevels
+        .map(lvl => levelToCommentBreakpointMap[lvl])
+        .filter(bp => bp !== undefined)
 
-      const postLevels = [formValues.postLevel0, formValues.postLevel1, formValues.postLevel2];
-      const postBreakpoints: (number | null)[] = postLevels
+      const postLevels = [simpleViewTruncationLevels.postLevel0, simpleViewTruncationLevels.postLevel1, simpleViewTruncationLevels.postLevel2];
+      settingsToUpdate.displaySettings!.postTruncationBreakpoints = postLevels
         .map(lvl => levelToPostBreakpointMap[lvl])
-        .filter(bp => bp !== undefined) as (number | null)[];
-      settingsToUpdate.postTruncationBreakpoints = postBreakpoints; 
+        .filter(bp => bp !== undefined)
       
-    } else { 
-      settingsToUpdate.lineClampNumberOfLines = formValues.lineClampNumberOfLines === '' || isNaN(Number(formValues.lineClampNumberOfLines))
-          ? 0
-          : Number(formValues.lineClampNumberOfLines);
+    } else {
+      settingsToUpdate.displaySettings!.lineClampNumberOfLines = parseNumericInputAsZeroOrNumber(
+        formValues.displaySetting.lineClampNumberOfLines,
+        0 
+      );
           
-      settingsToUpdate.postTruncationBreakpoints = formValues.postBreakpoints.map(breakpoint => {
-        if (breakpoint === '' || isNaN(Number(breakpoint))) return undefined;
-        return Number(breakpoint);
-      });
+      settingsToUpdate.displaySettings!.postTruncationBreakpoints = formValues.displaySetting.postTruncationBreakpoints
+        .map(val => {
+          if (val === '') return undefined;
+          const num = Number(val);
+          if (isNaN(num)) return undefined;
+          return num; 
+        })
+        .filter(bp => bp !== undefined) 
       
-      settingsToUpdate.commentTruncationBreakpoints = formValues.commentBreakpoints.map(breakpoint => {
-        if (breakpoint === '' || isNaN(Number(breakpoint))) return undefined;
-        return Number(breakpoint);
-      });
+      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = formValues.displaySetting.commentTruncationBreakpoints
+        .map(val => {
+          if (val === '') return undefined;
+          const num = Number(val);
+          if (isNaN(num)) return undefined;
+          return num; 
+        })
+        .filter(bp => bp !== undefined) 
     }
 
     const result = ultraFeedSettingsSchema.safeParse(settingsToUpdate);
 
     if (!result.success) {
-      const formattedErrors = result.error.format();
+      const formattedErrors = result.error.format()
       setZodErrors(formattedErrors);
       // eslint-disable-next-line no-console
       console.error("UltraFeed Settings Validation Errors:", formattedErrors);
@@ -388,68 +582,45 @@ const UltraFeedSettings = ({
       newSettings: result.data
     });
 
-  }, [formValues, updateSettings, captureEvent, settings, viewMode, flash]);
+  }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash]);
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
     setZodErrors(null); 
   }, [resetSettingsToDefault]);
 
+  const truncationGridProps = {
+    levels: simpleViewTruncationLevels,
+    onChange: handleSimpleTruncationLevelChange,
+    originalSettings: settings,
+    postBreakpointError: zodErrors?.displaySettings?.postTruncationBreakpoints?._errors?.[0],
+    commentBreakpointError: zodErrors?.displaySettings?.commentTruncationBreakpoints?._errors?.[0],
+  };
+  
+  const advancedTruncationProps = {
+    values: formValues.displaySetting,
+    errors: {
+      lineClampNumberOfLines: zodErrors?.displaySettings?.lineClampNumberOfLines?._errors?.[0],
+      postTruncationBreakpoints: zodErrors?.displaySettings?.postTruncationBreakpoints,
+      commentTruncationBreakpoints: zodErrors?.displaySettings?.commentTruncationBreakpoints,
+    },
+    onLineClampChange: handleLineClampChange,
+    onBreakpointChange: handleBreakpointChange,
+  };
+  
+  const miscSettingsProps = {
+    formValues: {
+      incognitoMode: formValues.incognitoMode,
+      postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
+    },
+    onBooleanChange: handleBooleanChange,
 
-  const renderSimpleView = () => (
-    <>
-      <SourceWeightsSettings
-        weights={formValues.sourceWeights}
-        errors={sourceWeightErrors}
-        onChange={handleSourceWeightChange}
-      />
-      <TruncationGridSettings
-        levels={formValues}
-        onChange={handleTruncationLevelChange}
-        originalSettings={settings} 
-      />
-    </>
-  );
+  };
 
-  const renderAdvancedView = () => (
-    <>
-      <SourceWeightsSettings
-        weights={formValues.sourceWeights}
-        errors={sourceWeightErrors}
-        onChange={handleSourceWeightChange}
-      />
-      <MultipliersSettings
-        quickTakeBoost={{
-          value: formValues.quickTakeBoost,
-          error: getScalarError('quickTakeBoost'),
-          onChange: handleQuickTakeBoostChange,
-        }}
-        seenPenalty={{
-          value: formValues.ultraFeedSeenPenalty,
-          error: getScalarError('ultraFeedSeenPenalty'),
-          onChange: handleSeenPenaltyChange,
-        }}
-      />
-      <AdvancedTruncationSettings
-        onLineClampChange={handleLineClampChange}
-        onBreakpointChange={handleBreakpointChange}
-        values={{
-          lineClampNumberOfLines: formValues.lineClampNumberOfLines,
-          postBreakpoints: formValues.postBreakpoints,
-          commentBreakpoints: formValues.commentBreakpoints,
-        }}
-        errors={{
-          lineClampNumberOfLines: getScalarError('lineClampNumberOfLines'),
-          postBreakpoints: getArrayError('postTruncationBreakpoints'),
-          commentBreakpoints: getArrayError('commentTruncationBreakpoints'),
-        }}
-      />
-      <MiscSettings
-        formValues={formValues} 
-        onBooleanChange={handleBooleanChange}
-      />
-    </>
-  );
+  const exploreExploitBiasProps = {
+    currentLogImpactFactor: formValues.threadInterestModel.logImpactFactor,
+    onExploreBiasChange: handleExploreBiasChange,
+  };
 
   const hasAnyErrors = useMemo(() => {
      return zodErrors !== null;
@@ -458,22 +629,43 @@ const UltraFeedSettings = ({
   return (
     <div className={classes.root}>
       <div className={classes.viewModeToggle}>
-        <div
-          onClick={() => setViewMode('simple')}
-          className={classNames(classes.viewModeButton, viewMode === 'simple' ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
-        >
-           Simple
-        </div>
-        <div
-          onClick={() => setViewMode('advanced')}
-          className={classNames(classes.viewModeButton, viewMode === 'advanced' ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
-        >
-          Advanced
-        </div>
+        <ViewModeButton
+          mode="simple"
+          currentViewMode={viewMode as 'simple' | 'advanced'}
+          onClick={setViewMode}
+        />
+        <ViewModeButton
+          mode="advanced"
+          currentViewMode={viewMode as 'simple' | 'advanced'}
+          onClick={setViewMode}
+        />
       </div>
       
       <div className={classes.settingsGroupsContainer}>
-        {viewMode === 'simple' ? renderSimpleView() : renderAdvancedView()}
+        {viewMode === 'simple' ? (
+          <SimpleView
+            exploreExploitBiasProps={exploreExploitBiasProps}
+            sourceWeights={formValues.sourceWeights}
+            sourceWeightErrors={sourceWeightErrors}
+            onSourceWeightChange={handleSourceWeightChange}
+            truncationGridProps={truncationGridProps}
+            miscSettingsProps={miscSettingsProps}
+          />
+        ) : (
+          <AdvancedView
+            sourceWeights={formValues.sourceWeights}
+            sourceWeightErrors={sourceWeightErrors}
+            onSourceWeightChange={handleSourceWeightChange}
+            advancedTruncationProps={advancedTruncationProps}
+            commentScoringFormValues={formValues.commentScoring}
+            commentScoringErrors={zodErrors?.resolverSettings?.commentScoring ?? null}
+            onCommentScoringFieldChange={handleCommentScoringFieldChange}
+            threadInterestModelFormValues={formValues.threadInterestModel}
+            threadInterestModelErrors={zodErrors?.resolverSettings?.threadInterestModel ?? null}
+            onThreadInterestFieldChange={handleThreadInterestFieldChange}
+            miscSettingsProps={miscSettingsProps}
+          />
+        )}
       </div>
 
       <div className={classes.buttonRow}>
