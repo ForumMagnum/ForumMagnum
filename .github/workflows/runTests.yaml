@@ -53,6 +53,8 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+    - name: Create database connection string file
+      run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt
     - name: Start the server
       uses: JarvusInnovations/background-action@v1
       with:
@@ -63,16 +65,14 @@ jobs:
         log-output: true
         log-output-resume: stderr
     - name: Run code generation (EA Forum)
-      run: |
-        yarn ea-command-ci 'Globals.generateTypesAndSQLSchema()'
+      run: yarn generate test
     - name: Throw if code changed
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run yarn generate"; exit 1; fi
     - name: Switch forum type
       run: |
         sed -i -e 's/"forumType": "EAForum"/"forumType": "LessWrong"/g' settings-test.json
     - name: Run code generation (LessWrong)
-      run: |
-        yarn ea-command-ci 'Globals.generateTypesAndSQLSchema()'
+      run: yarn generate test
     - name: Throw if forum schemas differ
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
 

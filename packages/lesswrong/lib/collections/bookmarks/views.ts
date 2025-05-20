@@ -72,11 +72,3 @@ export const BookmarksViews = new CollectionViewSet('Bookmarks', {
   myBookmarks,
   userDocumentBookmark,
 });
-
-const views = {
-  myBookmarkedPosts,
-  myBookmarks,
-  userDocumentBookmark,
-};
-
-export default views;

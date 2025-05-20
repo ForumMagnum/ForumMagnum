@@ -31,7 +31,7 @@ export const initGlobals = (args: Record<string, unknown>, isProd: boolean, glob
 
 const forumTypes = ["lw", "ea", "none"] as const;
 export type ForumType = typeof forumTypes[number];
-const environmentTypes = ["dev", "local", "staging", "prod", "xpost"] as const;
+const environmentTypes = ["dev", "local", "staging", "prod", "xpost", "test"] as const;
 export type EnvironmentType = typeof environmentTypes[number];
 
 const getCredentialsBase = (forumType: ForumType): string => {
@@ -73,10 +73,17 @@ type DatabaseConfig = {
   sshTunnelCommand?: string[],
 }
 
-export const getDatabaseConfigFromModeAndForumType = (mode: string, forumType: ForumType): DatabaseConfig => {
+export const getDatabaseConfigFromModeAndForumType = (mode: EnvironmentType, forumType: ForumType): DatabaseConfig => {
   if (!mode) {
     return {};
   }
+
+  // This is used for github actions that need to be able to run a server instance/repl that depends on a forum-type,
+  // but which doesn't otherwise need valid/complete instance settings (such as the codegen check).
+  if (mode === 'test') {
+    mode = 'dev';
+  }
+
   const memorizedConfigPaths: Record<ForumType, Partial<CommandLineOptions>> = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
@@ -104,6 +111,8 @@ export const getSettingsFileName = (mode: string, forumType: ForumType) => {
       return 'settings-production-lesswrong.json';
     } else if (mode === 'local') {
       return 'settings-local-dev-localdb.json'
+    } else if (mode === 'test') {
+      return 'settings-test.json'
     } else {
       return 'settings-local-dev-devdb.json'
     }
