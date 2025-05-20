@@ -140,8 +140,8 @@ type Documents = {
     "\n    mutation flipSplashArtImage($reviewWinnerArtId: String!) {\n      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)\n    }\n  ": typeof types.flipSplashArtImageDocument,
     "\n  query PostBody($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostSideComments\n      }\n    }\n  }\n": typeof types.PostBodyDocument,
     "\n    mutation AcceptCoauthorRequest($postId: String, $userId: String, $accept: Boolean) {\n        acceptCoauthorRequest(postId: $postId, userId: $userId, accept: $accept) {\n          ...PostsDetails\n        }\n    }\n    \n  ": typeof types.AcceptCoauthorRequestDocument,
-    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": typeof types.PostsPageWrapper1Document,
-    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsPageWrapperDocument,
+    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": typeof types.PostsPageWrapper1Document,
+    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsPageWrapperDocument,
     "\n  query PostsRevisionsList($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevisionsList\n      }\n    }\n  }\n": typeof types.PostsRevisionsListDocument,
     "\n    mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {\n        RSVPToEvent(postId: $postId, name: $name, email: $email, private: $private, response: $response) {\n        ...PostsDetails\n        }\n    }\n    \n  ": typeof types.RegisterRSVPDocument,
     "\n    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {\n        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {\n        ...PostsDetails\n        }\n    }\n    \n  ": typeof types.CancelRSVPToEventDocument,
@@ -221,6 +221,8 @@ type Documents = {
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SequencesPageTitleDocument,
     "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.UltraFeedCommentsDialogDocument,
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
+    "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
+    "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": typeof types.EditProfileFormDocument,
@@ -703,8 +705,8 @@ const documents: Documents = {
     "\n    mutation flipSplashArtImage($reviewWinnerArtId: String!) {\n      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)\n    }\n  ": types.flipSplashArtImageDocument,
     "\n  query PostBody($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostSideComments\n      }\n    }\n  }\n": types.PostBodyDocument,
     "\n    mutation AcceptCoauthorRequest($postId: String, $userId: String, $accept: Boolean) {\n        acceptCoauthorRequest(postId: $postId, userId: $userId, accept: $accept) {\n          ...PostsDetails\n        }\n    }\n    \n  ": types.AcceptCoauthorRequestDocument,
-    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": types.PostsPageWrapper1Document,
-    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsPageWrapperDocument,
+    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": types.PostsPageWrapper1Document,
+    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsPageWrapperDocument,
     "\n  query PostsRevisionsList($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevisionsList\n      }\n    }\n  }\n": types.PostsRevisionsListDocument,
     "\n    mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {\n        RSVPToEvent(postId: $postId, name: $name, email: $email, private: $private, response: $response) {\n        ...PostsDetails\n        }\n    }\n    \n  ": types.RegisterRSVPDocument,
     "\n    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {\n        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {\n        ...PostsDetails\n        }\n    }\n    \n  ": types.CancelRSVPToEventDocument,
@@ -784,6 +786,8 @@ const documents: Documents = {
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SequencesPageTitleDocument,
     "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.UltraFeedCommentsDialogDocument,
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
+    "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
+    "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": types.EditProfileFormDocument,
@@ -1661,11 +1665,11 @@ export function gql(source: "\n    mutation AcceptCoauthorRequest($postId: Strin
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1982,6 +1986,14 @@ export function gql(source: "\n  query UltraFeedCommentsDialog($documentId: Stri
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

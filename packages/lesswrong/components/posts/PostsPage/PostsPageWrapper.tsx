@@ -18,7 +18,7 @@ import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
-  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
+  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {
     post(input: { selector: { documentId: $documentId } }) {
       result {
         ...PostsWithNavigationAndRevision
@@ -28,7 +28,7 @@ const PostsWithNavigationAndRevisionQuery = gql(`
 `);
 
 const PostsWithNavigationQuery = gql(`
-  query PostsPageWrapper($documentId: String, $sequenceId: String) {
+  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {
     post(input: { selector: { documentId: $documentId } }) {
       result {
         ...PostsWithNavigation

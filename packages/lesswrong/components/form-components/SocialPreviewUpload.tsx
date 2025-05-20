@@ -140,7 +140,7 @@ mdi.use(markdownItSup);
  *  3.2 socialPreviewImageUrl is just used directly
  */
 const buildPreviewFromDocument = (
-  document: EditablePost, socialText: string | undefined
+  document: Omit<EditablePost, 'socialPreviewData'> & { socialPreviewData: SocialPreviewInput | null | undefined }, socialText: string | undefined
 ): { description: string | null; fallbackImageUrl: string | null } => {
   const originalContents = document.contents?.originalContents;
   const customHighlight = document.customHighlight?.originalContents;

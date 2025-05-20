@@ -31,6 +31,7 @@ import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from '@/lib/utils/dateUtils';
 
 const SpotlightEditQueryFragmentQuery = gql(`
   query SpotlightItem($documentId: String) {
@@ -553,7 +554,7 @@ export const SpotlightItem = ({
                 {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
                     <SpotlightForm
-                      initialData={editableSpotlight}
+                      initialData={withDateFields(editableSpotlight, ['lastPromotedAt'])}
                       descriptionOnly
                       onSuccess={() => { setEditDescription(false); void handleUndraftSpotlight() }}
                     />
@@ -637,7 +638,7 @@ export const SpotlightItem = ({
         {(edit && editableSpotlight) && <div className={classes.form}>
               <SpotlightEditorStyles>
               <SpotlightForm
-                initialData={editableSpotlight}
+                initialData={withDateFields(editableSpotlight, ['lastPromotedAt'])}
                 onSuccess={onUpdate}
               />
               </SpotlightEditorStyles>

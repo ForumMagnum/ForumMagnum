@@ -32,6 +32,7 @@ const AdminMetadata = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   try {
     serverInfo = data?.AdminMetadata ? JSON.parse(data?.AdminMetadata) : {};
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
   }
   

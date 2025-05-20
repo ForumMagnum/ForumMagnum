@@ -1312,7 +1312,7 @@ type CreateModerationTemplateInput = {
 type CreateModeratorActionDataInput = {
   endedAt?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  type: Scalars['String']['input'];
+  type: ModeratorActionType;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1566,7 +1566,7 @@ type CreateSpotlightDataInput = {
   customTitle?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<CreateRevisionDataInput>;
   documentId: Scalars['String']['input'];
-  documentType: Scalars['String']['input'];
+  documentType: SpotlightDocumentType;
   draft: Scalars['Boolean']['input'];
   duration: Scalars['Float']['input'];
   headerTitle?: InputMaybe<Scalars['String']['input']>;
@@ -1646,7 +1646,7 @@ type CreateSurveyScheduleDataInput = {
   name: Scalars['String']['input'];
   startDate?: InputMaybe<Scalars['Date']['input']>;
   surveyId: Scalars['String']['input'];
-  target: Scalars['String']['input'];
+  target: SurveyScheduleTarget;
 };
 
 type CreateSurveyScheduleInput = {
@@ -1917,9 +1917,9 @@ type CreateUserRateLimitDataInput = {
   actionsPerInterval: Scalars['Float']['input'];
   endedAt: Scalars['Date']['input'];
   intervalLength: Scalars['Float']['input'];
-  intervalUnit: Scalars['String']['input'];
+  intervalUnit: UserRateLimitIntervalUnit;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  type: Scalars['String']['input'];
+  type: UserRateLimitType;
   userId: Scalars['String']['input'];
 };
 
@@ -2421,7 +2421,7 @@ type FeedCommentThread = {
 type FeedPost = {
   __typename?: 'FeedPost';
   _id: Scalars['String']['output'];
-  post?: Maybe<Post>;
+  post: Post;
   postMetaInfo?: Maybe<Scalars['JSON']['output']>;
 };
 
@@ -3043,7 +3043,7 @@ type ModeratorAction = {
   endedAt?: Maybe<Scalars['Date']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
-  type: Scalars['String']['output'];
+  type: ModeratorActionType;
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
 };
@@ -3058,6 +3058,29 @@ type ModeratorActionSelector = {
   restrictionModerationActions?: InputMaybe<EmptyViewInput>;
   userModeratorActions?: InputMaybe<ModeratorActionsUserModeratorActionsInput>;
 };
+
+type ModeratorActionType =
+  | 'autoBlockedFromSendingDMs'
+  | 'exemptFromRateLimits'
+  | 'flaggedForNDMs'
+  | 'lowAverageKarmaCommentAlert'
+  | 'lowAverageKarmaPostAlert'
+  | 'manualFlag'
+  | 'movedPostToDraft'
+  | 'negativeUserKarmaAlert'
+  | 'potentialTargetedDownvoting'
+  | 'rateLimitOnePerDay'
+  | 'rateLimitOnePerFortnight'
+  | 'rateLimitOnePerMonth'
+  | 'rateLimitOnePerThreeDays'
+  | 'rateLimitOnePerWeek'
+  | 'rateLimitThreeCommentsPerPost'
+  | 'receivedSeniorDownvotesAlert'
+  | 'recentlyDownvotedContentAlert'
+  | 'rejectedComment'
+  | 'rejectedPost'
+  | 'sentModeratorMessage'
+  | 'votingPatternWarningDelivered';
 
 type ModeratorActionsUserModeratorActionsInput = {
   userIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -9728,7 +9751,7 @@ type Spotlight = {
   description_latest?: Maybe<Scalars['String']['output']>;
   document?: Maybe<Post>;
   documentId: Scalars['String']['output'];
-  documentType: Scalars['String']['output'];
+  documentType: SpotlightDocumentType;
   draft: Scalars['Boolean']['output'];
   duration: Scalars['Float']['output'];
   headerTitle?: Maybe<Scalars['String']['output']>;
@@ -9755,6 +9778,11 @@ type Spotlight = {
 type SpotlightdescriptionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
+
+type SpotlightDocumentType =
+  | 'Post'
+  | 'Sequence'
+  | 'Tag';
 
 type SpotlightOutput = {
   __typename?: 'SpotlightOutput';
@@ -10021,7 +10049,7 @@ type SurveySchedule = {
   startDate?: Maybe<Scalars['Date']['output']>;
   survey?: Maybe<Survey>;
   surveyId: Scalars['String']['output'];
-  target?: Maybe<Scalars['String']['output']>;
+  target?: Maybe<SurveyScheduleTarget>;
 };
 
 type SurveyScheduleOutput = {
@@ -10033,6 +10061,11 @@ type SurveyScheduleSelector = {
   default?: InputMaybe<EmptyViewInput>;
   surveySchedulesByCreatedAt?: InputMaybe<EmptyViewInput>;
 };
+
+type SurveyScheduleTarget =
+  | 'allUsers'
+  | 'loggedInOnly'
+  | 'loggedOutOnly';
 
 type SurveySelector = {
   default?: InputMaybe<EmptyViewInput>;
@@ -10910,7 +10943,7 @@ type UpdateModerationTemplateInput = {
 type UpdateModeratorActionDataInput = {
   endedAt?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<ModeratorActionType>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -11135,7 +11168,7 @@ type UpdateSpotlightDataInput = {
   deletedDraft?: InputMaybe<Scalars['Boolean']['input']>;
   description?: InputMaybe<CreateRevisionDataInput>;
   documentId?: InputMaybe<Scalars['String']['input']>;
-  documentType?: InputMaybe<Scalars['String']['input']>;
+  documentType?: InputMaybe<SpotlightDocumentType>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
   duration?: InputMaybe<Scalars['Float']['input']>;
   headerTitle?: InputMaybe<Scalars['String']['input']>;
@@ -11207,7 +11240,7 @@ type UpdateSurveyScheduleDataInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   startDate?: InputMaybe<Scalars['Date']['input']>;
   surveyId?: InputMaybe<Scalars['String']['input']>;
-  target?: InputMaybe<Scalars['String']['input']>;
+  target?: InputMaybe<SurveyScheduleTarget>;
 };
 
 type UpdateSurveyScheduleInput = {
@@ -11517,9 +11550,9 @@ type UpdateUserRateLimitDataInput = {
   actionsPerInterval?: InputMaybe<Scalars['Float']['input']>;
   endedAt?: InputMaybe<Scalars['Date']['input']>;
   intervalLength?: InputMaybe<Scalars['Float']['input']>;
-  intervalUnit?: InputMaybe<Scalars['String']['input']>;
+  intervalUnit?: InputMaybe<UserRateLimitIntervalUnit>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<UserRateLimitType>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12002,13 +12035,19 @@ type UserRateLimit = {
   createdAt: Scalars['Date']['output'];
   endedAt: Scalars['Date']['output'];
   intervalLength: Scalars['Float']['output'];
-  intervalUnit: Scalars['String']['output'];
+  intervalUnit: UserRateLimitIntervalUnit;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
-  type: Scalars['String']['output'];
+  type: UserRateLimitType;
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
 };
+
+type UserRateLimitIntervalUnit =
+  | 'days'
+  | 'hours'
+  | 'minutes'
+  | 'weeks';
 
 type UserRateLimitOutput = {
   __typename?: 'UserRateLimitOutput';
@@ -12020,6 +12059,10 @@ type UserRateLimitSelector = {
   default?: InputMaybe<EmptyViewInput>;
   userRateLimits?: InputMaybe<UserRateLimitsUserRateLimitsInput>;
 };
+
+type UserRateLimitType =
+  | 'allComments'
+  | 'allPosts';
 
 type UserRateLimitsUserRateLimitsInput = {
   active?: InputMaybe<Scalars['String']['input']>;
@@ -13383,6 +13426,7 @@ type PostsPageWrapper1QueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   sequenceId: InputMaybe<Scalars['String']['input']>;
   version: InputMaybe<Scalars['String']['input']>;
+  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -13394,6 +13438,7 @@ type PostsPageWrapper1Query = { __typename?: 'Query', post: { __typename?: 'Sing
 type PostsPageWrapperQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   sequenceId: InputMaybe<Scalars['String']['input']>;
+  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -14171,6 +14216,26 @@ type UltraFeedPostDialogQuery = { __typename?: 'Query', post: { __typename?: 'Si
       & UltraFeedPostFragment
     ) | null } | null };
 
+type LocalPostQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type LocalPostQueryQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & UltraFeedPostFragment
+    ) | null } | null };
+
+type ForeignPostQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type ForeignPostQueryQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsPage
+    ) | null } | null };
+
 type UltraFeedThreadItemQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -14711,7 +14776,7 @@ type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: stri
     & RevisionEdit
   ) | null };
 
-type ModeratorActionDisplay = { __typename?: 'ModeratorAction', _id: string, userId: string, type: string, active: boolean, createdAt: string, endedAt: string | null, user: (
+type ModeratorActionDisplay = { __typename?: 'ModeratorAction', _id: string, userId: string, type: ModeratorActionType, active: boolean, createdAt: string, endedAt: string | null, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null };
@@ -15281,7 +15346,7 @@ type SplashArtCoordinatesEdit = (
   & SplashArtCoordinates
 );
 
-type SpotlightMinimumInfo = { __typename?: 'Spotlight', _id: string, documentId: string, documentType: string, spotlightImageId: string | null, spotlightDarkImageId: string | null, spotlightSplashImageUrl: string | null, draft: boolean, deletedDraft: boolean, position: number, lastPromotedAt: string, customTitle: string | null, customSubtitle: string | null, subtitleUrl: string | null, headerTitle: string | null, headerTitleLeftColor: string | null, headerTitleRightColor: string | null, duration: number, showAuthor: boolean, imageFade: boolean, imageFadeColor: string | null };
+type SpotlightMinimumInfo = { __typename?: 'Spotlight', _id: string, documentId: string, documentType: SpotlightDocumentType, spotlightImageId: string | null, spotlightDarkImageId: string | null, spotlightSplashImageUrl: string | null, draft: boolean, deletedDraft: boolean, position: number, lastPromotedAt: string, customTitle: string | null, customSubtitle: string | null, subtitleUrl: string | null, headerTitle: string | null, headerTitleLeftColor: string | null, headerTitleRightColor: string | null, duration: number, showAuthor: boolean, imageFade: boolean, imageFadeColor: string | null };
 
 type SpotlightReviewWinner = (
   { __typename?: 'Spotlight', description: { __typename?: 'Revision', html: string | null } | null, sequenceChapters: Array<(
@@ -15335,7 +15400,7 @@ type SurveyScheduleMinimumInfo = { __typename?: 'SurveySchedule', _id: string, s
   ) | null };
 
 type SurveyScheduleEdit = (
-  { __typename?: 'SurveySchedule', surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: string | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, createdAt: string }
+  { __typename?: 'SurveySchedule', surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: SurveyScheduleTarget | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, createdAt: string }
   & SurveyScheduleMinimumInfo
 );
 
@@ -15642,7 +15707,7 @@ type UserJobAdsMinimumInfo = { __typename?: 'UserJobAd', _id: string, userId: st
 
 type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 
-type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, userId: string, type: string, actionsPerInterval: number, intervalUnit: string, intervalLength: number, createdAt: string, endedAt: string, user: (
+type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, userId: string, type: UserRateLimitType, actionsPerInterval: number, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, createdAt: string, endedAt: string, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null };
@@ -15881,7 +15946,7 @@ type MigrationsDefaultFragment = { __typename?: 'Migration', _id: string, schema
 
 type ModerationTemplatesDefaultFragment = { __typename?: 'ModerationTemplate', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, name: string, collectionName: ModerationTemplateType, order: number, deleted: boolean };
 
-type ModeratorActionsDefaultFragment = { __typename?: 'ModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: string, endedAt: string | null };
+type ModeratorActionsDefaultFragment = { __typename?: 'ModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: ModeratorActionType, endedAt: string | null };
 
 type MultiDocumentsDefaultFragment = { __typename?: 'MultiDocument', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, oldSlugs: Array<string>, title: string | null, preview: string | null, tabTitle: string, tabSubtitle: string | null, userId: string, parentDocumentId: string, collectionName: string, fieldName: string, index: number, contributionStats: any | null, htmlWithContributorAnnotations: string | null, deleted: boolean, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
@@ -15927,7 +15992,7 @@ type SideCommentCachesDefaultFragment = { __typename?: 'SideCommentCache', _id: 
 
 type SplashArtCoordinatesDefaultFragment = { __typename?: 'SplashArtCoordinate', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, reviewWinnerArtId: string | null, leftXPct: number, leftYPct: number, leftHeightPct: number, leftWidthPct: number, leftFlipped: boolean, middleXPct: number, middleYPct: number, middleHeightPct: number, middleWidthPct: number, middleFlipped: boolean, rightXPct: number, rightYPct: number, rightHeightPct: number, rightWidthPct: number, rightFlipped: boolean };
 
-type SpotlightsDefaultFragment = { __typename?: 'Spotlight', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, description_latest: string | null, documentId: string, documentType: string, position: number, duration: number, customTitle: string | null, customSubtitle: string | null, subtitleUrl: string | null, headerTitle: string | null, headerTitleLeftColor: string | null, headerTitleRightColor: string | null, lastPromotedAt: string, spotlightSplashImageUrl: string | null, draft: boolean, deletedDraft: boolean, showAuthor: boolean, imageFade: boolean, imageFadeColor: string | null, spotlightImageId: string | null, spotlightDarkImageId: string | null };
+type SpotlightsDefaultFragment = { __typename?: 'Spotlight', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, description_latest: string | null, documentId: string, documentType: SpotlightDocumentType, position: number, duration: number, customTitle: string | null, customSubtitle: string | null, subtitleUrl: string | null, headerTitle: string | null, headerTitleLeftColor: string | null, headerTitleRightColor: string | null, lastPromotedAt: string, spotlightSplashImageUrl: string | null, draft: boolean, deletedDraft: boolean, showAuthor: boolean, imageFade: boolean, imageFadeColor: string | null, spotlightImageId: string | null, spotlightDarkImageId: string | null };
 
 type SubscriptionsDefaultFragment = { __typename?: 'Subscription', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, state: string | null, documentId: string | null, collectionName: string | null, deleted: boolean | null, type: string | null };
 
@@ -15935,7 +16000,7 @@ type SurveyQuestionsDefaultFragment = { __typename?: 'SurveyQuestion', _id: stri
 
 type SurveyResponsesDefaultFragment = { __typename?: 'SurveyResponse', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, surveyId: string | null, surveyScheduleId: string | null, userId: string | null, clientId: string | null, response: any | null };
 
-type SurveySchedulesDefaultFragment = { __typename?: 'SurveySchedule', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: string | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, clientIds: Array<string> | null };
+type SurveySchedulesDefaultFragment = { __typename?: 'SurveySchedule', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: SurveyScheduleTarget | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, clientIds: Array<string> | null };
 
 type SurveysDefaultFragment = { __typename?: 'Survey', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, name: string };
 
@@ -15959,7 +16024,7 @@ type UserJobAdsDefaultFragment = { __typename?: 'UserJobAd', _id: string, schema
 
 type UserMostValuablePostsDefaultFragment = { __typename?: 'UserMostValuablePost', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, postId: string | null, deleted: boolean | null };
 
-type UserRateLimitsDefaultFragment = { __typename?: 'UserRateLimit', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: string, intervalUnit: string, intervalLength: number, actionsPerInterval: number, endedAt: string };
+type UserRateLimitsDefaultFragment = { __typename?: 'UserRateLimit', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: UserRateLimitType, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, actionsPerInterval: number, endedAt: string };
 
 type UserTagRelsDefaultFragment = { __typename?: 'UserTagRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, tagId: string, userId: string, subforumShowUnreadInSidebar: boolean | null, subforumEmailNotifications: boolean | null, subforumHideIntroPost: boolean | null };
 
@@ -15983,7 +16048,7 @@ type SubscribedPostAndCommentsFeed = { __typename?: 'SubscribedPostAndComments',
 type FeedPostFragment = { __typename?: 'FeedPost', _id: string, postMetaInfo: any | null, post: (
     { __typename?: 'Post' }
     & PostsListWithVotes
-  ) | null };
+  ) };
 
 type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, comments: Array<(
     { __typename?: 'Comment' }

@@ -1304,7 +1304,7 @@ extend type Mutation {
 type FeedPost {
   _id: String!
   postMetaInfo: JSON
-  post: Post
+  post: Post!
 }
 
 type FeedCommentThread {
@@ -3691,9 +3691,33 @@ type ModeratorAction {
   legacyData: JSON
   userId: String!
   user: User
-  type: String!
+  type: ModeratorActionType!
   endedAt: Date
   active: Boolean!
+}
+
+enum ModeratorActionType {
+  rateLimitOnePerDay
+  rateLimitOnePerThreeDays
+  rateLimitOnePerWeek
+  rateLimitOnePerFortnight
+  rateLimitOnePerMonth
+  rateLimitThreeCommentsPerPost
+  recentlyDownvotedContentAlert
+  lowAverageKarmaCommentAlert
+  lowAverageKarmaPostAlert
+  negativeUserKarmaAlert
+  movedPostToDraft
+  sentModeratorMessage
+  manualFlag
+  votingPatternWarningDelivered
+  flaggedForNDMs
+  autoBlockedFromSendingDMs
+  rejectedPost
+  rejectedComment
+  potentialTargetedDownvoting
+  exemptFromRateLimits
+  receivedSeniorDownvotesAlert
 }
 
 input SingleModeratorActionInput {
@@ -6152,7 +6176,7 @@ type Spotlight {
   post: Post
   sequence: Sequence
   tag: Tag
-  documentType: String!
+  documentType: SpotlightDocumentType!
   position: Float!
   duration: Float!
   customTitle: String
@@ -6171,6 +6195,12 @@ type Spotlight {
   spotlightImageId: String
   spotlightDarkImageId: String
   sequenceChapters: [Chapter!]
+}
+
+enum SpotlightDocumentType {
+  Post
+  Sequence
+  Tag
 }
 
 input SingleSpotlightInput {
@@ -6387,12 +6417,18 @@ type SurveySchedule {
   maxVisitorPercentage: Float
   minKarma: Float
   maxKarma: Float
-  target: String
+  target: SurveyScheduleTarget
   startDate: Date
   endDate: Date
   deactivated: Boolean
   clientIds: [String!]
   clients: [ClientId!]
+}
+
+enum SurveyScheduleTarget {
+  allUsers
+  loggedInOnly
+  loggedOutOnly
 }
 
 input SingleSurveyScheduleInput {
@@ -7054,11 +7090,23 @@ type UserRateLimit {
   legacyData: JSON
   userId: String!
   user: User
-  type: String!
-  intervalUnit: String!
+  type: UserRateLimitType!
+  intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
   endedAt: Date!
+}
+
+enum UserRateLimitType {
+  allComments
+  allPosts
+}
+
+enum UserRateLimitIntervalUnit {
+  minutes
+  hours
+  days
+  weeks
 }
 
 input SingleUserRateLimitInput {
@@ -8453,7 +8501,7 @@ extend type Mutation {
 input CreateModeratorActionDataInput {
   legacyData: JSON
   userId: String
-  type: String!
+  type: ModeratorActionType!
   endedAt: Date
 }
 
@@ -8464,7 +8512,7 @@ input CreateModeratorActionInput {
 input UpdateModeratorActionDataInput {
   legacyData: JSON
   userId: String
-  type: String
+  type: ModeratorActionType
   endedAt: Date
 }
 
@@ -9027,7 +9075,7 @@ input CreateSpotlightDataInput {
   legacyData: JSON
   description: CreateRevisionDataInput
   documentId: String!
-  documentType: String!
+  documentType: SpotlightDocumentType!
   position: Float
   duration: Float!
   customTitle: String
@@ -9054,7 +9102,7 @@ input UpdateSpotlightDataInput {
   legacyData: JSON
   description: CreateRevisionDataInput
   documentId: String
-  documentType: String
+  documentType: SpotlightDocumentType
   position: Float
   duration: Float
   customTitle: String
@@ -9186,7 +9234,7 @@ input CreateSurveyScheduleDataInput {
   maxVisitorPercentage: Float
   minKarma: Float
   maxKarma: Float
-  target: String!
+  target: SurveyScheduleTarget!
   startDate: Date
   endDate: Date
   deactivated: Boolean
@@ -9205,7 +9253,7 @@ input UpdateSurveyScheduleDataInput {
   maxVisitorPercentage: Float
   minKarma: Float
   maxKarma: Float
-  target: String
+  target: SurveyScheduleTarget
   startDate: Date
   endDate: Date
   deactivated: Boolean
@@ -9508,8 +9556,8 @@ extend type Mutation {
 input CreateUserRateLimitDataInput {
   legacyData: JSON
   userId: String!
-  type: String!
-  intervalUnit: String!
+  type: UserRateLimitType!
+  intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
   endedAt: Date!
@@ -9522,8 +9570,8 @@ input CreateUserRateLimitInput {
 input UpdateUserRateLimitDataInput {
   legacyData: JSON
   userId: String
-  type: String
-  intervalUnit: String
+  type: UserRateLimitType
+  intervalUnit: UserRateLimitIntervalUnit
   intervalLength: Float
   actionsPerInterval: Float
   endedAt: Date

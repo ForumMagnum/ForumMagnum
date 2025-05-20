@@ -7,6 +7,12 @@ import { SurveySchedulesViews } from "@/lib/collections/surveySchedules/views";
 
 export const graphqlSurveyScheduleQueryTypeDefs = gql`
   type SurveySchedule ${ getAllGraphQLFields(schema) }
+
+  enum SurveyScheduleTarget {
+    allUsers
+    loggedInOnly
+    loggedOutOnly
+  }
   
   input SingleSurveyScheduleInput {
     selector: SelectorInput

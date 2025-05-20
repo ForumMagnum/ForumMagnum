@@ -155,7 +155,7 @@ export const FMCrosspostControl = ({ field }: {
 
   useOnFocusTab(() => {
     if (!loading && !document?.fmCrosspostUserId) {
-      refetch();
+      void refetch();
     }
   });
 

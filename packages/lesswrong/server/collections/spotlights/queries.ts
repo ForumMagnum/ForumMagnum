@@ -7,6 +7,12 @@ import { SpotlightsViews } from "@/lib/collections/spotlights/views";
 
 export const graphqlSpotlightQueryTypeDefs = gql`
   type Spotlight ${ getAllGraphQLFields(schema) }
+
+  enum SpotlightDocumentType {
+    Post
+    Sequence
+    Tag
+  }
   
   input SingleSpotlightInput {
     selector: SelectorInput

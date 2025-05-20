@@ -7,6 +7,18 @@ import { UserRateLimitsViews } from "@/lib/collections/userRateLimits/views";
 
 export const graphqlUserRateLimitQueryTypeDefs = gql`
   type UserRateLimit ${ getAllGraphQLFields(schema) }
+
+  enum UserRateLimitType {
+    allComments
+    allPosts
+  }
+  
+  enum UserRateLimitIntervalUnit {
+    minutes
+    hours
+    days
+    weeks
+  }
   
   input SingleUserRateLimitInput {
     selector: SelectorInput

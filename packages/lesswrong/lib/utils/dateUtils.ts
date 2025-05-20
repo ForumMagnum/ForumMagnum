@@ -12,16 +12,26 @@ export function maybeDate<T extends string | null | undefined>(stringDate: T) {
 
 type StringFieldsOf<T> = {
   [K in keyof T]: T[K] extends string | null | undefined ? K : never;
-}[keyof T];
+};
 
-export function withDateFields<T extends unknown | null | undefined, const K extends StringFieldsOf<Exclude<T, null | undefined>>[]>(obj: T, fields: K) {
+type StringFieldNamesOf<T> = StringFieldsOf<T>[keyof T];
+
+type StringToDateFields<T, K extends keyof T> = {
+  [k in keyof T]: k extends K
+    ? (T[k] extends (infer FieldType extends string | null | undefined) ? Exclude<FieldType, string> | Date : never)
+    : T[k];
+}
+
+type WithDateFields<T, K extends (StringFieldNamesOf<T> & keyof T)[]> = T extends null | undefined ? T : StringToDateFields<T, K[number]>;
+
+export function withDateFields<T extends Record<string, unknown> | null | undefined, const K extends (StringFieldNamesOf<NonNullable<T>> & keyof NonNullable<T>)[]>(obj: T, fields: K): WithDateFields<NonNullable<T>, K> {
   if (!obj) {
-    return obj as Extract<T, null | undefined>;
-  }
+    return obj as WithDateFields<NonNullable<T>, K>;
+  } 
 
-  const originalFields = pick(obj, fields) as Record<K[number], string | null | undefined>;
-  const remainingFields = omit(obj, fields) as Omit<Exclude<T, null | undefined>, K[number]>;
+  const originalFields = pick(obj, fields);
+  const remainingFields = omit(obj, fields);
   
-  const dateFields = mapValues(originalFields, (value) => maybeDate(value));
-  return { ...remainingFields, ...dateFields };
+  const dateFields = mapValues(originalFields, (value) => maybeDate(value as string | null | undefined));
+  return { ...remainingFields, ...dateFields } as WithDateFields<NonNullable<T>, K>;
 }

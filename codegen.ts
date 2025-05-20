@@ -76,19 +76,7 @@ const config: CodegenConfig = {
         noExport: true,
       }
     },
-    "./client-schema.json": {
-      plugins: ["introspection"],
-      documents: ["./packages/lesswrong/lib/generated/gqlSchema.gql"],
-      config: {
-        minify: true,
-        descriptions: false,
-        schemaDescription: false,
-      },
-    },
   },
-  hooks: {
-    afterAllFileWrite: ["node ./prune-schema.js > prune_stdout.log 2> prune_stderr.log"]
-  }
 };
 
 export default config;

@@ -396,8 +396,6 @@ type DbInsertion<T extends DbObject> = Omit<
   _id?: T["_id"];
 };
 
-type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
-
 type CollectionNameWithPingbacks = {
   [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never
 }[CollectionNameString];

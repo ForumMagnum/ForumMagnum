@@ -27,6 +27,7 @@ import PostForm from "./PostForm";
 import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
+import { withDateFields } from '@/lib/utils/dateUtils';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -237,7 +238,7 @@ const PostsEditForm = ({ documentId, version }: {
         <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <PostForm
-              initialData={document}
+              initialData={withDateFields(document, ['createdAt', 'postedAt', 'afDate', 'commentsLockedToAccountsCreatedAfter', 'frontpageDate', 'curatedDate', 'startTime', 'endTime'])}
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})

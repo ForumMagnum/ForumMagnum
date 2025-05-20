@@ -176,12 +176,12 @@ const staticFragments = transformFragments({
 // TODO: I originally implemented this with deferred execution because getDefaultFragments needed to be called after the collections were registered
 // But now we're generating the default fragments in a separate step, so maybe we can just do this in one go?
 export const getAllFragments = (() => {
-  let allFragments: typeof staticFragments & typeof defaultFragments;
+  let allFragments: typeof staticFragments & Record<keyof typeof defaultFragments, string>;
   return () => {
     if (!allFragments) {
       allFragments = {
         ...staticFragments,
-        ...defaultFragments,
+        ...transformFragments(defaultFragments),
       };
     }
     return allFragments;

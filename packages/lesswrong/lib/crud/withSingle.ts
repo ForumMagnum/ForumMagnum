@@ -19,7 +19,6 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
-  console.log({fragmentName, fragment})
   const typeName = collectionNameToTypeName[collectionName];
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries

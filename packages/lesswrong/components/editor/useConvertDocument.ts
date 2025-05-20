@@ -26,7 +26,7 @@ export function useConvertDocument({onCompleted}: {
   
   return {
     convertDocument: (doc: EditorContents, targetFormat: EditorTypeString) => {
-      convertDocument({
+      void convertDocument({
         variables: {
           document: serializeEditorContents(doc),
           targetFormat: targetFormat,

@@ -24,6 +24,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from "@/lib/utils/dateUtils";
 
 const SurveyScheduleEditQuery = gql(`
   query SurveyScheduleEditPage($documentId: String) {
@@ -54,7 +55,7 @@ const SurveySchedulesForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; target?: DbSurveySchedule['target'] };
+  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; };
   onSuccess: (doc: SurveyScheduleEdit) => void;
 }) => {
   const classes = useStyles(styles);
@@ -273,7 +274,7 @@ const SurveyScheduleEditor = () => {
       </Link>
       <SectionTitle title={`${isNewForm ? "New" : "Edit"} survey schedule`} />
       <SurveySchedulesForm
-        initialData={initialData}
+        initialData={withDateFields(initialData, ['startDate', 'endDate'])}
         onSuccess={onCreate}
       />
     </SingleColumnSection>

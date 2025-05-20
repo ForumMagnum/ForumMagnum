@@ -44,6 +44,7 @@ import UsersEmailVerification from "../UsersEmailVerification";
 import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheckbox";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import { withDateFields } from '@/lib/utils/dateUtils';
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -141,6 +142,8 @@ const UsersForm = ({
   
   const formType = 'edit';
 
+  initialData?.banned
+
   const {
     onSubmitCallback: onSubmitBiographyCallback,
     onSuccessCallback: onSuccessBiographyCallback,
@@ -162,7 +165,7 @@ const UsersForm = ({
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['createdAt']),
 
       sunshineFlagged: initialData?.sunshineFlagged ?? false,
       needsReview: initialData?.needsReview ?? false,
@@ -1366,7 +1369,7 @@ const UsersEditForm = ({ terms }: {
       {loadingUser && <Loading />}
       {!loadingUser && userBySlug && (
         <UsersForm
-          initialData={userBySlug}
+          initialData={withDateFields(userBySlug, ['banned', 'hideJobAdUntil', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent'])}
           currentUser={currentUser}
           onSuccess={onSuccess}
         />

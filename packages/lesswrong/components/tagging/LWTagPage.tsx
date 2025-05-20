@@ -67,6 +67,7 @@ import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelecti
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from "@/lib/utils/dateUtils";
 
 const TagEditFragmentQuery = gql(`
   query LWTagPage($documentId: String) {
@@ -369,7 +370,7 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
 
   return <LensForm
     key={lens._id + mountKey}
-    initialData={lens.originalLensDocument ?? undefined}
+    initialData={withDateFields(lens.originalLensDocument ?? undefined, ['createdAt'])}
     onSuccess={() => successCallback().then(() => setMountKey(mountKey + 1))}
     onCancel={cancelCallback}
     onChange={changeCallback}

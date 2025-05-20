@@ -846,7 +846,7 @@ interface RssPostChangeInfo {
 interface FeedPost {
   _id: string;
   postMetaInfo: any;
-  post: Post | null;
+  post: Post;
 }
 
 interface FeedCommentThread {
@@ -3040,7 +3040,7 @@ interface ModeratorAction {
   legacyData: any;
   userId: string;
   user: User | null;
-  type: string;
+  type: ModeratorActionType;
   endedAt: Date | null;
   active: boolean;
 }
@@ -5415,7 +5415,7 @@ interface Spotlight {
   post: Post | null;
   sequence: Sequence | null;
   tag: Tag | null;
-  documentType: string;
+  documentType: SpotlightDocumentType;
   position: number;
   duration: number;
   customTitle: string | null;
@@ -5624,7 +5624,7 @@ interface SurveySchedule {
   maxVisitorPercentage: number | null;
   minKarma: number | null;
   maxKarma: number | null;
-  target: string | null;
+  target: SurveyScheduleTarget | null;
   startDate: Date | null;
   endDate: Date | null;
   deactivated: boolean | null;
@@ -6241,8 +6241,8 @@ interface UserRateLimit {
   legacyData: any;
   userId: string;
   user: User | null;
-  type: string;
-  intervalUnit: string;
+  type: UserRateLimitType;
+  intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
   endedAt: Date;
@@ -7468,7 +7468,7 @@ interface ModerationTemplateOutput {
 interface CreateModeratorActionDataInput {
   legacyData?: any;
   userId?: string | null;
-  type: string;
+  type: ModeratorActionType;
   endedAt?: Date | null;
 }
 
@@ -7479,7 +7479,7 @@ interface CreateModeratorActionInput {
 interface UpdateModeratorActionDataInput {
   legacyData?: any;
   userId?: string | null;
-  type?: string | null;
+  type?: ModeratorActionType | null;
   endedAt?: Date | null;
 }
 
@@ -7992,7 +7992,7 @@ interface CreateSpotlightDataInput {
   legacyData?: any;
   description?: CreateRevisionDataInput | null;
   documentId: string;
-  documentType: string;
+  documentType: SpotlightDocumentType;
   position?: number | null;
   duration: number;
   customTitle?: string | null;
@@ -8019,7 +8019,7 @@ interface UpdateSpotlightDataInput {
   legacyData?: any;
   description?: CreateRevisionDataInput | null;
   documentId?: string | null;
-  documentType?: string | null;
+  documentType?: SpotlightDocumentType | null;
   position?: number | null;
   duration?: number | null;
   customTitle?: string | null;
@@ -8132,7 +8132,7 @@ interface CreateSurveyScheduleDataInput {
   maxVisitorPercentage?: number | null;
   minKarma?: number | null;
   maxKarma?: number | null;
-  target: string;
+  target: SurveyScheduleTarget;
   startDate?: Date | null;
   endDate?: Date | null;
   deactivated?: boolean | null;
@@ -8151,7 +8151,7 @@ interface UpdateSurveyScheduleDataInput {
   maxVisitorPercentage?: number | null;
   minKarma?: number | null;
   maxKarma?: number | null;
-  target?: string | null;
+  target?: SurveyScheduleTarget | null;
   startDate?: Date | null;
   endDate?: Date | null;
   deactivated?: boolean | null;
@@ -8415,8 +8415,8 @@ interface UserMostValuablePostOutput {
 interface CreateUserRateLimitDataInput {
   legacyData?: any;
   userId: string;
-  type: string;
-  intervalUnit: string;
+  type: UserRateLimitType;
+  intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
   endedAt: Date;
@@ -8429,8 +8429,8 @@ interface CreateUserRateLimitInput {
 interface UpdateUserRateLimitDataInput {
   legacyData?: any;
   userId?: string | null;
-  type?: string | null;
-  intervalUnit?: string | null;
+  type?: UserRateLimitType | null;
+  intervalUnit?: UserRateLimitIntervalUnit | null;
   intervalLength?: number | null;
   actionsPerInterval?: number | null;
   endedAt?: Date | null;

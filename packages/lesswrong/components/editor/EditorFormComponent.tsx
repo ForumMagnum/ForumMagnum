@@ -261,7 +261,7 @@ function InnerEditorFormComponent<S, R>({
       criticismTipsDismissed
     ) return
 
-    checkPostIsCriticism({variables: { args: {
+    void checkPostIsCriticism({variables: { args: {
       _id: document._id,
       title: document.title ?? '',
       contentType: contents.type,

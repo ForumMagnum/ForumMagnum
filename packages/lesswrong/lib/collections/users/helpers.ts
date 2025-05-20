@@ -638,12 +638,14 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
   },
 } as const);
 
-export type EditableUser = Omit<UpdateUserDataInput & UsersEdit, 'howOthersCanHelpMe' | 'howICanHelpOthers' | 'legacyData'> & {
+type UserInputDateFields = KeysOfType<UpdateUserDataInput, Date | null | undefined>;
+
+export type EditableUser = Omit<UpdateUserDataInput & Omit<UsersEdit, UserInputDateFields>, 'howOthersCanHelpMe' | 'howICanHelpOthers' | 'legacyData'> & {
   _id: string;
   hasAuth0Id?: boolean | null;
-  reactPaletteStyle?: DbUser['reactPaletteStyle'];
-  subforumPreferredLayout?: DbUser['subforumPreferredLayout'];
 };
+
+type ff = EditableUser['banned']
 
 export const CAREER_STAGES: CareerStage[] = [
   { value: "highSchool", label: "In high school", icon: "School", EAGLabel: "Student (high school)" },

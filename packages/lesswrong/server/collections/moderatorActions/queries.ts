@@ -7,6 +7,30 @@ import { ModeratorActionsViews } from "@/lib/collections/moderatorActions/views"
 
 export const graphqlModeratorActionQueryTypeDefs = gql`
   type ModeratorAction ${ getAllGraphQLFields(schema) }
+
+  enum ModeratorActionType {
+    rateLimitOnePerDay
+    rateLimitOnePerThreeDays
+    rateLimitOnePerWeek
+    rateLimitOnePerFortnight
+    rateLimitOnePerMonth
+    rateLimitThreeCommentsPerPost
+    recentlyDownvotedContentAlert
+    lowAverageKarmaCommentAlert
+    lowAverageKarmaPostAlert
+    negativeUserKarmaAlert
+    movedPostToDraft
+    sentModeratorMessage
+    manualFlag
+    votingPatternWarningDelivered
+    flaggedForNDMs
+    autoBlockedFromSendingDMs
+    rejectedPost
+    rejectedComment
+    potentialTargetedDownvoting
+    exemptFromRateLimits
+    receivedSeniorDownvotesAlert
+  }
   
   input SingleModeratorActionInput {
     selector: SelectorInput

@@ -21,6 +21,7 @@ export function transformFragments<T extends Record<string, DocumentNode>>(fragm
         const result = [key, print(value)];
         return result;
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(`Error printing fragment ${key}:`, e);
         return [key, value];
       }

@@ -249,7 +249,7 @@ const CommentsNewForm = ({
     setLoading(false)
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
-    refetch();
+    void refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {

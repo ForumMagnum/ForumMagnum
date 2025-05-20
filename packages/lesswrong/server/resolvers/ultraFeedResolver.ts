@@ -40,7 +40,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type FeedPost {
     _id: String!
     postMetaInfo: JSON
-    post: Post
+    post: Post!
   }
 
   type FeedCommentThread {

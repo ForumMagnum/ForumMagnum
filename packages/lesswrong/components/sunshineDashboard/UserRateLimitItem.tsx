@@ -21,6 +21,7 @@ import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
+import { withDateFields } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -376,7 +377,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
   }
 
   const existingRateLimit = existingRateLimits.find(rateLimit => rateLimit._id === editingExistingRateLimitId);
-  const existingOrDefaultValue = existingRateLimit ? { initialData: existingRateLimit } : { prefilledProps: prefilledCustomFormProps };
+  const existingOrDefaultValue = existingRateLimit ? { initialData: withDateFields(existingRateLimit, ['endedAt']) } : { prefilledProps: prefilledCustomFormProps };
 
   return <div>
     {/** Doesn't have both a comment and post rate limit */}

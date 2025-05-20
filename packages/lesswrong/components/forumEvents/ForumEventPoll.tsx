@@ -632,7 +632,7 @@ export const ForumEventPoll = ({
           await removeVote({ variables: { forumEventId: event._id } });
           setVoteCount((count) => count - 1);
           setCommentFormOpen(false);
-          refetch?.();
+          void refetch?.();
         }
         setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
         setCurrentUserVote(null);
@@ -713,7 +713,7 @@ export const ForumEventPoll = ({
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
-        refetch?.();
+        void refetch?.();
 
         return;
       }
@@ -728,7 +728,7 @@ export const ForumEventPoll = ({
             ...(postId && { postIds: [postId] }),
           },
         });
-        refetch?.();
+        void refetch?.();
       }
     } catch (e) {
       setCurrentBucketIndex(initialBucketIndex);
