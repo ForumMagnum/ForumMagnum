@@ -100,6 +100,11 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
     fetchPolicy: 'cache-and-network',
     limit: 5
   });
+  
+  if (!reviews?.length) {
+    return null;
+  }
+  
   return <AnalyticsContext pageElementContext="reviewPillContainer">
     <div className={classes.root}>
       {reviews?.map((review) => (
