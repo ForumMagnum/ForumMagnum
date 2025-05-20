@@ -15,6 +15,7 @@ import { WrappedStrawPoll } from './WrappedStrawPoll';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { captureEvent } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
+import repeat from 'lodash/repeat';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -306,58 +307,108 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
   // Traverse parsedHtml, producing an array of text nodes, a combined string
   // with the text of all those nodes, and text offsets for each. Node types
   // that contain non-normal text (CDATA, Script, Style) are skipped.
-  const textNodes: Array<{
-    node: DomHandlerText,
-    offset: number,
+  //
+  // Insert virtual text nodes containing newlines between block and list
+  // elements (p, h1, h2...h6, ol, ul, li, img, ...). traverse() returns the
+  // minimum number of newlines that should separate it from any sibling above
+  // and below.
+  type AnnotatedTextNode = {
+    node: DomHandlerText|null,
     str: string,
-  }> = [];
-  let currentOffset = 0;
-
-  function traverse(node: DomHandlerChildNode) {
+  };
+  type AnnotatedTextNodeWithOffset = AnnotatedTextNode & {
+    offset: number
+  };
+  function traverse(node: DomHandlerChildNode): {
+    textNodes: AnnotatedTextNode[],
+    separationAbove: number,
+    separationBelow: number
+  } {
     switch (node.type) {
-      case htmlparser2.ElementType.Root:
-        for (const child of node.childNodes) {
-          traverse(child);
-        }
-        break;
       case htmlparser2.ElementType.Text:
         const textNode = node;
         const str = textNode.data ?? "";
-        textNodes.push({
-          node: textNode,
-          offset: currentOffset,
-          str,
-        });
-        currentOffset += str.length;
-        break;
-      case htmlparser2.ElementType.Tag:
-        for (const child of node.childNodes) {
-          traverse(child);
+        return {
+          textNodes: [{
+            node: textNode,
+            str,
+          }],
+          separationAbove: 0,
+          separationBelow: 0,
         }
-        break;
+      case htmlparser2.ElementType.Root:
+      case htmlparser2.ElementType.Tag: {
+        // Recurse
+        const annotatedChildNodes = node.childNodes.map(n => traverse(n));
+
+        // Separation above/below is the greater of the separation created by
+        // this tag, and the separation created by its first/last child.
+        const thisTagSeparation = (node.type === htmlparser2.ElementType.Tag)
+          ? tagNameToNewlineCount(node.tagName.toLowerCase())
+          : 0;
+        const separationAbove = Math.max(thisTagSeparation, annotatedChildNodes[0]?.separationAbove ?? 0);
+        const separationBelow = Math.max(thisTagSeparation, annotatedChildNodes[annotatedChildNodes.length-1]?.separationBelow ?? 0);
+        
+        // Insert separators between nodes
+        const nodesWithSeparators: AnnotatedTextNode[] = [];
+        for (let i=0; i<annotatedChildNodes.length; i++) {
+          const annotatedChildNode = annotatedChildNodes[i];
+          if (i>0) {
+            let separation = Math.max(annotatedChildNode.separationAbove, annotatedChildNodes[i-1].separationBelow);
+            if (separation > 0) {
+              nodesWithSeparators.push({
+                node: null,
+                str: repeat('\n', separation),
+              });
+            }
+          }
+          nodesWithSeparators.push(...annotatedChildNode.textNodes);
+        }
+        
+        return {
+          textNodes: nodesWithSeparators,
+          separationAbove,
+          separationBelow,
+        };
+      }
       default:
-        break;
+        return {
+          textNodes: [],
+          separationAbove: 0,
+          separationBelow: 0,
+        };
     }
   }
-  traverse(parsedHtml);
-  const combinedText = textNodes.map(t => t.str).join("");
+  const textNodesWithSeparators: AnnotatedTextNode[] = traverse(parsedHtml).textNodes;
+  const textNodesWithOffsets: AnnotatedTextNodeWithOffset[] = [];
+  let currentOffset = 0;
+  for (const textNode of textNodesWithSeparators) {
+    textNodesWithOffsets.push({
+      ...textNode,
+      offset: currentOffset,
+    });
+    currentOffset += textNode.str.length;
+  }
+  const combinedText = textNodesWithOffsets.map(t => t.str).join("");
 
   // Locate replacements in the combined string, as offsets (or null if not present).
   const replacementRanges: Array<{ startOffset: number, endOffset: number, replacementIndex: number }> =
     replacedSubstrings.flatMap((replacedSubstring, i) => {
+      // Trim, and remove any \r (sometimes this has CRLF when it should just be LF)
+      const replacedString = replacedSubstring.replacedString.trim().replace(/\r/g, '');
       if (replacedSubstring.replace === 'first') {
-        const idx = combinedText.indexOf(replacedSubstring.replacedString)
+        const idx = combinedText.indexOf(replacedString)
         if (idx < 0) return [];
         return [{
           startOffset: idx,
-          endOffset: idx + replacedSubstring.replacedString.length,
+          endOffset: idx + replacedString.length,
           replacementIndex: i,
         }];
       } else {
-        const indices = findStringMultiple(replacedSubstring.replacedString, combinedText);
+        const indices = findStringMultiple(replacedString, combinedText);
         return indices.map(idx => ({
           startOffset: idx,
-          endOffset: idx + replacedSubstring.replacedString.length,
+          endOffset: idx + replacedString.length,
           replacementIndex: i
         }));
       }
@@ -371,7 +422,12 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
     substitutions: SubstitutionsAttr,
   }> = [];
   const splitOffsets = uniq(replacementRanges.flatMap(r => [r.startOffset, r.endOffset])).sort((a,b) => a-b);
-  for (const textNode of textNodes) {
+  for (const textNode of textNodesWithOffsets) {
+    // Spacers can't be split (and also the start/end of a substitution will
+    // never land on one because substitutions are trimmed)
+    if (!textNode.node) {
+      continue;
+    }
     const nodeSplitOffsets = splitOffsets
       .filter(o => o > textNode.offset && o < textNode.offset + textNode.str.length)
       .map(o => o - textNode.offset);
@@ -426,11 +482,20 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
   return parsedHtml;
 }
 
-function splitTextNode(textNode: DomHandlerText, splitOffsets: number[]): DomHandlerText[] {
-  const parentElement = textNode.parent!;
-  const childrenArray = Array.from(parentElement.childNodes);
-  const nodeIndex: number = childrenArray.indexOf(textNode);
+function tagNameToNewlineCount(tagName: string): number {
+  switch (tagName) {
+    case "p":
+    case "h1": case "h2": case "h3": case "h4": case "h5": case "h6":
+      return 2;
+    case "ul": case "ol": case "li":
+    case "div":
+      return 1;
+    default:
+      return 0;
+  }
+}
 
+function splitTextNode(textNode: DomHandlerText, splitOffsets: number[]): DomHandlerText[] {
   // Partion textNode into n+1 Text nodes, each containing a substring, with the given splitOffsets.
   let newTextNodes: DomHandlerText[] = [];
   let lengthSoFar = 0;
