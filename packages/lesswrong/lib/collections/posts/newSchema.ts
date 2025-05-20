@@ -2376,7 +2376,7 @@ const schema = {
   },
   socialPreviewData: {
     graphql: {
-      outputType: "SocialPreviewType",
+      outputType: "SocialPreviewType!",
       canRead: ["guests"],
       resolver: async (post, args, context): Promise<SocialPreviewType> => {
         const { imageId = null, text = null } = post.socialPreview || {};
@@ -3863,7 +3863,7 @@ const schema = {
   },
   recentComments: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]",
       canRead: ["guests"],
       arguments: "commentsLimit: Int, maxAgeHours: Int, af: Boolean",
       // commentsLimit for some reason can receive a null (which was happening in one case)

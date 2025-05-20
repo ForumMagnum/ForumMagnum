@@ -112,8 +112,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
 
   const profileUrl = userGetProfileUrl(post.user);
 
-  const hasUserPosts = post.user &&
-    (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
+  const postAuthor = post.user;
+  const hasUserPosts = postAuthor && (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
@@ -123,8 +123,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
               <div className={classes.section}>
                 <div className={classes.sectionHeading}>
                   More from{" "}
-                  <UserTooltip user={post.user} inlineBlock={false}>
-                    <Link to={profileUrl}>{post.user.displayName}</Link>
+                  <UserTooltip user={postAuthor} inlineBlock={false}>
+                    <Link to={profileUrl}>{postAuthor.displayName}</Link>
                   </UserTooltip>
                 </div>
                 {moreFromAuthorLoading && !moreFromAuthorPosts?.length &&

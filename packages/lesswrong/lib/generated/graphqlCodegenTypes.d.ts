@@ -484,7 +484,7 @@ type CommentKarmaChange = {
   postSlug?: Maybe<Scalars['String']['output']>;
   postTitle?: Maybe<Scalars['String']['output']>;
   scoreChange: Scalars['Int']['output'];
-  tagCommentType?: Maybe<Scalars['String']['output']>;
+  tagCommentType?: Maybe<TagCommentType>;
   tagId?: Maybe<Scalars['String']['output']>;
   tagName?: Maybe<Scalars['String']['output']>;
   tagSlug?: Maybe<Scalars['String']['output']>;
@@ -1207,7 +1207,7 @@ type CreateForumEventDataInput = {
   customComponent: ForumEventCustomComponent;
   darkColor: Scalars['String']['input'];
   endDate?: InputMaybe<Scalars['Date']['input']>;
-  eventFormat?: InputMaybe<Scalars['String']['input']>;
+  eventFormat?: InputMaybe<ForumEventFormat>;
   frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
   frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
   includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1298,7 +1298,7 @@ type CreateMessageInput = {
 };
 
 type CreateModerationTemplateDataInput = {
-  collectionName: Scalars['String']['input'];
+  collectionName: ModerationTemplateType;
   contents?: InputMaybe<CreateRevisionDataInput>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name: Scalars['String']['input'];
@@ -2461,7 +2461,7 @@ type ForumEvent = {
   customComponent: ForumEventCustomComponent;
   darkColor: Scalars['String']['output'];
   endDate?: Maybe<Scalars['Date']['output']>;
-  eventFormat: Scalars['String']['output'];
+  eventFormat: ForumEventFormat;
   frontpageDescription?: Maybe<Revision>;
   frontpageDescriptionMobile?: Maybe<Revision>;
   frontpageDescriptionMobile_latest?: Maybe<Scalars['String']['output']>;
@@ -2510,6 +2510,11 @@ type ForumEventpostPageDescriptionArgs = {
 
 type ForumEventCustomComponent =
   | 'GivingSeason2024Banner';
+
+type ForumEventFormat =
+  | 'BASIC'
+  | 'POLL'
+  | 'STICKERS';
 
 type ForumEventOutput = {
   __typename?: 'ForumEventOutput';
@@ -2994,7 +2999,7 @@ type MigrationsDashboardData = {
 type ModerationTemplate = {
   __typename?: 'ModerationTemplate';
   _id: Scalars['String']['output'];
-  collectionName: Scalars['String']['output'];
+  collectionName: ModerationTemplateType;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -3020,6 +3025,11 @@ type ModerationTemplateSelector = {
   moderationTemplatesList?: InputMaybe<ModerationTemplatesModerationTemplatesListInput>;
   moderationTemplatesPage?: InputMaybe<EmptyViewInput>;
 };
+
+type ModerationTemplateType =
+  | 'Comments'
+  | 'Messages'
+  | 'Rejections';
 
 type ModerationTemplatesModerationTemplatesListInput = {
   collectionName?: InputMaybe<Scalars['String']['input']>;
@@ -5485,7 +5495,7 @@ type Post = {
   question: Scalars['Boolean']['output'];
   readTimeMinutes: Scalars['Int']['output'];
   readTimeMinutesOverride?: Maybe<Scalars['Float']['output']>;
-  recentComments?: Maybe<Array<Maybe<Comment>>>;
+  recentComments?: Maybe<Array<Comment>>;
   referrer?: Maybe<Scalars['String']['output']>;
   rejected: Scalars['Boolean']['output'];
   rejectedByUser?: Maybe<User>;
@@ -5527,7 +5537,7 @@ type Post = {
   sideCommentsCache?: Maybe<SideCommentCache>;
   slug: Scalars['String']['output'];
   socialPreview?: Maybe<SocialPreviewOutput>;
-  socialPreviewData?: Maybe<SocialPreviewType>;
+  socialPreviewData: SocialPreviewType;
   socialPreviewImageAutoUrl?: Maybe<Scalars['String']['output']>;
   socialPreviewImageId?: Maybe<Scalars['String']['output']>;
   socialPreviewImageUrl?: Maybe<Scalars['String']['output']>;
@@ -10762,7 +10772,7 @@ type UpdateForumEventDataInput = {
   customComponent?: InputMaybe<ForumEventCustomComponent>;
   darkColor?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['Date']['input']>;
-  eventFormat?: InputMaybe<Scalars['String']['input']>;
+  eventFormat?: InputMaybe<ForumEventFormat>;
   frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
   frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
   includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
@@ -10853,7 +10863,7 @@ type UpdateMessageInput = {
 };
 
 type UpdateModerationTemplateDataInput = {
-  collectionName?: InputMaybe<Scalars['String']['input']>;
+  collectionName?: InputMaybe<ModerationTemplateType>;
   contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -11258,7 +11268,6 @@ type UpdateUserDataInput = {
   beta?: InputMaybe<Scalars['Boolean']['input']>;
   biography?: InputMaybe<CreateRevisionDataInput>;
   blueskyProfileURL?: InputMaybe<Scalars['String']['input']>;
-  bookmarkedPostsMetadata?: InputMaybe<Array<PostMetadataInput>>;
   careerStage?: InputMaybe<Array<Scalars['String']['input']>>;
   collapseModerationGuidelines?: InputMaybe<Scalars['Boolean']['input']>;
   commentSorting?: InputMaybe<Scalars['String']['input']>;
@@ -12254,7 +12263,7 @@ type CommentPollVoteQueryVariables = Exact<{
 
 type CommentPollVoteQuery = { __typename?: 'Query', forumEvent: { __typename?: 'SingleForumEventOutput', result: (
       { __typename?: 'ForumEvent' }
-      & ForumEventsMinimumInfo
+      & ForumEventsDisplay
     ) | null } | null };
 
 type CommentsNewFormQueryVariables = Exact<{
@@ -14522,7 +14531,7 @@ type FeaturedResourcesFragment = { __typename?: 'FeaturedResource', _id: string,
 
 type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, eventFormat: string, customComponent: ForumEventCustomComponent, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
+type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, eventFormat: ForumEventFormat, customComponent: ForumEventCustomComponent, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
 
 type ForumEventsDisplay = (
   { __typename?: 'ForumEvent', publicData: any | null, voteCount: number, post: (
@@ -14643,7 +14652,7 @@ type messageListFragment = { __typename?: 'Message', _id: string, createdAt: str
     & UsersMinimumInfo
   ) | null, contents: { __typename?: 'Revision', html: string | null, plaintextMainText: string } | null };
 
-type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: string, order: number, deleted: boolean, contents: (
+type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType, order: number, deleted: boolean, contents: (
     { __typename?: 'Revision' }
     & RevisionEdit
   ) | null };
@@ -14801,7 +14810,7 @@ type PostsListBase = (
   ) | null, tags: Array<(
     { __typename?: 'Tag' }
     & TagBasicInfo
-  )>, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageUrl: string } | null }
+  )>, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageUrl: string } }
   & PostsBase
   & PostsAuthors
 );
@@ -14839,7 +14848,7 @@ type PostsDetails = (
   { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<(
     { __typename?: 'Tag' }
     & TagPreviewFragment
-  )>, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, text: string | null, imageUrl: string } | null, canonicalSequence: { __typename?: 'Sequence', _id: string, title: string } | null, canonicalBook: { __typename?: 'Book', _id: string, title: string | null } | null, canonicalCollection: { __typename?: 'Collection', _id: string, title: string } | null, podcastEpisode: { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null } } | null, feed: (
+  )>, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, text: string | null, imageUrl: string }, canonicalSequence: { __typename?: 'Sequence', _id: string, title: string } | null, canonicalBook: { __typename?: 'Book', _id: string, title: string | null } | null, canonicalCollection: { __typename?: 'Collection', _id: string, title: string } | null, podcastEpisode: { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null } } | null, feed: (
     { __typename?: 'RSSFeed' }
     & RSSFeedMinimumInfo
   ) | null, sourcePostRelations: Array<{ __typename?: 'PostRelation', _id: string, sourcePostId: string, order: number | null, sourcePost: (
@@ -14931,7 +14940,7 @@ type PostsEdit = (
   ) | null, customHighlight: (
     { __typename?: 'Revision' }
     & RevisionEdit
-  ) | null, socialPreview: { __typename?: 'SocialPreviewOutput', imageId: string, text: string | null } | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageId: string | null, text: string | null } | null, user: (
+  ) | null, socialPreview: { __typename?: 'SocialPreviewOutput', imageId: string, text: string | null } | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageId: string | null, text: string | null }, user: (
     { __typename?: 'User', moderationStyle: string | null, bannedUserIds: Array<string> | null, moderatorAssistance: boolean | null }
     & UsersMinimumInfo
   ) | null, usersSharedWith: Array<(
@@ -14970,7 +14979,7 @@ type PostsRecentDiscussion = (
   { __typename?: 'Post', recentComments: Array<(
     { __typename?: 'Comment' }
     & CommentsList
-  ) | null> | null }
+  )> | null }
   & PostsListWithVotes
 );
 
@@ -14978,7 +14987,7 @@ type ShortformRecentDiscussion = (
   { __typename?: 'Post', recentComments: Array<(
     { __typename?: 'Comment' }
     & CommentsListWithTopLevelComment
-  ) | null> | null }
+  )> | null }
   & PostsListWithVotes
 );
 
@@ -15015,7 +15024,7 @@ type PostSideComments = { __typename?: 'Post', _id: string, sideComments: any | 
 type PostWithGeneratedSummary = { __typename?: 'Post', _id: string, languageModelSummary: string | null };
 
 type PostsBestOfList = (
-  { __typename?: 'Post', firstVideoAttribsForPreview: any | null, podcastEpisode: { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null } } | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, text: string | null, imageUrl: string } | null }
+  { __typename?: 'Post', firstVideoAttribsForPreview: any | null, podcastEpisode: { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null } } | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, text: string | null, imageUrl: string } }
   & PostsListWithVotes
 );
 
@@ -15627,7 +15636,7 @@ type UserBookmarkedPosts = { __typename?: 'User', _id: string, bookmarkedPosts: 
     & PostsList
   )> | null };
 
-type UserKarmaChanges = { __typename?: 'User', _id: string, karmaChanges: { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, todaysKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null, thisWeeksKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null } | null };
+type UserKarmaChanges = { __typename?: 'User', _id: string, karmaChanges: { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, todaysKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null, thisWeeksKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null } | null };
 
 type UsersBannedFromUsersModerationLog = { __typename?: 'User', _id: string, slug: string, displayName: string, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null };
 
@@ -15790,7 +15799,7 @@ type FeaturedResourcesDefaultFragment = { __typename?: 'FeaturedResource', _id: 
 
 type FieldChangesDefaultFragment = { __typename?: 'FieldChange', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: string, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent, commentPrompt: string | null, publicData: any | null };
+type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: ForumEventFormat, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent, commentPrompt: string | null, publicData: any | null };
 
 type GardenCodesDefaultFragment = { __typename?: 'GardenCode', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, code: string, title: string, userId: string, startTime: string | null, endTime: string, fbLink: string | null, type: string, hidden: boolean, deleted: boolean, afOnly: boolean };
 
@@ -15816,7 +15825,7 @@ type MessagesDefaultFragment = { __typename?: 'Message', _id: string, schemaVers
 
 type MigrationsDefaultFragment = { __typename?: 'Migration', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
-type ModerationTemplatesDefaultFragment = { __typename?: 'ModerationTemplate', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, name: string, collectionName: string, order: number, deleted: boolean };
+type ModerationTemplatesDefaultFragment = { __typename?: 'ModerationTemplate', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, name: string, collectionName: ModerationTemplateType, order: number, deleted: boolean };
 
 type ModeratorActionsDefaultFragment = { __typename?: 'ModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: string, endedAt: string | null };
 

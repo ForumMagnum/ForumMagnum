@@ -78,7 +78,7 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
 
 export interface SharableDocument {
   coauthorStatuses?: DbPost["coauthorStatuses"]
-  shareWithUsers?: DbPost["shareWithUsers"]
+  shareWithUsers?: DbPost["shareWithUsers"] | null
   sharingSettings?: DbPost["sharingSettings"]
 }
 

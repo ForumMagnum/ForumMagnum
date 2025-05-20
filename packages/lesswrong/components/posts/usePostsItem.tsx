@@ -18,6 +18,7 @@ import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/constants';
 import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
 import type { PostsListViewType } from "../hooks/usePostsListView";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -179,9 +180,9 @@ export const usePostsItem = ({
 
   const lastCommentedAt = postGetLastCommentedAt(post);
   const lastCommentPromotedAt = postGetLastCommentPromotedAt(post);
-  const hasUnreadComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt);
-  const hadUnreadComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt);
-  const hasNewPromotedComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentPromotedAt);
+  const hasUnreadComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentedAt);
+  const hadUnreadComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentedAt);
+  const hasNewPromotedComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentPromotedAt);
 
   let postLink = post.draft && !post.debate
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`

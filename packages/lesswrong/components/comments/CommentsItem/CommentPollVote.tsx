@@ -11,7 +11,7 @@ const ForumEventsMinimumInfoQuery = gql(`
   query CommentPollVote($documentId: String) {
     forumEvent(input: { selector: { documentId: $documentId } }) {
       result {
-        ...ForumEventsMinimumInfo
+        ...ForumEventsDisplay
       }
     }
   }

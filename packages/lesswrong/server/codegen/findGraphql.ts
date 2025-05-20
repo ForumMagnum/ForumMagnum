@@ -21,14 +21,10 @@ function fileMightIncludeFragment(filePath: string): boolean {
 
 function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
   const tsFiles = getAllTypeScriptFilesIn(srcDir);
-  console.log(`Examining ${tsFiles.length} files in ${srcDir} for fragments`);
   const program = ts.createProgram(tsFiles, {});
   const fragmentStrings: string[] = [];
   
   for (const sourceFile of program.getSourceFiles()) {
-    if (sourceFile.fileName.includes('fragments.ts')) {
-      console.log(`Visiting ${sourceFile.fileName}`);
-    }
     const fragmentStringsInFile = findFragmentsInFile(sourceFile, functionToFind);
     fragmentStrings.push(...fragmentStringsInFile);
   }

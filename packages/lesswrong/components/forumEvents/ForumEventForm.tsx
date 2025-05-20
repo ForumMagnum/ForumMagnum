@@ -24,6 +24,7 @@ import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from "@/lib/utils/dateUtils";
 
 const ForumEventsEditQuery = gql(`
   query ForumEventForm($documentId: String) {
@@ -443,7 +444,7 @@ export const ForumEventForm = ({ documentId }: {
     variables: { documentId: documentId },
     skip: !documentId,
   });
-  const editableDocument = data?.forumEvent?.result;
+  const editableDocument = data?.forumEvent?.result ?? undefined;
 
   useEffect(() => {
     if (remountingForm) {
@@ -457,12 +458,14 @@ export const ForumEventForm = ({ documentId }: {
 
   const loadingExistingEvent = documentId && loading;
 
+  const initialData = withDateFields(editableDocument, ['startDate', 'endDate']);
+
   return (
     <div className={classes.root}>
       <SectionTitle title={title} titleClassName={classes.formTitle} />
       {loadingExistingEvent && <Loading />}
       {!remountingForm && !loadingExistingEvent && <InnerForumEventForm
-        initialData={editableDocument}
+        initialData={initialData}
         onSuccess={() => setRemountingForm(true)}
       />}
     </div>

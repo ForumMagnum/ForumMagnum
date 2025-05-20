@@ -157,7 +157,7 @@ const RSVPs = ({post, classes}: {
         </Button>
       </span>
     </div>
-    {post.isEvent && post.rsvps?.length > 0 && <>
+    {post.isEvent && !!post.rsvps?.length && <>
       <div className={classes.rsvpCounts}>
         {Object.keys(responseToText).map((response: RsvpResponse) => <span key={response} className={classes.rsvpCount}>
           <ResponseIcon response={response} />

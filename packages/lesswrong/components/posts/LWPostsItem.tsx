@@ -37,6 +37,7 @@ import ReviewPostButton from "../review/ReviewPostButton";
 import PostReadCheckbox from "./PostReadCheckbox";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 export const KARMA_WIDTH = 32;
 
@@ -639,7 +640,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: post.lastVisitedAt ?? undefined,
+                highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
                 condensed: condensedAndHiddenComments,
               }}
             />

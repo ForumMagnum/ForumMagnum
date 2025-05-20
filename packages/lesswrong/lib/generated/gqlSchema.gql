@@ -372,7 +372,7 @@ type CommentKarmaChange {
   postSlug: String
   tagSlug: String
   tagName: String
-  tagCommentType: String
+  tagCommentType: TagCommentType
   tagId: String
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
@@ -3048,7 +3048,7 @@ type ForumEvent {
   bannerImageId: String
   includesPoll: Boolean!
   isGlobal: Boolean!
-  eventFormat: String!
+  eventFormat: ForumEventFormat!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
   pollAgreeWording: String
@@ -3062,6 +3062,12 @@ type ForumEvent {
 
 enum ForumEventCustomComponent {
   GivingSeason2024Banner
+}
+
+enum ForumEventFormat {
+  BASIC
+  POLL
+  STICKERS
 }
 
 input SingleForumEventInput {
@@ -3631,9 +3637,15 @@ type ModerationTemplate {
   contents(version: String): Revision
   contents_latest: String
   name: String!
-  collectionName: String!
+  collectionName: ModerationTemplateType!
   order: Float!
   deleted: Boolean!
+}
+
+enum ModerationTemplateType {
+  Messages
+  Comments
+  Rejections
 }
 
 input SingleModerationTemplateInput {
@@ -4227,7 +4239,7 @@ type Post {
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
   socialPreview: SocialPreviewOutput
-  socialPreviewData: SocialPreviewType
+  socialPreviewData: SocialPreviewType!
   fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
@@ -4303,7 +4315,7 @@ type Post {
   hideCommentKarma: Boolean!
   commentCount: Float!
   topLevelCommentCount: Float!
-  recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment]
+  recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment!]
   languageModelSummary: String
   debate: Boolean!
   collabEditorDialogue: Boolean!
@@ -8112,7 +8124,7 @@ input CreateForumEventDataInput {
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean!
-  eventFormat: String
+  eventFormat: ForumEventFormat
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
@@ -8143,7 +8155,7 @@ input UpdateForumEventDataInput {
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean
-  eventFormat: String
+  eventFormat: ForumEventFormat
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
@@ -8347,7 +8359,7 @@ input CreateModerationTemplateDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
   name: String!
-  collectionName: String!
+  collectionName: ModerationTemplateType!
   order: Float
 }
 
@@ -8359,7 +8371,7 @@ input UpdateModerationTemplateDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
   name: String
-  collectionName: String
+  collectionName: ModerationTemplateType
   order: Float
   deleted: Boolean
 }
@@ -9728,7 +9740,6 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [PostMetadataInput!]
   hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean

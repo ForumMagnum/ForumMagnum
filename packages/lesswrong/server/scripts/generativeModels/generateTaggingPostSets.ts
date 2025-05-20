@@ -13,7 +13,6 @@ import fs from 'fs';
 import { getSiteUrl } from '../../../lib/vulcan-lib/utils';
 import { FetchedFragment, fetchFragment } from '../../fetchFragment';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
-import { PostsHtml } from '@/lib/generated/gql-codegen/graphql';
 import { PostsHTML } from '@/lib/collections/posts/fragments';
 
 const postEndMarker  = "===TAGS===";
@@ -87,7 +86,7 @@ const frontpagePrompt = "Is this post of broad relevance, timeless, apolitical, 
 
 async function generateClassifierTuningFile({description, posts, postBodyCache, outputFilename, promptSuffix, classifyPost}: {
   description: string,
-  posts: FetchedFragment<PostsHtml, "Posts">[],
+  posts: FetchedFragment<PostsHTML, "Posts">[],
   outputFilename: string,
   promptSuffix: string,
   classifyPost: (post: DbPost) => boolean,

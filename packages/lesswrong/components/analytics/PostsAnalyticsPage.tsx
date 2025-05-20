@@ -19,6 +19,7 @@ import LoginForm from "../users/LoginForm";
 import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const PostsPageQuery = gql(`
   query PostsAnalyticsPage($documentId: String) {
@@ -225,7 +226,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
         </div>
         <AnalyticsGraph
           postIds={post ? [post._id] : []}
-          disclaimerEarliestDate={post?.createdAt ?? new Date()}
+          disclaimerEarliestDate={maybeDate(post?.createdAt ?? undefined)}
         />
       </SingleColumnSection>
     </>

@@ -288,6 +288,7 @@ export const UserKarmaChanges = gql(`
           userId
         }
         eaAddedReacts
+        collectionName
       }
       comments {
         _id
@@ -305,6 +306,7 @@ export const UserKarmaChanges = gql(`
           userId
         }
         eaAddedReacts
+        collectionName
       }
       tagRevisions {
         _id
@@ -317,6 +319,7 @@ export const UserKarmaChanges = gql(`
           userId
         }
         eaAddedReacts
+        collectionName
       }
       todaysKarmaChanges {
         posts {

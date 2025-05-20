@@ -21,7 +21,6 @@ import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import Error404 from "../common/Error404";
-import { MessageListFragment } from "@/lib/generated/gql-codegen/graphql";
 
 const ModerationTemplateFragmentQuery = gql(`
   query MessagesNewForm($documentId: String) {
@@ -121,7 +120,7 @@ interface MessagesNewFormProps {
       };
     };
   };
-  onSuccess: (doc: MessageListFragment) => void;
+  onSuccess: (doc: messageListFragment) => void;
 }
 
 const InnerMessagesNewForm = ({
@@ -142,7 +141,7 @@ const InnerMessagesNewForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<MessageListFragment>();
+  } = useEditorFormCallbacks<messageListFragment>();
 
   const { create } = useCreate({
     collectionName: 'Messages',
@@ -160,7 +159,7 @@ const InnerMessagesNewForm = ({
       await onSubmitCallback.current?.();
 
       try {
-        let result: MessageListFragment;
+        let result: messageListFragment;
 
         const { noEmail, ...rest } = formApi.state.values;
         const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;

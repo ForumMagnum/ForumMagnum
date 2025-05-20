@@ -283,7 +283,7 @@ interface CommentKarmaChange {
   postSlug: string | null;
   tagSlug: string | null;
   tagName: string | null;
-  tagCommentType: string | null;
+  tagCommentType: TagCommentType | null;
   tagId: string | null;
   addedReacts: Array<ReactionChange> | null;
   eaAddedReacts: any;
@@ -2458,7 +2458,7 @@ interface ForumEvent {
   bannerImageId: string | null;
   includesPoll: boolean;
   isGlobal: boolean;
-  eventFormat: string;
+  eventFormat: ForumEventFormat;
   pollQuestion: Revision | null;
   pollQuestion_latest: string | null;
   pollAgreeWording: string | null;
@@ -2997,7 +2997,7 @@ interface ModerationTemplate {
   contents: Revision | null;
   contents_latest: string | null;
   name: string;
-  collectionName: string;
+  collectionName: ModerationTemplateType;
   order: number;
   deleted: boolean;
 }
@@ -3553,7 +3553,7 @@ interface Post {
   socialPreviewImageId: string | null;
   socialPreviewImageAutoUrl: string | null;
   socialPreview: SocialPreviewOutput | null;
-  socialPreviewData: SocialPreviewType | null;
+  socialPreviewData: SocialPreviewType;
   fmCrosspost: CrosspostOutput | null;
   canonicalSequenceId: string | null;
   canonicalSequence: Sequence | null;
@@ -3629,7 +3629,7 @@ interface Post {
   hideCommentKarma: boolean;
   commentCount: number;
   topLevelCommentCount: number;
-  recentComments: Array<Comment | null> | null;
+  recentComments: Array<Comment> | null;
   languageModelSummary: string | null;
   debate: boolean;
   collabEditorDialogue: boolean;
@@ -7232,7 +7232,7 @@ interface CreateForumEventDataInput {
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal: boolean;
-  eventFormat?: string | null;
+  eventFormat?: ForumEventFormat | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
@@ -7263,7 +7263,7 @@ interface UpdateForumEventDataInput {
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal?: boolean | null;
-  eventFormat?: string | null;
+  eventFormat?: ForumEventFormat | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
@@ -7439,7 +7439,7 @@ interface CreateModerationTemplateDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   name: string;
-  collectionName: string;
+  collectionName: ModerationTemplateType;
   order?: number | null;
 }
 
@@ -7451,7 +7451,7 @@ interface UpdateModerationTemplateDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   name?: string | null;
-  collectionName?: string | null;
+  collectionName?: ModerationTemplateType | null;
   order?: number | null;
   deleted?: boolean | null;
 }
@@ -8697,7 +8697,6 @@ interface UpdateUserDataInput {
   collapseModerationGuidelines?: boolean | null;
   bannedUserIds?: Array<string> | null;
   bannedPersonalUserIds?: Array<string> | null;
-  bookmarkedPostsMetadata?: Array<PostMetadataInput> | null;
   hiddenPostsMetadata?: Array<PostMetadataInput> | null;
   legacyId?: string | null;
   deleted?: boolean | null;

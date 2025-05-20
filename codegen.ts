@@ -19,7 +19,7 @@ const config: CodegenConfig = {
         avoidOptionals: {
           inputValue: false,
           field: true,
-          object: true,
+          object: false,
           defaultValue: true,
           resolvers: true,
           query: true,

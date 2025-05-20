@@ -153,7 +153,7 @@ const FeedPostsHighlight = ({post, ...rest}: {
 
   const apolloClient = useForeignApolloClient();
 
-  const documentId = (isForeignCrosspost && !error) ? (availablePost.fmCrosspost.foreignPostId ?? undefined) : availablePost._id;
+  const documentId = (isForeignCrosspost && !error) ? (availablePost.fmCrosspost?.foreignPostId ?? undefined) : availablePost._id;
 
   const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
     variables: { documentId: documentId },

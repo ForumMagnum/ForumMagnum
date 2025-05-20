@@ -5,12 +5,10 @@ import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
 import { parseDocumentFromString } from '../lib/domParser';
-import type { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
-import { PostsHtml } from '@/lib/generated/gql-codegen/graphql';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
   const { Comments } = context;
@@ -102,7 +100,7 @@ async function getHtmlWithContributorAnnotations({
 }
 
 export const getToCforPost = async ({document, version, context}: {
-  document: DbPost|PostsHtml&DbPost,
+  document: DbPost | (PostsHTML & DbPost),
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {

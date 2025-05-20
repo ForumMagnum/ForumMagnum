@@ -1,5 +1,5 @@
 import { isDevelopment } from '../../../lib/executionEnvironment';
-import type { PlaygroundConfig } from '@apollo/server';
+import type { PlaygroundConfig } from 'apollo-server-core';
 
 // GraphQL Playground setup
 export const getPlaygroundConfig = (path: string): PlaygroundConfig|undefined => {

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import NotificationsPageKarmaChange from "./NotificationsPageKarmaChange";
-import { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {

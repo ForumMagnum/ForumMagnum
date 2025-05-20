@@ -16,6 +16,10 @@ export const useSetIsHiddenMutation = () => {
   `));
   
   async function mutate(args: {postId: string, isHidden: boolean}) {
+    if (!currentUser) {
+      return;
+    }
+
     const { postId, isHidden } = args;
 
     // FIXME: this mutation logic is duplicated from the mutation - ideally we'd

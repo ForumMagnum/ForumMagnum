@@ -179,7 +179,7 @@ export type TopicsBarTab = {
   name: string,
   shortName?: string | null,
   slug?: string,
-  description?: TagFragment_description | null,
+  description?: TagFragment['description'] | null,
 }
 
 /**

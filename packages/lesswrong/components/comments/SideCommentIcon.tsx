@@ -284,7 +284,7 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
 
   const apolloClient = useApolloClient();
 
-  const cachedComment = apolloClient.cache.readFragment<typeof CommentWithRepliesFragment>({
+  const cachedComment = apolloClient.cache.readFragment({
     fragment: CommentWithRepliesFragment,
     fragmentName: "CommentWithRepliesFragment",
     id: `Comments:`+commentId,

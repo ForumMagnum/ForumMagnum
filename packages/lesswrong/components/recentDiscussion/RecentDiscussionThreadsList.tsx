@@ -83,7 +83,7 @@ const RecentDiscussionThreadsList = ({
               key={post._id}
               post={post}
               refetch={refetch}
-              comments={post.recentComments}
+              comments={post.recentComments ?? undefined}
               expandAllThreads={expandAll}
             />
           )}

@@ -466,6 +466,10 @@ const CKPostEditor = ({
   const dialogueParticipantNotificationCallback = async () => {
     const editorContents =  editorRef?.current?.editor?.getData()
 
+    if (!editorContents) {
+      return;
+    }
+
     await sendNewDialogueMessageNotification({
       variables: {
         postId: post._id,

@@ -218,16 +218,16 @@ export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCoun
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (isAF) {
-    return post.afLastCommentedAt;
+    return post.afLastCommentedAt ? new Date(post.afLastCommentedAt) : null;
   } else {
-    return post.lastCommentedAt;
+    return post.lastCommentedAt ? new Date(post.lastCommentedAt) : null;
   }
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
   if (isAF) return null
   // TODO: add an afLastCommentPromotedAt
-  return post.lastCommentPromotedAt;
+  return post.lastCommentPromotedAt ? new Date(post.lastCommentPromotedAt) : null;
 }
 
 /**

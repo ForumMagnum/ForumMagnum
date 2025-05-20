@@ -7,6 +7,12 @@ import { ModerationTemplatesViews } from "@/lib/collections/moderationTemplates/
 
 export const graphqlModerationTemplateQueryTypeDefs = gql`
   type ModerationTemplate ${ getAllGraphQLFields(schema) }
+
+  enum ModerationTemplateType {
+    Messages
+    Comments
+    Rejections
+  }
   
   input SingleModerationTemplateInput {
     selector: SelectorInput

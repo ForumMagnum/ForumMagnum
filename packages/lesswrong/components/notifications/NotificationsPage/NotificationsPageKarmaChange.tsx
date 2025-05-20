@@ -161,7 +161,7 @@ export const NotificationsPageKarmaChange = ({
             commentId={commentKarmaChange.commentId ?? undefined}
           >
             <NotifPopoverLink
-              to={commentGetPageUrlFromIds({ ...commentKarmaChange, tagCommentType: commentKarmaChange.tagCommentType as TagCommentType })}
+              to={commentGetPageUrlFromIds({ ...commentKarmaChange, tagCommentType: commentKarmaChange.tagCommentType })}
               className={classes.link}
             >
               comment
@@ -182,7 +182,7 @@ export const NotificationsPageKarmaChange = ({
       display = (
         <>
           <NotifPopoverLink
-            to={commentGetPageUrlFromIds({ ...commentKarmaChange, tagCommentType: commentKarmaChange.tagCommentType as TagCommentType })}
+            to={commentGetPageUrlFromIds({ ...commentKarmaChange, tagCommentType: commentKarmaChange.tagCommentType })}
             className={classes.link}
           >
             comment

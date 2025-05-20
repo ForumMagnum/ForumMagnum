@@ -228,8 +228,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
       newPosts.push({...postData.post, rating: postData.rating})
       newPostStatuses[postData.post._id] = {
         _id: postData.digestPost?._id,
-        emailDigestStatus: postData.digestPost?.emailDigestStatus ?? 'pending',
-        onsiteDigestStatus: postData.digestPost?.onsiteDigestStatus ?? 'pending'
+        emailDigestStatus: (postData.digestPost?.emailDigestStatus as InDigestStatusOption | undefined) ?? 'pending',
+        onsiteDigestStatus: (postData.digestPost?.onsiteDigestStatus as InDigestStatusOption | undefined) ?? 'pending'
       }
     })
     // sort the list by curated, then suggested for curation, then rating, then karma

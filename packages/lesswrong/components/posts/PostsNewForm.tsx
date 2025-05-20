@@ -17,7 +17,6 @@ import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
-import type { PostsEditMutationFragment, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const UsersEditQuery = gql(`
   query PostsNewForm4($documentId: String) {
@@ -76,8 +75,6 @@ type EventTemplateFields =
   | "googleLocation"
   | "onlineEvent"
   | "globalEvent"
-  | "startTime"
-  | "endTime"
   | "eventRegistrationLink"
   | "joinEventLink"
   | "website"

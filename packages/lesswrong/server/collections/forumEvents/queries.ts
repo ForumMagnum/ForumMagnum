@@ -12,6 +12,12 @@ export const graphqlForumEventQueryTypeDefs = gql`
     GivingSeason2024Banner
   }
   
+  enum ForumEventFormat {
+    BASIC
+    POLL
+    STICKERS
+  }
+  
   input SingleForumEventInput {
     selector: SelectorInput
     resolverArgs: JSON
