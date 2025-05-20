@@ -451,7 +451,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}
             </div>
-            {group.categories?.length > 0 && <div className={classes.groupCategories}>
+            {!!group.categories?.length && <div className={classes.groupCategories}>
               {group.categories.map(category => {
                 return <div key={category} className={classes.groupCategory}>{GROUP_CATEGORIES.find(option => option.value === category)?.label}</div>
               })}

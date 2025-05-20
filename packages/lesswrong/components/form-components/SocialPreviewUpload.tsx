@@ -248,7 +248,7 @@ const SocialPreviewTextEdit = ({
 };
 
 interface SocialPreviewUploadProps {
-  field: TypedFieldApi<SocialPreviewType>;
+  field: TypedFieldApi<SocialPreviewInput | null | undefined>;
   post: EditablePost;
   croppingAspectRatio?: number;
 }

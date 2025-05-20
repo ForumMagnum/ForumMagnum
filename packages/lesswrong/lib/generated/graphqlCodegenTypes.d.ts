@@ -179,7 +179,7 @@ type Book = {
 };
 
 
-type BookContentsArgs = {
+type BookcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -223,7 +223,7 @@ type Chapter = {
 };
 
 
-type ChapterContentsArgs = {
+type ChaptercontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -306,7 +306,7 @@ type CoauthorStatusOutput = {
 type Collection = {
   __typename?: 'Collection';
   _id: Scalars['String']['output'];
-  books?: Maybe<Array<Maybe<Book>>>;
+  books: Array<Book>;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -325,7 +325,7 @@ type Collection = {
 };
 
 
-type CollectionContentsArgs = {
+type CollectioncontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -389,7 +389,7 @@ type Comment = {
   isPinnedOnProfile: Scalars['Boolean']['output'];
   lastEditedAt?: Maybe<Scalars['Date']['output']>;
   lastSubthreadActivity?: Maybe<Scalars['Date']['output']>;
-  latestChildren?: Maybe<Array<Maybe<Comment>>>;
+  latestChildren: Array<Comment>;
   legacy: Scalars['Boolean']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   legacyId?: Maybe<Scalars['String']['output']>;
@@ -456,7 +456,7 @@ type Comment = {
 };
 
 
-type CommentContentsArgs = {
+type CommentcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -530,7 +530,7 @@ type CommentSelector = {
   allCommentsDeleted?: InputMaybe<CommentsAllCommentsDeletedInput>;
   allRecentComments?: InputMaybe<CommentsAllRecentCommentsInput>;
   answersAndReplies?: InputMaybe<CommentsAnswersAndRepliesInput>;
-  checkedByModGPT?: InputMaybe<CommentsCheckedByModGptInput>;
+  checkedByModGPT?: InputMaybe<CommentsCheckedByModGPTInput>;
   commentReplies?: InputMaybe<CommentsCommentRepliesInput>;
   debateResponses?: InputMaybe<CommentsDebateResponsesInput>;
   default?: InputMaybe<CommentDefaultViewInput>;
@@ -548,7 +548,7 @@ type CommentSelector = {
   postCommentsOld?: InputMaybe<CommentsPostCommentsOldInput>;
   postCommentsRecentReplies?: InputMaybe<CommentsPostCommentsRecentRepliesInput>;
   postCommentsTop?: InputMaybe<CommentsPostCommentsTopInput>;
-  postLWComments?: InputMaybe<CommentsPostLwCommentsInput>;
+  postLWComments?: InputMaybe<CommentsPostLWCommentsInput>;
   postsItemComments?: InputMaybe<CommentsPostsItemCommentsInput>;
   profileComments?: InputMaybe<CommentsProfileCommentsInput>;
   profileRecentComments?: InputMaybe<CommentsProfileRecentCommentsInput>;
@@ -624,7 +624,7 @@ type CommentsAnswersAndRepliesInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type CommentsCheckedByModGptInput = {
+type CommentsCheckedByModGPTInput = {
   commentIds?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -739,7 +739,7 @@ type CommentsPostCommentsTopInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type CommentsPostLwCommentsInput = {
+type CommentsPostLWCommentsInput = {
   commentIds?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
@@ -1204,7 +1204,7 @@ type CreateForumEventDataInput = {
   bannerTextColor: Scalars['String']['input'];
   commentPrompt?: InputMaybe<Scalars['String']['input']>;
   contrastColor?: InputMaybe<Scalars['String']['input']>;
-  customComponent?: InputMaybe<Scalars['String']['input']>;
+  customComponent: ForumEventCustomComponent;
   darkColor: Scalars['String']['input'];
   endDate?: InputMaybe<Scalars['Date']['input']>;
   eventFormat?: InputMaybe<Scalars['String']['input']>;
@@ -1244,7 +1244,7 @@ type CreateJargonTermInput = {
   data: CreateJargonTermDataInput;
 };
 
-type CreateLwEventDataInput = {
+type CreateLWEventDataInput = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   important?: InputMaybe<Scalars['Boolean']['input']>;
   intercom?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1254,8 +1254,8 @@ type CreateLwEventDataInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type CreateLwEventInput = {
-  data: CreateLwEventDataInput;
+type CreateLWEventInput = {
+  data: CreateLWEventDataInput;
 };
 
 type CreateLocalgroupDataInput = {
@@ -1433,7 +1433,7 @@ type CreatePostDataInput = {
   organizerIds?: InputMaybe<Array<Scalars['String']['input']>>;
   originalPostRelationSourceId?: InputMaybe<Scalars['String']['input']>;
   podcastEpisodeId?: InputMaybe<Scalars['String']['input']>;
-  postCategory?: InputMaybe<Scalars['String']['input']>;
+  postCategory?: InputMaybe<PostCategory>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
   question?: InputMaybe<Scalars['Boolean']['input']>;
   readTimeMinutesOverride?: InputMaybe<Scalars['Float']['input']>;
@@ -1474,7 +1474,7 @@ type CreatePostInput = {
   data: CreatePostDataInput;
 };
 
-type CreateRssFeedDataInput = {
+type CreateRSSFeedDataInput = {
   displayFullContent?: InputMaybe<Scalars['Boolean']['input']>;
   importAsDraft?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -1486,8 +1486,8 @@ type CreateRssFeedDataInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type CreateRssFeedInput = {
-  data: CreateRssFeedDataInput;
+type CreateRSSFeedInput = {
+  data: CreateRSSFeedDataInput;
 };
 
 type CreateReportDataInput = {
@@ -1876,13 +1876,13 @@ type CreateUserDataInput = {
   whenConfirmationEmailSent?: InputMaybe<Scalars['Date']['input']>;
 };
 
-type CreateUserEagDetailDataInput = {
+type CreateUserEAGDetailDataInput = {
   lastUpdated?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-type CreateUserEagDetailInput = {
-  data: CreateUserEagDetailDataInput;
+type CreateUserEAGDetailInput = {
+  data: CreateUserEAGDetailDataInput;
 };
 
 type CreateUserInput = {
@@ -2001,7 +2001,7 @@ type CurationNotice = {
 };
 
 
-type CurationNoticeContentsArgs = {
+type CurationNoticecontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2115,8 +2115,8 @@ type DigestOutput = {
 type DigestPlannerPost = {
   __typename?: 'DigestPlannerPost';
   digestPost?: Maybe<DigestPost>;
-  post?: Maybe<Post>;
-  rating?: Maybe<Scalars['Int']['output']>;
+  post: Post;
+  rating: Scalars['Int']['output'];
 };
 
 type DigestPost = {
@@ -2458,7 +2458,7 @@ type ForumEvent = {
   commentPrompt?: Maybe<Scalars['String']['output']>;
   contrastColor?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  customComponent?: Maybe<Scalars['String']['output']>;
+  customComponent: ForumEventCustomComponent;
   darkColor: Scalars['String']['output'];
   endDate?: Maybe<Scalars['Date']['output']>;
   eventFormat: Scalars['String']['output'];
@@ -2489,24 +2489,27 @@ type ForumEvent = {
 };
 
 
-type ForumEventFrontpageDescriptionArgs = {
+type ForumEventfrontpageDescriptionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type ForumEventFrontpageDescriptionMobileArgs = {
+type ForumEventfrontpageDescriptionMobileArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type ForumEventPollQuestionArgs = {
+type ForumEventpollQuestionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type ForumEventPostPageDescriptionArgs = {
+type ForumEventpostPageDescriptionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
+
+type ForumEventCustomComponent =
+  | 'GivingSeason2024Banner';
 
 type ForumEventOutput = {
   __typename?: 'ForumEventOutput';
@@ -2557,7 +2560,7 @@ type GardenCode = {
 };
 
 
-type GardenCodeContentsArgs = {
+type GardenCodecontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2649,7 +2652,7 @@ type JargonTerm = {
 };
 
 
-type JargonTermContentsArgs = {
+type JargonTermcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2694,7 +2697,7 @@ type KarmaChangesSimple = {
   tagRevisions: Array<RevisionsKarmaChange>;
 };
 
-type LwEvent = {
+type LWEvent = {
   __typename?: 'LWEvent';
   _id: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['Date']['output']>;
@@ -2709,28 +2712,28 @@ type LwEvent = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
-type LwEventOutput = {
+type LWEventOutput = {
   __typename?: 'LWEventOutput';
-  data?: Maybe<LwEvent>;
+  data?: Maybe<LWEvent>;
 };
 
-type LwEventSelector = {
-  adminView?: InputMaybe<LwEventsAdminViewInput>;
+type LWEventSelector = {
+  adminView?: InputMaybe<LWEventsAdminViewInput>;
   default?: InputMaybe<EmptyViewInput>;
-  emailHistory?: InputMaybe<LwEventsEmailHistoryInput>;
+  emailHistory?: InputMaybe<LWEventsEmailHistoryInput>;
   gatherTownUsers?: InputMaybe<EmptyViewInput>;
-  postVisits?: InputMaybe<LwEventsPostVisitsInput>;
+  postVisits?: InputMaybe<LWEventsPostVisitsInput>;
 };
 
-type LwEventsAdminViewInput = {
+type LWEventsAdminViewInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-type LwEventsEmailHistoryInput = {
+type LWEventsEmailHistoryInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type LwEventsPostVisitsInput = {
+type LWEventsPostVisitsInput = {
   limit?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -2757,7 +2760,7 @@ type LlmConversation = {
   deleted?: Maybe<Scalars['Boolean']['output']>;
   lastUpdatedAt?: Maybe<Scalars['Date']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
-  messages?: Maybe<Array<Maybe<LlmMessage>>>;
+  messages?: Maybe<Array<LlmMessage>>;
   model?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
   systemPrompt?: Maybe<Scalars['String']['output']>;
@@ -2829,7 +2832,7 @@ type Localgroup = {
 };
 
 
-type LocalgroupContentsArgs = {
+type LocalgroupcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2936,7 +2939,7 @@ type Message = {
 };
 
 
-type MessageContentsArgs = {
+type MessagecontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3003,7 +3006,7 @@ type ModerationTemplate = {
 };
 
 
-type ModerationTemplateContentsArgs = {
+type ModerationTemplatecontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3050,7 +3053,7 @@ type ModeratorActionsUserModeratorActionsInput = {
   userIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
-type ModeratorIpAddressInfo = {
+type ModeratorIPAddressInfo = {
   __typename?: 'ModeratorIPAddressInfo';
   ip: Scalars['String']['output'];
   userIds: Array<Scalars['String']['output']>;
@@ -3344,18 +3347,18 @@ type MultiDocument = {
 };
 
 
-type MultiDocumentContentsArgs = {
+type MultiDocumentcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MultiDocumentContributorsArgs = {
+type MultiDocumentcontributorsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MultiDocumentTableOfContentsArgs = {
+type MultiDocumenttableOfContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3519,16 +3522,16 @@ type MultiJargonTermOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiLwEventInput = {
+type MultiLWEventInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-type MultiLwEventOutput = {
+type MultiLWEventOutput = {
   __typename?: 'MultiLWEventOutput';
-  results?: Maybe<Array<Maybe<LwEvent>>>;
+  results?: Maybe<Array<Maybe<LWEvent>>>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -3694,16 +3697,16 @@ type MultiPostRelationOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiRssFeedInput = {
+type MultiRSSFeedInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-type MultiRssFeedOutput = {
+type MultiRSSFeedOutput = {
   __typename?: 'MultiRSSFeedOutput';
-  results?: Maybe<Array<Maybe<RssFeed>>>;
+  results?: Maybe<Array<Maybe<RSSFeed>>>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -3940,16 +3943,16 @@ type MultiUltraFeedEventOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiUserEagDetailInput = {
+type MultiUserEAGDetailInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-type MultiUserEagDetailOutput = {
+type MultiUserEAGDetailOutput = {
   __typename?: 'MultiUserEAGDetailOutput';
-  results?: Maybe<Array<Maybe<UserEagDetail>>>;
+  results?: Maybe<Array<Maybe<UserEAGDetail>>>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -4073,7 +4076,7 @@ type Mutation = {
   createElicitQuestion?: Maybe<ElicitQuestionOutput>;
   createForumEvent?: Maybe<ForumEventOutput>;
   createJargonTerm?: Maybe<JargonTermOutput>;
-  createLWEvent?: Maybe<LwEventOutput>;
+  createLWEvent?: Maybe<LWEventOutput>;
   createLocalgroup?: Maybe<LocalgroupOutput>;
   createMessage?: Maybe<MessageOutput>;
   createModerationTemplate?: Maybe<ModerationTemplateOutput>;
@@ -4082,7 +4085,7 @@ type Mutation = {
   createPetrovDayAction?: Maybe<PetrovDayActionOutput>;
   createPodcastEpisode?: Maybe<PodcastEpisodeOutput>;
   createPost?: Maybe<PostOutput>;
-  createRSSFeed?: Maybe<RssFeedOutput>;
+  createRSSFeed?: Maybe<RSSFeedOutput>;
   createReport?: Maybe<ReportOutput>;
   createSequence?: Maybe<SequenceOutput>;
   createSplashArtCoordinate?: Maybe<SplashArtCoordinateOutput>;
@@ -4096,7 +4099,7 @@ type Mutation = {
   createTagFlag?: Maybe<TagFlagOutput>;
   createUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   createUser?: Maybe<UserOutput>;
-  createUserEAGDetail?: Maybe<UserEagDetailOutput>;
+  createUserEAGDetail?: Maybe<UserEAGDetailOutput>;
   createUserJobAd?: Maybe<UserJobAdOutput>;
   createUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
@@ -4176,7 +4179,7 @@ type Mutation = {
   updateMultiDocument?: Maybe<MultiDocumentOutput>;
   updateNotification?: Maybe<NotificationOutput>;
   updatePost?: Maybe<PostOutput>;
-  updateRSSFeed?: Maybe<RssFeedOutput>;
+  updateRSSFeed?: Maybe<RSSFeedOutput>;
   updateReport?: Maybe<ReportOutput>;
   updateRevision?: Maybe<RevisionOutput>;
   updateSequence?: Maybe<SequenceOutput>;
@@ -4188,7 +4191,7 @@ type Mutation = {
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
   updateUser?: Maybe<UserOutput>;
-  updateUserEAGDetail?: Maybe<UserEagDetailOutput>;
+  updateUserEAGDetail?: Maybe<UserEAGDetailOutput>;
   updateUserJobAd?: Maybe<UserJobAdOutput>;
   updateUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   updateUserRateLimit?: Maybe<UserRateLimitOutput>;
@@ -4214,7 +4217,7 @@ type MutationAddGivingSeasonHeartArgs = {
 };
 
 
-type MutationCancelRsvpToEventArgs = {
+type MutationCancelRSVPToEventArgs = {
   name?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -4246,7 +4249,7 @@ type MutationPetrovDayLaunchMissileArgs = {
 };
 
 
-type MutationRsvpToEventArgs = {
+type MutationRSVPToEventArgs = {
   email?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
@@ -4288,298 +4291,298 @@ type MutationUserUpdateSubforumMembershipArgs = {
 };
 
 
-type MutationAcceptCoauthorRequestArgs = {
+type MutationacceptCoauthorRequestArgs = {
   accept?: InputMaybe<Scalars['Boolean']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationAddOrUpvoteTagArgs = {
+type MutationaddOrUpvoteTagArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
   tagId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationAddTagsArgs = {
+type MutationaddTagsArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
   tagIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 
-type MutationAlignmentCommentArgs = {
+type MutationalignmentCommentArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   commentId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationAlignmentPostArgs = {
+type MutationalignmentPostArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationAnalyticsEventArgs = {
+type MutationanalyticsEventArgs = {
   events?: InputMaybe<Array<Scalars['JSON']['input']>>;
   now?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
-type MutationAutosaveRevisionArgs = {
+type MutationautosaveRevisionArgs = {
   contents: AutosaveContentType;
   postId: Scalars['String']['input'];
 };
 
 
-type MutationClickRecommendationArgs = {
+type MutationclickRecommendationArgs = {
   postId: Scalars['String']['input'];
 };
 
 
-type MutationConnectCrossposterArgs = {
+type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationCreateAdvisorRequestArgs = {
+type MutationcreateAdvisorRequestArgs = {
   data: CreateAdvisorRequestDataInput;
 };
 
 
-type MutationCreateBookArgs = {
+type MutationcreateBookArgs = {
   data: CreateBookDataInput;
 };
 
 
-type MutationCreateChapterArgs = {
+type MutationcreateChapterArgs = {
   data: CreateChapterDataInput;
 };
 
 
-type MutationCreateCollectionArgs = {
+type MutationcreateCollectionArgs = {
   data: CreateCollectionDataInput;
 };
 
 
-type MutationCreateCommentArgs = {
+type MutationcreateCommentArgs = {
   data: CreateCommentDataInput;
 };
 
 
-type MutationCreateCommentModeratorActionArgs = {
+type MutationcreateCommentModeratorActionArgs = {
   data: CreateCommentModeratorActionDataInput;
 };
 
 
-type MutationCreateConversationArgs = {
+type MutationcreateConversationArgs = {
   data: CreateConversationDataInput;
 };
 
 
-type MutationCreateCurationNoticeArgs = {
+type MutationcreateCurationNoticeArgs = {
   data: CreateCurationNoticeDataInput;
 };
 
 
-type MutationCreateDigestArgs = {
+type MutationcreateDigestArgs = {
   data: CreateDigestDataInput;
 };
 
 
-type MutationCreateDigestPostArgs = {
+type MutationcreateDigestPostArgs = {
   data: CreateDigestPostDataInput;
 };
 
 
-type MutationCreateElectionCandidateArgs = {
+type MutationcreateElectionCandidateArgs = {
   data: CreateElectionCandidateDataInput;
 };
 
 
-type MutationCreateElectionVoteArgs = {
+type MutationcreateElectionVoteArgs = {
   data: CreateElectionVoteDataInput;
 };
 
 
-type MutationCreateElicitQuestionArgs = {
+type MutationcreateElicitQuestionArgs = {
   data: CreateElicitQuestionDataInput;
 };
 
 
-type MutationCreateForumEventArgs = {
+type MutationcreateForumEventArgs = {
   data: CreateForumEventDataInput;
 };
 
 
-type MutationCreateJargonTermArgs = {
+type MutationcreateJargonTermArgs = {
   data: CreateJargonTermDataInput;
 };
 
 
-type MutationCreateLwEventArgs = {
-  data: CreateLwEventDataInput;
+type MutationcreateLWEventArgs = {
+  data: CreateLWEventDataInput;
 };
 
 
-type MutationCreateLocalgroupArgs = {
+type MutationcreateLocalgroupArgs = {
   data: CreateLocalgroupDataInput;
 };
 
 
-type MutationCreateMessageArgs = {
+type MutationcreateMessageArgs = {
   data: CreateMessageDataInput;
 };
 
 
-type MutationCreateModerationTemplateArgs = {
+type MutationcreateModerationTemplateArgs = {
   data: CreateModerationTemplateDataInput;
 };
 
 
-type MutationCreateModeratorActionArgs = {
+type MutationcreateModeratorActionArgs = {
   data: CreateModeratorActionDataInput;
 };
 
 
-type MutationCreateMultiDocumentArgs = {
+type MutationcreateMultiDocumentArgs = {
   data: CreateMultiDocumentDataInput;
 };
 
 
-type MutationCreatePetrovDayActionArgs = {
+type MutationcreatePetrovDayActionArgs = {
   data: CreatePetrovDayActionDataInput;
 };
 
 
-type MutationCreatePodcastEpisodeArgs = {
+type MutationcreatePodcastEpisodeArgs = {
   data: CreatePodcastEpisodeDataInput;
 };
 
 
-type MutationCreatePostArgs = {
+type MutationcreatePostArgs = {
   data: CreatePostDataInput;
 };
 
 
-type MutationCreateRssFeedArgs = {
-  data: CreateRssFeedDataInput;
+type MutationcreateRSSFeedArgs = {
+  data: CreateRSSFeedDataInput;
 };
 
 
-type MutationCreateReportArgs = {
+type MutationcreateReportArgs = {
   data: CreateReportDataInput;
 };
 
 
-type MutationCreateSequenceArgs = {
+type MutationcreateSequenceArgs = {
   data: CreateSequenceDataInput;
 };
 
 
-type MutationCreateSplashArtCoordinateArgs = {
+type MutationcreateSplashArtCoordinateArgs = {
   data: CreateSplashArtCoordinateDataInput;
 };
 
 
-type MutationCreateSpotlightArgs = {
+type MutationcreateSpotlightArgs = {
   data: CreateSpotlightDataInput;
 };
 
 
-type MutationCreateSubscriptionArgs = {
+type MutationcreateSubscriptionArgs = {
   data: CreateSubscriptionDataInput;
 };
 
 
-type MutationCreateSurveyArgs = {
+type MutationcreateSurveyArgs = {
   data: CreateSurveyDataInput;
 };
 
 
-type MutationCreateSurveyQuestionArgs = {
+type MutationcreateSurveyQuestionArgs = {
   data: CreateSurveyQuestionDataInput;
 };
 
 
-type MutationCreateSurveyResponseArgs = {
+type MutationcreateSurveyResponseArgs = {
   data: CreateSurveyResponseDataInput;
 };
 
 
-type MutationCreateSurveyScheduleArgs = {
+type MutationcreateSurveyScheduleArgs = {
   data: CreateSurveyScheduleDataInput;
 };
 
 
-type MutationCreateTagArgs = {
+type MutationcreateTagArgs = {
   data: CreateTagDataInput;
 };
 
 
-type MutationCreateTagFlagArgs = {
+type MutationcreateTagFlagArgs = {
   data: CreateTagFlagDataInput;
 };
 
 
-type MutationCreateUltraFeedEventArgs = {
+type MutationcreateUltraFeedEventArgs = {
   data: CreateUltraFeedEventDataInput;
 };
 
 
-type MutationCreateUserArgs = {
+type MutationcreateUserArgs = {
   data: CreateUserDataInput;
 };
 
 
-type MutationCreateUserEagDetailArgs = {
-  data: CreateUserEagDetailDataInput;
+type MutationcreateUserEAGDetailArgs = {
+  data: CreateUserEAGDetailDataInput;
 };
 
 
-type MutationCreateUserJobAdArgs = {
+type MutationcreateUserJobAdArgs = {
   data: CreateUserJobAdDataInput;
 };
 
 
-type MutationCreateUserMostValuablePostArgs = {
+type MutationcreateUserMostValuablePostArgs = {
   data: CreateUserMostValuablePostDataInput;
 };
 
 
-type MutationCreateUserRateLimitArgs = {
+type MutationcreateUserRateLimitArgs = {
   data: CreateUserRateLimitDataInput;
 };
 
 
-type MutationCreateUserTagRelArgs = {
+type MutationcreateUserTagRelArgs = {
   data: CreateUserTagRelDataInput;
 };
 
 
-type MutationDismissRecommendationArgs = {
+type MutationdismissRecommendationArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationEditSurveyArgs = {
+type MutationeditSurveyArgs = {
   name: Scalars['String']['input'];
   questions: Array<SurveyQuestionInfo>;
   surveyId: Scalars['String']['input'];
 };
 
 
-type MutationFlipSplashArtImageArgs = {
+type MutationflipSplashArtImageArgs = {
   reviewWinnerArtId: Scalars['String']['input'];
 };
 
 
-type MutationGenerateCoverImagesForPostArgs = {
+type MutationgenerateCoverImagesForPostArgs = {
   postId: Scalars['String']['input'];
   prompt?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationGetNewJargonTermsArgs = {
+type MutationgetNewJargonTermsArgs = {
   exampleAltTerm?: InputMaybe<Scalars['String']['input']>;
   exampleDefinition?: InputMaybe<Scalars['String']['input']>;
   examplePost?: InputMaybe<Scalars['String']['input']>;
@@ -4589,52 +4592,52 @@ type MutationGetNewJargonTermsArgs = {
 };
 
 
-type MutationImportUrlAsDraftPostArgs = {
+type MutationimportUrlAsDraftPostArgs = {
   url: Scalars['String']['input'];
 };
 
 
-type MutationIncreasePostViewCountArgs = {
+type MutationincreasePostViewCountArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationInitiateConversationArgs = {
+type MutationinitiateConversationArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   moderator?: InputMaybe<Scalars['Boolean']['input']>;
   participantIds: Array<Scalars['String']['input']>;
 };
 
 
-type MutationLockThreadArgs = {
+type MutationlockThreadArgs = {
   commentId: Scalars['String']['input'];
   until?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationLoginArgs = {
+type MutationloginArgs = {
   password?: InputMaybe<Scalars['String']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationMarkAsReadOrUnreadArgs = {
+type MutationmarkAsReadOrUnreadArgs = {
   isRead?: InputMaybe<Scalars['Boolean']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationMarkConversationReadArgs = {
+type MutationmarkConversationReadArgs = {
   conversationId: Scalars['String']['input'];
 };
 
 
-type MutationMarkPostCommentsReadArgs = {
+type MutationmarkPostCommentsReadArgs = {
   postId: Scalars['String']['input'];
 };
 
 
-type MutationMergeTagsArgs = {
+type MutationmergeTagsArgs = {
   redirectSource: Scalars['Boolean']['input'];
   sourceTagId: Scalars['String']['input'];
   targetTagId: Scalars['String']['input'];
@@ -4642,7 +4645,7 @@ type MutationMergeTagsArgs = {
 };
 
 
-type MutationModerateCommentArgs = {
+type MutationmoderateCommentArgs = {
   commentId?: InputMaybe<Scalars['String']['input']>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4650,178 +4653,178 @@ type MutationModerateCommentArgs = {
 };
 
 
-type MutationObserveRecommendationArgs = {
+type MutationobserveRecommendationArgs = {
   postId: Scalars['String']['input'];
 };
 
 
-type MutationPerformVoteCommentArgs = {
+type MutationperformVoteCommentArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPerformVoteElectionCandidateArgs = {
+type MutationperformVoteElectionCandidateArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPerformVoteMultiDocumentArgs = {
+type MutationperformVoteMultiDocumentArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPerformVotePostArgs = {
+type MutationperformVotePostArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPerformVoteRevisionArgs = {
+type MutationperformVoteRevisionArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPerformVoteTagArgs = {
+type MutationperformVoteTagArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPerformVoteTagRelArgs = {
+type MutationperformVoteTagRelArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationPromoteLensToMainArgs = {
+type MutationpromoteLensToMainArgs = {
   lensId: Scalars['String']['input'];
 };
 
 
-type MutationPublishAndDeDuplicateSpotlightArgs = {
+type MutationpublishAndDeDuplicateSpotlightArgs = {
   spotlightId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationReorderSummariesArgs = {
+type MutationreorderSummariesArgs = {
   parentDocumentCollectionName: Scalars['String']['input'];
   parentDocumentId: Scalars['String']['input'];
   summaryIds: Array<Scalars['String']['input']>;
 };
 
 
-type MutationResetPasswordArgs = {
+type MutationresetPasswordArgs = {
   email?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationResyncRssFeedArgs = {
+type MutationresyncRssFeedArgs = {
   feedId: Scalars['String']['input'];
 };
 
 
-type MutationRevertPostToRevisionArgs = {
+type MutationrevertPostToRevisionArgs = {
   postId: Scalars['String']['input'];
   revisionId: Scalars['String']['input'];
 };
 
 
-type MutationRevertTagToRevisionArgs = {
+type MutationrevertTagToRevisionArgs = {
   revertToRevisionId: Scalars['String']['input'];
   tagId: Scalars['String']['input'];
 };
 
 
-type MutationSendEventTriggeredDmArgs = {
+type MutationsendEventTriggeredDMArgs = {
   eventType: Scalars['String']['input'];
 };
 
 
-type MutationSendNewDialogueMessageNotificationArgs = {
+type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
   postId: Scalars['String']['input'];
 };
 
 
-type MutationSendVertexMediaCompleteEventArgs = {
+type MutationsendVertexMediaCompleteEventArgs = {
   attributionId?: InputMaybe<Scalars['String']['input']>;
   postId: Scalars['String']['input'];
 };
 
 
-type MutationSendVertexViewItemEventArgs = {
+type MutationsendVertexViewItemEventArgs = {
   attributionId?: InputMaybe<Scalars['String']['input']>;
   postId: Scalars['String']['input'];
 };
 
 
-type MutationSetIsHiddenArgs = {
+type MutationsetIsHiddenArgs = {
   isHidden: Scalars['Boolean']['input'];
   postId: Scalars['String']['input'];
 };
 
 
-type MutationSetVoteCommentArgs = {
+type MutationsetVoteCommentArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSetVoteElectionCandidateArgs = {
+type MutationsetVoteElectionCandidateArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSetVoteMultiDocumentArgs = {
+type MutationsetVoteMultiDocumentArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSetVotePostArgs = {
+type MutationsetVotePostArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSetVoteRevisionArgs = {
+type MutationsetVoteRevisionArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSetVoteTagArgs = {
+type MutationsetVoteTagArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSetVoteTagRelArgs = {
+type MutationsetVoteTagRelArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationSignupArgs = {
+type MutationsignupArgs = {
   abTestKey?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -4831,7 +4834,7 @@ type MutationSignupArgs = {
 };
 
 
-type MutationSubmitReviewVoteArgs = {
+type MutationsubmitReviewVoteArgs = {
   comment?: InputMaybe<Scalars['String']['input']>;
   dummy?: InputMaybe<Scalars['Boolean']['input']>;
   newQuadraticScore?: InputMaybe<Scalars['Int']['input']>;
@@ -4843,274 +4846,274 @@ type MutationSubmitReviewVoteArgs = {
 };
 
 
-type MutationToggleBookmarkArgs = {
+type MutationtoggleBookmarkArgs = {
   input: ToggleBookmarkInput;
 };
 
 
-type MutationUnlockPostArgs = {
+type MutationunlockPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
 };
 
 
-type MutationUnlockThreadArgs = {
+type MutationunlockThreadArgs = {
   commentId: Scalars['String']['input'];
 };
 
 
-type MutationUpdateAdvisorRequestArgs = {
+type MutationupdateAdvisorRequestArgs = {
   data: UpdateAdvisorRequestDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateBookArgs = {
+type MutationupdateBookArgs = {
   data: UpdateBookDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateChapterArgs = {
+type MutationupdateChapterArgs = {
   data: UpdateChapterDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateCollectionArgs = {
+type MutationupdateCollectionArgs = {
   data: UpdateCollectionDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateCommentArgs = {
+type MutationupdateCommentArgs = {
   data: UpdateCommentDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateCommentModeratorActionArgs = {
+type MutationupdateCommentModeratorActionArgs = {
   data: UpdateCommentModeratorActionDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateContinueReadingArgs = {
+type MutationupdateContinueReadingArgs = {
   postId: Scalars['String']['input'];
   sequenceId: Scalars['String']['input'];
 };
 
 
-type MutationUpdateConversationArgs = {
+type MutationupdateConversationArgs = {
   data: UpdateConversationDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateCurationNoticeArgs = {
+type MutationupdateCurationNoticeArgs = {
   data: UpdateCurationNoticeDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateDigestArgs = {
+type MutationupdateDigestArgs = {
   data: UpdateDigestDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateDigestPostArgs = {
+type MutationupdateDigestPostArgs = {
   data: UpdateDigestPostDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateElectionCandidateArgs = {
+type MutationupdateElectionCandidateArgs = {
   data: UpdateElectionCandidateDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateElectionVoteArgs = {
+type MutationupdateElectionVoteArgs = {
   data: UpdateElectionVoteDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateElicitQuestionArgs = {
+type MutationupdateElicitQuestionArgs = {
   data: UpdateElicitQuestionDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateForumEventArgs = {
+type MutationupdateForumEventArgs = {
   data: UpdateForumEventDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateJargonTermArgs = {
+type MutationupdateJargonTermArgs = {
   data: UpdateJargonTermDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateLlmConversationArgs = {
+type MutationupdateLlmConversationArgs = {
   data: UpdateLlmConversationDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateLocalgroupArgs = {
+type MutationupdateLocalgroupArgs = {
   data: UpdateLocalgroupDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateMessageArgs = {
+type MutationupdateMessageArgs = {
   data: UpdateMessageDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateModerationTemplateArgs = {
+type MutationupdateModerationTemplateArgs = {
   data: UpdateModerationTemplateDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateModeratorActionArgs = {
+type MutationupdateModeratorActionArgs = {
   data: UpdateModeratorActionDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateMultiDocumentArgs = {
+type MutationupdateMultiDocumentArgs = {
   data: UpdateMultiDocumentDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateNotificationArgs = {
+type MutationupdateNotificationArgs = {
   data: UpdateNotificationDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdatePostArgs = {
+type MutationupdatePostArgs = {
   data: UpdatePostDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateRssFeedArgs = {
-  data: UpdateRssFeedDataInput;
+type MutationupdateRSSFeedArgs = {
+  data: UpdateRSSFeedDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateReportArgs = {
+type MutationupdateReportArgs = {
   data: UpdateReportDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateRevisionArgs = {
+type MutationupdateRevisionArgs = {
   data: UpdateRevisionDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateSequenceArgs = {
+type MutationupdateSequenceArgs = {
   data: UpdateSequenceDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateSpotlightArgs = {
+type MutationupdateSpotlightArgs = {
   data: UpdateSpotlightDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateSurveyArgs = {
+type MutationupdateSurveyArgs = {
   data: UpdateSurveyDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateSurveyQuestionArgs = {
+type MutationupdateSurveyQuestionArgs = {
   data: UpdateSurveyQuestionDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateSurveyResponseArgs = {
+type MutationupdateSurveyResponseArgs = {
   data: UpdateSurveyResponseDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateSurveyScheduleArgs = {
+type MutationupdateSurveyScheduleArgs = {
   data: UpdateSurveyScheduleDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateTagArgs = {
+type MutationupdateTagArgs = {
   data: UpdateTagDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateTagFlagArgs = {
+type MutationupdateTagFlagArgs = {
   data: UpdateTagFlagDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateUserArgs = {
+type MutationupdateUserArgs = {
   data: UpdateUserDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateUserEagDetailArgs = {
-  data: UpdateUserEagDetailDataInput;
+type MutationupdateUserEAGDetailArgs = {
+  data: UpdateUserEAGDetailDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateUserJobAdArgs = {
+type MutationupdateUserJobAdArgs = {
   data: UpdateUserJobAdDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateUserMostValuablePostArgs = {
+type MutationupdateUserMostValuablePostArgs = {
   data: UpdateUserMostValuablePostDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateUserRateLimitArgs = {
+type MutationupdateUserRateLimitArgs = {
   data: UpdateUserRateLimitDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpdateUserTagRelArgs = {
+type MutationupdateUserTagRelArgs = {
   data: UpdateUserTagRelDataInput;
   selector: SelectorInput;
 };
 
 
-type MutationUpsertUserTypingIndicatorArgs = {
+type MutationupsertUserTypingIndicatorArgs = {
   documentId: Scalars['String']['input'];
 };
 
 
-type MutationUseEmailTokenArgs = {
+type MutationuseEmailTokenArgs = {
   args?: InputMaybe<Scalars['JSON']['input']>;
   token?: InputMaybe<Scalars['String']['input']>;
 };
@@ -5398,7 +5401,7 @@ type Post = {
   extendedScore?: Maybe<Scalars['JSON']['output']>;
   facebookLink?: Maybe<Scalars['String']['output']>;
   facebookShareUrl?: Maybe<Scalars['String']['output']>;
-  feed?: Maybe<RssFeed>;
+  feed?: Maybe<RSSFeed>;
   feedId?: Maybe<Scalars['String']['output']>;
   feedLink?: Maybe<Scalars['String']['output']>;
   finalReviewVoteScoreAF: Scalars['Float']['output'];
@@ -5475,7 +5478,7 @@ type Post = {
   podcastEpisode?: Maybe<PodcastEpisode>;
   podcastEpisodeId?: Maybe<Scalars['String']['output']>;
   positiveReviewVoteCount: Scalars['Float']['output'];
-  postCategory: Scalars['String']['output'];
+  postCategory: PostCategory;
   postedAt: Scalars['Date']['output'];
   postedAtFormatted?: Maybe<Scalars['String']['output']>;
   prevPost?: Maybe<Post>;
@@ -5571,60 +5574,60 @@ type Post = {
 };
 
 
-type PostContentsArgs = {
+type PostcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostCustomHighlightArgs = {
+type PostcustomHighlightArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostDialogueMessageContentsArgs = {
+type PostdialogueMessageContentsArgs = {
   dialogueMessageId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostModerationGuidelinesArgs = {
+type PostmoderationGuidelinesArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostNextPostArgs = {
+type PostnextPostArgs = {
   sequenceId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostPrevPostArgs = {
+type PostprevPostArgs = {
   sequenceId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostRecentCommentsArgs = {
+type PostrecentCommentsArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   commentsLimit?: InputMaybe<Scalars['Int']['input']>;
   maxAgeHours?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-type PostRevisionsArgs = {
+type PostrevisionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-type PostSequenceArgs = {
+type PostsequenceArgs = {
   prevOrNext?: InputMaybe<Scalars['String']['input']>;
   sequenceId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostTableOfContentsRevisionArgs = {
+type PosttableOfContentsRevisionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type PostTagRelArgs = {
+type PosttagRelArgs = {
   tagId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -5651,6 +5654,11 @@ type PostAnalyticsResult = {
   uniqueClientViews10Sec?: Maybe<Scalars['Int']['output']>;
   uniqueClientViewsSeries?: Maybe<Array<Maybe<UniqueClientViewsSeries>>>;
 };
+
+type PostCategory =
+  | 'linkpost'
+  | 'post'
+  | 'question';
 
 type PostDefaultViewInput = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -5751,7 +5759,7 @@ type PostReviewSort = {
 type PostSelector = {
   afRecentDiscussionThreadsList?: InputMaybe<PostsAfRecentDiscussionThreadsListInput>;
   alignmentSuggestedPosts?: InputMaybe<PostsAlignmentSuggestedPostsInput>;
-  all_drafts?: InputMaybe<PostsAll_DraftsInput>;
+  all_drafts?: InputMaybe<PostsAll_draftsInput>;
   community?: InputMaybe<PostsCommunityInput>;
   communityResourcePosts?: InputMaybe<PostsCommunityResourcePostsInput>;
   communityRss?: InputMaybe<PostsCommunityRssInput>;
@@ -5807,7 +5815,7 @@ type PostSelector = {
   topQuestions?: InputMaybe<PostsTopQuestionsInput>;
   unlisted?: InputMaybe<PostsUnlistedInput>;
   upcomingEvents?: InputMaybe<PostsUpcomingEventsInput>;
-  userAFSubmissions?: InputMaybe<PostsUserAfSubmissionsInput>;
+  userAFSubmissions?: InputMaybe<PostsUserAFSubmissionsInput>;
   userPosts?: InputMaybe<PostsUserPostsInput>;
   voting2019?: InputMaybe<PostsVoting2019Input>;
 };
@@ -5855,7 +5863,7 @@ type PostsAlignmentSuggestedPostsInput = {
   view?: InputMaybe<Scalars['String']['input']>;
 };
 
-type PostsAll_DraftsInput = {
+type PostsAll_draftsInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -6888,7 +6896,7 @@ type PostsUpcomingEventsInput = {
   view?: InputMaybe<Scalars['String']['input']>;
 };
 
-type PostsUserAfSubmissionsInput = {
+type PostsUserAFSubmissionsInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -6972,7 +6980,7 @@ type Query = {
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
   CurrentFrontpageSurvey?: Maybe<SurveySchedule>;
   DigestHighlights?: Maybe<DigestHighlightsResult>;
-  DigestPlannerData?: Maybe<Array<DigestPlannerPost>>;
+  DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts?: Maybe<Array<Post>>;
   DigestPostsThisWeek?: Maybe<DigestPostsThisWeekResult>;
   ElicitBlockData?: Maybe<ElicitBlockData>;
@@ -7021,7 +7029,7 @@ type Query = {
   TagsByCoreTagId: TagWithTotalCount;
   UltraFeed: UltraFeedQueryResults;
   UserReadHistory?: Maybe<UserReadHistoryResult>;
-  UserReadsPerCoreTag?: Maybe<Array<Maybe<UserCoreTagReads>>>;
+  UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UserWrappedDataByYear?: Maybe<WrappedDataByYear>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
   advisorRequest?: Maybe<SingleAdvisorRequestOutput>;
@@ -7082,8 +7090,8 @@ type Query = {
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
   jargonTerms?: Maybe<MultiJargonTermOutput>;
-  lWEvent?: Maybe<SingleLwEventOutput>;
-  lWEvents?: Maybe<MultiLwEventOutput>;
+  lWEvent?: Maybe<SingleLWEventOutput>;
+  lWEvents?: Maybe<MultiLWEventOutput>;
   latestDialogueMessages?: Maybe<Array<Scalars['String']['output']>>;
   latestGoogleDocMetadata?: Maybe<Scalars['JSON']['output']>;
   llmConversation?: Maybe<SingleLlmConversationOutput>;
@@ -7096,7 +7104,7 @@ type Query = {
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
   moderatorAction?: Maybe<SingleModeratorActionOutput>;
   moderatorActions?: Maybe<MultiModeratorActionOutput>;
-  moderatorViewIPAddress?: Maybe<ModeratorIpAddressInfo>;
+  moderatorViewIPAddress?: Maybe<ModeratorIPAddressInfo>;
   multiDocument?: Maybe<SingleMultiDocumentOutput>;
   multiDocuments?: Maybe<MultiMultiDocumentOutput>;
   notification?: Maybe<SingleNotificationOutput>;
@@ -7112,8 +7120,8 @@ type Query = {
   postRelation?: Maybe<SinglePostRelationOutput>;
   postRelations?: Maybe<MultiPostRelationOutput>;
   posts?: Maybe<MultiPostOutput>;
-  rSSFeed?: Maybe<SingleRssFeedOutput>;
-  rSSFeeds?: Maybe<MultiRssFeedOutput>;
+  rSSFeed?: Maybe<SingleRSSFeedOutput>;
+  rSSFeeds?: Maybe<MultiRSSFeedOutput>;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
@@ -7152,8 +7160,8 @@ type Query = {
   ultraFeedEvents?: Maybe<MultiUltraFeedEventOutput>;
   unreadNotificationCounts: NotificationCounts;
   user?: Maybe<SingleUserOutput>;
-  userEAGDetail?: Maybe<SingleUserEagDetailOutput>;
-  userEAGDetails?: Maybe<MultiUserEagDetailOutput>;
+  userEAGDetail?: Maybe<SingleUserEAGDetailOutput>;
+  userEAGDetails?: Maybe<MultiUserEAGDetailOutput>;
   userJobAd?: Maybe<SingleUserJobAdOutput>;
   userJobAds?: Maybe<MultiUserJobAdOutput>;
   userMostValuablePost?: Maybe<SingleUserMostValuablePostOutput>;
@@ -7497,13 +7505,13 @@ type QueryUsersReadPostsOfTargetUserArgs = {
 };
 
 
-type QueryAdvisorRequestArgs = {
+type QueryadvisorRequestArgs = {
   input?: InputMaybe<SingleAdvisorRequestInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryAdvisorRequestsArgs = {
+type QueryadvisorRequestsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiAdvisorRequestInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7512,13 +7520,13 @@ type QueryAdvisorRequestsArgs = {
 };
 
 
-type QueryArbitalTagContentRelArgs = {
+type QueryarbitalTagContentRelArgs = {
   input?: InputMaybe<SingleArbitalTagContentRelInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryArbitalTagContentRelsArgs = {
+type QueryarbitalTagContentRelsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiArbitalTagContentRelInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7527,13 +7535,13 @@ type QueryArbitalTagContentRelsArgs = {
 };
 
 
-type QueryBanArgs = {
+type QuerybanArgs = {
   input?: InputMaybe<SingleBanInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryBansArgs = {
+type QuerybansArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiBanInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7542,23 +7550,23 @@ type QueryBansArgs = {
 };
 
 
-type QueryBookArgs = {
+type QuerybookArgs = {
   input?: InputMaybe<SingleBookInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryBookmarkArgs = {
+type QuerybookmarkArgs = {
   input?: InputMaybe<SingleBookmarkInput>;
 };
 
 
-type QueryBookmarksArgs = {
+type QuerybookmarksArgs = {
   input?: InputMaybe<MultiBookmarkInput>;
 };
 
 
-type QueryBooksArgs = {
+type QuerybooksArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiBookInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7567,13 +7575,13 @@ type QueryBooksArgs = {
 };
 
 
-type QueryChapterArgs = {
+type QuerychapterArgs = {
   input?: InputMaybe<SingleChapterInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryChaptersArgs = {
+type QuerychaptersArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiChapterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7582,13 +7590,13 @@ type QueryChaptersArgs = {
 };
 
 
-type QueryCkEditorUserSessionArgs = {
+type QueryckEditorUserSessionArgs = {
   input?: InputMaybe<SingleCkEditorUserSessionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryCkEditorUserSessionsArgs = {
+type QueryckEditorUserSessionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCkEditorUserSessionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7597,13 +7605,13 @@ type QueryCkEditorUserSessionsArgs = {
 };
 
 
-type QueryClientIdArgs = {
+type QueryclientIdArgs = {
   input?: InputMaybe<SingleClientIdInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryClientIdsArgs = {
+type QueryclientIdsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiClientIdInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7612,13 +7620,13 @@ type QueryClientIdsArgs = {
 };
 
 
-type QueryCollectionArgs = {
+type QuerycollectionArgs = {
   input?: InputMaybe<SingleCollectionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryCollectionsArgs = {
+type QuerycollectionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCollectionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7627,19 +7635,19 @@ type QueryCollectionsArgs = {
 };
 
 
-type QueryCommentArgs = {
+type QuerycommentArgs = {
   input?: InputMaybe<SingleCommentInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryCommentModeratorActionArgs = {
+type QuerycommentModeratorActionArgs = {
   input?: InputMaybe<SingleCommentModeratorActionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryCommentModeratorActionsArgs = {
+type QuerycommentModeratorActionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCommentModeratorActionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7648,7 +7656,7 @@ type QueryCommentModeratorActionsArgs = {
 };
 
 
-type QueryCommentsArgs = {
+type QuerycommentsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCommentInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7657,13 +7665,13 @@ type QueryCommentsArgs = {
 };
 
 
-type QueryConversationArgs = {
+type QueryconversationArgs = {
   input?: InputMaybe<SingleConversationInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryConversationsArgs = {
+type QueryconversationsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiConversationInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7672,19 +7680,19 @@ type QueryConversationsArgs = {
 };
 
 
-type QueryConvertDocumentArgs = {
+type QueryconvertDocumentArgs = {
   document?: InputMaybe<Scalars['JSON']['input']>;
   targetFormat?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type QueryCurationNoticeArgs = {
+type QuerycurationNoticeArgs = {
   input?: InputMaybe<SingleCurationNoticeInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryCurationNoticesArgs = {
+type QuerycurationNoticesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiCurationNoticeInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7693,13 +7701,13 @@ type QueryCurationNoticesArgs = {
 };
 
 
-type QueryDialogueCheckArgs = {
+type QuerydialogueCheckArgs = {
   input?: InputMaybe<SingleDialogueCheckInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryDialogueChecksArgs = {
+type QuerydialogueChecksArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDialogueCheckInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7708,13 +7716,13 @@ type QueryDialogueChecksArgs = {
 };
 
 
-type QueryDialogueMatchPreferenceArgs = {
+type QuerydialogueMatchPreferenceArgs = {
   input?: InputMaybe<SingleDialogueMatchPreferenceInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryDialogueMatchPreferencesArgs = {
+type QuerydialogueMatchPreferencesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDialogueMatchPreferenceInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7723,19 +7731,19 @@ type QueryDialogueMatchPreferencesArgs = {
 };
 
 
-type QueryDigestArgs = {
+type QuerydigestArgs = {
   input?: InputMaybe<SingleDigestInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryDigestPostArgs = {
+type QuerydigestPostArgs = {
   input?: InputMaybe<SingleDigestPostInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryDigestPostsArgs = {
+type QuerydigestPostsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDigestPostInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7744,7 +7752,7 @@ type QueryDigestPostsArgs = {
 };
 
 
-type QueryDigestsArgs = {
+type QuerydigestsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiDigestInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7753,13 +7761,13 @@ type QueryDigestsArgs = {
 };
 
 
-type QueryElectionCandidateArgs = {
+type QueryelectionCandidateArgs = {
   input?: InputMaybe<SingleElectionCandidateInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryElectionCandidatesArgs = {
+type QueryelectionCandidatesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElectionCandidateInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7768,13 +7776,13 @@ type QueryElectionCandidatesArgs = {
 };
 
 
-type QueryElectionVoteArgs = {
+type QueryelectionVoteArgs = {
   input?: InputMaybe<SingleElectionVoteInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryElectionVotesArgs = {
+type QueryelectionVotesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElectionVoteInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7783,19 +7791,19 @@ type QueryElectionVotesArgs = {
 };
 
 
-type QueryElicitQuestionArgs = {
+type QueryelicitQuestionArgs = {
   input?: InputMaybe<SingleElicitQuestionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryElicitQuestionPredictionArgs = {
+type QueryelicitQuestionPredictionArgs = {
   input?: InputMaybe<SingleElicitQuestionPredictionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryElicitQuestionPredictionsArgs = {
+type QueryelicitQuestionPredictionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElicitQuestionPredictionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7804,7 +7812,7 @@ type QueryElicitQuestionPredictionsArgs = {
 };
 
 
-type QueryElicitQuestionsArgs = {
+type QueryelicitQuestionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiElicitQuestionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7813,13 +7821,13 @@ type QueryElicitQuestionsArgs = {
 };
 
 
-type QueryFeaturedResourceArgs = {
+type QueryfeaturedResourceArgs = {
   input?: InputMaybe<SingleFeaturedResourceInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryFeaturedResourcesArgs = {
+type QueryfeaturedResourcesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiFeaturedResourceInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7828,13 +7836,13 @@ type QueryFeaturedResourcesArgs = {
 };
 
 
-type QueryFieldChangeArgs = {
+type QueryfieldChangeArgs = {
   input?: InputMaybe<SingleFieldChangeInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryFieldChangesArgs = {
+type QueryfieldChangesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiFieldChangeInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7843,13 +7851,13 @@ type QueryFieldChangesArgs = {
 };
 
 
-type QueryForumEventArgs = {
+type QueryforumEventArgs = {
   input?: InputMaybe<SingleForumEventInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryForumEventsArgs = {
+type QueryforumEventsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiForumEventInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7858,13 +7866,13 @@ type QueryForumEventsArgs = {
 };
 
 
-type QueryGardenCodeArgs = {
+type QuerygardenCodeArgs = {
   input?: InputMaybe<SingleGardenCodeInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryGardenCodesArgs = {
+type QuerygardenCodesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiGardenCodeInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7873,24 +7881,24 @@ type QueryGardenCodesArgs = {
 };
 
 
-type QueryGetCrosspostArgs = {
+type QuerygetCrosspostArgs = {
   args?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
-type QueryGetLinkSharedPostArgs = {
+type QuerygetLinkSharedPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
 };
 
 
-type QueryGoogleServiceAccountSessionArgs = {
+type QuerygoogleServiceAccountSessionArgs = {
   input?: InputMaybe<SingleGoogleServiceAccountSessionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryGoogleServiceAccountSessionsArgs = {
+type QuerygoogleServiceAccountSessionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiGoogleServiceAccountSessionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7899,13 +7907,13 @@ type QueryGoogleServiceAccountSessionsArgs = {
 };
 
 
-type QueryJargonTermArgs = {
+type QueryjargonTermArgs = {
   input?: InputMaybe<SingleJargonTermInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryJargonTermsArgs = {
+type QueryjargonTermsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiJargonTermInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7914,40 +7922,40 @@ type QueryJargonTermsArgs = {
 };
 
 
-type QueryLwEventArgs = {
-  input?: InputMaybe<SingleLwEventInput>;
+type QuerylWEventArgs = {
+  input?: InputMaybe<SingleLWEventInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryLwEventsArgs = {
+type QuerylWEventsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiLwEventInput>;
+  input?: InputMaybe<MultiLWEventInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<LwEventSelector>;
+  selector?: InputMaybe<LWEventSelector>;
 };
 
 
-type QueryLatestDialogueMessagesArgs = {
+type QuerylatestDialogueMessagesArgs = {
   dialogueId: Scalars['String']['input'];
   numMessages: Scalars['Int']['input'];
 };
 
 
-type QueryLatestGoogleDocMetadataArgs = {
+type QuerylatestGoogleDocMetadataArgs = {
   postId: Scalars['String']['input'];
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type QueryLlmConversationArgs = {
+type QueryllmConversationArgs = {
   input?: InputMaybe<SingleLlmConversationInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryLlmConversationsArgs = {
+type QueryllmConversationsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiLlmConversationInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7956,13 +7964,13 @@ type QueryLlmConversationsArgs = {
 };
 
 
-type QueryLocalgroupArgs = {
+type QuerylocalgroupArgs = {
   input?: InputMaybe<SingleLocalgroupInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryLocalgroupsArgs = {
+type QuerylocalgroupsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiLocalgroupInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7971,13 +7979,13 @@ type QueryLocalgroupsArgs = {
 };
 
 
-type QueryMessageArgs = {
+type QuerymessageArgs = {
   input?: InputMaybe<SingleMessageInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryMessagesArgs = {
+type QuerymessagesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiMessageInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7986,13 +7994,13 @@ type QueryMessagesArgs = {
 };
 
 
-type QueryModerationTemplateArgs = {
+type QuerymoderationTemplateArgs = {
   input?: InputMaybe<SingleModerationTemplateInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryModerationTemplatesArgs = {
+type QuerymoderationTemplatesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiModerationTemplateInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8001,13 +8009,13 @@ type QueryModerationTemplatesArgs = {
 };
 
 
-type QueryModeratorActionArgs = {
+type QuerymoderatorActionArgs = {
   input?: InputMaybe<SingleModeratorActionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryModeratorActionsArgs = {
+type QuerymoderatorActionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiModeratorActionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8016,18 +8024,18 @@ type QueryModeratorActionsArgs = {
 };
 
 
-type QueryModeratorViewIpAddressArgs = {
+type QuerymoderatorViewIPAddressArgs = {
   ipAddress: Scalars['String']['input'];
 };
 
 
-type QueryMultiDocumentArgs = {
+type QuerymultiDocumentArgs = {
   input?: InputMaybe<SingleMultiDocumentInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryMultiDocumentsArgs = {
+type QuerymultiDocumentsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiMultiDocumentInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8036,13 +8044,13 @@ type QueryMultiDocumentsArgs = {
 };
 
 
-type QueryNotificationArgs = {
+type QuerynotificationArgs = {
   input?: InputMaybe<SingleNotificationInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryNotificationsArgs = {
+type QuerynotificationsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiNotificationInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8051,13 +8059,13 @@ type QueryNotificationsArgs = {
 };
 
 
-type QueryPetrovDayActionArgs = {
+type QuerypetrovDayActionArgs = {
   input?: InputMaybe<SinglePetrovDayActionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryPetrovDayActionsArgs = {
+type QuerypetrovDayActionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPetrovDayActionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8066,19 +8074,19 @@ type QueryPetrovDayActionsArgs = {
 };
 
 
-type QueryPodcastArgs = {
+type QuerypodcastArgs = {
   input?: InputMaybe<SinglePodcastInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryPodcastEpisodeArgs = {
+type QuerypodcastEpisodeArgs = {
   input?: InputMaybe<SinglePodcastEpisodeInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryPodcastEpisodesArgs = {
+type QuerypodcastEpisodesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPodcastEpisodeInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8087,7 +8095,7 @@ type QueryPodcastEpisodesArgs = {
 };
 
 
-type QueryPodcastsArgs = {
+type QuerypodcastsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPodcastInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8096,19 +8104,19 @@ type QueryPodcastsArgs = {
 };
 
 
-type QueryPostArgs = {
+type QuerypostArgs = {
   input?: InputMaybe<SinglePostInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryPostRelationArgs = {
+type QuerypostRelationArgs = {
   input?: InputMaybe<SinglePostRelationInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryPostRelationsArgs = {
+type QuerypostRelationsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPostRelationInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8117,7 +8125,7 @@ type QueryPostRelationsArgs = {
 };
 
 
-type QueryPostsArgs = {
+type QuerypostsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiPostInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8126,28 +8134,28 @@ type QueryPostsArgs = {
 };
 
 
-type QueryRSsFeedArgs = {
-  input?: InputMaybe<SingleRssFeedInput>;
+type QueryrSSFeedArgs = {
+  input?: InputMaybe<SingleRSSFeedInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryRSsFeedsArgs = {
+type QueryrSSFeedsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiRssFeedInput>;
+  input?: InputMaybe<MultiRSSFeedInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<RssFeedSelector>;
+  selector?: InputMaybe<RSSFeedSelector>;
 };
 
 
-type QueryReportArgs = {
+type QueryreportArgs = {
   input?: InputMaybe<SingleReportInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryReportsArgs = {
+type QueryreportsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReportInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8156,13 +8164,13 @@ type QueryReportsArgs = {
 };
 
 
-type QueryReviewVoteArgs = {
+type QueryreviewVoteArgs = {
   input?: InputMaybe<SingleReviewVoteInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryReviewVotesArgs = {
+type QueryreviewVotesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReviewVoteInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8171,19 +8179,19 @@ type QueryReviewVotesArgs = {
 };
 
 
-type QueryReviewWinnerArgs = {
+type QueryreviewWinnerArgs = {
   input?: InputMaybe<SingleReviewWinnerInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryReviewWinnerArtArgs = {
+type QueryreviewWinnerArtArgs = {
   input?: InputMaybe<SingleReviewWinnerArtInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryReviewWinnerArtsArgs = {
+type QueryreviewWinnerArtsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReviewWinnerArtInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8192,7 +8200,7 @@ type QueryReviewWinnerArtsArgs = {
 };
 
 
-type QueryReviewWinnersArgs = {
+type QueryreviewWinnersArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiReviewWinnerInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8201,13 +8209,13 @@ type QueryReviewWinnersArgs = {
 };
 
 
-type QueryRevisionArgs = {
+type QueryrevisionArgs = {
   input?: InputMaybe<SingleRevisionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryRevisionsArgs = {
+type QueryrevisionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiRevisionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8216,13 +8224,13 @@ type QueryRevisionsArgs = {
 };
 
 
-type QuerySequenceArgs = {
+type QuerysequenceArgs = {
   input?: InputMaybe<SingleSequenceInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySequencesArgs = {
+type QuerysequencesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSequenceInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8231,13 +8239,13 @@ type QuerySequencesArgs = {
 };
 
 
-type QuerySplashArtCoordinateArgs = {
+type QuerysplashArtCoordinateArgs = {
   input?: InputMaybe<SingleSplashArtCoordinateInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySplashArtCoordinatesArgs = {
+type QuerysplashArtCoordinatesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSplashArtCoordinateInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8246,13 +8254,13 @@ type QuerySplashArtCoordinatesArgs = {
 };
 
 
-type QuerySpotlightArgs = {
+type QueryspotlightArgs = {
   input?: InputMaybe<SingleSpotlightInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySpotlightsArgs = {
+type QueryspotlightsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSpotlightInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8261,13 +8269,13 @@ type QuerySpotlightsArgs = {
 };
 
 
-type QuerySubscriptionArgs = {
+type QuerysubscriptionArgs = {
   input?: InputMaybe<SingleSubscriptionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySubscriptionsArgs = {
+type QuerysubscriptionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSubscriptionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8276,19 +8284,19 @@ type QuerySubscriptionsArgs = {
 };
 
 
-type QuerySurveyArgs = {
+type QuerysurveyArgs = {
   input?: InputMaybe<SingleSurveyInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySurveyQuestionArgs = {
+type QuerysurveyQuestionArgs = {
   input?: InputMaybe<SingleSurveyQuestionInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySurveyQuestionsArgs = {
+type QuerysurveyQuestionsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyQuestionInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8297,13 +8305,13 @@ type QuerySurveyQuestionsArgs = {
 };
 
 
-type QuerySurveyResponseArgs = {
+type QuerysurveyResponseArgs = {
   input?: InputMaybe<SingleSurveyResponseInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySurveyResponsesArgs = {
+type QuerysurveyResponsesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyResponseInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8312,13 +8320,13 @@ type QuerySurveyResponsesArgs = {
 };
 
 
-type QuerySurveyScheduleArgs = {
+type QuerysurveyScheduleArgs = {
   input?: InputMaybe<SingleSurveyScheduleInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QuerySurveySchedulesArgs = {
+type QuerysurveySchedulesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyScheduleInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8327,7 +8335,7 @@ type QuerySurveySchedulesArgs = {
 };
 
 
-type QuerySurveysArgs = {
+type QuerysurveysArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiSurveyInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8336,19 +8344,19 @@ type QuerySurveysArgs = {
 };
 
 
-type QueryTagArgs = {
+type QuerytagArgs = {
   input?: InputMaybe<SingleTagInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryTagFlagArgs = {
+type QuerytagFlagArgs = {
   input?: InputMaybe<SingleTagFlagInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryTagFlagsArgs = {
+type QuerytagFlagsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTagFlagInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8357,13 +8365,13 @@ type QueryTagFlagsArgs = {
 };
 
 
-type QueryTagRelArgs = {
+type QuerytagRelArgs = {
   input?: InputMaybe<SingleTagRelInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryTagRelsArgs = {
+type QuerytagRelsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTagRelInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8372,7 +8380,7 @@ type QueryTagRelsArgs = {
 };
 
 
-type QueryTagsArgs = {
+type QuerytagsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTagInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8381,13 +8389,13 @@ type QueryTagsArgs = {
 };
 
 
-type QueryTypingIndicatorArgs = {
+type QuerytypingIndicatorArgs = {
   input?: InputMaybe<SingleTypingIndicatorInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryTypingIndicatorsArgs = {
+type QuerytypingIndicatorsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiTypingIndicatorInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8396,13 +8404,13 @@ type QueryTypingIndicatorsArgs = {
 };
 
 
-type QueryUltraFeedEventArgs = {
+type QueryultraFeedEventArgs = {
   input?: InputMaybe<SingleUltraFeedEventInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUltraFeedEventsArgs = {
+type QueryultraFeedEventsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUltraFeedEventInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8411,34 +8419,34 @@ type QueryUltraFeedEventsArgs = {
 };
 
 
-type QueryUserArgs = {
+type QueryuserArgs = {
   input?: InputMaybe<SingleUserInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUserEagDetailArgs = {
-  input?: InputMaybe<SingleUserEagDetailInput>;
+type QueryuserEAGDetailArgs = {
+  input?: InputMaybe<SingleUserEAGDetailInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUserEagDetailsArgs = {
+type QueryuserEAGDetailsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiUserEagDetailInput>;
+  input?: InputMaybe<MultiUserEAGDetailInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<UserEagDetailSelector>;
+  selector?: InputMaybe<UserEAGDetailSelector>;
 };
 
 
-type QueryUserJobAdArgs = {
+type QueryuserJobAdArgs = {
   input?: InputMaybe<SingleUserJobAdInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUserJobAdsArgs = {
+type QueryuserJobAdsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserJobAdInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8447,13 +8455,13 @@ type QueryUserJobAdsArgs = {
 };
 
 
-type QueryUserMostValuablePostArgs = {
+type QueryuserMostValuablePostArgs = {
   input?: InputMaybe<SingleUserMostValuablePostInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUserMostValuablePostsArgs = {
+type QueryuserMostValuablePostsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserMostValuablePostInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8462,13 +8470,13 @@ type QueryUserMostValuablePostsArgs = {
 };
 
 
-type QueryUserRateLimitArgs = {
+type QueryuserRateLimitArgs = {
   input?: InputMaybe<SingleUserRateLimitInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUserRateLimitsArgs = {
+type QueryuserRateLimitsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserRateLimitInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8477,13 +8485,13 @@ type QueryUserRateLimitsArgs = {
 };
 
 
-type QueryUserTagRelArgs = {
+type QueryuserTagRelArgs = {
   input?: InputMaybe<SingleUserTagRelInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryUserTagRelsArgs = {
+type QueryuserTagRelsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserTagRelInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8492,7 +8500,7 @@ type QueryUserTagRelsArgs = {
 };
 
 
-type QueryUsersArgs = {
+type QueryusersArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiUserInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8501,13 +8509,13 @@ type QueryUsersArgs = {
 };
 
 
-type QueryVoteArgs = {
+type QueryvoteArgs = {
   input?: InputMaybe<SingleVoteInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
-type QueryVotesArgs = {
+type QueryvotesArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiVoteInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8515,7 +8523,7 @@ type QueryVotesArgs = {
   selector?: InputMaybe<VoteSelector>;
 };
 
-type RssFeed = {
+type RSSFeed = {
   __typename?: 'RSSFeed';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
@@ -8533,17 +8541,17 @@ type RssFeed = {
   userId: Scalars['String']['output'];
 };
 
-type RssFeedOutput = {
+type RSSFeedOutput = {
   __typename?: 'RSSFeedOutput';
-  data?: Maybe<RssFeed>;
+  data?: Maybe<RSSFeed>;
 };
 
-type RssFeedSelector = {
+type RSSFeedSelector = {
   default?: InputMaybe<EmptyViewInput>;
-  usersFeed?: InputMaybe<RssFeedsUsersFeedInput>;
+  usersFeed?: InputMaybe<RSSFeedsUsersFeedInput>;
 };
 
-type RssFeedsUsersFeedInput = {
+type RSSFeedsUsersFeedInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -8814,7 +8822,7 @@ type Revision = {
 };
 
 
-type RevisionHtmlHighlightStartingAtHashArgs = {
+type RevisionhtmlHighlightStartingAtHashArgs = {
   hash?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -8884,7 +8892,7 @@ type Sequence = {
   bannerImageId?: Maybe<Scalars['String']['output']>;
   canonicalCollection?: Maybe<Collection>;
   canonicalCollectionSlug?: Maybe<Scalars['String']['output']>;
-  chapters?: Maybe<Array<Maybe<Chapter>>>;
+  chapters: Array<Chapter>;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -8907,7 +8915,7 @@ type Sequence = {
 };
 
 
-type SequenceContentsArgs = {
+type SequencecontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -9245,14 +9253,14 @@ type SingleJargonTermOutput = {
   result?: Maybe<JargonTerm>;
 };
 
-type SingleLwEventInput = {
+type SingleLWEventInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
 
-type SingleLwEventOutput = {
+type SingleLWEventOutput = {
   __typename?: 'SingleLWEventOutput';
-  result?: Maybe<LwEvent>;
+  result?: Maybe<LWEvent>;
 };
 
 type SingleLlmConversationInput = {
@@ -9375,14 +9383,14 @@ type SinglePostRelationOutput = {
   result?: Maybe<PostRelation>;
 };
 
-type SingleRssFeedInput = {
+type SingleRSSFeedInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
 
-type SingleRssFeedOutput = {
+type SingleRSSFeedOutput = {
   __typename?: 'SingleRSSFeedOutput';
-  result?: Maybe<RssFeed>;
+  result?: Maybe<RSSFeed>;
 };
 
 type SingleReportInput = {
@@ -9565,14 +9573,14 @@ type SingleUltraFeedEventOutput = {
   result?: Maybe<UltraFeedEvent>;
 };
 
-type SingleUserEagDetailInput = {
+type SingleUserEAGDetailInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
 
-type SingleUserEagDetailOutput = {
+type SingleUserEAGDetailOutput = {
   __typename?: 'SingleUserEAGDetailOutput';
-  result?: Maybe<UserEagDetail>;
+  result?: Maybe<UserEAGDetail>;
 };
 
 type SingleUserInput = {
@@ -9730,7 +9738,7 @@ type Spotlight = {
 };
 
 
-type SpotlightDescriptionArgs = {
+type SpotlightdescriptionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -10100,35 +10108,35 @@ type Tag = {
 };
 
 
-type TagContributorsArgs = {
+type TagcontributorsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type TagDescriptionArgs = {
+type TagdescriptionArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type TagLensesArgs = {
+type TaglensesArgs = {
   lensSlug?: InputMaybe<Scalars['String']['input']>;
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type TagLensesIncludingDeletedArgs = {
+type TaglensesIncludingDeletedArgs = {
   lensSlug?: InputMaybe<Scalars['String']['input']>;
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type TagModerationGuidelinesArgs = {
+type TagmoderationGuidelinesArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type TagRecentCommentsArgs = {
+type TagrecentCommentsArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   maxAgeHours?: InputMaybe<Scalars['Int']['input']>;
   tagCommentType?: InputMaybe<Scalars['String']['input']>;
@@ -10136,12 +10144,12 @@ type TagRecentCommentsArgs = {
 };
 
 
-type TagSubforumWelcomeTextArgs = {
+type TagsubforumWelcomeTextArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type TagTableOfContentsArgs = {
+type TagtableOfContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -10183,7 +10191,7 @@ type TagFlag = {
 };
 
 
-type TagFlagContentsArgs = {
+type TagFlagcontentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -10281,7 +10289,7 @@ type TagRelsTagsOnPostInput = {
 
 type TagSelector = {
   allArbitalTags?: InputMaybe<TagsAllArbitalTagsInput>;
-  allLWWikiTags?: InputMaybe<TagsAllLwWikiTagsInput>;
+  allLWWikiTags?: InputMaybe<TagsAllLWWikiTagsInput>;
   allPagesByNewest?: InputMaybe<TagsAllPagesByNewestInput>;
   allPublicTags?: InputMaybe<TagsAllPublicTagsInput>;
   allTagsAlphabetical?: InputMaybe<TagsAllTagsAlphabeticalInput>;
@@ -10298,7 +10306,7 @@ type TagSelector = {
   tagsBySlugs?: InputMaybe<TagsTagsBySlugsInput>;
   tagsByTagFlag?: InputMaybe<TagsTagsByTagFlagInput>;
   tagsByTagIds?: InputMaybe<TagsTagsByTagIdsInput>;
-  unprocessedLWWikiTags?: InputMaybe<TagsUnprocessedLwWikiTagsInput>;
+  unprocessedLWWikiTags?: InputMaybe<TagsUnprocessedLWWikiTagsInput>;
   unreviewedTags?: InputMaybe<TagsUnreviewedTagsInput>;
   userTags?: InputMaybe<TagsUserTagsInput>;
 };
@@ -10327,7 +10335,7 @@ type TagsAllArbitalTagsInput = {
   excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
-type TagsAllLwWikiTagsInput = {
+type TagsAllLWWikiTagsInput = {
   excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -10396,7 +10404,7 @@ type TagsTagsByTagIdsInput = {
   tagIds: Array<Scalars['String']['input']>;
 };
 
-type TagsUnprocessedLwWikiTagsInput = {
+type TagsUnprocessedLWWikiTagsInput = {
   excludedTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -10751,7 +10759,7 @@ type UpdateForumEventDataInput = {
   bannerTextColor?: InputMaybe<Scalars['String']['input']>;
   commentPrompt?: InputMaybe<Scalars['String']['input']>;
   contrastColor?: InputMaybe<Scalars['String']['input']>;
-  customComponent?: InputMaybe<Scalars['String']['input']>;
+  customComponent?: InputMaybe<ForumEventCustomComponent>;
   darkColor?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['Date']['input']>;
   eventFormat?: InputMaybe<Scalars['String']['input']>;
@@ -10970,7 +10978,7 @@ type UpdatePostDataInput = {
   onlyVisibleToLoggedIn?: InputMaybe<Scalars['Boolean']['input']>;
   organizerIds?: InputMaybe<Array<Scalars['String']['input']>>;
   podcastEpisodeId?: InputMaybe<Scalars['String']['input']>;
-  postCategory?: InputMaybe<Scalars['String']['input']>;
+  postCategory?: InputMaybe<PostCategory>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
   question?: InputMaybe<Scalars['Boolean']['input']>;
   readTimeMinutesOverride?: InputMaybe<Scalars['Float']['input']>;
@@ -11013,7 +11021,7 @@ type UpdatePostInput = {
   selector: SelectorInput;
 };
 
-type UpdateRssFeedDataInput = {
+type UpdateRSSFeedDataInput = {
   displayFullContent?: InputMaybe<Scalars['Boolean']['input']>;
   importAsDraft?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
@@ -11026,8 +11034,8 @@ type UpdateRssFeedDataInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type UpdateRssFeedInput = {
-  data: UpdateRssFeedDataInput;
+type UpdateRSSFeedInput = {
+  data: UpdateRSSFeedDataInput;
   selector: SelectorInput;
 };
 
@@ -11420,7 +11428,7 @@ type UpdateUserDataInput = {
   whenConfirmationEmailSent?: InputMaybe<Scalars['Date']['input']>;
 };
 
-type UpdateUserEagDetailDataInput = {
+type UpdateUserEAGDetailDataInput = {
   careerStage?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   countryOrRegion?: InputMaybe<Scalars['String']['input']>;
   experiencedIn?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -11431,8 +11439,8 @@ type UpdateUserEagDetailDataInput = {
   willingnessToRelocate?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-type UpdateUserEagDetailInput = {
-  data: UpdateUserEagDetailDataInput;
+type UpdateUserEAGDetailInput = {
+  data: UpdateUserEAGDetailDataInput;
   selector: SelectorInput;
 };
 
@@ -11772,43 +11780,43 @@ type User = {
 };
 
 
-type UserBiographyArgs = {
+type UserbiographyArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type UserHowICanHelpOthersArgs = {
+type UserhowICanHelpOthersArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type UserHowOthersCanHelpMeArgs = {
+type UserhowOthersCanHelpMeArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type UserKarmaChangesArgs = {
+type UserkarmaChangesArgs = {
   endDate?: InputMaybe<Scalars['Date']['input']>;
   startDate?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
-type UserModerationGuidelinesArgs = {
+type UsermoderationGuidelinesArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type UserPostsArgs = {
+type UserpostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-type UserRateLimitNextAbleToCommentArgs = {
+type UserrateLimitNextAbleToCommentArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type UserRateLimitNextAbleToPostArgs = {
+type UserrateLimitNextAbleToPostArgs = {
   eventForm?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -11822,8 +11830,8 @@ type UserActivity = {
 
 type UserCoreTagReads = {
   __typename?: 'UserCoreTagReads';
-  tagId?: Maybe<Scalars['String']['output']>;
-  userReadCount?: Maybe<Scalars['Int']['output']>;
+  tagId: Scalars['String']['output'];
+  userReadCount: Scalars['Int']['output'];
 };
 
 type UserDialogueUsefulData = {
@@ -11833,7 +11841,7 @@ type UserDialogueUsefulData = {
   topUsers?: Maybe<Array<Maybe<UpvotedUser>>>;
 };
 
-type UserEagDetail = {
+type UserEAGDetail = {
   __typename?: 'UserEAGDetail';
   _id: Scalars['String']['output'];
   careerStage?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -11850,17 +11858,17 @@ type UserEagDetail = {
   willingnessToRelocate?: Maybe<Scalars['JSON']['output']>;
 };
 
-type UserEagDetailOutput = {
+type UserEAGDetailOutput = {
   __typename?: 'UserEAGDetailOutput';
-  data?: Maybe<UserEagDetail>;
+  data?: Maybe<UserEAGDetail>;
 };
 
-type UserEagDetailSelector = {
-  dataByUser?: InputMaybe<UserEagDetailsDataByUserInput>;
+type UserEAGDetailSelector = {
+  dataByUser?: InputMaybe<UserEAGDetailsDataByUserInput>;
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type UserEagDetailsDataByUserInput = {
+type UserEAGDetailsDataByUserInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12140,10 +12148,10 @@ type WrappedDataByYear = {
   totalSeconds?: Maybe<Scalars['Int']['output']>;
 };
 
-type RevokeGoogleServiceAccountTokensMutationVariables = Exact<{ [key: string]: never; }>;
+type revokeGoogleServiceAccountTokensMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-type RevokeGoogleServiceAccountTokensMutation = { __typename?: 'Mutation', revokeGoogleServiceAccountTokens: boolean };
+type revokeGoogleServiceAccountTokensMutation = { __typename?: 'Mutation', revokeGoogleServiceAccountTokens: boolean };
 
 type AdminMetadataQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12162,12 +12170,12 @@ type UpdateSearchSynonymsMutationVariables = Exact<{
 
 type UpdateSearchSynonymsMutation = { __typename?: 'Mutation', UpdateSearchSynonyms: Array<string> };
 
-type RandomUserQueryVariables = Exact<{
+type randomUserQueryVariables = Exact<{
   userIsAuthor: Scalars['String']['input'];
 }>;
 
 
-type RandomUserQuery = { __typename?: 'Query', GetRandomUser: (
+type randomUserQuery = { __typename?: 'Query', GetRandomUser: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null };
@@ -12187,14 +12195,14 @@ type PostsAnalyticsPageQuery = { __typename?: 'Query', post: { __typename?: 'Sin
       & PostsPage
     ) | null } | null };
 
-type GetReadHistoryQueryVariables = Exact<{
+type getReadHistoryQueryVariables = Exact<{
   limit: InputMaybe<Scalars['Int']['input']>;
   filter: InputMaybe<PostReviewFilter>;
   sort: InputMaybe<PostReviewSort>;
 }>;
 
 
-type GetReadHistoryQuery = { __typename?: 'Query', UserReadHistory: { __typename?: 'UserReadHistoryResult', posts: Array<(
+type getReadHistoryQuery = { __typename?: 'Query', UserReadHistory: { __typename?: 'UserReadHistoryResult', posts: Array<(
       { __typename?: 'Post', lastVisitedAt: string | null }
       & PostsListWithVotes
     )> | null } | null };
@@ -12260,12 +12268,12 @@ type CommentsNewFormQuery = { __typename?: 'Query', user: { __typename?: 'Single
       & UsersCurrentCommentRateLimit
     ) | null } | null };
 
-type UpsertUserTypingIndicatorMutationVariables = Exact<{
+type upsertUserTypingIndicatorMutationVariables = Exact<{
   documentId: Scalars['String']['input'];
 }>;
 
 
-type UpsertUserTypingIndicatorMutation = { __typename?: 'Mutation', upsertUserTypingIndicator: (
+type upsertUserTypingIndicatorMutation = { __typename?: 'Mutation', upsertUserTypingIndicator: (
     { __typename?: 'TypingIndicator' }
     & TypingIndicatorInfo
   ) | null };
@@ -12288,6 +12296,27 @@ type TagModerationGuidelinesQueryVariables = Exact<{
 type TagModerationGuidelinesQuery = { __typename?: 'Query', TagModerationGuidelines: { __typename: 'SingleTagOutput', result: (
       { __typename?: 'Tag' }
       & TagFragment
+    ) | null } | null };
+
+type PostsEditQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostsEditQueryQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsEditQueryFragment
+    ) | null } | null };
+
+type TagEditQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type TagEditQueryQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+      { __typename?: 'Tag' }
+      & TagEditFragment
     ) | null } | null };
 
 type NewUserGuidelinesDialogQueryVariables = Exact<{
@@ -12320,28 +12349,28 @@ type SideCommentSingleQuery = { __typename?: 'Query', comment: { __typename?: 'S
       & CommentWithRepliesFragment
     ) | null } | null };
 
-type SendVertexMediaCompleteEventMutationMutationVariables = Exact<{
+type sendVertexMediaCompleteEventMutationMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   attributionId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type SendVertexMediaCompleteEventMutationMutation = { __typename?: 'Mutation', sendVertexMediaCompleteEvent: boolean };
+type sendVertexMediaCompleteEventMutationMutation = { __typename?: 'Mutation', sendVertexMediaCompleteEvent: boolean };
 
-type LwHomePostsQueryVariables = Exact<{
+type LWHomePostsQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LwHomePostsQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+type LWHomePostsQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsListWithVotes
     ) | null } | null };
 
-type SendVertexViewHomePageEventMutationMutationVariables = Exact<{ [key: string]: never; }>;
+type sendVertexViewHomePageEventMutationMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-type SendVertexViewHomePageEventMutationMutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
+type sendVertexViewHomePageEventMutationMutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
 
 type PostExcerptQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -12374,22 +12403,22 @@ type CommentActionsQuery = { __typename?: 'Query', post: { __typename?: 'SingleP
       & PostsDetails
     ) | null } | null };
 
-type LockThreadMutationVariables = Exact<{
+type lockThreadMutationVariables = Exact<{
   commentId: Scalars['String']['input'];
   until: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LockThreadMutation = { __typename?: 'Mutation', lockThread: boolean };
+type lockThreadMutation = { __typename?: 'Mutation', lockThread: boolean };
 
-type UnlockThreadMutationVariables = Exact<{
+type unlockThreadMutationVariables = Exact<{
   commentId: Scalars['String']['input'];
 }>;
 
 
-type UnlockThreadMutation = { __typename?: 'Mutation', unlockThread: boolean };
+type unlockThreadMutation = { __typename?: 'Mutation', unlockThread: boolean };
 
-type ModerateCommentMutationVariables = Exact<{
+type moderateCommentMutationVariables = Exact<{
   commentId: InputMaybe<Scalars['String']['input']>;
   deleted: InputMaybe<Scalars['Boolean']['input']>;
   deletedReason: InputMaybe<Scalars['String']['input']>;
@@ -12397,67 +12426,67 @@ type ModerateCommentMutationVariables = Exact<{
 }>;
 
 
-type ModerateCommentMutation = { __typename?: 'Mutation', moderateComment: (
+type moderateCommentMutation = { __typename?: 'Mutation', moderateComment: (
     { __typename?: 'Comment' }
     & CommentsList
   ) | null };
 
-type GetRssPostChangesQueryVariables = Exact<{
+type getRssPostChangesQueryVariables = Exact<{
   postId: Scalars['String']['input'];
 }>;
 
 
-type GetRssPostChangesQuery = { __typename?: 'Query', RssPostChanges: { __typename?: 'RssPostChangeInfo', isChanged: boolean, newHtml: string, htmlDiff: string } };
+type getRssPostChangesQuery = { __typename?: 'Query', RssPostChanges: { __typename?: 'RssPostChangeInfo', isChanged: boolean, newHtml: string, htmlDiff: string } };
 
-type SetIsHiddenMutationVariables = Exact<{
+type setIsHiddenMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   isHidden: Scalars['Boolean']['input'];
 }>;
 
 
-type SetIsHiddenMutation = { __typename?: 'Mutation', setIsHidden: (
+type setIsHiddenMutation = { __typename?: 'Mutation', setIsHidden: (
     { __typename?: 'User' }
     & UsersCurrent
   ) };
 
-type GetDigestPostsQueryVariables = Exact<{
+type getDigestPostsQueryVariables = Exact<{
   num: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-type GetDigestPostsQuery = { __typename?: 'Query', DigestPosts: Array<(
+type getDigestPostsQuery = { __typename?: 'Query', DigestPosts: Array<(
     { __typename?: 'Post' }
     & PostsListWithVotes
   )> | null };
 
-type EaHomeHandbookQueryVariables = Exact<{
+type EAHomeHandbookQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type EaHomeHandbookQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: (
+type EAHomeHandbookQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: (
       { __typename?: 'Sequence' }
       & SequencesPageFragment
     ) | null } | null };
 
-type GetUserReadsPerCoreTagQueryVariables = Exact<{
+type getUserReadsPerCoreTagQueryVariables = Exact<{
   userId: Scalars['String']['input'];
 }>;
 
 
-type GetUserReadsPerCoreTagQuery = { __typename?: 'Query', UserReadsPerCoreTag: Array<{ __typename?: 'UserCoreTagReads', tagId: string | null, userReadCount: number | null } | null> | null };
+type getUserReadsPerCoreTagQuery = { __typename?: 'Query', UserReadsPerCoreTag: Array<{ __typename?: 'UserCoreTagReads', tagId: string, userReadCount: number }> };
 
-type GetDigestPlannerDataQueryVariables = Exact<{
+type getDigestPlannerDataQueryVariables = Exact<{
   digestId: InputMaybe<Scalars['String']['input']>;
   startDate: InputMaybe<Scalars['Date']['input']>;
   endDate: InputMaybe<Scalars['Date']['input']>;
 }>;
 
 
-type GetDigestPlannerDataQuery = { __typename?: 'Query', DigestPlannerData: Array<{ __typename?: 'DigestPlannerPost', rating: number | null, post: (
+type getDigestPlannerDataQuery = { __typename?: 'Query', DigestPlannerData: Array<{ __typename?: 'DigestPlannerPost', rating: number, post: (
       { __typename?: 'Post' }
       & PostsListWithVotes
-    ) | null, digestPost: { __typename?: 'DigestPost', _id: string, emailDigestStatus: string | null, onsiteDigestStatus: string | null } | null }> | null };
+    ), digestPost: { __typename?: 'DigestPost', _id: string, emailDigestStatus: string | null, onsiteDigestStatus: string | null } | null }> };
 
 type NewUserCompleteProfileMutationVariables = Exact<{
   username: Scalars['String']['input'];
@@ -12469,53 +12498,53 @@ type NewUserCompleteProfileMutationVariables = Exact<{
 
 type NewUserCompleteProfileMutation = { __typename?: 'Mutation', NewUserCompleteProfile: { __typename?: 'NewUserCompletedProfile', username: string | null, slug: string | null, displayName: string | null } | null };
 
-type IsDisplayNameTakenQueryVariables = Exact<{
+type isDisplayNameTakenQueryVariables = Exact<{
   displayName: Scalars['String']['input'];
 }>;
 
 
-type IsDisplayNameTakenQuery = { __typename?: 'Query', IsDisplayNameTaken: boolean };
+type isDisplayNameTakenQuery = { __typename?: 'Query', IsDisplayNameTaken: boolean };
 
-type EagApplicationImportFormQueryVariables = Exact<{
+type EAGApplicationImportFormQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type EagApplicationImportFormQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
+type EAGApplicationImportFormQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
       { __typename?: 'User' }
       & UsersEdit
     ) | null } | null };
 
-type GetWrappedDataQueryVariables = Exact<{
+type getWrappedDataQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   year: Scalars['Int']['input'];
 }>;
 
 
-type GetWrappedDataQuery = { __typename?: 'Query', UserWrappedDataByYear: { __typename?: 'WrappedDataByYear', engagementPercentile: number | null, postsReadCount: number | null, totalSeconds: number | null, daysVisited: Array<string | null> | null, postCount: number | null, authorPercentile: number | null, commentCount: number | null, commenterPercentile: number | null, shortformCount: number | null, shortformPercentile: number | null, karmaChange: number | null, personality: string, mostReadTopics: Array<{ __typename?: 'MostReadTopic', name: string | null, shortName: string | null, slug: string | null, count: number | null } | null> | null, relativeMostReadCoreTopics: Array<{ __typename?: 'TagReadLikelihoodRatio', tagId: string | null, tagName: string | null, tagShortName: string | null, userReadCount: number | null, readLikelihoodRatio: number | null } | null> | null, mostReadAuthors: Array<{ __typename?: 'MostReadAuthor', _id: string | null, displayName: string | null, slug: string | null, profileImageId: string | null, count: number | null, engagementPercentile: number | null } | null> | null, topPosts: Array<{ __typename?: 'Post', _id: string, title: string, slug: string, baseScore: number } | null> | null, topComment: { __typename?: 'TopComment', _id: string | null, postedAt: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, baseScore: number | null, extendedScore: any | null, contents: { __typename?: 'TopCommentContents', html: string | null } | null } | null, topShortform: { __typename?: 'Comment', _id: string, postedAt: string, postId: string | null, baseScore: number | null, extendedScore: any | null, contents: { __typename?: 'Revision', html: string | null } | null } | null, combinedKarmaVals: Array<{ __typename?: 'CombinedKarmaVals', date: string, postKarma: number, commentKarma: number } | null> | null, mostReceivedReacts: Array<{ __typename?: 'MostReceivedReact', name: string | null, count: number | null } | null> | null } | null };
+type getWrappedDataQuery = { __typename?: 'Query', UserWrappedDataByYear: { __typename?: 'WrappedDataByYear', engagementPercentile: number | null, postsReadCount: number | null, totalSeconds: number | null, daysVisited: Array<string | null> | null, postCount: number | null, authorPercentile: number | null, commentCount: number | null, commenterPercentile: number | null, shortformCount: number | null, shortformPercentile: number | null, karmaChange: number | null, personality: string, mostReadTopics: Array<{ __typename?: 'MostReadTopic', name: string | null, shortName: string | null, slug: string | null, count: number | null } | null> | null, relativeMostReadCoreTopics: Array<{ __typename?: 'TagReadLikelihoodRatio', tagId: string | null, tagName: string | null, tagShortName: string | null, userReadCount: number | null, readLikelihoodRatio: number | null } | null> | null, mostReadAuthors: Array<{ __typename?: 'MostReadAuthor', _id: string | null, displayName: string | null, slug: string | null, profileImageId: string | null, count: number | null, engagementPercentile: number | null } | null> | null, topPosts: Array<{ __typename?: 'Post', _id: string, title: string, slug: string, baseScore: number } | null> | null, topComment: { __typename?: 'TopComment', _id: string | null, postedAt: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, baseScore: number | null, extendedScore: any | null, contents: { __typename?: 'TopCommentContents', html: string | null } | null } | null, topShortform: { __typename?: 'Comment', _id: string, postedAt: string, postId: string | null, baseScore: number | null, extendedScore: any | null, contents: { __typename?: 'Revision', html: string | null } | null } | null, combinedKarmaVals: Array<{ __typename?: 'CombinedKarmaVals', date: string, postKarma: number, commentKarma: number } | null> | null, mostReceivedReacts: Array<{ __typename?: 'MostReceivedReact', name: string | null, count: number | null } | null> | null } | null };
 
-type SendNewDialogueMessageNotificationMutationVariables = Exact<{
+type sendNewDialogueMessageNotificationMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   dialogueHtml: Scalars['String']['input'];
 }>;
 
 
-type SendNewDialogueMessageNotificationMutation = { __typename?: 'Mutation', sendNewDialogueMessageNotification: boolean };
+type sendNewDialogueMessageNotificationMutation = { __typename?: 'Mutation', sendNewDialogueMessageNotification: boolean };
 
-type GetPostIsCriticismQueryVariables = Exact<{
+type getPostIsCriticismQueryVariables = Exact<{
   args: InputMaybe<Scalars['JSON']['input']>;
 }>;
 
 
-type GetPostIsCriticismQuery = { __typename?: 'Query', PostIsCriticism: boolean | null };
+type getPostIsCriticismQuery = { __typename?: 'Query', PostIsCriticism: boolean | null };
 
-type AutosaveRevisionMutationVariables = Exact<{
+type autosaveRevisionMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   contents: AutosaveContentType;
 }>;
 
 
-type AutosaveRevisionMutation = { __typename?: 'Mutation', autosaveRevision: (
+type autosaveRevisionMutation = { __typename?: 'Mutation', autosaveRevision: (
     { __typename?: 'Revision' }
     & RevisionEdit
   ) | null };
@@ -12541,13 +12570,13 @@ type PostVersionHistoryQuery = { __typename?: 'Query', revision: { __typename?: 
       & RevisionDisplay
     ) | null } | null };
 
-type RevertPostToRevisionMutationVariables = Exact<{
+type revertPostToRevisionMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   revisionId: Scalars['String']['input'];
 }>;
 
 
-type RevertPostToRevisionMutation = { __typename?: 'Mutation', revertPostToRevision: (
+type revertPostToRevisionMutation = { __typename?: 'Mutation', revertPostToRevision: (
     { __typename?: 'Post' }
     & PostsEdit
   ) | null };
@@ -12572,14 +12601,14 @@ type TagVersionHistoryQuery = { __typename?: 'Query', revision: { __typename?: '
       & RevisionDisplay
     ) | null } | null };
 
-type RevertToRevisionMutationVariables = Exact<{
+type revertToRevisionMutationVariables = Exact<{
   tagId: Scalars['String']['input'];
   revertToRevisionId: Scalars['String']['input'];
   contributorsLimit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-type RevertToRevisionMutation = { __typename?: 'Mutation', revertTagToRevision: (
+type revertToRevisionMutation = { __typename?: 'Mutation', revertTagToRevision: (
     { __typename?: 'Tag' }
     & TagPageFragment
   ) | null };
@@ -12592,20 +12621,20 @@ type ConvertDocumentQueryVariables = Exact<{
 
 type ConvertDocumentQuery = { __typename?: 'Query', convertDocument: any | null };
 
-type FmCrosspostControlQueryVariables = Exact<{
+type FMCrosspostControlQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type FmCrosspostControlQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
+type FMCrosspostControlQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
       { __typename?: 'User' }
       & UsersCrosspostInfo
     ) | null } | null };
 
-type UnlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }>;
+type unlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-type UnlinkCrossposterMutation = { __typename?: 'Mutation', unlinkCrossposter: string | null };
+type unlinkCrossposterMutation = { __typename?: 'Mutation', unlinkCrossposter: string | null };
 
 type ImageUploadQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -12786,24 +12815,24 @@ type GetCrosspostQueryQueryVariables = Exact<{
 
 type GetCrosspostQueryQuery = { __typename?: 'Query', getCrosspost: any | null };
 
-type InitiateConversationMutationVariables = Exact<{
+type initiateConversationMutationVariables = Exact<{
   participantIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
   af: InputMaybe<Scalars['Boolean']['input']>;
   moderator: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type InitiateConversationMutation = { __typename?: 'Mutation', initiateConversation: (
+type initiateConversationMutation = { __typename?: 'Mutation', initiateConversation: (
     { __typename?: 'Conversation' }
     & ConversationsMinimumInfo
   ) | null };
 
-type MarkConversationReadMutationVariables = Exact<{
+type markConversationReadMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
 }>;
 
 
-type MarkConversationReadMutation = { __typename?: 'Mutation', markConversationRead: boolean };
+type markConversationReadMutation = { __typename?: 'Mutation', markConversationRead: boolean };
 
 type PostAnalyticsQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];
@@ -12812,27 +12841,27 @@ type PostAnalyticsQueryQueryVariables = Exact<{
 
 type PostAnalyticsQueryQuery = { __typename?: 'Query', PostAnalytics: { __typename?: 'PostAnalyticsResult', allViews: number | null, uniqueClientViews: number | null, uniqueClientViews10Sec: number | null, medianReadingTime: number | null, uniqueClientViews5Min: number | null, uniqueClientViewsSeries: Array<{ __typename?: 'UniqueClientViewsSeries', date: string | null, uniqueClientViews: number | null } | null> | null } };
 
-type IncreasePostViewCountMutationMutationVariables = Exact<{
+type increasePostViewCountMutationMutationVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type IncreasePostViewCountMutationMutation = { __typename?: 'Mutation', increasePostViewCount: number | null };
+type increasePostViewCountMutationMutation = { __typename?: 'Mutation', increasePostViewCount: number | null };
 
-type SendVertexViewItemEventMutationMutationVariables = Exact<{
+type sendVertexViewItemEventMutationMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   attributionId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type SendVertexViewItemEventMutationMutation = { __typename?: 'Mutation', sendVertexViewItemEvent: boolean };
+type sendVertexViewItemEventMutationMutation = { __typename?: 'Mutation', sendVertexViewItemEvent: boolean };
 
-type MarkPostCommentsReadMutationVariables = Exact<{
+type markPostCommentsReadMutationVariables = Exact<{
   postId: Scalars['String']['input'];
 }>;
 
 
-type MarkPostCommentsReadMutation = { __typename?: 'Mutation', markPostCommentsRead: boolean | null };
+type markPostCommentsReadMutation = { __typename?: 'Mutation', markPostCommentsRead: boolean | null };
 
 type RefreshDbSettingsMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -12844,7 +12873,7 @@ type UnreadNotificationCountQueryQueryVariables = Exact<{ [key: string]: never; 
 
 type UnreadNotificationCountQueryQuery = { __typename?: 'Query', unreadNotificationCounts: { __typename?: 'NotificationCounts', unreadNotifications: number, unreadPrivateMessages: number, faviconBadgeNumber: number, checkedAt: string } };
 
-type GetNewJargonTermsMutationVariables = Exact<{
+type getNewJargonTermsMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   glossaryPrompt: InputMaybe<Scalars['String']['input']>;
   examplePost: InputMaybe<Scalars['String']['input']>;
@@ -12854,17 +12883,17 @@ type GetNewJargonTermsMutationVariables = Exact<{
 }>;
 
 
-type GetNewJargonTermsMutation = { __typename?: 'Mutation', getNewJargonTerms: Array<(
+type getNewJargonTermsMutation = { __typename?: 'Mutation', getNewJargonTerms: Array<(
     { __typename?: 'JargonTerm' }
     & JargonTerms
   ) | null> | null };
 
-type GetPostsWithApprovedJargonQueryVariables = Exact<{
+type getPostsWithApprovedJargonQueryVariables = Exact<{
   limit: Scalars['Int']['input'];
 }>;
 
 
-type GetPostsWithApprovedJargonQuery = { __typename?: 'Query', PostsWithApprovedJargon: { __typename?: 'PostsWithApprovedJargonResult', results: Array<{ __typename?: 'PostWithApprovedJargon', post: (
+type getPostsWithApprovedJargonQuery = { __typename?: 'Query', PostsWithApprovedJargon: { __typename?: 'PostsWithApprovedJargonResult', results: Array<{ __typename?: 'PostWithApprovedJargon', post: (
         { __typename?: 'Post' }
         & PostsListWithVotes
       ), jargonTerms: Array<(
@@ -12944,7 +12973,7 @@ type GroupFormDialogQueryVariables = Exact<{
 
 type GroupFormDialogQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: (
       { __typename?: 'Localgroup' }
-      & LocalGroupsEdit
+      & localGroupsEdit
     ) | null } | null };
 
 type LocalGroupPageQueryVariables = Exact<{
@@ -12954,7 +12983,7 @@ type LocalGroupPageQueryVariables = Exact<{
 
 type LocalGroupPageQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: (
       { __typename?: 'Localgroup' }
-      & LocalGroupsHomeFragment
+      & localGroupsHomeFragment
     ) | null } | null };
 
 type SetPersonalMapLocationDialogQueryVariables = Exact<{
@@ -13055,13 +13084,13 @@ type NotificationsPageItemQuery = { __typename?: 'Query', comment: { __typename?
       & CommentsListWithParentMetadata
     ) | null } | null };
 
-type GetNotificationDisplaysQueryVariables = Exact<{
+type getNotificationDisplaysQueryVariables = Exact<{
   limit: InputMaybe<Scalars['Int']['input']>;
   type: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type GetNotificationDisplaysQuery = { __typename?: 'Query', NotificationDisplays: { __typename?: 'NotificationDisplaysResult', results: Array<any> } | null };
+type getNotificationDisplaysQuery = { __typename?: 'Query', NotificationDisplays: { __typename?: 'NotificationDisplaysResult', results: Array<any> } | null };
 
 type MarkAllNotificationsAsReadMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -13093,12 +13122,12 @@ type AddToCalendarButtonQuery = { __typename?: 'Query', post: { __typename?: 'Si
       & PostsPlaintextDescription
     ) | null } | null };
 
-type ImportUrlAsDraftPostMutationVariables = Exact<{
+type importUrlAsDraftPostMutationVariables = Exact<{
   url: Scalars['String']['input'];
 }>;
 
 
-type ImportUrlAsDraftPostMutation = { __typename?: 'Mutation', importUrlAsDraftPost: { __typename?: 'ExternalPostImportData', alreadyExists: boolean | null, post: { __typename?: 'ExternalPost', _id: string, slug: string | null, title: string | null, content: string | null, url: string | null } | null } };
+type importUrlAsDraftPostMutation = { __typename?: 'Mutation', importUrlAsDraftPost: { __typename?: 'ExternalPostImportData', alreadyExists: boolean | null, post: { __typename?: 'ExternalPost', _id: string, slug: string | null, title: string | null, content: string | null, url: string | null } | null } };
 
 type FeedPostsHighlightQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13110,13 +13139,13 @@ type FeedPostsHighlightQuery = { __typename?: 'Query', post: { __typename?: 'Sin
       & PostsExpandedHighlight
     ) | null } | null };
 
-type LatestGoogleDocMetadataQueryVariables = Exact<{
+type latestGoogleDocMetadataQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   version: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LatestGoogleDocMetadataQuery = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
+type latestGoogleDocMetadataQuery = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
 
 type CanAccessGoogleDocQueryVariables = Exact<{
   fileUrl: Scalars['String']['input'];
@@ -13176,7 +13205,7 @@ type PostsGroupDetailsQueryVariables = Exact<{
 
 type PostsGroupDetailsQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: (
       { __typename?: 'Localgroup' }
-      & LocalGroupsHomeFragment
+      & localGroupsHomeFragment
     ) | null } | null };
 
 type PostsHighlightQueryVariables = Exact<{
@@ -13234,7 +13263,7 @@ type PostsNewForm2QueryVariables = Exact<{
 
 type PostsNewForm2Query = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: (
       { __typename?: 'Localgroup' }
-      & LocalGroupsIsOnline
+      & localGroupsIsOnline
     ) | null } | null };
 
 type PostsNewForm1QueryVariables = Exact<{
@@ -13258,12 +13287,12 @@ type PostsNewFormQuery = { __typename?: 'Query', post: { __typename?: 'SinglePos
       & PostsPage
     ) | null } | null };
 
-type FlipSplashArtImageMutationVariables = Exact<{
+type flipSplashArtImageMutationVariables = Exact<{
   reviewWinnerArtId: Scalars['String']['input'];
 }>;
 
 
-type FlipSplashArtImageMutation = { __typename?: 'Mutation', flipSplashArtImage: boolean | null };
+type flipSplashArtImageMutation = { __typename?: 'Mutation', flipSplashArtImage: boolean | null };
 
 type PostBodyQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13320,7 +13349,7 @@ type PostsRevisionsListQuery = { __typename?: 'Query', post: { __typename?: 'Sin
       & PostsRevisionsList
     ) | null } | null };
 
-type RegisterRsvpMutationVariables = Exact<{
+type RegisterRSVPMutationVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   email: InputMaybe<Scalars['String']['input']>;
@@ -13329,41 +13358,41 @@ type RegisterRsvpMutationVariables = Exact<{
 }>;
 
 
-type RegisterRsvpMutation = { __typename?: 'Mutation', RSVPToEvent: (
+type RegisterRSVPMutation = { __typename?: 'Mutation', RSVPToEvent: (
     { __typename?: 'Post' }
     & PostsDetails
   ) | null };
 
-type CancelRsvpToEventMutationVariables = Exact<{
+type CancelRSVPToEventMutationVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   userId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type CancelRsvpToEventMutation = { __typename?: 'Mutation', CancelRSVPToEvent: (
+type CancelRSVPToEventMutation = { __typename?: 'Mutation', CancelRSVPToEvent: (
     { __typename?: 'Post' }
     & PostsDetails
   ) | null };
 
-type LwPostsPreviewTooltip1QueryVariables = Exact<{
+type LWPostsPreviewTooltip1QueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   dialogueMessageId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LwPostsPreviewTooltip1Query = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+type LWPostsPreviewTooltip1Query = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostWithDialogueMessage
     ) | null } | null };
 
-type LwPostsPreviewTooltipQueryVariables = Exact<{
+type LWPostsPreviewTooltipQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   hash: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LwPostsPreviewTooltipQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+type LWPostsPreviewTooltipQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & HighlightWithHash
     ) | null } | null };
@@ -13408,19 +13437,19 @@ type WelcomePostItemQuery = { __typename?: 'Query', post: { __typename?: 'Single
       & PostsListWithVotes
     ) | null } | null };
 
-type ObserveRecommendationMutationVariables = Exact<{
+type observeRecommendationMutationVariables = Exact<{
   postId: Scalars['String']['input'];
 }>;
 
 
-type ObserveRecommendationMutation = { __typename?: 'Mutation', observeRecommendation: boolean | null };
+type observeRecommendationMutation = { __typename?: 'Mutation', observeRecommendation: boolean | null };
 
-type ClickRecommendationMutationVariables = Exact<{
+type clickRecommendationMutationVariables = Exact<{
   postId: Scalars['String']['input'];
 }>;
 
 
-type ClickRecommendationMutation = { __typename?: 'Mutation', clickRecommendation: boolean | null };
+type clickRecommendationMutation = { __typename?: 'Mutation', clickRecommendation: boolean | null };
 
 type ContinueReadingQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13436,12 +13465,12 @@ type ContinueReadingQueryQuery = { __typename?: 'Query', ContinueReading: Array<
       & PostsListWithVotes
     ) }> | null };
 
-type DismissRecommendationMutationVariables = Exact<{
+type dismissRecommendationMutationVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type DismissRecommendationMutation = { __typename?: 'Mutation', dismissRecommendation: boolean | null };
+type dismissRecommendationMutation = { __typename?: 'Mutation', dismissRecommendation: boolean | null };
 
 type RecommendationsQueryQueryVariables = Exact<{
   count: InputMaybe<Scalars['Int']['input']>;
@@ -13462,12 +13491,12 @@ type BestOfLessWrongAdminQuery = { __typename?: 'Query', GetAllReviewWinners: Ar
     & PostsTopItemInfo
   )> };
 
-type FrontpageBestOfLwWidgetQueryVariables = Exact<{
+type FrontpageBestOfLWWidgetQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type FrontpageBestOfLwWidgetQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+type FrontpageBestOfLWWidgetQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsListWithVotes
     ) | null } | null };
@@ -13490,14 +13519,14 @@ type PostNominatedNotificationQuery = { __typename?: 'Query', post: { __typename
       & PostsList
     ) | null } | null };
 
-type GetPostsUserCommentedOnQueryVariables = Exact<{
+type getPostsUserCommentedOnQueryVariables = Exact<{
   limit: InputMaybe<Scalars['Int']['input']>;
   filter: InputMaybe<PostReviewFilter>;
   sort: InputMaybe<PostReviewSort>;
 }>;
 
 
-type GetPostsUserCommentedOnQuery = { __typename?: 'Query', PostsUserCommentedOn: { __typename?: 'UserReadHistoryResult', posts: Array<(
+type getPostsUserCommentedOnQuery = { __typename?: 'Query', PostsUserCommentedOn: { __typename?: 'UserReadHistoryResult', posts: Array<(
       { __typename?: 'Post' }
       & PostsListWithVotes
     )> | null } | null };
@@ -13536,7 +13565,7 @@ type ReviewVotingExpandedPostQuery = { __typename?: 'Query', post: { __typename?
       & PostsList
     ) | null } | null };
 
-type SubmitReviewVoteMutationVariables = Exact<{
+type submitReviewVoteMutationVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
   qualitativeScore: InputMaybe<Scalars['Int']['input']>;
   quadraticChange: InputMaybe<Scalars['Int']['input']>;
@@ -13547,7 +13576,7 @@ type SubmitReviewVoteMutationVariables = Exact<{
 }>;
 
 
-type SubmitReviewVoteMutation = { __typename?: 'Mutation', submitReviewVote: (
+type submitReviewVoteMutation = { __typename?: 'Mutation', submitReviewVote: (
     { __typename?: 'Post' }
     & PostsReviewVotingList
   ) | null };
@@ -13602,27 +13631,27 @@ type HomepageCommunityMapQuery = { __typename?: 'Query', post: { __typename?: 'S
       & PostsList
     ) | null } | null };
 
-type LaunchPetrovMissileMutationVariables = Exact<{
+type launchPetrovMissileMutationVariables = Exact<{
   launchCode: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LaunchPetrovMissileMutation = { __typename?: 'Mutation', PetrovDayLaunchMissile: { __typename?: 'PetrovDayLaunchMissileData', launchCode: string | null } | null };
+type launchPetrovMissileMutation = { __typename?: 'Mutation', PetrovDayLaunchMissile: { __typename?: 'PetrovDayLaunchMissileData', launchCode: string | null } | null };
 
-type PetrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type PetrovDayLaunchResolversQuery = { __typename?: 'Query', PetrovDayCheckIfIncoming: { __typename?: 'PetrovDayCheckIfIncomingData', launched: boolean | null, createdAt: string | null } | null };
-
-type Petrov2024checkIfNukedQueryVariables = Exact<{ [key: string]: never; }>;
+type petrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-type Petrov2024checkIfNukedQuery = { __typename?: 'Query', petrov2024checkIfNuked: boolean | null };
+type petrovDayLaunchResolversQuery = { __typename?: 'Query', PetrovDayCheckIfIncoming: { __typename?: 'PetrovDayCheckIfIncomingData', launched: boolean | null, createdAt: string | null } | null };
 
-type PetrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
+type petrov2024checkIfNukedQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-type PetrovDay2024ResolversQuery = { __typename?: 'Query', PetrovDay2024CheckNumberOfIncoming: { __typename?: 'PetrovDay2024CheckNumberOfIncomingData', count: number | null } | null };
+type petrov2024checkIfNukedQuery = { __typename?: 'Query', petrov2024checkIfNuked: boolean | null };
+
+type petrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type petrovDay2024ResolversQuery = { __typename?: 'Query', PetrovDay2024CheckNumberOfIncoming: { __typename?: 'PetrovDay2024CheckNumberOfIncomingData', count: number | null } | null };
 
 type BooksItemQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13692,13 +13721,13 @@ type GetAllReviewWinnersQuery = { __typename?: 'Query', GetAllReviewWinners: Arr
     & PostsTopItemInfo
   )> };
 
-type UpdateContinueReadingMutationVariables = Exact<{
+type updateContinueReadingMutationVariables = Exact<{
   sequenceId: Scalars['String']['input'];
   postId: Scalars['String']['input'];
 }>;
 
 
-type UpdateContinueReadingMutation = { __typename?: 'Mutation', updateContinueReading: boolean | null };
+type updateContinueReadingMutation = { __typename?: 'Mutation', updateContinueReading: boolean | null };
 
 type ProfileShortformQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13730,12 +13759,12 @@ type ModerationAltAccountsQuery = { __typename?: 'Query', user: { __typename?: '
       & UserAltAccountsFragment
     ) | null } | null };
 
-type ModeratorIpAddressInfoQueryVariables = Exact<{
+type ModeratorIPAddressInfoQueryVariables = Exact<{
   ipAddress: Scalars['String']['input'];
 }>;
 
 
-type ModeratorIpAddressInfoQuery = { __typename?: 'Query', moderatorViewIPAddress: { __typename?: 'ModeratorIPAddressInfo', ip: string, userIds: Array<string> } | null };
+type ModeratorIPAddressInfoQuery = { __typename?: 'Query', moderatorViewIPAddress: { __typename?: 'ModeratorIPAddressInfo', ip: string, userIds: Array<string> } | null };
 
 type NewCommentModerationWarningQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13777,14 +13806,14 @@ type SurveyEditPageQuery = { __typename?: 'Query', survey: { __typename?: 'Singl
       & SurveyMinimumInfo
     ) | null } | null };
 
-type EditSurveyMutationVariables = Exact<{
+type editSurveyMutationVariables = Exact<{
   surveyId: Scalars['String']['input'];
   name: Scalars['String']['input'];
   questions: Array<SurveyQuestionInfo> | SurveyQuestionInfo;
 }>;
 
 
-type EditSurveyMutation = { __typename?: 'Mutation', editSurvey: (
+type editSurveyMutation = { __typename?: 'Mutation', editSurvey: (
     { __typename?: 'Survey' }
     & SurveyMinimumInfo
   ) | null };
@@ -13799,13 +13828,13 @@ type SurveyScheduleEditPageQuery = { __typename?: 'Query', surveySchedule: { __t
       & SurveyScheduleEdit
     ) | null } | null };
 
-type AddPostsToTagMutationVariables = Exact<{
+type addPostsToTagMutationVariables = Exact<{
   tagId: InputMaybe<Scalars['String']['input']>;
   postId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type AddPostsToTagMutation = { __typename?: 'Mutation', addOrUpvoteTag: (
+type addPostsToTagMutation = { __typename?: 'Mutation', addOrUpvoteTag: (
     { __typename?: 'TagRel' }
     & TagRelCreationFragment
   ) | null };
@@ -13830,22 +13859,22 @@ type TagsQueryQuery = { __typename?: 'Query', tags: { __typename?: 'MultiTagOutp
       & ConceptItemFragment
     ) | null> | null } | null };
 
-type EaAllTagsPageQueryVariables = Exact<{
+type EAAllTagsPageQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type EaAllTagsPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+type EAAllTagsPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
       { __typename?: 'Tag' }
       & TagEditFragment
     ) | null } | null };
 
-type EaTagPageQueryVariables = Exact<{
+type EATagPageQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type EaTagPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+type EATagPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
       { __typename?: 'Tag' }
       & TagEditFragment
     ) | null } | null };
@@ -13860,40 +13889,40 @@ type FilterModeQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOut
       & TagPreviewFragment
     ) | null } | null };
 
-type AddOrUpvoteTagMutationVariables = Exact<{
+type addOrUpvoteTagMutationVariables = Exact<{
   tagId: InputMaybe<Scalars['String']['input']>;
   postId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type AddOrUpvoteTagMutation = { __typename?: 'Mutation', addOrUpvoteTag: (
+type addOrUpvoteTagMutation = { __typename?: 'Mutation', addOrUpvoteTag: (
     { __typename?: 'TagRel' }
     & TagRelMinimumFragment
   ) | null };
 
-type LwTagPageQueryVariables = Exact<{
+type LWTagPageQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LwTagPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
+type LWTagPageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
       { __typename?: 'Tag' }
       & TagEditFragment
     ) | null } | null };
 
-type GetRandomTagQueryVariables = Exact<{ [key: string]: never; }>;
+type getRandomTagQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-type GetRandomTagQuery = { __typename?: 'Query', RandomTag: { __typename?: 'Tag', slug: string } };
+type getRandomTagQuery = { __typename?: 'Query', RandomTag: { __typename?: 'Tag', slug: string } };
 
-type ReorderSummariesMutationVariables = Exact<{
+type reorderSummariesMutationVariables = Exact<{
   parentDocumentId: Scalars['String']['input'];
   parentDocumentCollectionName: Scalars['String']['input'];
   summaryIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
 }>;
 
 
-type ReorderSummariesMutation = { __typename?: 'Mutation', reorderSummaries: boolean | null };
+type reorderSummariesMutation = { __typename?: 'Mutation', reorderSummaries: boolean | null };
 
 type TagContributorsListQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13905,13 +13934,13 @@ type TagContributorsListQuery = { __typename?: 'Query', tag: { __typename?: 'Sin
       & TagFullContributorsList
     ) | null } | null };
 
-type GetTagUpdatesQueryVariables = Exact<{
+type getTagUpdatesQueryVariables = Exact<{
   before: Scalars['Date']['input'];
   after: Scalars['Date']['input'];
 }>;
 
 
-type GetTagUpdatesQuery = { __typename?: 'Query', TagUpdatesInTimeBlock: Array<{ __typename?: 'TagUpdates', revisionIds: Array<string> | null, commentCount: number | null, commentIds: Array<string> | null, lastRevisedAt: string | null, lastCommentedAt: string | null, added: number | null, removed: number | null, tag: (
+type getTagUpdatesQuery = { __typename?: 'Query', TagUpdatesInTimeBlock: Array<{ __typename?: 'TagUpdates', revisionIds: Array<string> | null, commentCount: number | null, commentIds: Array<string> | null, lastRevisedAt: string | null, lastCommentedAt: string | null, added: number | null, removed: number | null, tag: (
       { __typename?: 'Tag' }
       & TagHistoryFragment
     ), users: Array<(
@@ -13939,7 +13968,7 @@ type TagMergePageQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagO
       & TagFragment
     ) | null } | null };
 
-type MergeTagsMutationVariables = Exact<{
+type mergeTagsMutationVariables = Exact<{
   sourceTagId: Scalars['String']['input'];
   targetTagId: Scalars['String']['input'];
   transferSubtags: Scalars['Boolean']['input'];
@@ -13947,14 +13976,14 @@ type MergeTagsMutationVariables = Exact<{
 }>;
 
 
-type MergeTagsMutation = { __typename?: 'Mutation', mergeTags: boolean | null };
+type mergeTagsMutation = { __typename?: 'Mutation', mergeTags: boolean | null };
 
-type PromoteLensToMainMutationVariables = Exact<{
+type promoteLensToMainMutationVariables = Exact<{
   lensId: Scalars['String']['input'];
 }>;
 
 
-type PromoteLensToMainMutation = { __typename?: 'Mutation', promoteLensToMain: boolean | null };
+type promoteLensToMainMutation = { __typename?: 'Mutation', promoteLensToMain: boolean | null };
 
 type TagSearchHitQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -14036,7 +14065,7 @@ type LocalgroupPageTitleQueryVariables = Exact<{
 
 type LocalgroupPageTitleQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: (
       { __typename?: 'Localgroup' }
-      & LocalGroupsBase
+      & localGroupsBase
     ) | null } | null };
 
 type PostsPageHeaderTitleQueryVariables = Exact<{
@@ -14089,12 +14118,12 @@ type UltraFeedThreadItemQuery = { __typename?: 'Query', post: { __typename?: 'Si
       & PostsListWithVotes
     ) | null } | null };
 
-type ConnectCrossposterMutationVariables = Exact<{
+type connectCrossposterMutationVariables = Exact<{
   token: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type ConnectCrossposterMutation = { __typename?: 'Mutation', connectCrossposter: string | null };
+type connectCrossposterMutation = { __typename?: 'Mutation', connectCrossposter: string | null };
 
 type EditProfileFormQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -14106,12 +14135,12 @@ type EditProfileFormQuery = { __typename?: 'Query', user: { __typename?: 'Single
       & UsersProfileEdit
     ) | null } | null };
 
-type SendEventTriggeredDmMutationVariables = Exact<{
+type sendEventTriggeredDMMutationVariables = Exact<{
   eventType: Scalars['String']['input'];
 }>;
 
 
-type SendEventTriggeredDmMutation = { __typename?: 'Mutation', sendEventTriggeredDM: boolean };
+type sendEventTriggeredDMMutation = { __typename?: 'Mutation', sendEventTriggeredDM: boolean };
 
 type KarmaChangeNotifierQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -14123,15 +14152,15 @@ type KarmaChangeNotifierQuery = { __typename?: 'Query', user: { __typename?: 'Si
       & UserKarmaChanges
     ) | null } | null };
 
-type LoginMutationVariables = Exact<{
+type loginMutationVariables = Exact<{
   username: InputMaybe<Scalars['String']['input']>;
   password: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginReturnData', token: string | null } | null };
+type loginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginReturnData', token: string | null } | null };
 
-type SignupMutationVariables = Exact<{
+type signupMutationVariables = Exact<{
   email: InputMaybe<Scalars['String']['input']>;
   username: InputMaybe<Scalars['String']['input']>;
   password: InputMaybe<Scalars['String']['input']>;
@@ -14141,14 +14170,14 @@ type SignupMutationVariables = Exact<{
 }>;
 
 
-type SignupMutation = { __typename?: 'Mutation', signup: { __typename?: 'LoginReturnData', token: string | null } | null };
+type signupMutation = { __typename?: 'Mutation', signup: { __typename?: 'LoginReturnData', token: string | null } | null };
 
-type ResetPasswordMutationVariables = Exact<{
+type resetPasswordMutationVariables = Exact<{
   email: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: string | null };
+type resetPasswordMutation = { __typename?: 'Mutation', resetPassword: string | null };
 
 type UsersNameWrapperQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -14160,13 +14189,13 @@ type UsersNameWrapperQuery = { __typename?: 'Query', user: { __typename?: 'Singl
       & UsersMinimumInfo
     ) | null } | null };
 
-type EmailstestsQueryVariables = Exact<{
+type emailstestsQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   version: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type EmailstestsQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+type emailstestsQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsRevision
     ) | null } | null };
@@ -14234,7 +14263,7 @@ type ChaptersEdit = (
 
 type CkEditorUserSessionInfo = { __typename?: 'CkEditorUserSession', _id: string, userId: string | null, documentId: string | null, endedAt: string | null, endedBy: string | null };
 
-type ModeratorClientIdInfo = { __typename?: 'ClientId', _id: string, clientId: string | null, createdAt: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, users: Array<(
+type ModeratorClientIDInfo = { __typename?: 'ClientId', _id: string, clientId: string | null, createdAt: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, users: Array<(
     { __typename?: 'User' }
     & UsersMinimumInfo
   )> | null };
@@ -14250,7 +14279,7 @@ type CollectionsPageFragment = { __typename?: 'Collection', _id: string, created
   ) | null, books: Array<(
     { __typename?: 'Book' }
     & BookPageFragment
-  ) | null> | null };
+  )> };
 
 type CollectionsEditFragment = (
   { __typename?: 'Collection', contents: (
@@ -14315,7 +14344,7 @@ type CommentWithRepliesFragment = (
   { __typename?: 'Comment', lastSubthreadActivity: string | null, latestChildren: Array<(
     { __typename?: 'Comment' }
     & CommentsList
-  ) | null> | null, tag: (
+  )>, tag: (
     { __typename?: 'Tag' }
     & TagBasicInfo
   ) | null, post: (
@@ -14369,7 +14398,7 @@ type CommentsListWithModerationMetadata = (
   & CommentWithRepliesFragment
 );
 
-type CommentsListWithModGptAnalysis = (
+type CommentsListWithModGPTAnalysis = (
   { __typename?: 'Comment', modGPTAnalysis: string | null, post: (
     { __typename?: 'Post' }
     & PostsMinimumInfo
@@ -14436,7 +14465,7 @@ type ConversationsList = (
     & UsersMinimumInfo
   )> | null, latestMessage: (
     { __typename?: 'Message' }
-    & MessageListFragment
+    & messageListFragment
   ) | null }
   & ConversationsMinimumInfo
 );
@@ -14493,7 +14522,7 @@ type FeaturedResourcesFragment = { __typename?: 'FeaturedResource', _id: string,
 
 type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, eventFormat: string, customComponent: string | null, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
+type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, eventFormat: string, customComponent: ForumEventCustomComponent, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
 
 type ForumEventsDisplay = (
   { __typename?: 'ForumEvent', publicData: any | null, voteCount: number, post: (
@@ -14569,47 +14598,47 @@ type LlmConversationsWithMessagesFragment = (
   { __typename?: 'LlmConversation', messages: Array<(
     { __typename?: 'LlmMessage' }
     & LlmMessagesFragment
-  ) | null> | null }
+  )> | null }
   & LlmConversationsFragment
 );
 
 type LlmMessagesFragment = { __typename?: 'LlmMessage', _id: string, userId: string | null, conversationId: string | null, role: string | null, content: string | null, createdAt: string };
 
-type LocalGroupsBase = { __typename?: 'Localgroup', _id: string, createdAt: string, organizerIds: Array<string>, lastActivity: string, name: string, nameInAnotherLanguage: string | null, isOnline: boolean, location: string | null, googleLocation: any | null, mongoLocation: any | null, types: Array<string>, categories: Array<string> | null, contactInfo: string | null, facebookLink: string | null, facebookPageLink: string | null, meetupLink: string | null, slackLink: string | null, website: string | null, bannerImageId: string | null, inactive: boolean, deleted: boolean, organizers: Array<(
+type localGroupsBase = { __typename?: 'Localgroup', _id: string, createdAt: string, organizerIds: Array<string>, lastActivity: string, name: string, nameInAnotherLanguage: string | null, isOnline: boolean, location: string | null, googleLocation: any | null, mongoLocation: any | null, types: Array<string>, categories: Array<string> | null, contactInfo: string | null, facebookLink: string | null, facebookPageLink: string | null, meetupLink: string | null, slackLink: string | null, website: string | null, bannerImageId: string | null, inactive: boolean, deleted: boolean, organizers: Array<(
     { __typename?: 'User' }
     & UsersMinimumInfo
   )> };
 
-type LocalGroupsHomeFragment = (
+type localGroupsHomeFragment = (
   { __typename?: 'Localgroup', contents: (
     { __typename?: 'Revision' }
     & RevisionDisplay
   ) | null }
-  & LocalGroupsBase
+  & localGroupsBase
 );
 
-type LocalGroupsEdit = (
+type localGroupsEdit = (
   { __typename?: 'Localgroup', contents: (
     { __typename?: 'Revision' }
     & RevisionEdit
   ) | null }
-  & LocalGroupsBase
+  & localGroupsBase
 );
 
-type LocalGroupsIsOnline = { __typename?: 'Localgroup', _id: string, name: string, isOnline: boolean };
+type localGroupsIsOnline = { __typename?: 'Localgroup', _id: string, name: string, isOnline: boolean };
 
-type NewEventFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, userId: string | null, name: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
+type newEventFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, userId: string | null, name: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
 
-type LastEventFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, documentId: string | null, userId: string | null, name: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
+type lastEventFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, documentId: string | null, userId: string | null, name: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
 
-type LwEventsAdminPageFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, userId: string | null, name: string | null, documentId: string | null, important: boolean | null, properties: any | null, intercom: boolean | null, user: (
+type lwEventsAdminPageFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, userId: string | null, name: string | null, documentId: string | null, important: boolean | null, properties: any | null, intercom: boolean | null, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null };
 
-type EmailHistoryFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, userId: string | null, name: string | null, properties: any | null };
+type emailHistoryFragment = { __typename?: 'LWEvent', _id: string, createdAt: string | null, userId: string | null, name: string | null, properties: any | null };
 
-type MessageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, user: (
+type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, user: (
     { __typename?: 'User', profileImageId: string | null }
     & UsersMinimumInfo
   ) | null, contents: { __typename?: 'Revision', html: string | null, plaintextMainText: string } | null };
@@ -14716,7 +14745,7 @@ type PostsTopItemInfo = (
 );
 
 type PostsBase = (
-  { __typename?: 'Post', url: string | null, postedAt: string, createdAt: string | null, sticky: boolean, metaSticky: boolean, stickyPriority: number, status: number, frontpageDate: string | null, meta: boolean, deletedDraft: boolean, postCategory: string, tagRelevance: any | null, shareWithUsers: Array<string> | null, sharingSettings: any | null, linkSharingKey: string | null, contents_latest: string | null, commentCount: number, voteCount: number, baseScore: number, extendedScore: any | null, emojiReactors: any | null, unlisted: boolean, score: number, lastVisitedAt: string | null, isFuture: boolean, isRead: boolean | null, lastCommentedAt: string, lastCommentPromotedAt: string | null, canonicalCollectionSlug: string | null, curatedDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, debate: boolean, question: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, userId: string | null, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, contactInfo: string | null, isEvent: boolean, eventImageId: string | null, eventType: string | null, types: Array<string> | null, groupId: string | null, reviewedByUserId: string | null, suggestForCuratedUserIds: Array<string> | null, suggestForCuratedUsernames: string | null, reviewForCuratedUserId: string | null, authorIsUnreviewed: boolean, afDate: string | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, hideAuthor: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, submitToFrontpage: boolean, shortform: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, annualReviewMarketProbability: number | null, annualReviewMarketIsResolved: boolean | null, annualReviewMarketYear: number | null, annualReviewMarketUrl: string | null, rsvpCounts: any, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, nominationCount2019: number, reviewCount2019: number, votingSystem: string | null, disableRecommendation: boolean, group: { __typename?: 'Localgroup', _id: string, name: string, organizerIds: Array<string> } | null }
+  { __typename?: 'Post', url: string | null, postedAt: string, createdAt: string | null, sticky: boolean, metaSticky: boolean, stickyPriority: number, status: number, frontpageDate: string | null, meta: boolean, deletedDraft: boolean, postCategory: PostCategory, tagRelevance: any | null, shareWithUsers: Array<string> | null, sharingSettings: any | null, linkSharingKey: string | null, contents_latest: string | null, commentCount: number, voteCount: number, baseScore: number, extendedScore: any | null, emojiReactors: any | null, unlisted: boolean, score: number, lastVisitedAt: string | null, isFuture: boolean, isRead: boolean | null, lastCommentedAt: string, lastCommentPromotedAt: string | null, canonicalCollectionSlug: string | null, curatedDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, debate: boolean, question: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, userId: string | null, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, contactInfo: string | null, isEvent: boolean, eventImageId: string | null, eventType: string | null, types: Array<string> | null, groupId: string | null, reviewedByUserId: string | null, suggestForCuratedUserIds: Array<string> | null, suggestForCuratedUsernames: string | null, reviewForCuratedUserId: string | null, authorIsUnreviewed: boolean, afDate: string | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, hideAuthor: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, submitToFrontpage: boolean, shortform: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, annualReviewMarketProbability: number | null, annualReviewMarketIsResolved: boolean | null, annualReviewMarketYear: number | null, annualReviewMarketUrl: string | null, rsvpCounts: any, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, nominationCount2019: number, reviewCount2019: number, votingSystem: string | null, disableRecommendation: boolean, group: { __typename?: 'Localgroup', _id: string, name: string, organizerIds: Array<string> } | null }
   & PostsMinimumInfo
 );
 
@@ -14755,7 +14784,7 @@ type PostsModerationGuidelines = (
 );
 
 type PostsAuthors = { __typename?: 'Post', user: (
-    { __typename?: 'User', profileImageId: string | null, moderationStyle: string | null, bannedUserIds: Array<string> | null, moderatorAssistance: boolean | null }
+    { __typename?: 'User', profileImageId: string | null, moderationStyle: string | null, bannedUserIds: Array<string> | null, moderatorAssistance: boolean | null, groups: Array<string> | null, banned: string | null, allCommentingDisabled: boolean | null }
     & UsersMinimumInfo
   ) | null, coauthors: Array<(
     { __typename?: 'User' }
@@ -14812,7 +14841,7 @@ type PostsDetails = (
     & TagPreviewFragment
   )>, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, text: string | null, imageUrl: string } | null, canonicalSequence: { __typename?: 'Sequence', _id: string, title: string } | null, canonicalBook: { __typename?: 'Book', _id: string, title: string | null } | null, canonicalCollection: { __typename?: 'Collection', _id: string, title: string } | null, podcastEpisode: { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null } } | null, feed: (
     { __typename?: 'RSSFeed' }
-    & RssFeedMinimumInfo
+    & RSSFeedMinimumInfo
   ) | null, sourcePostRelations: Array<{ __typename?: 'PostRelation', _id: string, sourcePostId: string, order: number | null, sourcePost: (
       { __typename?: 'Post' }
       & PostsListWithVotes
@@ -14990,16 +15019,16 @@ type PostsBestOfList = (
   & PostsListWithVotes
 );
 
-type PostsRssFeed = (
+type PostsRSSFeed = (
   { __typename?: 'Post', scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, metaDate: string | null }
   & PostsPage
 );
 
 type PostsOriginalContents = { __typename?: 'Post', _id: string, contents: { __typename?: 'Revision', _id: string, originalContents: { __typename?: 'ContentType', type: string, data: any } } | null };
 
-type PostsHtml = { __typename?: 'Post', _id: string, contents: (
+type PostsHTML = { __typename?: 'Post', _id: string, contents: (
     { __typename?: 'Revision' }
-    & RevisionHtml
+    & RevisionHTML
   ) | null };
 
 type PostsForAutocomplete = { __typename?: 'Post', _id: string, title: string, userId: string | null, baseScore: number, extendedScore: any | null, user: (
@@ -15045,9 +15074,9 @@ type UnclaimedReportsList = { __typename?: 'Report', _id: string, userId: string
     & SunshineUsersList
   ) | null, claimedUser: { __typename?: 'User', _id: string, displayName: string, username: string | null, slug: string } | null };
 
-type ReviewVoteFragment = { __typename?: 'ReviewVote', _id: string, createdAt: string, userId: string, postId: string, qualitativeScore: number, quadraticScore: number, comment: string | null, year: string, dummy: boolean, reactions: Array<string> | null };
+type reviewVoteFragment = { __typename?: 'ReviewVote', _id: string, createdAt: string, userId: string, postId: string, qualitativeScore: number, quadraticScore: number, comment: string | null, year: string, dummy: boolean, reactions: Array<string> | null };
 
-type ReviewVoteWithUserAndPost = (
+type reviewVoteWithUserAndPost = (
   { __typename?: 'ReviewVote', user: (
     { __typename?: 'User', email: string | null, emails: Array<any> | null }
     & UsersMinimumInfo
@@ -15055,10 +15084,10 @@ type ReviewVoteWithUserAndPost = (
     { __typename?: 'Post' }
     & PostsMinimumInfo
   ) | null }
-  & ReviewVoteFragment
+  & reviewVoteFragment
 );
 
-type ReviewAdminDashboard = { __typename?: 'ReviewVote', _id: string, createdAt: string, userId: string, user: { __typename?: 'User', _id: string, displayName: string, karma: number } | null };
+type reviewAdminDashboard = { __typename?: 'ReviewVote', _id: string, createdAt: string, userId: string, user: { __typename?: 'User', _id: string, displayName: string, karma: number } | null };
 
 type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, activeSplashArtCoordinates: (
     { __typename?: 'SplashArtCoordinate' }
@@ -15086,7 +15115,7 @@ type ReviewWinnerAnnouncement = { __typename?: 'ReviewWinner', _id: string, cate
 
 type RevisionDisplay = { __typename?: 'Revision', _id: string, version: string, updateType: string | null, editedAt: string, userId: string | null, html: string | null, commitMessage: string | null, wordCount: number, htmlHighlight: string, plaintextDescription: string };
 
-type RevisionHtml = { __typename?: 'Revision', _id: string, html: string | null };
+type RevisionHTML = { __typename?: 'Revision', _id: string, html: string | null };
 
 type RevisionEdit = (
   { __typename?: 'Revision', markdown: string | null, ckEditorMarkup: string | null, originalContents: { __typename?: 'ContentType', type: string, data: any } }
@@ -15140,14 +15169,14 @@ type RecentDiscussionRevisionTagFragment = (
 
 type WithVoteRevision = { __typename: 'Revision', _id: string, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number, extendedScore: any | null, score: number, voteCount: number };
 
-type RssFeedMinimumInfo = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, importAsDraft: boolean, user: (
+type RSSFeedMinimumInfo = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, importAsDraft: boolean, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null };
 
-type NewRssFeedFragment = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, status: string | null, importAsDraft: boolean };
+type newRSSFeedFragment = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, status: string | null, importAsDraft: boolean };
 
-type RssFeedMutationFragment = { __typename?: 'RSSFeed', _id: string, userId: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, importAsDraft: boolean };
+type RSSFeedMutationFragment = { __typename?: 'RSSFeed', _id: string, userId: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, importAsDraft: boolean };
 
 type SequencesPageTitleFragment = { __typename?: 'Sequence', _id: string, title: string, canonicalCollectionSlug: string | null, canonicalCollection: { __typename?: 'Collection', _id: string, title: string } | null };
 
@@ -15168,7 +15197,7 @@ type SequencesPageWithChaptersFragment = (
   { __typename?: 'Sequence', chapters: Array<(
     { __typename?: 'Chapter' }
     & ChaptersFragment
-  ) | null> | null }
+  )> }
   & SequencesPageFragment
 );
 
@@ -15544,7 +15573,7 @@ type WithVoteTag = (
 
 type TypingIndicatorInfo = { __typename?: 'TypingIndicator', _id: string, userId: string | null, documentId: string | null, lastUpdated: string | null };
 
-type UserEagDetailsMinimumInfo = { __typename?: 'UserEAGDetail', _id: string, userId: string | null, createdAt: string, lastUpdated: string | null, careerStage: Array<string | null> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string | null> | null, interestedIn: Array<string | null> | null };
+type UserEAGDetailsMinimumInfo = { __typename?: 'UserEAGDetail', _id: string, userId: string | null, createdAt: string, lastUpdated: string | null, careerStage: Array<string | null> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string | null> | null, interestedIn: Array<string | null> | null };
 
 type UserJobAdsMinimumInfo = { __typename?: 'UserJobAd', _id: string, userId: string | null, createdAt: string, lastUpdated: string | null, jobName: string | null, adState: string | null, reminderSetAt: string | null };
 
@@ -15574,7 +15603,7 @@ type UsersProfile = (
     & TagPreviewFragment
   )>, organizerOfGroups: Array<(
     { __typename?: 'Localgroup' }
-    & LocalGroupsBase
+    & localGroupsBase
   )>, moderationGuidelines: (
     { __typename?: 'Revision' }
     & RevisionDisplay
@@ -15648,7 +15677,7 @@ type UsersProfileEdit = { __typename?: 'User', _id: string, slug: string, displa
     & RevisionEdit
   ) | null, organizerOfGroups: Array<(
     { __typename?: 'Localgroup' }
-    & LocalGroupsBase
+    & localGroupsBase
   )> };
 
 type UsersCrosspostInfo = { __typename?: 'User', _id: string, username: string | null, slug: string, fmCrosspostUserId: string | null };
@@ -15693,10 +15722,10 @@ type UserVotesWithDocument = (
   & UserVotes
 );
 
-type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
+type getCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-type GetCurrentUserQuery = { __typename?: 'Query', currentUser: (
+type getCurrentUserQuery = { __typename?: 'Query', currentUser: (
     { __typename?: 'User' }
     & UsersCurrent
   ) | null };
@@ -15761,7 +15790,7 @@ type FeaturedResourcesDefaultFragment = { __typename?: 'FeaturedResource', _id: 
 
 type FieldChangesDefaultFragment = { __typename?: 'FieldChange', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: string, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: string | null, commentPrompt: string | null, publicData: any | null };
+type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: string, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent, commentPrompt: string | null, publicData: any | null };
 
 type GardenCodesDefaultFragment = { __typename?: 'GardenCode', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, code: string, title: string, userId: string, startTime: string | null, endTime: string, fbLink: string | null, type: string, hidden: boolean, deleted: boolean, afOnly: boolean };
 
@@ -15771,7 +15800,7 @@ type ImagesDefaultFragment = { __typename?: 'Images', _id: string, schemaVersion
 
 type JargonTermsDefaultFragment = { __typename?: 'JargonTerm', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, postId: string, term: string, approved: boolean, deleted: boolean, altTerms: Array<string> };
 
-type LwEventsDefaultFragment = { __typename?: 'LWEvent', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, userId: string | null, name: string | null, documentId: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
+type LWEventsDefaultFragment = { __typename?: 'LWEvent', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, userId: string | null, name: string | null, documentId: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
 
 type LegacyDataDefaultFragment = { __typename?: 'LegacyData', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
@@ -15809,9 +15838,9 @@ type PostRecommendationsDefaultFragment = { __typename?: 'PostRecommendation', _
 
 type PostRelationsDefaultFragment = { __typename?: 'PostRelation', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, type: string, sourcePostId: string, targetPostId: string, order: number | null };
 
-type PostsDefaultFragment = { __typename?: 'Post', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, moderationGuidelines_latest: string | null, customHighlight_latest: string | null, slug: string, postedAt: string, modifiedAt: string | null, url: string | null, postCategory: string, title: string, viewCount: number | null, lastCommentedAt: string, clickCount: number | null, deletedDraft: boolean, status: number, isFuture: boolean, sticky: boolean, stickyPriority: number, userIP: string | null, userAgent: string | null, referrer: string | null, author: string | null, userId: string | null, question: boolean, authorIsUnreviewed: boolean, readTimeMinutesOverride: number | null, submitToFrontpage: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, shortform: boolean, canonicalSource: string | null, nominationCount2018: number, nominationCount2019: number, reviewCount2018: number, reviewCount2019: number, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, reviewVoteScoreAF: number, reviewVotesAF: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, finalReviewVoteScoreHighKarma: number, finalReviewVotesHighKarma: Array<number>, finalReviewVoteScoreAllKarma: number, finalReviewVotesAllKarma: Array<number>, finalReviewVoteScoreAF: number, finalReviewVotesAF: Array<number>, lastCommentPromotedAt: string | null, tagRelevance: any | null, noIndex: boolean, rsvps: Array<any> | null, activateRSVPs: boolean | null, nextDayReminderSent: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, hideFromRecentDiscussions: boolean, votingSystem: string | null, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, legacy: boolean, legacyId: string | null, legacySpam: boolean, feedId: string | null, feedLink: string | null, curatedDate: string | null, metaDate: string | null, suggestForCuratedUserIds: Array<string> | null, frontpageDate: string | null, autoFrontpage: string | null, collectionTitle: string | null, hasCoauthorPermission: boolean, socialPreviewImageId: string | null, socialPreviewImageAutoUrl: string | null, canonicalSequenceId: string | null, canonicalCollectionSlug: string | null, canonicalBookId: string | null, canonicalNextPostSlug: string | null, canonicalPrevPostSlug: string | null, unlisted: boolean, disableRecommendation: boolean, defaultRecommendation: boolean, hideFromPopularComments: boolean | null, draft: boolean | null, wasEverUndrafted: boolean | null, meta: boolean, hideFrontpageComments: boolean, maxBaseScore: number, scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, bannedUserIds: Array<string> | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, organizerIds: Array<string> | null, groupId: string | null, eventType: string | null, isEvent: boolean, reviewedByUserId: string | null, reviewForCuratedUserId: string | null, startTime: string | null, localStartTime: string | null, endTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, onlineEvent: boolean, globalEvent: boolean, mongoLocation: any | null, googleLocation: any | null, location: string | null, contactInfo: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, eventImageId: string | null, types: Array<string> | null, metaSticky: boolean, sharingSettings: any | null, shareWithUsers: Array<string> | null, linkSharingKey: string | null, linkSharingKeyUsedBy: Array<string> | null, commentSortOrder: string | null, hideAuthor: boolean, sideCommentVisibility: string | null, disableSidenotes: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, hideCommentKarma: boolean, commentCount: number, topLevelCommentCount: number, debate: boolean, collabEditorDialogue: boolean, mostRecentPublishedDialogueResponseDate: string | null, rejected: boolean, rejectedReason: string | null, rejectedByUserId: string | null, subforumTagId: string | null, af: boolean, afDate: string | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, agentFoundationsId: string | null, swrCachingEnabled: boolean | null, generateDraftJargon: boolean | null, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
+type PostsDefaultFragment = { __typename?: 'Post', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, moderationGuidelines_latest: string | null, customHighlight_latest: string | null, slug: string, postedAt: string, modifiedAt: string | null, url: string | null, postCategory: PostCategory, title: string, viewCount: number | null, lastCommentedAt: string, clickCount: number | null, deletedDraft: boolean, status: number, isFuture: boolean, sticky: boolean, stickyPriority: number, userIP: string | null, userAgent: string | null, referrer: string | null, author: string | null, userId: string | null, question: boolean, authorIsUnreviewed: boolean, readTimeMinutesOverride: number | null, submitToFrontpage: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, shortform: boolean, canonicalSource: string | null, nominationCount2018: number, nominationCount2019: number, reviewCount2018: number, reviewCount2019: number, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, reviewVoteScoreAF: number, reviewVotesAF: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, finalReviewVoteScoreHighKarma: number, finalReviewVotesHighKarma: Array<number>, finalReviewVoteScoreAllKarma: number, finalReviewVotesAllKarma: Array<number>, finalReviewVoteScoreAF: number, finalReviewVotesAF: Array<number>, lastCommentPromotedAt: string | null, tagRelevance: any | null, noIndex: boolean, rsvps: Array<any> | null, activateRSVPs: boolean | null, nextDayReminderSent: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, hideFromRecentDiscussions: boolean, votingSystem: string | null, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, legacy: boolean, legacyId: string | null, legacySpam: boolean, feedId: string | null, feedLink: string | null, curatedDate: string | null, metaDate: string | null, suggestForCuratedUserIds: Array<string> | null, frontpageDate: string | null, autoFrontpage: string | null, collectionTitle: string | null, hasCoauthorPermission: boolean, socialPreviewImageId: string | null, socialPreviewImageAutoUrl: string | null, canonicalSequenceId: string | null, canonicalCollectionSlug: string | null, canonicalBookId: string | null, canonicalNextPostSlug: string | null, canonicalPrevPostSlug: string | null, unlisted: boolean, disableRecommendation: boolean, defaultRecommendation: boolean, hideFromPopularComments: boolean | null, draft: boolean | null, wasEverUndrafted: boolean | null, meta: boolean, hideFrontpageComments: boolean, maxBaseScore: number, scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, bannedUserIds: Array<string> | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, organizerIds: Array<string> | null, groupId: string | null, eventType: string | null, isEvent: boolean, reviewedByUserId: string | null, reviewForCuratedUserId: string | null, startTime: string | null, localStartTime: string | null, endTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, onlineEvent: boolean, globalEvent: boolean, mongoLocation: any | null, googleLocation: any | null, location: string | null, contactInfo: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, eventImageId: string | null, types: Array<string> | null, metaSticky: boolean, sharingSettings: any | null, shareWithUsers: Array<string> | null, linkSharingKey: string | null, linkSharingKeyUsedBy: Array<string> | null, commentSortOrder: string | null, hideAuthor: boolean, sideCommentVisibility: string | null, disableSidenotes: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, hideCommentKarma: boolean, commentCount: number, topLevelCommentCount: number, debate: boolean, collabEditorDialogue: boolean, mostRecentPublishedDialogueResponseDate: string | null, rejected: boolean, rejectedReason: string | null, rejectedByUserId: string | null, subforumTagId: string | null, af: boolean, afDate: string | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, agentFoundationsId: string | null, swrCachingEnabled: boolean | null, generateDraftJargon: boolean | null, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
-type RssFeedsDefaultFragment = { __typename?: 'RSSFeed', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, status: string | null, rawFeed: any, setCanonicalUrl: boolean, importAsDraft: boolean };
+type RSSFeedsDefaultFragment = { __typename?: 'RSSFeed', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, status: string | null, rawFeed: any, setCanonicalUrl: boolean, importAsDraft: boolean };
 
 type ReadStatusesDefaultFragment = { __typename?: 'ReadStatus', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
@@ -15861,7 +15890,7 @@ type UltraFeedEventsDefaultFragment = { __typename?: 'UltraFeedEvent', _id: stri
 
 type UserActivitiesDefaultFragment = { __typename?: 'UserActivity', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
-type UserEagDetailsDefaultFragment = { __typename?: 'UserEAGDetail', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, careerStage: Array<string | null> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string | null> | null, interestedIn: Array<string | null> | null, lastUpdated: string | null };
+type UserEAGDetailsDefaultFragment = { __typename?: 'UserEAGDetail', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, careerStage: Array<string | null> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string | null> | null, interestedIn: Array<string | null> | null, lastUpdated: string | null };
 
 type UserJobAdsDefaultFragment = { __typename?: 'UserJobAd', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, jobName: string | null, adState: string | null, reminderSetAt: string | null, lastUpdated: string | null };
 
@@ -15933,12 +15962,12 @@ type EmailCommentQuery = { __typename?: 'Query', post: { __typename?: 'SinglePos
       & PostsList
     ) | null } | null };
 
-type EmailUsernameByIdQueryVariables = Exact<{
+type EmailUsernameByIDQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type EmailUsernameByIdQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
+type EmailUsernameByIDQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
       { __typename?: 'User' }
       & UsersMinimumInfo
     ) | null } | null };

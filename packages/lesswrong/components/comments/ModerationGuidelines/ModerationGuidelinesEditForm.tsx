@@ -17,6 +17,44 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from '@apollo/client';
+
+
+// const useSingleArgs = isPost
+// ? {
+//     collectionName: 'Posts',
+//     fragmentName: 'PostsEditQueryFragment',
+//     documentId,
+//     extraVariables: { version: 'String' },
+//     extraVariablesValues: { version: 'draft' },
+//   } as const
+// : {
+//     collectionName: 'Tags',
+//     fragmentName: 'TagEditFragment',
+//     documentId,
+//   } as const;
+
+const postsEditQuery = gql(`
+  query PostsEditQuery($documentId: String!, $version: String) {
+    post(selector:  { documentId: $documentId }) {
+      result {
+        ...PostsEditQueryFragment
+      }
+    }
+  }
+`);
+
+const tagsEditQuery = gql(`
+  query TagEditQuery($documentId: String!) {
+    tag(selector: { documentId: $documentId }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
+
 
 const styles = defineStyles('ModerationGuidelinesEditForm', (theme: ThemeType) => ({
   formButton: {
@@ -155,21 +193,22 @@ export const ModerationGuidelinesEditForm = ({ commentType = "post", documentId,
 }) => {
   const isPost = commentType === "post";
 
-  const useSingleArgs = isPost
-    ? {
-        collectionName: 'Posts',
-        fragmentName: 'PostsEditQueryFragment',
-        documentId,
-        extraVariables: { version: 'String' },
-        extraVariablesValues: { version: 'draft' },
-      } as const
-    : {
-        collectionName: 'Tags',
-        fragmentName: 'TagEditFragment',
-        documentId,
-      } as const;
+  const { data: postData } = useQuery(postsEditQuery, {
+    variables: {
+      documentId,
+      version: 'draft'
+    },
+    skip: !isPost
+  });
 
-  const { document: editableDocument } = useSingle(useSingleArgs);
+  const { data: tagData } = useQuery(tagsEditQuery, {
+    variables: {
+      documentId,
+    },
+    skip: isPost
+  });
+
+  const editableDocument = isPost ? postData?.post?.result : tagData?.tag?.result;
 
   return (
     <LWDialog

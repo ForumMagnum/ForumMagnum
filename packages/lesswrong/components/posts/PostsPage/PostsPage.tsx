@@ -202,8 +202,9 @@ const getStructuredData = ({
   commentTree: CommentTreeNode<CommentsList>[];
   answersTree: CommentTreeNode<CommentsList>[];
 }) => {
-  const hasUser = !!post.user;
-  const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
+  const { user, coauthors } = post;
+  const hasUser = !!user;
+  const hasCoauthors = !!coauthors && coauthors.length > 0;
   const answersAndComments = [...answersTree, ...commentTree];
   // Get comments from Apollo Cache
 
@@ -229,11 +230,11 @@ const getStructuredData = ({
       author: [
         {
           "@type": "Person",
-          name: post.user.displayName,
+          name: user.displayName,
           url: userGetProfileUrl(post.user, true),
         },
         ...(hasCoauthors
-          ? post.coauthors
+          ? coauthors
               .filter(({ _id }) => !postCoauthorIsPending(post, _id))
               .map(coauthor => ({
                 "@type": "Person",
@@ -472,7 +473,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
-  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined);
   const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();

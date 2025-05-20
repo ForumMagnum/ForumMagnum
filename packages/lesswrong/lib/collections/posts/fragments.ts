@@ -268,6 +268,9 @@ export const PostsAuthors = gql(`
       moderationStyle
       bannedUserIds
       moderatorAssistance
+      groups
+      banned
+      allCommentingDisabled
     }
     coauthors {
       ...UsersMinimumInfo

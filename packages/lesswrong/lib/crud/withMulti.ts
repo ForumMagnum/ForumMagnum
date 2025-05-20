@@ -111,12 +111,12 @@ export type LoadMoreProps = {
 }
 
 export type UseMultiResult<
-  F,
+  FragmentType extends keyof FragmentTypes,
 > = {
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  results?: Array<F>,
+  results?: Array<FragmentTypes[FragmentType]>,
   totalCount?: number,
   refetch: any,
   // invalidateCache: () => void,
@@ -159,7 +159,7 @@ export function useMulti<
   queryLimitName,
   alwaysShowLoadMore = false,
   ssr = true,
-}: UseMultiOptions<F, CollectionName>): UseMultiResult<FragmentTypes[F]> {
+}: UseMultiOptions<F, CollectionName>): UseMultiResult<F> {
   const { query: locationQuery, location } = useLocation();
   const navigate = useNavigate();
 

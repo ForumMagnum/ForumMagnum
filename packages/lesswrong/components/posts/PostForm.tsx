@@ -1181,13 +1181,13 @@ const PostForm = ({
 
       {userCanCreateAndEditJargonTerms(currentUser) && <LegacyFormGroupLayout label="Glossary" startCollapsed={false} hideHeader>
         <div className={classes.fieldWrapper}>
-          <form.Field name="glossary">
-            {(field) => (
+          {/* <form.Field name="glossary">
+            {(field) => ( */}
               <GlossaryEditFormWrapper
                 document={form.state.values}
               />
-            )}
-          </form.Field>
+            {/* )}
+          </form.Field> */}
         </div>
       </LegacyFormGroupLayout>}
 

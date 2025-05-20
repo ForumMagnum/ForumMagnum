@@ -210,8 +210,8 @@ interface NewUserCompletedProfile {
 }
 
 interface UserCoreTagReads {
-  tagId: string | null;
-  userReadCount: number | null;
+  tagId: string;
+  userReadCount: number;
 }
 
 interface SuggestedFeedSubscriptionUsersResult {
@@ -451,9 +451,9 @@ interface PostReviewSort {
 }
 
 interface DigestPlannerPost {
-  post: Post | null;
+  post: Post;
   digestPost: DigestPost | null;
-  rating: number | null;
+  rating: number;
 }
 
 interface RecombeeRecommendedPost {
@@ -1244,7 +1244,7 @@ interface Collection {
   user: User | null;
   title: string;
   slug: string;
-  books: Array<Book | null> | null;
+  books: Array<Book>;
   postsCount: number;
   readPostsCount: number;
   gridImageId: string | null;
@@ -1361,7 +1361,7 @@ interface Comment {
   parentAnswer: Comment | null;
   directChildrenCount: number;
   descendentCount: number;
-  latestChildren: Array<Comment | null> | null;
+  latestChildren: Array<Comment>;
   shortform: boolean | null;
   shortformFrontpage: boolean;
   nominatedForReview: string | null;
@@ -2464,7 +2464,7 @@ interface ForumEvent {
   pollAgreeWording: string | null;
   pollDisagreeWording: string | null;
   maxStickersPerUser: number;
-  customComponent: string | null;
+  customComponent: ForumEventCustomComponent;
   commentPrompt: string | null;
   publicData: any;
   voteCount: number;
@@ -2756,7 +2756,7 @@ interface LlmConversation {
   model: string | null;
   systemPrompt: string | null;
   lastUpdatedAt: Date | null;
-  messages: Array<LlmMessage | null> | null;
+  messages: Array<LlmMessage> | null;
   deleted: boolean | null;
   totalCharacterCount: number | null;
 }
@@ -3447,7 +3447,7 @@ interface Post {
   postedAt: Date;
   modifiedAt: Date | null;
   url: string | null;
-  postCategory: string;
+  postCategory: PostCategory;
   title: string;
   viewCount: number | null;
   lastCommentedAt: Date;
@@ -5273,7 +5273,7 @@ interface Sequence {
   noindex: boolean;
   postsCount: number;
   readPostsCount: number;
-  chapters: Array<Chapter | null> | null;
+  chapters: Array<Chapter>;
   af: boolean;
 }
 
@@ -7237,7 +7237,7 @@ interface CreateForumEventDataInput {
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
   maxStickersPerUser?: number | null;
-  customComponent?: string | null;
+  customComponent: ForumEventCustomComponent;
   commentPrompt?: string | null;
   publicData?: any;
 }
@@ -7268,7 +7268,7 @@ interface UpdateForumEventDataInput {
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
   maxStickersPerUser?: number | null;
-  customComponent?: string | null;
+  customComponent?: ForumEventCustomComponent | null;
   commentPrompt?: string | null;
   publicData?: any;
 }
@@ -7582,7 +7582,7 @@ interface CreatePostDataInput {
   slug?: string | null;
   postedAt?: Date | null;
   url?: string | null;
-  postCategory?: string | null;
+  postCategory?: PostCategory | null;
   title: string;
   status?: number | null;
   sticky?: boolean | null;
@@ -7696,7 +7696,7 @@ interface UpdatePostDataInput {
   slug?: string | null;
   postedAt?: Date | null;
   url?: string | null;
-  postCategory?: string | null;
+  postCategory?: PostCategory | null;
   title?: string | null;
   deletedDraft?: boolean | null;
   status?: number | null;

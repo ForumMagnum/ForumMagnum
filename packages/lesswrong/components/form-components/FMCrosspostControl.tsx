@@ -132,7 +132,7 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
  * platform.
  */
 export const FMCrosspostControl = ({ field }: {
-  field: TypedFieldApi<{ isCrosspost: boolean, hostedHere?: boolean | null, foreignPostId?: string | null }>
+  field: TypedFieldApi<{ isCrosspost: boolean, hostedHere?: boolean | null, foreignPostId?: string | null } | null | undefined>
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();

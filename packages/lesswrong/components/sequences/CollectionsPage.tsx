@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -108,10 +108,20 @@ const CollectionsPage = ({ documentId, classes }: {
   });
   const document = data?.collection?.result;
 
-  const { data: editDocument } = useQuery(CollectionsEditFragmentQuery, {
+  const { data: editData } = useQuery(CollectionsEditFragmentQuery, {
     variables: { documentId: documentId },
     skip: !edit,
   });
+
+  const editDocument = useMemo(() => {
+    const result = editData?.collection?.result;
+    if (!result) return result;
+
+    return {
+      ...result,
+      createdAt: new Date(result.createdAt),
+    }
+  }, [editData?.collection?.result]);
 
   const showEdit = useCallback(() => {
     setEdit(true);

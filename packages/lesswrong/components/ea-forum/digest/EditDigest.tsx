@@ -199,10 +199,14 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   `), {
       ssr: true,
       skip: !digest,
-      variables: {digestId: digest?._id, startDate: digest?.startDate, endDate: digest?.endDate},
+      variables: {
+        digestId: digest?._id,
+        startDate: digest?.startDate ? new Date(digest.startDate) : undefined,
+        endDate: digest?.endDate ? new Date(digest.endDate) : undefined
+      },
     }
   )
-  const eligiblePosts: DigestPlannerPostData[] = useMemo(() => data?.DigestPlannerData, [data])
+  const eligiblePosts = useMemo(() => data?.DigestPlannerData, [data])
 
   // save the list of all eligible posts, along with their ratings
   const [posts, setPosts] = useState<Array<PostWithRating>>()

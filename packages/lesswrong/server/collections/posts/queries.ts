@@ -7,6 +7,12 @@ import { PostsViews } from "@/lib/collections/posts/views";
 
 export const graphqlPostQueryTypeDefs = gql`
   type Post ${ getAllGraphQLFields(schema) }
+
+  enum PostCategory {
+    post
+    linkpost
+    question
+  }
   
   input SinglePostInput {
     selector: SelectorInput

@@ -26,7 +26,7 @@ const config: CodegenConfig = {
           mutation: true,
           subscription: true,
         },
-        namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
+        namingConvention: (s: string) => s.replace("Fragment", ""),
         enumsAsTypes: true,
       },
       presetConfig: {
@@ -70,7 +70,7 @@ const config: CodegenConfig = {
       config: {
         fragmentMasking: false,
         inputMaybeValue: 'T | null | undefined',
-        namingConvention: (s: string) => pascalCase(s).replace("Fragment", ""),
+        namingConvention: (s: string) => s.replace("Fragment", ""),
         enumsAsTypes: true,
         inlineFragmentTypes: 'combine',
         noExport: true,

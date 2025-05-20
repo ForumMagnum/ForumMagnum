@@ -235,8 +235,8 @@ type NewUserCompletedProfile {
 }
 
 type UserCoreTagReads {
-  tagId: String
-  userReadCount: Int
+  tagId: String!
+  userReadCount: Int!
 }
 
 extend type Mutation {
@@ -246,7 +246,7 @@ extend type Mutation {
 }
 
 extend type Query {
-  UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]
+  UserReadsPerCoreTag(userId: String!): [UserCoreTagReads!]!
   GetRandomUser(userIsAuthor: String!): User
   IsDisplayNameTaken(displayName: String!): Boolean!
   GetUserBySlug(slug: String!): User
@@ -583,7 +583,7 @@ extend type Query {
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostIsCriticism(args: JSON): Boolean
-  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]
+  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   CanAccessGoogleDoc(fileUrl: String!): Boolean
 }
@@ -612,9 +612,9 @@ input PostReviewSort {
 }
 
 type DigestPlannerPost {
-  post: Post
+  post: Post!
   digestPost: DigestPost
-  rating: Int
+  rating: Int!
 }
 
 type RecombeeRecommendedPost {
@@ -1754,7 +1754,7 @@ type Collection {
   user: User
   title: String!
   slug: String!
-  books: [Book]
+  books: [Book!]!
   postsCount: Int!
   readPostsCount: Int!
   gridImageId: String
@@ -1881,7 +1881,7 @@ type Comment {
   parentAnswer: Comment
   directChildrenCount: Float!
   descendentCount: Float!
-  latestChildren: [Comment]
+  latestChildren: [Comment!]!
   shortform: Boolean
   shortformFrontpage: Boolean!
   nominatedForReview: String
@@ -3054,10 +3054,14 @@ type ForumEvent {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float!
-  customComponent: String
+  customComponent: ForumEventCustomComponent!
   commentPrompt: String
   publicData: JSON
   voteCount: Int!
+}
+
+enum ForumEventCustomComponent {
+  GivingSeason2024Banner
 }
 
 input SingleForumEventInput {
@@ -3371,7 +3375,7 @@ type LlmConversation {
   model: String
   systemPrompt: String
   lastUpdatedAt: Date
-  messages: [LlmMessage]
+  messages: [LlmMessage!]
   deleted: Boolean
   totalCharacterCount: Int
 }
@@ -4117,7 +4121,7 @@ type Post {
   postedAt: Date!
   modifiedAt: Date
   url: String
-  postCategory: String!
+  postCategory: PostCategory!
   title: String!
   viewCount: Float
   lastCommentedAt: Date!
@@ -4339,6 +4343,12 @@ type Post {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+}
+
+enum PostCategory {
+  post
+  linkpost
+  question
 }
 
 input SinglePostInput {
@@ -5978,7 +5988,7 @@ type Sequence {
   noindex: Boolean!
   postsCount: Int!
   readPostsCount: Int!
-  chapters: [Chapter]
+  chapters: [Chapter!]!
   af: Boolean!
 }
 
@@ -8107,7 +8117,7 @@ input CreateForumEventDataInput {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
-  customComponent: String
+  customComponent: ForumEventCustomComponent!
   commentPrompt: String
   publicData: JSON
 }
@@ -8138,7 +8148,7 @@ input UpdateForumEventDataInput {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
-  customComponent: String
+  customComponent: ForumEventCustomComponent
   commentPrompt: String
   publicData: JSON
 }
@@ -8507,7 +8517,7 @@ input CreatePostDataInput {
   slug: String
   postedAt: Date
   url: String
-  postCategory: String
+  postCategory: PostCategory
   title: String!
   status: Float
   sticky: Boolean
@@ -8621,7 +8631,7 @@ input UpdatePostDataInput {
   slug: String
   postedAt: Date
   url: String
-  postCategory: String
+  postCategory: PostCategory
   title: String
   deletedDraft: Boolean
   status: Float

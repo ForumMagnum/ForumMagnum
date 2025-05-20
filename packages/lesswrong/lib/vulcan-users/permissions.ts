@@ -37,7 +37,7 @@ export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<strin
 };
 
 // Get a list of all the actions a user can perform
-export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> => {
+export const userGetActions = (user: PermissionableUser|DbUser|null): Array<string> => {
   let groups = userGetGroups(user);
   if (!groups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -67,7 +67,7 @@ export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): bo
 };
 
 // Check if a user can perform at least one of the specified actions
-export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|Array<string>): boolean => {
+export const userCanDo = (user: PermissionableUser|DbUser|null, actionOrActions: string|Array<string>): boolean => {
   const authorizedActions = userGetActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;

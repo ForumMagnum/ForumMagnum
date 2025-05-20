@@ -55,7 +55,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   }, [forumEvents, currentForumEvent]);
 
   const eventEnded = currentForumEvent
-    ? currentForumEvent.endDate && currentForumEvent.endDate < new Date()
+    ? currentForumEvent.endDate && new Date(currentForumEvent.endDate) < new Date()
     : true;
 
   // Refetch on mount if forum events are enabled, and when the current event ends

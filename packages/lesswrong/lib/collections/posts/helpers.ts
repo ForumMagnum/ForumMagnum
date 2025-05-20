@@ -443,7 +443,7 @@ export type EditablePost = UpdatePostDataInput & {
   _id: string;
   tags: Array<TagBasicInfo>;
   autoFrontpage?: DbPost['autoFrontpage'];
-  socialPreviewData: Post['socialPreviewData'];
+  socialPreviewData: SocialPreviewInput | null | undefined;
   user: PostsEdit['user'];
   commentCount: number;
   afCommentCount: number;

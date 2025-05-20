@@ -22,7 +22,7 @@ const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({
 }));
 
 export const PodcastEpisodeInput = ({ field, document }: {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   document: EditablePost;
 }) => {
   const classes = useStyles(styles);

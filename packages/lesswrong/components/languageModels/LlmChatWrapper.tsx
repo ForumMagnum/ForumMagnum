@@ -120,7 +120,7 @@ type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
 
 type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId' | 'createdAt' | 'lastUpdatedAt'> & {
   _id: string;
-  title?: string;
+  title: string | null;
   messages: NewLlmMessage[];
 };
 

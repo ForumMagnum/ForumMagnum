@@ -361,7 +361,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "String",
+      outputType: "ForumEventCustomComponent!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

@@ -50,7 +50,7 @@ const TargetedJobAdSection = () => {
     skip: !currentUser
   })
   
-  const { results: userEAGDetails, loading: userEAGDetailsLoading } = useMulti({
+  const { results: userEAGDetails = [], loading: userEAGDetailsLoading } = useMulti({
     terms: {view: 'dataByUser', userId: currentUser?._id},
     collectionName: 'UserEAGDetails',
     fragmentName: 'UserEAGDetailsMinimumInfo',
@@ -69,7 +69,7 @@ const TargetedJobAdSection = () => {
     `),
     {
       variables: {
-        userId: currentUser?._id,
+        userId: currentUser?._id!,
       },
       ssr: true,
       skip: !currentUser,
@@ -95,7 +95,7 @@ const TargetedJobAdSection = () => {
       }
 
       const userJobAdState = ads.find(ad => ad.jobName === jobName)?.adState
-      const userEAGData = userEAGDetails?.[0]
+      const userEAGData = userEAGDetails[0]
       
       /** Check if the job fits the user's interests */
 

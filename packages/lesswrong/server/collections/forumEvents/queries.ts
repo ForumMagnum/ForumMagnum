@@ -7,6 +7,10 @@ import { ForumEventsViews } from "@/lib/collections/forumEvents/views";
 
 export const graphqlForumEventQueryTypeDefs = gql`
   type ForumEvent ${ getAllGraphQLFields(schema) }
+
+  enum ForumEventCustomComponent {
+    GivingSeason2024Banner
+  }
   
   input SingleForumEventInput {
     selector: SelectorInput

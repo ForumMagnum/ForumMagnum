@@ -15,6 +15,7 @@ import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
 import type { PostsListWithVotes, SequencesPageFragment } from '@/lib/generated/gql-codegen/graphql';
+import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -69,18 +70,25 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     variables: { documentId: documentId, sequenceId, batchKey: "singlePost" },
     skip: !version,
   });
-  const postWithoutRevision = postWithoutRevisionData?.post?.result;
+  const postWithoutRevision = postWithoutRevisionData?.post?.result ?? undefined;
 
   const { loading: postWithRevisionLoading, error: postWithRevisionError, refetch: refetchPostWithRevision, data: postWithRevisionData } = useQuery(PostsWithNavigationAndRevisionQuery, {
     variables: { documentId: documentId, sequenceId, version, batchKey: "singlePost" },
     skip: !!version,
   });
-  const postWithRevision = postWithRevisionData?.post?.result;
+  const postWithRevision = postWithRevisionData?.post?.result ?? undefined;
 
   const post = version ? postWithRevision : postWithoutRevision;
   const loading = version ? postWithRevisionLoading : postWithoutRevisionLoading;
   const error = version ? postWithRevisionError : postWithoutRevisionError;
   const refetch = version ? refetchPostWithRevision : refetchPostWithoutRevision;
+
+  const crosspostFetchProps: PostFetchProps<'PostsWithNavigation' | 'PostsWithNavigationAndRevision'> = {
+    collectionName: 'Posts',
+    fragmentName: version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation',
+    extraVariables: { sequenceId: 'String', ...(version ? { version: 'String' } : {}) },
+    extraVariablesValues: { sequenceId, ...(version ? { version } : {}) },
+  };
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR. We don't preload comments if the post was preloaded
@@ -126,7 +134,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
   } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
+    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={crosspostFetchProps} />
   }
 
   return (
