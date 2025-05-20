@@ -4,7 +4,7 @@ import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import { apolloSSRFlag } from '../helpers';
 import type { PrimitiveGraphQLType } from './types';
 import { getSingleResolverName } from './utils';
-
+import { print } from 'graphql';
 
 /**
  * Given terms/etc for a useSingle query, generate corresponding GraphQL. Exported
@@ -27,7 +27,7 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
 
-  const query = gql`
+  const queryText = `
     query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
       ${resolverName}(input: $input) {
         result {
@@ -36,8 +36,10 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
         __typename
       }
     }
-    ${fragment}
-  `;
+    ${print(fragment)}
+    `
+
+  const query = gql`${queryText}`;
   
   return query
 }
@@ -89,53 +91,53 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
  * will also need to pass `extraVariables`, which contains the GraphQL types
  * of those arguments, and extraVariablesValues, which contains their values.
  */
-export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
-  documentId,
-  collectionName,
-  fragmentName, fragment,
-  extraVariables,
-  extraVariablesValues,
-  fetchPolicy,
-  nextFetchPolicy,
-  notifyOnNetworkStatusChange,
-  allowNull,
-  skip=false,
-  ssr=true,
-  apolloClient,
-}: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const typeName = collectionNameToTypeName[collectionName];
-  const resolverName = getSingleResolverName(typeName)
-  const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName, resolverName })
-  const skipQuery = skip || !documentId;
-  // TODO: Properly type this generic query
-  const { data, error, loading, ...rest } = useQuery(query, {
-    variables: {
-      input: {
-        selector: { documentId },
-        resolverArgs: extraVariablesValues,
-        ...(allowNull && {allowNull: true})
-      },
-      ...extraVariablesValues,
-    },
-    fetchPolicy,
-    nextFetchPolicy,
-    notifyOnNetworkStatusChange,
-    ssr: apolloSSRFlag(ssr),
-    skip: skipQuery,
-    client: apolloClient,
-  })
-  if (error) {
-    // This error was already caught by the apollo middleware, but the
-    // middleware had no idea who  made the query. To aid in debugging, log a
-    // stack trace here.
-    // eslint-disable-next-line no-console
-    console.error(error.message)
-  }
-  const document: FragmentTypes[FragmentTypeName] | undefined = data && data[resolverName] && data[resolverName].result
-  // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)
-  return {
-    document, data, error,
-    loading: loading && !skipQuery,
-    ...rest
-  } as TReturn<FragmentTypeName>
-}
+// export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
+//   documentId,
+//   collectionName,
+//   fragmentName, fragment,
+//   extraVariables,
+//   extraVariablesValues,
+//   fetchPolicy,
+//   nextFetchPolicy,
+//   notifyOnNetworkStatusChange,
+//   allowNull,
+//   skip=false,
+//   ssr=true,
+//   apolloClient,
+// }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
+//   const typeName = collectionNameToTypeName[collectionName];
+//   const resolverName = getSingleResolverName(typeName)
+//   const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName, resolverName })
+//   const skipQuery = skip || !documentId;
+//   // TODO: Properly type this generic query
+//   const { data, error, loading, ...rest } = useQuery(query, {
+//     variables: {
+//       input: {
+//         selector: { documentId },
+//         resolverArgs: extraVariablesValues,
+//         ...(allowNull && {allowNull: true})
+//       },
+//       ...extraVariablesValues,
+//     },
+//     fetchPolicy,
+//     nextFetchPolicy,
+//     notifyOnNetworkStatusChange,
+//     ssr: apolloSSRFlag(ssr),
+//     skip: skipQuery,
+//     client: apolloClient,
+//   })
+//   if (error) {
+//     // This error was already caught by the apollo middleware, but the
+//     // middleware had no idea who  made the query. To aid in debugging, log a
+//     // stack trace here.
+//     // eslint-disable-next-line no-console
+//     console.error(error.message)
+//   }
+//   const document: FragmentTypes[FragmentTypeName] | undefined = data && data[resolverName] && data[resolverName].result
+//   // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)
+//   return {
+//     document, data, error,
+//     loading: loading && !skipQuery,
+//     ...rest
+//   } as TReturn<FragmentTypeName>
+// }

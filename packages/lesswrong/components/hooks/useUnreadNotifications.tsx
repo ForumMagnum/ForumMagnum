@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 
+
 export type NotificationCountsResult = {
   checkedAt: Date,
   unreadNotifications: number

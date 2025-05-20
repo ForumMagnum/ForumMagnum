@@ -5,6 +5,8 @@ import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewW
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
+import { ReviewWinnerTopPostsPage } from "@/lib/collections/reviewWinners/fragments";
+import { PostsWithNavigation } from "@/lib/collections/posts/fragments";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
@@ -18,7 +20,7 @@ async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], max
 
 function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerWithPost|undefined, summary: string) {
   const context = createAdminContext();
-  const postYear = post.postedAt.getFullYear()
+  const postYear = new Date(post.postedAt).getFullYear()
   const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
 
   void createSpotlightMutator({
@@ -40,7 +42,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
 async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlights: DbSpotlight[]}> {
   const reviewWinners = await fetchFragment({
     collectionName: "ReviewWinners",
-    fragmentName: "ReviewWinnerTopPostsPage",
+    fragmentDoc: ReviewWinnerTopPostsPage,
     currentUser: createAdminContext().currentUser,
     selector: { },
     skipFiltering: true,
@@ -49,7 +51,7 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlight
 
   const posts = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsWithNavigation",
+    fragmentDoc: PostsWithNavigation,
     currentUser: null,
     selector: { _id: { $in: postIds } },
     skipFiltering: true,

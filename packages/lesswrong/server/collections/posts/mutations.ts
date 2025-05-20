@@ -267,16 +267,16 @@ export const updatePostGqlMutation = makeGqlUpdateMutation('Posts', updatePost, 
 
 
 export const graphqlPostTypeDefs = gql`
-  input CreatePostDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreatePostDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreatePostInput {
     data: CreatePostDataInput!
   }
   
-  input UpdatePostDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdatePostDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdatePostInput {

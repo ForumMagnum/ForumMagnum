@@ -100,7 +100,7 @@ const schema = {
   },
   messages: {
     graphql: {
-      outputType: "[LlmMessage]",
+      outputType: "[LlmMessage!]",
       canRead: [userOwns, "admins"],
       resolver: async (document, args, context) => {
         const { LlmMessages } = context;

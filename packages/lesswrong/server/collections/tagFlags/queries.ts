@@ -3,22 +3,25 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { TagFlagsViews } from "@/lib/collections/tagFlags/views";
 
 export const graphqlTagFlagQueryTypeDefs = gql`
-  type TagFlag {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type TagFlag ${ getAllGraphQLFields(schema) }
+  
   input SingleTagFlagInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleTagFlagOutput {
     result: TagFlag
   }
-
+  
+  input TagFlagSelector {
+    default: EmptyViewInput
+    allTagFlags: EmptyViewInput
+  }
+  
   input MultiTagFlagInput {
     terms: JSON
     resolverArgs: JSON
@@ -30,12 +33,20 @@ export const graphqlTagFlagQueryTypeDefs = gql`
     results: [TagFlag]
     totalCount: Int
   }
-
+  
   extend type Query {
-    tagFlag(input: SingleTagFlagInput): SingleTagFlagOutput
-    tagFlags(input: MultiTagFlagInput): MultiTagFlagOutput
+    tagFlag(
+      input: SingleTagFlagInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleTagFlagOutput
+    tagFlags(
+      input: MultiTagFlagInput @deprecated(reason: "Use the selector field instead"),
+      selector: TagFlagSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiTagFlagOutput
   }
 `;
-
-export const tagFlagGqlQueryHandlers = getDefaultResolvers('TagFlags');
+export const tagFlagGqlQueryHandlers = getDefaultResolvers('TagFlags', TagFlagsViews);
 export const tagFlagGqlFieldResolvers = getFieldGqlResolvers('TagFlags', schema);

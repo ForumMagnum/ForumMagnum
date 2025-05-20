@@ -63,7 +63,7 @@ const styles = (theme: ThemeType) => ({
 
 const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
-  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
+  post: NonNullable<PostSequenceNavigation['nextPost']> | NonNullable<PostSequenceNavigation['prevPost']>,
   sequence: HasIdType|null,
   classes: ClassesType<typeof styles>,
 }) => {

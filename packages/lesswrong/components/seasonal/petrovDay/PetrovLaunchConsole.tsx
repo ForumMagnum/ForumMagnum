@@ -87,7 +87,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
     skip: !currentUser
   })
   const petrovReportActionTypes: PetrovDayActionType[] = side === 'east' ? ['eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['westPetrovAllClear', 'westPetrovNukesIncoming']
-  const petrovReports = petrovDayActions.filter((action) => petrovReportActionTypes.includes(action.actionType))
+  // const petrovReports = petrovDayActions.filter((action) => petrovReportActionTypes.includes(action.actionType))
 
   const launchActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
   const launchAction = petrovDayActions.find((action) => action.actionType === launchActionType) || launched

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
 import { DialogContent } from "../widgets/DialogContent";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -9,6 +8,18 @@ import { Link } from "../../lib/reactRouterWrapper";
 import LWDialog from "../common/LWDialog";
 import CommentsListSection from "../comments/CommentsListSection";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsDetailsQuery = gql(`
+  query UltraFeedCommentsDialog($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -72,12 +83,11 @@ const UltraFeedCommentsDialog = ({
   const postTitle = isPost ? document.title : comment?.post?.title;
   const targetCommentId = !isPost ? document._id : undefined;
 
-  const { document: postDataForTree, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
+  const { loading: loadingPost, data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: postId },
     skip: !postId,
   });
+  const postDataForTree = data?.post?.result;
 
   const { results: postComments, loading: loadingPostComments, totalCount: postCommentsTotalCount } = useMulti({
     terms: {

@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const RevisionDisplay = () => frag`
+export const RevisionDisplay = gql(`
   fragment RevisionDisplay on Revision {
     _id
     version
@@ -13,18 +13,18 @@ export const RevisionDisplay = () => frag`
     htmlHighlight
     plaintextDescription
   }
-`
+`)
 
-export const RevisionHTML = () => frag`
+export const RevisionHTML = gql(`
   fragment RevisionHTML on Revision {
     _id
     html
   }
-`
+`)
 
-export const RevisionEdit = () => frag`
+export const RevisionEdit = gql(`
   fragment RevisionEdit on Revision {
-    ${RevisionDisplay}
+    ...RevisionDisplay
     originalContents {
       type
       data
@@ -32,9 +32,9 @@ export const RevisionEdit = () => frag`
     markdown
     ckEditorMarkup
   }
-`
+`)
 
-export const RevisionMetadata = () => frag`
+export const RevisionMetadata = gql(`
   fragment RevisionMetadata on Revision {
     _id
     version
@@ -49,9 +49,9 @@ export const RevisionMetadata = () => frag`
     currentUserVote
     currentUserExtendedVote
   }
-`
+`)
 
-export const RevisionMetadataWithChangeMetrics = () => frag`
+export const RevisionMetadataWithChangeMetrics = gql(`
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
@@ -59,9 +59,9 @@ export const RevisionMetadataWithChangeMetrics = () => frag`
       ...UsersMinimumInfo
     }
   }
-`
+`)
 
-export const RevisionHistoryEntry = () => frag`
+export const RevisionHistoryEntry = gql(`
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
@@ -73,9 +73,9 @@ export const RevisionHistoryEntry = () => frag`
       ...UsersMinimumInfo
     }
   }
-`
+`)
 
-export const RevisionHistorySummaryEdit = () => frag`
+export const RevisionHistorySummaryEdit = gql(`
   fragment RevisionHistorySummaryEdit on Revision {
     ...RevisionHistoryEntry
     summary {
@@ -92,9 +92,9 @@ export const RevisionHistorySummaryEdit = () => frag`
       }
     }
   }
-`
+`)
 
-export const RevisionTagFragment = () => frag`
+export const RevisionTagFragment = gql(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
@@ -104,18 +104,18 @@ export const RevisionTagFragment = () => frag`
       ...MultiDocumentParentDocument
     }
   }
-`
+`)
 
-export const RecentDiscussionRevisionTagFragment = () => frag`
+export const RecentDiscussionRevisionTagFragment = gql(`
   fragment RecentDiscussionRevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
       ...TagRecentDiscussion
     }
   }
-`
+`)
 
-export const WithVoteRevision = () => frag`
+export const WithVoteRevision = gql(`
   fragment WithVoteRevision on Revision {
     __typename
     _id
@@ -126,4 +126,4 @@ export const WithVoteRevision = () => frag`
     score
     voteCount
   }
-`
+`)

@@ -480,7 +480,7 @@ async function insertIntoAllFragments(collectionName: string) {
 }
 
 async function insertIntoInitGraphQL(collectionName: string) {
-  const initGraphQLPath = path.join(__dirname, '..', '..', 'server', 'vulcan-lib', 'apollo-server', 'initGraphQL.ts');
+  const initGraphQLPath = path.join(__dirname, '..', '..', 'server', 'vulcan-lib', '@apollo/server', 'initGraphQL.ts');
   const initGraphQL = await readFile(initGraphQLPath, 'utf8');
   const lines = initGraphQL.split('\n');
 

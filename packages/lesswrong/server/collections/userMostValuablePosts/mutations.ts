@@ -100,16 +100,16 @@ export const updateUserMostValuablePostGqlMutation = makeGqlUpdateMutation('User
 
 
 export const graphqlUserMostValuablePostTypeDefs = gql`
-  input CreateUserMostValuablePostDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateUserMostValuablePostDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateUserMostValuablePostInput {
     data: CreateUserMostValuablePostDataInput!
   }
   
-  input UpdateUserMostValuablePostDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateUserMostValuablePostDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateUserMostValuablePostInput {

@@ -63,13 +63,22 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
 
 function getFooterTagListPostInfo(post: EditablePost) {
   const {
-    _id, createdAt, tags, postCategory, isEvent,
+    _id, tags, createdAt, postCategory, isEvent,
     curatedDate = null,
     frontpageDate = null,
     reviewedByUserId = null,
   } = post;
 
-  return { _id, createdAt, tags, curatedDate, frontpageDate, reviewedByUserId, postCategory, isEvent: isEvent ?? false };
+  return {
+    _id,
+    tags,
+    createdAt: createdAt?.toISOString() ?? null,
+    curatedDate: curatedDate?.toISOString() ?? null,
+    frontpageDate: frontpageDate?.toISOString() ?? null,
+    reviewedByUserId,
+    postCategory,
+    isEvent: isEvent ?? false,
+  };
 }
 
 function userCanEditCrosspostSettings(user: UsersCurrent | null) {
@@ -1181,13 +1190,13 @@ const PostForm = ({
 
       {userCanCreateAndEditJargonTerms(currentUser) && <LegacyFormGroupLayout label="Glossary" startCollapsed={false} hideHeader>
         <div className={classes.fieldWrapper}>
-          <form.Field name="glossary">
-            {(field) => (
+          {/* <form.Field name="glossary">
+            {(field) => ( */}
               <GlossaryEditFormWrapper
                 document={form.state.values}
               />
-            )}
-          </form.Field>
+            {/* )}
+          </form.Field> */}
         </div>
       </LegacyFormGroupLayout>}
 

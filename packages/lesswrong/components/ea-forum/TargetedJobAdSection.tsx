@@ -8,7 +8,8 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -49,7 +50,7 @@ const TargetedJobAdSection = () => {
     skip: !currentUser
   })
   
-  const { results: userEAGDetails, loading: userEAGDetailsLoading } = useMulti({
+  const { results: userEAGDetails = [], loading: userEAGDetailsLoading } = useMulti({
     terms: {view: 'dataByUser', userId: currentUser?._id},
     collectionName: 'UserEAGDetails',
     fragmentName: 'UserEAGDetailsMinimumInfo',
@@ -58,23 +59,23 @@ const TargetedJobAdSection = () => {
   
   // check the amount that the user has read core tags to help target ads
   const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
-    gql`
+    gql(`
       query getUserReadsPerCoreTag($userId: String!) {
         UserReadsPerCoreTag(userId: $userId) {
           tagId
           userReadCount
         }
       }
-    `,
+    `),
     {
       variables: {
-        userId: currentUser?._id,
+        userId: currentUser?._id!,
       },
       ssr: true,
       skip: !currentUser,
     }
   )
-  const coreTagReads: UserCoreTagReads[]|undefined = coreTagReadsData?.UserReadsPerCoreTag
+  const coreTagReads = coreTagReadsData?.UserReadsPerCoreTag
   
   // we only advertise up to one job per page view
   const [activeJob, setActiveJob] = useState<string>()
@@ -94,7 +95,7 @@ const TargetedJobAdSection = () => {
       }
 
       const userJobAdState = ads.find(ad => ad.jobName === jobName)?.adState
-      const userEAGData = userEAGDetails?.[0]
+      const userEAGData = userEAGDetails[0]
       
       /** Check if the job fits the user's interests */
 

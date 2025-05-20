@@ -15,7 +15,6 @@ import { submitButtonStyles } from "@/components/tanstack-form-components/TanSta
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/constants";
-import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { z } from "zod";
 import Error404 from "../common/Error404";
@@ -23,6 +22,19 @@ import LWTooltip from "../common/LWTooltip";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from "@/lib/utils/dateUtils";
+
+const SurveyScheduleEditQuery = gql(`
+  query SurveyScheduleEditPage($documentId: String) {
+    surveySchedule(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SurveyScheduleEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('SurveyScheduleEditPage', (theme: ThemeType) => ({
   root: {
@@ -43,7 +55,7 @@ const SurveySchedulesForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; target?: DbSurveySchedule['target'] };
+  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; };
   onSuccess: (doc: SurveyScheduleEdit) => void;
 }) => {
   const classes = useStyles(styles);
@@ -246,12 +258,11 @@ const SurveyScheduleEditor = () => {
   const navigate = useNavigate();
   const isNewForm = !id;
 
-  const { document: initialData } = useSingle({
-    collectionName: 'SurveySchedules',
-    fragmentName: 'SurveyScheduleEdit',
-    documentId: id,
+  const { data } = useQuery(SurveyScheduleEditQuery, {
+    variables: { documentId: id },
     skip: isNewForm,
   });
+  const initialData = data?.surveySchedule?.result ?? undefined;
 
   const onCreate = useCallback(() => {
     navigate("/admin/surveys");
@@ -263,7 +274,7 @@ const SurveyScheduleEditor = () => {
       </Link>
       <SectionTitle title={`${isNewForm ? "New" : "Edit"} survey schedule`} />
       <SurveySchedulesForm
-        initialData={initialData}
+        initialData={withDateFields(initialData, ['startDate', 'endDate'])}
         onSuccess={onCreate}
       />
     </SingleColumnSection>

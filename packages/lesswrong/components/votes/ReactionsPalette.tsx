@@ -148,8 +148,6 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   }
 }));
 
-type paletteView = "listView"|"gridView";
-
 const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
@@ -161,7 +159,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
+  const [displayStyle, setDisplayStyle] = useState<ReactPaletteStyle>(reactPaletteStyle);
   const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
   const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
@@ -172,7 +170,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
     fragmentName: 'UsersCurrent',
   });
 
-  const handleChangeView = (view: paletteView) => {
+  const handleChangeView = (view: ReactPaletteStyle) => {
     setDisplayStyle(view);
     captureEvent("reactionPaletteChangeViewClicked", {view})
     if (!currentUser) return;

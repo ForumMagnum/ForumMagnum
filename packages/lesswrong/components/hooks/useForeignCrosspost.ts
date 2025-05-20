@@ -37,11 +37,11 @@ const overrideFields = [
   "readTimeMinutes",
 ] as const;
 
-const getCrosspostQuery = `
+const getCrosspostQuery = gql(`
   query GetCrosspostQuery($args: JSON) {
     getCrosspost(args: $args)
   }
-`;
+`);
 
 /**
  * These queries can be slow (and the timing is unpredictable), so use
@@ -50,7 +50,7 @@ const getCrosspostQuery = `
  */
 const crosspostBatchKey = "crosspost";
 
-type PostFetchProps<FragmentTypeName extends CrosspostFragments> =
+export type PostFetchProps<FragmentTypeName extends CrosspostFragments> =
   Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">;
 
 /**
@@ -70,10 +70,6 @@ export const crosspostFragments = [
 ] as const;
 
 type CrosspostFragments = typeof crosspostFragments[number];
-
-type MaybeCrosspostedPost<T extends FragmentTypes[CrosspostFragments]> = T extends PostWithForeignId ? true : false;
-
-type foo = MaybeCrosspostedPost<PostsList & PostWithForeignId>;
 
 /**
  * Load foreign crosspost data from the foreign site
@@ -96,7 +92,7 @@ export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragment
     throw new Error("Crosspost has not been created yet");
   }
 
-  const {data, loading, error} = useQuery(gql(getCrosspostQuery), {
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,
@@ -161,7 +157,7 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
   const isCrosspost = isPostWithForeignId(post);
   const isForeign = isCrosspost && !post.fmCrosspost.hostedHere;
 
-  const {data, loading, error} = useQuery(gql(getCrosspostQuery), {
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,

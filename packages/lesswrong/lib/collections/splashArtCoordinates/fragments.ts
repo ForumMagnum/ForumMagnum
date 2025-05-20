@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SplashArtCoordinates = () => frag`
+export const SplashArtCoordinates = gql(`
   fragment SplashArtCoordinates on SplashArtCoordinate {
     _id
     reviewWinnerArtId
@@ -20,11 +20,11 @@ export const SplashArtCoordinates = () => frag`
     rightWidthPct
     rightFlipped
   }
-`
+`)
 
-export const SplashArtCoordinatesEdit = () => frag`
+export const SplashArtCoordinatesEdit = gql(`
   fragment SplashArtCoordinatesEdit on SplashArtCoordinate {
     ...SplashArtCoordinates
     createdAt
   }
-`
+`)

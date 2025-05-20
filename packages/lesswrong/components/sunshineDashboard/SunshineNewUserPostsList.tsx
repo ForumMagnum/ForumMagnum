@@ -69,7 +69,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   const { openDialog } = useDialog();
 
   function handleLLMScoreClick(
-    automatedContentEvaluation: SunshinePostsList_contents_automatedContentEvaluations,
+    automatedContentEvaluation: NonNullable<NonNullable<SunshinePostsList['contents']>['automatedContentEvaluations']>,
     htmlContent: string | null | undefined
   ) {
     const highlightedHtml = highlightHtmlWithLlmDetectionScores(
@@ -94,7 +94,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
     });
   }
 
-  function handleAiJudgementClick(automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations) {
+  function handleAiJudgementClick(automatedContentEvaluations: NonNullable<NonNullable<SunshinePostsList['contents']>['automatedContentEvaluations']>) {
     openDialog({
       name: "AiJudgementDialog",
       contents: ({onClose}) => (

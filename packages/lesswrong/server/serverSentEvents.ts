@@ -5,11 +5,7 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
-import { ActiveDialogue, ActiveDialogueServer, ServerSentEventsMessage, TypingIndicatorMessage } from '../components/hooks/useUnreadNotifications';
-import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
-import UsersRepo from './repos/UsersRepo';
-import { isEAForum } from '../lib/instanceSettings';
+import { ServerSentEventsMessage } from '../components/hooks/useUnreadNotifications';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -77,10 +73,6 @@ export function addServerSentEventsEndpoint(app: Express) {
   });
   
   setInterval(checkForNotifications, 1000);
-  if (!isEAForum) {
-    setInterval(checkForTypingIndicators, 1000);
-    // setInterval(checkForActiveDialoguePartners, 1000);
-  }
 }
 
 /*
@@ -180,56 +172,6 @@ function dateMax(a: Date, b: Date) {
     return b;
 }
 
-
-async function checkForTypingIndicators() {
-  const numOpenConnections = Object.keys(openConnections).length;
-  if (!numOpenConnections) {
-    return;
-  }
-
-  const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
-
-  if (typingIndicatorInfos.length > 0) {
-    // Take the newest lastUpdated of a typingIndicator we saw, or one second ago,
-    // whichever is earlier, as the cutoff date for the next query. 
-    // See checkForNotifications for more details.
-    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.lastUpdated))!.lastUpdated;
-    const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
-    if (newestTypingIndicatorDate > oneSecondAgo) {
-      lastTypingIndicatorsCheck = oneSecondAgo;
-    } else {
-      lastTypingIndicatorsCheck = newestTypingIndicatorDate;
-    }
-  }
-
-  const results: Record<string, TypingIndicatorInfo[]> = {};
-  for (const curr of typingIndicatorInfos) {
-    // Get all userIds that have permission to type on the post
-    const userIdsToNotify = [curr.postUserId, ...getConfirmedCoauthorIds(curr)].filter((userId) => userId !== curr.userId);
-  
-    for (const userIdToNotify of userIdsToNotify) {
-      const {_id, userId, documentId, lastUpdated} = curr; // filter to just the fields in TypingIndicatorInfo
-      if (results[userIdToNotify]) {
-        results[userIdToNotify].push({_id, userId, documentId, lastUpdated});
-      } else {
-        results[userIdToNotify] = [{_id, userId, documentId, lastUpdated}];
-      }
-    }
-  }
-  
-  for (let userId of Object.keys(results)) {
-    if (openConnections[userId]) {
-      for (let connection of openConnections[userId]) {
-        const message: TypingIndicatorMessage = {
-          eventType: "typingIndicator", 
-          typingIndicators: results[userId],
-        }
-        connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
-      }
-    }
-  }
-}
-
 const isRecentlyActive = (editedAt: Date | undefined, minutes: number): boolean => {
   if (!editedAt) {
     return false;
@@ -239,53 +181,4 @@ const isRecentlyActive = (editedAt: Date | undefined, minutes: number): boolean 
   const editedTime = new Date(editedAt).getTime();
 
   return (currentTime - editedTime) <= minutes * 60 * 1000;
-}
-
-async function checkForActiveDialoguePartners() {
-  const numOpenConnections = Object.keys(openConnections).length;
-  if (!numOpenConnections) {
-    return;
-  }
-
-  const userIds = Object.keys(openConnections);
-
-  const activeDialogues: ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
-
-  const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
-  for (let dialogue of activeDialogues) {
-    const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
-    const allUserIds = [dialogue.userId, ...coauthorUserIds];
-    for (let userId of allUserIds) {
-      const editedAt = dialogue?.mostRecentEditedAt;
-      const data = {
-        postId: dialogue._id,
-        title: dialogue.title,
-        userIds: dialogue.activeUserIds.filter((id => id !== userId)),
-        mostRecentEditedAt: editedAt,
-        anyoneRecentlyActive: isRecentlyActive(editedAt, 15) // within the last 15 min
-      }
-      if (allUsersDialoguesData[userId]) {
-        allUsersDialoguesData[userId].push(data);
-      } else {
-        allUsersDialoguesData[userId] = [data];
-      }
-    }
-  }
-
-  for (let userId of userIds) {
-    const userDialoguesData = allUsersDialoguesData[userId];
-    const message = {
-      eventType: "activeDialoguePartners",
-      data: userDialoguesData ?? []
-    };
-
-    const messageString = `data: ${JSON.stringify(message)}\n\n`;
-
-    if (openConnections[userId]) {
-      for (let connection of openConnections[userId]) {
-        connection.res.write(messageString);
-        connection.newestNotificationTimestamp = new Date();
-      } 
-    }
-  }
 }

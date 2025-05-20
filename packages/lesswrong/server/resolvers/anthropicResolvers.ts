@@ -20,6 +20,7 @@ import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
 import { createLlmMessage } from "../collections/llmMessages/mutations";
+import { PostsPage } from "@/lib/collections/posts/fragments";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;

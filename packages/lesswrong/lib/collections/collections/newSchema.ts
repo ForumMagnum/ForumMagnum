@@ -88,7 +88,7 @@ const schema = {
   },
   books: {
     graphql: {
-      outputType: "[Book]",
+      outputType: "[Book!]!",
       canRead: ["guests"],
       resolver: async (collection, args, context) => {
         const { currentUser, Books } = context;

@@ -3,16 +3,17 @@ import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
 import { getSqlFragment } from "@/lib/fragments/allFragments";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
-
+import { TypedDocumentNode } from "@apollo/client";
+import { FragmentDefinitionNode, print } from "graphql";
 type FetchFragmentOptions<
+  F,
+  V,
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
-  FragmentName extends FragmentTypesByCollection[CollectionName] & keyof FragmentTypes,
 > = {
   /** The collection to fetch from. */
   collectionName: CollectionName,
   /** The fragment to use (which must be from the given collection). */
-  fragmentName: FragmentName,
+  fragmentDoc: TypedDocumentNode<F, V>,
   /**
    * The current user, or null for logged out. For security reasons, this is not
    * an optional parameter - it must always be specified, even if you explicitely
@@ -44,9 +45,9 @@ type FetchFragmentOptions<
  * `SqlFragment` which has to fetch the entire DbObject in order to correctly
  * generate fields that only have code resolvers).
  */
-export type FetchedFragment<FragmentName extends keyof FragmentTypes> =
-  ObjectsByCollectionName[CollectionNamesByFragmentName[FragmentName]] &
-  FragmentTypes[FragmentName];
+export type FetchedFragment<F, CollectionName extends CollectionNameString> =
+  ObjectsByCollectionName[CollectionName] &
+  F;
 
 /**
  * `fetchFragment` can be used to fetch data from the database formatted as a
@@ -54,24 +55,31 @@ export type FetchedFragment<FragmentName extends keyof FragmentTypes> =
  * `fetchFragmentSingle` if you only want a single result instead of an array.
  */
 export const fetchFragment = async <
+  F,
+  V,
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
-  FragmentName extends FragmentTypesByCollection[CollectionName] & keyof FragmentTypes,
 >({
   collectionName,
-  fragmentName,
+  fragmentDoc,
   currentUser,
   selector,
   options,
   resolverArgs,
   context: maybeContext,
   skipFiltering,
-}: FetchFragmentOptions<CollectionName, FragmentName>): Promise<FetchedFragment<FragmentName>[]> => {
+}: FetchFragmentOptions<F, V, CollectionName>): Promise<FetchedFragment<F, CollectionName>[]> => {
   const context = maybeContext ?? await computeContextFromUser({
     user: currentUser,
     isSSR: false,
   });
 
-  const fragmentText = fragmentTextForQuery(fragmentName);
+  const fragmentText = print(fragmentDoc)
+  const fragmentDefinition = fragmentDoc.definitions.find((def): def is FragmentDefinitionNode => def.kind === 'FragmentDefinition')
+  if (!fragmentDefinition) {
+    throw new Error('Fragment definition not found');
+  }
+  const fragmentName = fragmentDefinition.name.value;
+
   const sqlFragment = getSqlFragment(fragmentName, fragmentText);
 
   const query = new SelectFragmentQuery(
@@ -99,19 +107,20 @@ export const fetchFragment = async <
     results,
     context ?? null,
   );
-  return filtered as FetchedFragment<FragmentName>[];
+  return filtered as FetchedFragment<F, CollectionName>[];
 }
 
 /**
  * Like `fetchFragment`, but only returns a single result.
  */
 export const fetchFragmentSingle = async <
+  F,
+  V,
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
-  FragmentName extends FragmentTypesByCollection[CollectionName] & keyof FragmentTypes,
 >(
-  options: FetchFragmentOptions<CollectionName, FragmentName>,
-): Promise<FetchedFragment<FragmentName> | null> => {
-  const results = await fetchFragment<CollectionName, FragmentName>({
+  options: FetchFragmentOptions<F, V, CollectionName>,
+): Promise<FetchedFragment<F, CollectionName> | null> => {
+  const results = await fetchFragment<F, V, CollectionName>({
     ...options,
     options: {
       ...options.options,

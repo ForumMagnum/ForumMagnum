@@ -37,7 +37,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
 
-  return gql`
+  const queryText = `
     query ${resolverName}Query(${queryArgsList.join(", ")}) {
       ${resolverName}(${resolverArgsList.join(", ")}) {
         __typename
@@ -55,6 +55,8 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
     }
     ${fragmentTextForQuery(fragmentsUsed)}
   `
+
+  return gql`${queryText}`
 }
 
 interface FeedRenderer<FragmentName extends keyof FragmentTypes> {

@@ -271,7 +271,7 @@ interface HasUserIdType {
 interface VoteableType extends HasIdType {
   score: number
   baseScore: number | null
-  extendedScore: any,
+  extendedScore?: any,
   voteCount: number
   votingSystem?: string | null,
   af?: boolean
@@ -281,7 +281,7 @@ interface VoteableType extends HasIdType {
 }
 
 interface VoteableTypeClient extends VoteableType {
-  currentUserVote: string|null
+  currentUserVote?: string|null
   currentUserExtendedVote?: any,
 }
 
@@ -395,8 +395,6 @@ type DbInsertion<T extends DbObject> = Omit<
 > & {
   _id?: T["_id"];
 };
-
-type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 
 type CollectionNameWithPingbacks = {
   [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never

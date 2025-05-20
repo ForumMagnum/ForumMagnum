@@ -44,7 +44,7 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
 
 type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment';
 
-type CommonTagLensFields = Pick<TagPreviewFragment, keyof MultiDocumentContentDisplay & keyof TagPreviewFragment>;
+type CommonTagLensFields = Pick<TagPreviewFragment, Exclude<keyof MultiDocumentContentDisplay & keyof TagPreviewFragment, '__typename'>>;
 
 export const useTagPreview = (
   slug: string,

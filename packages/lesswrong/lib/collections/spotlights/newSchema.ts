@@ -155,7 +155,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "SpotlightDocumentType!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -488,7 +488,7 @@ const schema = {
   },
   sequenceChapters: {
     graphql: {
-      outputType: "[Chapter]",
+      outputType: "[Chapter!]",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         if (!spotlight.documentId || spotlight.documentType !== "Sequence") {

@@ -11,6 +11,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
+import { withDateFields } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -106,12 +107,15 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
     setEditing(false)
   }
 
+  const sortableComments = (comments ?? []).map(c => withDateFields(c, ['postedAt']));
+  const sortablePosts = (posts ?? []).map(p => withDateFields(p, ['postedAt']));
+  
   let averageContentKarma: number | undefined;
   if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
-    const mostRecentComments = sortBy(comments ?? [], 'postedAt').reverse();
+    const mostRecentComments = sortBy(sortableComments, 'postedAt').reverse();
     ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
   } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
-    const mostRecentPosts = sortBy(posts ?? [], 'postedAt').reverse();
+    const mostRecentPosts = sortBy(sortablePosts, 'postedAt').reverse();
     ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
   }
 

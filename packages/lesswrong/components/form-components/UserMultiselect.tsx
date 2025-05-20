@@ -58,7 +58,7 @@ const UserMultiselect = ({value, setValue, label}: {
 }
 
 interface FormUserMultiselectProps {
-  field: TypedFieldApi<string[]>;
+  field: TypedFieldApi<string[] | null | undefined>;
   label: string;
 }
 

@@ -203,7 +203,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
-      return !post.lastVisitedAt || !postLastCommentedAt || (post.lastVisitedAt >= postLastCommentedAt);
+      return !post.lastVisitedAt || !postLastCommentedAt || (new Date(post.lastVisitedAt) >= postLastCommentedAt);
     })
   }
 

@@ -395,7 +395,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </div>
       <div>
       {user.moderatorActions
-        .filter(moderatorAction => moderatorAction.active)
+        ?.filter(moderatorAction => moderatorAction.active)
         .map(moderatorAction => <ModeratorActionItem 
             key={moderatorAction._id} 
             moderatorAction={moderatorAction}

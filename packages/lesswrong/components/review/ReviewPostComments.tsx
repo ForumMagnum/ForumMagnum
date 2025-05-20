@@ -10,6 +10,7 @@ import SubSection from "../common/SubSection";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -77,7 +78,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,
-            highlightDate: post.lastVisitedAt ?? undefined,
+            highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
             hideSingleLineMeta: true,
             hideReviewVoteButtons: hideReviewVoteButtons,
             singleLineCollapse: singleLineCollapse,

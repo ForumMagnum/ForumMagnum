@@ -3,7 +3,6 @@ import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
-import { updateCacheAfterUpdate } from './cacheUpdates';
 import { getUpdateMutationName } from './utils';
 
 type FragmentOrFragmentName<F extends FragmentName = FragmentName> =
@@ -82,9 +81,9 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
 
     return mutate({
       variables: { selector, data, ...extraVariables },
-      update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName),
+      // update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName),
       ...optimisticMutationResponse
     });
-  }, [mutate, typeName, resolverName, options.skipCacheUpdate]);
+  }, [mutate, typeName, resolverName]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }

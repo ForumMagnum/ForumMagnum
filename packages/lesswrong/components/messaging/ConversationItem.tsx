@@ -66,7 +66,7 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
       <div className={classNames(classes.root, classes.wrap, {[classes.archivedItem]: isArchived})}>
         <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.titleLineHeight, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
         { conversation.participants
-          .filter(user => user._id !== currentUser._id)
+          ?.filter(user => user._id !== currentUser._id)
           .map(user => <span key={user._id} className={classes.leftMargin}>
             <PostsItem2MetaInfo> <UsersName user={user} /> </PostsItem2MetaInfo>
           </span>)

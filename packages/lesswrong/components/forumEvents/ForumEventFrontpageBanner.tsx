@@ -295,7 +295,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
   }
 
   const {title, bannerImageId, startDate, endDate} = currentForumEvent;
-  const date = endDate ? formatDate({ startDate, endDate }) : null;
+  const date = endDate ? formatDate({ startDate: new Date(startDate), endDate: new Date(endDate) }) : null;
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
       <div className={classNames(classes.root, classes.rootWithGradient)}>
@@ -338,7 +338,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   }
 
   const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, startDate, endDate} = currentForumEvent;
-  const date = endDate && formatDate({startDate, endDate});
+  const date = endDate && formatDate({ startDate: new Date(startDate), endDate: new Date(endDate) });
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">

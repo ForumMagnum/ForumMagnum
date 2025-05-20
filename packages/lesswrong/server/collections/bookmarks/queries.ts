@@ -3,11 +3,10 @@ import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTe
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import gql from "graphql-tag";
+import { BookmarksViews } from "@/lib/collections/bookmarks/views";
 
 export const graphqlBookmarkQueryTypeDefs = gql`
-  type Bookmark {
-    ${getAllGraphQLFields(schema)}
-  }
+  type Bookmark ${ getAllGraphQLFields(schema) }
 
   input SingleBookmarkInput {
     selector: SelectorInput
@@ -34,5 +33,5 @@ export const graphqlBookmarkQueryTypeDefs = gql`
   }
 `;
 
-export const bookmarkGqlQueryHandlers = getDefaultResolvers('Bookmarks');
+export const bookmarkGqlQueryHandlers = getDefaultResolvers('Bookmarks', BookmarksViews);
 export const bookmarkGqlFieldResolvers = getFieldGqlResolvers('Bookmarks', schema);

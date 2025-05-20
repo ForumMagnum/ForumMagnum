@@ -51,6 +51,10 @@ type OmitBySubtype<T, U> = {
 
 type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>
 
+type KeysOfType<T, DesiredFieldType> = keyof {
+  [K in keyof T as IfAny<T[K], never, T[K] extends DesiredFieldType ? K : never>]: T[K]
+}
+
 type NameOfFieldWithType<ObjType,FieldName,FieldType> =
   FieldName extends keyof ObjType
     ? TypesEqual<ObjType[FieldName],FieldType,FieldName&string,never>

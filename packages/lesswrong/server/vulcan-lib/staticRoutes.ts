@@ -30,7 +30,7 @@ import type { RequestHandler } from 'express';
 const urlParse = URL.parse;
 
 type Req = Parameters<RequestHandler>[0];
-type Res = Response<any, Record<string, any>, number>;
+type Res = Response<any, number>;
 type RouteCallback = (props: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void | Promise<void>;
 
 let routes: (pathToRegexp.PathRegExp & { callback: any })[] = [];

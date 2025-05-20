@@ -67,8 +67,8 @@ export const createSubscriptionGqlMutation = makeGqlCreateMutation('Subscription
 
 
 export const graphqlSubscriptionTypeDefs = gql`
-  input CreateSubscriptionDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateSubscriptionDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateSubscriptionInput {

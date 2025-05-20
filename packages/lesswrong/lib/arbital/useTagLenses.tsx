@@ -7,9 +7,8 @@ import omit from "lodash/omit";
 export const MAIN_TAB_ID = 'main-tab';
 
 export interface DocumentContributorWithStats {
-  user?: User | null;
+  user?: UsersMinimumInfo | null;
   currentAttributionCharCount?: number | null;
-  contributionScore: number;
 }
 
 export interface DocumentContributorsInfo {
@@ -18,7 +17,7 @@ export interface DocumentContributorsInfo {
 }
 
 export type TagLens = MultiDocumentMinimumInfo & {
-  contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
+  contents: TagFragment['description'] | TagRevisionFragment['description'] | RevisionDisplay | null;
   tableOfContents: ToCData | null;
   contributors: DocumentContributorsInfo | null;
   preview: string | null;
@@ -57,7 +56,7 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
-    textLastUpdatedAt: tag.textLastUpdatedAt,
+    textLastUpdatedAt: tag.textLastUpdatedAt ? new Date(tag.textLastUpdatedAt) : null,
     baseScore: tag.baseScore,
     extendedScore: tag.extendedScore,
     score: tag.score,
@@ -83,7 +82,7 @@ export function addDefaultLensToLenses(
       contributors: 'contributors' in lens ? lens.contributors : null,
       arbitalLinkedPages: 'arbitalLinkedPages' in lens ? lens.arbitalLinkedPages : null,
       originalLensDocument: lens,
-      textLastUpdatedAt: lens.textLastUpdatedAt,
+      textLastUpdatedAt: lens.textLastUpdatedAt ? new Date(lens.textLastUpdatedAt) : null,
     }))
   ];
 }

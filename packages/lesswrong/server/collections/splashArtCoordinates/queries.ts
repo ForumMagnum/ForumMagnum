@@ -3,22 +3,24 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 export const graphqlSplashArtCoordinateQueryTypeDefs = gql`
-  type SplashArtCoordinate {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type SplashArtCoordinate ${ getAllGraphQLFields(schema) }
+  
   input SingleSplashArtCoordinateInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleSplashArtCoordinateOutput {
     result: SplashArtCoordinate
   }
-
+  
+  input SplashArtCoordinateSelector {
+    default: EmptyViewInput
+  }
+  
   input MultiSplashArtCoordinateInput {
     terms: JSON
     resolverArgs: JSON
@@ -30,12 +32,20 @@ export const graphqlSplashArtCoordinateQueryTypeDefs = gql`
     results: [SplashArtCoordinate]
     totalCount: Int
   }
-
+  
   extend type Query {
-    splashArtCoordinate(input: SingleSplashArtCoordinateInput): SingleSplashArtCoordinateOutput
-    splashArtCoordinates(input: MultiSplashArtCoordinateInput): MultiSplashArtCoordinateOutput
+    splashArtCoordinate(
+      input: SingleSplashArtCoordinateInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleSplashArtCoordinateOutput
+    splashArtCoordinates(
+      input: MultiSplashArtCoordinateInput @deprecated(reason: "Use the selector field instead"),
+      selector: SplashArtCoordinateSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiSplashArtCoordinateOutput
   }
 `;
-
-export const splashArtCoordinateGqlQueryHandlers = getDefaultResolvers('SplashArtCoordinates');
+export const splashArtCoordinateGqlQueryHandlers = getDefaultResolvers('SplashArtCoordinates', new CollectionViewSet('SplashArtCoordinates', {}));
 export const splashArtCoordinateGqlFieldResolvers = getFieldGqlResolvers('SplashArtCoordinates', schema);

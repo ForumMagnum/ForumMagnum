@@ -2,10 +2,21 @@ import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
-import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import UsersName from "../users/UsersName";
+
+const UsersMinimumInfoQuery = gql(`
+  query PresenceList($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   user: {
@@ -79,12 +90,11 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   connected: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document: user, loading } = useSingle({
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    documentId: userId,
+  const { loading, data } = useQuery(UsersMinimumInfoQuery, {
+    variables: { documentId: userId },
     skip: isLoggedOutUser,
   });
+  const user = data?.user?.result;
 
   if (loading) {
     return <span/>

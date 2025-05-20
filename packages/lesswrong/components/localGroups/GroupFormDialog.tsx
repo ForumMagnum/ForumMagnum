@@ -7,7 +7,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
-import { useSingle } from '@/lib/crud/withSingle';
 import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
@@ -28,6 +27,19 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from '@/lib/utils/dateUtils';
+
+const localGroupsEditQuery = gql(`
+  query GroupFormDialog($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -97,7 +109,7 @@ const LocalGroupForm = ({
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['createdAt', 'lastActivity']),
       types: initialData?.types ?? ["LW"],
       categories: initialData?.categories ?? [],
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
@@ -377,12 +389,11 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   const navigate = useNavigate();
   const classes = useStyles(styles);
 
-  const { document: initialData, loading } = useSingle({
-    documentId,
-    collectionName: 'Localgroups',
-    fragmentName: 'localGroupsEdit',
+  const { loading, data } = useQuery(localGroupsEditQuery, {
+    variables: { documentId: documentId },
     skip: !documentId,
   });
+  const initialData = data?.localgroup?.result ?? undefined;
 
   const handleSuccess = (group: localGroupsHomeFragment) => {
     onClose();

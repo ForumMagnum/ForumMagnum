@@ -3,6 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import {taggingNameSetting} from '../../lib/instanceSettings'
 import EARecentDiscussionItem from "./EARecentDiscussionItem";
 import TagRevisionItem from "../tagging/TagRevisionItem";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const EARecentDiscussionTagRevision = ({
   tag,
@@ -24,7 +25,7 @@ const EARecentDiscussionTagRevision = ({
       user={revision.user}
       action={`edited ${taggingNameSetting.get()}`}
       tag={tag}
-      timestamp={revision.editedAt}
+      timestamp={maybeDate(revision.editedAt)}
     >
       <TagRevisionItem
         tag={tag}

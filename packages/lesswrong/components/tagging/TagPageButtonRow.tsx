@@ -134,7 +134,7 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
   if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
 
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
-  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)));
+  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds?.includes(currentUser._id)));
   const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
   const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 

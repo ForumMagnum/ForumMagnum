@@ -291,7 +291,7 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
-  document: EditablePost,
+  document: Pick<EditablePost, '_id' | 'generateDraftJargon' | 'contents' | 'userId' | 'draft'>,
   showTitle?: boolean,
 }) => {
   const { mutate: updatePost } = useUpdate({

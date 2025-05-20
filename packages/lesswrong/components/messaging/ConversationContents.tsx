@@ -116,7 +116,7 @@ const ConversationContents = ({
     const ls = getBrowserLocalStorage();
     if (query.from) {
       profileViewedFrom.current = query.from;
-    } else if (conversation && conversation.participantIds.length === 2 && ls) {
+    } else if (conversation && conversation.participantIds?.length === 2 && ls) {
       // if this is a conversation with one other person, see if we have info on where the current user found them
       const otherUserId = conversation.participantIds.find((id) => id !== currentUser._id);
       const storedLastViewedProfiles = ls.getItem("lastViewedProfiles")

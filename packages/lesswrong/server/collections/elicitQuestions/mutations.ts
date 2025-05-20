@@ -80,16 +80,16 @@ export const updateElicitQuestionGqlMutation = makeGqlUpdateMutation('ElicitQues
 
 
 export const graphqlElicitQuestionTypeDefs = gql`
-  input CreateElicitQuestionDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateElicitQuestionDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateElicitQuestionInput {
     data: CreateElicitQuestionDataInput!
   }
   
-  input UpdateElicitQuestionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateElicitQuestionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateElicitQuestionInput {

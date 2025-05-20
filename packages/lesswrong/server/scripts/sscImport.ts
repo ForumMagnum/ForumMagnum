@@ -14,7 +14,7 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
     let rssPageImports: Array<any> = [];
     let maybeRSSFeed = await RSSFeeds.findOne({nickname: feedName});
     if (!maybeRSSFeed) {
-      maybeRSSFeed = await createRSSFeed({ data: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink} }, createAnonymousContext());
+      maybeRSSFeed = await createRSSFeed({ data: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink, rawFeed: null} }, createAnonymousContext());
     }
     if (!maybeRSSFeed) throw Error("Failed to create new rssFeed for rssImport")
     const rssFeed = maybeRSSFeed

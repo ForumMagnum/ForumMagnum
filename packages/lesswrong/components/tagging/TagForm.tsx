@@ -87,7 +87,7 @@ export const TagForm = ({
   onCancel,
   onChange,
 }: {
-  initialData?: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] };
+  initialData?: UpdateTagDataInput & { _id: string; };
   prefilledProps?: {
     name: string;
     wikiOnly: boolean;

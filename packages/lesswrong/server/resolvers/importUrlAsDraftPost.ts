@@ -9,6 +9,7 @@ import { eligibleToNominate } from '@/lib/reviewUtils';
 import { sanitize } from "../../lib/vulcan-lib/utils";
 import gql from 'graphql-tag';
 import { createPost } from "../collections/posts/mutations";
+import { PostsEditQueryFragment } from '@/lib/collections/posts/fragments';
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
@@ -24,7 +25,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 
   const existingPost = await fetchFragmentSingle({
     collectionName: 'Posts',
-    fragmentName: 'PostsEditQueryFragment',
+    fragmentDoc: PostsEditQueryFragment,
     currentUser: context.currentUser,
     selector: {url, userId: reviewUser._id, deletedDraft: false},
     context,

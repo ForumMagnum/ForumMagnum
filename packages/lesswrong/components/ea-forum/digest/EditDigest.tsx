@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
@@ -12,7 +13,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 import Loading from "../../vulcan-core/Loading";
 import EditDigestHeader from "./EditDigestHeader";
 import ForumDropdown from "../../common/ForumDropdown";
@@ -22,6 +22,7 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -181,7 +182,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest
-  const { data } = useQuery(gql`
+  const { data } = useQuery(gql(`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
@@ -195,14 +196,17 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
         rating
       }
     }
-    ${fragmentTextForQuery("PostsListWithVotes")}
-    `, {
+  `), {
       ssr: true,
       skip: !digest,
-      variables: {digestId: digest?._id, startDate: digest?.startDate, endDate: digest?.endDate},
+      variables: {
+        digestId: digest?._id,
+        startDate: digest?.startDate ? new Date(digest.startDate) : undefined,
+        endDate: digest?.endDate ? new Date(digest.endDate) : undefined
+      },
     }
   )
-  const eligiblePosts: DigestPlannerPostData[] = useMemo(() => data?.DigestPlannerData, [data])
+  const eligiblePosts = useMemo(() => data?.DigestPlannerData, [data])
 
   // save the list of all eligible posts, along with their ratings
   const [posts, setPosts] = useState<Array<PostWithRating>>()
@@ -224,8 +228,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
       newPosts.push({...postData.post, rating: postData.rating})
       newPostStatuses[postData.post._id] = {
         _id: postData.digestPost?._id,
-        emailDigestStatus: postData.digestPost?.emailDigestStatus ?? 'pending',
-        onsiteDigestStatus: postData.digestPost?.onsiteDigestStatus ?? 'pending'
+        emailDigestStatus: (postData.digestPost?.emailDigestStatus as InDigestStatusOption | undefined) ?? 'pending',
+        onsiteDigestStatus: (postData.digestPost?.onsiteDigestStatus as InDigestStatusOption | undefined) ?? 'pending'
       }
     })
     // sort the list by curated, then suggested for curation, then rating, then karma

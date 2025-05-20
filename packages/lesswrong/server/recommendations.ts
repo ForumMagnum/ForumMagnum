@@ -18,6 +18,7 @@ import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/helpe
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from './sql/PgCollection';
 import gql from 'graphql-tag';
+import { PostsViews } from '@/lib/collections/posts/views';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -140,7 +141,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
   let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...getDefaultViewSelector("Posts"),
+    ...getDefaultViewSelector(PostsViews),
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -170,7 +171,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
       $or: [
         recommendationFilter,
         {
-          ...getDefaultViewSelector("Posts"), // Ensure drafts are still excluded
+          ...getDefaultViewSelector(PostsViews), // Ensure drafts are still excluded
           defaultRecommendation: true,
         },
       ],

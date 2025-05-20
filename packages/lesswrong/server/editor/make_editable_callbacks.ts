@@ -12,6 +12,7 @@ import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import { createRevision } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
+import { RevisionMetadata } from '@/lib/collections/revisions/fragments'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
   doc: CreateInputsByCollectionName[N]['data'];
@@ -187,7 +188,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const oldRevision = oldRevisionId
       ? await fetchFragmentSingle({
         collectionName: "Revisions",
-        fragmentName: "RevisionMetadata",
+        fragmentDoc: RevisionMetadata,
         selector: {_id: oldRevisionId},
         currentUser: null,
         skipFiltering: true,

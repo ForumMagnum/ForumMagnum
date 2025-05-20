@@ -1,10 +1,21 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
+
+const PostsBaseQuery = gql(`
+  query EventUpdatedEmail($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsBase
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   root: {
@@ -44,11 +55,10 @@ export const EventUpdatedEmail = ({postId}: {
   postId: string,
 }) => {
   const classes = useStyles(styles);
-  const { document: post, loading } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsBase",
+  const { loading, data } = useQuery(PostsBaseQuery, {
+    variables: { documentId: postId },
   });
+  const post = data?.post?.result;
   const { timezone, timezoneIsKnown } = useTimezone()
   
   if (loading || !post) return null;

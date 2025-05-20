@@ -37,7 +37,7 @@ export const useAdminToggle = (): {
     setLoading(true)
     await updateCurrentUser({
       isAdmin: true,
-      groups: [...currentUser.groups, "sunshineRegiment"],
+      groups: [...(currentUser.groups ?? []), "sunshineRegiment"],
     })
     window.location.reload()
   }

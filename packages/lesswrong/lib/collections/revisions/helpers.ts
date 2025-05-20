@@ -27,5 +27,8 @@ export const getOriginalContents = async <N extends CollectionNameString>(
     return originalContents;
   }
 
-  return null;
+  return {
+    type: originalContents.type,
+    data: '',
+  };
 };

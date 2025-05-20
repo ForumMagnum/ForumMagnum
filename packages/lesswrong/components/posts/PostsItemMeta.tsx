@@ -10,6 +10,7 @@ import FooterTagList from "../tagging/FooterTagList";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import LWTooltip from "../common/LWTooltip";
 import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   read: {
@@ -66,7 +67,7 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
         )}
         {post.startTime
           ? <LWTooltip title={<EventTime post={post} />}>
-              <DateWithoutTime date={post.startTime} />
+              <DateWithoutTime date={maybeDate(post.startTime)} />
             </LWTooltip>
           : <LWTooltip title={<span>To Be Determined</span>}>
               <span>TBD</span>

@@ -7,13 +7,24 @@ import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
-import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import LinkCard from "../common/LinkCard";
 import TagPreviewDescription from "./TagPreviewDescription";
 import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "./TagFlagItem";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagEditFragmentQuery = gql(`
+  query TagsDetailsItem($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,12 +107,11 @@ const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = f
   const [editing, setEditing] = useState(false)
   const { query } = useLocation();
 
-  const { document: editableTag } = useSingle({
-    documentId: tag._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag._id },
     skip: !editing,
   });
+  const editableTag = data?.tag?.result;
 
   const { results: tagRels, loading } = useMulti({
     skip: !(tag._id) || showFlags,

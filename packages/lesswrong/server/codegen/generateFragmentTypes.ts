@@ -19,9 +19,9 @@ export function generateFragmentTypes(collectionNameToTypeName: Record<string, s
   const sortedFragmentNames: Array<string> = orderBy(fragmentNames, f=>f);
 
   const sb: Array<string> = [];
-  for (let fragmentName of sortedFragmentNames) {
-    sb.push(generateFragmentTypeDefinition(allFragments[fragmentName], typeNameToCollectionName));
-  }
+  // for (let fragmentName of sortedFragmentNames) {
+  //   sb.push(generateFragmentTypeDefinition(allFragments[fragmentName], typeNameToCollectionName));
+  // }
   
   sb.push(generateFragmentsIndexType(allFragments));
   sb.push(generateCollectionNamesByFragmentNameType(allFragments, typeNameToCollectionName));

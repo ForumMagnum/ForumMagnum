@@ -3,22 +3,25 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { PodcastEpisodesViews } from "@/lib/collections/podcastEpisodes/views";
 
 export const graphqlPodcastEpisodeQueryTypeDefs = gql`
-  type PodcastEpisode {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type PodcastEpisode ${ getAllGraphQLFields(schema) }
+  
   input SinglePodcastEpisodeInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SinglePodcastEpisodeOutput {
     result: PodcastEpisode
   }
-
+  
+  input PodcastEpisodeSelector {
+    default: EmptyViewInput
+    episodeByExternalId: EmptyViewInput
+  }
+  
   input MultiPodcastEpisodeInput {
     terms: JSON
     resolverArgs: JSON
@@ -30,12 +33,20 @@ export const graphqlPodcastEpisodeQueryTypeDefs = gql`
     results: [PodcastEpisode]
     totalCount: Int
   }
-
+  
   extend type Query {
-    podcastEpisode(input: SinglePodcastEpisodeInput): SinglePodcastEpisodeOutput
-    podcastEpisodes(input: MultiPodcastEpisodeInput): MultiPodcastEpisodeOutput
+    podcastEpisode(
+      input: SinglePodcastEpisodeInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SinglePodcastEpisodeOutput
+    podcastEpisodes(
+      input: MultiPodcastEpisodeInput @deprecated(reason: "Use the selector field instead"),
+      selector: PodcastEpisodeSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiPodcastEpisodeOutput
   }
 `;
-
-export const podcastEpisodeGqlQueryHandlers = getDefaultResolvers('PodcastEpisodes');
+export const podcastEpisodeGqlQueryHandlers = getDefaultResolvers('PodcastEpisodes', PodcastEpisodesViews);
 export const podcastEpisodeGqlFieldResolvers = getFieldGqlResolvers('PodcastEpisodes', schema);

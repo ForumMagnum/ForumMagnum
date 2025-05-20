@@ -1,6 +1,5 @@
 import React from "react"
 import { useMulti } from "../../lib/crud/withMulti";
-import { useSingle } from "../../lib/crud/withSingle";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
@@ -8,9 +7,21 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWPopper from "../common/LWPopper";
 import ContentItemBody from "../common/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+
+const TagFlagFragmentQuery = gql(`
+  query TagFlagItem($documentId: String) {
+    tagFlag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagFlagFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -47,12 +58,11 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
 }) => {
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
-  const { document: tagFlag } = useSingle({
-    documentId,
-    collectionName: "TagFlags",
+  const { data } = useQuery(TagFlagFragmentQuery, {
+    variables: { documentId: documentId },
     fetchPolicy: "cache-first",
-    fragmentName: "TagFlagFragment",
-  })
+  });
+  const tagFlag = data?.tagFlag?.result;
   
   
   const TagFlagItemTerms: Record<ItemTypeName,TagsViewTerms> = {

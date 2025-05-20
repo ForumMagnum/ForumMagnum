@@ -122,7 +122,7 @@ export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonFor
     }
   } else if (snoozed) {
     const contentCount = getCurrentContentCount(user);
-    if (contentCount >= user.snoozedUntilContentCount) {
+    if (contentCount >= (user.snoozedUntilContentCount ?? 0)) {
       return {needsReview: true, reason: 'newContent'};
     }
   }

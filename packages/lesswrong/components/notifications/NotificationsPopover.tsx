@@ -116,7 +116,7 @@ const NotificationsPopover = ({
   closePopover,
   classes,
 }: {
-  karmaChanges?: KarmaChanges,
+  karmaChanges?: UserKarmaChanges['karmaChanges'] | null,
   onOpenNotificationsPopover?: () => void,
   closePopover?: () => void,
   classes: ClassesType<typeof styles>,

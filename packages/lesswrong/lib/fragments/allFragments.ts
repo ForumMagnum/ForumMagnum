@@ -3,10 +3,13 @@
 
 // Helper imports
 import { SqlFragment } from '@/server/sql/SqlFragment';
-import type { DocumentNode } from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode } from 'graphql';
 import uniq from 'lodash/uniq';
 import { isAnyTest } from '../executionEnvironment';
 import LRU from "lru-cache";
+import { TypedDocumentNode } from '@apollo/client';
+import { print } from 'graphql';
+import { transformFragments } from './fragmentWrapper';
 
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
@@ -82,7 +85,6 @@ import * as votesFragments from '../collections/votes/fragments';
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
 import * as ultraFeedFragments from '../ultraFeed';
-import { transformFragments } from './fragmentWrapper';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
@@ -174,12 +176,12 @@ const staticFragments = transformFragments({
 // TODO: I originally implemented this with deferred execution because getDefaultFragments needed to be called after the collections were registered
 // But now we're generating the default fragments in a separate step, so maybe we can just do this in one go?
 export const getAllFragments = (() => {
-  let allFragments: typeof staticFragments & typeof defaultFragments;
+  let allFragments: typeof staticFragments & Record<keyof typeof defaultFragments, string>;
   return () => {
     if (!allFragments) {
       allFragments = {
         ...staticFragments,
-        ...defaultFragments,
+        ...transformFragments(defaultFragments),
       };
     }
     return allFragments;

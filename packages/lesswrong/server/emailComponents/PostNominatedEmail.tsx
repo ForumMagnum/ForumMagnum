@@ -1,23 +1,28 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useSingle } from '../../lib/crud/withSingle';
 import { getNominationPhaseEnd, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
+const PostsRevisionQuery = gql(`
+  query PostNominatedEmail($documentId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsRevision
+      }
+    }
+  }
+`);
 
 export const PostNominatedEmail = ({documentId, reason}: {
   documentId: string,
   reason?: string,
 }) => {
-  const { document: post } = useSingle({
-    documentId,
-    
-    collectionName: "Posts",
-    fragmentName: "PostsRevision",
-    extraVariables: {
-      version: 'String'
-    }
+  const { data } = useQuery(PostsRevisionQuery, {
+    variables: { documentId: documentId },
   });
+  const post = data?.post?.result;
   if (!post) return null;
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
 

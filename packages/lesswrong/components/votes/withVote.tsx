@@ -14,8 +14,8 @@ import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
-  
-  return gql`
+
+  const gqlText = `
     mutation ${mutationName}($documentId: String, $voteType: String, $extendedVote: JSON) {
       ${mutationName}(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
         document {
@@ -26,6 +26,8 @@ const getVoteMutationQuery = (typeName: string) => {
     }
     ${fragmentTextForQuery(`WithVote${typeName}` as any)}
   `
+  
+  return gql`${gqlText}`
 }
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {

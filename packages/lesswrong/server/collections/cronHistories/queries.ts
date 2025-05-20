@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlCronHistoryQueryTypeDefs = gql`
-  type CronHistory {
-    ${getAllGraphQLFields(schema)}
+  type CronHistory ${
+    getAllGraphQLFields(schema)
   }
 `;
 

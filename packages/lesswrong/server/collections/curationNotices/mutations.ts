@@ -117,16 +117,16 @@ export const updateCurationNoticeGqlMutation = makeGqlUpdateMutation('CurationNo
 
 
 export const graphqlCurationNoticeTypeDefs = gql`
-  input CreateCurationNoticeDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateCurationNoticeDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateCurationNoticeInput {
     data: CreateCurationNoticeDataInput!
   }
   
-  input UpdateCurationNoticeDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateCurationNoticeDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateCurationNoticeInput {

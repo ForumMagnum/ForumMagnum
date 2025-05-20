@@ -5,6 +5,7 @@ import * as _ from 'underscore';
 import CalendarDate from "../common/CalendarDate";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const VISITS_TO_SHOW = 4
 const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
@@ -51,7 +52,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
     filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
   
   return <>{filteredVisits.map((visit) =>
-    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt!)}>Visit at:&nbsp;<CalendarDate date={visit.createdAt!}/> </MenuItem>
+    <MenuItem key={visit._id} dense onClick={() => clickCallback(maybeDate(visit.createdAt)!)}>Visit at:&nbsp;<CalendarDate date={visit.createdAt!}/> </MenuItem>
   )}</>
 }
 

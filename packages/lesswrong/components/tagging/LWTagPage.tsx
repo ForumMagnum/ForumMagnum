@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient, useQuery } from "@apollo/client";
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
@@ -39,7 +39,6 @@ import { useDisplayedContributors, HeadingContributorsList, ToCContributorsList 
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { LensForm } from "./lenses/LensForm";
-import { useSingle } from "@/lib/crud/withSingle";
 import ErrorPage from "../common/ErrorPage";
 import RedlinkTagPage from "./RedlinkTagPage";
 import { SideItem, SideItemsContainer } from "../contents/SideItems";
@@ -67,6 +66,18 @@ import FormatDate from "../common/FormatDate";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from "@/lib/utils/dateUtils";
+
+const TagEditFragmentQuery = gql(`
+  query LWTagPage($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -359,7 +370,7 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
 
   return <LensForm
     key={lens._id + mountKey}
-    initialData={lens.originalLensDocument ?? undefined}
+    initialData={withDateFields(lens.originalLensDocument ?? undefined, ['createdAt'])}
     onSuccess={() => successCallback().then(() => setMountKey(mountKey + 1))}
     onCancel={cancelCallback}
     onChange={changeCallback}
@@ -567,13 +578,12 @@ const LWTagPage = () => {
   const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
   const { tag, loadingTag, tagError, refetchTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
-  const { document: editableTag } = useSingle({
-    documentId: tag?._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag?._id },
     skip: !tag,
     ssr: false,
   });
+  const editableTag = data?.tag?.result;
 
   const [truncated, setTruncated] = useState(false)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -812,8 +822,8 @@ const LWTagPage = () => {
         <SideItem>
           <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
         </SideItem>
-        { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+        { revision && tag.description && 'user' in tag.description && <div className={classes.pastRevisionNotice}>
+          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={tag.description.user}/>
         </div>}
         {/* <TagEditorProvider> */}
         <DeferRender ssr={false}>

@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
-import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
@@ -13,6 +12,19 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import { maybeDate } from '@/lib/utils/dateUtils';
+
+const LlmConversationsWithMessagesFragmentQuery = gql(`
+  query LlmChatWrapper($documentId: String) {
+    llmConversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...LlmConversationsWithMessagesFragment
+      }
+    }
+  }
+`);
 
 // FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
 const mdi = markdownIt({ linkify: true });
@@ -109,7 +121,7 @@ type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
 
 type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId' | 'createdAt' | 'lastUpdatedAt'> & {
   _id: string;
-  title?: string;
+  title: string | null;
   messages: NewLlmMessage[];
 };
 
@@ -174,17 +186,16 @@ const LlmChatWrapper = ({children}: {
 
   const sortedConversations = useMemo(() => {
     const llmConversationsList = conversations ? Object.values(conversations) : [];
-    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
+    return sortBy(llmConversationsList, (conversation) => maybeDate(conversation.lastUpdatedAt ?? conversation.createdAt));
   }, [conversations]);
 
   const [currentConversationId, setCurrentConversationId] = useState<string>();
 
-  const { document: currentConversationWithMessages } = useSingle({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsWithMessagesFragment",
-    documentId: currentConversationId,
+  const { data } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
+    variables: { documentId: currentConversationId },
     skip: !currentConversationId,
   });
+  const currentConversationWithMessages = data?.llmConversation?.result;
 
   const currentConversationLoading = useMemo(() => (
     !!currentConversationId && loadingConversationIds.includes(currentConversationId)
@@ -221,9 +232,9 @@ const LlmChatWrapper = ({children}: {
         _id: conversationId,
         title,
         messages,
-        createdAt: new Date(createdAt),
+        createdAt: createdAt,
         deleted: false,
-        lastUpdatedAt: new Date(createdAt),
+        lastUpdatedAt: createdAt,
         userId
       };
   
@@ -470,8 +481,10 @@ const LlmChatWrapper = ({children}: {
       _id: newConversationChannelId,
       userId: currentUser._id,
       messages: [],
-      createdAt: new Date(),
-      lastUpdatedAt: new Date()
+      createdAt: (new Date()).toISOString(),
+      lastUpdatedAt: (new Date()).toISOString(),
+      title: null,
+      deleted: false,
     };
 
     const displayedConversation = isExistingConversation
@@ -550,8 +563,9 @@ const LlmChatWrapper = ({children}: {
     if (currentConversationWithMessages) {
       setConversations((conversations) => {
         const clientSideConversationState = conversations[currentConversationWithMessages._id];
-        if (currentConversationWithMessages.messages.length > clientSideConversationState.messages.length) {
-          return { ...conversations, [currentConversationWithMessages._id]: currentConversationWithMessages };
+        const currentConversationMessages = currentConversationWithMessages.messages;
+        if (currentConversationMessages?.length && currentConversationMessages.length > clientSideConversationState.messages.length) {
+          return { ...conversations, [currentConversationWithMessages._id]: { ...currentConversationWithMessages, messages: currentConversationMessages } };
         }
 
         return conversations;

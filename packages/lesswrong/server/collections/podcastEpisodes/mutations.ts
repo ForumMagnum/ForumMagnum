@@ -41,8 +41,8 @@ export const createPodcastEpisodeGqlMutation = makeGqlCreateMutation('PodcastEpi
 
 
 export const graphqlPodcastEpisodeTypeDefs = gql`
-  input CreatePodcastEpisodeDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreatePodcastEpisodeDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreatePodcastEpisodeInput {

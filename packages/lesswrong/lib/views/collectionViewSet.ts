@@ -1,5 +1,5 @@
 export class CollectionViewSet<N extends CollectionNameString, Views extends Record<string, ViewFunction<N>>> {
-  private collectionName: N;
+  public collectionName: N;
   private views: Views;
   private defaultView?: ViewFunction<N>;
 

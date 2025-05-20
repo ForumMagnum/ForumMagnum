@@ -107,12 +107,12 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
             </Link>
           </Typography>
           <br/>
-          {!post.curatedDate && post.curationNotices.map(curationNotice => <CurationNoticesItem key={curationNotice._id} curationNotice={curationNotice}/>)}
+          {!post.curatedDate && post.curationNotices?.map(curationNotice => <CurationNoticesItem key={curationNotice._id} curationNotice={curationNotice}/>)}
           <PostsHighlight post={post} maxLengthWords={600}/>
         </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
           className={classNames(classes.postTitle, {
-            [classes.titleWithCurationNotice]: !!(post.curationNotices.length > 0),
+            [classes.titleWithCurationNotice]: !!(!!post.curationNotices?.length),
           })}
         >
             {post.title}

@@ -470,8 +470,8 @@ export const postGqlTypeDefs = gql`
     ): UserReadHistoryResult
 
     PostIsCriticism(args: JSON): Boolean
-    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
-    DigestPosts(num: Int): [Post]
+    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
+    DigestPosts(num: Int): [Post!]
 
     CanAccessGoogleDoc(fileUrl: String!): Boolean
   }
@@ -499,9 +499,9 @@ export const postGqlTypeDefs = gql`
   }
 
   type DigestPlannerPost {
-    post: Post
+    post: Post!
     digestPost: DigestPost
-    rating: Int
+    rating: Int!
   }
 
   type RecombeeRecommendedPost {

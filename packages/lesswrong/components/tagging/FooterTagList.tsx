@@ -24,6 +24,7 @@ import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
+import type { EditablePost } from '@/lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -142,7 +143,7 @@ const FooterTagList = ({
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: Pick<PostsListBase, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
+  post: Pick<PostsList, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,

@@ -278,8 +278,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "ForumEventFormat!",
+      inputType: "ForumEventFormat",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -361,7 +361,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "String",
+      outputType: "ForumEventCustomComponent!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
