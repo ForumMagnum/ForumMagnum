@@ -134,7 +134,7 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
       ]}
     )
   );
-  
+
   return ({
     selector: {
       $and: [
@@ -317,7 +317,7 @@ function profileComments(terms: CommentsViewTerms) {
 function draftComments(terms: CommentsViewTerms) {
   // If fetching comments for a specific post, show top level comments first
   // then replies. Otherwise sort by the most recent edit
-  const sort = terms.postId ? { topLevelCommentId: 1, lastEditedAt: -1, postedAt: -1 } : { lastEditedAt: -1, postedAt: -1 }
+  const sort = {  ...(terms.postId && { topLevelCommentId: 1 }), lastEditedAt: -1, postedAt: -1 }
 
   return {
     selector: {

@@ -16,6 +16,16 @@ import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
+export const COMMENT_DRAFT_TREE_OPTIONS: CommentTreeOptions = {
+  condensed: true,
+  singleLineCollapse: true,
+  hideSingleLineMeta: true,
+  forceSingleLine: true,
+  showCollapseButtons: false,
+  initialShowEdit: true,
+  hideReply: true
+};
+
 const styles = (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
@@ -273,7 +283,10 @@ const CommentsNodeInner = ({
     {showExtraChildrenButton}
     {childComments.map(child => <CommentsNode
       isChild={true}
-      treeOptions={treeOptions}
+      treeOptions={{
+        ...treeOptions,
+        ...(child.item.draft && COMMENT_DRAFT_TREE_OPTIONS),
+      }}
       comment={child.item}
       parentCommentId={comment._id}
       parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}

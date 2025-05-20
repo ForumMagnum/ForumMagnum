@@ -72,7 +72,7 @@ const styles = (theme: ThemeType) => ({
       fill: theme.palette.grey[600],
     },
   },
-  karma: {
+  leadingInfo: {
     display:"inline-block",
     textAlign: "center",
     paddingTop: SINGLE_LINE_PADDING_TOP,
@@ -204,8 +204,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
-        {!hideKarma && <span className={classes.karma}>
+        {!hideKarma && !comment.draft && <span className={classes.leadingInfo}>
           {commentGetKarma(comment)}
+        </span>}
+        {comment.draft && <span className={classes.leadingInfo}>
+          [Draft]
         </span>}
         <CommentUserName
           comment={comment}

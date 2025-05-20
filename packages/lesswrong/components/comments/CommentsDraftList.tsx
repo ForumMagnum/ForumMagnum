@@ -4,8 +4,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
 import LoadMore from '../common/LoadMore';
-import CommentsNode from './CommentsNode';
+import CommentsNode, { COMMENT_DRAFT_TREE_OPTIONS } from './CommentsNode';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { useCommentLinkState } from './CommentsItem/useCommentLink';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -30,14 +32,40 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   silentIfEmpty?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loading, count, totalCount, loadMoreProps } = useMulti({
-    terms: { view: "draftComments", userId, postId, drafts: "drafts-only" },
+  const { linkedCommentId } = useCommentLinkState();
+
+  const { document: linkedComment, loading: linkedCommentLoading } = useSingle({
+    documentId: linkedCommentId,
+    collectionName: "Comments",
+    fragmentName: 'DraftComments',
+    skip: !linkedCommentId
+  });
+
+  const { results: rawResults, loading: rawResultsLoading, totalCount, loadMoreProps } = useMulti({
+    terms: {
+      view: "draftComments",
+      userId,
+      postId,
+      drafts: "drafts-only",
+    },
     limit: initialLimit,
     itemsPerPage,
     enableTotal: true,
     collectionName: "Comments",
     fragmentName: 'DraftComments',
   });
+
+  // Move the linked comment up to the top if given
+  const results = ([linkedComment, ...(rawResults ?? [])]
+    .filter(v => v) as DraftComments[])
+    .reduce((acc, comment) => {
+      if (!acc.some(existingComment => existingComment._id === comment._id)) {
+        acc.push(comment);
+      }
+      return acc;
+    }, [] as DraftComments[]);
+  const loading = rawResultsLoading || (!linkedComment && linkedCommentLoading);
+  const count = results.length;
 
   if (loading && !results?.length) {
     return !silentIfEmpty ? <Loading/> : null;
@@ -57,21 +85,18 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
         comment={comment}
         key={comment._id}
         treeOptions={{
-          condensed: true,
-          singleLineCollapse: true,
-          hideSingleLineMeta: true,
+          ...COMMENT_DRAFT_TREE_OPTIONS,
           singleLinePostTitle: !postId,
           showPostTitle: !postId,
           post: comment.post || undefined,
-          forceSingleLine: true,
-          initialShowEdit: true,
-          showEditInContext: true,
+          showEditInContext: !postId,
         }}
       />
     ))}
     {loading && <Loading/>}
     {showLoadMore && <LoadMore {...{
       ...loadMoreProps,
+      count,
       totalCount: showTotal ? totalCount : undefined,
     }} />}
   </AnalyticsContext>;

@@ -244,6 +244,9 @@ export const CommentsItem = ({
 
   const editCancelCallback = () => {
     setShowEditState(false);
+    if (comment.draft) {
+      setSingleLine?.(true);
+    }
   }
 
   const editSuccessCallback = () => {
@@ -251,6 +254,9 @@ export const CommentsItem = ({
       refetch()
     }
     setShowEditState(false);
+    if (comment.draft) {
+      setSingleLine?.(true);
+    }
   }
 
   const toggleShowParent = () => {
