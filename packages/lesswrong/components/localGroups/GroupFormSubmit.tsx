@@ -36,6 +36,7 @@ interface GroupFormSubmitProps {
   document: { inactive?: boolean };
   formType: string;
   formApi: AnyFormApi;
+  disabled?: boolean;
 }
 
 export const GroupFormSubmit = ({
@@ -43,6 +44,7 @@ export const GroupFormSubmit = ({
   document,
   formType,
   formApi,
+  disabled,
 }: GroupFormSubmitProps) => {
   const classes = useStyles(styles);
 
@@ -61,6 +63,7 @@ export const GroupFormSubmit = ({
             type="submit"
             onClick={handleToggleInactive}
             className={classNames(classes.formButton, classes.inactiveButton)}
+            disabled={disabled}
           >
            {document.inactive ? "Reactivate group" : "Mark group as inactive"} 
           </Button>
@@ -69,6 +72,7 @@ export const GroupFormSubmit = ({
       <Button
         type="submit"
         className={classNames(classes.formButton, classes.submit)}
+        disabled={disabled}
       >
         {submitLabel}
       </Button>
