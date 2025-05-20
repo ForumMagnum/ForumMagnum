@@ -32,6 +32,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
         onSuccess={successCallback}
         onCancel={cancelCallback}
         submitLabel={comment.draft ? "Publish" : "Save"}
+        disableSubmitDropdown={!comment.draft}
       />
     </div>
   )

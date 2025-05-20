@@ -152,6 +152,7 @@ interface CommentSubmitProps {
   loading?: boolean;
   quickTakesSubmitButtonAtBottom?: boolean;
 
+  disableSubmitDropdown?: boolean;
   submitLabel: React.ReactNode;
   handleSubmit: (meta: {draft: boolean}) => Promise<void>,
   cancelLabel?: React.ReactNode;
@@ -178,6 +179,7 @@ const CommentSubmit = ({
   isMinimalist = false,
   formDisabledDueToRateLimit = false,
   isQuickTake = false,
+  disableSubmitDropdown = false,
   showCancelButton = false,
   quickTakesSubmitButtonAtBottom,
   loading = false,
@@ -201,6 +203,8 @@ const CommentSubmit = ({
     submitBtnProps.disabled = true;
   }
 
+  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
+
   return (
     <div
       className={classNames(classes.submit, {
@@ -223,7 +227,7 @@ const CommentSubmit = ({
           type="submit"
           id="new-comment-submit"
           className={classNames(formButtonClass, classes.submitButton, {
-            [classes.submitSegmented]: hasDraftComments,
+            [classes.submitSegmented]: showDropdownMenu,
           })}
           onClick={(ev) => {
             if (!currentUser) {
@@ -238,7 +242,7 @@ const CommentSubmit = ({
         >
           {(formIsSubmitting || loading) ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
         </Button>
-        {hasDraftComments && <CommentsSubmitDropdown handleSubmit={handleSubmit} />}
+        {showDropdownMenu && <CommentsSubmitDropdown handleSubmit={handleSubmit} />}
       </div>
     </div>
   );
@@ -257,6 +261,7 @@ export const CommentForm = ({
   cancelLabel,
   commentSubmitProps,
   interactionType,
+  disableSubmitDropdown,
   onSubmit,
   onSuccess,
   onCancel,
@@ -285,6 +290,7 @@ export const CommentForm = ({
   cancelLabel?: string;
   commentSubmitProps?: CommentFormPassthroughSubmitProps;
   interactionType?: CommentInteractionType;
+  disableSubmitDropdown?: boolean;
   onSubmit?: () => void;
   onSuccess: (doc: CommentsList) => void;
   onCancel: () => void;
@@ -385,6 +391,7 @@ export const CommentForm = ({
             {...commentSubmitProps}
             isMinimalist={commentMinimalistStyle ?? false}
             isQuickTake={commentSubmitProps?.isQuickTake ?? form.state.values.shortform ?? false}
+            disableSubmitDropdown={disableSubmitDropdown}
             showCancelButton={showCancelButton}
             submitLabel={submitLabel}
             handleSubmit={form.handleSubmit}

@@ -114,7 +114,7 @@ const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
 
 export type CommentsNewFormProps = {
   prefilledProps?: any,
-  post?: PostsMinimumInfo,
+  post?: PostsMinimumInfo & { question?: boolean },
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: CommentsList,
@@ -358,6 +358,8 @@ const CommentsNewForm = ({
             <CommentForm
               prefilledProps={prefilledProps}
               commentSubmitProps={commentSubmitProps}
+              // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
+              disableSubmitDropdown={isQuickTake || isAnswer || post?.question || prefilledProps.tagId}
               interactionType={interactionType}
               alignmentForumPost={post?.af}
               quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}
