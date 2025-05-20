@@ -18,6 +18,7 @@ declare global {
     view?: CommentsViewName,
     postId?: string,
     userId?: string,
+    drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
     forumEventId?: string,
     relevantTagId?: string,
@@ -72,6 +73,37 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
+const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"; context?: ResolverContext; } = {}) => {
+  const currentUserId = context?.currentUser?._id;
+
+  switch (drafts) {
+    case "include":
+      return {};
+    case "drafts-only":
+      return { draft: true };
+    case "include-my-draft-replies":
+      return {
+        $or: [
+          { draft: false },
+          {
+            $and: [
+              { draft: true },
+              { parentCommentId: { $exists: true } },
+              // Note: This is a hack to ensure mingo cache invalidation works:
+              // 1. If we're on the server, context is defined, and selecting against the userId is
+              //    required to not over-select drafts
+              // 2. If we are in mingo, context will not be defined. In this case exclude userId from
+              //    the cache key otherwise drafts won't trigger invalidation
+              ...(context ? [{ userId: currentUserId ?? null }] : []),
+            ]
+          }
+        ]
+      };
+    default:
+      return { draft: false };
+  }
+};
+
 function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
@@ -81,12 +113,6 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
   const notDeletedOrDeletionIsPublic = {
     $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
   };
-  const nonDraftOrCurrentUserDraft = context?.currentUser?._id ? {
-    $or: [
-      { $and: [{ draft: true }, { userId: context.currentUser._id }] },
-      { draft: false }
-    ]
-  } : { draft: false };
   
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
@@ -113,7 +139,7 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
     selector: {
       $and: [
         ...(shouldHideNewUnreviewedAuthorComments ? [hideNewUnreviewedAuthorComments] : []),
-        nonDraftOrCurrentUserDraft,
+        getDraftSelector({ drafts: terms.drafts, context }),
         notDeletedOrDeletionIsPublic
       ],
       hideAuthor: terms.userId ? false : undefined,
@@ -289,9 +315,16 @@ function profileComments(terms: CommentsViewTerms) {
 }
 
 function draftComments(terms: CommentsViewTerms) {
+  // If fetching comments for a specific post, show top level comments first
+  // then replies. Otherwise sort by the most recent edit
+  const sort = terms.postId ? { topLevelCommentId: 1, lastEditedAt: -1, postedAt: -1 } : { lastEditedAt: -1, postedAt: -1 }
+
   return {
-    selector: {draft: true},
-    options: {sort: { lastEditedAt: -1, postedAt: -1 }, limit: terms.limit || 5},
+    selector: {
+      deletedPublic: false,
+      postId: terms.postId
+    },
+    options: { sort, limit: terms.limit || 5 },
   };
 }
 

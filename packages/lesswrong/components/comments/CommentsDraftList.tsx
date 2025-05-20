@@ -1,21 +1,19 @@
-import React, { useCallback, useState } from 'react';
+import React, {  } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
-import { useCurrentUser } from '../common/withUser';
 import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
-import ShortformListItem from '../shortform/ShortformListItem';
 import LoadMore from '../common/LoadMore';
 import CommentsNode from './CommentsNode';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
-  subheader: {
-    fontSize: 14,
-  },
-  shortformSubmitForm: {
-    marginTop: 6,
-    marginBottom: 12,
+  heading: {
+    display: 'flex',
+    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   noResults: {
     marginLeft: 8,
@@ -23,17 +21,17 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, classes}: {
+const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, classes}: {
   userId: string,
+  postId?: string,
   initialLimit?: number,
   itemsPerPage?: number,
   showTotal?: boolean,
+  silentIfEmpty?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser(); // TODO will use
-
   const { results, loading, count, totalCount, loadMoreProps } = useMulti({
-    terms: { view: 'draftComments', userId },
+    terms: { view: "draftComments", userId, postId, drafts: "drafts-only" },
     limit: initialLimit,
     itemsPerPage,
     enableTotal: true,
@@ -42,13 +40,14 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
   });
 
   if (loading && !results?.length) {
-    return <Loading/>;
+    return !silentIfEmpty ? <Loading/> : null;
   }
 
   const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
 
-  return <>
-    {(!loading && results?.length === 0) && (
+  return <AnalyticsContext pageElementContext="commentsDraftList">
+    {(!silentIfEmpty || !!results?.length) && <Typography variant="headline" className={classes.heading}>Draft comments</Typography>}
+    {(!silentIfEmpty && !loading && results?.length === 0) && (
       <Typography variant="body2" className={classes.noResults}>
         No comments to display.
       </Typography>
@@ -61,8 +60,8 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
           condensed: true,
           singleLineCollapse: true,
           hideSingleLineMeta: true,
-          singleLinePostTitle: true,
-          showPostTitle: true,
+          singleLinePostTitle: !postId,
+          showPostTitle: !postId,
           post: comment.post || undefined,
           forceSingleLine: true,
           initialShowEdit: true,
@@ -75,8 +74,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
       ...loadMoreProps,
       totalCount: showTotal ? totalCount : undefined,
     }} />}
-
-  </>;
+  </AnalyticsContext>;
 }
 
 export default registerComponent(

@@ -365,12 +365,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
-      <div className={classes.sectionSubHeadingRow}>
-        <Typography variant="headline" className={classes.sectionSubHeading}>Draft comments</Typography>
-      </div>
-      <AnalyticsContext pageElementContext="userCommentDrafts">
-        <CommentsDraftList userId={user._id} initialLimit={5} />
-      </AnalyticsContext>
+      <CommentsDraftList userId={user._id} initialLimit={5} />
     </>
   }]
   if (userOrganizesGroups?.length) {
