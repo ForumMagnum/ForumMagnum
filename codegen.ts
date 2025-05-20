@@ -6,7 +6,7 @@ const config: CodegenConfig = {
   schema: "./packages/lesswrong/lib/generated/gqlSchema.gql",
   documents: "./packages/lesswrong/",
   generates: {
-    // One object for client
+    // One object for client-side query return types
     "./packages/lesswrong/lib/generated/gql-codegen/": {
       preset: "client",
       config: {
@@ -14,7 +14,7 @@ const config: CodegenConfig = {
           Date: {
             input: 'Date',
             output: 'string',
-          }
+          },
         },
         avoidOptionals: {
           inputValue: false,
@@ -34,7 +34,7 @@ const config: CodegenConfig = {
         fragmentMasking: false,
       },
     },
-    // One object for server
+    // One object for everything-else types
     './packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts': {
       plugins: [
         {
