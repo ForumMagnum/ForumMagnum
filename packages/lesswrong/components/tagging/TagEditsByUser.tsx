@@ -7,6 +7,7 @@ import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +63,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
         tag={topLevelTag!}
         revisionIds={[tagUpdates._id]}
         changeMetrics={{added: tagUpdates.changeMetrics.added, removed: tagUpdates.changeMetrics.removed}}
-        lastRevisedAt={tagUpdates.editedAt}
+        lastRevisedAt={maybeDate(tagUpdates.editedAt)}
       />
     })}
     <LoadMore {...loadMoreProps} />

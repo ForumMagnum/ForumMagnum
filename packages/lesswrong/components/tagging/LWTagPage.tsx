@@ -821,8 +821,8 @@ const LWTagPage = () => {
         <SideItem>
           <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
         </SideItem>
-        { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+        { revision && tag.description && 'user' in tag.description && <div className={classes.pastRevisionNotice}>
+          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={tag.description.user}/>
         </div>}
         {/* <TagEditorProvider> */}
         <DeferRender ssr={false}>

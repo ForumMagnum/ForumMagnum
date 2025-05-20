@@ -4,7 +4,6 @@ import { gql as dynamicGql, useQuery } from '@apollo/client';
 import { getFragment } from "@/lib/vulcan-lib/fragments";
 import Loading from "../vulcan-core/Loading";
 import NotifyMeButton from "../notifications/NotifyMeButton";
-import type { SubscriptionState } from "@/lib/generated/gql-codegen/graphql";
 import { SubscriptionType } from "@/lib/collections/subscriptions/helpers";
 
 const styles = (theme: ThemeType) => ({

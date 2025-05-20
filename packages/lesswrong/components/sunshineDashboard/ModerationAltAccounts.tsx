@@ -14,7 +14,7 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
-import type { UserAltAccountsFragment } from '@/lib/generated/gql-codegen/graphql';
+
 
 const UserAltAccountsFragmentQuery = gql(`
   query ModerationAltAccounts($documentId: String) {
@@ -250,13 +250,13 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
           ? <li className={classes.openListItem}>
               <div>Associated users</div>
               <ul>
-                {clientIdInfo.users.map(u => <li key={u._id}>
+                {clientIdInfo.users?.map(u => <li key={u._id}>
                   <AltAccountsNodeUserByID userId={u._id} classes={classes}/>
                 </li>)}
               </ul>
             </li>
           : <li className={classes.closedListItem} onClick={() => setExpanded(true)}>
-              {`Associated users: ${clientIdInfo.users.length}x (click to reveal)`}
+              {`Associated users: ${clientIdInfo.users?.length}x (click to reveal)`}
             </li>
         }
       </ul>

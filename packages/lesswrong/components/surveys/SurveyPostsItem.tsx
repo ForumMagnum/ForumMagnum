@@ -15,7 +15,6 @@ import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
 } from "@/lib/collections/surveyQuestions/constants";
-import type { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 import { SurveyResponseMinimumInfo } from "@/lib/collections/surveyResponses/fragments";
 import EAButton from "../ea-forum/EAButton";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";

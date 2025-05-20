@@ -443,8 +443,8 @@ const EATagPage = ({classes}: {
         </div>: <></>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
-            { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+            { revision && tag.description && 'user' in tag.description && <div className={classes.pastRevisionNotice}>
+              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={tag.description.user}/>
             </div>}
             {editableTag ? <div>
               {editTagForm}

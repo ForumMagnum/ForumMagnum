@@ -22,7 +22,7 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
-import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
+
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -10,13 +10,12 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
-import * as GQL from '@/lib/generated/gql-codegen/graphql';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { SideCommentIcon } from "../../comments/SideCommentIcon";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import GlossarySidebar from "../../jargon/GlossarySidebar";
-import type { PostsWithNavigation, PostsWithNavigationAndRevision, PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostSideCommentsQuery = gql(`
   query PostBody($documentId: String) {
@@ -30,7 +29,7 @@ const PostSideCommentsQuery = gql(`
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
-function useDisplayGlossary(post: GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes) {
+function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
   const { captureEvent } = useTracking();
   const [showAllTerms, setShowAllTerms] = useState(false);
 
@@ -69,7 +68,7 @@ function useDisplayGlossary(post: GQL.PostsWithNavigation|GQL.PostsWithNavigatio
 }
 
 const PostBody = ({post, html, isOldVersion, voteProps}: {
-  post: GQL.PostsWithNavigation|GQL.PostsWithNavigationAndRevision|GQL.PostsListWithVotes,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsListWithVotes,
   html: string,
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>

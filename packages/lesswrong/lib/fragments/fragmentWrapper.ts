@@ -14,8 +14,7 @@ export function extractFragmentName(fragmentText: string): FragmentName {
   return match[1] as FragmentName;
 }
 
-export function transformFragments(fragments: Record<string, DocumentNode>) {
-  // return mapValues(fragments, print)
+export function transformFragments<T extends Record<string, DocumentNode>>(fragments: T): Record<keyof T, string> {
   return Object.fromEntries(
     Object.entries(fragments).map(([key, value]) => {
       try {

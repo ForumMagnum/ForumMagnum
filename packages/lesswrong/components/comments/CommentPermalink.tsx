@@ -14,7 +14,7 @@ import Divider from "../common/Divider";
 import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
 import HeadTags from "../common/HeadTags";
 import CommentWithReplies from "./CommentWithReplies";
-import type { CommentWithRepliesFragment, PostsDetails } from '@/lib/generated/gql-codegen/graphql';
+
 
 const CommentWithRepliesFragmentQuery = gql(`
   query CommentPermalink($documentId: String) {

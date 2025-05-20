@@ -6,7 +6,6 @@ import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
-import { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()

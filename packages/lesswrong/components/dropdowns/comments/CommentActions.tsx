@@ -20,7 +20,7 @@ import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
 import CommentSubscriptionsDropdownItem from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
-import type { UsersCurrent, CommentsList, PostsMinimumInfo, TagBasicInfo } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsDetailsQuery = gql(`
   query CommentActions($documentId: String) {

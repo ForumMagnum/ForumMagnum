@@ -6,7 +6,6 @@ import { PostFetchProps, useForeignCrosspost } from "../../hooks/useForeignCross
 import PostsPage, { EagerPostComments } from "./PostsPage";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
-import type { PostsWithNavigation, PostsWithNavigationAndRevision } from "@/lib/generated/gql-codegen/graphql";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 

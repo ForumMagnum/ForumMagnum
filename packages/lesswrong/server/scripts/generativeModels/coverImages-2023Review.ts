@@ -14,7 +14,6 @@ import { createAdminContext } from '@/server/vulcan-lib/createContexts.ts';
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
 import { createSplashArtCoordinate } from '@/server/collections/splashArtCoordinates/mutations.ts';
 import { PostsPage } from '@/lib/collections/posts/fragments.ts';
-import { PostsPage as PostsPageType } from '@/lib/generated/gql-codegen/graphql'
 
 /*
 This script makes AI-generated images for Best of LessWrong posts.
@@ -165,7 +164,7 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   })
 }
 
-type Essay = {post: PostsPageType, title: string, content: string, neededArtCount: number, promptsGenerated: number}
+type Essay = {post: PostsPage, title: string, content: string, neededArtCount: number, promptsGenerated: number}
 
 const TextResponseFormat = zodResponseFormat(z.object({
   metaphors: z.array(z.string()),

@@ -47,6 +47,7 @@ import Error404 from "../common/Error404";
 import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { withDateFields } from "@/lib/utils/dateUtils";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -63,13 +64,22 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
 
 function getFooterTagListPostInfo(post: EditablePost) {
   const {
-    _id, createdAt, tags, postCategory, isEvent,
+    _id, tags, createdAt, postCategory, isEvent,
     curatedDate = null,
     frontpageDate = null,
     reviewedByUserId = null,
   } = post;
 
-  return { _id, createdAt, tags, curatedDate, frontpageDate, reviewedByUserId, postCategory, isEvent: isEvent ?? false };
+  return {
+    _id,
+    tags,
+    createdAt: createdAt?.toISOString() ?? null,
+    curatedDate: curatedDate?.toISOString() ?? null,
+    frontpageDate: frontpageDate?.toISOString() ?? null,
+    reviewedByUserId,
+    postCategory,
+    isEvent: isEvent ?? false,
+  };
 }
 
 function userCanEditCrosspostSettings(user: UsersCurrent | null) {

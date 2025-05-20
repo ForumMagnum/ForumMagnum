@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import type { CommentsList, CommentsListWithParentMetadata } from '@/lib/generated/gql-codegen/graphql';
+
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentForm } from './CommentForm';
 import Loading from "../vulcan-core/Loading";

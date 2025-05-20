@@ -15,7 +15,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import { TooltipSpan } from '@/components/common/FMTooltip';
 import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
 import ContentStyles from "../../common/ContentStyles";
-import type { PostsModerationGuidelines, TagFragment } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsModerationGuidelinesQuery = gql(`
   query PostsModerationGuidelines($documentId: String) {

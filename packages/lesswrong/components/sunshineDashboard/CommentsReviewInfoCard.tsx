@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] }) => {
+const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: VoteType }[] | null }) => {
   const voteCounts = {
     smallUpvote: 0,
     smallDownvote: 0,
@@ -106,10 +106,10 @@ const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] })
     neutral: 0
   };
 
-  return allVotes.reduce((prev: AnyBecauseTodo, curr: AnyBecauseTodo) => {
+  return allVotes?.reduce((prev, curr) => {
     prev[curr.voteType]++;
     return prev;
-  }, voteCounts);
+  }, voteCounts) ?? voteCounts;
 }
 
 export interface CommentWithModeratorActions {

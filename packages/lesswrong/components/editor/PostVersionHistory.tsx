@@ -23,7 +23,7 @@ import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
-import type { PostsBase } from '@/lib/generated/gql-codegen/graphql';
+
 
 const RevisionDisplayQuery = gql(`
   query PostVersionHistory($documentId: String) {

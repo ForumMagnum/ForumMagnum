@@ -7,7 +7,7 @@ import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
-import type { PostsBase, PostsListBase, TagBasicInfo, TagFragment, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,

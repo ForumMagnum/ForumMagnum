@@ -6,7 +6,6 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import CommentsItem from "./CommentsItem/CommentsItem";
 import Loading from "../vulcan-core/Loading";
-import type { PostsMinimumInfo, TagBasicInfo } from '@/lib/generated/gql-codegen/graphql';
 
 const CommentsListWithParentMetadataQuery = gql(`
   query ParentCommentSingle($documentId: String) {

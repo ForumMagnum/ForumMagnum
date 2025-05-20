@@ -171,7 +171,7 @@ const SubforumSubforumTab = ({
                 <RecentDiscussionThread
                   key={post._id}
                   post={{ ...post }}
-                  comments={post.recentComments}
+                  comments={post.recentComments ?? undefined}
                   commentTreeOptions={{forceSingleLine: true}}
                   maxLengthWords={50}
                   refetch={refetch}

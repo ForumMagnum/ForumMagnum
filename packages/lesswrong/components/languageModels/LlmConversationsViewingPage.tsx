@@ -19,7 +19,7 @@ import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { LlmChatMessage } from "./LanguageModelChat";
 import SectionTitle from "../common/SectionTitle";
-import type { LlmConversationsViewingPageFragment } from '@/lib/generated/gql-codegen/graphql';
+
 
 const LlmConversationsWithMessagesFragmentQuery = gql(`
   query LlmConversationsViewingPage($documentId: String) {

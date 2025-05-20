@@ -209,6 +209,7 @@ const SequencesPage = ({ documentId, classes }: {
     variables: { documentId: documentId },
     skip: !edit,
   });
+  const editableDocument = editDocument?.sequence?.result ?? undefined;
 
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -235,12 +236,12 @@ const SequencesPage = ({ documentId, classes }: {
     if (editLoading) {
       return <Loading />
     }
-    if (!editDocument) {
+    if (!editableDocument) {
       return <Error404/>
     }
     return (
       <SequencesEditForm
-        sequence={editDocument}
+        sequence={editableDocument}
         currentUser={currentUser}
         successCallback={showSequence}
         cancelCallback={showSequence}

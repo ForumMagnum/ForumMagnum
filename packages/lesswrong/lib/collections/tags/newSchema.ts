@@ -535,7 +535,7 @@ const schema = {
   },
   recentComments: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]!",
       canRead: ["guests"],
       arguments: "tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String",
       resolver: async (tag, args: { tagCommentsLimit?: number|null, maxAgeHours?: number, af?: boolean, tagCommentType?: TagCommentType }, context) => {
@@ -826,8 +826,8 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String!]",
-      inputType: "[String!]",
+      outputType: "[TagRelVoteGroup!]",
+      inputType: "[TagRelVoteGroup!]",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],

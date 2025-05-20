@@ -8,7 +8,6 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWTooltip from "../../common/LWTooltip";
 import CommentsNodeInner from "../../comments/CommentsNode";
 import Loading from "../../vulcan-core/Loading";
-import type { PostsMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 
 const CommentsListWithParentMetadataQuery = gql(`
   query NotificationsPageItem($documentId: String) {

@@ -16,7 +16,6 @@ import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { PostsPage } from "@/lib/collections/posts/fragments";
-import { PostsPage as PostsPageType } from "@/lib/generated/gql-codegen/graphql";
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = (isEAForum || isLWorAF) && !isE2E;
 
 const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
@@ -202,7 +201,7 @@ const getEmbeddingsForPost = async (
 }
 
 const getEmbeddingsForPosts = async (
-  posts: PostsPageType[],
+  posts: PostsPage[],
 ): Promise<Record<string, EmbeddingsWithHash>> => {
   const textMappings = Object.fromEntries(posts.map((post) => [post._id, htmlToTextDefault(post.contents?.html ?? "")] as const));
   const hashMappings = mapValues(textMappings, (postText: string) => md5(postText));

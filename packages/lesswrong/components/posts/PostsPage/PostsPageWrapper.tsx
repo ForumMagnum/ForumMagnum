@@ -8,14 +8,14 @@ import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { useApolloClient, useQuery } from '@apollo/client';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from '@/lib/vulcan-lib/fragments';
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
-import type { PostsListWithVotes, SequencesPageFragment } from '@/lib/generated/gql-codegen/graphql';
 import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
+import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
+import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -50,13 +50,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // it loads the rest.
   const apolloClient = useApolloClient();
   const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
-    fragment: getFragment("PostsListWithVotes"),
+    fragment: PostsListWithVotes,
     fragmentName: "PostsListWithVotes",
     id: 'Post:'+documentId,
   });
 
   const sequencePreload = apolloClient.cache.readFragment<SequencesPageFragment>({
-    fragment: getFragment("SequencesPageFragment"),
+    fragment: SequencesPageFragment,
     fragmentName: "SequencesPageFragment",
     id: 'Sequence:'+sequenceId,
   });

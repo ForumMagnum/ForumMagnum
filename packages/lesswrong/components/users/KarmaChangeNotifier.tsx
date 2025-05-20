@@ -28,7 +28,6 @@ import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import ReactionIcon from "../votes/ReactionIcon";
 import LWTooltip from "../common/LWTooltip";
-import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {

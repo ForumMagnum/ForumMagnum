@@ -14,7 +14,7 @@ import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm
 import UsersProfileImage from "../users/UsersProfileImage";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ImageUploadDefaultsDialog from "./ImageUploadDefaultsDialog";
-import type { UsersMinimumInfo } from '@/lib/generated/gql-codegen/graphql';
+
 
 const UsersMinimumInfoQuery = gql(`
   query ImageUpload($documentId: String) {

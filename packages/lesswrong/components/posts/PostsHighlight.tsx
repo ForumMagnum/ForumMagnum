@@ -14,7 +14,7 @@ import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "./LinkPostMessage";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import Loading from "../vulcan-core/Loading";
-import type { PostsExpandedHighlight, PostsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsExpandedHighlightQuery = gql(`
   query PostsHighlight($documentId: String) {

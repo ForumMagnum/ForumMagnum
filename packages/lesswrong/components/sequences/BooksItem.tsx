@@ -62,7 +62,7 @@ const BooksItem = ({ book, canEdit, classes }: {
     variables: { documentId: book._id },
     skip: !edit,
   });
-  const editableBook = data?.book?.result;
+  const editableBook = data?.book?.result ?? undefined;
   
   const showEdit = useCallback(() => {
     setEdit(true);

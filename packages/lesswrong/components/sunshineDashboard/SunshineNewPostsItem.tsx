@@ -111,7 +111,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     }
   }
 
-  const lastManualUserFlag = post.user?.moderatorActions.find(action => action.type === MANUAL_FLAG_ALERT);
+  const lastManualUserFlag = post.user?.moderatorActions?.find(action => action.type === MANUAL_FLAG_ALERT);
   const isUserAlreadyFlagged = post.user?.needsReview || lastManualUserFlag?.active;
 
   const handleFlagUser = async () => {

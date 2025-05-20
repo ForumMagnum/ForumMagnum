@@ -6,7 +6,6 @@ import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagsChecklist from "../tagging/TagsChecklist";
 import TagMultiselect from "./TagMultiselect";
-import FooterTagList from "../tagging/FooterTagList";
 import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles('FormComponentPostEditorTagging', (_theme: ThemeType) => ({

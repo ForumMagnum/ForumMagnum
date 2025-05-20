@@ -5,7 +5,6 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import LWTooltip from "../../common/LWTooltip";
-import { CommentsList } from "@/lib/generated/gql-codegen/graphql";
 
 const ForumEventsMinimumInfoQuery = gql(`
   query CommentPollVote($documentId: String) {

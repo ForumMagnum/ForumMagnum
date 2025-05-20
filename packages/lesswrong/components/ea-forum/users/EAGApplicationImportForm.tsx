@@ -21,7 +21,7 @@ import { Typography } from "../../common/Typography";
 import { MultiSelect } from "../../form-components/FormComponentMultiSelect";
 import PrefixedInput from "../../form-components/PrefixedInput";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { UsersEdit } from '@/lib/generated/gql-codegen/graphql';
+
 
 const UsersEditQuery = gql(`
   query EAGApplicationImportForm($documentId: String) {

@@ -17,7 +17,6 @@ import NotificationsPageEmpty from "./NotificationsPageEmpty";
 import LoadMore from "../../common/LoadMore";
 import Loading from "../../vulcan-core/Loading";
 import SectionTitle from "../../common/SectionTitle";
-import type { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 

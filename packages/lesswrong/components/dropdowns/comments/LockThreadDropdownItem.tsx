@@ -8,7 +8,7 @@ import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import LockThreadDialog from "./LockThreadDialog";
 import DropdownItem from "../DropdownItem";
-import type { CommentsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();

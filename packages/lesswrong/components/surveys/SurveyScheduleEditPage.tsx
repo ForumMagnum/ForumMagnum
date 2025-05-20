@@ -261,7 +261,7 @@ const SurveyScheduleEditor = () => {
     variables: { documentId: id },
     skip: isNewForm,
   });
-  const initialData = data?.surveySchedule?.result;
+  const initialData = data?.surveySchedule?.result ?? undefined;
 
   const onCreate = useCallback(() => {
     navigate("/admin/surveys");

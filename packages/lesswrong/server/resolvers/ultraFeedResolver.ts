@@ -46,8 +46,8 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type FeedCommentThread {
     _id: String!
     commentMetaInfos: JSON
-    comments: [Comment]
-    post: Post                         
+    comments: [Comment!]!
+    post: Post
   }
 
   type FeedSpotlightItem {
@@ -594,7 +594,7 @@ export const ultraFeedGraphQLQueries = {
       }
 
       const response = {
-        __typename: "UltraFeedQueryResults",
+        __typename: "UltraFeedQueryResults" as const,
         cutoff: results.length > 0 ? new Date() : null,
         endOffset: (offset ?? 0) + results.length,
         results,

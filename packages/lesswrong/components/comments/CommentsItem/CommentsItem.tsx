@@ -17,7 +17,6 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { CommentsList, CommentsListWithParentMetadata } from '@/lib/generated/gql-codegen/graphql';
 import type { TagCommentType } from '@/lib/collections/comments/types';
 import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import CommentsEditForm from "../CommentsEditForm";

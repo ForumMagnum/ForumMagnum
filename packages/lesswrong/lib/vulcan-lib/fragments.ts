@@ -63,11 +63,6 @@ export function initializeFragment(fragmentName: FragmentName): DocumentNode {
   return fragmentObject;
 }
 
-export function getAllFragmentNames(): Array<FragmentName> {
-  return Object.values(getAllFragments()).map(fragmentText => extractFragmentName(fragmentText!)) as Array<FragmentName>;
-}
-
-
 function addFragmentDependencies(fragments: Array<FragmentName>): Array<FragmentName> {
   const result = [...fragments];
   for (let i=0; i<result.length; i++) {

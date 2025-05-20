@@ -15,7 +15,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentStyles from "../common/ContentStyles";
 import ContentItemBody from "../common/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
-import type { PostsExpandedHighlight, PostsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsExpandedHighlightQuery = gql(`
   query FeedPostsHighlight($documentId: String) {

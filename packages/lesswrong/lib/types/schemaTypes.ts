@@ -1,14 +1,12 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
-import type { permissionGroups } from "../permissions";
 import type { EditableFieldCallbackOptions } from '../editor/makeEditableOptions';
-import type { UsersCurrent } from '../generated/gql-codegen/graphql';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-type PermissionGroups = typeof permissionGroups[number];
+type PermissionGroups = UserGroup;
 
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|null) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>

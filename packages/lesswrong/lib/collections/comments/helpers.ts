@@ -7,7 +7,6 @@ import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
 import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { forumSelect } from '../../forumTypeUtils';
-import { CommentsList, PostsDetails, PostsList, CommentsListWithParentMetadata, PostsMinimumInfo, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment, context: ResolverContext): Promise<string> {

@@ -852,7 +852,7 @@ interface FeedPost {
 interface FeedCommentThread {
   _id: string;
   commentMetaInfos: any;
-  comments: Array<Comment | null> | null;
+  comments: Array<Comment>;
   post: Post | null;
 }
 
@@ -1419,7 +1419,7 @@ interface Comment {
   originalDialogue: Post | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
-  allVotes: Array<Vote | null> | null;
+  allVotes: Array<Vote> | null;
   voteCount: number;
   baseScore: number | null;
   extendedScore: any;
@@ -3658,8 +3658,8 @@ interface Post {
   agentFoundationsId: string | null;
   swrCachingEnabled: boolean | null;
   generateDraftJargon: boolean | null;
-  curationNotices: Array<CurationNotice | null> | null;
-  reviews: Array<Comment | null> | null;
+  curationNotices: Array<CurationNotice> | null;
+  reviews: Array<Comment> | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -5433,7 +5433,7 @@ interface Spotlight {
   imageFadeColor: string | null;
   spotlightImageId: string | null;
   spotlightDarkImageId: string | null;
-  sequenceChapters: Array<Chapter | null> | null;
+  sequenceChapters: Array<Chapter> | null;
 }
 
 interface SingleSpotlightInput {
@@ -5542,7 +5542,7 @@ interface SurveyQuestion {
   surveyId: string;
   survey: Survey;
   question: string;
-  format: string;
+  format: SurveyQuestionFormat;
   order: number;
 }
 
@@ -5829,7 +5829,7 @@ interface Tag {
   reviewedByUserId: string | null;
   reviewedByUser: User | null;
   wikiGrade: number;
-  recentComments: Array<Comment | null> | null;
+  recentComments: Array<Comment>;
   wikiOnly: boolean;
   bannerImageId: string | null;
   squareImageId: string | null;
@@ -5847,7 +5847,7 @@ interface Tag {
   introSequenceId: string | null;
   sequence: Sequence | null;
   postsDefaultSortOrder: string | null;
-  canVoteOnRels: Array<string> | null;
+  canVoteOnRels: Array<TagRelVoteGroup> | null;
   isSubforum: boolean;
   subforumUnreadMessagesCount: number | null;
   subforumModeratorIds: Array<string>;
@@ -6109,12 +6109,12 @@ interface UserEAGDetail {
   legacyData: any;
   userId: string | null;
   user: User | null;
-  careerStage: Array<string | null> | null;
+  careerStage: Array<string> | null;
   countryOrRegion: string | null;
   nearestCity: string | null;
   willingnessToRelocate: any;
-  experiencedIn: Array<string | null> | null;
-  interestedIn: Array<string | null> | null;
+  experiencedIn: Array<string> | null;
+  interestedIn: Array<string> | null;
   lastUpdated: Date | null;
 }
 
@@ -6361,7 +6361,7 @@ interface User {
   legacy: boolean | null;
   commentSorting: string | null;
   sortDraftsBy: string | null;
-  reactPaletteStyle: string | null;
+  reactPaletteStyle: ReactPaletteStyle | null;
   noKibitz: boolean | null;
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
@@ -6526,7 +6526,7 @@ interface User {
   noExpandUnreadCommentsReview: boolean;
   postCount: number;
   maxPostCount: number;
-  posts: Array<Post | null> | null;
+  posts: Array<Post> | null;
   commentCount: number;
   maxCommentCount: number;
   tagRevisionCount: number;
@@ -6567,8 +6567,8 @@ interface User {
   associatedClientIds: Array<ClientId> | null;
   altAccountsDetected: boolean | null;
   acknowledgedNewUserGuidelines: boolean | null;
-  moderatorActions: Array<ModeratorAction | null> | null;
-  subforumPreferredLayout: string | null;
+  moderatorActions: Array<ModeratorAction> | null;
+  subforumPreferredLayout: SubforumPreferredLayout | null;
   hideJobAdUntil: Date | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;
@@ -6660,7 +6660,7 @@ interface Vote {
   userId: string | null;
   authorIds: Array<string> | null;
   authorId: string | null;
-  voteType: string;
+  voteType: VoteType;
   extendedVoteType: any;
   power: number | null;
   afPower: number | null;
@@ -8068,7 +8068,7 @@ interface CreateSurveyQuestionDataInput {
   legacyData?: any;
   surveyId: string;
   question: string;
-  format: string;
+  format: SurveyQuestionFormat;
   order: number;
 }
 
@@ -8080,7 +8080,7 @@ interface UpdateSurveyQuestionDataInput {
   legacyData?: any;
   surveyId?: string | null;
   question?: string | null;
-  format?: string | null;
+  format?: SurveyQuestionFormat | null;
   order?: number | null;
 }
 
@@ -8245,7 +8245,7 @@ interface CreateTagDataInput {
   tagFlagsIds?: Array<string> | null;
   introSequenceId?: string | null;
   postsDefaultSortOrder?: string | null;
-  canVoteOnRels?: Array<string> | null;
+  canVoteOnRels?: Array<TagRelVoteGroup> | null;
   isSubforum?: boolean | null;
   subforumModeratorIds?: Array<string> | null;
   subforumIntroPostId?: string | null;
@@ -8287,7 +8287,7 @@ interface UpdateTagDataInput {
   tagFlagsIds?: Array<string> | null;
   introSequenceId?: string | null;
   postsDefaultSortOrder?: string | null;
-  canVoteOnRels?: Array<string> | null;
+  canVoteOnRels?: Array<TagRelVoteGroup> | null;
   isSubforum?: boolean | null;
   subforumModeratorIds?: Array<string> | null;
   subforumIntroPostId?: string | null;
@@ -8338,12 +8338,12 @@ interface CreateUserEAGDetailInput {
 
 interface UpdateUserEAGDetailDataInput {
   legacyData?: any;
-  careerStage?: Array<string | null> | null;
+  careerStage?: Array<string> | null;
   countryOrRegion?: string | null;
   nearestCity?: string | null;
   willingnessToRelocate?: any;
-  experiencedIn?: Array<string | null> | null;
-  interestedIn?: Array<string | null> | null;
+  experiencedIn?: Array<string> | null;
+  interestedIn?: Array<string> | null;
   lastUpdated?: Date | null;
 }
 
@@ -8619,7 +8619,7 @@ interface CreateUserDataInput {
   commentingOnOtherUsersDisabled?: boolean | null;
   conversationsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
-  subforumPreferredLayout?: string | null;
+  subforumPreferredLayout?: SubforumPreferredLayout | null;
   hideJobAdUntil?: Date | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
@@ -8655,7 +8655,7 @@ interface UpdateUserDataInput {
   legacy?: boolean | null;
   commentSorting?: string | null;
   sortDraftsBy?: string | null;
-  reactPaletteStyle?: string | null;
+  reactPaletteStyle?: ReactPaletteStyle | null;
   noKibitz?: boolean | null;
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
@@ -8815,7 +8815,7 @@ interface UpdateUserDataInput {
   commentingOnOtherUsersDisabled?: boolean | null;
   conversationsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
-  subforumPreferredLayout?: string | null;
+  subforumPreferredLayout?: SubforumPreferredLayout | null;
   hideJobAdUntil?: Date | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;

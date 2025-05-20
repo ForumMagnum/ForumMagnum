@@ -8,7 +8,7 @@ import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
-import type { TagPageFragment, TagPageWithRevisionFragment, UsersMinimumInfo } from '@/lib/generated/gql-codegen/graphql';
+
 
 const TagFullContributorsListQuery = gql(`
   query TagContributorsList($documentId: String) {

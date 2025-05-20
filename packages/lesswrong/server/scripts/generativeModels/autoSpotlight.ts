@@ -6,7 +6,6 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
 import { ReviewWinnerTopPostsPage } from "@/lib/collections/reviewWinners/fragments";
-import { PostsWithNavigation as PostsWithNavigationType } from "@/lib/generated/gql-codegen/graphql";
 import { PostsWithNavigation } from "@/lib/collections/posts/fragments";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
@@ -19,7 +18,7 @@ async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], max
   })
 }
 
-function createSpotlight (post: PostsWithNavigationType, reviewWinner: ReviewWinnerWithPost|undefined, summary: string) {
+function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerWithPost|undefined, summary: string) {
   const context = createAdminContext();
   const postYear = new Date(post.postedAt).getFullYear()
   const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
@@ -40,7 +39,7 @@ function createSpotlight (post: PostsWithNavigationType, reviewWinner: ReviewWin
   }, context);
 }
 
-async function getPromptInfo(): Promise<{posts: PostsWithNavigationType[], spotlights: DbSpotlight[]}> {
+async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlights: DbSpotlight[]}> {
   const reviewWinners = await fetchFragment({
     collectionName: "ReviewWinners",
     fragmentDoc: ReviewWinnerTopPostsPage,
@@ -63,7 +62,7 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigationType[], spotl
 }
 
 // get the posts that have spotlights, sorted by post length, and filter out the ones that are too short
-const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigationType[], spotlights: DbSpotlight[], log?: boolean}) => {
+const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], log?: boolean}) => {
   const postsWithSpotlights = posts.filter(post => spotlights.find(spotlight => spotlight.documentId === post._id))
   const postsWithSpotlightsSortedByPostLength = postsWithSpotlights.sort((a, b) => {
     return (a?.contents?.html?.length ?? 0) - (b?.contents?.html?.length ?? 0)
@@ -71,7 +70,7 @@ const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigationType[
   return postsWithSpotlightsSortedByPostLength.filter((post) => (post?.contents?.html?.length ?? 0) > 2000).slice(0, 15)
 }
 
-const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts: PostsWithNavigationType[], spotlights: DbSpotlight[], summary_prompt_name: string}) => {
+const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], summary_prompt_name: string}) => {
   const prompt: PromptCachingBetaMessageParam[] = []
   posts.forEach((post, i) => {
     const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
@@ -98,7 +97,7 @@ const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts
   return prompt
 }
 
-const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigationType, summary_prompt_name: string}): PromptCachingBetaMessageParam[] => {
+const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigation, summary_prompt_name: string}): PromptCachingBetaMessageParam[] => {
   return [{
     role: "user",
     content: [{

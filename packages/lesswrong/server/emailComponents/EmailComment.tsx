@@ -12,6 +12,7 @@ import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const CommentsListWithParentMetadataQuery = gql(`
   query EmailComment2($documentId: String) {
@@ -165,7 +166,7 @@ export const EmailComment = ({commentId, hideTitle}: {
   return <div>
     <div>
       <a href={commentGetPageUrl(comment, true)}>
-        <EmailFormatDate date={comment.postedAt}/>
+        <EmailFormatDate date={maybeDate(comment.postedAt)}/>
       </a>
       {" by "}
       <EmailUsername user={comment.user}/>

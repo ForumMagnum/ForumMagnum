@@ -1310,7 +1310,7 @@ type FeedPost {
 type FeedCommentThread {
   _id: String!
   commentMetaInfos: JSON
-  comments: [Comment]
+  comments: [Comment!]!
   post: Post
 }
 
@@ -1939,7 +1939,7 @@ type Comment {
   originalDialogue: Post
   currentUserVote: String
   currentUserExtendedVote: JSON
-  allVotes: [Vote]
+  allVotes: [Vote!]
   voteCount: Float!
   baseScore: Float
   extendedScore: JSON
@@ -4344,8 +4344,8 @@ type Post {
   agentFoundationsId: String
   swrCachingEnabled: Boolean
   generateDraftJargon: Boolean
-  curationNotices: [CurationNotice]
-  reviews: [Comment]
+  curationNotices: [CurationNotice!]
+  reviews: [Comment!]
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -6170,7 +6170,7 @@ type Spotlight {
   imageFadeColor: String
   spotlightImageId: String
   spotlightDarkImageId: String
-  sequenceChapters: [Chapter]
+  sequenceChapters: [Chapter!]
 }
 
 input SingleSpotlightInput {
@@ -6289,8 +6289,14 @@ type SurveyQuestion {
   surveyId: String!
   survey: Survey!
   question: String!
-  format: String!
+  format: SurveyQuestionFormat!
   order: Float!
+}
+
+enum SurveyQuestionFormat {
+  rank0To10
+  text
+  multilineText
 }
 
 input SingleSurveyQuestionInput {
@@ -6606,7 +6612,7 @@ type Tag {
   reviewedByUserId: String
   reviewedByUser: User
   wikiGrade: Int!
-  recentComments(tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String): [Comment]
+  recentComments(tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String): [Comment!]!
   wikiOnly: Boolean!
   bannerImageId: String
   squareImageId: String
@@ -6624,7 +6630,7 @@ type Tag {
   introSequenceId: String
   sequence: Sequence
   postsDefaultSortOrder: String
-  canVoteOnRels: [String!]
+  canVoteOnRels: [TagRelVoteGroup!]
   isSubforum: Boolean!
   subforumUnreadMessagesCount: Int
   subforumModeratorIds: [String!]!
@@ -6901,12 +6907,12 @@ type UserEAGDetail {
   legacyData: JSON
   userId: String
   user: User
-  careerStage: [String]
+  careerStage: [String!]
   countryOrRegion: String
   nearestCity: String
   willingnessToRelocate: JSON
-  experiencedIn: [String]
-  interestedIn: [String]
+  experiencedIn: [String!]
+  interestedIn: [String!]
   lastUpdated: Date
 }
 
@@ -7178,7 +7184,7 @@ type User {
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String
-  reactPaletteStyle: String
+  reactPaletteStyle: ReactPaletteStyle
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
@@ -7343,7 +7349,7 @@ type User {
   noExpandUnreadCommentsReview: Boolean!
   postCount: Float!
   maxPostCount: Float!
-  posts(limit: Int = 5): [Post]
+  posts(limit: Int = 5): [Post!]
   commentCount: Float!
   maxCommentCount: Float!
   tagRevisionCount: Float!
@@ -7384,8 +7390,8 @@ type User {
   associatedClientIds: [ClientId!]
   altAccountsDetected: Boolean
   acknowledgedNewUserGuidelines: Boolean
-  moderatorActions: [ModeratorAction]
-  subforumPreferredLayout: String
+  moderatorActions: [ModeratorAction!]
+  subforumPreferredLayout: SubforumPreferredLayout
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
@@ -7405,6 +7411,52 @@ type User {
   userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+}
+
+enum ReactPaletteStyle {
+  listView
+  gridView
+}
+
+enum UserGroup {
+  guests
+  members
+  admins
+  sunshineRegiment
+  alignmentForumAdmins
+  alignmentForum
+  alignmentVoters
+  podcasters
+  canBypassPostRateLimit
+  trustLevel1
+  canModeratePersonal
+  canSuggestCuration
+  debaters
+  realAdmins
+}
+
+enum TagRelVoteGroup {
+  guests
+  members
+  admins
+  sunshineRegiment
+  alignmentForumAdmins
+  alignmentForum
+  alignmentVoters
+  podcasters
+  canBypassPostRateLimit
+  trustLevel1
+  canModeratePersonal
+  canSuggestCuration
+  debaters
+  realAdmins
+  userOwns
+  userOwnsOnlyUpvote
+}
+
+enum SubforumPreferredLayout {
+  card
+  list
 }
 
 input UserSelectorUniqueInput {
@@ -7482,7 +7534,7 @@ type Vote {
   userId: String
   authorIds: [String!]
   authorId: String
-  voteType: String!
+  voteType: VoteType!
   extendedVoteType: JSON
   power: Float
   afPower: Float
@@ -7494,6 +7546,14 @@ type Vote {
   post: Post
   documentIsAf: Boolean!
   silenceNotification: Boolean!
+}
+
+enum VoteType {
+  bigDownvote
+  bigUpvote
+  neutral
+  smallDownvote
+  smallUpvote
 }
 
 input SingleVoteInput {
@@ -9052,7 +9112,7 @@ input CreateSurveyQuestionDataInput {
   legacyData: JSON
   surveyId: String!
   question: String!
-  format: String!
+  format: SurveyQuestionFormat!
   order: Float!
 }
 
@@ -9064,7 +9124,7 @@ input UpdateSurveyQuestionDataInput {
   legacyData: JSON
   surveyId: String
   question: String
-  format: String
+  format: SurveyQuestionFormat
   order: Float
 }
 
@@ -9254,7 +9314,7 @@ input CreateTagDataInput {
   tagFlagsIds: [String!]
   introSequenceId: String
   postsDefaultSortOrder: String
-  canVoteOnRels: [String!]
+  canVoteOnRels: [TagRelVoteGroup!]
   isSubforum: Boolean
   subforumModeratorIds: [String!]
   subforumIntroPostId: String
@@ -9296,7 +9356,7 @@ input UpdateTagDataInput {
   tagFlagsIds: [String!]
   introSequenceId: String
   postsDefaultSortOrder: String
-  canVoteOnRels: [String!]
+  canVoteOnRels: [TagRelVoteGroup!]
   isSubforum: Boolean
   subforumModeratorIds: [String!]
   subforumIntroPostId: String
@@ -9356,12 +9416,12 @@ input CreateUserEAGDetailInput {
 
 input UpdateUserEAGDetailDataInput {
   legacyData: JSON
-  careerStage: [String]
+  careerStage: [String!]
   countryOrRegion: String
   nearestCity: String
   willingnessToRelocate: JSON
-  experiencedIn: [String]
-  interestedIn: [String]
+  experiencedIn: [String!]
+  interestedIn: [String!]
   lastUpdated: Date
 }
 
@@ -9662,7 +9722,7 @@ input CreateUserDataInput {
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
-  subforumPreferredLayout: String
+  subforumPreferredLayout: SubforumPreferredLayout
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
@@ -9698,7 +9758,7 @@ input UpdateUserDataInput {
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String
-  reactPaletteStyle: String
+  reactPaletteStyle: ReactPaletteStyle
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
@@ -9858,7 +9918,7 @@ input UpdateUserDataInput {
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
-  subforumPreferredLayout: String
+  subforumPreferredLayout: SubforumPreferredLayout
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean

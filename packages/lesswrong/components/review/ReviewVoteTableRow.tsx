@@ -22,6 +22,7 @@ import PostInteractionStripe from "./PostInteractionStripe";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import ForumIcon from "../common/ForumIcon";
 import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -265,8 +266,8 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
-  const visitedDate = markedVisitedAt ?? post.lastVisitedAt
-  const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
+  const visitedDate = markedVisitedAt ?? maybeDate(post.lastVisitedAt);
+  const unreadComments = hasUnreadComments(visitedDate, maybeDate(post.lastCommentedAt));
 
   const [commentsVisible, setCommentsVisible] = useState(false);
 
@@ -367,7 +368,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
           terms={commentTerms}
           post={post}
           treeOptions={{
-            highlightDate: post.lastVisitedAt ?? undefined,
+            highlightDate: maybeDate(post.lastVisitedAt) ?? undefined,
             condensed: true,
           }}
         />

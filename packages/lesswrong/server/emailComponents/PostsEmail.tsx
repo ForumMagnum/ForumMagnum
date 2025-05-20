@@ -12,7 +12,7 @@ import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
 import ContentStyles from '@/components/common/ContentStyles';
 
-const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
+const getPodcastInfoElement = (podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
   const episodeUrl = new URL(episodeLink);
 

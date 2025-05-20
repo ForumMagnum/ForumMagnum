@@ -66,7 +66,7 @@ interface PostGridCellContentsProps extends Omit<PostGridContentsProps, 'postsIn
 }
 
 interface GetSplashArtUrlArgs {
-  reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt;
+  reviewWinnerArt: NonNullable<ReviewWinnerTopPostsPage['reviewWinnerArt']>;
   leftBookOffset: number;
   dpr: Dpr;
 }

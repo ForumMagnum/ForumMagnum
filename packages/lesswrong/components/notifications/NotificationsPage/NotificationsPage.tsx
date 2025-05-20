@@ -8,7 +8,6 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LoginForm from "../../users/LoginForm";
 import NotificationsPageFeed from "./NotificationsPageFeed";
-import type { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsPage($documentId: String) {

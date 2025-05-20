@@ -4,7 +4,6 @@ import React from 'react';
 import UsersNameDisplay from "./UsersNameDisplay";
 import UsersNameWrapper from "./UsersNameWrapper";
 import UserNameDeleted from "./UserNameDeleted";
-import type { UsersMinimumInfo } from '@/lib/generated/gql-codegen/graphql';
 
 /**
  * A user name, with styling, tooltip, etc. Takes either a user object or a

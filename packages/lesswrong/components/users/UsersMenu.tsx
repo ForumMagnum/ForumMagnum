@@ -270,7 +270,7 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
-  const hasBookmarks = isEAForum || (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+  const hasBookmarks = isEAForum || (currentUser?.bookmarkedPostsMetadata?.length ?? 0) >= 1;
 
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]

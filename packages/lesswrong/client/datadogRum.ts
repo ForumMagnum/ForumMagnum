@@ -4,7 +4,6 @@ import { isEAForum } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isE2E, isServer } from '../lib/executionEnvironment';
-import { UsersCurrent, UsersEdit } from '@/lib/generated/gql-codegen/graphql';
 
 const hasDatadog = isEAForum && !isE2E;
 

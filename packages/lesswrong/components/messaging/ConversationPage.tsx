@@ -12,7 +12,7 @@ import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import ConversationDetails from "./ConversationDetails";
-import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+
 
 const ConversationsListQuery = gql(`
   query ConversationPage($documentId: String) {

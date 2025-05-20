@@ -22,7 +22,6 @@ import PopperCard from "../common/PopperCard";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import Loading from "../vulcan-core/Loading";
-import { UserKarmaChanges } from "@/lib/generated/gql-codegen/graphql";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 

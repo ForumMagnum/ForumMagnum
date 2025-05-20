@@ -15,7 +15,6 @@ import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import NotificationsPopover from "./NotificationsPopover";
-import { UserKarmaChanges, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {

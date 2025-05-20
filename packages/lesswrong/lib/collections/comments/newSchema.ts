@@ -18,7 +18,6 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
-import { PostsDetails } from "@/lib/generated/gql-codegen/graphql";
 import { CommentsViews } from "./views";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
@@ -1335,7 +1334,7 @@ const schema = {
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   allVotes: {
     graphql: {
-      outputType: "[Vote]",
+      outputType: "[Vote!]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const { currentUser } = context;

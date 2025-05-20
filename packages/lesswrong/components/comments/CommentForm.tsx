@@ -33,6 +33,7 @@ import Error404 from "../common/Error404";
 import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { withDateFields } from "@/lib/utils/dateUtils";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -265,7 +266,7 @@ export const CommentForm = ({
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['repliesBlockedUntil', 'afDate', 'postedAt', 'lastEditedAt', 'lastSubthreadActivity']),
       ...(formType === 'new' ? prefilledProps : {}),
     },
     onSubmit: async ({ formApi }) => {

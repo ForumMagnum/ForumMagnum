@@ -13,7 +13,7 @@ import LWDialog from "../common/LWDialog";
 import ContentItemBody from "../common/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
-import type { PostsMinimumInfo, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+
 
 const CommentsListQuery = gql(`
   query NewUserGuidelinesDialog($documentId: String) {

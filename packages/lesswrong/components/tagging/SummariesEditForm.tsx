@@ -11,6 +11,7 @@ import ContentItemBody from "../common/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
+import { withDateFields } from "@/lib/utils/dateUtils";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -195,7 +196,7 @@ const SummaryEditorRow = ({ summary, refetch }: {
     <div className={classNames(classes.summaryRowFormStyles, !edit && classes.hide)}>
       <SummaryForm
         key={mountKey}
-        initialData={summary}
+        initialData={withDateFields(summary, ['createdAt'])}
         onSuccess={() => {
           setEdit(false);
           // This is a horrible hack to get around the problem where, because we initialize the page with the form mounted for snappy click-through,

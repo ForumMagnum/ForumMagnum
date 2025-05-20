@@ -113,7 +113,7 @@ const RecentDiscussionFeed = ({
                   <ThreadComponent
                     post={post}
                     refetch={refetch}
-                    comments={post.recentComments}
+                    comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
                   />
                 )
@@ -124,7 +124,7 @@ const RecentDiscussionFeed = ({
                   <ShortformComponent
                     post={post}
                     refetch={refetch}
-                    comments={post.recentComments}
+                    comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
                   />
                 )

@@ -8,6 +8,52 @@ import { UsersViews } from "@/lib/collections/users/views";
 export const graphqlUserQueryTypeDefs = gql`
   type User ${ getAllGraphQLFields(schema) }
 
+  enum ReactPaletteStyle {
+    listView
+    gridView
+  }
+  
+  enum UserGroup {
+    guests
+    members
+    admins
+    sunshineRegiment
+    alignmentForumAdmins
+    alignmentForum
+    alignmentVoters
+    podcasters
+    canBypassPostRateLimit
+    trustLevel1
+    canModeratePersonal
+    canSuggestCuration
+    debaters
+    realAdmins
+  }
+  
+  enum TagRelVoteGroup {
+    guests
+    members
+    admins
+    sunshineRegiment
+    alignmentForumAdmins
+    alignmentForum
+    alignmentVoters
+    podcasters
+    canBypassPostRateLimit
+    trustLevel1
+    canModeratePersonal
+    canSuggestCuration
+    debaters
+    realAdmins
+    userOwns
+    userOwnsOnlyUpvote
+  }
+  
+  enum SubforumPreferredLayout {
+    card
+    list
+  }
+
   input UserSelectorUniqueInput {
     _id: String
     documentId: String

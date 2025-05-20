@@ -14,7 +14,7 @@ import ContentStyles from "../../common/ContentStyles";
 import ContentItemBody from "../../common/ContentItemBody";
 import LWDialog from "../../common/LWDialog";
 import Loading from "../../vulcan-core/Loading";
-import type { PostsList, SunshinePostsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const styles = (theme: ThemeType) => ({
   diffExplanation: {

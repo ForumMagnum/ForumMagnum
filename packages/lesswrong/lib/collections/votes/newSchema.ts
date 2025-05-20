@@ -1,7 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "../../vulcan-users/permissions";
 import { accessFilterSingle } from "../../utils/schemaUtils";
-import { UsersCurrent } from "@/lib/generated/gql-codegen/graphql";
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
@@ -92,7 +91,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "VoteType!",
       canRead: ["guests"],
       validation: {
         allowedValues: ["bigDownvote", "bigUpvote", "neutral", "smallDownvote", "smallUpvote"],

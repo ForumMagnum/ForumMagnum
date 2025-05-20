@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsItem from "../posts/PostsItem";
-import type { UsersProfile } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsListWithVotesQuery = gql(`
   query ProfileShortform($documentId: String) {

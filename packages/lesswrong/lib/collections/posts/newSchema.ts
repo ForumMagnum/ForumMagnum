@@ -72,7 +72,6 @@ import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
-import { PostSideComments, UsersMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 import { CommentsViews } from "../comments/views";
 
 export const graphqlTypeDefs = gql`
@@ -4384,7 +4383,7 @@ const schema = {
   },
   curationNotices: {
     graphql: {
-      outputType: "[CurationNotice]",
+      outputType: "[CurationNotice!]",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         const { currentUser, CurationNotices } = context;
@@ -4401,7 +4400,7 @@ const schema = {
   // reviews that appear on SpotlightItem
   reviews: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         const { currentUser, Comments } = context;

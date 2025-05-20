@@ -17,7 +17,6 @@ import ForumDropdown from "../common/ForumDropdown";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import SingleColumnSection from "../common/SingleColumnSection";
-import type { SurveyMinimumInfo } from "@/lib/generated/gql-codegen/graphql";
 
 const SurveyMinimumInfoQuery = gql(`
   query SurveyEditPage($documentId: String) {

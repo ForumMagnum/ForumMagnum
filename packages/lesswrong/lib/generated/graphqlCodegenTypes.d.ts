@@ -358,7 +358,7 @@ type Comment = {
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
   agentFoundationsId?: Maybe<Scalars['String']['output']>;
-  allVotes?: Maybe<Array<Maybe<Vote>>>;
+  allVotes?: Maybe<Array<Vote>>;
   answer: Scalars['Boolean']['output'];
   author?: Maybe<Scalars['String']['output']>;
   authorIsUnreviewed: Scalars['Boolean']['output'];
@@ -1610,7 +1610,7 @@ type CreateSurveyInput = {
 };
 
 type CreateSurveyQuestionDataInput = {
-  format: Scalars['String']['input'];
+  format: SurveyQuestionFormat;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   order: Scalars['Float']['input'];
   question: Scalars['String']['input'];
@@ -1659,7 +1659,7 @@ type CreateTagDataInput = {
   autoTagPrompt?: InputMaybe<Scalars['String']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   canEditUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  canVoteOnRels?: InputMaybe<Array<Scalars['String']['input']>>;
+  canVoteOnRels?: InputMaybe<Array<TagRelVoteGroup>>;
   core?: InputMaybe<Scalars['Boolean']['input']>;
   coreTagId?: InputMaybe<Scalars['String']['input']>;
   defaultOrder?: InputMaybe<Scalars['Float']['input']>;
@@ -1861,7 +1861,7 @@ type CreateUserDataInput = {
   showPostAuthorCard?: InputMaybe<Scalars['Boolean']['input']>;
   showRecommendedPartners?: InputMaybe<Scalars['Boolean']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  subforumPreferredLayout?: InputMaybe<Scalars['String']['input']>;
+  subforumPreferredLayout?: InputMaybe<SubforumPreferredLayout>;
   subscribedToDigest?: InputMaybe<Scalars['Boolean']['input']>;
   subscribedToNewsletter?: InputMaybe<Scalars['Boolean']['input']>;
   theme?: InputMaybe<Scalars['JSON']['input']>;
@@ -2414,7 +2414,7 @@ type FeedCommentThread = {
   __typename?: 'FeedCommentThread';
   _id: Scalars['String']['output'];
   commentMetaInfos?: Maybe<Scalars['JSON']['output']>;
-  comments?: Maybe<Array<Maybe<Comment>>>;
+  comments: Array<Comment>;
   post?: Maybe<Post>;
 };
 
@@ -5387,7 +5387,7 @@ type Post = {
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['Date']['output']>;
   curatedDate?: Maybe<Scalars['Date']['output']>;
-  curationNotices?: Maybe<Array<Maybe<CurationNotice>>>;
+  curationNotices?: Maybe<Array<CurationNotice>>;
   currentUserExtendedVote?: Maybe<Scalars['JSON']['output']>;
   currentUserReviewVote?: Maybe<ReviewVote>;
   currentUserVote?: Maybe<Scalars['String']['output']>;
@@ -5516,7 +5516,7 @@ type Post = {
   reviewWinner?: Maybe<ReviewWinner>;
   reviewedByUser?: Maybe<User>;
   reviewedByUserId?: Maybe<Scalars['String']['output']>;
-  reviews?: Maybe<Array<Maybe<Comment>>>;
+  reviews?: Maybe<Array<Comment>>;
   revisions?: Maybe<Array<Revision>>;
   rsvpCounts: Scalars['JSON']['output'];
   rsvps?: Maybe<Array<Scalars['JSON']['output']>>;
@@ -8565,6 +8565,10 @@ type RSSFeedsUsersFeedInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type ReactPaletteStyle =
+  | 'gridView'
+  | 'listView';
+
 type ReactionChange = {
   __typename?: 'ReactionChange';
   reactionType: Scalars['String']['output'];
@@ -9738,7 +9742,7 @@ type Spotlight = {
   post?: Maybe<Post>;
   schemaVersion: Scalars['Float']['output'];
   sequence?: Maybe<Sequence>;
-  sequenceChapters?: Maybe<Array<Maybe<Chapter>>>;
+  sequenceChapters?: Maybe<Array<Chapter>>;
   showAuthor: Scalars['Boolean']['output'];
   spotlightDarkImageId?: Maybe<Scalars['String']['output']>;
   spotlightImageId?: Maybe<Scalars['String']['output']>;
@@ -9830,6 +9834,10 @@ type SubforumOldFeedQueryResults = {
   endOffset: Scalars['Int']['output'];
   results?: Maybe<Array<SubforumOldFeedEntryType>>;
 };
+
+type SubforumPreferredLayout =
+  | 'card'
+  | 'list';
 
 type SubforumRecentCommentsFeedEntryType = {
   __typename?: 'SubforumRecentCommentsFeedEntryType';
@@ -9940,7 +9948,7 @@ type SurveyQuestion = {
   __typename?: 'SurveyQuestion';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
-  format: Scalars['String']['output'];
+  format: SurveyQuestionFormat;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   order: Scalars['Float']['output'];
   question: Scalars['String']['output'];
@@ -9948,6 +9956,11 @@ type SurveyQuestion = {
   survey: Survey;
   surveyId: Scalars['String']['output'];
 };
+
+type SurveyQuestionFormat =
+  | 'multilineText'
+  | 'rank0To10'
+  | 'text';
 
 type SurveyQuestionInfo = {
   _id?: InputMaybe<Scalars['String']['input']>;
@@ -10039,7 +10052,7 @@ type Tag = {
   bannerImageId?: Maybe<Scalars['String']['output']>;
   baseScore: Scalars['Float']['output'];
   canEditUserIds?: Maybe<Array<Scalars['String']['output']>>;
-  canVoteOnRels?: Maybe<Array<Scalars['String']['output']>>;
+  canVoteOnRels?: Maybe<Array<TagRelVoteGroup>>;
   charsAdded?: Maybe<Scalars['Float']['output']>;
   charsRemoved?: Maybe<Scalars['Float']['output']>;
   contributionStats?: Maybe<Scalars['JSON']['output']>;
@@ -10084,7 +10097,7 @@ type Tag = {
   pingbacks?: Maybe<Scalars['JSON']['output']>;
   postCount: Scalars['Float']['output'];
   postsDefaultSortOrder?: Maybe<Scalars['String']['output']>;
-  recentComments?: Maybe<Array<Maybe<Comment>>>;
+  recentComments: Array<Comment>;
   reviewedByUser?: Maybe<User>;
   reviewedByUserId?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
@@ -10288,6 +10301,24 @@ type TagRelSelector = {
   postsWithTag?: InputMaybe<TagRelsPostsWithTagInput>;
   tagsOnPost?: InputMaybe<TagRelsTagsOnPostInput>;
 };
+
+type TagRelVoteGroup =
+  | 'admins'
+  | 'alignmentForum'
+  | 'alignmentForumAdmins'
+  | 'alignmentVoters'
+  | 'canBypassPostRateLimit'
+  | 'canModeratePersonal'
+  | 'canSuggestCuration'
+  | 'debaters'
+  | 'guests'
+  | 'members'
+  | 'podcasters'
+  | 'realAdmins'
+  | 'sunshineRegiment'
+  | 'trustLevel1'
+  | 'userOwns'
+  | 'userOwnsOnlyUpvote';
 
 type TagRelsPostsWithTagInput = {
   tagId?: InputMaybe<Scalars['String']['input']>;
@@ -11138,7 +11169,7 @@ type UpdateSurveyInput = {
 };
 
 type UpdateSurveyQuestionDataInput = {
-  format?: InputMaybe<Scalars['String']['input']>;
+  format?: InputMaybe<SurveyQuestionFormat>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   order?: InputMaybe<Scalars['Float']['input']>;
   question?: InputMaybe<Scalars['String']['input']>;
@@ -11190,7 +11221,7 @@ type UpdateTagDataInput = {
   autoTagPrompt?: InputMaybe<Scalars['String']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   canEditUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  canVoteOnRels?: InputMaybe<Array<Scalars['String']['input']>>;
+  canVoteOnRels?: InputMaybe<Array<TagRelVoteGroup>>;
   core?: InputMaybe<Scalars['Boolean']['input']>;
   coreTagId?: InputMaybe<Scalars['String']['input']>;
   defaultOrder?: InputMaybe<Scalars['Float']['input']>;
@@ -11394,7 +11425,7 @@ type UpdateUserDataInput = {
   profileTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
   profileUpdatedAt?: InputMaybe<Scalars['Date']['input']>;
   programParticipation?: InputMaybe<Array<Scalars['String']['input']>>;
-  reactPaletteStyle?: InputMaybe<Scalars['String']['input']>;
+  reactPaletteStyle?: InputMaybe<ReactPaletteStyle>;
   recommendationSettings?: InputMaybe<RecommendationSettingsInput>;
   revealChecksToAdmins?: InputMaybe<Scalars['Boolean']['input']>;
   reviewForAlignmentForumUserId?: InputMaybe<Scalars['String']['input']>;
@@ -11415,7 +11446,7 @@ type UpdateUserDataInput = {
   slug?: InputMaybe<Scalars['String']['input']>;
   snoozedUntilContentCount?: InputMaybe<Scalars['Float']['input']>;
   sortDraftsBy?: InputMaybe<Scalars['String']['input']>;
-  subforumPreferredLayout?: InputMaybe<Scalars['String']['input']>;
+  subforumPreferredLayout?: InputMaybe<SubforumPreferredLayout>;
   subscribedToDigest?: InputMaybe<Scalars['Boolean']['input']>;
   subscribedToNewsletter?: InputMaybe<Scalars['Boolean']['input']>;
   sunshineFlagged?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11438,10 +11469,10 @@ type UpdateUserDataInput = {
 };
 
 type UpdateUserEAGDetailDataInput = {
-  careerStage?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  careerStage?: InputMaybe<Array<Scalars['String']['input']>>;
   countryOrRegion?: InputMaybe<Scalars['String']['input']>;
-  experiencedIn?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  interestedIn?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  experiencedIn?: InputMaybe<Array<Scalars['String']['input']>>;
+  interestedIn?: InputMaybe<Array<Scalars['String']['input']>>;
   lastUpdated?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   nearestCity?: InputMaybe<Scalars['String']['input']>;
@@ -11656,7 +11687,7 @@ type User = {
   moderationGuidelines?: Maybe<Revision>;
   moderationGuidelines_latest?: Maybe<Scalars['String']['output']>;
   moderationStyle?: Maybe<Scalars['String']['output']>;
-  moderatorActions?: Maybe<Array<Maybe<ModeratorAction>>>;
+  moderatorActions?: Maybe<Array<ModeratorAction>>;
   moderatorAssistance?: Maybe<Scalars['Boolean']['output']>;
   mongoLocation?: Maybe<Scalars['JSON']['output']>;
   nearbyEventsNotifications: Scalars['Boolean']['output'];
@@ -11718,7 +11749,7 @@ type User = {
   postCount: Scalars['Float']['output'];
   postGlossariesPinned?: Maybe<Scalars['Boolean']['output']>;
   postingDisabled?: Maybe<Scalars['Boolean']['output']>;
-  posts?: Maybe<Array<Maybe<Post>>>;
+  posts?: Maybe<Array<Post>>;
   previousDisplayName?: Maybe<Scalars['String']['output']>;
   profile?: Maybe<Scalars['JSON']['output']>;
   profileImageId?: Maybe<Scalars['String']['output']>;
@@ -11728,7 +11759,7 @@ type User = {
   programParticipation?: Maybe<Array<Scalars['String']['output']>>;
   rateLimitNextAbleToComment?: Maybe<Scalars['JSON']['output']>;
   rateLimitNextAbleToPost?: Maybe<Scalars['JSON']['output']>;
-  reactPaletteStyle?: Maybe<Scalars['String']['output']>;
+  reactPaletteStyle?: Maybe<ReactPaletteStyle>;
   recentKarmaInfo?: Maybe<Scalars['JSON']['output']>;
   recommendationSettings?: Maybe<Scalars['JSON']['output']>;
   revealChecksToAdmins?: Maybe<Scalars['Boolean']['output']>;
@@ -11762,7 +11793,7 @@ type User = {
   snoozedUntilContentCount?: Maybe<Scalars['Float']['output']>;
   sortDraftsBy?: Maybe<Scalars['String']['output']>;
   spamRiskScore: Scalars['Float']['output'];
-  subforumPreferredLayout?: Maybe<Scalars['String']['output']>;
+  subforumPreferredLayout?: Maybe<SubforumPreferredLayout>;
   subscribedToDigest?: Maybe<Scalars['Boolean']['output']>;
   subscribedToNewsletter?: Maybe<Scalars['Boolean']['output']>;
   sunshineFlagged?: Maybe<Scalars['Boolean']['output']>;
@@ -11853,11 +11884,11 @@ type UserDialogueUsefulData = {
 type UserEAGDetail = {
   __typename?: 'UserEAGDetail';
   _id: Scalars['String']['output'];
-  careerStage?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  careerStage?: Maybe<Array<Scalars['String']['output']>>;
   countryOrRegion?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  experiencedIn?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  interestedIn?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  experiencedIn?: Maybe<Array<Scalars['String']['output']>>;
+  interestedIn?: Maybe<Array<Scalars['String']['output']>>;
   lastUpdated?: Maybe<Scalars['Date']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   nearestCity?: Maybe<Scalars['String']['output']>;
@@ -11880,6 +11911,22 @@ type UserEAGDetailSelector = {
 type UserEAGDetailsDataByUserInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
+
+type UserGroup =
+  | 'admins'
+  | 'alignmentForum'
+  | 'alignmentForumAdmins'
+  | 'alignmentVoters'
+  | 'canBypassPostRateLimit'
+  | 'canModeratePersonal'
+  | 'canSuggestCuration'
+  | 'debaters'
+  | 'guests'
+  | 'members'
+  | 'podcasters'
+  | 'realAdmins'
+  | 'sunshineRegiment'
+  | 'trustLevel1';
 
 type UserJobAd = {
   __typename?: 'UserJobAd';
@@ -12080,7 +12127,7 @@ type Vote = {
   silenceNotification: Scalars['Boolean']['output'];
   tagRel?: Maybe<TagRel>;
   userId?: Maybe<Scalars['String']['output']>;
-  voteType: Scalars['String']['output'];
+  voteType: VoteType;
   votedAt?: Maybe<Scalars['Date']['output']>;
 };
 
@@ -12132,6 +12179,13 @@ type VoteSelector = {
   userPostVotes?: InputMaybe<EmptyViewInput>;
   userVotes?: InputMaybe<EmptyViewInput>;
 };
+
+type VoteType =
+  | 'bigDownvote'
+  | 'bigUpvote'
+  | 'neutral'
+  | 'smallDownvote'
+  | 'smallUpvote';
 
 type WrappedDataByYear = {
   __typename?: 'WrappedDataByYear';
@@ -14403,7 +14457,7 @@ type StickySubforumCommentFragment = (
 type WithVoteComment = { __typename: 'Comment', _id: string, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, voteCount: number };
 
 type CommentsListWithModerationMetadata = (
-  { __typename?: 'Comment', allVotes: Array<{ __typename?: 'Vote', voteType: string } | null> | null }
+  { __typename?: 'Comment', allVotes: Array<{ __typename?: 'Vote', voteType: VoteType }> | null }
   & CommentWithRepliesFragment
 );
 
@@ -14748,7 +14802,7 @@ type PostsTopItemInfo = (
   ) | null, reviews: Array<(
     { __typename?: 'Comment' }
     & CommentsList
-  ) | null> | null }
+  )> | null }
   & PostsMinimumInfo
   & PostsAuthors
 );
@@ -14824,7 +14878,7 @@ type SunshineCurationPostsList = (
   { __typename?: 'Post', curationNotices: Array<(
     { __typename?: 'CurationNotice' }
     & CurationNoticesFragment
-  ) | null> | null }
+  )> | null }
   & PostsList
 );
 
@@ -15004,7 +15058,7 @@ type SunshinePostsList = (
     ) | null, moderationGuidelines: { __typename?: 'Revision', _id: string, html: string | null } | null, moderatorActions: Array<(
       { __typename?: 'ModeratorAction' }
       & ModeratorActionDisplay
-    ) | null> | null }
+    )> | null }
     & UsersMinimumInfo
   ) | null }
   & PostsListBase
@@ -15233,7 +15287,7 @@ type SpotlightReviewWinner = (
   { __typename?: 'Spotlight', description: { __typename?: 'Revision', html: string | null } | null, sequenceChapters: Array<(
     { __typename?: 'Chapter' }
     & ChaptersFragment
-  ) | null> | null }
+  )> | null }
   & SpotlightMinimumInfo
 );
 
@@ -15247,12 +15301,12 @@ type SpotlightDisplay = (
     { __typename?: 'Post', user: { __typename?: 'User', _id: string, displayName: string, slug: string } | null, reviews: Array<(
       { __typename?: 'Comment' }
       & CommentsList
-    ) | null> | null }
+    )> | null }
     & PostsMinimumInfo
   ) | null, sequence: { __typename?: 'Sequence', _id: string, title: string, user: { __typename?: 'User', _id: string, displayName: string, slug: string } | null } | null, tag: { __typename?: 'Tag', _id: string, name: string, slug: string, user: { __typename?: 'User', _id: string, displayName: string, slug: string } | null } | null, sequenceChapters: Array<(
     { __typename?: 'Chapter' }
     & ChaptersFragment
-  ) | null> | null, description: { __typename?: 'Revision', html: string | null } | null }
+  )> | null, description: { __typename?: 'Revision', html: string | null } | null }
   & SpotlightMinimumInfo
 );
 
@@ -15271,7 +15325,7 @@ type MembersOfGroupFragment = { __typename?: 'Subscription', user: (
     & UsersMinimumInfo
   ) | null };
 
-type SurveyQuestionMinimumInfo = { __typename?: 'SurveyQuestion', _id: string, question: string, format: string, order: number };
+type SurveyQuestionMinimumInfo = { __typename?: 'SurveyQuestion', _id: string, question: string, format: SurveyQuestionFormat, order: number };
 
 type SurveyResponseMinimumInfo = { __typename?: 'SurveyResponse', _id: string, surveyId: string | null, surveyScheduleId: string | null, userId: string | null, clientId: string | null, response: any | null };
 
@@ -15362,7 +15416,7 @@ type TagDetailsFragment = (
 );
 
 type TagFragment = (
-  { __typename?: 'Tag', canVoteOnRels: Array<string> | null, parentTag: (
+  { __typename?: 'Tag', canVoteOnRels: Array<TagRelVoteGroup> | null, parentTag: (
     { __typename?: 'Tag' }
     & TagBasicInfo
   ) | null, subTags: Array<(
@@ -15406,7 +15460,7 @@ type TagRevisionFragment = (
 );
 
 type TagPreviewFragment = (
-  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<string> | null, isArbitalImport: boolean | null, parentTag: (
+  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, isArbitalImport: boolean | null, parentTag: (
     { __typename?: 'Tag' }
     & TagBasicInfo
   ) | null, subTags: Array<(
@@ -15417,7 +15471,7 @@ type TagPreviewFragment = (
 );
 
 type TagSectionPreviewFragment = (
-  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<string> | null, parentTag: (
+  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, parentTag: (
     { __typename?: 'Tag' }
     & TagBasicInfo
   ) | null, subTags: Array<(
@@ -15474,7 +15528,7 @@ type TagPageArbitalContentFragment = { __typename?: 'Tag', lenses: Array<(
   ) | null };
 
 type TagPageFragment = (
-  { __typename?: 'Tag', tableOfContents: any | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<string> | null, forceAllowType3Audio: boolean, textLastUpdatedAt: string | null, subforumIntroPost: (
+  { __typename?: 'Tag', tableOfContents: any | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, forceAllowType3Audio: boolean, textLastUpdatedAt: string | null, subforumIntroPost: (
     { __typename?: 'Post' }
     & PostsListWithVotes
   ) | null, subforumWelcomeText: { __typename?: 'Revision', _id: string, html: string | null } | null, contributors: { __typename?: 'TagContributorsList', totalCount: number, contributors: Array<{ __typename?: 'TagContributor', contributionScore: number, currentAttributionCharCount: number | null, numCommits: number, voteCount: number, user: (
@@ -15496,7 +15550,7 @@ type AllTagsPageFragment = (
 );
 
 type TagPageWithRevisionFragment = (
-  { __typename?: 'Tag', tableOfContents: any | null, textLastUpdatedAt: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<string> | null, forceAllowType3Audio: boolean, subforumIntroPost: (
+  { __typename?: 'Tag', tableOfContents: any | null, textLastUpdatedAt: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, forceAllowType3Audio: boolean, subforumIntroPost: (
     { __typename?: 'Post' }
     & PostsListWithVotes
   ) | null, subforumWelcomeText: { __typename?: 'Revision', _id: string, html: string | null } | null, contributors: { __typename?: 'TagContributorsList', totalCount: number, contributors: Array<{ __typename?: 'TagContributor', contributionScore: number, currentAttributionCharCount: number | null, numCommits: number, voteCount: number, user: (
@@ -15518,7 +15572,7 @@ type TagFullContributorsList = { __typename?: 'Tag', contributors: { __typename?
       ) | null }> } };
 
 type TagEditFragment = (
-  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<string> | null, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: (
+  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: (
     { __typename?: 'Tag' }
     & TagBasicInfo
   ) | null, description: (
@@ -15538,7 +15592,7 @@ type TagRecentDiscussion = (
   { __typename?: 'Tag', lastVisitedAt: string | null, recentComments: Array<(
     { __typename?: 'Comment' }
     & CommentsList
-  ) | null> | null }
+  )> }
   & TagFragment
 );
 
@@ -15582,7 +15636,7 @@ type WithVoteTag = (
 
 type TypingIndicatorInfo = { __typename?: 'TypingIndicator', _id: string, userId: string | null, documentId: string | null, lastUpdated: string | null };
 
-type UserEAGDetailsMinimumInfo = { __typename?: 'UserEAGDetail', _id: string, userId: string | null, createdAt: string, lastUpdated: string | null, careerStage: Array<string | null> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string | null> | null, interestedIn: Array<string | null> | null };
+type UserEAGDetailsMinimumInfo = { __typename?: 'UserEAGDetail', _id: string, userId: string | null, createdAt: string, lastUpdated: string | null, careerStage: Array<string> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string> | null, interestedIn: Array<string> | null };
 
 type UserJobAdsMinimumInfo = { __typename?: 'UserJobAd', _id: string, userId: string | null, createdAt: string, lastUpdated: string | null, jobName: string | null, adState: string | null, reminderSetAt: string | null };
 
@@ -15622,7 +15676,7 @@ type UsersProfile = (
 );
 
 type UsersCurrent = (
-  { __typename?: 'User', beta: boolean | null, email: string | null, services: any | null, acceptedTos: boolean | null, pageUrl: string | null, banned: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderationStyle: string | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, location: string | null, googleLocation: any | null, mongoLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, emails: Array<any> | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, abTestKey: string | null, abTestOverrides: any | null, sortDraftsBy: string | null, reactPaletteStyle: string | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: string | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, hideDialogueFacilitation: boolean | null, optedInToDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, expandedFrontpageSections: { __typename?: 'ExpandedFrontpageSectionsSettingsOutput', community: boolean | null, recommendations: boolean | null, quickTakes: boolean | null, quickTakesCommunity: boolean | null, popularComments: boolean | null } | null, bookmarkedPostsMetadata: Array<{ __typename?: 'PostMetadataOutput', postId: string }> | null, hiddenPostsMetadata: Array<{ __typename?: 'PostMetadataOutput', postId: string }> | null }
+  { __typename?: 'User', beta: boolean | null, email: string | null, services: any | null, acceptedTos: boolean | null, pageUrl: string | null, banned: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderationStyle: string | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, location: string | null, googleLocation: any | null, mongoLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, emails: Array<any> | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, abTestKey: string | null, abTestOverrides: any | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, hideDialogueFacilitation: boolean | null, optedInToDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, expandedFrontpageSections: { __typename?: 'ExpandedFrontpageSectionsSettingsOutput', community: boolean | null, recommendations: boolean | null, quickTakes: boolean | null, quickTakesCommunity: boolean | null, popularComments: boolean | null } | null, bookmarkedPostsMetadata: Array<{ __typename?: 'PostMetadataOutput', postId: string }> | null, hiddenPostsMetadata: Array<{ __typename?: 'PostMetadataOutput', postId: string }> | null }
   & UsersProfile
   & SharedUserBooleans
 );
@@ -15636,7 +15690,7 @@ type UserBookmarkedPosts = { __typename?: 'User', _id: string, bookmarkedPosts: 
     & PostsList
   )> | null };
 
-type UserKarmaChanges = { __typename?: 'User', _id: string, karmaChanges: { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, todaysKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null, thisWeeksKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null } | null };
+type UserKarmaChanges = { __typename?: 'User', _id: string, karmaChanges: { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, todaysKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null, thisWeeksKarmaChanges: { __typename?: 'KarmaChangesSimple', posts: Array<{ __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, comments: Array<{ __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }>, tagRevisions: Array<{ __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, eaAddedReacts: any | null, collectionName: string, addedReacts: Array<{ __typename?: 'ReactionChange', reactionType: string, userId: string | null }> | null }> } | null } | null };
 
 type UsersBannedFromUsersModerationLog = { __typename?: 'User', _id: string, slug: string, displayName: string, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null };
 
@@ -15644,7 +15698,7 @@ type SunshineUsersList = (
   { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, moderatorActions: Array<(
     { __typename?: 'ModeratorAction' }
     & ModeratorActionDisplay
-  ) | null> | null, associatedClientIds: Array<{ __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null }> | null }
+  )> | null, associatedClientIds: Array<{ __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null }> | null }
   & UsersMinimumInfo
 );
 
@@ -15705,7 +15759,7 @@ type SuggestAlignmentUser = (
   & UsersMinimumInfo
 );
 
-type TagRelVotes = { __typename?: 'Vote', _id: string, userId: string | null, voteType: string, power: number | null, documentId: string, votedAt: string | null, isUnvote: boolean, tagRel: (
+type TagRelVotes = { __typename?: 'Vote', _id: string, userId: string | null, voteType: VoteType, power: number | null, documentId: string, votedAt: string | null, isUnvote: boolean, tagRel: (
     { __typename?: 'TagRel' }
     & WithVoteTagRel
   ) | null };
@@ -15718,7 +15772,7 @@ type TagVotingActivity = (
   & TagRelVotes
 );
 
-type UserVotes = { __typename?: 'Vote', _id: string, userId: string | null, voteType: string, power: number | null, cancelled: boolean, documentId: string, votedAt: string | null, isUnvote: boolean, collectionName: string };
+type UserVotes = { __typename?: 'Vote', _id: string, userId: string | null, voteType: VoteType, power: number | null, cancelled: boolean, documentId: string, votedAt: string | null, isUnvote: boolean, collectionName: string };
 
 type UserVotesWithDocument = (
   { __typename?: 'Vote', comment: (
@@ -15877,7 +15931,7 @@ type SpotlightsDefaultFragment = { __typename?: 'Spotlight', _id: string, schema
 
 type SubscriptionsDefaultFragment = { __typename?: 'Subscription', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, state: string | null, documentId: string | null, collectionName: string | null, deleted: boolean | null, type: string | null };
 
-type SurveyQuestionsDefaultFragment = { __typename?: 'SurveyQuestion', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, surveyId: string, question: string, format: string, order: number };
+type SurveyQuestionsDefaultFragment = { __typename?: 'SurveyQuestion', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, surveyId: string, question: string, format: SurveyQuestionFormat, order: number };
 
 type SurveyResponsesDefaultFragment = { __typename?: 'SurveyResponse', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, surveyId: string | null, surveyScheduleId: string | null, userId: string | null, clientId: string | null, response: any | null };
 
@@ -15889,7 +15943,7 @@ type TagFlagsDefaultFragment = { __typename?: 'TagFlag', _id: string, schemaVers
 
 type TagRelsDefaultFragment = { __typename?: 'TagRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, tagId: string, postId: string, deleted: boolean, userId: string | null, backfilled: boolean, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
-type TagsDefaultFragment = { __typename?: 'Tag', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, description_latest: string | null, pingbacks: any | null, subforumWelcomeText_latest: string | null, moderationGuidelines_latest: string | null, slug: string, oldSlugs: Array<string>, name: string, shortName: string | null, subtitle: string | null, core: boolean, isPostType: boolean, suggestedAsFilter: boolean, defaultOrder: number, descriptionTruncationCount: number, postCount: number, userId: string | null, adminOnly: boolean, canEditUserIds: Array<string> | null, charsAdded: number | null, charsRemoved: number | null, deleted: boolean, lastCommentedAt: string | null, lastSubforumCommentAt: string | null, needsReview: boolean, reviewedByUserId: string | null, wikiGrade: number, wikiOnly: boolean, bannerImageId: string | null, squareImageId: string | null, tagFlagsIds: Array<string>, lesswrongWikiImportRevision: string | null, lesswrongWikiImportSlug: string | null, lesswrongWikiImportCompleted: boolean | null, htmlWithContributorAnnotations: string | null, contributionStats: any | null, introSequenceId: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<string> | null, isSubforum: boolean, subforumModeratorIds: Array<string>, subforumIntroPostId: string | null, parentTagId: string | null, subTagIds: Array<string>, autoTagModel: string | null, autoTagPrompt: string | null, noindex: boolean, isPlaceholderPage: boolean, coreTagId: string | null, forceAllowType3Audio: boolean, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
+type TagsDefaultFragment = { __typename?: 'Tag', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, description_latest: string | null, pingbacks: any | null, subforumWelcomeText_latest: string | null, moderationGuidelines_latest: string | null, slug: string, oldSlugs: Array<string>, name: string, shortName: string | null, subtitle: string | null, core: boolean, isPostType: boolean, suggestedAsFilter: boolean, defaultOrder: number, descriptionTruncationCount: number, postCount: number, userId: string | null, adminOnly: boolean, canEditUserIds: Array<string> | null, charsAdded: number | null, charsRemoved: number | null, deleted: boolean, lastCommentedAt: string | null, lastSubforumCommentAt: string | null, needsReview: boolean, reviewedByUserId: string | null, wikiGrade: number, wikiOnly: boolean, bannerImageId: string | null, squareImageId: string | null, tagFlagsIds: Array<string>, lesswrongWikiImportRevision: string | null, lesswrongWikiImportSlug: string | null, lesswrongWikiImportCompleted: boolean | null, htmlWithContributorAnnotations: string | null, contributionStats: any | null, introSequenceId: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, isSubforum: boolean, subforumModeratorIds: Array<string>, subforumIntroPostId: string | null, parentTagId: string | null, subTagIds: Array<string>, autoTagModel: string | null, autoTagPrompt: string | null, noindex: boolean, isPlaceholderPage: boolean, coreTagId: string | null, forceAllowType3Audio: boolean, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
 type TweetsDefaultFragment = { __typename?: 'Tweet', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
@@ -15899,7 +15953,7 @@ type UltraFeedEventsDefaultFragment = { __typename?: 'UltraFeedEvent', _id: stri
 
 type UserActivitiesDefaultFragment = { __typename?: 'UserActivity', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
-type UserEAGDetailsDefaultFragment = { __typename?: 'UserEAGDetail', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, careerStage: Array<string | null> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string | null> | null, interestedIn: Array<string | null> | null, lastUpdated: string | null };
+type UserEAGDetailsDefaultFragment = { __typename?: 'UserEAGDetail', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, careerStage: Array<string> | null, countryOrRegion: string | null, nearestCity: string | null, willingnessToRelocate: any | null, experiencedIn: Array<string> | null, interestedIn: Array<string> | null, lastUpdated: string | null };
 
 type UserJobAdsDefaultFragment = { __typename?: 'UserJobAd', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, jobName: string | null, adState: string | null, reminderSetAt: string | null, lastUpdated: string | null };
 
@@ -15909,9 +15963,9 @@ type UserRateLimitsDefaultFragment = { __typename?: 'UserRateLimit', _id: string
 
 type UserTagRelsDefaultFragment = { __typename?: 'UserTagRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, tagId: string, userId: string, subforumShowUnreadInSidebar: boolean | null, subforumEmailNotifications: boolean | null, subforumHideIntroPost: boolean | null };
 
-type UsersDefaultFragment = { __typename?: 'User', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, moderationGuidelines_latest: string | null, howOthersCanHelpMe_latest: string | null, howICanHelpOthers_latest: string | null, slug: string, oldSlugs: Array<string>, biography_latest: string | null, username: string | null, emails: Array<any> | null, isAdmin: boolean, profile: any | null, services: any | null, displayName: string, previousDisplayName: string | null, email: string | null, noindex: boolean, groups: Array<string> | null, lwWikiImport: boolean | null, theme: any | null, lastUsedTimezone: string | null, whenConfirmationEmailSent: string | null, legacy: boolean | null, commentSorting: string | null, sortDraftsBy: string | null, reactPaletteStyle: string | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, showPostAuthorCard: boolean | null, hideIntercom: boolean, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, noSingleLineComments: boolean, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, petrovOptOut: boolean, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, acceptedTos: boolean | null, hideNavigationSidebar: boolean | null, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsFilter: string | null, allPostsSorting: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, karma: number, goodHeartTokens: number | null, moderationStyle: string | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, legacyId: string | null, deleted: boolean, permanentDeletionRequestedAt: string | null, voteBanned: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, notificationCommentsOnSubscribedPost: any | null, notificationShortformContent: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationPostsInGroups: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationKarmaPowersGained: any | null, notificationRSVPs: any | null, notificationGroupAdministration: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, notificationAddedAsCoauthor: any | null, notificationDebateCommentsOnSubscribedPost: any | null, notificationDebateReplies: any | null, notificationDialogueMatch: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, hideDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, optedInToDialogueFacilitation: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, karmaChangeBatchStart: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, frontpagePostCount: number, sequenceCount: number, sequenceDraftCount: number, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsMongoLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, hideFrontpageBook2020Ad: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, needsReview: boolean | null, sunshineSnoozed: boolean | null, snoozedUntilContentCount: number | null, reviewedByUserId: string | null, reviewedAt: string | null, afKarma: number, voteCount: number | null, smallUpvoteCount: number | null, smallDownvoteCount: number | null, bigUpvoteCount: number | null, bigDownvoteCount: number | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, usersContactedBeforeReview: Array<string> | null, fullName: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, beta: boolean | null, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, defaultToCKEditor: boolean | null, signUpReCaptchaRating: number | null, noExpandUnreadCommentsReview: boolean, postCount: number, maxPostCount: number, commentCount: number, maxCommentCount: number, tagRevisionCount: number, abTestKey: string | null, abTestOverrides: any | null, walledGardenInvite: boolean | null, hideWalledGardenUI: boolean | null, walledGardenPortalOnboarded: boolean | null, taggingDashboardCollapsed: boolean | null, usernameUnset: boolean | null, paymentEmail: string | null, paymentInfo: string | null, profileUpdatedAt: string, profileImageId: string | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, website: string | null, fmCrosspostUserId: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, twitterProfileURLAdmin: string | null, githubProfileURL: string | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, acknowledgedNewUserGuidelines: boolean | null, subforumPreferredLayout: string | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, afPostCount: number, afCommentCount: number, afSequenceCount: number, afSequenceDraftCount: number, reviewForAlignmentForumUserId: string | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, hideSunshineSidebar: boolean | null, inactiveSurveyEmailSentAt: string | null, userSurveyEmailSentAt: string | null, recommendationSettings: any | null };
+type UsersDefaultFragment = { __typename?: 'User', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, moderationGuidelines_latest: string | null, howOthersCanHelpMe_latest: string | null, howICanHelpOthers_latest: string | null, slug: string, oldSlugs: Array<string>, biography_latest: string | null, username: string | null, emails: Array<any> | null, isAdmin: boolean, profile: any | null, services: any | null, displayName: string, previousDisplayName: string | null, email: string | null, noindex: boolean, groups: Array<string> | null, lwWikiImport: boolean | null, theme: any | null, lastUsedTimezone: string | null, whenConfirmationEmailSent: string | null, legacy: boolean | null, commentSorting: string | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, showPostAuthorCard: boolean | null, hideIntercom: boolean, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, noSingleLineComments: boolean, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, petrovOptOut: boolean, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, acceptedTos: boolean | null, hideNavigationSidebar: boolean | null, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsFilter: string | null, allPostsSorting: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, karma: number, goodHeartTokens: number | null, moderationStyle: string | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, legacyId: string | null, deleted: boolean, permanentDeletionRequestedAt: string | null, voteBanned: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, notificationCommentsOnSubscribedPost: any | null, notificationShortformContent: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationPostsInGroups: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationKarmaPowersGained: any | null, notificationRSVPs: any | null, notificationGroupAdministration: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, notificationAddedAsCoauthor: any | null, notificationDebateCommentsOnSubscribedPost: any | null, notificationDebateReplies: any | null, notificationDialogueMatch: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, hideDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, optedInToDialogueFacilitation: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, karmaChangeBatchStart: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, frontpagePostCount: number, sequenceCount: number, sequenceDraftCount: number, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsMongoLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, hideFrontpageBook2020Ad: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, needsReview: boolean | null, sunshineSnoozed: boolean | null, snoozedUntilContentCount: number | null, reviewedByUserId: string | null, reviewedAt: string | null, afKarma: number, voteCount: number | null, smallUpvoteCount: number | null, smallDownvoteCount: number | null, bigUpvoteCount: number | null, bigDownvoteCount: number | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, usersContactedBeforeReview: Array<string> | null, fullName: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, beta: boolean | null, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, defaultToCKEditor: boolean | null, signUpReCaptchaRating: number | null, noExpandUnreadCommentsReview: boolean, postCount: number, maxPostCount: number, commentCount: number, maxCommentCount: number, tagRevisionCount: number, abTestKey: string | null, abTestOverrides: any | null, walledGardenInvite: boolean | null, hideWalledGardenUI: boolean | null, walledGardenPortalOnboarded: boolean | null, taggingDashboardCollapsed: boolean | null, usernameUnset: boolean | null, paymentEmail: string | null, paymentInfo: string | null, profileUpdatedAt: string, profileImageId: string | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, website: string | null, fmCrosspostUserId: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, twitterProfileURLAdmin: string | null, githubProfileURL: string | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, acknowledgedNewUserGuidelines: boolean | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, afPostCount: number, afCommentCount: number, afSequenceCount: number, afSequenceDraftCount: number, reviewForAlignmentForumUserId: string | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, hideSunshineSidebar: boolean | null, inactiveSurveyEmailSentAt: string | null, userSurveyEmailSentAt: string | null, recommendationSettings: any | null };
 
-type VotesDefaultFragment = { __typename?: 'Vote', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, documentId: string, collectionName: string, userId: string | null, authorIds: Array<string> | null, voteType: string, extendedVoteType: any | null, power: number | null, afPower: number | null, cancelled: boolean, isUnvote: boolean, votedAt: string | null, documentIsAf: boolean, silenceNotification: boolean };
+type VotesDefaultFragment = { __typename?: 'Vote', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, documentId: string, collectionName: string, userId: string | null, authorIds: Array<string> | null, voteType: VoteType, extendedVoteType: any | null, power: number | null, afPower: number | null, cancelled: boolean, isUnvote: boolean, votedAt: string | null, documentIsAf: boolean, silenceNotification: boolean };
 
 type Lightcone2024FundraiserStripeAmountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15934,7 +15988,7 @@ type FeedPostFragment = { __typename?: 'FeedPost', _id: string, postMetaInfo: an
 type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, comments: Array<(
     { __typename?: 'Comment' }
     & UltraFeedComment
-  ) | null> | null };
+  )> };
 
 type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: (
     { __typename?: 'Spotlight' }

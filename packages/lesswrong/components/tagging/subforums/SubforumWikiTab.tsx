@@ -120,10 +120,10 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
       <div className={classNames(classes.wikiSection, classes.centralColumn)}>
         <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
         <AnalyticsContext pageSectionContext="wikiSection">
-          {revision && tag.description && (tag.description as TagRevisionFragment_description).user && (
+          {revision && tag.description && 'user' in tag.description && (
             <div className={classes.pastRevisionNotice}>
               You are viewing revision {tag.description.version}, last edited by{" "}
-              <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user} />
+              <UsersNameDisplay user={tag.description.user} />
             </div>
           )}
           {editing

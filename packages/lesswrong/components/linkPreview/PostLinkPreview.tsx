@@ -18,7 +18,7 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import type { PostsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const SequencesPageFragmentQuery = gql(`
   query PostLinkPreviewSequence($documentId: String) {

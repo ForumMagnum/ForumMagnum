@@ -3,8 +3,6 @@ import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
 import { autoFrontpageModelSetting, autoFrontpagePromptSetting, tagBotAccountSlug } from '../databaseSettings';
 import { cheerioParse } from '../utils/htmlUtil';
-import type { FetchedFragment } from '../fetchFragment';
-import { PostsHtml } from '@/lib/generated/gql-codegen/graphql';
 
 /**
  * To set up automatic tagging:
@@ -119,7 +117,7 @@ function preprocessHtml(html: string): string {
 
 export async function postToPrompt({template, post, promptSuffix, postBodyCache}: {
   template: LanguageModelTemplate,
-  post: PostsHtml&DbPost,
+  post: PostsHTML & DbPost,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
   postBodyCache?: PostBodyCache,
@@ -153,7 +151,7 @@ function preprocessPostHtml(postHtml: string): string {
 }
 
 export type PostBodyCache = {preprocessedBody: Record<string,string>}
-export function generatePostBodyCache(posts: (PostsHtml&DbPost)[]): PostBodyCache {
+export function generatePostBodyCache(posts: (PostsHTML & DbPost)[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
     result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html ?? "");
@@ -198,7 +196,7 @@ async function booleanLLMCheck(
 }
 
 export async function checkTags(
-  post: PostsHtml&DbPost,
+  post: PostsHTML & DbPost,
   tags: DbTag[],
   openAIApi: OpenAI,
   context: ResolverContext,
@@ -225,7 +223,7 @@ export async function checkTags(
 }
 
 export async function checkFrontpage(
-  post: PostsHtml&DbPost,
+  post: PostsHTML & DbPost,
   openAIApi: OpenAI,
   context: ResolverContext,
 ) {

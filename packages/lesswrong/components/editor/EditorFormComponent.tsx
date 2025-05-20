@@ -29,7 +29,6 @@ import EditorTypeSelect from "./EditorTypeSelect";
 import PostsEditBotTips from "../posts/PostsEditBotTips";
 import ErrorBoundary from "../common/ErrorBoundary";
 import PostVersionHistoryButton from './PostVersionHistory';
-import { PostsBase } from '@/lib/generated/gql-codegen/graphql';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds

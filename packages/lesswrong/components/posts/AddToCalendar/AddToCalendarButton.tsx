@@ -9,7 +9,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWTooltip from "../../common/LWTooltip";
 import LWPopper from "../../common/LWPopper";
-import type { PostsList, PostsWithNavigation, PostsWithNavigationAndRevision } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsPlaintextDescriptionQuery = gql(`
   query AddToCalendarButton($documentId: String) {

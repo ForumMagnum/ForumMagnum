@@ -3,7 +3,7 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import moment from '../../../lib/moment-timezone';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import TimeTag from "../../common/TimeTag";
-import type { PostsBase } from '@/lib/generated/gql-codegen/graphql';
+
 
 /**
  * Returns the event datetimes in a user-friendly format,

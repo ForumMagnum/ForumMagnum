@@ -2,7 +2,6 @@ import { getCollectionByTypeName } from "@/server/collections/allCollections";
 import ProjectionContext, { CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
 import merge from "lodash/merge";
-import { UsersCurrent } from "@/lib/generated/gql-codegen/graphql";
 
 type SqlFragmentArg = {
   inName: string,

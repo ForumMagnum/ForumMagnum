@@ -426,7 +426,7 @@ export function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
 
 function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
   if (spotlight.post) {
-    return spotlight.post.reviews;
+    return spotlight.post.reviews ?? [];
   }
   return [];
 }

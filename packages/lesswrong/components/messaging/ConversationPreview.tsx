@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
-import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+
 
 const ConversationsListQuery = gql(`
   query ConversationPreview($documentId: String) {

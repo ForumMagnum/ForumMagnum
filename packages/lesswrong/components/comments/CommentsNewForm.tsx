@@ -26,7 +26,6 @@ import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerati
 import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { PostsMinimumInfo, UsersCurrent, CommentsList, TagBasicInfo, PostsDetails } from '@/lib/generated/gql-codegen/graphql';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {

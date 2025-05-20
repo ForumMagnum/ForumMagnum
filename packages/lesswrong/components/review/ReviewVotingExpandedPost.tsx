@@ -12,7 +12,7 @@ import ReviewPostComments from "./ReviewPostComments";
 import PostsHighlight from "../posts/PostsHighlight";
 import PingbacksList from "../posts/PingbacksList";
 import Loading from "../vulcan-core/Loading";
-import type { PostsReviewVotingList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsListQuery = gql(`
   query ReviewVotingExpandedPost($documentId: String) {

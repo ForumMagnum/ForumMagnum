@@ -1,5 +1,3 @@
-import { UsersCurrent } from "@/lib/generated/gql-codegen/graphql";
-
 export type VoteCallback<T extends VoteableTypeClient> = (props: {
   document: T,
   voteType: string | null,

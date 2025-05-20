@@ -20,21 +20,6 @@ import Loading from "../../vulcan-core/Loading";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@apollo/client';
 
-
-// const useSingleArgs = isPost
-// ? {
-//     collectionName: 'Posts',
-//     fragmentName: 'PostsEditQueryFragment',
-//     documentId,
-//     extraVariables: { version: 'String' },
-//     extraVariablesValues: { version: 'draft' },
-//   } as const
-// : {
-//     collectionName: 'Tags',
-//     fragmentName: 'TagEditFragment',
-//     documentId,
-//   } as const;
-
 const postsEditQuery = gql(`
   query PostsEditQuery($documentId: String!, $version: String) {
     post(selector:  { documentId: $documentId }) {

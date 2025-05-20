@@ -7,6 +7,12 @@ import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 export const graphqlSurveyQuestionQueryTypeDefs = gql`
   type SurveyQuestion ${ getAllGraphQLFields(schema) }
+
+  enum SurveyQuestionFormat {
+    rank0To10
+    text
+    multilineText
+  }
   
   input SingleSurveyQuestionInput {
     selector: SelectorInput

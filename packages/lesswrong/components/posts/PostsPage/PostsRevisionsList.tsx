@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import FormatDate from "../../common/FormatDate";
 import { MenuItem } from "../../common/Menus";
-import type { PostsBase } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsRevisionsListQuery = gql(`
   query PostsRevisionsList($documentId: String) {

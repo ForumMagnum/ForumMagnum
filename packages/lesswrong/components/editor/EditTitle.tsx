@@ -40,7 +40,7 @@ const placeholders: Record<PostCategory|"event", string> = {
 }
 
 interface EditTitleProps {
-  field: TypedFieldApi<string>;
+  field: TypedFieldApi<string | null | undefined>;
   document: EditablePost;
 }
 
@@ -49,7 +49,7 @@ export const EditTitle = ({ field, document }: EditTitleProps) => {
   const { flash } = useMessages()
   const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title ?? undefined)
 
-  const value = field.state.value;
+  const value = field.state.value ?? undefined;
 
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",

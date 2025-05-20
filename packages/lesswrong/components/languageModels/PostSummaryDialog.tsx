@@ -6,7 +6,7 @@ import Loading from "../vulcan-core/Loading";
 import LWDialog from "../common/LWDialog";
 import { DialogTitle } from '../widgets/DialogTitle';
 import { DialogContent } from '../widgets/DialogContent';
-import type { PostsList, SunshinePostsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostWithGeneratedSummaryQuery = gql(`
   query PostSummaryDialog($documentId: String) {

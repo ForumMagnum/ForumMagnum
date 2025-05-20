@@ -29,6 +29,7 @@ import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { withDateFields } from '@/lib/utils/dateUtils';
 
 const localGroupsEditQuery = gql(`
   query GroupFormDialog($documentId: String) {
@@ -108,7 +109,7 @@ const LocalGroupForm = ({
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['createdAt', 'lastActivity']),
       types: initialData?.types ?? ["LW"],
       categories: initialData?.categories ?? [],
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
@@ -392,7 +393,7 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
     variables: { documentId: documentId },
     skip: !documentId,
   });
-  const initialData = data?.localgroup?.result;
+  const initialData = data?.localgroup?.result ?? undefined;
 
   const handleSuccess = (group: localGroupsHomeFragment) => {
     onClose();

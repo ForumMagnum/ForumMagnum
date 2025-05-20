@@ -10,7 +10,6 @@ import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
 import { FetchedFragment } from '../fetchFragment';
 import { updateComment } from '../collections/comments/mutations';
-import { PostsOriginalContents } from '@/lib/generated/gql-codegen/graphql';
 
 export const modGPTPrompt = `
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.

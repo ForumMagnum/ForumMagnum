@@ -58,4 +58,4 @@ export const graphqlLweventQueryTypeDefs = gql`
   }
 `;
 export const lweventGqlQueryHandlers = getDefaultResolvers('LWEvents', LWEventsViews);
-export const lweventGqlFieldResolvers = getFieldGqlResolvers('Lwevents', schema);
+export const lweventGqlFieldResolvers = getFieldGqlResolvers('LWEvents', schema);

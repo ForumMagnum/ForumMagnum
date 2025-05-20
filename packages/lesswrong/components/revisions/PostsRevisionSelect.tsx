@@ -8,7 +8,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import SingleColumnSection from "../common/SingleColumnSection";
 import RevisionSelect from "./RevisionSelect";
 import Loading from "../vulcan-core/Loading";
-import type { RevisionMetadata } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsDetailsQuery = gql(`
   query PostsRevisionSelect($documentId: String) {

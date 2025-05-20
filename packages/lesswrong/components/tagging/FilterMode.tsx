@@ -20,7 +20,7 @@ import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
-import type { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
+
 
 const TagPreviewFragmentQuery = gql(`
   query FilterMode($documentId: String) {

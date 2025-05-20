@@ -7,7 +7,6 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 import Loading from "../../vulcan-core/Loading";
-import type { PostsList, SunshinePostsList } from "@/lib/generated/gql-codegen/graphql";
 
 const HighlightWithHashQuery = gql(`
   query PostExcerpt($documentId: String, $hash: String) {

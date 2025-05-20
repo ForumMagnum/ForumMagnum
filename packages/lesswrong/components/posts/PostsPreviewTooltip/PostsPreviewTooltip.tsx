@@ -2,7 +2,6 @@ import React, { FC } from "react";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import EAPostsPreviewTooltip from "./EAPostsPreviewTooltip";
 import LWPostsPreviewTooltip from "./LWPostsPreviewTooltip";
-import type { CommentsList, PostsList, SunshinePostsList } from "@/lib/generated/gql-codegen/graphql";
 
 export interface DialogueMessageInfo {
   dialogueMessageId: string

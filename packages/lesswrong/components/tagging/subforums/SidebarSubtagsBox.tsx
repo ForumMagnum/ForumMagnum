@@ -13,7 +13,6 @@ import ContentStyles from "../../common/ContentStyles";
 import FooterTag from "../FooterTag";
 import AddTagButton from "../AddTagButton";
 import Loading from "../../vulcan-core/Loading";
-import type { TagPageFragment, TagPageWithRevisionFragment } from "@/lib/generated/gql-codegen/graphql";
 
 const TagSubtagFragmentQuery = gql(`
   query SidebarSubtagsBox($documentId: String) {

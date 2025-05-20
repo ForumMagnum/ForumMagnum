@@ -14,7 +14,7 @@ import { useQuery } from '@apollo/client';
 import Loading from "../vulcan-core/Loading";
 import WikiTagGroup from "./WikiTagGroup";
 import NewWikiTagButton from "./NewWikiTagButton";
-import type { ConceptItemFragment } from '@/lib/generated/gql-codegen/graphql';
+
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {

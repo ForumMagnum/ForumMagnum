@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
 const WARN_THRESHOLD = 28 * 24 * 60 * 60 * 1000; // 28 days in milliseconds
 
 const NO_ACCOUNT_MESSAGE = "Set up a service account to allow users to import Google Docs. An error message will show in the post editor until you do this"
-const getExpiryMessage = (estimatedExpiry: Date) => {
+const getExpiryMessage = (estimatedExpiry: string) => {
   return `The session for the service account used to handle Google Doc imports will expire soon (${estimatedExpiry} estimated), log in again to ensure the feature keeps working`
 }
 

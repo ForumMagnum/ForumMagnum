@@ -385,7 +385,7 @@ const UserProfileForm = ({
           <form.Field name="profileTagIds">
             {(field) => (
               <TagMultiselect
-                value={field.state.value}
+                value={field.state.value ?? []}
                 updateCurrentValues={(values) => field.handleChange(values)}
                 label={<>
                   {"Interests"}

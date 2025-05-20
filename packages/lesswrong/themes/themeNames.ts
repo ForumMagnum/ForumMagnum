@@ -1,4 +1,3 @@
-import { UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 import { DeferredForumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';

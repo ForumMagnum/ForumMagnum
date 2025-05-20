@@ -19,7 +19,6 @@ import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
 import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
-import type { PostsBase } from '@/lib/generated/gql-codegen/graphql';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {

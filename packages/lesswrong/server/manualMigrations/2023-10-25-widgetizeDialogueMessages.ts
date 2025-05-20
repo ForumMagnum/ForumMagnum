@@ -8,7 +8,6 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
 import { sleep } from '../../lib/helpers';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
-import { PostsOriginalContents as PostsOriginalContentsType } from '@/lib/generated/gql-codegen/graphql';
 import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
 
 const widgetizeDialogueMessages = (html: string, _postId: string) => {
@@ -29,7 +28,7 @@ const widgetizeDialogueMessages = (html: string, _postId: string) => {
   return { anyChanges, migratedHtml: $.html() };
 }
 
-async function wrapMessageContents(dialogue: PostsOriginalContentsType) {
+async function wrapMessageContents(dialogue: PostsOriginalContents) {
   const postId = dialogue._id;
   const latestRevisionPromise = Revisions.findOne({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } });
   const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
@@ -68,7 +67,7 @@ async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string,
   }
 }
 
-async function _migrateDialogue(dialogue: PostsOriginalContentsType) {
+async function _migrateDialogue(dialogue: PostsOriginalContents) {
   const postId = dialogue._id;
   const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
   const { anyChanges, migratedHtml, remoteDocument } = await wrapMessageContents(dialogue);

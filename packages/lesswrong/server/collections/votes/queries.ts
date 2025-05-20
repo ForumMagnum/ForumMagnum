@@ -7,6 +7,14 @@ import { VotesViews } from "@/lib/collections/votes/views";
 
 export const graphqlVoteQueryTypeDefs = gql`
   type Vote ${ getAllGraphQLFields(schema) }
+
+  enum VoteType {
+    bigDownvote
+    bigUpvote
+    neutral
+    smallDownvote
+    smallUpvote
+  }
   
   input SingleVoteInput {
     selector: SelectorInput

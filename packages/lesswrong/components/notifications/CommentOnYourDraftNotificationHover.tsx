@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import UsersName from "../users/UsersName";
 import Loading from "../vulcan-core/Loading";
-import type { NotificationsList } from '@/lib/generated/gql-codegen/graphql';
+
 
 const PostsMinimumInfoQuery = gql(`
   query CommentOnYourDraftNotificationHover($documentId: String) {

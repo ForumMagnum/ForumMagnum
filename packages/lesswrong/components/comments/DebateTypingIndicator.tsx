@@ -8,7 +8,6 @@ import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
 import { print as gqlPrint } from 'graphql';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { TypingIndicatorInfo } from '@/lib/collections/typingIndicators/fragments';
-import { PostsWithNavigation, PostsWithNavigationAndRevision, TypingIndicatorInfo as TypingIndicatorInfoType } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +23,7 @@ export const DebateTypingIndicator = ({classes, post}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
 
-  const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfoType[]>([]);
+  const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfo[]>([]);
   const currentUser = useCurrentUser();
 
   const [upsertTypingIndicator] = useMutation(gql(`

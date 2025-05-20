@@ -19,7 +19,6 @@ import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import CommentWithReplies from "./CommentWithReplies";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import type { CommentWithRepliesFragment as CommentWithRepliesFragmentType, PostsList } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {

@@ -449,7 +449,8 @@ export type EditablePost = UpdatePostDataInput & {
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
   debate: boolean;
-} & Pick<PostsListBase, 'postCategory' | 'createdAt'>;
+  createdAt: Date | null;
+} & Pick<PostsListBase, 'postCategory'>;
 
 export interface PostSubmitMeta {
   redirectToEditor?: boolean;

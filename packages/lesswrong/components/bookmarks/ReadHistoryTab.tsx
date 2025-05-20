@@ -10,7 +10,6 @@ import LoadMore from "../common/LoadMore";
 import { Typography } from "../common/Typography";
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import type { PostsListWithVotes, UsersCurrent } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
