@@ -144,6 +144,13 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
       }
 
+      if (attribs['data-replacements'] && replacedSubstrings) {
+        const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
+        return [applyReplacements(<>
+          {mappedChildren}
+        </>, substitutions, replacedSubstrings)];
+      }
+
       let result: React.ReactNode|React.ReactNode[] = mappedChildren;
       if (id && passedThroughProps.idInsertions?.[id]) {
         const idInsertion = passedThroughProps.idInsertions[id];
@@ -209,13 +216,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         } else {
           attribs.id = attribs['data-internal-id'];
         }
-      }
-
-      if (attribs['data-replacements'] && replacedSubstrings) {
-        const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
-        result = [applyReplacements(<TagName {...attribs}>
-          {result}
-        </TagName>, substitutions, replacedSubstrings)];
       }
 
       if (root && ['p','div','table'].includes(TagName)) {
