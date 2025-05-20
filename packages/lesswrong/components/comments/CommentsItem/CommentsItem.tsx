@@ -296,7 +296,7 @@ export const CommentsItem = ({
           prefilledProps={{
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
-          type="reply"
+          interactionType="reply"
           enableGuidelines={enableGuidelines}
           formStyle={treeOptions.formStyle}
         />

@@ -116,7 +116,7 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
       <div>
         <CommentsNewForm
           post={post}
-          type="comment"
+          interactionType="comment"
           isAnswer={isAnswer}
         />
       </div>

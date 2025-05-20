@@ -38,3 +38,5 @@ test("create and edit comment", async ({page, context}) => {
   // Check that the new comment is displayed
   await expect(commentItem.getByText(newContents)).toBeVisible();
 });
+
+// TODO add a test for draft comments

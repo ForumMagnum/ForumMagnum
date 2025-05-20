@@ -267,7 +267,7 @@ const CommentsListSection = ({
                   parentAnswerId: parentAnswerId,
                   ...(userIsDebateParticipant ? { debateResponse: true } : {})
                 }}
-                type="comment"
+                interactionType="comment"
                 {...newFormProps}
                 {...(userIsDebateParticipant ? { formProps: { post } } : {})}
               />

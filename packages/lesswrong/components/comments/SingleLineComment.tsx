@@ -246,6 +246,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
                 forceSingleLine: false,
                 forceNotSingleLine: true,
                 switchAlternatingHighlights: false,
+                showEditInContext: false
               }}
               hoverPreview
             />
