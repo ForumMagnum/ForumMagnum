@@ -6205,6 +6205,7 @@ interface UpdateUserDataInput {
   groups?: Array<string> | null;
   theme?: any;
   lastUsedTimezone?: string | null;
+  whenConfirmationEmailSent?: Date | null;
   legacy?: boolean | null;
   commentSorting?: string | null;
   sortDraftsBy?: string | null;
