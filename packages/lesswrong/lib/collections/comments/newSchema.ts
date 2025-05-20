@@ -131,7 +131,21 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "topLevelCommentId" }),
     },
   },
-  postedAt: DEFAULT_CREATED_AT_FIELD,
+  postedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Date!",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
+    },
+  },
   lastEditedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -771,7 +785,7 @@ const schema = {
       },
     },
   },
-  // retracted: Indicates whether a comment is a draft.
+  // draft: Indicates whether a comment is a draft.
   // Draft comments are only visible to authors and admins.
   draft: {
     database: {

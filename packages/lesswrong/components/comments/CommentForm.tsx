@@ -153,6 +153,7 @@ interface CommentSubmitProps {
   quickTakesSubmitButtonAtBottom?: boolean;
 
   submitLabel: React.ReactNode;
+  handleSubmit: (meta: {draft: boolean}) => Promise<void>,
   cancelLabel?: React.ReactNode;
   cancelCallback?: () => (void | Promise<void>);
 
@@ -181,6 +182,7 @@ const CommentSubmit = ({
   quickTakesSubmitButtonAtBottom,
   loading = false,
   submitLabel = "Submit",
+  handleSubmit,
   cancelLabel = "Cancel",
   cancelCallback,
   formCanSubmit,
@@ -236,7 +238,7 @@ const CommentSubmit = ({
         >
           {(formIsSubmitting || loading) ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
         </Button>
-        {hasDraftComments && <CommentsSubmitDropdown />}
+        {hasDraftComments && <CommentsSubmitDropdown handleSubmit={handleSubmit} />}
       </div>
     </div>
   );
@@ -323,9 +325,14 @@ export const CommentForm = ({
       ...initialData,
       ...(formType === 'new' ? prefilledProps : {}),
     },
-    onSubmit: async ({ formApi }) => {
+    onSubmitMeta: {
+      draft: false,
+    },
+    onSubmit: async ({ formApi, meta }) => {
       await onSubmitCallback.current?.();
       onSubmit?.();
+
+      const { draft } = meta;
 
       try {
         let result: CommentsList;
@@ -334,13 +341,13 @@ export const CommentForm = ({
           const { af, ...rest } = formApi.state.values;
           const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
 
-          const { data } = await create({ data: submitData });
+          const { data } = await create({ data: { draft, ...submitData } });
           result = data?.createComment.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
             selector: { _id: initialData?._id },
-            data: updatedFields,
+            data: { draft, ...updatedFields },
           });
           result = data?.updateComment.data;
         }
@@ -358,8 +365,7 @@ export const CommentForm = ({
     },
   });
 
-  const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
-  const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+  const formRef = useFormSubmitOnCmdEnter(() => form.handleSubmit());
 
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
@@ -381,6 +387,7 @@ export const CommentForm = ({
             isQuickTake={commentSubmitProps?.isQuickTake ?? form.state.values.shortform ?? false}
             showCancelButton={showCancelButton}
             submitLabel={submitLabel}
+            handleSubmit={form.handleSubmit}
             cancelLabel={cancelLabel}
             cancelCallback={onCancel}
             formCanSubmit={canSubmit}
@@ -395,7 +402,7 @@ export const CommentForm = ({
     <form className={classNames("vulcan-form", formClassName)} ref={formRef} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
-      void form.handleSubmit();
+      void form.handleSubmit({ draft: false });
     }}>
       {displayedErrorComponent}
       <DefaultFormGroupLayout

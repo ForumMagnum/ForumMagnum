@@ -42,7 +42,8 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CommentsSubmitDropdown = ({ classes }: {
+export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
+  handleSubmit: (meta: {draft: boolean}) => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -72,13 +73,10 @@ export const CommentsSubmitDropdown = ({ classes }: {
             <DropdownMenu>
               <DropdownItem
                 title={preferredHeadingCase("Save As Draft")}
-                // TODO save as a new version and flash message
-                onClick={() => {}}
-              />
-              <DropdownItem
-                title={preferredHeadingCase("View Drafts")}
-                // TODO open version history editor
-                onClick={() => {}}
+                onClick={() => {
+                  void handleSubmit({ draft: true });
+                  setMenuOpen(false);
+                }}
               />
             </DropdownMenu>
           </Paper>

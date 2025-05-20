@@ -480,6 +480,7 @@ interface CommentsList { // fragment on Comments
   readonly lastEditedAt: Date|null,
   readonly repliesBlockedUntil: Date|null,
   readonly userId: string|null,
+  readonly draft: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
   readonly deletedByUserId: string|null,

@@ -5294,6 +5294,7 @@ input CreateCommentInput {
 input UpdateCommentDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
+  postedAt: Date
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -7940,6 +7941,7 @@ fragment CommentsList on Comment {
   lastEditedAt
   repliesBlockedUntil
   userId
+  draft
   deleted
   deletedPublic
   deletedByUserId

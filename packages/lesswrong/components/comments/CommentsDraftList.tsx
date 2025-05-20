@@ -33,8 +33,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
   const currentUser = useCurrentUser(); // TODO will use
 
   const { results, loading, count, totalCount, loadMoreProps } = useMulti({
-    // TODO replace with actual draft comments. Currently this is just getting all user comments
-    terms: {view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, userId},
+    terms: { view: 'draftComments', userId },
     limit: initialLimit,
     itemsPerPage,
     enableTotal: true,

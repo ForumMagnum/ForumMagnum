@@ -28,6 +28,7 @@ export const CommentsList = () => frag`
     lastEditedAt
     repliesBlockedUntil
     userId
+    draft
     deleted
     deletedPublic
     deletedByUserId

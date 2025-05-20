@@ -4479,6 +4479,7 @@ interface CreateCommentInput {
 interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
+  postedAt?: Date | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;

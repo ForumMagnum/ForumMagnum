@@ -942,6 +942,14 @@ export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { 
   return data;
 }
 
+export function setCommentPostedAt(data: UpdateCommentDataInput, { oldDocument }: UpdateCallbackProperties<'Comments'>) {
+  // Update postedAt when a comment is moved out of drafts.
+  if (data.draft === false && oldDocument.draft) {
+    data.postedAt = new Date();
+  }
+  return data;
+}
+
 export async function validateDeleteOperations(data: UpdateCommentDataInput, properties: UpdateCallbackProperties<"Comments">) {
   const { Comments } = properties.context;
   // Validate changes to comment deletion fields (deleted, deletedPublic,

@@ -81,6 +81,12 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
   const notDeletedOrDeletionIsPublic = {
     $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
   };
+  const nonDraftOrCurrentUserDraft = context?.currentUser?._id ? {
+    $or: [
+      { $and: [{ draft: true }, { userId: context.currentUser._id }] },
+      { draft: false }
+    ]
+  } : { draft: false };
   
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
@@ -105,13 +111,11 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
   
   return ({
     selector: {
-      ...(shouldHideNewUnreviewedAuthorComments
-        ? {$and: [
-            hideNewUnreviewedAuthorComments,
-            notDeletedOrDeletionIsPublic
-          ]}
-        : notDeletedOrDeletionIsPublic
-      ),
+      $and: [
+        ...(shouldHideNewUnreviewedAuthorComments ? [hideNewUnreviewedAuthorComments] : []),
+        nonDraftOrCurrentUserDraft,
+        notDeletedOrDeletionIsPublic
+      ],
       hideAuthor: terms.userId ? false : undefined,
       ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
@@ -281,6 +285,13 @@ function profileComments(terms: CommentsViewTerms) {
   return {
     selector: {deletedPublic: false},
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
+  };
+}
+
+function draftComments(terms: CommentsViewTerms) {
+  return {
+    selector: {draft: true},
+    options: {sort: { lastEditedAt: -1, postedAt: -1 }, limit: terms.limit || 5},
   };
 }
 
@@ -762,6 +773,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   postLWComments,
   profileRecentComments,
   profileComments,
+  draftComments,
   allRecentComments,
   recentComments,
   afSubmissions,
