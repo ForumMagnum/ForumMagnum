@@ -40,7 +40,6 @@ import './server/logging';
 import './server/markAsUnread';
 import './server/rsvpToEvent';
 import './server/acceptCoauthorRequest';
-import './server/bookmarkMutation';
 import './server/hidePostMutation';
 import './server/resolvers/aiArtResolvers/coverImageMutations';
 import './server/rss';
