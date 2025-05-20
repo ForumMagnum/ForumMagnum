@@ -383,6 +383,7 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
           longitude,
         }}),
         merge_fields: {
+          SOURCE: 'EAForum',
           FNAME: data.displayName,
         },
         status: update.status,
