@@ -84,6 +84,8 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
       <CommentsNode
         comment={comment}
         key={comment._id}
+        // Don't auto-scroll to this comment if it appear elsewhere in the page, prefer showing it properly in context
+        noAutoScroll={!!(postId && comment.parentCommentId)}
         treeOptions={{
           ...COMMENT_DRAFT_TREE_OPTIONS,
           singleLinePostTitle: !postId,

@@ -196,7 +196,6 @@ const CommentsNodeInner = ({
   }
 
   const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
-    console.log("Is scrolling into view")
     if (!isInViewport() || hasInContextLinks) {
       scrollFocusOnElement({ id: comment._id, options: { behavior } });
     }
