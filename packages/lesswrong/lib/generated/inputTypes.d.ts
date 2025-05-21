@@ -6247,7 +6247,6 @@ interface UpdateUserDataInput {
   collapseModerationGuidelines?: boolean | null;
   bannedUserIds?: Array<string> | null;
   bannedPersonalUserIds?: Array<string> | null;
-  bookmarkedPostsMetadata?: Array<PostMetadataInput> | null;
   hiddenPostsMetadata?: Array<PostMetadataInput> | null;
   legacyId?: string | null;
   deleted?: boolean | null;
