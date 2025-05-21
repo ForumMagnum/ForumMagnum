@@ -222,7 +222,6 @@ const CommentsNodeInner = ({
       setTruncatedStateSet(true);
     }
 
-    // TODO split out this change and put it up as a separate PR
     if (scroll) {
       scrollIntoView(scrollBehaviour);
     }

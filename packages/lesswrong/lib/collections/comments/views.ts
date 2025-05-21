@@ -204,7 +204,7 @@ function postCommentsTop(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
   };
 }
 
@@ -215,7 +215,7 @@ function postCommentsRecentReplies(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+    options: {sort: {draft: -1, lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
   };
 }
 
@@ -226,7 +226,7 @@ function postCommentsMagic(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, score: -1, postedAt: -1}},
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, score: -1, postedAt: -1}},
   };
 }
 
@@ -237,7 +237,7 @@ function afPostCommentsTop(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, afBaseScore: -1, postedAt: -1}},
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, afBaseScore: -1, postedAt: -1}},
   };
 }
 
@@ -248,7 +248,7 @@ function postCommentsOld(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, postedAt: 1}},
+    options: {sort: {draft: -1, deleted: 1, postedAt: 1}},
     parentAnswerId: viewFieldNullOrMissing
   };
 }
@@ -262,7 +262,7 @@ function postCommentsNew(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, postedAt: -1}}
+    options: {sort: {draft: -1, deleted: 1, postedAt: -1}}
   };
 }
 
@@ -273,7 +273,7 @@ function postCommentsBest(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
   };
 }
 
@@ -285,7 +285,7 @@ function postLWComments(terms: CommentsViewTerms) {
       answer: false,
       parentAnswerId: viewFieldNullOrMissing
     },
-    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
   };
 }
 
@@ -843,5 +843,3 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   // Copied over from server/rss.ts
   rss: recentComments,
 }, defaultView);
-
-
