@@ -48,7 +48,6 @@ export default registerMigration({
 
             const document = res?.document as unknown as PostsPage | undefined;
             const contents = document?.contents;
-            console.log({contents})
             if (!contents) {
               console.warn("Post", post._id, "has no contents");
               continue;
