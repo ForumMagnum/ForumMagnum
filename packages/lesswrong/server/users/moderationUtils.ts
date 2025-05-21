@@ -37,8 +37,8 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
     }
   `;
   const IPs: any = await runQuery(query, {userId: user._id});
-  if (IPs) {
-    try {
+  try {
+    if (IPs) {
       throw new Error("x")
       await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
         let tomorrow = new Date();
@@ -53,15 +53,17 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
         const userContext = await computeContextFromUser({ user, isSSR: false });
         await createBan({ data: ban }, userContext);
       })
-    } catch (e) {
-      console.error("User object:");
-      console.error(inspect(user, { depth: null, colors: true }));
-      console.error("IPs object (raw result from runQuery):");
-      console.error(inspect(IPs, { depth: null, colors: true }));
-      console.error("Caught error details:");
-      console.error(inspect(e, { showHidden: true, depth: null, colors: true }));
-      throw e;
     }
+  } catch (e) {
+    /* eslint-disable no-console */
+    console.error("User object:");
+    console.error(inspect(user, { depth: null, colors: true }));
+    console.error("IPs object (raw result from runQuery):");
+    console.error(inspect(IPs, { depth: null, colors: true }));
+    console.error("Caught error details:");
+    console.error(inspect(e, { showHidden: true, depth: null, colors: true }));
+    /* eslint-enable no-console */
+    throw e;
   }
 
   // Remove login tokens
