@@ -127,10 +127,10 @@ const QuickTakesEntry = ({
       setExpanded(true);
       isUnexpandedClickRef.current = true;
     }
-  }, [currentUser, openDialog, onSignup, expanded]);
+  }, [setExpanded, expanded]);
 
   const handleLoggedOut = useCallback(() => {
-    if (expanded && !isUnexpandedClickRef.current) return;
+    if (currentUser || (expanded && !isUnexpandedClickRef.current)) return;
 
     isUnexpandedClickRef.current = false;
 
