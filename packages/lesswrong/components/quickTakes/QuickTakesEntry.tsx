@@ -116,19 +116,14 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
-  const onFocus = useCallback(() => {
-    if (currentUser) {
-      setExpanded(true);
+  const handleLoggedOut = useCallback(() => {
+    if (isFriendlyUI) {
+      onSignup();
     } else {
-      if (isFriendlyUI) {
-        onSignup();
-      } else {
-        openDialog({
-          name: "LoginPopup",
-          contents: ({onClose}) => <LoginPopup onClose={onClose} />
-        });
-        setExpanded(true);
-      }
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
     }
   }, [currentUser, openDialog, onSignup]);
 
@@ -159,7 +154,8 @@ const QuickTakesEntry = ({
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
-      onFocus={onFocus}
+      onFocus={() => setExpanded(true)}
+      onClick={handleLoggedOut}
     >
       <CommentsNewForm
         key={currentUser?._id ?? "logged-out"}
