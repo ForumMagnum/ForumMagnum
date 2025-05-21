@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
@@ -8,6 +7,18 @@ import ExposurePlus1 from '@/lib/vendor/@material-ui/icons/src/ExposurePlus1';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
 import OmegaIcon from "../../icons/OmegaIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SuggestAlignmentCommentUpdateMutation = gql(`
+  mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...SuggestAlignmentComment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -38,10 +49,7 @@ const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
-  });
+  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
 
   if (
     !post?.af ||

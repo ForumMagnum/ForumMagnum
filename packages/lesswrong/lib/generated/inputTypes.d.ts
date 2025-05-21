@@ -8764,6 +8764,7 @@ interface UpdateUserDataInput {
   nearbyPeopleNotificationThreshold?: number | null;
   hideFrontpageMap?: boolean | null;
   hideTaggingProgressBar?: boolean | null;
+  hideFrontpageBookAd?: boolean | null;
   hideFrontpageBook2019Ad?: boolean | null;
   hideFrontpageBook2020Ad?: boolean | null;
   sunshineNotes?: string | null;

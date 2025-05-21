@@ -4,7 +4,6 @@ import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";
-import { useUpdate } from '../../lib/crud/withUpdate';
 import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
 import DescriptionIcon from "@/lib/vendor/@material-ui/icons/src/Description";
@@ -16,6 +15,18 @@ import DraftsListSettings from "./DraftsListSettings";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import Loading from "../vulcan-core/Loading";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {
@@ -48,15 +59,14 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
   
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
   
   const toggleDelete = useCallback((post: PostsList) => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {deletedDraft:!post.deletedDraft, draft: true} //undeleting goes to draft
+      variables: {
+        selector: { _id: post._id },
+        data: { deletedDraft: !post.deletedDraft, draft: true }
+      }
     })
   }, [updatePost])
 

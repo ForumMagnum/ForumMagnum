@@ -5,11 +5,10 @@ import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
-import { ObservableQuery } from '@apollo/client';
+import { ObservableQuery, useMutation } from '@apollo/client';
 import CommentPermalink from "../../comments/CommentPermalink";
 import MixedTypeFeed from "../../common/MixedTypeFeed";
 import RecentDiscussionThread from "../../recentDiscussion/RecentDiscussionThread";
@@ -20,6 +19,17 @@ import ShortformSubmitForm from "../../shortform/ShortformSubmitForm";
 import LoginForm from "../../users/LoginForm";
 import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
 import PostsLayoutDropdown from "../../posts/PostsLayoutDropdown";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserTagRelDetailsUpdateMutation = gql(`
+  mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {
+    updateUserTagRel(selector: $selector, data: $data) {
+      data {
+        ...UserTagRelDetails
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -90,14 +100,16 @@ const SubforumSubforumTab = ({
 
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
 
-  const { mutate: updateUserTagRel } = useUpdate({
-    collectionName: 'UserTagRels',
-    fragmentName: 'UserTagRelDetails',
-  });
+  const [updateUserTagRel] = useMutation(UserTagRelDetailsUpdateMutation);
 
   const dismissIntroPost = useCallback(() => {
     if (!userTagRel) return;
-    void updateUserTagRel({selector: {_id: userTagRel?._id}, data: {subforumHideIntroPost: true}})
+    void updateUserTagRel({
+      variables: {
+        selector: { _id: userTagRel?._id },
+        data: { subforumHideIntroPost: true }
+      }
+    })
   }, [updateUserTagRel, userTagRel])
 
   const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []

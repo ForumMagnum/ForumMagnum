@@ -5,7 +5,6 @@ import { gql } from '@/lib/generated/gql-codegen/gql';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
 import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
@@ -21,6 +20,16 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
+
+const DigestPostsMinimumInfoUpdateMutation = gql(`
+  mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {
+    updateDigestPost(selector: $selector, data: $data) {
+      data {
+        ...DigestPostsMinimumInfo
+      }
+    }
+  }
+`);
 
 const DigestPostsMinimumInfoMutation = gql(`
   mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {
@@ -257,10 +266,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   
   // the digest status of each post is saved on a DigestPost record
   const [createDigestPost] = useMutation(DigestPostsMinimumInfoMutation);
-  const { mutate: updateDigestPost } = useUpdate({
-    collectionName: 'DigestPosts',
-    fragmentName: 'DigestPostsMinimumInfo',
-  })
+  const [updateDigestPost] = useMutation(DigestPostsMinimumInfoUpdateMutation);
   
   // track the table filters
   const [emailDigestFilter, setEmailDigestFilter] = useState<InDigestStatusOption[]>([...DIGEST_STATUS_OPTIONS])
@@ -334,9 +340,11 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (digestPostId) {
       // we don't save the "pending" status in the db, we just use null
       void updateDigestPost({
-        selector: {_id: digestPostId},
-        data: {
-          [statusField]: (newStatus === 'pending') ? null : newStatus
+        variables: {
+          selector: { _id: digestPostId },
+          data: {
+            [statusField]: (newStatus === 'pending') ? null : newStatus
+          }
         }
       })
     } else if (digest) {

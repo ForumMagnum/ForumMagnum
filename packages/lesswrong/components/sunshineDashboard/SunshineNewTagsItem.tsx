@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -19,6 +18,18 @@ import SidebarHoverOver from "./SidebarHoverOver";
 import SidebarInfo from "./SidebarInfo";
 import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineTagFragmentUpdateMutation = gql(`
+  mutation updateTagSunshineNewTagsItem($selector: SelectorInput!, $data: UpdateTagDataInput!) {
+    updateTag(selector: $selector, data: $data) {
+      data {
+        ...SunshineTagFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   tagInfo: {
@@ -47,31 +58,32 @@ const SunshineNewTagsItem = ({tag, classes}: {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   
-  const {mutate: updateTag} = useUpdate({
-    collectionName: "Tags",
-    fragmentName: 'SunshineTagFragment',
-  });
+  const [updateTag] = useMutation(SunshineTagFragmentUpdateMutation);
 
   const handleApprove = () => {
     if (!currentUser) return null
     void updateTag({
-      selector: { _id: tag._id},
-      data: {
-        reviewedByUserId: currentUser._id,
-        needsReview: false
-      },
+      variables: {
+        selector: { _id: tag._id },
+        data: {
+          reviewedByUserId: currentUser._id,
+          needsReview: false
+        }
+      }
     })
   }
 
   const handleDelete = () => {
     if (!currentUser) return null
     void updateTag({
-      selector: { _id: tag._id},
-      data: {
-        reviewedByUserId: currentUser._id,
-        needsReview: false,
-        deleted: true
-      },
+      variables: {
+        selector: { _id: tag._id },
+        data: {
+          reviewedByUserId: currentUser._id,
+          needsReview: false,
+          deleted: true
+        }
+      }
     })
   }
   const { results, loading } = useMulti({

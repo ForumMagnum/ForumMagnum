@@ -9,6 +9,7 @@ const config: CodegenConfig = {
     // One object for client-side query return types
     "./packages/lesswrong/lib/generated/gql-codegen/": {
       preset: "client",
+      plugins: [{ add: { content: '// @ts-nocheck' } }],
       config: {
         scalars: {
           Date: {
@@ -28,6 +29,7 @@ const config: CodegenConfig = {
         },
         namingConvention: (s: string) => s.replace("Fragment", ""),
         enumsAsTypes: true,
+        extractAllFieldsToTypes: true,
       },
       presetConfig: {
         gqlTagName: 'gql',
@@ -74,6 +76,7 @@ const config: CodegenConfig = {
         enumsAsTypes: true,
         inlineFragmentTypes: 'combine',
         noExport: true,
+        extractAllFieldsToTypes: true,
       }
     },
   },

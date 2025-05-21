@@ -4,7 +4,6 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { useStyles, defineStyles } from "../hooks/useStyles";
@@ -24,6 +23,16 @@ import SectionTitle from "../common/SectionTitle";
 import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from "@/lib/utils/dateUtils";
+
+const SurveyScheduleEditUpdateMutation = gql(`
+  mutation updateSurveyScheduleSurveyScheduleEditPage($selector: SelectorInput!, $data: UpdateSurveyScheduleDataInput!) {
+    updateSurveySchedule(selector: $selector, data: $data) {
+      data {
+        ...SurveyScheduleEdit
+      }
+    }
+  }
+`);
 
 const SurveyScheduleEditMutation = gql(`
   mutation createSurveyScheduleSurveyScheduleEditPage($data: CreateSurveyScheduleDataInput!) {
@@ -73,10 +82,7 @@ const SurveySchedulesForm = ({
 
   const [create] = useMutation(SurveyScheduleEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'SurveySchedules',
-    fragmentName: 'SurveyScheduleEdit',
-  });
+  const [mutate] = useMutation(SurveyScheduleEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -102,10 +108,15 @@ const SurveySchedulesForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateSurveySchedule.data;
+          if (!data?.updateSurveySchedule?.data) {
+            throw new Error('Failed to update survey schedule');
+          }
+          result = data.updateSurveySchedule.data;
         }
 
         onSuccess(result);

@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
 import { z } from 'zod';
@@ -12,9 +11,19 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { maybeDate } from '@/lib/utils/dateUtils';
+
+const LlmConversationsFragmentUpdateMutation = gql(`
+  mutation updateLlmConversationLlmChatWrapper($selector: SelectorInput!, $data: UpdateLlmConversationDataInput!) {
+    updateLlmConversation(selector: $selector, data: $data) {
+      data {
+        ...LlmConversationsFragment
+      }
+    }
+  }
+`);
 
 const LlmConversationsWithMessagesFragmentQuery = gql(`
   query LlmChatWrapper($documentId: String) {
@@ -163,10 +172,7 @@ const LlmChatWrapper = ({children}: {
 
   const currentUser = useCurrentUser();
 
-  const { mutate: updateConversation } = useUpdate({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsFragment"
-  })
+  const [updateConversation] = useMutation(LlmConversationsFragmentUpdateMutation);
 
   const { results: userLlmConversations } = useMulti({
     collectionName: "LlmConversations",
@@ -552,9 +558,11 @@ const LlmChatWrapper = ({children}: {
     });
 
     void updateConversation({
-      selector: { _id: conversationId },
-      data: {
-        deleted: true
+      variables: {
+        selector: { _id: conversationId },
+        data: {
+          deleted: true
+        }
       }
     })
   }, [currentUser, currentConversationId, updateConversation]);

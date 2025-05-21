@@ -216,7 +216,7 @@ const TagsTooltip = ({
   hideDescription?: boolean,
   noPrefetch?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
-  As?: keyof React.JSX.IntrinsicElements,
+  As?: 'span' | 'div',
   inlineBlock?: boolean,
   placement?: PopperPlacementType,
   className?: string,

@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -21,6 +20,16 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SequencesEditUpdateMutation = gql(`
+  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {
+    updateSequence(selector: $selector, data: $data) {
+      data {
+        ...SequencesEdit
+      }
+    }
+  }
+`);
 
 const SequencesEditMutation = gql(`
   mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {
@@ -65,10 +74,7 @@ export const SequencesForm = ({
 
   const [create] = useMutation(SequencesEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Sequences',
-    fragmentName: 'SequencesEdit',
-  });
+  const [mutate] = useMutation(SequencesEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -94,10 +100,15 @@ export const SequencesForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateSequence.data;
+          if (!data?.updateSequence?.data) {
+            throw new Error('Failed to update sequence');
+          }
+          result = data.updateSequence.data;
         }
 
         onSuccessCallback.current?.(result);

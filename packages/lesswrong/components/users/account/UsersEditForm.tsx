@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { gql, useMutation, useApolloClient } from '@apollo/client';
+import { gql as graphql, useMutation, useApolloClient } from '@apollo/client';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
@@ -20,7 +20,6 @@ import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -45,6 +44,17 @@ import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheck
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -158,10 +168,7 @@ const UsersForm = ({
     addOnSuccessCallback: addOnSuccessModerationGuidelinesCallback
   } = useEditorFormCallbacks<UsersEdit>();
 
-  const { mutate } = useUpdate({
-    collectionName: 'Users',
-    fragmentName: 'UsersEdit',
-  });
+  const [mutate] = useMutation(UsersEditUpdateMutation);
 
   const form = useForm({
     defaultValues: {
@@ -184,10 +191,15 @@ const UsersForm = ({
 
       const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
       const { data } = await mutate({
-        selector: { _id: initialData?._id },
-        data: updatedFields,
+        variables: {
+          selector: { _id: initialData?._id },
+          data: updatedFields
+        }
       });
-      result = data?.updateUser.data;
+      if (!data?.updateUser?.data) {
+        throw new Error('Failed to update user');
+      }
+      result = data.updateUser.data;
 
       onSuccessBiographyCallback.current?.(result);
       onSuccessModerationGuidelinesCallback.current?.(result);
@@ -1307,7 +1319,7 @@ const UsersEditForm = ({ terms }: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const [mutate, loading] = useMutation(gql`
+  const [mutate, loading] = useMutation(graphql`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
     }

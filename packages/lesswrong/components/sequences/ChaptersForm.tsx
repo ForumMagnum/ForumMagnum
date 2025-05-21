@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -17,6 +16,16 @@ import { useCurrentUser } from "../common/withUser";
 import Error404 from "../common/Error404";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ChaptersEditUpdateMutation = gql(`
+  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {
+    updateChapter(selector: $selector, data: $data) {
+      data {
+        ...ChaptersEdit
+      }
+    }
+  }
+`);
 
 const ChaptersEditMutation = gql(`
   mutation createChapterChaptersForm($data: CreateChapterDataInput!) {
@@ -64,10 +73,7 @@ export const ChaptersForm = ({
 
   const [create] = useMutation(ChaptersEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Chapters',
-    fragmentName: 'ChaptersEdit',
-  });
+  const [mutate] = useMutation(ChaptersEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -98,10 +104,15 @@ export const ChaptersForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateChapter.data;
+          if (!data?.updateChapter?.data) {
+            throw new Error('Failed to update chapter');
+          }
+          result = data.updateChapter.data;
         }
 
         onSuccessCallback.current?.(result);

@@ -2616,6 +2616,7 @@ const schema = {
       outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      canUpdate: ["admins"],
       validation: {
         optional: true,
       },

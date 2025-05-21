@@ -7,11 +7,22 @@ import { sortBy } from 'underscore';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModeratorActionDisplayUpdateMutation = gql(`
+  mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
+    updateModeratorAction(selector: $selector, data: $data) {
+      data {
+        ...ModeratorActionDisplay
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,23 +97,24 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
     }
   };
 
-  const { mutate: updateModeratorAction } = useUpdate({
-    collectionName: "ModeratorActions",
-    fragmentName: 'ModeratorActionDisplay',
-  });
+  const [updateModeratorAction] = useMutation(ModeratorActionDisplayUpdateMutation);
 
   const handleUpdateEndAfterDays = async () => {
     await updateModeratorAction({
-      selector: {_id: moderatorAction._id},
-      data: { endedAt: getNewEndsInDays() }
+      variables: {
+        selector: { _id: moderatorAction._id },
+        data: { endedAt: getNewEndsInDays() }
+      }
     })
     setEditing(false)
   }
 
   const handleEndModerationAction = async () => {
     await updateModeratorAction({
-      selector: {_id: moderatorAction._id},
-      data: { endedAt: new Date() }
+      variables: {
+        selector: { _id: moderatorAction._id },
+        data: { endedAt: new Date() }
+      }
     })
     setEditing(false)
   }

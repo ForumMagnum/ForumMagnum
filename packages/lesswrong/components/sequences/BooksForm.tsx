@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -16,6 +15,16 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const BookPageFragmentUpdateMutation = gql(`
+  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {
+    updateBook(selector: $selector, data: $data) {
+      data {
+        ...BookPageFragment
+      }
+    }
+  }
+`);
 
 const BookPageFragmentMutation = gql(`
   mutation createBookBooksForm($data: CreateBookDataInput!) {
@@ -60,10 +69,7 @@ export const BooksForm = ({
 
   const [create] = useMutation(BookPageFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Books',
-    fragmentName: 'BookPageFragment',
-  });
+  const [mutate] = useMutation(BookPageFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -87,10 +93,15 @@ export const BooksForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateBook.data;
+          if (!data?.updateBook?.data) {
+            throw new Error('Failed to update book');
+          }
+          result = data.updateBook.data;
         }
 
         onSuccessCallback.current?.(result);

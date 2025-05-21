@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, gql as graphql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import JargonEditorRow, { formStyles } from './JargonEditorRow';
@@ -23,6 +22,27 @@ import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";
 import ForumIcon from "../common/ForumIcon";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const JargonTermsUpdateMutation = gql(`
+  mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
+    updateJargonTerm(selector: $selector, data: $data) {
+      data {
+        ...JargonTerms
+      }
+    }
+  }
+`);
+
+const PostsEditUpdateMutation = gql(`
+  mutation updatePostGlossaryEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsEdit
+      }
+    }
+  }
+`);
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -294,15 +314,14 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: Pick<EditablePost, '_id' | 'generateDraftJargon' | 'contents' | 'userId' | 'draft'>,
   showTitle?: boolean,
 }) => {
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsEdit',
-  });
+  const [updatePost] = useMutation(PostsEditUpdateMutation);
 
   const updatePostAutoGenerate = (autoGenerate: boolean) => {
     void updatePost({
-      selector: { _id: document._id },
-      data: { generateDraftJargon: autoGenerate },
+      variables: {
+        selector: { _id: document._id },
+        data: { generateDraftJargon: autoGenerate }
+      }
     });
   }
 
@@ -340,7 +359,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
-  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
+  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(graphql`
     mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {
       getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {
         ...JargonTerms
@@ -367,22 +386,29 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     }
   };
 
-  const {mutate: updateJargonTerm} = useUpdate({
-    collectionName: "JargonTerms",
-    fragmentName: 'JargonTerms',
-  });
+  const [updateJargonTerm] = useMutation(JargonTermsUpdateMutation);
 
   const handleSetApproveAll = (approve: boolean) => {
     const termsToUpdate = approve ? sortedUnapprovedTerms : sortedApprovedTerms;
     for (const jargonTerm of termsToUpdate) {
       void updateJargonTerm({
-        selector: { _id: jargonTerm._id },
-        data: {
-          approved: approve
+        variables: {
+          selector: { _id: jargonTerm._id },
+          data: {
+            approved: approve
+          }
         },
         optimisticResponse: {
-          ...jargonTerm,
-          approved: approve,
+          updateJargonTerm: {
+            __typename: "JargonTermOutput",
+            data: {
+              __typename: "JargonTerm",
+              ...{
+                ...jargonTerm,
+                approved: approve,
+              }
+            }
+          }
         }
       });
     }
@@ -392,15 +418,25 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     const termsToUpdate = sortedUnapprovedTerms;
     for (const jargonTerm of termsToUpdate) {
       void updateJargonTerm({
-        selector: { _id: jargonTerm._id },
-        data: {
-          approved: false,
-          deleted: true,
+        variables: {
+          selector: { _id: jargonTerm._id },
+          data: {
+            approved: false,
+            deleted: true,
+          }
         },
         optimisticResponse: {
-          ...jargonTerm,
-          approved: false,
-          deleted: true,
+          updateJargonTerm: {
+            __typename: "JargonTermOutput",
+            data: {
+              __typename: "JargonTerm",
+              ...{
+                ...jargonTerm,
+                approved: false,
+                deleted: true,
+              }
+            }
+          }
         }
       });
     }
@@ -409,11 +445,21 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const handleUnhideAll = () => {
     for (const jargonTerm of deletedTerms) {
       void updateJargonTerm({
-        selector: { _id: jargonTerm._id }, 
-        data: { deleted: false },
+        variables: {
+          selector: { _id: jargonTerm._id },
+          data: { deleted: false }
+        },
         optimisticResponse: {
-          ...jargonTerm,
-          deleted: false,
+          updateJargonTerm: {
+            __typename: "JargonTermOutput",
+            data: {
+              __typename: "JargonTerm",
+              ...{
+                ...jargonTerm,
+                deleted: false,
+              }
+            }
+          }
         }
       });
     }

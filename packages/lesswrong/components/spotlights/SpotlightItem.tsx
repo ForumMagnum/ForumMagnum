@@ -13,7 +13,6 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
@@ -29,9 +28,19 @@ import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from '@/lib/utils/dateUtils';
+
+const SpotlightDisplayUpdateMutation = gql(`
+  mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {
+    updateSpotlight(selector: $selector, data: $data) {
+      data {
+        ...SpotlightDisplay
+      }
+    }
+  }
+`);
 
 const SpotlightEditQueryFragmentQuery = gql(`
   query SpotlightItem($documentId: String) {
@@ -474,10 +483,7 @@ export const SpotlightItem = ({
   });
   const editableSpotlight = data?.spotlight?.result;
 
-  const { mutate: updateSpotlight } = useUpdate({
-    collectionName: "Spotlights",
-    fragmentName: "SpotlightDisplay",
-  });
+  const [updateSpotlight] = useMutation(SpotlightDisplayUpdateMutation);
 
   const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight({
     fragmentName: "SpotlightDisplay",
@@ -489,8 +495,10 @@ export const SpotlightItem = ({
     }
     if (!spotlight.draft) {
       await updateSpotlight({
-        selector: { _id: spotlight._id },
-        data: { draft: !spotlight.draft }
+        variables: {
+          selector: { _id: spotlight._id },
+          data: { draft: !spotlight.draft }
+        }
       });
     } else {
       await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
@@ -510,8 +518,10 @@ export const SpotlightItem = ({
       return;
     }
     await updateSpotlight({
-      selector: { _id: spotlight._id },
-      data: { deletedDraft: true }
+      variables: {
+        selector: { _id: spotlight._id },
+        data: { deletedDraft: true }
+      }
     });
     refetchAllSpotlights?.();
   }, [currentUser, spotlight._id, refetchAllSpotlights, updateSpotlight]);

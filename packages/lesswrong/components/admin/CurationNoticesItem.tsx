@@ -1,5 +1,4 @@
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { Link } from '@/lib/reactRouterWrapper';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import classNames from 'classnames';
@@ -12,6 +11,26 @@ import ContentItemBody from "../common/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+const CurationNoticesFragmentUpdateMutation = gql(`
+  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {
+    updateCurationNotice(selector: $selector, data: $data) {
+      data {
+        ...CurationNoticesFragment
+      }
+    }
+  }
+`);
 
 const CommentsListMutation = gql(`
   mutation createCommentCurationNoticesItem($data: CreateCommentDataInput!) {
@@ -110,15 +129,9 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
 
   const [create] = useMutation(CommentsListMutation);
 
-  const { mutate: updateCurrentCurationNotice } = useUpdate({
-    collectionName: "CurationNotices",
-    fragmentName: 'CurationNoticesFragment',
-  });
+  const [updateCurrentCurationNotice] = useMutation(CurationNoticesFragmentUpdateMutation);
 
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
 
   const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment) => {
     const { contents, postId, userId } = curationNotice;
@@ -141,14 +154,18 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
       const result = await create({ variables: { data: comment } });
       const commentId = result.data?.createComment?.data?._id;
       await updateCurrentCurationNotice({
-        selector: { _id: curationNotice._id },
-        data: { commentId: commentId }
+        variables: {
+          selector: { _id: curationNotice._id },
+          data: { commentId: commentId }
+        }
       });
       await updatePost({
-        selector: { _id: curationNotice.postId },
-        data: {
-          reviewForCuratedUserId: curationNotice.userId,
-          curatedDate: new Date(),
+        variables: {
+          selector: { _id: curationNotice.postId },
+          data: {
+            reviewForCuratedUserId: curationNotice.userId,
+            curatedDate: new Date(),
+          }
         }
       })
     } catch (error) {

@@ -1,28 +1,40 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentRetractCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
+  const [updateComment] = useMutation(CommentsListUpdateMutation);
 
   const handleRetract = () => {
     void updateComment({
-      selector: {_id: comment._id},
-      data: {retracted: true},
+      variables: {
+        selector: { _id: comment._id },
+        data: { retracted: true }
+      }
     });
   }
 
   const handleUnretract = () => {
     void updateComment({
-      selector: {_id: comment._id},
-      data: {retracted: false},
+      variables: {
+        selector: { _id: comment._id },
+        data: { retracted: false }
+      }
     });
   }
 

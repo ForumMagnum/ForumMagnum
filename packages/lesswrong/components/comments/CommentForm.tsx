@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -35,6 +34,16 @@ import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const CommentsListMutation = gql(`
   mutation createCommentCommentForm($data: CreateCommentDataInput!) {
@@ -265,10 +274,7 @@ export const CommentForm = ({
 
   const [create] = useMutation(CommentsListMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsList',
-  });
+  const [mutate] = useMutation(CommentsListUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -296,10 +302,15 @@ export const CommentForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateComment.data;
+          if (!data?.updateComment?.data) {
+            throw new Error('Failed to update comment');
+          }
+          result = data.updateComment.data;
         }
 
         onSuccessCallback.current?.(result);

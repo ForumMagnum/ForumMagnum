@@ -14,26 +14,37 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
     "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": typeof types.revokeGoogleServiceAccountTokensDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": typeof types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": typeof types.UpdateSearchSynonymsDocument,
+    "\n  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": typeof types.updateCurationNoticeCurationNoticesFormDocument,
     "\n  mutation createCurationNoticeCurationNoticesForm($data: CreateCurationNoticeDataInput!) {\n    createCurationNotice(data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": typeof types.createCurationNoticeCurationNoticesFormDocument,
+    "\n  mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostCurationNoticesItem1Document,
+    "\n  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": typeof types.updateCurationNoticeCurationNoticesItemDocument,
     "\n  mutation createCommentCurationNoticesItem($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentCurationNoticesItemDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": typeof types.randomUserDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": typeof types.MigrationsDashboardQueryDocument,
     "\n  query PostsAnalyticsPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.PostsAnalyticsPageDocument,
     "\n      query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {\n        UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {\n          posts {\n            ...PostsListWithVotes\n            lastVisitedAt\n          }\n        }\n      }\n    ": typeof types.getReadHistoryDocument,
+    "\n  mutation updateUserBook2019FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBook2019FrontpageWidgetDocument,
+    "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBook2020FrontpageWidgetDocument,
+    "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBookFrontpageWidgetDocument,
     "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.CommentByIdDocument,
+    "\n  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentCommentFormDocument,
     "\n  mutation createCommentCommentForm($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentCommentFormDocument,
     "\n  query CommentPermalink($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": typeof types.CommentPermalinkDocument,
     "\n  query CommentEdit($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentEdit\n      }\n    }\n  }\n": typeof types.CommentEditDocument,
     "\n  query CommentDeletedMetadata($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...DeletedCommentsMetaData\n      }\n    }\n  }\n": typeof types.CommentDeletedMetadataDocument,
     "\n  query CommentPollVote($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n": typeof types.CommentPollVoteDocument,
+    "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": typeof types.updateCommentCommentsNewFormDocument,
     "\n  query CommentsNewForm($documentId: String, $postId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentCommentRateLimit\n      }\n    }\n  }\n": typeof types.CommentsNewFormDocument,
     "\n    mutation upsertUserTypingIndicator($documentId: String!) {\n      upsertUserTypingIndicator(documentId: $documentId) {\n        ...TypingIndicatorInfo\n      }\n    }\n    \n  ": typeof types.upsertUserTypingIndicatorDocument,
     "\n  query PostsModerationGuidelines($documentId: String) {\n    PostsModerationGuidelines: post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsModerationGuidelines\n      }\n      __typename\n    }\n  }\n": typeof types.PostsModerationGuidelinesDocument,
     "\n  query TagModerationGuidelines($documentId: String) {\n    TagModerationGuidelines: tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFragment\n      }\n      __typename\n    }\n  }\n": typeof types.TagModerationGuidelinesDocument,
+    "\n  mutation updatePostModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.updatePostModerationGuidelinesEditFormDocument,
+    "\n  mutation updateTagModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n": typeof types.updateTagModerationGuidelinesEditFormDocument,
     "\n  query PostsEditQuery($documentId: String!, $version: String) {\n    post(selector:  { documentId: $documentId }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.PostsEditQueryDocument,
     "\n  query TagEditQuery($documentId: String!) {\n    tag(selector: { documentId: $documentId }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.TagEditQueryDocument,
     "\n  query NewUserGuidelinesDialog($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.NewUserGuidelinesDialogDocument,
@@ -43,24 +54,48 @@ type Documents = {
     "\n  query LWHomePosts($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.LWHomePostsDocument,
     "\n    mutation sendVertexViewHomePageEventMutation {\n      sendVertexViewHomePageEvent\n    }\n  ": typeof types.sendVertexViewHomePageEventMutationDocument,
     "\n  query PostExcerpt($documentId: String, $hash: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...HighlightWithHash\n      }\n    }\n  }\n": typeof types.PostExcerptDocument,
+    "\n  mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserCommunityDocument,
     "\n  query DialoguesPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.DialoguesPageDocument,
+    "\n  mutation updatePostBanUserFromPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.updatePostBanUserFromPostDropdownItemDocument,
     "\n  query CommentActions($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.CommentActionsDocument,
     "\n    mutation lockThread($commentId: String!, $until: String) {\n      lockThread(commentId: $commentId, until: $until)\n    }\n  ": typeof types.lockThreadDocument,
     "\n    mutation unlockThread($commentId: String!) {\n      unlockThread(commentId: $commentId)\n    }\n  ": typeof types.unlockThreadDocument,
+    "\n  mutation updateCommentMoveToAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentMoveToAlignmentCommentDropdownItemDocument,
+    "\n  mutation updateCommentMoveToAnswersDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentMoveToAnswersDropdownItemDocument,
+    "\n  mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentPinToProfileDropdownItemDocument,
+    "\n  mutation updateCommentRetractCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentRetractCommentDropdownItemDocument,
+    "\n  mutation updateCommentShortformFrontpageDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentShortformFrontpageDropdownItemDocument,
+    "\n  mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": typeof types.updateCommentSuggestAlignmentCommentDropdownItemDocument,
+    "\n  mutation updateCommentToggleIsModeratorCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentToggleIsModeratorCommentDropdownItemDocument,
     "\n    mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {\n      moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {\n        ...CommentsList\n      }\n    }\n  ": typeof types.moderateCommentDocument,
+    "\n  mutation updateUserApproveNewUserDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserApproveNewUserDropdownItemDocument,
+    "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostDeleteDraftDropdownItemDocument,
+    "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostExcludeFromRecommendationsDropdownItemDocument,
+    "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostMoveToDraftDropdownItemDocument,
+    "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostMoveToFrontpageDropdownItemDocument,
+    "\n  mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": typeof types.updatePostResyncRssDropdownItemDocument,
     "\n    query getRssPostChanges($postId: String!) {\n      RssPostChanges(postId: $postId) {\n        isChanged\n        newHtml\n        htmlDiff\n      }\n    }\n  ": typeof types.getRssPostChangesDocument,
+    "\n  mutation updateUserShortformDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserShortformDropdownItemDocument,
+    "\n  mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostSuggestAlignmentPostDropdownItemDocument,
+    "\n  mutation updatePostSuggestCuratedDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostSuggestCuratedDropdownItemDocument,
     "\n    mutation setIsHidden($postId: String!, $isHidden: Boolean!) {\n      setIsHidden(postId: $postId, isHidden: $isHidden) {\n        ...UsersCurrent\n      }\n    }\n  ": typeof types.setIsHiddenDocument,
     "\n    query getDigestPosts($num: Int) {\n      DigestPosts(num: $num) {\n        ...PostsListWithVotes\n      }\n    }\n  ": typeof types.getDigestPostsDocument,
     "\n  query EAHomeHandbook($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": typeof types.EAHomeHandbookDocument,
+    "\n  mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {\n    updateUserJobAd(selector: $selector, data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n": typeof types.updateUserJobAdTargetedJobAdSectionDocument,
     "\n  mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {\n    createUserJobAd(data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n": typeof types.createUserJobAdTargetedJobAdSectionDocument,
     "\n      query getUserReadsPerCoreTag($userId: String!) {\n        UserReadsPerCoreTag(userId: $userId) {\n          tagId\n          userReadCount\n        }\n      }\n    ": typeof types.getUserReadsPerCoreTagDocument,
+    "\n  mutation updateDigestConfirmPublishDialog($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n": typeof types.updateDigestConfirmPublishDialogDocument,
+    "\n  mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {\n    updateDigestPost(selector: $selector, data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n": typeof types.updateDigestPostEditDigestDocument,
     "\n  mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {\n    createDigestPost(data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n": typeof types.createDigestPostEditDigestDocument,
     "\n    query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {\n      DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {\n        post {\n          ...PostsListWithVotes\n        }\n        digestPost {\n          _id\n          emailDigestStatus\n          onsiteDigestStatus\n        }\n        rating\n      }\n    }\n  ": typeof types.getDigestPlannerDataDocument,
+    "\n  mutation updateDigestEditDigestActionButtons($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n": typeof types.updateDigestEditDigestActionButtonsDocument,
+    "\n  mutation updateDigestEditDigestHeader($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n": typeof types.updateDigestEditDigestHeaderDocument,
     "\n    mutation NewUserCompleteProfile(\n      $username: String!,\n      $subscribeToDigest: Boolean!,\n      $email: String,\n      $acceptedTos: Boolean\n    ) {\n      NewUserCompleteProfile(\n        username: $username,\n        subscribeToDigest: $subscribeToDigest,\n        email: $email,\n        acceptedTos: $acceptedTos\n      ) {\n        username\n        slug\n        displayName\n      }\n    }\n  ": typeof types.NewUserCompleteProfileDocument,
     "\n    query isDisplayNameTaken($displayName: String!) {\n      IsDisplayNameTaken(displayName: $displayName)\n    }\n  ": typeof types.isDisplayNameTakenDocument,
     "\n  query EAGApplicationImportForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.EAGApplicationImportFormDocument,
     "\n    query getWrappedData($userId: String!, $year: Int!) {\n      UserWrappedDataByYear(userId: $userId, year: $year) {\n        engagementPercentile\n        postsReadCount\n        totalSeconds\n        daysVisited\n        mostReadTopics {\n          name\n          shortName\n          slug\n          count\n        }\n        relativeMostReadCoreTopics {\n          tagId\n          tagName\n          tagShortName\n          userReadCount\n          readLikelihoodRatio\n        }\n        mostReadAuthors {\n          _id\n          displayName\n          slug\n          profileImageId\n          count\n          engagementPercentile\n        }\n        topPosts {\n          _id\n          title\n          slug\n          baseScore\n        }\n        postCount\n        authorPercentile\n        topComment {\n          _id\n          postedAt\n          postId\n          postTitle\n          postSlug\n          baseScore\n          extendedScore\n          contents {\n            html\n          }\n        }\n        commentCount\n        commenterPercentile\n        topShortform {\n          _id\n          postedAt\n          postId\n          baseScore\n          extendedScore\n          contents {\n            html\n          }\n        }\n        shortformCount\n        shortformPercentile\n        karmaChange\n        combinedKarmaVals {\n          date\n          postKarma\n          commentKarma\n        }\n        mostReceivedReacts {\n          name\n          count\n        }\n        personality\n      }\n    }\n  ": typeof types.getWrappedDataDocument,
     "\n    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {\n      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)\n    }\n  ": typeof types.sendNewDialogueMessageNotificationDocument,
+    "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": typeof types.updatePostEditTitleDocument,
     "\n    query getPostIsCriticism($args: JSON) {\n      PostIsCriticism(args: $args)\n    }\n    ": typeof types.getPostIsCriticismDocument,
     "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  ": typeof types.autosaveRevisionDocument,
     "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n      }\n    }\n    \n  ": typeof types.LinkSharingQueryDocument,
@@ -71,6 +106,7 @@ type Documents = {
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n    \n  ": typeof types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": typeof types.createElicitQuestionCreateClaimDialogDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": typeof types.ConvertDocumentDocument,
+    "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserEventsHomeDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": typeof types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": typeof types.unlinkCrossposterDocument,
     "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.ImageUploadDocument,
@@ -79,6 +115,7 @@ type Documents = {
     "\n  query SingleTagItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": typeof types.SingleTagItemDocument,
     "\n  query SingleUsersItem($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.SingleUsersItemDocument,
     "\n  query TagSelect($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": typeof types.TagSelectDocument,
+    "\n  mutation updateForumEventForumEventForm($selector: SelectorInput!, $data: UpdateForumEventDataInput!) {\n    updateForumEvent(selector: $selector, data: $data) {\n      data {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": typeof types.updateForumEventForumEventFormDocument,
     "\n  mutation createForumEventForumEventForm($data: CreateForumEventDataInput!) {\n    createForumEvent(data: $data) {\n      data {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": typeof types.createForumEventForumEventFormDocument,
     "\n  query ForumEventForm($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": typeof types.ForumEventFormDocument,
     "\n  query ForumEventPoll($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n": typeof types.ForumEventPollDocument,
@@ -102,10 +139,19 @@ type Documents = {
     "\n    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {\n      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)\n    }\n  ": typeof types.sendVertexViewItemEventMutationDocument,
     "\n    mutation markPostCommentsRead($postId: String!) {\n      markPostCommentsRead(postId: $postId)\n    }\n  ": typeof types.markPostCommentsReadDocument,
     "\n    mutation RefreshDbSettings {\n      RefreshDbSettings\n    }\n  ": typeof types.RefreshDbSettingsDocument,
+    "\n  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshinePostsList\n      }\n    }\n  }\n": typeof types.rejectPostMutationDocument,
+    "\n  mutation rejectCommentMutation($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.rejectCommentMutationDocument,
     "\n    query UnreadNotificationCountQuery {\n      unreadNotificationCounts {\n        unreadNotifications\n        unreadPrivateMessages\n        faviconBadgeNumber\n        checkedAt\n      }\n    }\n  ": typeof types.UnreadNotificationCountQueryDocument,
+    "\n  mutation updateUseruseUpdateCurrentUser($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUseruseUpdateCurrentUserDocument,
+    "\n  mutation updateUseruseUpdateGlossaryPinnedState($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUseruseUpdateGlossaryPinnedStateDocument,
+    "\n  mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": typeof types.updateJargonTermGlossaryEditForm1Document,
+    "\n  mutation updatePostGlossaryEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": typeof types.updatePostGlossaryEditFormDocument,
     "\n    mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {\n      getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {\n        ...JargonTerms\n      }\n    }\n    \n  ": typeof types.getNewJargonTermsDocument,
+    "\n  mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": typeof types.updateJargonTermJargonEditorRowDocument,
+    "\n  mutation updateJargonTermJargonTermForm($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": typeof types.updateJargonTermJargonTermFormDocument,
     "\n  mutation createJargonTermJargonTermForm($data: CreateJargonTermDataInput!) {\n    createJargonTerm(data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": typeof types.createJargonTermJargonTermFormDocument,
     "\n    query getPostsWithApprovedJargon($limit: Int!) {\n      PostsWithApprovedJargon(limit: $limit) {\n        results {\n          post {\n            ...PostsListWithVotes\n          }\n          jargonTerms {\n            ...JargonTerms\n          }\n        }\n      }\n    }\n    \n    \n  ": typeof types.getPostsWithApprovedJargonDocument,
+    "\n  mutation updateLlmConversationLlmChatWrapper($selector: SelectorInput!, $data: UpdateLlmConversationDataInput!) {\n    updateLlmConversation(selector: $selector, data: $data) {\n      data {\n        ...LlmConversationsFragment\n      }\n    }\n  }\n": typeof types.updateLlmConversationLlmChatWrapperDocument,
     "\n  query LlmChatWrapper($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": typeof types.LlmChatWrapperDocument,
     "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": typeof types.LlmConversationsViewingPageDocument,
     "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n": typeof types.PostSummaryDialogDocument,
@@ -113,15 +159,20 @@ type Documents = {
     "\n  query PostLinkPreviewComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewPostDocument,
     "\n    query ArbitalPageRequest {\n      ArbitalPageData(pageAlias: \"\") {\n        title\n        html\n      }\n    }\n  ": typeof types.ArbitalPageRequestDocument,
+    "\n  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserCommunityHomeDocument,
+    "\n  mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {\n    updateLocalgroup(selector: $selector, data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": typeof types.updateLocalgroupGroupFormDialogDocument,
     "\n  mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {\n    createLocalgroup(data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": typeof types.createLocalgroupGroupFormDialogDocument,
     "\n  query GroupFormDialog($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsEdit\n      }\n    }\n  }\n": typeof types.GroupFormDialogDocument,
     "\n  query LocalGroupPage($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": typeof types.LocalGroupPageDocument,
     "\n  query SetPersonalMapLocationDialog($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.SetPersonalMapLocationDialogDocument,
     "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.ConversationPageDocument,
     "\n  query ConversationPreview($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.ConversationPreviewDocument,
+    "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationConversationTitleEditFormDocument,
     "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n": typeof types.FriendlyInboxDocument,
+    "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationInboxNavigationDocument,
     "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": typeof types.createMessageMessagesNewFormDocument,
     "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.MessagesNewFormDocument,
+    "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.updateModerationTemplateModerationTemplateFormDocument,
     "\n  mutation createModerationTemplateModerationTemplateForm($data: CreateModerationTemplateDataInput!) {\n    createModerationTemplate(data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.createModerationTemplateModerationTemplateFormDocument,
     "\n  query CommentOnYourDraftNotificationHover($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": typeof types.CommentOnYourDraftNotificationHoverDocument,
     "\n      query EmailPreviewQuery($notificationIds: [String], $postId: String) {\n        EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }\n      }\n  ": typeof types.EmailPreviewQueryDocument,
@@ -130,9 +181,13 @@ type Documents = {
     "\n  query NotificationsPageItem($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.NotificationsPageItemDocument,
     "\n    query getNotificationDisplays($limit: Int, $type: String) {\n      NotificationDisplays(limit: $limit, type: $type) {\n        results\n      }\n    }\n  ": typeof types.getNotificationDisplaysDocument,
     "\n    mutation MarkAllNotificationsAsRead {\n      MarkAllNotificationsAsRead\n    }\n  ": typeof types.MarkAllNotificationsAsReadDocument,
+    "\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n": typeof types.updateNotificationNotificationsPopoverNotificationDocument,
     "\n  query TagRelNotificationItem($documentId: String) {\n    tagRel(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagRelFragment\n      }\n    }\n  }\n": typeof types.TagRelNotificationItemDocument,
+    "\n  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserEditPaymentInfoPageDocument,
     "\n    query ActiveTagCount {\n      ActiveTagCount\n    }\n  ": typeof types.ActiveTagCountDocument,
     "\n  query AddToCalendarButton($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPlaintextDescription\n      }\n    }\n  }\n": typeof types.AddToCalendarButtonDocument,
+    "\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostDraftsListDocument,
+    "\n  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostExternalPostImporterDocument,
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n        }\n      }\n    }\n  ": typeof types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": typeof types.FeedPostsHighlightDocument,
@@ -140,9 +195,12 @@ type Documents = {
     "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    ": typeof types.CanAccessGoogleDocDocument,
     "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n      \n    ": typeof types.ImportGoogleDocDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": typeof types.createPostNewDialogueDialogDocument,
+    "\n  mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n": typeof types.updatePostPostFormDocument,
     "\n  mutation createPostPostForm($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n": typeof types.createPostPostFormDocument,
+    "\n  mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {\n    updateUserMostValuablePost(selector: $selector, data: $data) {\n      data {\n        ...UserMostValuablePostInfo\n      }\n    }\n  }\n": typeof types.updateUserMostValuablePostPostMostValuableCheckboxDocument,
     "\n  mutation createUserMostValuablePostPostMostValuableCheckbox($data: CreateUserMostValuablePostDataInput!) {\n    createUserMostValuablePost(data: $data) {\n      data {\n        ...UserMostValuablePostInfo\n      }\n    }\n  }\n": typeof types.createUserMostValuablePostPostMostValuableCheckboxDocument,
     "\n  query PostsCompareRevisions($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsCompareRevisionsDocument,
+    "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": typeof types.updatePostPostsEditFormDocument,
     "\n  query PostsEditFormUser($documentId: String, $eventForm: Boolean) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentPostRateLimit\n      }\n    }\n  }\n": typeof types.PostsEditFormUserDocument,
     "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.PostsEditFormPostDocument,
     "\n  query PostsGroupDetails($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": typeof types.PostsGroupDetailsDocument,
@@ -187,8 +245,10 @@ type Documents = {
     "\n      mutation RemoveGivingSeasonHeart($electionName: String!) {\n        RemoveGivingSeasonHeart(electionName: $electionName) {\n          userId\n          displayName\n          x\n          y\n          theta\n        }\n      }\n    ": typeof types.RemoveGivingSeasonHeartDocument,
     "\n  query ReviewVotingExpandedPost($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.ReviewVotingExpandedPostDocument,
     "\n    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {\n      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {\n        ...PostsReviewVotingList\n      }\n    }\n     \n  ": typeof types.submitReviewVoteDocument,
+    "\n  mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserReviews2019Document,
     "\n  query RotatingReviewWinnerSpotlightDisplay($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n": typeof types.RotatingReviewWinnerSpotlightDisplayDocument,
     "\n      query RotatingReviewWinnerSpotlight {\n        GetAllReviewWinners {\n          ...PostForReviewWinnerItem\n        }\n      }\n      \n    ": typeof types.RotatingReviewWinnerSpotlightDocument,
+    "\n  mutation updateRevisionCompareRevisions($selector: SelectorInput!, $data: UpdateRevisionDataInput!) {\n    updateRevision(selector: $selector, data: $data) {\n      data {\n        ...RevisionEdit\n      }\n    }\n  }\n": typeof types.updateRevisionCompareRevisionsDocument,
     "\n    query RevisionsDiff($collectionName: String!, $fieldName: String!, $id: String!, $beforeRev: String, $afterRev: String!, $trim: Boolean) {\n      RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)\n    }\n  ": typeof types.RevisionsDiffDocument,
     "\n  query PostsRevisionSelect($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.PostsRevisionSelectDocument,
     "\n  mutation createRSSFeedNewFeedButton($data: CreateRSSFeedDataInput!) {\n    createRSSFeed(data: $data) {\n      data {\n        ...newRSSFeedFragment\n      }\n    }\n  }\n": typeof types.createRSSFeedNewFeedButtonDocument,
@@ -200,35 +260,57 @@ type Documents = {
     "\n  mutation createPetrovDayActionPetrovLaunchConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": typeof types.createPetrovDayActionPetrovLaunchConsoleDocument,
     "\n  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": typeof types.createPetrovDayActionPetrovWarningConsoleDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": typeof types.petrovDay2024ResolversDocument,
+    "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n": typeof types.updateChapterAddDraftPostDialogDocument,
+    "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": typeof types.updateBookBooksFormDocument,
     "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": typeof types.createBookBooksFormDocument,
     "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n": typeof types.BooksItemDocument,
+    "\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.updateChapterChaptersFormDocument,
     "\n  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.createChapterChaptersFormDocument,
     "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.ChaptersItemDocument,
+    "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.updateCollectionCollectionsEditFormDocument,
     "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.CollectionsPageDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": typeof types.CollectionsEditDocument,
+    "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.updateSequenceSequencesFormDocument,
     "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.createSequenceSequencesFormDocument,
     "\n  query SequencesPage($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": typeof types.SequencesPageDocument,
     "\n  query SequencesEdit($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.SequencesEditDocument,
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n    \n  ": typeof types.GetAllReviewWinnersDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": typeof types.updateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.ProfileShortformDocument,
+    "\n  mutation updateSpotlightSpotlightForm($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": typeof types.updateSpotlightSpotlightFormDocument,
     "\n  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {\n    createSpotlight(data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": typeof types.createSpotlightSpotlightFormDocument,
+    "\n  mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightDisplay\n      }\n    }\n  }\n": typeof types.updateSpotlightSpotlightItemDocument,
     "\n  query SpotlightItem($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": typeof types.SpotlightItemDocument,
     "\n  mutation createSubscriptionSuggestedFeedSubscriptions($data: CreateSubscriptionDataInput!) {\n    createSubscription(data: $data) {\n      data {\n        ...SubscriptionState\n      }\n    }\n  }\n": typeof types.createSubscriptionSuggestedFeedSubscriptionsDocument,
+    "\n  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": typeof types.updateCommentAFSuggestCommentsItemDocument,
+    "\n  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": typeof types.updatePostAFSuggestPostsItemDocument,
+    "\n  mutation updateUserAFSuggestUsersItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.updateUserAFSuggestUsersItemDocument,
     "\n  query ModerationAltAccounts($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserAltAccountsFragment\n      }\n    }\n  }\n": typeof types.ModerationAltAccountsDocument,
     "\n    query ModeratorIPAddressInfo($ipAddress: String!) {\n      moderatorViewIPAddress(ipAddress: $ipAddress) {\n        ip\n        userIds\n      }\n    }\n  ": typeof types.ModeratorIPAddressInfoDocument,
+    "\n  mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.updateUserModeratorActionsDocument,
+    "\n  mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {\n    updateModeratorAction(selector: $selector, data: $data) {\n      data {\n        ...ModeratorActionDisplay\n      }\n    }\n  }\n": typeof types.updateModeratorActionModeratorActionItemDocument,
     "\n  query NewCommentModerationWarning($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.NewCommentModerationWarningDocument,
     "\n  mutation createModeratorActionNewModeratorActionDialog($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        ...ModeratorActionDisplay\n      }\n    }\n  }\n": typeof types.createModeratorActionNewModeratorActionDialogDocument,
     "\n  query NewPostModerationWarning($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.NewPostModerationWarningDocument,
     "\n  mutation createReportReportForm($data: CreateReportDataInput!) {\n    createReport(data: $data) {\n      data {\n        ...UnclaimedReportsList\n      }\n    }\n  }\n": typeof types.createReportReportFormDocument,
+    "\n  mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n": typeof types.updatePostSunshineCuratedSuggestionsItemDocument,
+    "\n  mutation updateCommentSunshineNewCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.updateCommentSunshineNewCommentsItemDocument,
+    "\n  mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostSunshineNewPostsItemDocument,
     "\n  mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        ...ModeratorActionsDefaultFragment\n      }\n    }\n  }\n": typeof types.createModeratorActionSunshineNewPostsItemDocument,
+    "\n  mutation updateTagSunshineNewTagsItem($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...SunshineTagFragment\n      }\n    }\n  }\n": typeof types.updateTagSunshineNewTagsItemDocument,
     "\n  query SunshineNewUsersProfileInfo($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.SunshineNewUsersProfileInfoDocument,
+    "\n  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {\n    updateReport(selector: $selector, data: $data) {\n      data {\n        ...UnclaimedReportsList\n      }\n    }\n  }\n": typeof types.updateReportSunshineReportedContentListDocument,
+    "\n  mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostSunshineReportedItem1Document,
+    "\n  mutation updateCommentSunshineReportedItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.updateCommentSunshineReportedItemDocument,
+    "\n  mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitsDefaultFragment\n      }\n    }\n  }\n": typeof types.updateUserRateLimitUserRateLimitItem1Document,
+    "\n  mutation updateUserRateLimitUserRateLimitItem($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitDisplay\n      }\n    }\n  }\n": typeof types.updateUserRateLimitUserRateLimitItemDocument,
     "\n  mutation createUserRateLimitUserRateLimitItem1($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        ...UserRateLimitsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUserRateLimitUserRateLimitItem1Document,
     "\n  mutation createUserRateLimitUserRateLimitItem($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        ...UserRateLimitDisplay\n      }\n    }\n  }\n": typeof types.createUserRateLimitUserRateLimitItemDocument,
     "\n  mutation createSurveySurveyAdminPage($data: CreateSurveyDataInput!) {\n    createSurvey(data: $data) {\n      data {\n        ...SurveyMinimumInfo\n      }\n    }\n  }\n": typeof types.createSurveySurveyAdminPageDocument,
     "\n  query SurveyEditPage($documentId: String) {\n    survey(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyMinimumInfo\n      }\n    }\n  }\n": typeof types.SurveyEditPageDocument,
     "\n    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {\n      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {\n        ...SurveyMinimumInfo\n      }\n    }\n    \n  ": typeof types.editSurveyDocument,
     "\n  mutation createSurveyResponseSurveyPostsItem($data: CreateSurveyResponseDataInput!) {\n    createSurveyResponse(data: $data) {\n      data {\n        ...SurveyResponseMinimumInfo\n      }\n    }\n  }\n": typeof types.createSurveyResponseSurveyPostsItemDocument,
+    "\n  mutation updateSurveyScheduleSurveyScheduleEditPage($selector: SelectorInput!, $data: UpdateSurveyScheduleDataInput!) {\n    updateSurveySchedule(selector: $selector, data: $data) {\n      data {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": typeof types.updateSurveyScheduleSurveyScheduleEditPageDocument,
     "\n  mutation createSurveyScheduleSurveyScheduleEditPage($data: CreateSurveyScheduleDataInput!) {\n    createSurveySchedule(data: $data) {\n      data {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": typeof types.createSurveyScheduleSurveyScheduleEditPageDocument,
     "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": typeof types.SurveyScheduleEditPageDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  ": typeof types.addPostsToTagDocument,
@@ -239,14 +321,18 @@ type Documents = {
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.FilterModeDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  ": typeof types.addOrUpvoteTagDocument,
     "\n  query LWTagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.LWTagPageDocument,
+    "\n  mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.updateTagNewTagPageDocument,
     "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  ": typeof types.getRandomTagDocument,
     "\n  mutation createSubscriptionSubscribeButton($data: CreateSubscriptionDataInput!) {\n    createSubscription(data: $data) {\n      data {\n        ...SubscriptionState\n      }\n    }\n  }\n": typeof types.createSubscriptionSubscribeButtonDocument,
     "\n    mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {\n      reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)\n    }\n  ": typeof types.reorderSummariesDocument,
+    "\n  mutation updateMultiDocumentSummaryForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n": typeof types.updateMultiDocumentSummaryFormDocument,
     "\n  mutation createMultiDocumentSummaryForm($data: CreateMultiDocumentDataInput!) {\n    createMultiDocument(data: $data) {\n      data {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n": typeof types.createMultiDocumentSummaryFormDocument,
     "\n  query TagContributorsList($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFullContributorsList\n      }\n    }\n  }\n": typeof types.TagContributorsListDocument,
     "\n    query getTagUpdates($before: Date!, $after: Date!) {\n      TagUpdatesInTimeBlock(before: $before, after: $after) {\n        tag {\n          ...TagHistoryFragment\n        }\n        revisionIds\n        commentCount\n        commentIds\n        lastRevisedAt\n        lastCommentedAt\n        added\n        removed\n        users {\n          ...UsersMinimumInfo\n        }\n        documentDeletions {\n          userId\n          documentId\n          netChange\n          type\n          docFields {\n            _id\n            slug\n            tabTitle\n            tabSubtitle\n          }\n          createdAt\n        }\n      }\n    }\n    \n  ": typeof types.getTagUpdatesDocument,
+    "\n  mutation updateTagFlagTagFlagEditAndNewForm($selector: SelectorInput!, $data: UpdateTagFlagDataInput!) {\n    updateTagFlag(selector: $selector, data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n": typeof types.updateTagFlagTagFlagEditAndNewFormDocument,
     "\n  mutation createTagFlagTagFlagEditAndNewForm($data: CreateTagFlagDataInput!) {\n    createTagFlag(data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n": typeof types.createTagFlagTagFlagEditAndNewFormDocument,
     "\n  query TagFlagItem($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagFragment\n      }\n    }\n  }\n": typeof types.TagFlagItemDocument,
+    "\n  mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n": typeof types.updateTagTagFormDocument,
     "\n  mutation createTagTagForm($data: CreateTagDataInput!) {\n    createTag(data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n": typeof types.createTagTagFormDocument,
     "\n  query TagMergePage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFragment\n      }\n    }\n  }\n": typeof types.TagMergePageDocument,
     "\n    mutation mergeTags(\n      $sourceTagId: String!\n      $targetTagId: String!\n      $transferSubtags: Boolean!\n      $redirectSource: Boolean!\n    ) {\n      mergeTags(\n        sourceTagId: $sourceTagId\n        targetTagId: $targetTagId\n        transferSubtags: $transferSubtags\n        redirectSource: $redirectSource\n      )\n    }\n  ": typeof types.mergeTagsDocument,
@@ -255,8 +341,11 @@ type Documents = {
     "\n  query TaggingDashboard($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagEditFragment\n      }\n    }\n  }\n": typeof types.TaggingDashboardDocument,
     "\n  query TagsDetailsItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.TagsDetailsItemDocument,
     "\n    query GetTagsByCoreTagId(\n      $coreTagId: String,\n      $limit: Int,\n      $searchTagIds: [String]\n    ) {\n      TagsByCoreTagId(\n        coreTagId: $coreTagId,\n        limit: $limit,\n        searchTagIds: $searchTagIds\n      ) {\n        tags {\n          ...ConceptItemFragment\n        }\n        totalCount\n      }\n    }\n    \n  ": typeof types.GetTagsByCoreTagIdDocument,
+    "\n  mutation updateMultiDocumentLensForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n": typeof types.updateMultiDocumentLensFormDocument,
     "\n  mutation createMultiDocumentLensForm($data: CreateMultiDocumentDataInput!) {\n    createMultiDocument(data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n": typeof types.createMultiDocumentLensFormDocument,
+    "\n  mutation updateTagSidebarSubtagsBox($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagBasicInfo\n      }\n    }\n  }\n": typeof types.updateTagSidebarSubtagsBoxDocument,
     "\n  query SidebarSubtagsBox($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagSubtagFragment\n      }\n    }\n  }\n": typeof types.SidebarSubtagsBoxDocument,
+    "\n  mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {\n    updateUserTagRel(selector: $selector, data: $data) {\n      data {\n        ...UserTagRelDetails\n      }\n    }\n  }\n": typeof types.updateUserTagRelSubforumSubforumTabDocument,
     "\n    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {\n      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {\n        ...UsersCurrent\n      }\n    }\n    \n  ": typeof types.UserUpdateSubforumMembershipDocument,
     "\n  query SubforumWikiTab($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.SubforumWikiTabDocument,
     "\n  mutation createUserTagRelTagSubforumPage2($data: CreateUserTagRelDataInput!) {\n    createUserTagRel(data: $data) {\n      data {\n        ...UserTagRelDetails\n      }\n    }\n  }\n": typeof types.createUserTagRelTagSubforumPage2Document,
@@ -271,6 +360,7 @@ type Documents = {
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
+    "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserEditProfileFormDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": typeof types.EditProfileFormDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": typeof types.sendEventTriggeredDMDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
@@ -278,6 +368,10 @@ type Documents = {
     "\n    mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {\n      signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {\n        token\n      }\n    }\n  ": typeof types.signupDocument,
     "\n    mutation resetPassword($email: String) {\n      resetPassword(email: $email)\n    }\n  ": typeof types.resetPasswordDocument,
     "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.UsersNameWrapperDocument,
+    "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
+    "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
+    "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
+    "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserReactionsPaletteDocument,
     "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.emailstestsDocument,
     "\n  fragment AdvisorRequestsMinimumInfo on AdvisorRequest {\n    _id\n    userId\n    createdAt\n    interestedInMetaculus\n    jobAds\n  }\n": typeof types.AdvisorRequestsMinimumInfoDoc,
     "\n  fragment BansAdminPageFragment on Ban {\n    _id\n    createdAt\n    expirationDate\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    reason\n    comment\n    ip\n    properties\n  }\n": typeof types.BansAdminPageFragmentDoc,
@@ -626,26 +720,37 @@ type Documents = {
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.PostNominatedEmailDocument,
 };
 const documents: Documents = {
+    "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
     "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": types.revokeGoogleServiceAccountTokensDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": types.UpdateSearchSynonymsDocument,
+    "\n  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": types.updateCurationNoticeCurationNoticesFormDocument,
     "\n  mutation createCurationNoticeCurationNoticesForm($data: CreateCurationNoticeDataInput!) {\n    createCurationNotice(data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": types.createCurationNoticeCurationNoticesFormDocument,
+    "\n  mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostCurationNoticesItem1Document,
+    "\n  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": types.updateCurationNoticeCurationNoticesItemDocument,
     "\n  mutation createCommentCurationNoticesItem($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentCurationNoticesItemDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": types.randomUserDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": types.MigrationsDashboardQueryDocument,
     "\n  query PostsAnalyticsPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.PostsAnalyticsPageDocument,
     "\n      query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {\n        UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {\n          posts {\n            ...PostsListWithVotes\n            lastVisitedAt\n          }\n        }\n      }\n    ": types.getReadHistoryDocument,
+    "\n  mutation updateUserBook2019FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBook2019FrontpageWidgetDocument,
+    "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBook2020FrontpageWidgetDocument,
+    "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBookFrontpageWidgetDocument,
     "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.CommentByIdDocument,
+    "\n  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentCommentFormDocument,
     "\n  mutation createCommentCommentForm($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentCommentFormDocument,
     "\n  query CommentPermalink($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": types.CommentPermalinkDocument,
     "\n  query CommentEdit($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentEdit\n      }\n    }\n  }\n": types.CommentEditDocument,
     "\n  query CommentDeletedMetadata($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...DeletedCommentsMetaData\n      }\n    }\n  }\n": types.CommentDeletedMetadataDocument,
     "\n  query CommentPollVote($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n": types.CommentPollVoteDocument,
+    "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": types.updateCommentCommentsNewFormDocument,
     "\n  query CommentsNewForm($documentId: String, $postId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentCommentRateLimit\n      }\n    }\n  }\n": types.CommentsNewFormDocument,
     "\n    mutation upsertUserTypingIndicator($documentId: String!) {\n      upsertUserTypingIndicator(documentId: $documentId) {\n        ...TypingIndicatorInfo\n      }\n    }\n    \n  ": types.upsertUserTypingIndicatorDocument,
     "\n  query PostsModerationGuidelines($documentId: String) {\n    PostsModerationGuidelines: post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsModerationGuidelines\n      }\n      __typename\n    }\n  }\n": types.PostsModerationGuidelinesDocument,
     "\n  query TagModerationGuidelines($documentId: String) {\n    TagModerationGuidelines: tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFragment\n      }\n      __typename\n    }\n  }\n": types.TagModerationGuidelinesDocument,
+    "\n  mutation updatePostModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n": types.updatePostModerationGuidelinesEditFormDocument,
+    "\n  mutation updateTagModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n": types.updateTagModerationGuidelinesEditFormDocument,
     "\n  query PostsEditQuery($documentId: String!, $version: String) {\n    post(selector:  { documentId: $documentId }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.PostsEditQueryDocument,
     "\n  query TagEditQuery($documentId: String!) {\n    tag(selector: { documentId: $documentId }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.TagEditQueryDocument,
     "\n  query NewUserGuidelinesDialog($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.NewUserGuidelinesDialogDocument,
@@ -655,24 +760,48 @@ const documents: Documents = {
     "\n  query LWHomePosts($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.LWHomePostsDocument,
     "\n    mutation sendVertexViewHomePageEventMutation {\n      sendVertexViewHomePageEvent\n    }\n  ": types.sendVertexViewHomePageEventMutationDocument,
     "\n  query PostExcerpt($documentId: String, $hash: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...HighlightWithHash\n      }\n    }\n  }\n": types.PostExcerptDocument,
+    "\n  mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserCommunityDocument,
     "\n  query DialoguesPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.DialoguesPageDocument,
+    "\n  mutation updatePostBanUserFromPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n": types.updatePostBanUserFromPostDropdownItemDocument,
     "\n  query CommentActions($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.CommentActionsDocument,
     "\n    mutation lockThread($commentId: String!, $until: String) {\n      lockThread(commentId: $commentId, until: $until)\n    }\n  ": types.lockThreadDocument,
     "\n    mutation unlockThread($commentId: String!) {\n      unlockThread(commentId: $commentId)\n    }\n  ": types.unlockThreadDocument,
+    "\n  mutation updateCommentMoveToAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentMoveToAlignmentCommentDropdownItemDocument,
+    "\n  mutation updateCommentMoveToAnswersDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentMoveToAnswersDropdownItemDocument,
+    "\n  mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentPinToProfileDropdownItemDocument,
+    "\n  mutation updateCommentRetractCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentRetractCommentDropdownItemDocument,
+    "\n  mutation updateCommentShortformFrontpageDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentShortformFrontpageDropdownItemDocument,
+    "\n  mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": types.updateCommentSuggestAlignmentCommentDropdownItemDocument,
+    "\n  mutation updateCommentToggleIsModeratorCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentToggleIsModeratorCommentDropdownItemDocument,
     "\n    mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {\n      moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {\n        ...CommentsList\n      }\n    }\n  ": types.moderateCommentDocument,
+    "\n  mutation updateUserApproveNewUserDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserApproveNewUserDropdownItemDocument,
+    "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostDeleteDraftDropdownItemDocument,
+    "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostExcludeFromRecommendationsDropdownItemDocument,
+    "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostMoveToDraftDropdownItemDocument,
+    "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostMoveToFrontpageDropdownItemDocument,
+    "\n  mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": types.updatePostResyncRssDropdownItemDocument,
     "\n    query getRssPostChanges($postId: String!) {\n      RssPostChanges(postId: $postId) {\n        isChanged\n        newHtml\n        htmlDiff\n      }\n    }\n  ": types.getRssPostChangesDocument,
+    "\n  mutation updateUserShortformDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserShortformDropdownItemDocument,
+    "\n  mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostSuggestAlignmentPostDropdownItemDocument,
+    "\n  mutation updatePostSuggestCuratedDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostSuggestCuratedDropdownItemDocument,
     "\n    mutation setIsHidden($postId: String!, $isHidden: Boolean!) {\n      setIsHidden(postId: $postId, isHidden: $isHidden) {\n        ...UsersCurrent\n      }\n    }\n  ": types.setIsHiddenDocument,
     "\n    query getDigestPosts($num: Int) {\n      DigestPosts(num: $num) {\n        ...PostsListWithVotes\n      }\n    }\n  ": types.getDigestPostsDocument,
     "\n  query EAHomeHandbook($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": types.EAHomeHandbookDocument,
+    "\n  mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {\n    updateUserJobAd(selector: $selector, data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n": types.updateUserJobAdTargetedJobAdSectionDocument,
     "\n  mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {\n    createUserJobAd(data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n": types.createUserJobAdTargetedJobAdSectionDocument,
     "\n      query getUserReadsPerCoreTag($userId: String!) {\n        UserReadsPerCoreTag(userId: $userId) {\n          tagId\n          userReadCount\n        }\n      }\n    ": types.getUserReadsPerCoreTagDocument,
+    "\n  mutation updateDigestConfirmPublishDialog($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n": types.updateDigestConfirmPublishDialogDocument,
+    "\n  mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {\n    updateDigestPost(selector: $selector, data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n": types.updateDigestPostEditDigestDocument,
     "\n  mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {\n    createDigestPost(data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n": types.createDigestPostEditDigestDocument,
     "\n    query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {\n      DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {\n        post {\n          ...PostsListWithVotes\n        }\n        digestPost {\n          _id\n          emailDigestStatus\n          onsiteDigestStatus\n        }\n        rating\n      }\n    }\n  ": types.getDigestPlannerDataDocument,
+    "\n  mutation updateDigestEditDigestActionButtons($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n": types.updateDigestEditDigestActionButtonsDocument,
+    "\n  mutation updateDigestEditDigestHeader($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n": types.updateDigestEditDigestHeaderDocument,
     "\n    mutation NewUserCompleteProfile(\n      $username: String!,\n      $subscribeToDigest: Boolean!,\n      $email: String,\n      $acceptedTos: Boolean\n    ) {\n      NewUserCompleteProfile(\n        username: $username,\n        subscribeToDigest: $subscribeToDigest,\n        email: $email,\n        acceptedTos: $acceptedTos\n      ) {\n        username\n        slug\n        displayName\n      }\n    }\n  ": types.NewUserCompleteProfileDocument,
     "\n    query isDisplayNameTaken($displayName: String!) {\n      IsDisplayNameTaken(displayName: $displayName)\n    }\n  ": types.isDisplayNameTakenDocument,
     "\n  query EAGApplicationImportForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersEdit\n      }\n    }\n  }\n": types.EAGApplicationImportFormDocument,
     "\n    query getWrappedData($userId: String!, $year: Int!) {\n      UserWrappedDataByYear(userId: $userId, year: $year) {\n        engagementPercentile\n        postsReadCount\n        totalSeconds\n        daysVisited\n        mostReadTopics {\n          name\n          shortName\n          slug\n          count\n        }\n        relativeMostReadCoreTopics {\n          tagId\n          tagName\n          tagShortName\n          userReadCount\n          readLikelihoodRatio\n        }\n        mostReadAuthors {\n          _id\n          displayName\n          slug\n          profileImageId\n          count\n          engagementPercentile\n        }\n        topPosts {\n          _id\n          title\n          slug\n          baseScore\n        }\n        postCount\n        authorPercentile\n        topComment {\n          _id\n          postedAt\n          postId\n          postTitle\n          postSlug\n          baseScore\n          extendedScore\n          contents {\n            html\n          }\n        }\n        commentCount\n        commenterPercentile\n        topShortform {\n          _id\n          postedAt\n          postId\n          baseScore\n          extendedScore\n          contents {\n            html\n          }\n        }\n        shortformCount\n        shortformPercentile\n        karmaChange\n        combinedKarmaVals {\n          date\n          postKarma\n          commentKarma\n        }\n        mostReceivedReacts {\n          name\n          count\n        }\n        personality\n      }\n    }\n  ": types.getWrappedDataDocument,
     "\n    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {\n      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)\n    }\n  ": types.sendNewDialogueMessageNotificationDocument,
+    "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": types.updatePostEditTitleDocument,
     "\n    query getPostIsCriticism($args: JSON) {\n      PostIsCriticism(args: $args)\n    }\n    ": types.getPostIsCriticismDocument,
     "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  ": types.autosaveRevisionDocument,
     "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n      }\n    }\n    \n  ": types.LinkSharingQueryDocument,
@@ -683,6 +812,7 @@ const documents: Documents = {
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n    \n  ": types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": types.createElicitQuestionCreateClaimDialogDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": types.ConvertDocumentDocument,
+    "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserEventsHomeDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": types.unlinkCrossposterDocument,
     "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.ImageUploadDocument,
@@ -691,6 +821,7 @@ const documents: Documents = {
     "\n  query SingleTagItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": types.SingleTagItemDocument,
     "\n  query SingleUsersItem($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n": types.SingleUsersItemDocument,
     "\n  query TagSelect($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n": types.TagSelectDocument,
+    "\n  mutation updateForumEventForumEventForm($selector: SelectorInput!, $data: UpdateForumEventDataInput!) {\n    updateForumEvent(selector: $selector, data: $data) {\n      data {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": types.updateForumEventForumEventFormDocument,
     "\n  mutation createForumEventForumEventForm($data: CreateForumEventDataInput!) {\n    createForumEvent(data: $data) {\n      data {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": types.createForumEventForumEventFormDocument,
     "\n  query ForumEventForm($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsEdit\n      }\n    }\n  }\n": types.ForumEventFormDocument,
     "\n  query ForumEventPoll($documentId: String) {\n    forumEvent(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ForumEventsDisplay\n      }\n    }\n  }\n": types.ForumEventPollDocument,
@@ -714,10 +845,19 @@ const documents: Documents = {
     "\n    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {\n      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)\n    }\n  ": types.sendVertexViewItemEventMutationDocument,
     "\n    mutation markPostCommentsRead($postId: String!) {\n      markPostCommentsRead(postId: $postId)\n    }\n  ": types.markPostCommentsReadDocument,
     "\n    mutation RefreshDbSettings {\n      RefreshDbSettings\n    }\n  ": types.RefreshDbSettingsDocument,
+    "\n  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshinePostsList\n      }\n    }\n  }\n": types.rejectPostMutationDocument,
+    "\n  mutation rejectCommentMutation($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.rejectCommentMutationDocument,
     "\n    query UnreadNotificationCountQuery {\n      unreadNotificationCounts {\n        unreadNotifications\n        unreadPrivateMessages\n        faviconBadgeNumber\n        checkedAt\n      }\n    }\n  ": types.UnreadNotificationCountQueryDocument,
+    "\n  mutation updateUseruseUpdateCurrentUser($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUseruseUpdateCurrentUserDocument,
+    "\n  mutation updateUseruseUpdateGlossaryPinnedState($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUseruseUpdateGlossaryPinnedStateDocument,
+    "\n  mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": types.updateJargonTermGlossaryEditForm1Document,
+    "\n  mutation updatePostGlossaryEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": types.updatePostGlossaryEditFormDocument,
     "\n    mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {\n      getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {\n        ...JargonTerms\n      }\n    }\n    \n  ": types.getNewJargonTermsDocument,
+    "\n  mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": types.updateJargonTermJargonEditorRowDocument,
+    "\n  mutation updateJargonTermJargonTermForm($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": types.updateJargonTermJargonTermFormDocument,
     "\n  mutation createJargonTermJargonTermForm($data: CreateJargonTermDataInput!) {\n    createJargonTerm(data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n": types.createJargonTermJargonTermFormDocument,
     "\n    query getPostsWithApprovedJargon($limit: Int!) {\n      PostsWithApprovedJargon(limit: $limit) {\n        results {\n          post {\n            ...PostsListWithVotes\n          }\n          jargonTerms {\n            ...JargonTerms\n          }\n        }\n      }\n    }\n    \n    \n  ": types.getPostsWithApprovedJargonDocument,
+    "\n  mutation updateLlmConversationLlmChatWrapper($selector: SelectorInput!, $data: UpdateLlmConversationDataInput!) {\n    updateLlmConversation(selector: $selector, data: $data) {\n      data {\n        ...LlmConversationsFragment\n      }\n    }\n  }\n": types.updateLlmConversationLlmChatWrapperDocument,
     "\n  query LlmChatWrapper($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": types.LlmChatWrapperDocument,
     "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": types.LlmConversationsViewingPageDocument,
     "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n": types.PostSummaryDialogDocument,
@@ -725,15 +865,20 @@ const documents: Documents = {
     "\n  query PostLinkPreviewComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.PostLinkPreviewPostDocument,
     "\n    query ArbitalPageRequest {\n      ArbitalPageData(pageAlias: \"\") {\n        title\n        html\n      }\n    }\n  ": types.ArbitalPageRequestDocument,
+    "\n  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserCommunityHomeDocument,
+    "\n  mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {\n    updateLocalgroup(selector: $selector, data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": types.updateLocalgroupGroupFormDialogDocument,
     "\n  mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {\n    createLocalgroup(data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": types.createLocalgroupGroupFormDialogDocument,
     "\n  query GroupFormDialog($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsEdit\n      }\n    }\n  }\n": types.GroupFormDialogDocument,
     "\n  query LocalGroupPage($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": types.LocalGroupPageDocument,
     "\n  query SetPersonalMapLocationDialog($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersEdit\n      }\n    }\n  }\n": types.SetPersonalMapLocationDialogDocument,
     "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": types.ConversationPageDocument,
     "\n  query ConversationPreview($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": types.ConversationPreviewDocument,
+    "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationConversationTitleEditFormDocument,
     "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n": types.FriendlyInboxDocument,
+    "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationInboxNavigationDocument,
     "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": types.createMessageMessagesNewFormDocument,
     "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.MessagesNewFormDocument,
+    "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.updateModerationTemplateModerationTemplateFormDocument,
     "\n  mutation createModerationTemplateModerationTemplateForm($data: CreateModerationTemplateDataInput!) {\n    createModerationTemplate(data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.createModerationTemplateModerationTemplateFormDocument,
     "\n  query CommentOnYourDraftNotificationHover($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": types.CommentOnYourDraftNotificationHoverDocument,
     "\n      query EmailPreviewQuery($notificationIds: [String], $postId: String) {\n        EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }\n      }\n  ": types.EmailPreviewQueryDocument,
@@ -742,9 +887,13 @@ const documents: Documents = {
     "\n  query NotificationsPageItem($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.NotificationsPageItemDocument,
     "\n    query getNotificationDisplays($limit: Int, $type: String) {\n      NotificationDisplays(limit: $limit, type: $type) {\n        results\n      }\n    }\n  ": types.getNotificationDisplaysDocument,
     "\n    mutation MarkAllNotificationsAsRead {\n      MarkAllNotificationsAsRead\n    }\n  ": types.MarkAllNotificationsAsReadDocument,
+    "\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n": types.updateNotificationNotificationsPopoverNotificationDocument,
     "\n  query TagRelNotificationItem($documentId: String) {\n    tagRel(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagRelFragment\n      }\n    }\n  }\n": types.TagRelNotificationItemDocument,
+    "\n  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserEditPaymentInfoPageDocument,
     "\n    query ActiveTagCount {\n      ActiveTagCount\n    }\n  ": types.ActiveTagCountDocument,
     "\n  query AddToCalendarButton($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPlaintextDescription\n      }\n    }\n  }\n": types.AddToCalendarButtonDocument,
+    "\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostDraftsListDocument,
+    "\n  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostExternalPostImporterDocument,
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n        }\n      }\n    }\n  ": types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": types.FeedPostsHighlightDocument,
@@ -752,9 +901,12 @@ const documents: Documents = {
     "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    ": types.CanAccessGoogleDocDocument,
     "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n      \n    ": types.ImportGoogleDocDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": types.createPostNewDialogueDialogDocument,
+    "\n  mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n": types.updatePostPostFormDocument,
     "\n  mutation createPostPostForm($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n": types.createPostPostFormDocument,
+    "\n  mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {\n    updateUserMostValuablePost(selector: $selector, data: $data) {\n      data {\n        ...UserMostValuablePostInfo\n      }\n    }\n  }\n": types.updateUserMostValuablePostPostMostValuableCheckboxDocument,
     "\n  mutation createUserMostValuablePostPostMostValuableCheckbox($data: CreateUserMostValuablePostDataInput!) {\n    createUserMostValuablePost(data: $data) {\n      data {\n        ...UserMostValuablePostInfo\n      }\n    }\n  }\n": types.createUserMostValuablePostPostMostValuableCheckboxDocument,
     "\n  query PostsCompareRevisions($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsCompareRevisionsDocument,
+    "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": types.updatePostPostsEditFormDocument,
     "\n  query PostsEditFormUser($documentId: String, $eventForm: Boolean) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentPostRateLimit\n      }\n    }\n  }\n": types.PostsEditFormUserDocument,
     "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.PostsEditFormPostDocument,
     "\n  query PostsGroupDetails($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": types.PostsGroupDetailsDocument,
@@ -799,8 +951,10 @@ const documents: Documents = {
     "\n      mutation RemoveGivingSeasonHeart($electionName: String!) {\n        RemoveGivingSeasonHeart(electionName: $electionName) {\n          userId\n          displayName\n          x\n          y\n          theta\n        }\n      }\n    ": types.RemoveGivingSeasonHeartDocument,
     "\n  query ReviewVotingExpandedPost($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.ReviewVotingExpandedPostDocument,
     "\n    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {\n      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {\n        ...PostsReviewVotingList\n      }\n    }\n     \n  ": types.submitReviewVoteDocument,
+    "\n  mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserReviews2019Document,
     "\n  query RotatingReviewWinnerSpotlightDisplay($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n": types.RotatingReviewWinnerSpotlightDisplayDocument,
     "\n      query RotatingReviewWinnerSpotlight {\n        GetAllReviewWinners {\n          ...PostForReviewWinnerItem\n        }\n      }\n      \n    ": types.RotatingReviewWinnerSpotlightDocument,
+    "\n  mutation updateRevisionCompareRevisions($selector: SelectorInput!, $data: UpdateRevisionDataInput!) {\n    updateRevision(selector: $selector, data: $data) {\n      data {\n        ...RevisionEdit\n      }\n    }\n  }\n": types.updateRevisionCompareRevisionsDocument,
     "\n    query RevisionsDiff($collectionName: String!, $fieldName: String!, $id: String!, $beforeRev: String, $afterRev: String!, $trim: Boolean) {\n      RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)\n    }\n  ": types.RevisionsDiffDocument,
     "\n  query PostsRevisionSelect($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.PostsRevisionSelectDocument,
     "\n  mutation createRSSFeedNewFeedButton($data: CreateRSSFeedDataInput!) {\n    createRSSFeed(data: $data) {\n      data {\n        ...newRSSFeedFragment\n      }\n    }\n  }\n": types.createRSSFeedNewFeedButtonDocument,
@@ -812,35 +966,57 @@ const documents: Documents = {
     "\n  mutation createPetrovDayActionPetrovLaunchConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": types.createPetrovDayActionPetrovLaunchConsoleDocument,
     "\n  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": types.createPetrovDayActionPetrovWarningConsoleDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": types.petrovDay2024ResolversDocument,
+    "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n": types.updateChapterAddDraftPostDialogDocument,
+    "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": types.updateBookBooksFormDocument,
     "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": types.createBookBooksFormDocument,
     "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n": types.BooksItemDocument,
+    "\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.updateChapterChaptersFormDocument,
     "\n  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.createChapterChaptersFormDocument,
     "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.ChaptersItemDocument,
+    "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.updateCollectionCollectionsEditFormDocument,
     "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.CollectionsPageDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": types.CollectionsEditDocument,
+    "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.updateSequenceSequencesFormDocument,
     "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.createSequenceSequencesFormDocument,
     "\n  query SequencesPage($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": types.SequencesPageDocument,
     "\n  query SequencesEdit($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.SequencesEditDocument,
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n    \n  ": types.GetAllReviewWinnersDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": types.updateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.ProfileShortformDocument,
+    "\n  mutation updateSpotlightSpotlightForm($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": types.updateSpotlightSpotlightFormDocument,
     "\n  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {\n    createSpotlight(data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": types.createSpotlightSpotlightFormDocument,
+    "\n  mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightDisplay\n      }\n    }\n  }\n": types.updateSpotlightSpotlightItemDocument,
     "\n  query SpotlightItem($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": types.SpotlightItemDocument,
     "\n  mutation createSubscriptionSuggestedFeedSubscriptions($data: CreateSubscriptionDataInput!) {\n    createSubscription(data: $data) {\n      data {\n        ...SubscriptionState\n      }\n    }\n  }\n": types.createSubscriptionSuggestedFeedSubscriptionsDocument,
+    "\n  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": types.updateCommentAFSuggestCommentsItemDocument,
+    "\n  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": types.updatePostAFSuggestPostsItemDocument,
+    "\n  mutation updateUserAFSuggestUsersItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.updateUserAFSuggestUsersItemDocument,
     "\n  query ModerationAltAccounts($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserAltAccountsFragment\n      }\n    }\n  }\n": types.ModerationAltAccountsDocument,
     "\n    query ModeratorIPAddressInfo($ipAddress: String!) {\n      moderatorViewIPAddress(ipAddress: $ipAddress) {\n        ip\n        userIds\n      }\n    }\n  ": types.ModeratorIPAddressInfoDocument,
+    "\n  mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.updateUserModeratorActionsDocument,
+    "\n  mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {\n    updateModeratorAction(selector: $selector, data: $data) {\n      data {\n        ...ModeratorActionDisplay\n      }\n    }\n  }\n": types.updateModeratorActionModeratorActionItemDocument,
     "\n  query NewCommentModerationWarning($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.NewCommentModerationWarningDocument,
     "\n  mutation createModeratorActionNewModeratorActionDialog($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        ...ModeratorActionDisplay\n      }\n    }\n  }\n": types.createModeratorActionNewModeratorActionDialogDocument,
     "\n  query NewPostModerationWarning($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.NewPostModerationWarningDocument,
     "\n  mutation createReportReportForm($data: CreateReportDataInput!) {\n    createReport(data: $data) {\n      data {\n        ...UnclaimedReportsList\n      }\n    }\n  }\n": types.createReportReportFormDocument,
+    "\n  mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n": types.updatePostSunshineCuratedSuggestionsItemDocument,
+    "\n  mutation updateCommentSunshineNewCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.updateCommentSunshineNewCommentsItemDocument,
+    "\n  mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostSunshineNewPostsItemDocument,
     "\n  mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        ...ModeratorActionsDefaultFragment\n      }\n    }\n  }\n": types.createModeratorActionSunshineNewPostsItemDocument,
+    "\n  mutation updateTagSunshineNewTagsItem($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...SunshineTagFragment\n      }\n    }\n  }\n": types.updateTagSunshineNewTagsItemDocument,
     "\n  query SunshineNewUsersProfileInfo($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.SunshineNewUsersProfileInfoDocument,
+    "\n  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {\n    updateReport(selector: $selector, data: $data) {\n      data {\n        ...UnclaimedReportsList\n      }\n    }\n  }\n": types.updateReportSunshineReportedContentListDocument,
+    "\n  mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostSunshineReportedItem1Document,
+    "\n  mutation updateCommentSunshineReportedItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.updateCommentSunshineReportedItemDocument,
+    "\n  mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitsDefaultFragment\n      }\n    }\n  }\n": types.updateUserRateLimitUserRateLimitItem1Document,
+    "\n  mutation updateUserRateLimitUserRateLimitItem($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitDisplay\n      }\n    }\n  }\n": types.updateUserRateLimitUserRateLimitItemDocument,
     "\n  mutation createUserRateLimitUserRateLimitItem1($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        ...UserRateLimitsDefaultFragment\n      }\n    }\n  }\n": types.createUserRateLimitUserRateLimitItem1Document,
     "\n  mutation createUserRateLimitUserRateLimitItem($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        ...UserRateLimitDisplay\n      }\n    }\n  }\n": types.createUserRateLimitUserRateLimitItemDocument,
     "\n  mutation createSurveySurveyAdminPage($data: CreateSurveyDataInput!) {\n    createSurvey(data: $data) {\n      data {\n        ...SurveyMinimumInfo\n      }\n    }\n  }\n": types.createSurveySurveyAdminPageDocument,
     "\n  query SurveyEditPage($documentId: String) {\n    survey(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyMinimumInfo\n      }\n    }\n  }\n": types.SurveyEditPageDocument,
     "\n    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {\n      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {\n        ...SurveyMinimumInfo\n      }\n    }\n    \n  ": types.editSurveyDocument,
     "\n  mutation createSurveyResponseSurveyPostsItem($data: CreateSurveyResponseDataInput!) {\n    createSurveyResponse(data: $data) {\n      data {\n        ...SurveyResponseMinimumInfo\n      }\n    }\n  }\n": types.createSurveyResponseSurveyPostsItemDocument,
+    "\n  mutation updateSurveyScheduleSurveyScheduleEditPage($selector: SelectorInput!, $data: UpdateSurveyScheduleDataInput!) {\n    updateSurveySchedule(selector: $selector, data: $data) {\n      data {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": types.updateSurveyScheduleSurveyScheduleEditPageDocument,
     "\n  mutation createSurveyScheduleSurveyScheduleEditPage($data: CreateSurveyScheduleDataInput!) {\n    createSurveySchedule(data: $data) {\n      data {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": types.createSurveyScheduleSurveyScheduleEditPageDocument,
     "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": types.SurveyScheduleEditPageDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n    \n  ": types.addPostsToTagDocument,
@@ -851,14 +1027,18 @@ const documents: Documents = {
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.FilterModeDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n    \n  ": types.addOrUpvoteTagDocument,
     "\n  query LWTagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.LWTagPageDocument,
+    "\n  mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.updateTagNewTagPageDocument,
     "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  ": types.getRandomTagDocument,
     "\n  mutation createSubscriptionSubscribeButton($data: CreateSubscriptionDataInput!) {\n    createSubscription(data: $data) {\n      data {\n        ...SubscriptionState\n      }\n    }\n  }\n": types.createSubscriptionSubscribeButtonDocument,
     "\n    mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {\n      reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)\n    }\n  ": types.reorderSummariesDocument,
+    "\n  mutation updateMultiDocumentSummaryForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n": types.updateMultiDocumentSummaryFormDocument,
     "\n  mutation createMultiDocumentSummaryForm($data: CreateMultiDocumentDataInput!) {\n    createMultiDocument(data: $data) {\n      data {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n": types.createMultiDocumentSummaryFormDocument,
     "\n  query TagContributorsList($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFullContributorsList\n      }\n    }\n  }\n": types.TagContributorsListDocument,
     "\n    query getTagUpdates($before: Date!, $after: Date!) {\n      TagUpdatesInTimeBlock(before: $before, after: $after) {\n        tag {\n          ...TagHistoryFragment\n        }\n        revisionIds\n        commentCount\n        commentIds\n        lastRevisedAt\n        lastCommentedAt\n        added\n        removed\n        users {\n          ...UsersMinimumInfo\n        }\n        documentDeletions {\n          userId\n          documentId\n          netChange\n          type\n          docFields {\n            _id\n            slug\n            tabTitle\n            tabSubtitle\n          }\n          createdAt\n        }\n      }\n    }\n    \n  ": types.getTagUpdatesDocument,
+    "\n  mutation updateTagFlagTagFlagEditAndNewForm($selector: SelectorInput!, $data: UpdateTagFlagDataInput!) {\n    updateTagFlag(selector: $selector, data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n": types.updateTagFlagTagFlagEditAndNewFormDocument,
     "\n  mutation createTagFlagTagFlagEditAndNewForm($data: CreateTagFlagDataInput!) {\n    createTagFlag(data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n": types.createTagFlagTagFlagEditAndNewFormDocument,
     "\n  query TagFlagItem($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagFragment\n      }\n    }\n  }\n": types.TagFlagItemDocument,
+    "\n  mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n": types.updateTagTagFormDocument,
     "\n  mutation createTagTagForm($data: CreateTagDataInput!) {\n    createTag(data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n": types.createTagTagFormDocument,
     "\n  query TagMergePage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFragment\n      }\n    }\n  }\n": types.TagMergePageDocument,
     "\n    mutation mergeTags(\n      $sourceTagId: String!\n      $targetTagId: String!\n      $transferSubtags: Boolean!\n      $redirectSource: Boolean!\n    ) {\n      mergeTags(\n        sourceTagId: $sourceTagId\n        targetTagId: $targetTagId\n        transferSubtags: $transferSubtags\n        redirectSource: $redirectSource\n      )\n    }\n  ": types.mergeTagsDocument,
@@ -867,8 +1047,11 @@ const documents: Documents = {
     "\n  query TaggingDashboard($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagEditFragment\n      }\n    }\n  }\n": types.TaggingDashboardDocument,
     "\n  query TagsDetailsItem($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.TagsDetailsItemDocument,
     "\n    query GetTagsByCoreTagId(\n      $coreTagId: String,\n      $limit: Int,\n      $searchTagIds: [String]\n    ) {\n      TagsByCoreTagId(\n        coreTagId: $coreTagId,\n        limit: $limit,\n        searchTagIds: $searchTagIds\n      ) {\n        tags {\n          ...ConceptItemFragment\n        }\n        totalCount\n      }\n    }\n    \n  ": types.GetTagsByCoreTagIdDocument,
+    "\n  mutation updateMultiDocumentLensForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n": types.updateMultiDocumentLensFormDocument,
     "\n  mutation createMultiDocumentLensForm($data: CreateMultiDocumentDataInput!) {\n    createMultiDocument(data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n": types.createMultiDocumentLensFormDocument,
+    "\n  mutation updateTagSidebarSubtagsBox($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagBasicInfo\n      }\n    }\n  }\n": types.updateTagSidebarSubtagsBoxDocument,
     "\n  query SidebarSubtagsBox($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagSubtagFragment\n      }\n    }\n  }\n": types.SidebarSubtagsBoxDocument,
+    "\n  mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {\n    updateUserTagRel(selector: $selector, data: $data) {\n      data {\n        ...UserTagRelDetails\n      }\n    }\n  }\n": types.updateUserTagRelSubforumSubforumTabDocument,
     "\n    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {\n      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {\n        ...UsersCurrent\n      }\n    }\n    \n  ": types.UserUpdateSubforumMembershipDocument,
     "\n  query SubforumWikiTab($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.SubforumWikiTabDocument,
     "\n  mutation createUserTagRelTagSubforumPage2($data: CreateUserTagRelDataInput!) {\n    createUserTagRel(data: $data) {\n      data {\n        ...UserTagRelDetails\n      }\n    }\n  }\n": types.createUserTagRelTagSubforumPage2Document,
@@ -883,6 +1066,7 @@ const documents: Documents = {
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
+    "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserEditProfileFormDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": types.EditProfileFormDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": types.sendEventTriggeredDMDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
@@ -890,6 +1074,10 @@ const documents: Documents = {
     "\n    mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {\n      signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {\n        token\n      }\n    }\n  ": types.signupDocument,
     "\n    mutation resetPassword($email: String) {\n      resetPassword(email: $email)\n    }\n  ": types.resetPasswordDocument,
     "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.UsersNameWrapperDocument,
+    "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
+    "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
+    "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
+    "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserReactionsPaletteDocument,
     "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.emailstestsDocument,
     "\n  fragment AdvisorRequestsMinimumInfo on AdvisorRequest {\n    _id\n    userId\n    createdAt\n    interestedInMetaculus\n    jobAds\n  }\n": types.AdvisorRequestsMinimumInfoDoc,
     "\n  fragment BansAdminPageFragment on Ban {\n    _id\n    createdAt\n    expirationDate\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    reason\n    comment\n    ip\n    properties\n  }\n": types.BansAdminPageFragmentDoc,
@@ -1255,6 +1443,10 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  "): (typeof documents)["\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1271,7 +1463,19 @@ export function gql(source: "mutation UpdateSearchSynonyms($synonyms: [String!]!
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createCurationNoticeCurationNoticesForm($data: CreateCurationNoticeDataInput!) {\n    createCurationNotice(data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createCurationNoticeCurationNoticesForm($data: CreateCurationNoticeDataInput!) {\n    createCurationNotice(data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1295,7 +1499,23 @@ export function gql(source: "\n      query getReadHistory($limit: Int, $filter: 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserBook2019FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserBook2019FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1319,6 +1539,10 @@ export function gql(source: "\n  query CommentPollVote($documentId: String) {\n 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query CommentsNewForm($documentId: String, $postId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentCommentRateLimit\n      }\n    }\n  }\n"): (typeof documents)["\n  query CommentsNewForm($documentId: String, $postId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentCommentRateLimit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1332,6 +1556,14 @@ export function gql(source: "\n  query PostsModerationGuidelines($documentId: St
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query TagModerationGuidelines($documentId: String) {\n    TagModerationGuidelines: tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFragment\n      }\n      __typename\n    }\n  }\n"): (typeof documents)["\n  query TagModerationGuidelines($documentId: String) {\n    TagModerationGuidelines: tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFragment\n      }\n      __typename\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateTagModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateTagModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1371,7 +1603,15 @@ export function gql(source: "\n  query PostExcerpt($documentId: String, $hash: S
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query DialoguesPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query DialoguesPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostBanUserFromPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostBanUserFromPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsPage\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1387,11 +1627,75 @@ export function gql(source: "\n    mutation unlockThread($commentId: String!) {\
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateCommentMoveToAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentMoveToAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentMoveToAnswersDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentMoveToAnswersDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentRetractCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentRetractCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentShortformFrontpageDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentShortformFrontpageDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentToggleIsModeratorCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentToggleIsModeratorCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {\n      moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {\n        ...CommentsList\n      }\n    }\n  "): (typeof documents)["\n    mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {\n      moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {\n        ...CommentsList\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserApproveNewUserDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserApproveNewUserDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query getRssPostChanges($postId: String!) {\n      RssPostChanges(postId: $postId) {\n        isChanged\n        newHtml\n        htmlDiff\n      }\n    }\n  "): (typeof documents)["\n    query getRssPostChanges($postId: String!) {\n      RssPostChanges(postId: $postId) {\n        isChanged\n        newHtml\n        htmlDiff\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserShortformDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserShortformDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostSuggestCuratedDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostSuggestCuratedDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1407,6 +1711,10 @@ export function gql(source: "\n  query EAHomeHandbook($documentId: String) {\n  
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {\n    updateUserJobAd(selector: $selector, data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {\n    updateUserJobAd(selector: $selector, data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {\n    createUserJobAd(data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {\n    createUserJobAd(data: $data) {\n      data {\n        ...UserJobAdsMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1415,11 +1723,27 @@ export function gql(source: "\n      query getUserReadsPerCoreTag($userId: Strin
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateDigestConfirmPublishDialog($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateDigestConfirmPublishDialog($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {\n    updateDigestPost(selector: $selector, data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {\n    updateDigestPost(selector: $selector, data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {\n    createDigestPost(data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {\n    createDigestPost(data: $data) {\n      data {\n        ...DigestPostsMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {\n      DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {\n        post {\n          ...PostsListWithVotes\n        }\n        digestPost {\n          _id\n          emailDigestStatus\n          onsiteDigestStatus\n        }\n        rating\n      }\n    }\n  "): (typeof documents)["\n    query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {\n      DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {\n        post {\n          ...PostsListWithVotes\n        }\n        digestPost {\n          _id\n          emailDigestStatus\n          onsiteDigestStatus\n        }\n        rating\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateDigestEditDigestActionButtons($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateDigestEditDigestActionButtons($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateDigestEditDigestHeader($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateDigestEditDigestHeader($selector: SelectorInput!, $data: UpdateDigestDataInput!) {\n    updateDigest(selector: $selector, data: $data) {\n      data {\n        ...DigestsMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1440,6 +1764,10 @@ export function gql(source: "\n    query getWrappedData($userId: String!, $year:
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {\n      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)\n    }\n  "): (typeof documents)["\n    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {\n      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1483,6 +1811,10 @@ export function gql(source: "\n    query ConvertDocument($document: JSON, $targe
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1512,6 +1844,10 @@ export function gql(source: "\n  query SingleUsersItem($documentId: String) {\n 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query TagSelect($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query TagSelect($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagBasicInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateForumEventForumEventForm($selector: SelectorInput!, $data: UpdateForumEventDataInput!) {\n    updateForumEvent(selector: $selector, data: $data) {\n      data {\n        ...ForumEventsEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateForumEventForumEventForm($selector: SelectorInput!, $data: UpdateForumEventDataInput!) {\n    updateForumEvent(selector: $selector, data: $data) {\n      data {\n        ...ForumEventsEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1607,11 +1943,43 @@ export function gql(source: "\n    mutation RefreshDbSettings {\n      RefreshDb
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshinePostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshinePostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation rejectCommentMutation($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation rejectCommentMutation($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query UnreadNotificationCountQuery {\n      unreadNotificationCounts {\n        unreadNotifications\n        unreadPrivateMessages\n        faviconBadgeNumber\n        checkedAt\n      }\n    }\n  "): (typeof documents)["\n    query UnreadNotificationCountQuery {\n      unreadNotificationCounts {\n        unreadNotifications\n        unreadPrivateMessages\n        faviconBadgeNumber\n        checkedAt\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUseruseUpdateCurrentUser($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUseruseUpdateCurrentUser($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUseruseUpdateGlossaryPinnedState($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUseruseUpdateGlossaryPinnedState($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostGlossaryEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostGlossaryEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {\n      getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {\n        ...JargonTerms\n      }\n    }\n    \n  "): (typeof documents)["\n    mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {\n      getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {\n        ...JargonTerms\n      }\n    }\n    \n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateJargonTermJargonTermForm($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateJargonTermJargonTermForm($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {\n    updateJargonTerm(selector: $selector, data: $data) {\n      data {\n        ...JargonTerms\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1620,6 +1988,10 @@ export function gql(source: "\n  mutation createJargonTermJargonTermForm($data: 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query getPostsWithApprovedJargon($limit: Int!) {\n      PostsWithApprovedJargon(limit: $limit) {\n        results {\n          post {\n            ...PostsListWithVotes\n          }\n          jargonTerms {\n            ...JargonTerms\n          }\n        }\n      }\n    }\n    \n    \n  "): (typeof documents)["\n    query getPostsWithApprovedJargon($limit: Int!) {\n      PostsWithApprovedJargon(limit: $limit) {\n        results {\n          post {\n            ...PostsListWithVotes\n          }\n          jargonTerms {\n            ...JargonTerms\n          }\n        }\n      }\n    }\n    \n    \n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateLlmConversationLlmChatWrapper($selector: SelectorInput!, $data: UpdateLlmConversationDataInput!) {\n    updateLlmConversation(selector: $selector, data: $data) {\n      data {\n        ...LlmConversationsFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateLlmConversationLlmChatWrapper($selector: SelectorInput!, $data: UpdateLlmConversationDataInput!) {\n    updateLlmConversation(selector: $selector, data: $data) {\n      data {\n        ...LlmConversationsFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1651,6 +2023,14 @@ export function gql(source: "\n    query ArbitalPageRequest {\n      ArbitalPage
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {\n    updateLocalgroup(selector: $selector, data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {\n    updateLocalgroup(selector: $selector, data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {\n    createLocalgroup(data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {\n    createLocalgroup(data: $data) {\n      data {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -1675,7 +2055,15 @@ export function gql(source: "\n  query ConversationPreview($documentId: String) 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n"): (typeof documents)["\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1684,6 +2072,10 @@ export function gql(source: "\n  mutation createMessageMessagesNewForm($data: Cr
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1719,7 +2111,15 @@ export function gql(source: "\n    mutation MarkAllNotificationsAsRead {\n      
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query TagRelNotificationItem($documentId: String) {\n    tagRel(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagRelFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query TagRelNotificationItem($documentId: String) {\n    tagRel(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagRelFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1728,6 +2128,14 @@ export function gql(source: "\n    query ActiveTagCount {\n      ActiveTagCount\
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query AddToCalendarButton($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPlaintextDescription\n      }\n    }\n  }\n"): (typeof documents)["\n  query AddToCalendarButton($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPlaintextDescription\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1759,7 +2167,15 @@ export function gql(source: "\n  mutation createPostNewDialogueDialog($data: Cre
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createPostPostForm($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createPostPostForm($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEditMutationFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {\n    updateUserMostValuablePost(selector: $selector, data: $data) {\n      data {\n        ...UserMostValuablePostInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {\n    updateUserMostValuablePost(selector: $selector, data: $data) {\n      data {\n        ...UserMostValuablePostInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1768,6 +2184,10 @@ export function gql(source: "\n  mutation createUserMostValuablePostPostMostValu
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query PostsCompareRevisions($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsCompareRevisions($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1947,11 +2367,19 @@ export function gql(source: "\n    mutation submitReviewVote($postId: String, $q
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query RotatingReviewWinnerSpotlightDisplay($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  query RotatingReviewWinnerSpotlightDisplay($documentId: String) {\n    spotlight(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n      query RotatingReviewWinnerSpotlight {\n        GetAllReviewWinners {\n          ...PostForReviewWinnerItem\n        }\n      }\n      \n    "): (typeof documents)["\n      query RotatingReviewWinnerSpotlight {\n        GetAllReviewWinners {\n          ...PostForReviewWinnerItem\n        }\n      }\n      \n    "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateRevisionCompareRevisions($selector: SelectorInput!, $data: UpdateRevisionDataInput!) {\n    updateRevision(selector: $selector, data: $data) {\n      data {\n        ...RevisionEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateRevisionCompareRevisions($selector: SelectorInput!, $data: UpdateRevisionDataInput!) {\n    updateRevision(selector: $selector, data: $data) {\n      data {\n        ...RevisionEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1999,11 +2427,23 @@ export function gql(source: "\n    query petrovDay2024Resolvers {\n      PetrovD
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2015,11 +2455,19 @@ export function gql(source: "\n  query ChaptersItem($documentId: String) {\n    
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2047,7 +2495,15 @@ export function gql(source: "\n  query ProfileShortform($documentId: String) {\n
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateSpotlightSpotlightForm($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateSpotlightSpotlightForm($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {\n    createSpotlight(data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {\n    createSpotlight(data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightDisplay\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2059,11 +2515,31 @@ export function gql(source: "\n  mutation createSubscriptionSuggestedFeedSubscri
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserAFSuggestUsersItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserAFSuggestUsersItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query ModerationAltAccounts($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserAltAccountsFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query ModerationAltAccounts($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserAltAccountsFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query ModeratorIPAddressInfo($ipAddress: String!) {\n      moderatorViewIPAddress(ipAddress: $ipAddress) {\n        ip\n        userIds\n      }\n    }\n  "): (typeof documents)["\n    query ModeratorIPAddressInfo($ipAddress: String!) {\n      moderatorViewIPAddress(ipAddress: $ipAddress) {\n        ip\n        userIds\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {\n    updateModeratorAction(selector: $selector, data: $data) {\n      data {\n        ...ModeratorActionDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {\n    updateModeratorAction(selector: $selector, data: $data) {\n      data {\n        ...ModeratorActionDisplay\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2083,11 +2559,47 @@ export function gql(source: "\n  mutation createReportReportForm($data: CreateRe
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentSunshineNewCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentSunshineNewCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        ...ModeratorActionsDefaultFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        ...ModeratorActionsDefaultFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateTagSunshineNewTagsItem($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...SunshineTagFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateTagSunshineNewTagsItem($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...SunshineTagFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query SunshineNewUsersProfileInfo($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n"): (typeof documents)["\n  query SunshineNewUsersProfileInfo($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {\n    updateReport(selector: $selector, data: $data) {\n      data {\n        ...UnclaimedReportsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {\n    updateReport(selector: $selector, data: $data) {\n      data {\n        ...UnclaimedReportsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateCommentSunshineReportedItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateCommentSunshineReportedItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitsDefaultFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitsDefaultFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserRateLimitUserRateLimitItem($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserRateLimitUserRateLimitItem($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {\n    updateUserRateLimit(selector: $selector, data: $data) {\n      data {\n        ...UserRateLimitDisplay\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2112,6 +2624,10 @@ export function gql(source: "\n    mutation editSurvey($surveyId: String!, $name
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createSurveyResponseSurveyPostsItem($data: CreateSurveyResponseDataInput!) {\n    createSurveyResponse(data: $data) {\n      data {\n        ...SurveyResponseMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createSurveyResponseSurveyPostsItem($data: CreateSurveyResponseDataInput!) {\n    createSurveyResponse(data: $data) {\n      data {\n        ...SurveyResponseMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateSurveyScheduleSurveyScheduleEditPage($selector: SelectorInput!, $data: UpdateSurveyScheduleDataInput!) {\n    updateSurveySchedule(selector: $selector, data: $data) {\n      data {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateSurveyScheduleSurveyScheduleEditPage($selector: SelectorInput!, $data: UpdateSurveyScheduleDataInput!) {\n    updateSurveySchedule(selector: $selector, data: $data) {\n      data {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2155,6 +2671,10 @@ export function gql(source: "\n  query LWTagPage($documentId: String) {\n    tag
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  "): (typeof documents)["\n    query getRandomTag {\n      RandomTag {slug}\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2164,6 +2684,10 @@ export function gql(source: "\n  mutation createSubscriptionSubscribeButton($dat
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {\n      reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)\n    }\n  "): (typeof documents)["\n    mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {\n      reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateMultiDocumentSummaryForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateMultiDocumentSummaryForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2179,11 +2703,19 @@ export function gql(source: "\n    query getTagUpdates($before: Date!, $after: D
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateTagFlagTagFlagEditAndNewForm($selector: SelectorInput!, $data: UpdateTagFlagDataInput!) {\n    updateTagFlag(selector: $selector, data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateTagFlagTagFlagEditAndNewForm($selector: SelectorInput!, $data: UpdateTagFlagDataInput!) {\n    updateTagFlag(selector: $selector, data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createTagFlagTagFlagEditAndNewForm($data: CreateTagFlagDataInput!) {\n    createTagFlag(data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createTagFlagTagFlagEditAndNewForm($data: CreateTagFlagDataInput!) {\n    createTagFlag(data: $data) {\n      data {\n        ...TagFlagFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query TagFlagItem($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query TagFlagItem($documentId: String) {\n    tagFlag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagFlagFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagWithFlagsFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2219,11 +2751,23 @@ export function gql(source: "\n    query GetTagsByCoreTagId(\n      $coreTagId: 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateMultiDocumentLensForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateMultiDocumentLensForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {\n    updateMultiDocument(selector: $selector, data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createMultiDocumentLensForm($data: CreateMultiDocumentDataInput!) {\n    createMultiDocument(data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createMultiDocumentLensForm($data: CreateMultiDocumentDataInput!) {\n    createMultiDocument(data: $data) {\n      data {\n        ...MultiDocumentEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateTagSidebarSubtagsBox($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagBasicInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateTagSidebarSubtagsBox($selector: SelectorInput!, $data: UpdateTagDataInput!) {\n    updateTag(selector: $selector, data: $data) {\n      data {\n        ...TagBasicInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query SidebarSubtagsBox($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagSubtagFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SidebarSubtagsBox($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagSubtagFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {\n    updateUserTagRel(selector: $selector, data: $data) {\n      data {\n        ...UserTagRelDetails\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {\n    updateUserTagRel(selector: $selector, data: $data) {\n      data {\n        ...UserTagRelDetails\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2283,6 +2827,10 @@ export function gql(source: "\n    mutation connectCrossposter($token: String) {
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2308,6 +2856,22 @@ export function gql(source: "\n    mutation resetPassword($email: String) {\n   
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery, gql, useMutation } from '@apollo/client';
+import { useQuery, gql as graphql, useMutation } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
 import ErrorMessage from "../common/ErrorMessage";
@@ -11,6 +10,17 @@ import Loading from "../vulcan-core/Loading";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const RevisionEditUpdateMutation = gql(`
+  mutation updateRevisionCompareRevisions($selector: SelectorInput!, $data: UpdateRevisionDataInput!) {
+    updateRevision(selector: $selector, data: $data) {
+      data {
+        ...RevisionEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("CompareRevisions", (theme: ThemeType) => ({
   differences: {
@@ -62,7 +72,7 @@ const CompareRevisions = ({
   const currentUser = useCurrentUser();
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
-  const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
+  const { data: diffResult, loading: loadingDiff, error } = useQuery(graphql`
     query RevisionsDiff($collectionName: String!, $fieldName: String!, $id: String!, $beforeRev: String, $afterRev: String!, $trim: Boolean) {
       RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)
     }
@@ -144,18 +154,17 @@ const CompareRevisionsMenu = ({revision}: {
 const RevisionsMenuActions = ({revision}: {
   revision: RevisionHistoryEntry
 }) => {
-  const {mutate: updateRevision} = useUpdate({
-    collectionName: "Revisions",
-    fragmentName: "RevisionEdit",
-  });
+  const [updateRevision] = useMutation(RevisionEditUpdateMutation);
 
   return <>
     <MenuItem onClick={ev => {
       void updateRevision({
-        selector: {_id: revision._id},
-        data: {
-          skipAttributions: !revision.skipAttributions,
-        },
+        variables: {
+          selector: { _id: revision._id },
+          data: {
+            skipAttributions: !revision.skipAttributions,
+          }
+        }
       });
     }}>
       {revision.skipAttributions

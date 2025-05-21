@@ -8,7 +8,6 @@ import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/helpers";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
@@ -20,6 +19,16 @@ import SummariesEditForm from "../SummariesEditForm";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const MultiDocumentEditUpdateMutation = gql(`
+  mutation updateMultiDocumentLensForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {
+    updateMultiDocument(selector: $selector, data: $data) {
+      data {
+        ...MultiDocumentEdit
+      }
+    }
+  }
+`);
 
 const MultiDocumentEditMutation = gql(`
   mutation createMultiDocumentLensForm($data: CreateMultiDocumentDataInput!) {
@@ -67,10 +76,7 @@ export const LensForm = ({
 
   const [create] = useMutation(MultiDocumentEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentEdit',
-  });
+  const [mutate] = useMutation(MultiDocumentEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -104,10 +110,15 @@ export const LensForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateMultiDocument.data;
+          if (!data?.updateMultiDocument?.data) {
+            throw new Error('Failed to update lens');
+          }
+          result = data.updateMultiDocument.data;
         }
 
         onSuccessCallback.current?.(result);

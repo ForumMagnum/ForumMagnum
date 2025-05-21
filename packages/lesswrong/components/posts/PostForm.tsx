@@ -2,7 +2,6 @@ import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
@@ -48,6 +47,16 @@ import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsEditMutationFragmentUpdateMutation = gql(`
+  mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsEditMutationFragment
+      }
+    }
+  }
+`);
 
 const PostsEditMutationFragmentMutation = gql(`
   mutation createPostPostForm($data: CreatePostDataInput!) {
@@ -161,10 +170,7 @@ const PostForm = ({
 
   const [create] = useMutation(PostsEditMutationFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Posts',
-    fragmentName: 'PostsEditMutationFragment',
-  });
+  const [mutate] = useMutation(PostsEditMutationFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -193,10 +199,15 @@ const PostForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updatePost.data;
+          if (!data?.updatePost?.data) {
+            throw new Error('Failed to update post');
+          }
+          result = data.updatePost.data;
         }
 
         onSuccessCallback.current?.(result, meta);

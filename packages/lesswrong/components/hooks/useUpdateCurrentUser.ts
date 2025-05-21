@@ -1,6 +1,17 @@
 import { useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUseruseUpdateCurrentUser($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 export type UpdateCurrentUserFunction = (
   data: UpdateUserDataInput,
@@ -9,16 +20,15 @@ export type UpdateCurrentUserFunction = (
 export function useUpdateCurrentUser(): UpdateCurrentUserFunction {
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
   
   return useCallback(async (data: UpdateUserDataInput & Partial<Pick<DbUser, 'reactPaletteStyle' | 'subforumPreferredLayout'>>): Promise<AnyBecauseTodo> => {
     if (currentUserId) {
       return await updateUser({
-        selector: {_id: currentUserId},
-        data,
+        variables: {
+          selector: {_id: currentUserId},
+          data,
+        }
       });
     }
   }, [updateUser, currentUserId]);

@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -28,6 +27,16 @@ import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const ModeratorActionsDefaultFragmentMutation = gql(`
   mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {
@@ -78,32 +87,33 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
 
   const [createModeratorAction] = useMutation(ModeratorActionsDefaultFragmentMutation);
   
   const handlePersonal = () => {
     void updatePost({
-      selector: { _id: post._id},
-      data: {
-        frontpageDate: null,
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          frontpageDate: null,
+          reviewedByUserId: currentUser!._id,
+          authorIsUnreviewed: false
+        }
+      }
     })
   }
 
   const handlePromote = () => {
     void updatePost({
-      selector: { _id: post._id},
-      data: {
-        frontpageDate: new Date(),
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          frontpageDate: new Date(),
+          reviewedByUserId: currentUser!._id,
+          authorIsUnreviewed: false
+        }
+      }
     })
   }
   
@@ -111,9 +121,11 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
-        selector: { _id: post._id},
-        data: {
-          draft: true,
+        variables: {
+          selector: { _id: post._id },
+          data: {
+            draft: true,
+          }
         }
       })
     }

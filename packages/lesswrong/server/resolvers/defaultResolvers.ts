@@ -152,7 +152,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Get selector and options from terms and perform Mongo query
     // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
-    const parameters = viewTermsToQuery(viewSet, terms, {}, context);
+    // Also downcast the generic to avoid a very expensive but useless type inference that indexes over all view terms by collection
+    const parameters = viewTermsToQuery<CollectionNameString>(viewSet, terms, {}, context);
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "results", typeName);

@@ -1,4 +1,3 @@
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
@@ -19,6 +18,16 @@ import LWDialog from "../common/LWDialog";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagFlagFragmentUpdateMutation = gql(`
+  mutation updateTagFlagTagFlagEditAndNewForm($selector: SelectorInput!, $data: UpdateTagFlagDataInput!) {
+    updateTagFlag(selector: $selector, data: $data) {
+      data {
+        ...TagFlagFragment
+      }
+    }
+  }
+`);
 
 const TagFlagFragmentMutation = gql(`
   mutation createTagFlagTagFlagEditAndNewForm($data: CreateTagFlagDataInput!) {
@@ -55,10 +64,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
 
   const [create] = useMutation(TagFlagFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'TagFlags',
-    fragmentName: 'TagFlagFragment',
-  });
+  const [mutate] = useMutation(TagFlagFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -82,10 +88,15 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateTagFlag.data;
+          if (!data?.updateTagFlag?.data) {
+            throw new Error('Failed to update tag flag');
+          }
+          result = data.updateTagFlag.data;
         }
 
         onSuccessCallback.current?.(result);

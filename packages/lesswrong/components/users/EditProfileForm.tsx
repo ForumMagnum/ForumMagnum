@@ -12,7 +12,6 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -33,8 +32,18 @@ import PrefixedInput from "../form-components/PrefixedInput";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const UsersProfileEditQuery = gql(`
   query EditProfileForm($documentId: String) {
@@ -196,10 +205,7 @@ const UserProfileForm = ({
     formVariant: "grey",
   } as const;
 
-  const { mutate } = useUpdate({
-    collectionName: 'Users',
-    fragmentName: 'UsersEdit',
-  });
+  const [mutate] = useMutation(UsersEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -219,10 +225,15 @@ const UserProfileForm = ({
 
         const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'howOthersCanHelpMe', 'howICanHelpOthers']);
         const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields
+          }
         });
-        result = data?.updateUser.data;
+        if (!data?.updateUser?.data) {
+          throw new Error('Failed to update user');
+        }
+        result = data.updateUser.data;
 
         onSuccessBiographyCallback.current?.(result);
         onSuccessHowOthersCanHelpMeCallback.current?.(result);

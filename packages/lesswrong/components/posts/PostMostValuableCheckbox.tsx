@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserMostValuablePostInfoUpdateMutation = gql(`
+  mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {
+    updateUserMostValuablePost(selector: $selector, data: $data) {
+      data {
+        ...UserMostValuablePostInfo
+      }
+    }
+  }
+`);
 
 const UserMostValuablePostInfoMutation = gql(`
   mutation createUserMostValuablePostPostMostValuableCheckbox($data: CreateUserMostValuablePostDataInput!) {
@@ -47,10 +56,7 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   const userVote = results?.length ? results[0] : null
   
   const [createMostValuable, { loading: createMostValuableLoading }] = useMutation(UserMostValuablePostInfoMutation);
-  const { mutate: setMostValuable, loading: setMostValuableLoading } = useUpdate({
-    collectionName: "UserMostValuablePosts",
-    fragmentName: 'UserMostValuablePostInfo',
-  })
+  const [setMostValuable, { loading: setMostValuableLoading }] = useMutation(UserMostValuablePostInfoUpdateMutation);
   
   const [checked, setChecked] = useState(false);
   useEffect(() => {
@@ -64,15 +70,25 @@ export const PostMostValuableCheckbox = ({post, classes}: {
     if (userVote) {
       setChecked(!!userVote.deleted)
       void setMostValuable({
-        selector: {
-          _id: userVote._id
-        },
-        data: {
-          deleted: !userVote.deleted
+        variables: {
+          selector: {
+            _id: userVote._id
+          },
+          data: {
+            deleted: !userVote.deleted
+          }
         },
         optimisticResponse: {
-          ...userVote,
-          deleted: !userVote.deleted
+          updateUserMostValuablePost: {
+            __typename: "UserMostValuablePostOutput",
+            data: {
+              __typename: "UserMostValuablePost",
+              ...{
+                ...userVote,
+                deleted: !userVote.deleted
+              }
+            }
+          }
         }
       })
     } else {

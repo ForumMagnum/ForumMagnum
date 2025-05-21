@@ -1,5 +1,4 @@
 import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/helpers";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -14,6 +13,16 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const MultiDocumentContentDisplayUpdateMutation = gql(`
+  mutation updateMultiDocumentSummaryForm($selector: SelectorInput!, $data: UpdateMultiDocumentDataInput!) {
+    updateMultiDocument(selector: $selector, data: $data) {
+      data {
+        ...MultiDocumentContentDisplay
+      }
+    }
+  }
+`);
 
 const MultiDocumentContentDisplayMutation = gql(`
   mutation createMultiDocumentSummaryForm($data: CreateMultiDocumentDataInput!) {
@@ -81,10 +90,7 @@ export const SummaryForm = ({
 
   const [create] = useMutation(MultiDocumentContentDisplayMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentContentDisplay',
-  });
+  const [mutate] = useMutation(MultiDocumentContentDisplayUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -119,10 +125,15 @@ export const SummaryForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateMultiDocument.data;
+          if (!data?.updateMultiDocument?.data) {
+            throw new Error('Failed to update multi document');
+          }
+          result = data.updateMultiDocument.data;
         }
 
         onSuccessCallback.current?.(result);

@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -30,6 +29,18 @@ import Loading from "../vulcan-core/Loading";
 import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileUpdateMutation = gql(`
+  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersProfile
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -181,10 +192,7 @@ const EventsHome = ({classes}: {
   const [formatFilter, setFormatFilter] = useState<Array<string>>([])
 
   // used to set the user's location if they did not already have one
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-  });
+  const [updateUser] = useMutation(UsersProfileUpdateMutation);
 
   // used to set the cutoff distance for the query (default to 160 km / 100 mi)
   const [distance, setDistance] = useState(160)
@@ -230,10 +238,12 @@ const EventsHome = ({classes}: {
     if (currentUser) {
       // save it on the user document
       void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          location: gmaps?.formatted_address,
-          googleLocation: gmaps
+        variables: {
+          selector: { _id: currentUser._id },
+          data: {
+            location: gmaps?.formatted_address,
+            googleLocation: gmaps
+          }
         }
       })
     } else {

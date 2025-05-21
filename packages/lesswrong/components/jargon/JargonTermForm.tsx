@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -13,6 +12,16 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const JargonTermsUpdateMutation = gql(`
+  mutation updateJargonTermJargonTermForm($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
+    updateJargonTerm(selector: $selector, data: $data) {
+      data {
+        ...JargonTerms
+      }
+    }
+  }
+`);
 
 const JargonTermsMutation = gql(`
   mutation createJargonTermJargonTermForm($data: CreateJargonTermDataInput!) {
@@ -101,10 +110,7 @@ export const JargonTermForm = ({
 
   const [create] = useMutation(JargonTermsMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'JargonTerms',
-    fragmentName: 'JargonTerms',
-  });
+  const [mutate] = useMutation(JargonTermsUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -130,10 +136,15 @@ export const JargonTermForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateJargonTerm.data;
+          if (!data?.updateJargonTerm?.data) {
+            throw new Error('Failed to update jargon term');
+          }
+          result = data.updateJargonTerm.data;
         }
 
         onSuccessCallback.current?.(result);

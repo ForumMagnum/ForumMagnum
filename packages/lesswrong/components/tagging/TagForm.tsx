@@ -1,5 +1,4 @@
 import { userIsSubforumModerator, TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -25,6 +24,16 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagWithFlagsFragmentUpdateMutation = gql(`
+  mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {
+    updateTag(selector: $selector, data: $data) {
+      data {
+        ...TagWithFlagsFragment
+      }
+    }
+  }
+`);
 
 const TagWithFlagsFragmentMutation = gql(`
   mutation createTagTagForm($data: CreateTagDataInput!) {
@@ -121,10 +130,7 @@ export const TagForm = ({
 
   const [create] = useMutation(TagWithFlagsFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Tags',
-    fragmentName: 'TagWithFlagsFragment',
-  });
+  const [mutate] = useMutation(TagWithFlagsFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -158,10 +164,15 @@ export const TagForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['description', 'moderationGuidelines', 'subforumWelcomeText']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateTag.data;
+          if (!data?.updateTag?.data) {
+            throw new Error('Failed to update tag');
+          }
+          result = data.updateTag.data;
         }
 
         onSuccessCallback.current?.(result);

@@ -1,11 +1,22 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineReportedItem from "./SunshineReportedItem";
 import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UnclaimedReportsListUpdateMutation = gql(`
+  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {
+    updateReport(selector: $selector, data: $data) {
+      data {
+        ...UnclaimedReportsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,10 +34,7 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
     fragmentName: 'UnclaimedReportsList',
     enableTotal: true,
   });
-  const { mutate: updateReport } = useUpdate({
-    collectionName: "Reports",
-    fragmentName: 'UnclaimedReportsList',
-  });
+  const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
   
   if (results && results.length) {
     return (

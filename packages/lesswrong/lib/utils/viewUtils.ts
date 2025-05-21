@@ -40,7 +40,8 @@ export function viewTermsToQuery<N extends CollectionNameString>(viewSet: Collec
  * this selector as a starting point.
  */
 export function getDefaultViewSelector<N extends CollectionNameString>(viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>) {
-  const viewQuery = viewTermsToQuery(viewSet, {})
+  // Downcast the generic to avoid a very expensive but useless type inference that indexes over all view terms by collection
+  const viewQuery = viewTermsToQuery<CollectionNameString>(viewSet, {})
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
@@ -50,7 +51,7 @@ export function getDefaultViewSelector<N extends CollectionNameString>(viewSet: 
  */
 function getParameters<N extends CollectionNameString>(
   viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
-  terms: ViewTermsByCollectionName[N] = {},
+  terms: ViewTermsByCollectionName[N],
   apolloClient?: any,
   context?: ResolverContext
 ): MergedViewQueryAndOptions<ObjectsByCollectionName[N]> {

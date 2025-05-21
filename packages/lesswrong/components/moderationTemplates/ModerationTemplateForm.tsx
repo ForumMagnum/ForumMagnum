@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
@@ -16,6 +15,16 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModerationTemplateFragmentUpdateMutation = gql(`
+  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {
+    updateModerationTemplate(selector: $selector, data: $data) {
+      data {
+        ...ModerationTemplateFragment
+      }
+    }
+  }
+`);
 
 const ModerationTemplateFragmentMutation = gql(`
   mutation createModerationTemplateModerationTemplateForm($data: CreateModerationTemplateDataInput!) {
@@ -55,10 +64,7 @@ export const ModerationTemplatesForm = ({
 
   const [create] = useMutation(ModerationTemplateFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'ModerationTemplates',
-    fragmentName: 'ModerationTemplateFragment',
-  });
+  const [mutate] = useMutation(ModerationTemplateFragmentUpdateMutation);
 
   const newFormDefaults = formType === 'new'
   ? { order: 10 }
@@ -94,10 +100,15 @@ export const ModerationTemplatesForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateModerationTemplate.data;
+          if (!data?.updateModerationTemplate?.data) {
+            throw new Error('Failed to update moderation template');
+          }
+          result = data.updateModerationTemplate.data;
         }
 
         onSuccessCallback.current?.(result);

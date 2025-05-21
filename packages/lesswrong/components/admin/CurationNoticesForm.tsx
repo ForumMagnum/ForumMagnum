@@ -1,4 +1,3 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
@@ -13,6 +12,16 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CurationNoticesFragmentUpdateMutation = gql(`
+  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {
+    updateCurationNotice(selector: $selector, data: $data) {
+      data {
+        ...CurationNoticesFragment
+      }
+    }
+  }
+`);
 
 const CurationNoticesFragmentMutation = gql(`
   mutation createCurationNoticeCurationNoticesForm($data: CreateCurationNoticeDataInput!) {
@@ -57,10 +66,7 @@ export const CurationNoticesForm = ({
 
   const [create] = useMutation(CurationNoticesFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'CurationNotices',
-    fragmentName: 'CurationNoticesFragment',
-  });
+  const [mutate] = useMutation(CurationNoticesFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -86,10 +92,15 @@ export const CurationNoticesForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateCurationNotice.data;
+          if (!data?.updateCurationNotice?.data) {
+            throw new Error('Failed to update curation notice');
+          }
+          result = data.updateCurationNotice.data;
         }
 
         onSuccessCallback.current?.(result);

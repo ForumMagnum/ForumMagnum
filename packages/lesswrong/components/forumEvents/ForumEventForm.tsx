@@ -3,7 +3,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -24,6 +23,16 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from "@/lib/utils/dateUtils";
+
+const ForumEventsEditUpdateMutation = gql(`
+  mutation updateForumEventForumEventForm($selector: SelectorInput!, $data: UpdateForumEventDataInput!) {
+    updateForumEvent(selector: $selector, data: $data) {
+      data {
+        ...ForumEventsEdit
+      }
+    }
+  }
+`);
 
 const ForumEventsEditMutation = gql(`
   mutation createForumEventForumEventForm($data: CreateForumEventDataInput!) {
@@ -76,10 +85,7 @@ const InnerForumEventForm = ({
 
   const [create] = useMutation(ForumEventsEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'ForumEvents',
-    fragmentName: 'ForumEventsEdit',
-  });
+  const [mutate] = useMutation(ForumEventsEditUpdateMutation);
 
   const form = useForm({
     defaultValues: {
@@ -102,10 +108,15 @@ const InnerForumEventForm = ({
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['frontpageDescription', 'frontpageDescriptionMobile', 'pollQuestion', 'postPageDescription']);
         const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields
+          }
         });
-        result = data?.updateForumEvent.data;
+        if (!data?.updateForumEvent?.data) {
+          throw new Error('Failed to update forum event');
+        }
+        result = data.updateForumEvent.data;
       }
 
       onSuccessCallback.current?.(result);

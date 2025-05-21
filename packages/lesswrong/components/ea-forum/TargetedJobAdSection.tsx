@@ -5,7 +5,6 @@ import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
 import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
@@ -16,6 +15,16 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
+
+const UserJobAdsMinimumInfoUpdateMutation = gql(`
+  mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {
+    updateUserJobAd(selector: $selector, data: $data) {
+      data {
+        ...UserJobAdsMinimumInfo
+      }
+    }
+  }
+`);
 
 const UserJobAdsMinimumInfoMutation = gql(`
   mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {
@@ -45,10 +54,7 @@ const TargetedJobAdSection = () => {
   const recordCreated = useRef<boolean>(false)
 
   const [createUserJobAd] = useMutation(UserJobAdsMinimumInfoMutation);
-  const { mutate: updateUserJobAd } = useUpdate({
-    collectionName: 'UserJobAds',
-    fragmentName: 'UserJobAdsMinimumInfo',
-  })
+  const [updateUserJobAd] = useMutation(UserJobAdsMinimumInfoUpdateMutation);
   const { results: userJobAds, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useMulti({
     terms: {view: 'adsByUser', userId: currentUser?._id},
     collectionName: 'UserJobAds',
@@ -223,9 +229,11 @@ const TargetedJobAdSection = () => {
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
     if (ad) {
       void updateUserJobAd({
-        selector: {_id: ad._id},
-        data: {
-          adState: 'applied'
+        variables: {
+          selector: { _id: ad._id },
+          data: {
+            adState: 'applied'
+          }
         }
       })
     }
@@ -238,10 +246,12 @@ const TargetedJobAdSection = () => {
     if (ad) {
       // email is sent via cron
       void updateUserJobAd({
-        selector: {_id: ad._id},
-        data: {
-          adState: 'reminderSet',
-          reminderSetAt: new Date()
+        variables: {
+          selector: { _id: ad._id },
+          data: {
+            adState: 'reminderSet',
+            reminderSetAt: new Date()
+          }
         }
       })
     }

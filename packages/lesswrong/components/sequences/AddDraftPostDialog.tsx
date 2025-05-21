@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { DialogActions } from '../widgets/DialogActions';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
@@ -9,6 +8,18 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useDialog } from '../common/withDialog';
 import LWDialog from "../common/LWDialog";
 import SequenceDraftsList from "./SequenceDraftsList";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ChaptersFragmentUpdateMutation = gql(`
+  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {
+    updateChapter(selector: $selector, data: $data) {
+      data {
+        ...ChaptersFragment
+      }
+    }
+  }
+`);
 
 const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   documentId: string,
@@ -19,10 +30,7 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   const [dialogPostIds, setDialogPostIds] = useState(postIds)
   const { closeDialog } = useDialog()
 
-  const {mutate: updatePostIds} = useUpdate({
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-  });
+  const [updatePostIds] = useMutation(ChaptersFragmentUpdateMutation);
 
   const addDraft = useCallback((newPostId: string) => {
     if (dialogPostIds.includes(newPostId)) {
@@ -31,8 +39,10 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
     }
     setDialogPostIds([...dialogPostIds, newPostId])
     void updatePostIds({
-      selector: {_id: documentId},
-      data: {postIds: [...dialogPostIds, newPostId]}
+      variables: {
+        selector: { _id: documentId },
+        data: { postIds: [...dialogPostIds, newPostId] }
+      }
     })
   }, [documentId, updatePostIds, dialogPostIds, flash])
   return (

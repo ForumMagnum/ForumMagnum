@@ -9925,6 +9925,7 @@ input UpdateUserDataInput {
   nearbyPeopleNotificationThreshold: Float
   hideFrontpageMap: Boolean
   hideTaggingProgressBar: Boolean
+  hideFrontpageBookAd: Boolean
   hideFrontpageBook2019Ad: Boolean
   hideFrontpageBook2020Ad: Boolean
   sunshineNotes: String

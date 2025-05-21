@@ -16,7 +16,6 @@ import { FormUserMultiselect } from '@/components/form-components/UserMultiselec
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { GroupFormSubmit } from './GroupFormSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -29,6 +28,16 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from '@/lib/utils/dateUtils';
+
+const localGroupsHomeFragmentUpdateMutation = gql(`
+  mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {
+    updateLocalgroup(selector: $selector, data: $data) {
+      data {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
 
 const localGroupsHomeFragmentMutation = gql(`
   mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {
@@ -106,10 +115,7 @@ const LocalGroupForm = ({
 
   const [create] = useMutation(localGroupsHomeFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Localgroups',
-    fragmentName: 'localGroupsHomeFragment',
-  });
+  const [mutate] = useMutation(localGroupsHomeFragmentUpdateMutation);
   
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -137,10 +143,15 @@ const LocalGroupForm = ({
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateLocalgroup.data;
+          if (!data?.updateLocalgroup?.data) {
+            throw new Error('Failed to update local group');
+          }
+          result = data.updateLocalgroup.data;
         }
 
         onSuccessCallback.current?.(result);

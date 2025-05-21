@@ -1,13 +1,24 @@
 import React, {useCallback, useState} from 'react';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import {useMessages} from "../common/withMessages";
-import { useUpdate } from '../../lib/crud/withUpdate';
 import type { EditablePost, PostCategory } from '../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsMinimumInfoUpdateMutation = gql(`
+  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('EditTitle', (theme: ThemeType) => ({
   root: {
@@ -51,10 +62,7 @@ export const EditTitle = ({ field, document }: EditTitleProps) => {
 
   const value = field.state.value ?? undefined;
 
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsMinimumInfo',
-  });
+  const [updatePost] = useMutation(PostsMinimumInfoUpdateMutation);
 
   const { isEvent, question, postCategory } = document;
 
@@ -65,8 +73,10 @@ export const EditTitle = ({ field, document }: EditTitleProps) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
       setLastSavedTitle(event.target.value)
       void updatePost({
-        selector: {_id: document._id},
-        data: {title: event.target.value}
+        variables: {
+          selector: { _id: document._id },
+          data: { title: event.target.value }
+        }
       }).then(() => flash({messageString: "Title has been changed."}));
     }
   }, [document, updatePost, lastSavedTitle, flash])

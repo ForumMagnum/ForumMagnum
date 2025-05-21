@@ -7,7 +7,6 @@ import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
 import { forumTypeSetting } from '@/lib/instanceSettings';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import ContentStyles from "../common/ContentStyles";
@@ -15,7 +14,17 @@ import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-const CommentsListMutation = gql(`
+const PostsListUpdateMutation = gql(`
+  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+const CommentsListMutation = graphql(`
   mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {
     createComment(data: $data) {
       data {
@@ -261,10 +270,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
   const [create] = useMutation(CommentsListMutation);
 
-  const { mutate: updatePost } = useUpdate({
-    collectionName: 'Posts',
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
 
   useEffect(() => {
     if (data && data.importUrlAsDraftPost && data.importUrlAsDraftPost.post) {
@@ -300,19 +306,21 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
       // Update and publish the post using useUpdate
       await updatePost({
-        selector: { _id: post._id },
-        data: {
-          contents: {
-            originalContents: {
-              data: postContent,
-              type: 'ckEditorMarkup',
+        variables: {
+          selector: { _id: post._id },
+          data: {
+            contents: {
+              originalContents: {
+                data: postContent,
+                type: 'ckEditorMarkup',
+              },
             },
-          },
-          draft: false,
-          wasEverUndrafted: true,
-          postedAt: post.postedAt ?? defaultPostedAt ?? new Date(),
-          deletedDraft: false
-        } as AnyBecauseHard,
+            draft: false,
+            wasEverUndrafted: true,
+            postedAt: post.postedAt ?? defaultPostedAt ?? new Date(),
+            deletedDraft: false
+          } as AnyBecauseHard
+        }
       });
 
       setPublished(true);

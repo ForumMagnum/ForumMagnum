@@ -8,7 +8,6 @@ import { EditablePost } from '@/lib/collections/posts/helpers';
 import { useForm } from '@tanstack/react-form';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
@@ -18,7 +17,28 @@ import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
+
+const postUpdateMutation = gql(`
+  mutation updatePostModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsPage
+      }
+    }
+  }
+`);
+
+const tagUpdateMutation = gql(`
+  mutation updateTagModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {
+    updateTag(selector: $selector, data: $data) {
+      data {
+        ...TagWithFlagsFragment
+      }
+    }
+  }
+`);
+
 
 const postsEditQuery = gql(`
   query PostsEditQuery($documentId: String!, $version: String) {
@@ -83,10 +103,7 @@ const PostModerationGuidelinesForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<PostsPage | TagWithFlagsFragment>();
 
-  const { mutate } = useUpdate({
-    collectionName: isPost ? 'Posts' : 'Tags',
-    fragmentName: isPost ? 'PostsPage' : 'TagWithFlagsFragment',
-  });
+  const [mutate] = useMutation(isPost ? postUpdateMutation : tagUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -102,10 +119,15 @@ const PostModerationGuidelinesForm = ({
 
         const updatedFields = getUpdatedFieldValues(formApi, ['moderationGuidelines']);
         const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          },
         });
-        result = data?.updatePost.data;
+        if (!data?.updatePost?.data) {
+          throw new Error('Failed to update post');
+        }
+        result = data.updatePost.data;
 
         onSuccessCallback.current?.(result);
         onSuccess?.();

@@ -9,7 +9,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 import { WithMessagesFunctions } from '../common/FlashMessages';
@@ -26,6 +25,18 @@ import GroupFormLink from "./GroupFormLink";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileUpdateMutation = gql(`
+  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersProfile
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -57,10 +68,7 @@ const CommunityHome = ({classes}: {
   const { openDialog } = useDialog();
   const { query } = useLocation();
   
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-  });
+  const [updateUser] = useMutation(UsersProfileUpdateMutation);
   
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
@@ -86,10 +94,12 @@ const CommunityHome = ({classes}: {
         if (results?.length) {
           const location = pickBestReverseGeocodingResult(results)
           void updateUser({
-            selector: {_id: currentUser._id},
-            data: {
-              location: location?.formatted_address,
-              googleLocation: location
+            variables: {
+              selector: { _id: currentUser._id },
+              data: {
+                location: location?.formatted_address,
+                googleLocation: location
+              }
             }
           })
         }
