@@ -1,9 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import Chip from '@material-ui/core/Chip';
+import { Chip } from '@/components/widgets/Chip';
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   chip: {
     marginLeft: 4,
     marginRight: 4,
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SingleUsersItem = ({userId, removeItem, classes }: {
   userId: string,
   removeItem: (id: string) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { document, loading } = useSingle({
     documentId: userId,
@@ -36,14 +37,10 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
       />
     </span>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const SingleUsersItemComponent = registerComponent('SingleUsersItem', SingleUsersItem, {styles});
+export default registerComponent('SingleUsersItem', SingleUsersItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SingleUsersItem: typeof SingleUsersItemComponent
-  }
-}
+

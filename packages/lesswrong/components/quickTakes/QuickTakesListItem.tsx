@@ -1,10 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
+import CommentsNodeInner from "../comments/CommentsNode";
+import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
+import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
@@ -26,7 +29,7 @@ const styles = (_theme: ThemeType) => ({
 
 const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);
@@ -34,9 +37,6 @@ const QuickTakesListItem = ({quickTake, classes}: {
     setExpanded(value);
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
   }, [captureEvent, setExpanded]);
-
-  const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
-
   const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
   // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take
@@ -45,7 +45,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
   const expandedComment = (
     <DeferRender ssr={false}>
       <div className={classNames(classes.expandedRoot, { [classes.hidden]: !expanded })}>
-        <CommentsNode
+        <CommentsNodeInner
           treeOptions={{
             post: quickTake.post ?? undefined,
             showCollapseButtons: isFriendlyUI,
@@ -72,14 +72,10 @@ const QuickTakesListItem = ({quickTake, classes}: {
   </>;
 }
 
-const QuickTakesListItemComponent = registerComponent(
+export default registerComponent(
   "QuickTakesListItem",
   QuickTakesListItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesListItem: typeof QuickTakesListItemComponent
-  }
-}
+

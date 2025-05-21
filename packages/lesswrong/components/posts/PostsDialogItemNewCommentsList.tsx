@@ -1,13 +1,15 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
+import NoContent from "../common/NoContent";
+import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
 
-const styles = (theme: ThemeType): JssStyles => ({})
+const styles = (theme: ThemeType) => ({})
 
 const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList & { debate: true },
   treeOptions: CommentTreeOptions,
 }) => {
@@ -28,9 +30,6 @@ const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
       limit: 2,
     },
   });
-
-  const { NoContent, PostsItemNewCommentsListNode } = Components
-
   const noCommentsFound = !loading && results && !results.length;
   const noDebateResponsesFound = !debateResponsesLoading && debateResponses && !debateResponses.length;
 
@@ -63,14 +62,10 @@ const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-const PostsDialogItemNewCommentsListComponent = registerComponent(
+export default registerComponent(
   'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsList, {
     styles,
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsDialogItemNewCommentsList: typeof PostsDialogItemNewCommentsListComponent
-  }
-}
+

@@ -1,11 +1,14 @@
 import React, { ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import type { ForumIconName } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import FormatDate from "../common/FormatDate";
+import TagsTooltip from "../tagging/TagsTooltip";
 
 const ICON_WIDTH = 24;
 
@@ -111,7 +114,6 @@ const EARecentDiscussionItem = ({
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {ForumIcon, UsersNameDisplay, FormatDate, TagsTooltip} = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
@@ -164,14 +166,10 @@ const EARecentDiscussionItem = ({
   );
 }
 
-const EARecentDiscussionItemComponent = registerComponent(
+export default registerComponent(
   "EARecentDiscussionItem",
   EARecentDiscussionItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionItem: typeof EARecentDiscussionItemComponent,
-  }
-}
+

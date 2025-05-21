@@ -1,8 +1,10 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useVote } from "./withVote";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
 import classNames from "classnames";
+import PostsVoteDefault from "./PostsVoteDefault";
+import EAReactsSection from "./EAReactsSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +37,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 interface EAEmojisVoteOnPostProps extends PostVotingComponentProps {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAEmojisVoteOnPost = ({
@@ -45,8 +47,6 @@ const EAEmojisVoteOnPost = ({
   classes,
 }: EAEmojisVoteOnPostProps) => {
   const voteProps = useVote(document, "Posts", votingSystem);
-
-  const {PostsVoteDefault, EAReactsSection} = Components;
   if (!isFooter) {
     return (
       <PostsVoteDefault
@@ -75,14 +75,10 @@ const EAEmojisVoteOnPost = ({
   );
 }
 
-const EAEmojisVoteOnPostComponent = registerComponent(
+export default registerComponent(
   "EAEmojisVoteOnPost",
   EAEmojisVoteOnPost,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAEmojisVoteOnPost: typeof EAEmojisVoteOnPostComponent
-  }
-}
+

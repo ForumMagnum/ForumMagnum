@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   emailPreview: {
     marginBottom: 40
   },
@@ -26,16 +26,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const EmailPreview = ({email, sentDate, classes}: {
   email: any,
   sentDate?: Date,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   return <div className={classes.emailPreview}>
     <p>{""+sentDate}</p>
-    <div className={classes.emailHeader}>
+    <div>
       <span className={classes.headerName}>Subject: </span>
       <span className={classes.headerContent}>{email.subject}</span>
     </div>
-    <div className={classes.emailHeader}>
+    <div>
       <span className={classes.headerName}>To: </span>
       <span className={classes.headerContent}>{email.to}</span>
     </div>
@@ -46,11 +46,7 @@ export const EmailPreview = ({email, sentDate, classes}: {
   </div>;
 }
 
-const EmailPreviewComponent = registerComponent('EmailPreview', EmailPreview, {styles});
+export default registerComponent('EmailPreview', EmailPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EmailPreview: typeof EmailPreviewComponent
-  }
-}
+
 

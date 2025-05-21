@@ -1,11 +1,12 @@
 import * as _ from 'underscore';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
-import { createAdminContext, createMutator } from '../vulcan-lib';
-import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
+import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
@@ -116,16 +117,13 @@ async function handleCkEditorWebhook(message: any) {
         const ckEditorDocumentId = userConnectedPayload?.document?.id;
         const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
         if (!!userId && !!documentId) {
-          const adminContext = await createAdminContext()
-          await createMutator({
-            collection: CkEditorUserSessions,
-            document: {
+          const adminContext = createAdminContext();
+          await createCkEditorUserSession({
+            data: {
               userId,
               documentId,
-            },
-            context: adminContext,
-            currentUser: adminContext.currentUser,
-          })
+            }
+          }, adminContext);
         }
       }
       break
@@ -199,6 +197,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
     extraData: {
       senderUserID: commenterUserId,
       commentHtml: commentHtml,
+      linkSharingKey: post.linkSharingKey,
     },
   });
 }

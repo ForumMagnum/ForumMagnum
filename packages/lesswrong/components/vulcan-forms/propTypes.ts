@@ -1,5 +1,8 @@
 /** PropTypes for documentation purpose (not tested yet) */
+import { WatchQueryFetchPolicy } from '@apollo/client';
 import PropTypes from 'prop-types';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { History } from 'history'
 
 export const fieldProps = {
   //
@@ -55,6 +58,11 @@ type SmartFormCallbacks = {
   revertCallback?: any
 }
 
+export type FormComponentOverridesType = {
+  FormSubmit?: any
+  FormGroupLayout?: any
+};
+
 export interface WrappedSmartFormProps<T extends CollectionNameString> extends SmartFormCallbacks {
   collectionName: T
 
@@ -70,7 +78,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   repeatErrors?: boolean
   noSubmitOnCmdEnter?: boolean
   warnUnsavedChanges?: boolean
-  formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
+  formComponents?: FormComponentOverridesType
   
   // Wasn't in propTypes but used
   id?: string
@@ -79,17 +87,15 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   autoSubmit?: any
   formProps?: any
   
-  queryFragment?: any
-  mutationFragment?: any
   queryFragmentName?: FragmentName
   mutationFragmentName?: FragmentName
 
   documentId?: string
-  slug?: string
-  
-  // fragment: Used externally, but may be erroneous; the internals of the forms seem to only use queryFragment and mutationFragment
-  fragment?: any
-  
+  /**
+   * Warning - passing in a prefetched document into a wrapped smart form might cause unexpected issues for anything using ckEditor, if the loaded document comes back with different data than what was prefetched.
+   */
+  prefetchedDocument?: T extends keyof FragmentTypesByCollection ? FragmentTypes[FragmentTypesByCollection[T]] : never
+    
   // version: Passed from PostsEditForm, but may be erroneous; does not seem to be used inside the forms code
   version?: "draft"
   
@@ -100,72 +106,24 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   extraVariables?: any
   extraVariablesValues?: any
   excludeHiddenFields?: boolean
+
+  /**
+   * Passed from PostsEditForm in cases like being redirected to the edit form after an autosave on PostsNewForm.
+   * Used to provide a smoother rerender without loading states when the redirect happens, since we prefetch the relevant fragment and we know it'll be up to date when we get here
+   */
+  editFormFetchPolicy?: WatchQueryFetchPolicy
 }
 
-export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
-  collection: CollectionBase<AnyBecauseHard>
-  typeName: string
-  document?: ObjectsByCollectionName[T]
-  schema?: any
-  createMutation?: any
-  updateMutation?: any
-  removeMutation?: any
-  currentUser: UsersCurrent|null
-}
+// export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
+//   typeName: string
+//   document?: ObjectsByCollectionName[T]
+//   schema: SimpleSchemaType<T>
+//   createMutation?: any
+//   updateMutation?: any
+//   removeMutation?: any
+//   currentUser: UsersCurrent|null
+//   location?: RouterLocation
+//   history?: History
+// }
 
-declare global {
-  type UpdateCurrentValues = (newValues: any, options?: {mode: "overwrite"|"merge"}) => Promise<void>
-
-  interface FormComponentWrapperProps<T> {
-    document: any
-    name: string
-    label?: string
-    placeholder?: string
-    input?: FormInputType
-    datatype: any
-    path: string
-    disabled?: boolean
-    nestedSchema: any
-    currentValues: any
-    deletedValues: any[]
-    throwError: () => void
-    updateCurrentValues: UpdateCurrentValues
-    errors: any[]
-    addToDeletedValues: any
-    clearFieldErrors: any
-    currentUser?: UsersCurrent|null
-    tooltip?: string
-    formComponents: ComponentTypes
-    locale?: string
-    max?: number
-    nestedInput: any
-    formProps: any
-    formType: "new"|"edit"
-    setFooterContent?: any
-    hideClear?: boolean
-  }
-  interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
-    value: T
-  }
-
-  interface FormButtonProps {
-    submitLabel: React.ReactNode;
-    cancelLabel: React.ReactNode;
-    revertLabel: React.ReactNode;
-    cancelCallback: any;
-    revertCallback: any;
-    submitForm: any
-    updateCurrentValues: UpdateCurrentValues
-    document: any;
-    deleteDocument: any;
-    collectionName: CollectionNameString;
-    currentValues?: any
-    deletedValues?: any
-    errors?: any[]
-    formType: "edit"|"new"
-  }
-  interface FormComponentContext<T> {
-    updateCurrentValues: UpdateCurrentValues
-    addToDeletedValues: any
-  }
-}
+export type UpdateCurrentValues = (newValues: any, options?: {mode: "overwrite"|"merge"}) => Promise<void>

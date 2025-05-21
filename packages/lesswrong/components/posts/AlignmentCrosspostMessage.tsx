@@ -1,8 +1,8 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // This is deprecated, but we're keeping it around for now until we're sure we're not using it
 const AlignmentCrosspostMessage = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (post.af && !isAF) {
     return (
@@ -25,10 +25,6 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   }
 }
 
-const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
+export default registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AlignmentCrosspostMessage: typeof AlignmentCrosspostMessageComponent
-  }
-}
+

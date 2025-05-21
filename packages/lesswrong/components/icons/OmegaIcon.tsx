@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontSize: 24,
     fontWeight: 600,
@@ -20,16 +20,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const OmegaIcon = ({classes, className}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <span className={classNames(classes.root, className)}>Ω</span>
 }
 
-const OmegaIconComponent = registerComponent('OmegaIcon', OmegaIcon, {styles});
+export default registerComponent('OmegaIcon', OmegaIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OmegaIcon: typeof OmegaIconComponent
-  }
-}
+

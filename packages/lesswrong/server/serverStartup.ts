@@ -3,12 +3,11 @@ import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
 import PgCollection, { DbTarget } from './sql/PgCollection';
-import { Collections } from '../lib/vulcan-lib/getCollection';
-import { isAnyTest, CommandLineArguments } from '../lib/executionEnvironment';
+import { getAllCollections } from './collections/allCollections';
+import { isAnyTest } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { getCommandLineArguments } from './commandLine';
-import { Globals } from '../lib/vulcan-lib/config';
+import { CommandLineArguments, getCommandLineArguments } from './commandLine';
 import { getBranchDbName } from "./branchDb";
 import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
@@ -25,9 +24,7 @@ const numCPUs = cpus().length;
  */
 export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
 export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
-
-// Do this here to avoid a dependency cycle
-Globals.dropAndCreatePg = dropAndCreatePg;
+const processRestartDelay = 5000;
 
 const initConsole = () => {
   const isTTY = process.stdout.isTTY;
@@ -82,8 +79,8 @@ const initSettings = () => {
 }
 
 const initPostgres = async () => {
-  if (Collections.some(collection => collection instanceof PgCollection)) {
-    for (const collection of Collections) {
+  if (getAllCollections().some(collection => collection instanceof PgCollection)) {
+    for (const collection of getAllCollections()) {
       if (collection instanceof PgCollection) {
         collection.buildPostgresTable();
       }
@@ -144,6 +141,7 @@ export const serverStartup = async () => {
 
     cluster.on('exit', (worker, _code, _signal) => {
       console.log(`Worker ${worker.process.pid} died`);
+      setTimeout(() => cluster.fork(), processRestartDelay);
     });
   } else {
     if (clusterRole !== "standalone") {

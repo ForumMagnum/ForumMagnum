@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 // import { loadStripe } from "@stripe/stripe-js";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 // import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 
 // const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     
@@ -65,7 +65,7 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
   handleClickAmazon: (event: any) => void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
@@ -76,12 +76,12 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
     </button> */}
   </>
 };
-const Message = ({ message, classes }: {message: string, classes: ClassesType}) => (
+const Message = ({ message, classes }: {message: string, classes: ClassesType<typeof styles>}) => (
   <section>
-    <p className={classes.messageParagraph}>{message}</p>
+    <p>{message}</p>
   </section>
 );
-export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType, ignoreMessages?: boolean, text?: string, link: string}) {
+function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   
@@ -106,10 +106,6 @@ export default function BookCheckout({classes, ignoreMessages = false, text, lin
   </div>
 }
 
-const BookCheckoutComponent = registerComponent('BookCheckout', BookCheckout, {styles});
+export default registerComponent('BookCheckout', BookCheckout, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BookCheckout: typeof BookCheckoutComponent
-  }
-}
+

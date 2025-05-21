@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
     opacity: theme.palette.embeddedPlayer.opacity,
@@ -24,7 +24,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   podcastEpisode: PostsDetails_podcastEpisode,
   postId: string,
   hideIconList?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
@@ -72,10 +72,6 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   </>;
 };
 
-const PostsPodcastPlayerComponent = registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
+export default registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsPodcastPlayer: typeof PostsPodcastPlayerComponent,
-  }
-}
+

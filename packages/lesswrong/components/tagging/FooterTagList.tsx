@@ -1,13 +1,12 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
-import { tagStyle, smallTagTextStyle } from './FooterTag';
+import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
@@ -15,8 +14,16 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import HoverOver from "../common/HoverOver";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import AddTagButton from "./AddTagButton";
+import CoreTagsChecklist from "./CoreTagsChecklist";
+import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -34,9 +41,9 @@ const styles = (theme: ThemeType) => ({
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
-    // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
+    // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
-    maxHeight: 104,
+    maxHeight: 33,
     overflow: "hidden",
   },
   overrideMargins: {
@@ -135,7 +142,7 @@ const FooterTagList = ({
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
+  post: Pick<PostsListBase, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,
@@ -231,7 +238,7 @@ const FooterTagList = ({
         ...TagRelMinimumFragment
       }
     }
-    ${getFragment("TagRelMinimumFragment")}
+    ${fragmentTextForQuery("TagRelMinimumFragment")}
   `);
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
@@ -252,6 +259,8 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
@@ -271,7 +280,6 @@ const FooterTagList = ({
     label: string,
     neverCoreStyling?: boolean
   }) => {
-    const {HoverOver, ContentStyles} = Components;
     return (
       <HoverOver
         title={
@@ -320,14 +328,16 @@ const FooterTagList = ({
   const sortedTagInfo = results
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
     : post.tags.map((tag) => ({ tag, tagRel: undefined }));
+  const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
-  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
-
-  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
-
-  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
+
+  const postYear = new Date(post.createdAt!).getFullYear(); // 2023
+  const currentYear = new Date().getFullYear(); // 2025
+  const age = currentYear - postYear;
+  const isRecent = age < 2;
 
   const innerContent = (
     <>
@@ -344,6 +354,7 @@ const FooterTagList = ({
               key={tag._id}
               tagRel={tagRel}
               tag={tag}
+              hoverable="ifDescriptionPresent"
               hideScore={hideScore}
               smallText={smallText}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
@@ -355,8 +366,8 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
-        <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
+      {isLWorAF && annualReviewMarketInfo && isRecent && (
+        <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {tagRight && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
@@ -375,10 +386,6 @@ const FooterTagList = ({
   </>
 };
 
-const FooterTagListComponent = registerComponent("FooterTagList", FooterTagList, {styles});
+export default registerComponent("FooterTagList", FooterTagList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FooterTagList: typeof FooterTagListComponent
-  }
-}
+

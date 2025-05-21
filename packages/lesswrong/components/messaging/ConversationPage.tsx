@@ -1,12 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import SingleColumnSection from "../common/SingleColumnSection";
+import ConversationContents from "./ConversationContents";
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import ConversationDetails from "./ConversationDetails";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   conversationSection: {
     maxWidth: 550,
   },
@@ -35,16 +41,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationPage = ({ conversationId, currentUser, classes }: {
   conversationId: string,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document: conversation, loading } = useSingle({
     documentId: conversationId,
     collectionName: "Conversations",
     fragmentName: 'ConversationsList',
   });
-
-  const { SingleColumnSection, ConversationContents, Error404, Loading, Typography, ConversationDetails } = Components
-
   if (loading) return <Loading />
   if (!conversation) return <Error404 />
 
@@ -72,14 +75,10 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   )
 }
 
-const ConversationPageComponent = registerComponent('ConversationPage', ConversationPage, {
+export default registerComponent('ConversationPage', ConversationPage, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    ConversationPage: typeof ConversationPageComponent
-  }
-}
+
 

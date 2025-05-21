@@ -1,9 +1,10 @@
-import { Globals, createAdminContext, createMutator } from "../../vulcan-lib";
-import Spotlights from "../../../lib/collections/spotlights/collection";
+import Spotlights from "../../../server/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
-import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
+import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
+import { createAdminContext } from "../../vulcan-lib/createContexts";
+import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
@@ -20,9 +21,8 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
   const postYear = post.postedAt.getFullYear()
   const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
 
-  void createMutator({
-    collection: Spotlights,
-    document: {
+  void createSpotlightMutator({
+    data: {
       documentId: post._id,
       documentType: "Post",
       customSubtitle: `Best of LessWrong ${postYear}`,
@@ -30,12 +30,11 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
       draft: true,
       showAuthor: true,
       spotlightSplashImageUrl: cloudinaryImageUrl,
+      subtitleUrl: `/bestoflesswrong?year=${postYear}&category=${reviewWinner?.reviewWinner.category}`,
       description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
-    },
-    currentUser: context.currentUser,
-    context
-  })
+    }
+  }, context);
 }
 
 async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlights: DbSpotlight[]}> {
@@ -117,12 +116,17 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
   }]
 }
 
-async function createSpotlights() {
+// Exported to allow running manually with "yarn repl"
+/*
+ This will create ~8 spotlights per post. You can check look over them
+*/
+export async function createSpotlights() {
+  const context = createAdminContext();
   // eslint-disable-next-line no-console
   console.log("Creating spotlights for review winners");
 
   const { posts, spotlights } = await getPromptInfo()
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+  const { reviewWinners } = await reviewWinnerCache.get(context)
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
@@ -169,4 +173,3 @@ async function createSpotlights() {
   console.log("Done creating spotlights for review winners");
 }
 
-Globals.createSpotlights = createSpotlights;

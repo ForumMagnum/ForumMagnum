@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
@@ -14,12 +14,16 @@ import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 
+// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer, "spoiler");
+mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
 mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
+
+export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
+export type RagModeType = typeof RAG_MODE_SET[number];
 
 const ClientMessageSchema = z.object({
   conversationId: z.string().nullable(),
@@ -28,8 +32,10 @@ const ClientMessageSchema = z.object({
 });
 
 const PromptContextOptionsSchema = z.object({
+  ragMode: z.enum(RAG_MODE_SET),
   postId: z.string().optional(),
   includeComments: z.boolean().optional(),
+  postContext: z.optional(z.union([z.literal('post-page'), z.literal('post-editor')])),
 });
 
 export const ClaudeMessageRequestSchema = z.object({
@@ -114,11 +120,18 @@ type LlmConversationWithPartialMessages = LlmConversationsFragment & {
 type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
+interface SubmitMessageArgs {
+  query: string;
+  ragMode: RagModeType;
+  currentPostId?: string;
+  postContext?: PromptContextOptions['postContext']
+}
+
 interface LlmChatContextType {
   orderedConversations: LlmConversation[];
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
-  submitMessage: (query: string, currentPostId?: string) => void;
+  submitMessage: (args: SubmitMessageArgs) => void;
   setCurrentConversation: (conversationId?: string) => void;
   archiveConversation: (conversationId: string) => void;
 }
@@ -146,7 +159,7 @@ const LlmChatWrapper = ({children}: {
   const { results: userLlmConversations } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsFragment",
-    terms: { view: "llmConversationsWithUser", userId: currentUser?._id },
+    terms: { view: "llmConversationsWithUser", userId: currentUser?._id, limit: 50 }, //TODO: Figure out what to do when people have many conversations
     skip: !currentUser,
     enableTotal: false,
   });
@@ -164,7 +177,7 @@ const LlmChatWrapper = ({children}: {
     return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
   }, [conversations]);
 
-  const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(sortedConversations.slice(-1)[0]?._id);
+  const [currentConversationId, setCurrentConversationId] = useState<string>();
 
   const { document: currentConversationWithMessages } = useSingle({
     collectionName: "LlmConversations",
@@ -262,7 +275,8 @@ const LlmChatWrapper = ({children}: {
       }
       updatedMessages.push(newMessage);
   
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation: LlmConversation = { ...streamConversation, deleted: false };
+      updatedConversation.messages = updatedMessages;
       
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -297,7 +311,8 @@ const LlmChatWrapper = ({children}: {
       }
       updatedMessages.push(newMessage);
   
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation = { ...streamConversation };
+      updatedConversation.messages = updatedMessages;
       
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -324,7 +339,8 @@ const LlmChatWrapper = ({children}: {
       };
 
       updatedMessages.push(newMessage);
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation = { ...streamConversation };
+      updatedConversation.messages = updatedMessages;
 
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -442,7 +458,7 @@ const LlmChatWrapper = ({children}: {
   }, [handleClaudeResponseMesage, handleLlmStreamError]);
 
   // TODO: Ensure code is sanitized against injection attacks
-  const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
+  const submitMessage = useCallback(async ({ query, ragMode, currentPostId, postContext }: SubmitMessageArgs) => {
     if (!currentUser) {
       return;
     }
@@ -463,7 +479,7 @@ const LlmChatWrapper = ({children}: {
       : preSaveConversation;
 
     // Sent to the server to create a new message
-    const preSaveMessage: PreSaveLlmMessage = {
+    const preSaveMessage = {
       conversationId: currentConversation?._id,
       userId: currentUser._id,
       content: query
@@ -473,7 +489,8 @@ const LlmChatWrapper = ({children}: {
       // We don't send the role to the server
       const newClientMessage: NewLlmMessage = { ...preSaveMessage, role: 'user' };
       const updatedMessages = [...displayedConversation.messages ?? [], newClientMessage];
-      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation, messages: updatedMessages };
+      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation };
+      conversationWithNewUserMessage.messages = updatedMessages;
 
       return { ...conversations, [conversationWithNewUserMessage._id]: conversationWithNewUserMessage };
     });
@@ -486,7 +503,13 @@ const LlmChatWrapper = ({children}: {
       setCurrentConversationId(newConversationChannelId);
     }
 
-    const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: this currently doesn't do anything; it's hardcoded on the server */ };
+    const promptContextOptions: PromptContextOptions = {
+      postId: currentPostId,
+      ragMode,
+      /* TODO: this currently doesn't do anything; it's hardcoded on the server */
+      includeComments: true,
+      postContext,
+    };
 
     void sendClaudeMessage({
       newMessage: {
@@ -550,10 +573,6 @@ const LlmChatWrapper = ({children}: {
   </LlmChatContext.Provider>
 }
 
-const LlmChatWrapperComponent = registerComponent("LlmChatWrapper", LlmChatWrapper);
+export default registerComponent("LlmChatWrapper", LlmChatWrapper);
 
-declare global {
-  interface ComponentTypes {
-    LlmChatWrapper: typeof LlmChatWrapperComponent
-  }
-}
+

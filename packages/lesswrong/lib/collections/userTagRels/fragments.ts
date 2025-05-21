@@ -1,6 +1,6 @@
-import { registerFragment } from "../../vulcan-lib/fragments";
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const UserTagRelDetails = () => frag`
   fragment UserTagRelDetails on UserTagRel {
     _id
     userId
@@ -9,4 +9,4 @@ registerFragment(`
     subforumEmailNotifications
     subforumHideIntroPost
   }
-`);
+`

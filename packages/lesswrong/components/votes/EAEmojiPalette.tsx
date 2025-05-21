@@ -1,12 +1,13 @@
 import React, { FC } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import {
   eaAnonymousEmojiPalette,
   eaEmojiPalette,
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
+import SectionTitle from "../common/SectionTitle";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 6,
   },
@@ -51,9 +52,8 @@ const PaletteSection: FC<{
   title: string,
   options: EmojiOption[],
   onSelectEmoji: (emojiOption: EmojiOption) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({title, options, onSelectEmoji, classes}) => {
-  const {SectionTitle} = Components;
   return (
     <>
       <SectionTitle
@@ -81,7 +81,7 @@ const PaletteSection: FC<{
 
 const EAEmojiPalette = ({onSelectEmoji, classes}: {
   onSelectEmoji: (emojiOption: EmojiOption) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>
@@ -102,14 +102,10 @@ const EAEmojiPalette = ({onSelectEmoji, classes}: {
   );
 }
 
-const EAEmojiPaletteComponent = registerComponent(
+export default registerComponent(
   "EAEmojiPalette",
   EAEmojiPalette,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAEmojiPalette: typeof EAEmojiPaletteComponent
-  }
-}
+

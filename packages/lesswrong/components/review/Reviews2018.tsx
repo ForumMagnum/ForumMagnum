@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import RecentComments from "../comments/RecentComments";
+import LWTooltip from "../common/LWTooltip";
+import { MenuItem } from "../common/Menus";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
@@ -23,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Reviews2018 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -31,9 +38,6 @@ const Reviews2018 = ({classes}: {
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
   const [sortReviews, setSortReviews] = useState<CommentSortingMode>("new")
   const [sortNominations, setSortNominations] = useState<CommentSortingMode>("top")
-
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
-
   const handleSetExpandUnread = () => {
     void updateCurrentUser({
       noExpandUnreadCommentsReview: expandUnread,
@@ -50,7 +54,7 @@ const Reviews2018 = ({classes}: {
             <SectionFooterCheckbox
               onClick={handleSetExpandUnread}
               value={expandUnread}
-              label={<div className={classes.personalBlogpostsCheckboxLabel}>Expand Unread Comments</div>}
+              label={<div>Expand Unread Comments</div>}
             />
           </LWTooltip>
           <Select
@@ -106,11 +110,7 @@ const Reviews2018 = ({classes}: {
   )
 }
 
-const Reviews2018Component = registerComponent('Reviews2018', Reviews2018, {styles});
+export default registerComponent('Reviews2018', Reviews2018, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Reviews2018: typeof Reviews2018Component
-  }
-}
+
 

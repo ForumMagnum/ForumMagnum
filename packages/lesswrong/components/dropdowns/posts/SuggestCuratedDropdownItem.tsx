@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
@@ -6,11 +6,10 @@ import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
 import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "../DropdownItem";
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -74,13 +73,9 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const SuggestCuratedDropdownItemComponent = registerComponent(
+export default registerComponent(
   'SuggestCuratedDropdownItem',
   SuggestCuratedDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    SuggestCuratedDropdownItem: typeof SuggestCuratedDropdownItemComponent
-  }
-}
+

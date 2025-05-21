@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
+import FormatDate from "../../common/FormatDate";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
@@ -15,14 +16,12 @@ interface PostsRevisionMessageFragment {
 
 const PostsRevisionMessage = ({post, classes}: {
   post: PostsRevisionMessageFragment|PostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!post.contents )
     return null;
   if (!("editedAt" in post.contents))
     return null;
-
-  const { FormatDate } = Components
   return (
     <div className={classes.root}>
       You are viewing a version of this post published on the <FormatDate date={post.contents.editedAt} format="Do MMM YYYY"/>.
@@ -32,10 +31,6 @@ const PostsRevisionMessage = ({post, classes}: {
   );
 }
 
-const PostsRevisionMessageComponent = registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
+export default registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionMessage: typeof PostsRevisionMessageComponent
-  }
-}
+

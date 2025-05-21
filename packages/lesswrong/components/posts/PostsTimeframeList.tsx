@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
-import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
+import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loading: {
     opacity: .4,
   },
@@ -34,7 +35,7 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
   includeTags: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
   const [dim,setDim] = useState(dimWhenLoading);
@@ -79,9 +80,6 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
       setDim(false);
     }
   }
-
-  const { PostsTimeBlock, Typography } = Components
-
   const timeBlock = timeframeToTimeBlock[timeframe]
   const dates = getDateRange(afterState, beforeState, timeBlock)
   const orderedDates = reverse ? dates.reverse() : dates
@@ -155,10 +153,6 @@ export const getTimeBlockTitle = (
   return result;
 }
 
-const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
+export default registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTimeframeList: typeof PostsTimeframeListComponent
-  }
-}
+

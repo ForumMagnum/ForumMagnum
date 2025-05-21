@@ -1,9 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
-import DialogContent from '@material-ui/core/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import LWDialog from "../../common/LWDialog";
+import SubforumSubscribeSection from "./SubforumSubscribeSection";
+import SubforumMember from "./SubforumMember";
+import Loading from "../../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   titleRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -31,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SubforumMembersDialog = ({classes, onClose, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   tag: TagSubforumFragment,
 }) => {
@@ -51,9 +55,6 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
       otherMembers.push(member)
     }
   })
-  
-  const { LWDialog, SubforumSubscribeSection, SubforumMember, Loading } = Components
-  
   return (
     <LWDialog open={true} onClose={onClose}>
       <h2 className={classes.titleRow}>
@@ -77,10 +78,6 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
   )
 }
 
-const SubforumMembersDialogComponent = registerComponent('SubforumMembersDialog', SubforumMembersDialog, { styles })
+export default registerComponent('SubforumMembersDialog', SubforumMembersDialog, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SubforumMembersDialog: typeof SubforumMembersDialogComponent
-  }
-}
+

@@ -1,11 +1,15 @@
 import React, {FormEvent, ReactNode, useCallback, useEffect, useRef, useState} from 'react'
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useMutation, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
+import {useCurrentUser} from '../../common/withUser'
+import EAOnboardingStage from "./EAOnboardingStage";
+import EAOnboardingInput from "./EAOnboardingInput";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,37 +53,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const newUserCompleteProfileMutation = gql`
-  mutation NewUserCompleteProfile(
-    $username: String!,
-    $subscribeToDigest: Boolean!,
-    $email: String,
-    $acceptedTos: Boolean
-  ) {
-    NewUserCompleteProfile(
-      username: $username,
-      subscribeToDigest: $subscribeToDigest,
-      email: $email,
-      acceptedTos: $acceptedTos
-    ) {
-      username
-      slug
-      displayName
-    }
-  }
-`;
-
 const links = {
   username: "https://jimpix.co.uk/words/random-username-generator.asp",
   termsOfUse: "/termsOfUse",
-  license: "https://creativecommons.org/licenses/by/2.0/",
+  license: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
-
-const displayNameTakenQuery = gql`
-  query isDisplayNameTaken($displayName: String!) {
-    IsDisplayNameTaken(displayName: $displayName)
-  }
-`;
 
 export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   icon?: ReactNode,
@@ -89,8 +67,27 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   const [name, setName] = useState("");
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
-  const [updateUser] = useMutation(newUserCompleteProfileMutation);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [updateUser] = useMutation(gql`
+    mutation NewUserCompleteProfile(
+      $username: String!,
+      $subscribeToDigest: Boolean!,
+      $email: String,
+      $acceptedTos: Boolean
+    ) {
+      NewUserCompleteProfile(
+        username: $username,
+        subscribeToDigest: $subscribeToDigest,
+        email: $email,
+        acceptedTos: $acceptedTos
+      ) {
+        username
+        slug
+        displayName
+      }
+    }
+  `);
+  const inputRef = useRef<HTMLInputElement|null>(null);
+  const currentUser = useCurrentUser()
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
     if ((ev.target as HTMLElement).tagName !== "A") {
@@ -124,7 +121,11 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
     await onContinue();
   }, [onContinue]);
 
-  const {data, loading} = useQuery(displayNameTakenQuery, {
+  const {data, loading} = useQuery(gql`
+    query isDisplayNameTaken($displayName: String!) {
+      IsDisplayNameTaken(displayName: $displayName)
+    }
+  `, {
     ssr: false,
     skip: !name,
     pollInterval: 0,
@@ -135,8 +136,8 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   });
 
   useEffect(() => {
-    setNameTaken(!loading && !!data?.IsDisplayNameTaken);
-  }, [data, loading]);
+    setNameTaken(!loading && !!data?.IsDisplayNameTaken && name !== currentUser?.displayName);
+  }, [data, loading, currentUser, name]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -145,8 +146,6 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   }, []);
 
   const canContinue = !!name && !nameTaken && acceptedTos;
-
-  const {EAOnboardingStage, EAOnboardingInput, ForumIcon} = Components;
   return (
     <EAOnboardingStage
       stageName="user"
@@ -166,7 +165,7 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
               terms of use
             </Link>, including my content being available under a{" "}
             <Link to={links.license} target="_blank" rel="noopener noreferrer">
-              CC -BY
+              Creative Commons Attribution 4.0
             </Link> license.
           </div>
         </div>
@@ -200,14 +199,10 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   );
 }
 
-const EAOnboardingUserStageComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingUserStage",
   EAOnboardingUserStage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingUserStage: typeof EAOnboardingUserStageComponent
-  }
-}
+

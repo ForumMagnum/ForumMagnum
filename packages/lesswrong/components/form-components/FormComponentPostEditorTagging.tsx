@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import toDictionary from '../../lib/utils/toDictionary';
-import mapValues from 'lodash/mapValues';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import TagsChecklist from "../tagging/TagsChecklist";
+import TagMultiselect from "./TagMultiselect";
+import FooterTagList from "../tagging/FooterTagList";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = defineStyles('FormComponentPostEditorTagging', (_theme: ThemeType) => ({
   root: {
   },
   header: {
@@ -15,7 +18,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
   coreTagHeader: {
     marginBottom: 10,
   },
-});
+}));
 
 /**
  * Split a single array of tag ids into separate arrays based on boolean
@@ -37,6 +40,12 @@ const splitBy = (
   return result;
 }
 
+interface FormComponentPostEditorTaggingProps {
+  field: TypedFieldApi<Record<string, number> | null>;
+  postCategory: string;
+  placeholder?: string;
+}
+
 /**
  * Edit tags on the new or edit post form. If it's the new form, use
  * TagMultiSelect; a server-side callback will convert tags to tag-relevances.
@@ -44,9 +53,9 @@ const splitBy = (
  * voting-on-tag-relevance as the post page. Styling doesn't match between these
  * two, which is moderately unfortunate.
  */
-const FormComponentPostEditorTagging = ({value, path, document, formType, updateCurrentValues, placeholder, classes}: FormComponentProps<any> & {
-  classes: ClassesType,
-}) => {
+export const FormComponentPostEditorTagging = ({ field, postCategory, placeholder }: FormComponentPostEditorTaggingProps) => {
+  const classes = useStyles(styles);
+
   const showCoreAndTypesTopicSections = isEAForum;
 
   const coreTagResult = useMulti({
@@ -86,7 +95,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     return coreTags.filter(tag => !postTypeTagIds.has(tag._id));
   }, [coreTags, postTypeTags]);
 
-  const selectedTagIds = Object.keys(value || {});
+  const selectedTagIds = Object.keys(field.state.value ?? {});
 
   const [
     selectedCoreTagIds,
@@ -102,15 +111,9 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
    * post tagRelevance field needs to look like {string: number}
    */
   const updateValuesWithArray = useCallback((arrayOfTagIds: string[]) => {
-    void updateCurrentValues(
-      mapValues(
-        {tagRelevance: arrayOfTagIds},
-        (arrayOfTagIds: string[]) => toDictionary(
-          arrayOfTagIds, tagId=>tagId, _tagId=>1
-        ),
-      ),
-    );
-  }, [updateCurrentValues]);
+    const newValue = Object.fromEntries(arrayOfTagIds.map(tagId => [tagId, 1]));
+    field.handleChange(newValue);
+  }, [field]);
 
   const onMultiselectUpdate = useCallback((changes: {tagRelevance: string[]}) => {
     updateValuesWithArray([
@@ -146,13 +149,13 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     updateValuesWithArray(existingTagIds.filter((thisTagId) => thisTagId !== tag.tagId))
   }, [updateValuesWithArray]);
 
-  const postCategory = useRef(document.postCategory);
+  const postCategoryRef = useRef(postCategory);
 
   useEffect(() => {
-    if (document.postCategory === postCategory.current) {
+    if (postCategory === postCategoryRef.current) {
       return;
     }
-    postCategory.current = document.postCategory;
+    postCategoryRef.current = postCategory;
     const threadsTag = postTypeTags.find((tag) => tag.name === "Threads");
     if (!threadsTag) {
       return;
@@ -162,27 +165,14 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       tagName: threadsTag.name,
       parentTagId: threadsTag.parentTag?._id,
     } as const;
-    if (document.postCategory === "question") {
+    if (postCategory === "question") {
       void onTagSelected(tagValue, selectedTagIds);
     } else {
       void onTagRemoved(tagValue, selectedTagIds);
     }
-  }, [document.postCategory, onTagRemoved, onTagSelected, postTypeTags, selectedTagIds]);
-
-  const {TagsChecklist, TagMultiselect, FooterTagList, Loading} = Components;
-
+  }, [postCategory, onTagRemoved, onTagSelected, postTypeTags, selectedTagIds]);
   if (loading) {
     return <Loading/>;
-  }
-
-  if (!document.draft && formType === "edit") {
-    return <FooterTagList
-      post={document}
-      hideScore
-      hidePostTypeTag
-      showCoreTags
-      link={false}
-    />
   }
 
   return (
@@ -218,20 +208,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
         </>
       )}
       <TagMultiselect
-        path={path}
         placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
         value={selectedOtherTagIds}
-        updateCurrentValues={onMultiselectUpdate}
+        updateCurrentValues={(values) => onMultiselectUpdate({ tagRelevance: values })}
         isVotingContext
       />
     </div>
   );
 }
 
-const FormComponentPostEditorTaggingComponent = registerComponent("FormComponentPostEditorTagging", FormComponentPostEditorTagging, {styles});
-
-declare global {
-  interface ComponentTypes {
-    FormComponentPostEditorTagging: typeof FormComponentPostEditorTaggingComponent
-  }
-}

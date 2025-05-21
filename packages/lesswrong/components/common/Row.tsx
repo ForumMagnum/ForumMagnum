@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const Row = ({classes, justifyContent="space-between", alignItems="center", children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch",
   justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch",
   children: React.ReactNode
@@ -19,11 +19,7 @@ export const Row = ({classes, justifyContent="space-between", alignItems="center
   </div>;
 }
 
-const RowComponent = registerComponent('Row', Row, {styles});
+export default registerComponent('Row', Row, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Row: typeof RowComponent
-  }
-}
+
 

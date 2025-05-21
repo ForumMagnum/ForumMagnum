@@ -1,9 +1,4 @@
 
-interface VoteTypeOptions {
-  power: number|((user: DbUser|UsersCurrent, document: VoteableType) => number),
-}
-
-
 export const calculateVotePower = (karma: number, voteType: string): number => {
   if (voteType === "smallUpvote") { return userSmallVotePower(karma, 1)}
   if (voteType === "smallDownvote") { return userSmallVotePower(karma, -1)}
@@ -37,21 +32,5 @@ export const userBigVotePower = (karma: number, multiplier: number) => {
   return 1 * multiplier
 }
 
-// Define voting operations
-export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {
-  smallUpvote: {
-    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma, 1),
-  },
-  smallDownvote: {
-    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma, -1),
-  },
-  bigUpvote: {
-    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, 1),
-  },
-  bigDownvote: {
-    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, -1),
-  },
-  neutral: {
-    power: (user: DbUser|UsersCurrent) => 0,
-  },
-}
+export const voteTypes: string[] = ["smallUpvote", "smallDownvote", "bigUpvote", "bigDownvote", "neutral"];
+export const isValidVoteType = (voteType: string) => voteTypes.includes(voteType);

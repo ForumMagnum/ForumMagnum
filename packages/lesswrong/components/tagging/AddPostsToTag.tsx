@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from "../../lib/analyticsEvents";
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
@@ -10,13 +9,17 @@ import { SearchBox, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import CloseIcon from '@material-ui/icons/Close';
-
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import LoginPopup from "../users/LoginPopup";
+import SearchPagination from "../search/SearchPagination";
+import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     '& input': {
@@ -96,7 +99,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AddPostsToTag = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagPreviewFragment
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -111,7 +114,7 @@ const AddPostsToTag = ({classes, tag}: {
         ...TagRelCreationFragment
       }
     }
-    ${getFragment("TagRelCreationFragment")}
+    ${fragmentTextForQuery("TagRelCreationFragment")}
   `, {
     update(cache, { data: {addOrUpvoteTag: TagRel}  }) {
       updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
@@ -121,8 +124,8 @@ const AddPostsToTag = ({classes, tag}: {
   const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
       return
     }
@@ -137,8 +140,6 @@ const AddPostsToTag = ({classes, tag}: {
     setIsAwaiting(false)
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
-
-  const { SearchPagination, PostsListEditorSearchHit } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
     {!searchOpen && !isAwaiting && <span 
       onClick={() => setSearchOpen(true)}
@@ -173,10 +174,6 @@ const AddPostsToTag = ({classes, tag}: {
   </div>
 }
 
-const AddPostsToTagComponent = registerComponent("AddPostsToTag", AddPostsToTag, {styles})
+export default registerComponent("AddPostsToTag", AddPostsToTag, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddPostsToTag: typeof AddPostsToTagComponent
-  }
-}
+

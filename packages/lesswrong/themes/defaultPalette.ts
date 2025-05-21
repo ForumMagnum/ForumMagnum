@@ -17,7 +17,7 @@
 // When writing styles for UI components, use colors that come from the palette,
 // rather than writing the color directly, eg like this:
 //
-//   const styles = (theme: ThemeType): JssStyles => ({
+//   const styles = (theme: ThemeType) => ({
 //     normalText: {
 //       color: theme.palette.text.normal,
 //     },
@@ -29,7 +29,7 @@
 //
 // Not like this:
 //
-//   const styles = (theme: ThemeType): JssStyles => ({
+//   const styles = (theme: ThemeType) => ({
 //     normalText: {
 //       color: "rgba(0,0,0,.87)", // Bad: Will be black-on-black in dark mode
 //     },
@@ -87,13 +87,13 @@
 //   Functional notation without commas, eg "rgba(0 0 0 / 10%)"
 //   RGB percentages, eg "rgba(50%,25%,25%,1)"
 //   Omitted alpha: eg "rgb(0,0,100)"
-//   Importing color constants from @material-ui/core/colors or other libraries
+//   Importing color constants from @/lib/vendor/@material-ui/core/src/colors or other libraries
 //   Color keywords other than white, black, and transparent: eg "red", "grey", "wheat"
 //
 //
 
 export const grey = {
-  // Exactly matches @material-ui/core/colors/grey
+  // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
   100: '#f5f5f5',
   200: '#eeeeee',
@@ -147,6 +147,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     primaryAlpha: greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    invertIfDarkMode: (color: string) => color,
     
     fonts: {
       // Every site theme overrides these
@@ -164,6 +165,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondary: shades.greyAlpha(.54),
     normal: shades.greyAlpha(.87),
     maxIntensity: shades.greyAlpha(1.0),
+    disabled: shades.greyAlpha(0.38),
     slightlyIntense: shades.greyAlpha(.92),
     slightlyIntense2: shades.greyAlpha(.9),
     slightlyDim: shades.greyAlpha(.8),
@@ -201,6 +203,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     red: "#ff0000",
     alwaysWhite: "#fff",
     alwaysBlack: "#000",
+    alwaysLightGrey: "#e0e0e0",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
@@ -230,6 +233,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -240,7 +244,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
     primaryDim: "#5caab7",
-    // Currently unused on LW due to Forum-gate
     visited: "#bb7c43",
   },
   linkHover: {
@@ -318,7 +321,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
-    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
     eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
@@ -327,6 +329,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
+    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
     loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
@@ -341,6 +344,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    glossaryBackground: "rgba(190,120,80,.05)",
     sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {
@@ -410,6 +414,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
+    tagLensTab: shades.greyAlpha(.1),
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -420,7 +425,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     appBar: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     sequencesGridItemHover: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     eventCard: `0 1px 3px ${shades.boxShadowColor(.1)}`,
-    mozillaHubPreview: `0px 0px 10px ${shades.boxShadowColor(.1)}`,
     featuredResourcesCard: `0 4px 4px ${shades.boxShadowColor(.07)}`,
     spreadsheetPage1: `2px 0 2px -1px ${shades.boxShadowColor(.15)}`,
     spreadsheetPage2: `0 0 3px ${shades.boxShadowColor(.3)}`,
@@ -480,6 +484,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   sideItemIndicator: {
     sideComment: '#5f9b65',
     inlineReaction: 'lch(68 34.48 85.39 / 76%)',
+    footnote: shades.greyAlpha(0.4),
   },
   tag: {
     text: shades.greyAlpha(.9),
@@ -544,7 +549,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   editor: {
     commentPanelBackground: "#ffffff",
     sideCommentEditorBackground: "#f3f7fb",
-    commentMarker: "#fef7a9",
+    // Color used for background highlighting of CEditor side-comments. In some
+    // contexts with short line height (in particular, dialogues), this
+    // highlight bleeds over adjacent lines and covers up descenders. Partially
+    // mitigate this by making it a high-intensity color at 50% transparency
+    // rather than a low-intensity color at full opacity.
+    commentMarker: "rgba(255,241,82,.5)",
     commentMarkerActive: "#fdf05d",
   },
   blockquoteHighlight: {
@@ -569,17 +579,30 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   wrapped: {
-    background: '#072C47',
-    highlightText: '#FFC443',
+    background: '#151515',
+    darkBackground: "#000",
+    highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',
-    darkGrey: '#424242',
-    grey: '#757575',
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-    postScoreArrow: '#BCBCBC',
+    postScore: '#BCBCBC',
+    notification: "#e05200",
+    emptyPath: "#494949",
+    metaText: "#b3b3b3",
+    personality: {
+      transparent: "transparent",
+      grey: "#585858",
+      red: "#9E011A",
+      blue: "#16508C",
+      green: "#006336",//"#0b7138",
+    },
+  },
+  forumEvent: {
+    draftSticker: "#9BC4CC",
+    stickerMobileOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
@@ -605,6 +628,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     main: "#69886e",
     dark: "#21672b",
   },
+  action: {
+    active: 'rgba(0, 0, 0, 0.54)',
+    hover: 'rgba(0, 0, 0, 0.08)',
+    hoverOpacity: 0.08,
+    disabled: 'rgba(0, 0, 0, 0.26)',
+    disabledBackground: 'rgba(0, 0, 0, 0.12)',
+  },
   error: {
     main: "#bf360c",
     dark: "#852508",
@@ -614,4 +644,25 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   warning: {
     main: "#ff9800",
   },
+  petrov: {
+    launchButtonBorder: "#000",
+    red: "#ff0000",
+    darkRed: "#990000",
+    red2: "#cc0000",
+    darkRed2: "#770000",
+    color1: "#aa8080",
+    color2: "#404040",
+    color3: "#998080",
+    color4: "#504040",
+  },
+  fundraisingThermometer: {
+    shadow: '#222',
+  },
+  arbital: {
+    arbitalGreen: '#004d40',
+  },
+  ultraFeed: {
+    dim: shades.grey[600],
+    cardSeparator: `8px solid ${shades.greyAlpha(0.05)}`,
+  }
 })

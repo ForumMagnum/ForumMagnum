@@ -1,8 +1,13 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { DateWithoutTime } from "../posts/PostsItemMeta";
 import classNames from "classnames";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import PostsItemDate from "../posts/PostsItemDate";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import EventTime from "../localGroups/EventTime";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,14 +55,9 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
   useEventStyles?: boolean,
   useCuratedDate?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
-
-  const {
-    TruncatedAuthorsList, PostsItemDate, ForumIcon, LWTooltip, EventTime,
-  } = Components;
-
   if (useEventStyles && post.isEvent) {
     return (
       <div className={classNames(classes.root, className)} ref={authorExpandContainer}>
@@ -106,14 +106,10 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
   );
 }
 
-const EAPostMetaComponent = registerComponent(
+export default registerComponent(
   "EAPostMeta",
   EAPostMeta,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostMeta: typeof EAPostMetaComponent,
-  }
-}
+

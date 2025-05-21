@@ -1,9 +1,13 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { commentBodyStyles } from "@/themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useCountItemsContext } from "../hooks/CountItemsContext";
+import SubscribedItem from "./SubscribedItem";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,10 +36,9 @@ const SubscriptionsList = ({
   subscriptionType: string,
   renderDocument: (document: AnyBecauseTodo) => ReactNode,
   title: React.ReactNode,
-  subscriptionTypeDescription?: String
+  subscriptionTypeDescription?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SubscribedItem, SectionTitle, Loading, LoadMore} = Components;
   const currentUser = useCurrentUser();
   const countItemsContext = useCountItemsContext();
 
@@ -90,14 +93,10 @@ const SubscriptionsList = ({
   );
 }
 
-const SubscriptionsListComponent = registerComponent(
+export default registerComponent(
   "SubscriptionsList",
   SubscriptionsList,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SubscriptionsList: typeof SubscriptionsListComponent
-  }
-}
+

@@ -1,11 +1,14 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import {useLocation} from "../../lib/routeUtil";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SingleColumnSection from "../common/SingleColumnSection";
+import DraftsList from "./DraftsList";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   checkbox: {
     padding: "1px 12px 0 0"
   },
@@ -21,15 +24,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const DraftsPage = ({classes}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
-  const {SingleColumnSection, DraftsList } = Components
-  
   const currentUser = useCurrentUser()
   const { query } = useLocation();
   
   if (!currentUser) {
-    return <Components.ErrorAccessDenied />
+    return <ErrorAccessDenied />
   }
   
   return <SingleColumnSection>
@@ -40,12 +41,8 @@ const DraftsPage = ({classes}: {
 }
 
 
-const DraftsPageComponent = registerComponent('DraftsPage', DraftsPage, {
+export default registerComponent('DraftsPage', DraftsPage, {
   hocs: [withErrorBoundary], styles
 });
 
-declare global {
-  interface ComponentTypes {
-    DraftsPage: typeof DraftsPageComponent
-  }
-}
+

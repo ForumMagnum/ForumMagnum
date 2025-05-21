@@ -1,11 +1,15 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LinkCard from "../common/LinkCard";
+import CloudinaryImage from "../common/CloudinaryImage";
+import UsersName from "../users/UsersName";
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 347,
@@ -87,9 +91,8 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   collection: CoreReadingCollection,
   url: string,
   mergeTitle?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { LinkCard, CloudinaryImage, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
@@ -119,12 +122,8 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   </LinkCard>
 }
 
-const CollectionsCardComponent = registerComponent(
+export default registerComponent(
   "CollectionsCard", CollectionsCard, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    CollectionsCard: typeof CollectionsCardComponent
-  }
-}
+

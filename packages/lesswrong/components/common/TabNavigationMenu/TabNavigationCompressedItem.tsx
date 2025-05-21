@@ -1,12 +1,15 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import LWTooltip from "../LWTooltip";
+import { MenuItemLink } from "../Menus";
 
 const compressedIconSize = 23
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     display: "block",
     opacity: .6,
@@ -16,7 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       fill: "currentColor",
       width: compressedIconSize,
       height: compressedIconSize,
-    }
+    },
+    ...(isFriendlyUI && {
+      opacity: 1,
+    }),
   },
   navText: {
     ...theme.typography.body2,
@@ -34,12 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 type TabNavigationCompressedItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
-  const { LWTooltip, MenuItemLink } = Components
-  
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemLink
       onClick={onClick}
@@ -56,12 +60,8 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompr
   </LWTooltip>;
 }
 
-const TabNavigationCompressedItemComponent = registerComponent(
+export default registerComponent(
   'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationCompressedItem: typeof TabNavigationCompressedItemComponent
-  }
-}
+

@@ -1,12 +1,11 @@
-import Collections from "../../lib/collections/collections/collection";
-import Sequences from "../../lib/collections/sequences/collection";
-import { Posts } from "../../lib/collections/posts";
-import { runQuery } from '../vulcan-lib';
-import { getCollectionHooks } from '../mutationCallbacks';
+import Collections from "../../server/collections/collections/collection";
+import Sequences from "../../server/collections/sequences/collection";
+import { Posts } from "../../server/collections/posts/collection";
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 async function getCompleteCollection(id: string) {
+  const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
   const query = `
   query CodexComplete {
     collection(input: {selector: {documentId:"${id}"}}) {
@@ -105,7 +104,7 @@ async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: strin
   })
 }
 
-getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (book: DbBook) {
+export async function updateCollectionLinks(book: DbBook) {
   const collectionId = book.collectionId
   const results = await getAllCollectionPosts(collectionId)
 
@@ -116,9 +115,18 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
     firstPageLink: "/" + results.collectionSlug + "/" + results.posts[0].slug
   }})
 
-  await updateCollectionSequences(results.sequences, results.collectionSlug)
-  await updateCollectionPosts(results.posts, results.collectionSlug)
+
+  // The following two functions calls cause every sequence and post included in this collection 
+  // to have their canonicalCollectionSlug, next post, previous, etc. updated. This makes 
+  // sense when the collection is works of a single author like R:A-Z or Codex, but caused 
+  // a lot of issues when making the Best Of collection that clobbered correct Sequence 
+  // association info and messed up navigation.
+  //
+  // Commenting out for now but leaving in case we ever want to make a canonical collection 
+  // for something like R:A-Z or Codex again.
+  // await updateCollectionSequences(results.sequences, results.collectionSlug)
+  // await updateCollectionPosts(results.posts, results.collectionSlug)
 
   //eslint-disable-next-line no-console
-  console.log(`...finished Updating Collection Links for ${collectionId}`)
-});
+  // console.log(`...finished Updating Collection Links for ${collectionId}`)
+}

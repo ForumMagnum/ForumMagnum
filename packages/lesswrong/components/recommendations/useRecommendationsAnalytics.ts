@@ -3,18 +3,6 @@ import { useObserver } from "../hooks/useObserver";
 import { useMutation } from "@apollo/client";
 import gql from "graphql-tag";
 
-const observeRecommendationMutation = gql`
-  mutation observeRecommendation($postId: String!) {
-    observeRecommendation(postId: $postId)
-  }
-`;
-
-const clickRecommendationMutation = gql`
-  mutation clickRecommendation($postId: String!) {
-    clickRecommendation(postId: $postId)
-  }
-`;
-
 export const useRecommendationAnalytics = <
   T extends HTMLElement = HTMLDivElement,
   U extends HTMLElement = HTMLDivElement,
@@ -24,11 +12,19 @@ export const useRecommendationAnalytics = <
   disableAnalytics = false,
 ) => {
   const [observeRecommendation] = useMutation(
-    observeRecommendationMutation,
+    gql`
+      mutation observeRecommendation($postId: String!) {
+        observeRecommendation(postId: $postId)
+      }
+    `,
     {errorPolicy: "all"},
   );
   const [clickRecommendation] = useMutation(
-    clickRecommendationMutation,
+    gql`
+      mutation clickRecommendation($postId: String!) {
+        clickRecommendation(postId: $postId)
+      }
+    `,
     {errorPolicy: "all"},
   );
 

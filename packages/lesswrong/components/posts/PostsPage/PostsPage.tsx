@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -24,38 +23,72 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { unflattenComments } from '../../../lib/utils/unflatten';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
-import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
+import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
+import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
-import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 import { useVote } from '@/components/votes/withVote';
-import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
+import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
+import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
+import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
+import SharePostPopup from "../SharePostPopup";
+import ReplyCommentDialog from "../../comments/ReplyCommentDialog";
+import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
+import MultiToCLayout from "../TableOfContents/MultiToCLayout";
+import HeadTags from "../../common/HeadTags";
+import CitationTags from "../../common/CitationTags";
+import PostsPagePostHeader from "./PostsPagePostHeader";
+import PostsPagePostFooter from "./PostsPagePostFooter";
+import PostBodyPrefix from "./PostBodyPrefix";
+import PostCoauthorRequest from "./PostCoauthorRequest";
+import CommentPermalink from "../../comments/CommentPermalink";
+import ToCColumn from "../TableOfContents/ToCColumn";
+import WelcomeBox from "./WelcomeBox";
+import TableOfContents from "../TableOfContents/TableOfContents";
+import RSVPs from "./RSVPs";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import ContentStyles from "../../common/ContentStyles";
+import PostBody from "./PostBody";
+import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
+import PermanentRedirect from "../../common/PermanentRedirect";
+import DebateBody from "../../comments/DebateBody";
+import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
+import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
+import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
+import NotifyMeDropdownItem from "../../dropdowns/NotifyMeDropdownItem";
+import Row from "../../common/Row";
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
+import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
+import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
+import CommentsListSection from "../../comments/CommentsListSection";
+import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
+import StickyDigestAd from "../../ea-forum/digestAd/StickyDigestAd";
+import AttributionInViewTracker from "../../common/AttributionInViewTracker";
+import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
+import NotifyMeButton from "../../notifications/NotifyMeButton";
+import LWTooltip from "../../common/LWTooltip";
+import PostsPageDate from "./PostsPageDate";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import FundraisingThermometer from "../../common/FundraisingThermometer";
+import PostPageReviewButton from "./PostPageReviewButton";
+import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
+import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
-export const MAX_COLUMN_WIDTH = 720
-export const CENTRAL_COLUMN_WIDTH = 682
-
-export const RIGHT_COLUMN_WIDTH_WITH_SIDENOTES = 300;
-export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
-export const RIGHT_COLUMN_WIDTH_XS = 5;
-export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
-  theme.breakpoints.down('md')
-
-
-export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
-export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
-export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
-
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
@@ -70,8 +103,8 @@ const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 export const getPostDescription = (post: {
   contents?: { plaintextDescription: string | null } | null;
   customHighlight?: { plaintextDescription: string | null } | null;
-  socialPreviewData?: { text: string | null } | null;
-  shortform: boolean;
+  socialPreviewData?: { text?: string | null } | null;
+  shortform?: boolean | null;
   user: { displayName: string } | null;
 }) => {
   if (post.socialPreviewData?.text) {
@@ -122,22 +155,63 @@ export const getPostDescription = (post: {
   return null;
 };
 
+
+const getCommentStructuredData = ({
+  comment
+}: {
+  comment: CommentTreeNode<CommentsList>
+}): Record<string, any> => ({
+  "@type": "Comment",
+  text: comment.item.contents?.html,
+  datePublished: new Date(comment.item.postedAt).toISOString(),
+  author: [{
+    "@type": "Person",
+    name: comment.item.user?.displayName,
+    url: userGetProfileUrl(comment.item.user, true),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/CommentAction",
+        },
+        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/WriteAction",
+        },
+        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
+      },
+    ],
+  }],
+  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
+})
+
 /**
  * Build structured data for a post to help with SEO.
  */
 const getStructuredData = ({
   post,
   description,
+  commentTree,
+  answersTree
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
+  commentTree: CommentTreeNode<CommentsList>[];
+  answersTree: CommentTreeNode<CommentsList>[];
 }) => {
   const hasUser = !!post.user;
   const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
+  const answersAndComments = [...answersTree, ...commentTree];
+  // Get comments from Apollo Cache
 
   return {
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
+    "url": postGetPageUrl(post, true),
+    "text": post.contents?.html ?? description,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": postGetPageUrl(post, true),
@@ -169,6 +243,7 @@ const getStructuredData = ({
           : []),
       ],
     }),
+    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",
@@ -229,7 +304,7 @@ export const styles = (theme: ThemeType) => ({
   },
   postBody: {
     ...(isFriendlyUI && {
-      width: "max-content",
+      width: "100%",
     }),
   },
   audioPlayerHidden: {
@@ -308,6 +383,8 @@ export const styles = (theme: ThemeType) => ({
     display: "none"
   },
   welcomeBox: {
+    marginTop: LW_POST_PAGE_PADDING,
+    maxWidth: 220,
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
@@ -320,12 +397,14 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "center",
   },
-  secondSplashPageHeader: {
-    ...theme.typography.postStyle,
-    fontSize: '46px',
-    lineHeight: 1,
-    textWrap: 'balance',
-    fontWeight: '600'
+  splashHeaderImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '100vh',
+    width: '100vw',
   },
   reserveSpaceForSidenotes: {
     width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
@@ -353,7 +432,11 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
-  }
+  },
+  reviewVoting: {
+    marginTop: 60,
+    marginBottom: -20 // to account or voting UI padding
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -385,10 +468,12 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const location = useSubscribedLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -421,7 +506,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar
+    disabled: disableProgressBar,
+    useFixedToCScrollCalculation: false
   });
   
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
@@ -453,10 +539,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
   }
 
-
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
+
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
   const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
 
@@ -465,10 +551,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
     if (fullPost) {
       openDialog({
-        componentName: "SharePostPopup",
-        componentProps: {
-          post: fullPost,
-        },
+        name: "SharePostPopup",
+        contents: ({onClose}) => <SharePostPopup
+          onClose={onClose}
+          post={fullPost}
+        />,
         closeOnNavigate: true,
       });
     }
@@ -533,16 +620,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     skip: !post.debate || !fullPost
   });
 
-const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
-    PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
-    PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
-  } = Components
-
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
     const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
@@ -597,7 +674,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     (post.contents?.wordCount ?? 0) >= 500;
   const recommendationsPosition = getRecommendationsPosition();
 
-  const queryCommentId = query.commentId || params.commentId
+  const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
+  const linkedCommentId = globalLinkedCommentId || params.commentId
 
   const description = fullPost ? getPostDescription(fullPost) : null
   const ogUrl = postGetPageUrl(post, true) // open graph
@@ -609,24 +687,26 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
 
-  const isDebateResponseLink = queryCommentId && debateResponseIds.has(queryCommentId);
+  const isDebateResponseLink = linkedCommentId && debateResponseIds.has(linkedCommentId);
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      navigate({ ...location.location, hash: `#debate-comment-${queryCommentId}` }, {replace: true});
+      navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDebateResponseLink, queryCommentId]);
+  }, [isDebateResponseLink, linkedCommentId]);
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName: "ReplyCommentDialog",
-      componentProps: {
-        post, initialHtml: html
-      },
+      name: "ReplyCommentDialog",
+      contents: ({onClose}) => <ReplyCommentDialog
+        onClose={onClose}
+        post={post}
+        initialHtml={html}
+      />
     })
   }, [openDialog, post]);
 
@@ -634,7 +714,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
-  const noIndex = fullPost?.noIndex || post.rejected;
+  const shouldLowKarmaNoIndex = isEAForum && post.baseScore <= 0;
+  const noIndex = fullPost?.noIndex || post.rejected || shouldLowKarmaNoIndex;
 
   const marketInfo = getMarketInfo(post)
 
@@ -647,7 +728,22 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     ...postsCommentsThreadMultiOptions,
   });
 
-  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+  const { loading, results: rawResults, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
+  const results = useMemo(() => {
+    if (!isEAForum || !rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
+
+    const recentUserComments = rawResults
+      .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
+      .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+
+    if (!recentUserComments.length) return rawResults;
+
+    return [...recentUserComments, ...rawResults.filter((c) => !recentUserComments.includes(c))];
+    // Ignore `now` to make this more stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentTerms.view, rawResults, currentUser?._id]);
 
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
@@ -660,39 +756,52 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answerCount} />
+    ? (isLWorAF
+        ? <TableOfContents
+            sectionData={sectionData}
+            title={post.title}
+            heading={<FixedPositionToCHeading post={post}/>}
+            fixedPositionToc={true}
+          />
+        : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
+      )
     : null;
-
 
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
   const showHashCommentFallback = useMemo(() => (
-    hashCommentId && !loading && results && !results.map(({ _id }) => _id).includes(hashCommentId)
-  ), [hashCommentId, loading, results]);
+    hashCommentId && !loading && ![...(results ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
+  ), [answersAndReplies, hashCommentId, loading, results]);
 
-  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? queryCommentId : null)
+  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? linkedCommentId : null)
   // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
   const silentLoadingPermalink = permalinkedCommentId === hashCommentId;
   useEffect(() => { // useEffect required because `location.hash` isn't sent to the server
     if (fullPost && !isDebateResponseLink) {
-      if (queryCommentId) {
-        setPermalinkedCommentId(queryCommentId)
+      if (linkedCommentId) {
+        setPermalinkedCommentId(linkedCommentId)
       } else if (showHashCommentFallback) {
         setPermalinkedCommentId(hashCommentId)
       } else {
         setPermalinkedCommentId(null)
       }
     }
-  }, [fullPost, hashCommentId, isDebateResponseLink, queryCommentId, showHashCommentFallback])
+  }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
+
+  const splashHeaderImage = fullPost && showSplashPageHeader && <div className={classes.splashHeaderImage}>
+    <ImageProvider>
+      <BestOfLWPostsPageSplashImage post={fullPost} />
+    </ImageProvider>
+  </div>
 
   const header = <>
-    {fullPost && !queryCommentId && <>
+    {fullPost && !linkedCommentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
         title={post.title}
         description={description}
         noIndex={noIndex}
-        structuredData={getStructuredData({post: fullPost, description})}
+        structuredData={getStructuredData({post: fullPost, description, commentTree, answersTree})}
       />
       <CitationTags
         title={post.title}
@@ -700,7 +809,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         coauthors={post.coauthors
           ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
           .map(({displayName}) => displayName)}
-        date={post.createdAt}
+        date={post.createdAt ?? undefined}
       />
     </>}
     {/* Header/Title */}
@@ -716,20 +825,24 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+          {isBookUI && <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            annualReviewMarketInfo={marketInfo}
+            showSplashPageHeader={showSplashPageHeader}
             />}
-          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
+          {!isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
+          {(post._id === '5n2ZQcbc7r4R8mvqc') &&
+            <FundraisingThermometer onPost />}
         </div>
       </div>
     </AnalyticsContext>
@@ -737,16 +850,18 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const welcomeBox = (
     <DeferRender ssr={false}>
-      <WelcomeBox />
+      <div className={classes.welcomeBox}>
+        <WelcomeBox />
+      </div>
     </DeferRender>
   );
-  
+
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
-      <Components.SideItemsSidebar/>
+      <SideItemsSidebar/>
     </>}
   </>;
 
@@ -756,25 +871,12 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     return <PermanentRedirect url={lwURL}/>
   }
 
-  // Redirect from ?commentId=... to #... if we should always show comments in context
-  if (queryCommentId && commentPermalinkStyleSetting.get() === 'in-context') {
-    const urlSearchParams = new URLSearchParams(location.query);
-    urlSearchParams.delete('commentId');
-    const otherQueryParams = urlSearchParams.toString();
-    const hashVersion = `#${queryCommentId}`;
-    const redirectUrl = `${location.pathname}${otherQueryParams ? `?${otherQueryParams}` : ''}${hashVersion}`;
-
-    if (isServer) {
-      return <PermanentRedirect url={redirectUrl} status={302} />
-    } else {
-      // navigate doesn't result in the whole page unmounting momentarily
-      navigate(redirectUrl, { replace: true });
-    }
-  }
-
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
-  
+
+  // Show poll if tagged with the tag of the current forum event
+  const showGlobalForumEventPoll = (currentForumEvent?.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0) >= 1;
+
   // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
   // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
   // components. When the forum gating is removed, each of these variables should have only a single usage,
@@ -788,9 +890,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
       {isBookUI && header}
-      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
-        {post.title}
-      </h1>}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
@@ -858,10 +957,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </div>
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+      {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <div className={classes.reviewVoting}>
+        <PostPageReviewButton post={post} />
+      </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      <DeferRender ssr={false}>
+      {showGlobalForumEventPoll && <DeferRender ssr={false}>
         <ForumEventPostPagePollSection postId={post._id} />
-      </DeferRender>
+      </DeferRender>}
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -923,19 +1025,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
-    <Components.SideItemsContainer>
+    <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
-      // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
-      // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
-      post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
-      showEmbeddedPlayer={showEmbeddedPlayer}
-      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-    />}
+    {splashHeaderImage}
     {commentsTableOfContentsEnabled
-      ? <Components.MultiToCLayout
+      ? <MultiToCLayout
           segments={[
             {
               toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
@@ -948,8 +1044,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
               centralColumn: commentsSection,
               isCommentToC: true
             },
+            {
+              centralColumn: <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+            }
           ]}
-          tocRowMap={[0, 0, 2]}
+          tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
           answerCount={answerCount}
           commentCount={commentCount}
@@ -974,25 +1073,14 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </AnalyticsInViewTracker>}
     </SideItemVisibilityContextProvider>
     </ImageProvider>
-    </Components.SideItemsContainer>
+    </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }
 
-export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
-
-export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
-  if (post.userId === userId) return true 
-  if (getConfirmedCoauthorIds(post).includes(userId)) return true
-  return false
-}
-const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
+export default registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",
 });
-declare global {
-  interface ComponentTypes {
-    PostsPage: typeof PostsPageComponent
-  }
-}
+

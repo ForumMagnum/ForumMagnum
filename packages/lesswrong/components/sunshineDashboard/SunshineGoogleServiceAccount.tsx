@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -23,7 +23,7 @@ const getExpiryMessage = (estimatedExpiry: Date) => {
 }
 
 const SunshineGoogleServiceAccount = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -53,10 +53,6 @@ const SunshineGoogleServiceAccount = ({ classes }: {
   )
 }
 
-const SunshineGoogleServiceAccountComponent = registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles})
+export default registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineGoogleServiceAccount: typeof SunshineGoogleServiceAccountComponent
-  }
-}
+

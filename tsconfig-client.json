@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig-shared.json",
+  "exclude": [
+    "packages/lesswrong/server",
+    "packages/lesswrong/viteClient",
+    "node_modules",
+    "build",
+    "packages/lesswrong/lib/vendor/@material-ui"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/client/*": ["./packages/lesswrong/client/*"],
+      "@/viteClient/*": ["./packages/lesswrong/stubs/viteClient/*"],
+      "@/server/*": ["./packages/lesswrong/stubs/server/*"],
+      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"],
+      "@/*": ["./packages/lesswrong/*"]
+    }
+  }
+}

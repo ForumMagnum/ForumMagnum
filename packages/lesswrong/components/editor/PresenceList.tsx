@@ -1,12 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
-import CloudOff from "@material-ui/icons/CloudOff";
+import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
+import UsersName from "../users/UsersName";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   user: {
     ...theme.typography.body2,
     marginRight: 8,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const connectedUsersById = keyBy(connectedUsers, u=>u._id);
   const disconnectedUserIds: string[] = alwaysShownUserIds
@@ -76,7 +77,7 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   userId: string,
   isLoggedOutUser: boolean,
   connected: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document: user, loading } = useSingle({
     collectionName: "Users",
@@ -95,15 +96,11 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
     <div className={classes.activeDot}>
     </div>
     <span className={classes.offlineIcon}>{!connected && <CloudOff/>}</span>
-    {user && <Components.UsersName user={user}/>}
+    {user && <UsersName user={user}/>}
     {isLoggedOutUser && <>Anonymous</>}
   </span>
 }
 
-const PresenceListComponent = registerComponent('PresenceList', PresenceList, {styles});
+export default registerComponent('PresenceList', PresenceList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PresenceList: typeof PresenceListComponent
-  }
-}
+

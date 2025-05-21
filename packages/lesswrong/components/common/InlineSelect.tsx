@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import Menu from "@material-ui/core/Menu";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { Menu } from '@/components/widgets/Menu';
+import { MenuItem } from "./Menus";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline",
   },
@@ -25,11 +26,9 @@ function InlineSelect({
   options: Option[];
   selected: Option;
   handleSelect: (opt: Option) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) {
   const [anchorEl, setAnchorEl] = useState<any>(null);
-  const { MenuItem } = Components;
-
   const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);
   };
@@ -62,10 +61,6 @@ function InlineSelect({
   );
 }
 
-const InlineSelectComponent = registerComponent("InlineSelect", InlineSelect, { styles });
+export default registerComponent("InlineSelect", InlineSelect, { styles });
 
-declare global {
-  interface ComponentTypes {
-    InlineSelect: typeof InlineSelectComponent;
-  }
-}
+

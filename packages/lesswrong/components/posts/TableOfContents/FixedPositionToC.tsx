@@ -1,50 +1,85 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation } from '../../../lib/routeUtil';
 import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
-import { ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
-
+import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { getClassName } from '@/components/hooks/useStyles';
+import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
+import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
+import AnswerTocRow from "./AnswerTocRow";
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
   containerPosition?: {top: number, bottom: number},
 }): ToCSectionWithOffsetAndScale[] {
-  return sections.map((section,idx) => {
-    // The vertical scale (flex-grow amount) of a ToC element is proportional
-    // to the offset of the next positioned element minus its own offset.
-    // However, not every element necessarily has an offset; if an element
-    // doesn't have one its vertical scale is 0 (ie it does not grow past its
-    // minimum size), and it's skipped for purposes of deciding what counts as
-    // the "next positioned element". (When we hit the end of the list, we use
-    // containerPosition.bottom in place of the next offset)
+  // If we have no sections, just return empty array
+  if (sections.length === 0) return [];
+  
+  // Get the total height of the post content
+  const containerTop = containerPosition?.top || 0;
+  const containerBottom = containerPosition?.bottom || 0;
+  const totalContentHeight = containerBottom - containerTop;
+  
+  // Calculate the gap between container top and first section for proper spacing
+  const firstSectionOffset = sections[0].offset || 0;
+  const gapToFirstSection = firstSectionOffset - containerTop;
+  
+  // Create a virtual spacer for the gap at the top if needed because first heading is not at the top of the page
+  const titleGapSpacer = {
+    title: "",
+    anchor: "spacer",
+    level: 0,
+    offset: containerTop,
+    scale: gapToFirstSection > 0 ? gapToFirstSection / totalContentHeight * 100 : 0,
+    spacer: true
+  };
+  
+  // For each section (corresponding to a heading), calculate a "scale" that's proportional to its position in the document
+  // We will set the flex-grow amount of the corresponding ToC element proportional this value.
+  // The scale for an element is calculated by subtracting its own offset from the offset of the next positioned element.
+  // However, not every element necessarily has an offset; if an element doesn't have one its vertical scale is 0 (ie it 
+  // does not grow past its minimum size), and it's skipped for purposes of deciding what counts as the "next positioned 
+  // element". (When we hit the end of the list, we use containerPosition.bottom in place of the next offset)
+  const normalizedSections = sections.map((section, idx) => {
+    
+    // Find the next section with an offset, or use the container bottom
     let nextPositionedIdx = idx+1;
-    while (nextPositionedIdx<sections.length && !sections[nextPositionedIdx].offset)
+    while (nextPositionedIdx<sections.length && !sections[nextPositionedIdx].offset) {
       nextPositionedIdx++;
+    }
     
     const nextSectionOffset = (nextPositionedIdx>=sections.length)
       ? containerPosition?.bottom ?? 0
       : sections[nextPositionedIdx].offset ?? 0;
+    
+    const sectionHeight = nextSectionOffset - (section.offset ?? 0);
+    
+    // Scale is the percentage of total content height this section occupies
+    const sectionScale = section.divider ? 1 : (sectionHeight / totalContentHeight) * 100;
+    
     return {
       ...section,
       offset: section.offset ?? 0,
-      scale: section.divider
-        ? 1
-        : nextSectionOffset - (section.offset ?? 0)
+      scale: sectionScale
     };
   });
+  
+  // Return with spacer if there's a significant gap before the first heading
+  return gapToFirstSection > 50 ? [titleGapSpacer, ...normalizedSections] : normalizedSections;
 };
 
 function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[]): ToCSectionWithOffsetAndScale[] {
@@ -97,7 +132,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     paddingTop: 22,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
-    '& .TableOfContentsRow-title': {
+    [`& .${getClassName<TableOfContentsRowStyles>("TableOfContentsRow", "title")}`]: {
       borderBottom: "none",
     },
     wordBreak: 'break-word',
@@ -105,6 +140,9 @@ const styles = (theme: ThemeType) => ({
   },
   hover: {
     '& $rowOpacity': {
+      opacity: 1,
+    },
+    '& $headingOpacity': {
       opacity: 1,
     },
     '& $tocTitle': {
@@ -118,6 +156,10 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
   },
   rowOpacity: {
+    transition: '.25s',
+    opacity: 0,
+  },
+  headingOpacity: {
     transition: '.25s',
     opacity: 0,
   },
@@ -155,7 +197,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    marginBottom: 20,
+    marginBottom: 0,
     width: 1,
     background: theme.palette.grey[400],
     overflowY: 'clip',
@@ -188,27 +230,21 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    '& .TableOfContentsRow-link': {
-      background: theme.palette.panelBackground.default
-    },
-    '& .TableOfContentsDivider-divider': {
+    [`& .${getClassName<TableOfContentsDividerStyles>("TableOfContentsDivider", "divider")}`]: {
       marginLeft: 4,
     },
   },
 });
 
-const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover, commentCount, answerCount}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
+  heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
-  commentCount?: number,
-  answerCount?: number,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -217,13 +253,12 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
-  const disableProgressBar = (!postContext || isServer || postContext.shortform);
+  const disableProgressBar = ((!isLWorAF && !postContext) || isServer || postContext?.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar || !hasLoaded,
-    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`),
-    useFirstViewportHeight: true
+    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
   });
 
   const jumpToAnchor = (anchor: string) => {
@@ -237,7 +272,13 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         hash: `#${anchor}`,
       });
       let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace);
+
+      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+      if (!isLWorAF) {
+        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+      } else {
+        jumpToY(sectionYdocumentSpace);
+      }
     }
   }
 
@@ -255,11 +296,13 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }
   
   const { landmarkName: currentSection } = useScrollHighlight([
-    ...filteredSections.map((section): ScrollHighlightLandmark => ({
-      landmarkName: section.anchor,
-      elementId: section.anchor,
-      position: "centerOfElement",
-    })),
+    ...filteredSections
+      .filter(section => !section.spacer)
+      .map((section): ScrollHighlightLandmark => ({
+        landmarkName: section.anchor,
+        elementId: section.anchor,
+        position: "centerOfElement",
+      })),
     {
       landmarkName: "comments",
       elementId: "postBody",
@@ -287,7 +330,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }, [])
 
   useEffect(() => {
-    const postContent = document.getElementById('postContent');
+    const postContent = document.getElementById('postContent') ?? document.getElementById('tagContent');
     if (!postContent) return;
     const newNormalizedSections = getSectionsWithOffsets(postContent, filteredSections);
 
@@ -309,10 +352,10 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
             highlighted={currentSection === "above"}
             onClick={ev => {
               if (isRegularClick(ev)) {
-              void handleClick(ev, () => {
-                navigate("#");
-                jumpToY(0)
-              });
+                void handleClick(ev, () => {
+                  navigate("#");
+                  jumpToY(0)
+                });
               }
             }}
           >
@@ -325,10 +368,19 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     </div>
   );
   
-  const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
+  const renderedSections = normalizedSections.filter(row => (!row.divider && row.anchor !== "comments") || row.spacer);
 
   const rows = renderedSections.map((section, index) => {
     const scaleStyling = section.scale !== undefined ? { flex: section.scale } : undefined;
+
+    // If this is just a spacer, render only the space without a dot or label
+    if (section.spacer) {
+      return (
+        <div className={classes.rowWrapper} style={scaleStyling} key={section.anchor}>
+          {/* Empty div for spacing */}
+        </div>
+      );
+    }
 
     const tocRow = (
       <TableOfContentsRow
@@ -377,6 +429,9 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       </div>
       <div className={classes.rows}>
         {titleRow}
+        <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
+          {heading}
+        </div>
         {rows}
       </div>
     </div>
@@ -410,15 +465,11 @@ function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
   });
 }
 
-const FixedPositionTocComponent = registerComponent(
+export default registerComponent(
   "FixedPositionToC", FixedPositionToc, {
     hocs: [withErrorBoundary],
     styles
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    FixedPositionToC: typeof FixedPositionTocComponent
-  }
-}
+

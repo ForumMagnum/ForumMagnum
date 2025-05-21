@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { siteImageSetting } from '../vulcan-core/App';
+import { siteImageSetting } from '@/lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import SubscribeButton from "./SubscribeButton";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     // white background
@@ -57,10 +59,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CoreTagCard = ({tag, classes}: {
   tag: TagDetailsFragment
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { CloudinaryImage2, SubscribeButton } = Components;
-
   const imageId = tag.squareImageId || tag.bannerImageId
 
   return (
@@ -89,10 +89,6 @@ const CoreTagCard = ({tag, classes}: {
   );
 }
 
-const CoreTagCardComponent = registerComponent("CoreTagCard", CoreTagCard, {styles});
+export default registerComponent("CoreTagCard", CoreTagCard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CoreTagCard: typeof CoreTagCardComponent
-  }
-}
+

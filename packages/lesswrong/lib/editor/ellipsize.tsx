@@ -1,6 +1,6 @@
 import { truncatise } from '../truncatise';
 
-const highlightMaxChars = 2400;
+export const highlightMaxChars = 2400;
 export const GTP2_TRUNCATION_CHAR_COUNT = 400;
 export const SMALL_TRUNCATION_CHAR_COUNT = 750;
 export const LARGE_TRUNCATION_CHAR_COUNT = 1600;
@@ -76,7 +76,7 @@ export function getTruncationCharCount (comment: CommentsList, currentUser?: Use
   if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
 
   const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
-  const commentIsHighKarma = comment.baseScore >= TRUNCATION_KARMA_THRESHOLD
+  const commentIsHighKarma = typeof comment.baseScore === 'number' && comment.baseScore >= TRUNCATION_KARMA_THRESHOLD
   
   if (postPage) {
     return (commentIsRecent || commentIsHighKarma) ? LARGE_TRUNCATION_CHAR_COUNT : SMALL_TRUNCATION_CHAR_COUNT

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogTitle } from '../widgets/DialogTitle';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import LWDialog from "./LWDialog";
 
 // Dialog group, with trigger-button and dialog-instance
 const DialogGroup = ({title, trigger, actions, children}: {
@@ -11,8 +12,6 @@ const DialogGroup = ({title, trigger, actions, children}: {
   children?: React.ReactNode,
 }) => {
   const [open,setOpen] = useState(false);
-  const { LWDialog } = Components;
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -35,10 +34,6 @@ const DialogGroup = ({title, trigger, actions, children}: {
   );
 }
 
-const DialogGroupComponent = registerComponent('DialogGroup', DialogGroup);
+export default registerComponent('DialogGroup', DialogGroup);
 
-declare global {
-  interface ComponentTypes {
-    DialogGroup: typeof DialogGroupComponent
-  }
-}
+

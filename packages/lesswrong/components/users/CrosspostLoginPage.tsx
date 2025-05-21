@@ -1,14 +1,18 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import Button from "@material-ui/core/Button";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
-import { forumHeaderTitleSetting } from "../common/Header";
+import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
 import { gql, useMutation } from "@apollo/client";
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
+import LoginForm from "./LoginForm";
+import SiteLogo from "../ea-forum/SiteLogo";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -33,16 +37,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const connectCrossposterMutation = gql`
-  mutation connectCrossposter($token: String) {
-    connectCrossposter(token: $token)
-  }
-`;
-
 const CrosspostLoginPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+  const [connectCrossposter, loading] = useMutation(gql`
+    mutation connectCrossposter($token: String) {
+      connectCrossposter(token: $token)
+    }
+  `, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const {query: {token}} = useLocation();
@@ -63,9 +65,6 @@ const CrosspostLoginPage = ({classes}: {
       setError("Failed to connect accounts");
     }
   }
-
-  const {LoginForm, SiteLogo, Loading, Typography} = Components;
-
   return (
     <div className={classes.root}>
       <div className={classes.heading}>
@@ -103,10 +102,6 @@ const CrosspostLoginPage = ({classes}: {
   );
 }
 
-const CrosspostLoginPageComponent = registerComponent("CrosspostLoginPage", CrosspostLoginPage, {styles});
+export default registerComponent("CrosspostLoginPage", CrosspostLoginPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CrosspostLoginPage: typeof CrosspostLoginPageComponent,
-  }
-}
+

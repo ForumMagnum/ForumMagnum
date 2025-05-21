@@ -1,8 +1,11 @@
 // eslint-disable-next-line no-restricted-imports
-import type { Color as MuiColorShades } from '@material-ui/core';
+import type { Color as MuiColorShades } from '@/lib/vendor/@material-ui/core/src';
+import type { Transitions as MuiTransitions } from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
+import type { ZIndexMap } from './zIndexes';
+import type { JssStyles } from '@/lib/jssStyles';
 import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
@@ -71,6 +74,7 @@ declare global {
     primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
+    invertIfDarkMode: (color: string) => string,
     
     fonts: {
       sansSerifStack: string,
@@ -98,6 +102,13 @@ declare global {
       main: ColorString,
       dark: ColorString
     },
+    action: {
+      active: ColorString,
+      hover: ColorString,
+      hoverOpacity: number,
+      disabled: ColorString,
+      disabledBackground: ColorString,
+    },
     error: {
       main: ColorString,
       light: ColorString,
@@ -106,11 +117,29 @@ declare global {
     },
     warning: {
       main: ColorString,
-    }
+    },
+    petrov: {
+      launchButtonBorder: ColorString,
+      red: ColorString,
+      darkRed: ColorString,
+      red2: ColorString,
+      darkRed2: ColorString,
+      color1: ColorString,
+      color2: ColorString,
+      color3: ColorString,
+      color4: ColorString,
+    },
+    fundraisingThermometer: {
+      shadow: ColorString,
+    },
+    arbital: {
+      arbitalGreen: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
       normal: ColorString,
+      disabled: ColorString,
       maxIntensity: ColorString,
       slightlyIntense: ColorString,
       slightlyIntense2: ColorString,
@@ -149,6 +178,7 @@ declare global {
       red: ColorString,
       alwaysWhite: ColorString,
       alwaysBlack: ColorString,
+      alwaysLightGrey: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
@@ -177,6 +207,8 @@ declare global {
         [5]: ColorString,
         [6]: ColorString,
       },
+
+      jargonTerm: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -266,7 +298,6 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
-      wrappedSummary: string,
       eaButtonGreyOutline: string,
     },
     panelBackground: {
@@ -327,10 +358,11 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
-      reviewGold: ColorString
+      reviewGold: ColorString,
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,
@@ -341,7 +373,6 @@ declare global {
       appBar: string,
       sequencesGridItemHover: string,
       eventCard: string,
-      mozillaHubPreview: string,
       featuredResourcesCard: string,
       spreadsheetPage1: string,
       spreadsheetPage2: string,
@@ -399,6 +430,7 @@ declare global {
     sideItemIndicator: {
       sideComment: ColorString,
       inlineReaction: ColorString,
+      footnote: ColorString,
     },
     tag: {
       text: ColorString,
@@ -461,6 +493,7 @@ declare global {
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      translucentBackgroundHeavy: ColorString,
       loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
@@ -473,6 +506,7 @@ declare global {
       transparent: ColorString,
       imageOverlay: ColorString,
       digestAdBannerInput: ColorString,
+      glossaryBackground: ColorString,
       sidenoteBackground: ColorString,
     },
     header: {
@@ -522,20 +556,37 @@ declare global {
 
     wrapped: {
       background: ColorString,
+      darkBackground: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
       black: ColorString,
-      darkGrey: ColorString,
-      grey: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
-      postScoreArrow: ColorString,
+      postScore: ColorString,
+      notification: ColorString,
+      emptyPath: ColorString,
+      metaText: ColorString,
+      personality: {
+        transparent: ColorString,
+        grey: ColorString,
+        red: ColorString,
+        blue: ColorString,
+        green: ColorString,
+      },
+    },
+    forumEvent: {
+      draftSticker: ColorString,
+      stickerMobileOverlay: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    ultraFeed: {
+      dim: ColorString,
+      cardSeparator: string,
+    }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
@@ -572,6 +623,7 @@ declare global {
 
       postStyle: JssStyles,
       commentStyle: JssStyles,
+      ultraFeedMobileStyle: JssStyles,
       commentBlockquote: JssStyles,
       commentHeader: JssStyles,
       errorStyle: JssStyles,
@@ -598,11 +650,15 @@ declare global {
       smallText: JssStyles,
       tinyText: JssStyles,
       caption: JssStyles,
+      button: JssStyles,
       blockquote: JssStyles,
       italic: JssStyles,
       smallCaps: JssStyles,
+      
+      /** @deprecated */
+      pxToRem: (px: number) => string
     },
-    zIndexes: any,
+    zIndexes: ZIndexMap,
     overrides: any,
     postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
@@ -613,6 +669,12 @@ declare global {
     shadows: string[],
     
     rawCSS: string[],
+    
+    shape: {
+      borderRadius: number,
+    },
+    transitions: MuiTransitions,
+    direction: "ltr"|"rtl",
   };
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };

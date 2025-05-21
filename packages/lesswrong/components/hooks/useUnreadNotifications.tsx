@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
+import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
@@ -6,7 +6,13 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
-import type { NotificationCountsResult } from '../../lib/collections/notifications/schema';
+
+export type NotificationCountsResult = {
+  checkedAt: Date,
+  unreadNotifications: number
+  unreadPrivateMessages: number
+  faviconBadgeNumber: number
+};
 
 /**
  * Provided by the client (if this is running on the client not the server),
@@ -68,7 +74,6 @@ const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 type UnreadNotificationsContext = {
   unreadNotifications: number,
   unreadPrivateMessages: number,
-  checkedAt: Date|null,
   notificationsOpened: () => Promise<void>,
   faviconBadgeNumber: number,
   refetchUnreadNotifications: () => Promise<void>,
@@ -77,7 +82,6 @@ type UnreadNotificationsContext = {
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
   unreadNotifications: 0,
   unreadPrivateMessages: 0,
-  checkedAt: null,
   notificationsOpened: async () => {},
   faviconBadgeNumber: 0,
   refetchUnreadNotifications: async () => {},
@@ -199,15 +203,16 @@ export const UnreadNotificationsContextProvider: FC<{
     window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
   }, [refetchBoth, updateCurrentUser]);
 
+  const providedContext = useMemo(() => ({
+    unreadNotifications,
+    unreadPrivateMessages,
+    faviconBadgeNumber,
+    notificationsOpened,
+    refetchUnreadNotifications: refetchBoth,
+  }), [ unreadNotifications, unreadPrivateMessages, faviconBadgeNumber, notificationsOpened, refetchBoth ]);
+
   return (
-    <unreadNotificationsContext.Provider value={{
-      unreadNotifications,
-      unreadPrivateMessages,
-      faviconBadgeNumber,
-      checkedAt,
-      notificationsOpened,
-      refetchUnreadNotifications: refetchBoth,
-    }}>
+    <unreadNotificationsContext.Provider value={providedContext}>
       {children}
     </unreadNotificationsContext.Provider>
   );

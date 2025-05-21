@@ -1,14 +1,15 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
-import sortBy from 'lodash/sortBy';
-import findIndex from 'lodash/findIndex';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
+import PostsLoading from "../posts/PostsLoading";
+import PostsItem from "../posts/PostsItem";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   empty: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -23,49 +24,38 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   showMessageIfEmpty?: boolean,
   limit?: number,
   hideLoadMore?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsLoading, PostsItem, LoadMore } = Components
-  
-  const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
-    collectionName: "Posts",
+  const {results: bookmarks, loading, loadMoreProps} = useMulti({
+    collectionName: "Bookmarks",
     terms: {
       view: "myBookmarkedPosts",
       limit,
     },
     itemsPerPage: 20,
-    fragmentName: "PostsListWithVotes",
+    fragmentName: "BookmarksWithDocumentFragment",
     fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
   });
   
   if (!currentUser) return null
-  
-  // HACK: The results have limit/pagination which correctly reflects the order
-  // of currentUser.bookmarkedPostsMetadata, but within the limited result set
-  // the posts themselves may be out of order. Sort them. See also comments in
-  // the myBookmarkedPosts view.
-  const sortedBookmarkedPosts = sortBy(bookmarkedPosts,
-    post => -findIndex(
-      currentUser.bookmarkedPostsMetadata||[],
-      (bookmark)=>bookmark.postId === post._id
-    )
-  );
 
+  const bookmarkedPosts = bookmarks?.map(bookmark => bookmark.post).filter(p => !!p);
+  
   return <AnalyticsContext pageSubSectionContext="bookmarksList">
     <div>
-      {showMessageIfEmpty && !loading && !sortedBookmarkedPosts.length && <div className={classes.empty}>
+      {showMessageIfEmpty && !loading && !bookmarkedPosts?.length && <div className={classes.empty}>
         {isEAForum
           ? "You haven't saved any posts yet."
           : "You haven't bookmarked any posts yet."
         }
       </div>}
-      {loading && !sortedBookmarkedPosts.length && <PostsLoading placeholderCount={Math.min(currentUser.bookmarkedPostsMetadata.length, limit)} />}
-      {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
+      {loading && !bookmarkedPosts?.length && <PostsLoading placeholderCount={5} />}
+      {bookmarkedPosts && bookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post} bookmark
-          showBottomBorder={i < sortedBookmarkedPosts.length-1}
+          showBottomBorder={i < bookmarkedPosts.length-1}
         />
       )}
       {!hideLoadMore && <LoadMore {...loadMoreProps} />}
@@ -73,13 +63,9 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   </AnalyticsContext>
 }
 
-const BookmarksListComponent = registerComponent('BookmarksList', BookmarksList, {
+export default registerComponent('BookmarksList', BookmarksList, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarksList: typeof BookmarksListComponent
-  }
-}
+

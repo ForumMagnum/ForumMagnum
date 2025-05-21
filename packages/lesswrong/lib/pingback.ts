@@ -1,6 +1,4 @@
-import {PingbackDocument, RouterLocation} from './vulcan-lib'
-import {Posts} from './collections/posts'
-import {Users} from './collections/users/collection'
+import { PingbackDocument, RouterLocation } from './vulcan-lib/routes'
 
 export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'
@@ -19,20 +17,24 @@ export async function getPostPingbackById(parsedUrl: RouterLocation, postId: str
   return ({collectionName: 'Posts', documentId: postId})
 }
 
-export async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
+export async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string, context: ResolverContext) {
+  const { Posts } = context;
   const parsedId = parseInt(legacyId, 36)
   const post = await Posts.findOne({'legacyId': parsedId.toString()})
   if (!post) return null
   return await getPostPingbackById(parsedUrl, post._id)
 }
 
-export async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
+export async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string, context: ResolverContext) {
+  const { Posts } = context;
   const post = await Posts.findOne({slug: slug})
+  // FIXME: Handle oldSlugs
   if (!post) return null
   return await getPostPingbackById(parsedUrl, post._id)
 }
 
-export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<PingbackDocument | null> {
+export async function getUserPingbackBySlug(parsedUrl: RouterLocation, context: ResolverContext): Promise<PingbackDocument | null> {
+  const { Users } = context;
   const hasMentionParam = parsedUrl.query[userMentionQuery] === userMentionValue
   if (!hasMentionParam) return null
 
@@ -40,6 +42,24 @@ export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<
   if (!user) return null
  
   return ({collectionName: 'Users', documentId: user._id})
+}
+
+export async function getTagPingbackById(parsedUrl: RouterLocation, tagId: string|null): Promise<PingbackDocument | null> {
+  if (!tagId) return null;
+  return {collectionName: "Tags", documentId: tagId};
+}
+
+export async function getTagPingbackBySlug(parsedUrl: RouterLocation, slug: string, context: ResolverContext): Promise<PingbackDocument | null> {
+  const { Tags } = context;
+  // TODO: Handle lenses
+  const tag = await Tags.findOne(
+    {$or: [
+      {slug},
+      {oldSlugs: slug}
+    ]}
+  );
+  if (!tag) return null;
+  return getTagPingbackById(parsedUrl, tag._id);
 }
 
 interface ValidationUserPartial {

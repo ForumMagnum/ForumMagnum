@@ -1,17 +1,21 @@
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
+import { DialogActions } from '../widgets/DialogActions';
+import LWDialog from "../common/LWDialog";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   moderationGuidelines: {
     ...theme.typography.body2,
     padding: 30,
@@ -23,12 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
-  const { LWDialog, ContentItemBody, ContentStyles, Loading } = Components;
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 
@@ -81,10 +84,6 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   )
 };
 
-const NewUserGuidelinesDialogComponent = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
+export default registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
 
-declare global {
-  interface ComponentTypes {
-    NewUserGuidelinesDialog: typeof NewUserGuidelinesDialogComponent
-  }
-}
+

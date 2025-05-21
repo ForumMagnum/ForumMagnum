@@ -14,21 +14,19 @@ import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
-import {
-  expectedIndexes,
-  expectedCustomPgIndexes,
-} from "../../../lib/collectionIndexUtils";
-import { getPostgresViewByName } from "../../postgresView";
+import type { PostgresView } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
-import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
-import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
-import { createMutator, getCollection } from "@/server/vulcan-lib";
+import { getInitialVersion } from "@/server/editor/make_editable_callbacks";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
-import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
-import { Globals } from '@/lib/vulcan-lib/config';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
+import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
+import { getCollection } from "@/server/collections/allCollections";
+import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { buildRevision } from "@/server/editor/conversionUtils";
+import { createRevision } from "@/server/collections/revisions/mutations";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -60,9 +58,11 @@ export const addRemovedField = async <N extends CollectionNameString>(
 export const dropField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
-  fieldName: keyof ObjectsByCollectionName[N] & string,
+  // Not typed as being a key of this collection, because if this isn't for a
+  // down-migration, it'll have been removed from the schema
+  fieldName: string,
 ): Promise<void> => {
-  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, true).compile();
   await db.none(sql, args);
 }
 
@@ -117,6 +117,15 @@ export const dropIndex = async <N extends CollectionNameString>(
   await db.none(sql, args);
 }
 
+export const dropIndexByName = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  indexName: string
+): Promise<void> => {
+  const {sql, args} = new DropIndexQuery(collection.getTable(), indexName).compile();
+  await db.none(sql, args);
+}
+
 export const createIndex = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
@@ -144,8 +153,9 @@ export const createTable = async <N extends CollectionNameString>(
   const table = collection.getTable();
   const {sql, args} = new CreateTableQuery(table, ifNotExists).compile();
   await db.none(sql, args);
-  for (const index of table.getIndexes()) {
-    await createIndex(db, collection, index, ifNotExists);
+  for (const index of getAllIndexes().mongoStyleIndexes[collection.collectionName] ?? []) {
+    const tableIndex = new TableIndex(table.getName(), index.key, index.options);
+    await createIndex(db, collection, tableIndex, ifNotExists);
   }
 }
 
@@ -183,21 +193,24 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
 export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
-  for (const index of expectedIndexes[collection.collectionName] ?? []) {
-    await collection._ensureIndex(index.key, index);
+  const allIndexes = getAllIndexes();
+  const indexesOnCollection = allIndexes.mongoStyleIndexes[collection.collectionName];
+  for (const index of indexesOnCollection ?? []) {
+    await collection._ensureIndex(index.key, index.options);
     await sleep(100);
   }
 }
 
 export const updateCustomIndexes = async (db: SqlClientOrTx) => {
-  for (const index of expectedCustomPgIndexes) {
+  const allIndexes = getAllIndexes();
+  const customPgIndexes = allIndexes.customPgIndexes;
+  for (const index of customPgIndexes) {
     await db.none(index.source);
     await sleep(100);
   }
 }
 
-export const updateView = async (db: SqlClientOrTx, name: string) => {
-  const view = getPostgresViewByName(name);
+export const updateView = async (db: SqlClientOrTx, view: PostgresView) => {
   const query = view.getCreateViewQuery();
   await db.none(query);
   await sleep(100);
@@ -207,6 +220,7 @@ export const updateView = async (db: SqlClientOrTx, name: string) => {
   }
 }
 
+// Exported to allow running manually with "yarn repl"
 export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
   db?: SqlClientOrTx,
   collectionName: CollectionNameString,
@@ -215,6 +229,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
 }) => {
   const db = maybeDb ?? getSqlClientOrThrow();
   const collection = getCollection(collectionName);
+  const context = createAdminContext();
 
   // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
@@ -241,7 +256,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   const documentBatches = chunk(documents, 20);
   let existingRevUsed = 0;
   let revCreated = 0;
-  const currentUser = await getAdminTeamAccount();
+  const currentUser = await getAdminTeamAccount(context);
   if (!currentUser) {
     throw new Error("Can't find admin user account");
   }
@@ -260,7 +275,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
       }
 
       try {
-        const existingLatestRev = await getLatestRev(document._id, "contents");
+        const existingLatestRev = await getLatestRev(document._id, "contents", context);
         if (
           existingLatestRev
           && existingLatestRev?.html === editableField?.html
@@ -281,6 +296,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
               originalContents: editableField.originalContents,
               dataWithDiscardedSuggestions,
               currentUser,
+              context,
             })
             : {
               html: "",
@@ -291,26 +307,20 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
             };
     
           revCreated++;
-          const revision = await createMutator({
-            collection: Revisions,
-            document: {
+          const revision = await createRevision({
+            data: {
               version: editableField.version || getInitialVersion(document),
               changeMetrics: {added: 0, removed: 0},
               collectionName,
               ...revisionData,
               userId,
-            },
-            validate: false,
-          });
+            }
+          }, createAnonymousContext());
     
-          await Promise.all([
-            afterCreateRevisionCallback.runCallbacksAsync([{
-              revisionID: revision.data._id,
-            }]),
-            collection.rawUpdateOne({_id: document._id}, {
-              $set: {[latestFieldName]: revision.data._id},
-            }),
-          ]);
+          await collection.rawUpdateOne(
+            {_id: document._id},
+            { $set: {[latestFieldName]: revision._id}, }
+          );
         }
       } catch(e) {
         // eslint-disable-next-line no-console
@@ -358,7 +368,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   await undraftPublicPostRevisions(db);
 }
 
-
+// Exported to allow running manually with "yarn repl"
 export const denormalizeEditableField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
@@ -385,6 +395,3 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}_latest" = r."_id"
   `);
 }
-
-Globals.normalizeEditableField = normalizeEditableField
-Globals.denormalizeEditableField = denormalizeEditableField

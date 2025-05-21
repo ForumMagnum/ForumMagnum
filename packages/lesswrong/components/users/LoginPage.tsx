@@ -1,9 +1,21 @@
 import React, { useEffect } from 'react';
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import LoginForm from "./LoginForm";
+
+const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
+  root: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    height: "100vh",
+  },
+}));
 
 const LoginPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
 
@@ -20,14 +32,12 @@ const LoginPage = () => {
     // `componentWillMount`.
     return <div />;
   } else {
-    return <Components.LoginForm />;
+    return <div className={classes.root}>
+      <LoginForm />
+    </div>;
   }
 }
 
-const LoginPageComponent = registerComponent('LoginPage', LoginPage);
+export default registerComponent('LoginPage', LoginPage);
 
-declare global {
-  interface ComponentTypes {
-    LoginPage: typeof LoginPageComponent
-  }
-}
+

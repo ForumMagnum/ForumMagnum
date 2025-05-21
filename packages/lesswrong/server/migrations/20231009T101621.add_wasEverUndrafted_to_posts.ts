@@ -1,4 +1,4 @@
-import { Posts } from "../../lib/collections/posts"
+import { Posts } from "../../server/collections/posts/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const acceptsSchemaHash = "881c509060130982ab7f20a92a5c9602";

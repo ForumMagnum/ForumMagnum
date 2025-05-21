@@ -1,11 +1,15 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "../users/UsersName";
+import MetaInfo from "../common/MetaInfo";
+import KarmaDisplay from "../common/KarmaDisplay";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
@@ -47,6 +51,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "unset",
     lineHeight: "1.1em",
     marginBottom: 4,
+    ...(isFriendlyUI && {
+      lineHeight: '1.2em'
+    }),
   },
   author: {
     marginRight: 0,
@@ -58,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   hideMeta?: boolean,
   hideAuthor?: boolean,
@@ -66,7 +73,6 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   widerSpacing?: boolean
   disableHoverPreview?: boolean
 }) => {
-  const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
   return (
     <PostsTooltip post={post} clickable={false} placement="bottom-start" disabled={disableHoverPreview}>
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
@@ -93,10 +99,6 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   );
 }
 
-const TagSmallPostLinkComponent = registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
+export default registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSmallPostLink: typeof TagSmallPostLinkComponent
-  }
-}
+

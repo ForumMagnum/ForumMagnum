@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCData } from '../../lib/tableOfContents';
 
 // Context used to share a reference used to share the table of contents
@@ -50,10 +50,6 @@ const SidebarsWrapper = ({children}: {
   </SidebarsContext.Provider>
 }
 
-const SidebarsWrapperComponent = registerComponent("SidebarsWrapper", SidebarsWrapper);
+export default registerComponent("SidebarsWrapper", SidebarsWrapper);
 
-declare global {
-  interface ComponentTypes {
-    SidebarsWrapper: typeof SidebarsWrapperComponent
-  }
-}
+

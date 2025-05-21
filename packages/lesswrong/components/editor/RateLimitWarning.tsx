@@ -1,11 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
-import AlarmIcon from '@material-ui/icons/Alarm';
+import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import WarningBanner from "../common/WarningBanner";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   lwBanner: {
     padding: 12,
     backgroundColor: theme.palette.background.warningTranslucent,
@@ -24,13 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
+const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
+  contentType: 'comment' | 'post',
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { ContentStyles, ContentItemBody } = Components
-
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
     const now = moment()
@@ -54,13 +55,13 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
     return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`
   }
 
-  let message = `<p>You can post again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
-  if (isEAForum) {
-    message = `You've written more than 3 comments in the last 30 minutes. Please wait ${getTimeUntilNextPost()} before commenting again. ${rateLimitMessage ?? ''}`
+  let message = `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
+  if (isFriendlyUI) {
+    message = `Please wait ${getTimeUntilNextPost()} before ${contentType === 'comment' ? 'commenting' : 'posting'} again. ${rateLimitMessage ?? ''}`
   }
 
   if (isFriendlyUI) {
-    return <Components.WarningBanner message={message}/>
+    return <WarningBanner message={message}/>
   } else {
     return <ContentStyles contentType="comment" className={classes.lwBanner}>
       <AlarmIcon className={classes.icon} />
@@ -69,10 +70,6 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
   }
 }
 
-const RateLimitWarningComponent = registerComponent('RateLimitWarning', RateLimitWarning, {styles});
+export default registerComponent('RateLimitWarning', RateLimitWarning, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RateLimitWarning: typeof RateLimitWarningComponent
-  }
-}
+

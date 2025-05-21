@@ -1,12 +1,13 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
+import LoginPopup from "../users/LoginPopup";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -28,7 +29,7 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   voteType: string,
   vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent}) => void,
   label: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   cancelVote?: boolean // if this is set, the styling for the voted/non-voted status will be inverted (i.e. you click the button to cancel an existing vote)
 }) => {
   const currentUser = useCurrentUser();
@@ -39,8 +40,8 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   const wrappedVote = (voteType: string) => {
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     } else {
       vote({document, voteType: null, collectionName: "TagRels", currentUser});
@@ -59,11 +60,7 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   </a>
 }
 
-const TagRelevanceButtonComponent = registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
+export default registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelevanceButton: typeof TagRelevanceButtonComponent
-  }
-}
+
 

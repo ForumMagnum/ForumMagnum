@@ -1,7 +1,8 @@
+import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { Globals, Utils, slugify } from "../vulcan-lib";
+import { slugify } from "@/lib/utils/slugify";
 
-Globals.regenerateUnicodeSlugs = async () => {
+export const regenerateUnicodeSlugs = async () => {
   const db = getSqlClientOrThrow();
   const posts: Pick<DbPost, "_id" | "title" | "slug">[] = await db.any(`
     SELECT "_id", "title", "slug"
@@ -12,7 +13,7 @@ Globals.regenerateUnicodeSlugs = async () => {
   for (const {_id, title, slug} of posts) {
     const newSlug = slugify(title);
     if (newSlug !== "unicode" && slug !== newSlug) {
-      const uniqueSlug = await Utils.getUnusedSlugByCollectionName(
+      const uniqueSlug = await getUnusedSlugByCollectionName(
         "Posts",
         newSlug,
       );

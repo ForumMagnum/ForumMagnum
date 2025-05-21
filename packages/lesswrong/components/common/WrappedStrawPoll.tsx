@@ -1,9 +1,9 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loginRequired: {
     border: theme.palette.border.faint,
     borderRadius: "4px",
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const WrappedStrawPoll = ({ id, src, classes }: {
   id: string|null
   src: string
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { location } = useLocation();
@@ -50,10 +50,6 @@ const WrappedStrawPoll = ({ id, src, classes }: {
   }
 }
 
-const WrappedStrawPollComponent = registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles})
+export default registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WrappedStrawPoll: typeof WrappedStrawPollComponent
-  }
-}
+

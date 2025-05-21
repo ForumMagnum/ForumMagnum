@@ -1,19 +1,21 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 const bannerHeight = 250
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bannerContainer: {
     position: 'absolute',
     top: 130, // desktop header height + layout margin + negative margin
@@ -109,16 +111,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.grey.A400,
     zIndex: 1,
   },
-}))
+});
 
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
 const EAHomeHandbook = ({ classes, documentId }: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
-  const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",
@@ -145,7 +146,7 @@ const EAHomeHandbook = ({ classes, documentId }: {
       <div className={classes.bannerContainer}>
         <div className={classes.bannerImgWrapper}>
           <CloudinaryImage2
-            publicId={document.bannerImageId}
+            publicId={document.bannerImageId ?? ''}
             height={bannerHeight}
             width={SECTION_WIDTH}
             objectFit='cover'
@@ -178,12 +179,8 @@ const EAHomeHandbook = ({ classes, documentId }: {
   </React.Fragment>
 }
 
-const EAHomeHandbookComponent = registerComponent(
+export default registerComponent(
   'EAHomeHandbook', EAHomeHandbook, {styles},
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    EAHomeHandbook: typeof EAHomeHandbookComponent
-  }
-}
+

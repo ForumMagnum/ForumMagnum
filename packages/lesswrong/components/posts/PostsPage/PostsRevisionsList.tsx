@@ -1,9 +1,12 @@
 import React from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { QueryLink, useNavigate } from '../../../lib/reactRouterWrapper';
+import { QueryLink } from "../../../lib/reactRouterWrapper";
+import { useNavigate } from "../../../lib/routeUtil";
+import FormatDate from "../../common/FormatDate";
+import { MenuItem } from "../../common/Menus";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   version: {
     marginRight: 5
   }
@@ -11,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsRevisionsList = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { document, loading } = useSingle({
@@ -20,7 +23,6 @@ const PostsRevisionsList = ({post, classes}: {
     fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
     fragmentName: 'PostsRevisionsList'
   });
-  const { FormatDate, MenuItem } = Components
   if (loading || !document) {return <MenuItem disabled> Loading... </MenuItem>} 
   const { revisions } = document
   
@@ -38,12 +40,8 @@ const PostsRevisionsList = ({post, classes}: {
   </React.Fragment>
 }
 
-const PostsRevisionsListComponent = registerComponent(
+export default registerComponent(
   'PostsRevisionsList', PostsRevisionsList, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsRevisionsList: typeof PostsRevisionsListComponent
-  }
-}
+

@@ -11,11 +11,11 @@ import {
   postGetPrimaryTag,
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
-import type { PopperPlacementType } from "@material-ui/core/Popper"
-import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
+import type { Placement as PopperPlacementType } from "popper.js"
+import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/collections/posts/annualReviewMarkets";
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
-import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
+import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/constants';
 import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
 import type { PostsListViewType } from "../hooks/usePostsListView";
 
@@ -219,15 +219,6 @@ export const usePostsItem = ({
 
   const annualReviewMarketInfo = getMarketInfo(post)
 
-  const annualReviewMarketComment = post.annualReviewMarketComment
-
-  const highlightMarketForLinking = !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && !!annualReviewMarketComment
-
-  const marketLink = highlightMarketForLinking && annualReviewMarketComment &&
-    <Link to={commentGetPageUrl(annualReviewMarketComment)}>
-      <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
-    </Link>
-
   const isRecommendation = !!recombeeRecommId || !!vertexAttributionId;
 
   return {
@@ -255,7 +246,6 @@ export const usePostsItem = ({
     useCuratedDate,
     hideTag,
     annualReviewMarketInfo,
-    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,

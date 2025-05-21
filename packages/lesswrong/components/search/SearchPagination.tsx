@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Pagination } from 'react-instantsearch-dom';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     ...theme.typography.smallCaps,
@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   pagesPadding?: number,
   showFirst?: boolean,
 }) => {
@@ -63,11 +63,7 @@ const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
   </div>
 }
 
-const SearchPaginationComponent = registerComponent("SearchPagination", SearchPagination, {styles});
+export default registerComponent("SearchPagination", SearchPagination, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchPagination: typeof SearchPaginationComponent
-  }
-}
+
 

@@ -1,16 +1,17 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { createStyles } from '@material-ui/core/styles';
 import { ArrowSVG } from './Icons';
-import RoomIcon from '@material-ui/icons/Room';
+import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import GroupLinks from "./GroupLinks";
+import StyledMapPopup from "./StyledMapPopup";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     width: 15, 
     height: 15,
@@ -23,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fill: theme.palette.event,
     opacity: 0.8,
   },
-}))
+});
 
 const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   event: PostsList,
@@ -31,15 +32,15 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   handleInfoWindowClose: (eventId: string) => void,
   infoOpen: boolean,
   location: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}
-  const { GroupLinks, StyledMapPopup } = Components
-  
   const htmlBody = {__html: htmlHighlight};
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const EventIcon = () => forumTypeSetting.get() === 'EAForum' ? 
     <RoomIcon className={classes.eaIcon}/> : 
     <ArrowSVG className={classes.icon}/>;
@@ -71,11 +72,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-const LocalEventMarkerComponent = registerComponent("LocalEventMarker", LocalEventMarker, {styles});
+export default registerComponent("LocalEventMarker", LocalEventMarker, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalEventMarker: typeof LocalEventMarkerComponent
-  }
-}
+
 

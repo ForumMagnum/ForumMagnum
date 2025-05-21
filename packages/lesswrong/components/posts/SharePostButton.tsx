@@ -1,11 +1,17 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isMobile } from '@/lib/utils/isMobile';
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import PopperCard from "../common/PopperCard";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import SharePostActions from "../dropdowns/posts/SharePostActions";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -25,7 +31,7 @@ const SharePostButton = ({
 }: {
   post: PostsBase,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -35,7 +41,7 @@ const SharePostButton = ({
     captureEvent('sharePostButtonClicked')
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (!!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare) {
       const sharingOptions = {
         title: post.title,
         text: post.title,
@@ -48,9 +54,6 @@ const SharePostButton = ({
     }
     setIsOpen(!isOpen)
   }
-
-  const {LWTooltip, ForumIcon, PopperCard, LWClickAwayListener, SharePostActions} = Components
-
   return <div className={classes.root}>
     <div ref={anchorEl}>
       <LWTooltip title="Share post" placement="bottom-start" disabled={isOpen}>
@@ -74,13 +77,9 @@ const SharePostButton = ({
   </div>
 }
 
-const SharePostButtonComponent = registerComponent('SharePostButton', SharePostButton, {
+export default registerComponent('SharePostButton', SharePostButton, {
   styles,
   hocs: [withErrorBoundary],
 });
 
-declare global {
-  interface ComponentTypes {
-    SharePostButton: typeof SharePostButtonComponent
-  }
-}
+

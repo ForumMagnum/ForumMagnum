@@ -135,6 +135,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/verified.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
+    deprecated:true
   },
   {
     name: "verifiedFalse",
@@ -142,6 +143,21 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
+    deprecated:true
+  },
+  {
+    name: "betTrue",
+    label: "I'd bet this is true",
+    searchTerms: ["bet", "betting", "true"],
+    svg: "/reactionImages/nounproject/noun-dice-7011847.svg",
+    description: "I'm willing to operationalize this, find an adjudicator, and bet this claim is true",
+  },
+  {
+    name: "betFalse",
+    label: "I'd bet this is false",
+    searchTerms: ["bet", "betting", "false"],
+    svg: "/reactionImages/nounproject/noun-dice-7119510.svg",
+    description: "I'm willing to operationalize this, find an adjudicator, and bet this claim is false",
   },
   
   {
@@ -313,7 +329,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "notacrux",
     label: "Not a crux",
     searchTerms: ["identity", "matrix", "crux", "not"],
-    svg: "/reactionImages/nounproject/nonbranchingpath.svg",
+    svg: "/reactionImages/nounproject/nonbranchingpath2.svg",
     filter: {opacity: 0.6},
     description: "My other beliefs would not change if I had different beliefs about this",
     deprecated:false,
@@ -352,7 +368,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/noun-cancel-chat-5735669.svg",
     filter: {opacity: 0.6, translateY: 1},
     description: <div>
-      <p>Could you rephase this using different words, without using the same keyterms?</p>
+      <p>Could you rephrase this using different words, without using the same keyterms?</p>
     </div>,
     deprecated:false
   },

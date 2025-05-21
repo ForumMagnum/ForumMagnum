@@ -34,7 +34,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[0].waitForTimeout(1000);
 
   // Create the post
-  await pages[0].getByText("Submit").click();
+  await pages[0].getByText("Publish").click();
 
   // Check the post exists on the source site
   await pages[0].waitForURL("/posts/**/**");
@@ -59,6 +59,10 @@ test("connect crossposting account and create post", async ({browser}) => {
   const newTitle = `Edited test crosspost title ${Math.random()}`;
   const newBody = `Edited test crosspost body ${Math.random()}`;
   await setPostContent(pages[0], {title: newTitle, body: newBody});
+  // There might be some kind of race condition with the title component updating the title value
+  // causing failures like https://github.com/ForumMagnum/ForumMagnum/actions/runs/14984250935/job/42095023479?pr=10840
+  // but we didn't actually figure out exactly what the problem was or if it was at all related.
+  await pages[0].waitForTimeout(1000);
   await pages[0].getByText("Publish changes").click();
 
   // Check the edits were saved locally

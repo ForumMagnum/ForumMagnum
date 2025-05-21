@@ -1,12 +1,16 @@
 import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import LoginPopup from "../users/LoginPopup";
+import BookCheckout from "../review/BookCheckout";
+import BookAnimation from "./BookAnimation";
+import ContentStyles from "../common/ContentStyles";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 1120,
     marginLeft: 'auto',
@@ -121,9 +125,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const BookFrontpageWidget = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { BookCheckout, BookAnimation, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -143,17 +146,19 @@ const BookFrontpageWidget = ({ classes }: {
       })
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     }
   }
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const BookMarketingText = ({title, subtitle, description, buttons}: {
     title: string;
     subtitle: string;
-    description: string | JSX.Element;
-    buttons: JSX.Element;
+    description: string | React.JSX.Element;
+    buttons: React.JSX.Element;
   }) => {
     return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
@@ -208,10 +213,6 @@ const BookFrontpageWidget = ({ classes }: {
 }
 
 
-const BookFrontpageWidgetComponent = registerComponent('BookFrontpageWidget', BookFrontpageWidget, { styles });
+export default registerComponent('BookFrontpageWidget', BookFrontpageWidget, { styles });
 
-declare global {
-  interface ComponentTypes {
-    BookFrontpageWidget: typeof BookFrontpageWidgetComponent
-  }
-}
+

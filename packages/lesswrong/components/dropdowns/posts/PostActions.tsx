@@ -1,8 +1,32 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
+import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
+import BookmarkDropdownItem from "./BookmarkDropdownItem";
+import SuggestCuratedDropdownItem from "./SuggestCuratedDropdownItem";
+import SuggestAlignmentPostDropdownItem from "./SuggestAlignmentPostDropdownItem";
+import ReportPostDropdownItem from "./ReportPostDropdownItem";
+import DeleteDraftDropdownItem from "./DeleteDraftDropdownItem";
+import SetSideItemVisibility from "./SetSideItemVisibility";
+import { ResyncRssDropdownItem } from "./ResyncRssDropdownItem";
+import MarkAsReadDropdownItem from "./MarkAsReadDropdownItem";
+import SummarizeDropdownItem from "./SummarizeDropdownItem";
+import MoveToFrontpageDropdownItem from "./MoveToFrontpageDropdownItem";
+import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
+import ShortformDropdownItem from "./ShortformDropdownItem";
+import DropdownMenu from "../DropdownMenu";
+import EditTagsDropdownItem from "./EditTagsDropdownItem";
+import EditPostDropdownItem from "./EditPostDropdownItem";
+import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
+import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
+import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
+import ApproveNewUserDropdownItem from "./ApproveNewUserDropdownItem";
+import SharePostSubmenu from "./SharePostSubmenu";
+import PostSubscriptionsDropdownItem from "./PostSubscriptionsDropdownItem";
+import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
+import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -11,7 +35,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 // Same as above context provider but for whether a post is being served as a recommendation
 export const IsRecommendationContext = React.createContext<boolean>(false);
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     minWidth: isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
@@ -22,21 +46,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   includeBookmark?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
-  const {
-    MoveToDraftDropdownItem, BookmarkDropdownItem, SuggestCuratedDropdownItem,
-    SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
-    HideFrontpagePostDropdownItem, SetSideItemVisibility, ResyncRssDropdownItem,
-    MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
-    MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
-    EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
-    PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
-    ApproveNewUserDropdownItem, SharePostSubmenu, PostSubscriptionsDropdownItem,
-    DislikeRecommendationDropdownItem
-  } = Components;
 
   if (!post) return null;
 
@@ -60,7 +73,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <PostSubscriptionsDropdownItem post={post} />
       {includeBookmark && <BookmarkDropdownItem post={post} />}
       <SetSideItemVisibility />
-      <HideFrontpagePostDropdownItem post={post} />
+      <HideFrontPageButton post={post} />
       <DislikeRecommendationDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
@@ -79,10 +92,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   );
 }
 
-const PostActionsComponent = registerComponent('PostActions', PostActions, {styles});
+export default registerComponent('PostActions', PostActions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostActions: typeof PostActionsComponent
-  }
-}
+

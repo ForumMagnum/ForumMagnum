@@ -1,11 +1,16 @@
 import React, {useState} from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
-import RejectedIcon from "@material-ui/icons/NotInterested";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import RejectedIcon from "@/lib/vendor/@material-ui/icons/src/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
-import ReplayIcon from '@material-ui/icons/Replay';
+import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import RejectContentDialog from "./RejectContentDialog";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 4
   },
@@ -27,22 +32,20 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const RejectContentButton = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const { LWPopper, LWClickAwayListener, RejectContentDialog, LWTooltip, MetaInfo } = Components;
   const { content } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
     setShowRejectionDialog(false);
     rejectContent(reason);
   };
-  
-  return <span className={classes.rejectedIcon} {...eventHandlers}>
-    {content.rejected && <span className={classes.rejectedButton} >
+
+  return <span {...eventHandlers}>
+    {content.rejected && <span >
         <LWTooltip title="Undo rejection">
           <ReplayIcon className={classes.icon} onClick={unrejectContent}/>
         </LWTooltip>
@@ -53,7 +56,6 @@ export const RejectContentButton = ({contentWrapper, classes}: {
     <LWPopper
       open={showRejectionDialog}
       anchorEl={anchorEl}
-      className={classes.popper}
       clickable={true}
       allowOverflow={true}
       placement={"right"}
@@ -65,11 +67,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   </span>
 }
 
-const RejectContentButtonComponent = registerComponent('RejectContentButton', RejectContentButton, {styles});
+export default registerComponent('RejectContentButton', RejectContentButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectContentButton: typeof RejectContentButtonComponent
-  }
-}
+
 

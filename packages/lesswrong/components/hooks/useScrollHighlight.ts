@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { isServer } from "../../lib/executionEnvironment";
-
-export type ScrollHighlightLandmark = {
-  landmarkName: string,
-  elementId: string
-  position: "topOfElement"|"centerOfElement"|"bottomOfElement",
-  offset?: number,
-}
+import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark } from "@/lib/scrollUtils";
 
 /**
  * Takes a list of element IDs (the ID attributes of DOM nodes), sorted by
@@ -62,35 +56,4 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
   return {
     landmarkName: currentLandmark
   };
-}
-
-/**
- * Return the screen-space current section mark - that is, the spot on the
- * screen where the current-post will transition when its heading passes.
- */
-export const getCurrentSectionMark = () => {
-  if (isServer) return 0;
-  return window.innerHeight/5
-}
-
-// Return the screen-space Y coordinate of an anchor. (Screen-space meaning
-// if you've scrolled, the scroll is subtracted from the effective Y
-// position.)
-export const getLandmarkY = (landmark: ScrollHighlightLandmark): number|null => {
-  let anchor = window.document.getElementById(landmark.elementId);
-  if (!anchor) {
-    return null;
-  }
-  let anchorBounds = anchor.getBoundingClientRect();
-  let offset = landmark.offset ?? 0;
-  
-  switch (landmark.position) {
-    default:
-    case "topOfElement":
-      return anchorBounds.top + offset;
-    case "centerOfElement":
-      return anchorBounds.top + (anchorBounds.height/2) + offset;
-    case "bottomOfElement":
-      return anchorBounds.bottom + offset;
-  }
 }

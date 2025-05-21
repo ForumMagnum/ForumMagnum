@@ -1,18 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
-import { useLocation } from '../../lib/routeUtil';
+import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.dim,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
@@ -78,7 +81,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
@@ -88,9 +91,9 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
 
-  const [isPinned, setIsPinned] = useState(true);
+  const [pageHeaderCoversTitle, setPageHeaderCoversTitle] = useState(false);
   const titleRef = useRef<HTMLAnchorElement|null>(null);
-  const hideTitleContainer = isPinned;
+  const hideTitleContainer = pageHeaderCoversTitle;
 
   useEffect(() => {
     const target = titleRef.current;
@@ -98,8 +101,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       // To prevent the comment ToC title from being hidden when scrolling up
       // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
       const observer = new IntersectionObserver(([e]) => {
-        const newIsPinned = e.intersectionRatio < 1;
-        setIsPinned(newIsPinned);
+        setPageHeaderCoversTitle(e.intersectionRatio < 1);
       }, { threshold: [1] });
   
       observer.observe(target);
@@ -107,20 +109,27 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     }
   }, []);
 
-  if (flattenedComments.length === 0) return null;
+  if (flattenedComments.length === 0) {
+    return null;
+  }
   
   if (!commentsTableOfContentsEnabled) {
     return null;
   }
 
   return <div className={classes.root}>
-      <a id="comments-table-of-contents" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
+    <a id="comments-table-of-contents" href="#" className={classNames(
+      classes.postTitle,
+      {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
+    )}
       onClick={ev => {
         ev.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }} ref={titleRef}>
-        {post.title?.trim()}
-      </a>
+      }}
+      ref={titleRef}
+    >
+      {post.title?.trim()}
+    </a>
 
     {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
@@ -129,7 +138,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
         highlightedCommentId={highlightedLandmarkName}
         highlightDate={highlightDate}
       />
-      <Components.TableOfContentsDivider/>
+      <TableOfContentsDivider/>
     </>)}
     {commentTree && commentTree.map(comment => <ToCCommentBlock
       key={comment.item._id}
@@ -142,23 +151,13 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   </div>
 }
 
-export function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
-  return {
-    landmarkName: commentId,
-    elementId: commentId,
-    position: "topOfElement",
-    offset: 25, //approximate distance from top-border of a comment to the center of the metadata line
-  }
-}
-
 const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate, classes}: {
   commentTree: CommentTreeNode<CommentsList>,
   indentLevel: number,
   highlightedCommentId: string|null,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -199,7 +198,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       })}>
         <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
-          <UsersNameDisplay user={comment.user} simple/>
+          {comment.deleted
+            ? <span>[comment deleted]</span>
+            : <UsersNameDisplay user={comment.user} simple/>
+          }
         </span>
       </span>
     </TableOfContentsRow>
@@ -236,10 +238,6 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 }
 
 
-const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
+export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CommentsTableOfContents: typeof CommentsTableOfContentsComponent
-  }
-}
+

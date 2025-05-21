@@ -1,9 +1,8 @@
-import { registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'inline-block',
     ...theme.typography.commentStyle,
@@ -35,13 +34,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       borderColor: theme.palette.primary.dark,
     }
   },
-}))
+});
 
 const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, classes}: {
   distanceUnit: "km"|"mi",
   onChange: Function,
   skipDefaultEffect?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   useEffect(() => {
@@ -71,10 +70,6 @@ const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, cla
   </div>
 }
 
-const DistanceUnitToggleComponent = registerComponent('DistanceUnitToggle', DistanceUnitToggle, {styles});
+export default registerComponent('DistanceUnitToggle', DistanceUnitToggle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DistanceUnitToggle: typeof DistanceUnitToggleComponent
-  }
-}
+

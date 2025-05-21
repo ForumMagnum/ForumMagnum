@@ -1,13 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
-import DescriptionIcon from '@material-ui/icons/Description';
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import { SearchHitComponentProps } from './types';
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import { Typography } from "../common/Typography";
+import LWTooltip from "../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -38,8 +42,6 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 
 const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const post = (hit as SearchPost);
-  const { Typography, LWTooltip } = Components;
-
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
@@ -54,31 +56,27 @@ const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
           {post.title}
         </Typography>
         <div>
-          {post.authorDisplayName && <Components.MetaInfo>
+          {post.authorDisplayName && <MetaInfo>
             {post.authorDisplayName}
-          </Components.MetaInfo>}
-          <Components.MetaInfo>
+          </MetaInfo>}
+          <MetaInfo>
             {post.baseScore} karma
-          </Components.MetaInfo>
-          {post.postedAt && <Components.MetaInfo>
-            <Components.FormatDate date={post.postedAt}/>
-          </Components.MetaInfo>}
+          </MetaInfo>
+          {post.postedAt && <MetaInfo>
+            <FormatDate date={post.postedAt}/>
+          </MetaInfo>}
         </div>
         {showSnippet && <div className={classes.snippet}>
-          <Components.MetaInfo>
+          <MetaInfo>
             <Snippet attribute="body" hit={post} tagName="mark" />
-          </Components.MetaInfo>
+          </MetaInfo>
         </div>}
     </Link>
   </div>
 }
 
 
-const PostsSearchHitComponent = registerComponent("PostsSearchHit", PostsSearchHit, {styles});
+export default registerComponent("PostsSearchHit", PostsSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsSearchHit: typeof PostsSearchHitComponent
-  }
-}
+
 

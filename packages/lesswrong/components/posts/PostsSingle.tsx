@@ -1,25 +1,23 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
+import PermanentRedirect from "../common/PermanentRedirect";
+import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
 
 const PostsSingle = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
   if (((params._id.length !== 17 && params._id.length !== 24) || params._id.includes("-")) && isLWorAF) { 
-    return <Components.PermanentRedirect status={307} url={'/posts/slug/' + params._id}/>
+    return <PermanentRedirect status={307} url={'/posts/slug/' + params._id}/>
   }
 
 
-  return <Components.PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
+  return <PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
-const PostsSingleComponent = registerComponent('PostsSingle', PostsSingle);
+export default registerComponent('PostsSingle', PostsSingle);
 
-declare global {
-  interface ComponentTypes {
-    PostsSingle: typeof PostsSingleComponent
-  }
-}
+
 

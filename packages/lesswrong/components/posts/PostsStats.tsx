@@ -1,7 +1,8 @@
-import { Components as C, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import MetaInfo from "../common/MetaInfo";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     opacity:.5,
     [theme.breakpoints.down('sm')]: {
@@ -12,27 +13,23 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsStats = ({post, classes}: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   return (
     <span className={classes.root}>
       {post.score &&
-        <C.MetaInfo title="Score">
+        <MetaInfo title="Score">
           {Math.floor(post.score*10000)/10000}
-        </C.MetaInfo>
+        </MetaInfo>
       }
-      <C.MetaInfo title="Views">
+      <MetaInfo title="Views">
         {post.viewCount || 0}
-      </C.MetaInfo>
+      </MetaInfo>
     </span>
   )
 }
 
-const PostsStatsComponent = registerComponent('PostsStats', PostsStats, {styles});
+export default registerComponent('PostsStats', PostsStats, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsStats: typeof PostsStatsComponent
-  }
-}
+

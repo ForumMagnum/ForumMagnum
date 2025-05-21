@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const UsersMinimumInfo = () => frag`
   fragment UsersMinimumInfo on User {
     _id
     slug
@@ -26,9 +26,9 @@ registerFragment(`
     tagRevisionCount
     reviewedByUserId
   }
-`);
+`
 
-registerFragment(`
+export const UsersProfile = () => frag`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     oldSlugs
@@ -57,6 +57,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
     frontpagePostCount
@@ -96,9 +97,9 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
   }
-`);
+`
 
-registerFragment(`
+export const UsersCurrent = () => frag`
   fragment UsersCurrent on User {
     ...UsersProfile
 
@@ -113,7 +114,13 @@ registerFragment(`
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
-    expandedFrontpageSections
+    expandedFrontpageSections {
+      community
+      recommendations
+      quickTakes
+      quickTakesCommunity
+      popularComments
+    }
     hidePostsRecommendations
     currentFrontpageFilter
     frontpageSelectedTab
@@ -153,6 +160,7 @@ registerFragment(`
     hideFrontpageMap
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
@@ -170,9 +178,14 @@ registerFragment(`
     recommendationSettings
     theme
 
-    bookmarkedPostsMetadata
+    bookmarkedPostsMetadata {
+      postId
+    }
 
-    hiddenPostsMetadata
+    hiddenPostsMetadata {
+      postId
+    }
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -201,6 +214,7 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
+    criticismTipsDismissed
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -219,8 +233,11 @@ registerFragment(`
 
     hideSunshineSidebar
     optedOutOfSurveys
+    postGlossariesPinned
+    generateJargonForDrafts
+    generateJargonForPublishedPosts
   }
-`);
+`
 
 /**
  * Fragment containing rate-limit information (ie, whether the user is rate limited and when
@@ -228,30 +245,30 @@ registerFragment(`
  * involve some DB queries that we don't want to have to finish in serial before the rest of the
  * page can start loading.
  */
-registerFragment(`
+export const UsersCurrentCommentRateLimit = () => frag`
   fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
   }
-`);
+`
 
-registerFragment(`
+export const UsersCurrentPostRateLimit = () => frag`
   fragment UsersCurrentPostRateLimit on User {
     _id
     rateLimitNextAbleToPost(eventForm: $eventForm)
   }
-`);
+`
 
-registerFragment(`
+export const UserBookmarkedPosts = () => frag`
   fragment UserBookmarkedPosts on User {
     _id
     bookmarkedPosts {
       ...PostsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const UserKarmaChanges = () => frag`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
@@ -263,6 +280,7 @@ registerFragment(`
       posts {
         _id
         scoreChange
+        postId
         title
         slug
         addedReacts {
@@ -274,6 +292,7 @@ registerFragment(`
       comments {
         _id
         scoreChange
+        commentId
         description
         postId
         postTitle
@@ -299,11 +318,97 @@ registerFragment(`
         }
         eaAddedReacts
       }
+      todaysKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+      }
+      thisWeeksKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+      }
     }
   }
-`);
+`
 
-registerFragment(`
+export const UsersBannedFromUsersModerationLog = () => frag`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -311,9 +416,9 @@ registerFragment(`
     bannedUserIds
     bannedPersonalUserIds
   }
-`)
+`
 
-registerFragment(`
+export const SunshineUsersList = () => frag`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
@@ -368,43 +473,42 @@ registerFragment(`
     recentKarmaInfo
     lastNotificationsCheck
   }
-`);
+`
 
-registerFragment(`
+export const UserAltAccountsFragment = () => frag`
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
     IPs
   }
-`);
+`
 
-registerFragment(`
+export const SharedUserBooleans = () => frag`
   fragment SharedUserBooleans on User {
-    walledGardenInvite
-    hideWalledGardenUI
-    walledGardenPortalOnboarded
     taggingDashboardCollapsed
     usernameUnset
   }
-`)
+`
 
-registerFragment(`
+// Fragment used for the map markers on /community. This is a much-larger-than-
+// usual number of users, so keep this fragment minimal.
+export const UsersMapEntry = () => frag`
   fragment UsersMapEntry on User {
-    ...UsersMinimumInfo
-    createdAt
-    isAdmin
-    groups
-    location
-    googleLocation
-    mapLocation
+    _id
+    displayName
+    username
+    fullName
+    slug
+    mapLocationLatLng {
+      lat
+      lng
+    }
     mapLocationSet
-    mapMarkerText
     htmlMapMarkerText
-    mongoLocation
   }
-`);
+`
 
 
-registerFragment(`
+export const UsersEdit = () => frag`
   fragment UsersEdit on User {
     ...UsersCurrent
     biography {
@@ -436,6 +540,7 @@ registerFragment(`
     whenConfirmationEmailSent
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hasAuth0Id
 
@@ -503,6 +608,8 @@ registerFragment(`
     notificationNewMention
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
+    notificationDialogueMessages
+    notificationPublishedDialogueMessages
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -511,10 +618,12 @@ registerFragment(`
 
     deleted
     permanentDeletionRequestedAt
-  }
-`)
 
-registerFragment(`
+    twitterProfileURLAdmin
+  }
+`
+
+export const UsersAdmin = () => frag`
   fragment UsersAdmin on User {
     _id
     username
@@ -527,17 +636,17 @@ registerFragment(`
     services
     karma
   }
-`);
+`
 
-registerFragment(`
+export const UsersWithReviewInfo = () => frag`
   fragment UsersWithReviewInfo on User {
     ...UsersMinimumInfo
     reviewVoteCount
     email
   }
-`)
+`
 
-registerFragment(`
+export const UsersProfileEdit = () => frag`
   fragment UsersProfileEdit on User {
     _id
     slug
@@ -565,28 +674,29 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
   }
-`)
+`
 
-registerFragment(`
+export const UsersCrosspostInfo = () => frag`
   fragment UsersCrosspostInfo on User {
     _id
     username
     slug
     fmCrosspostUserId
   }
-`)
+`
 
-registerFragment(`
+export const UsersOptedInToDialogueFacilitation = () => frag`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
   }
-`);
+`
 
-registerFragment(`
+export const UserOnboardingAuthor = () => frag`
   fragment UserOnboardingAuthor on User {
     _id
     displayName
@@ -595,4 +705,23 @@ registerFragment(`
     jobTitle
     organization
   }
-`);
+`
+
+export const UsersSocialMediaInfo = () => frag`
+  fragment UsersSocialMediaInfo on User {
+    ...UsersProfile
+    twitterProfileURLAdmin
+  }
+`
+
+export const SuggestAlignmentUser = () => frag`
+  fragment SuggestAlignmentUser on User {
+    ...UsersMinimumInfo
+    afKarma
+    afPostCount
+    afCommentCount
+    reviewForAlignmentForumUserId
+    groups
+    afApplicationText
+    afSubmittedApplication
+  }`

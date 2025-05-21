@@ -1,7 +1,9 @@
 import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
-import { computeContextFromUser, getCollection } from "./vulcan-lib";
+import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
+import { getSqlFragment } from "@/lib/fragments/allFragments";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 
 type FetchFragmentOptions<
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
@@ -20,7 +22,7 @@ type FetchFragmentOptions<
   /** The mongo selector for the query, or `_id` as a string. */
   selector?: string | MongoSelector<ObjectsByCollectionName[CollectionName]>,
   /** The mongo options for the query */
-  options?: MongoFindOneOptions<ObjectsByCollectionName[CollectionName]>,
+  options?: MongoFindOptions<ObjectsByCollectionName[CollectionName]>,
   /** Arguments to pass to code resolvers and SQL resolvers */
   resolverArgs?: Record<string, unknown> | null,
   /** Optional resolver context */
@@ -34,6 +36,11 @@ type FetchFragmentOptions<
    * operations) then it's also sensible to set this to true.
    */
   skipFiltering?: boolean,
+  /**
+   * By default, we run all the relevant code resolvers for the chosen fragment.
+   * Set this to true to avoid doing so.
+   */
+  skipCodeResolvers?: boolean,
 }
 
 /**
@@ -63,14 +70,18 @@ export const fetchFragment = async <
   resolverArgs,
   context: maybeContext,
   skipFiltering,
+  skipCodeResolvers,
 }: FetchFragmentOptions<CollectionName, FragmentName>): Promise<FetchedFragment<FragmentName>[]> => {
   const context = maybeContext ?? await computeContextFromUser({
     user: currentUser,
     isSSR: false,
   });
 
+  const fragmentText = fragmentTextForQuery(fragmentName);
+  const sqlFragment = getSqlFragment(fragmentName, fragmentText);
+
   const query = new SelectFragmentQuery(
-    fragmentName as FragmentName,
+    sqlFragment,
     currentUser ?? null,
     resolverArgs,
     selector,
@@ -81,16 +92,18 @@ export const fetchFragment = async <
   const db = getSqlClientOrThrow();
 
   const results = await db.any(sql, args);
-  await Promise.all(results.map(
-    (result) => query.executeCodeResolvers(result, context),
-  ));
+  if (!skipCodeResolvers) {
+    await Promise.all(results.map(
+      (result) => query.executeCodeResolvers(result, context),
+    ));
+  }
   if (skipFiltering) {
     return results;
   }
 
   const filtered = await accessFilterMultiple(
     currentUser,
-    getCollection(collectionName),
+    collectionName,
     results,
     context ?? null,
   );
@@ -106,7 +119,7 @@ export const fetchFragmentSingle = async <
 >(
   options: FetchFragmentOptions<CollectionName, FragmentName>,
 ): Promise<FetchedFragment<FragmentName> | null> => {
-  const results = await fetchFragment({
+  const results = await fetchFragment<CollectionName, FragmentName>({
     ...options,
     options: {
       ...options.options,

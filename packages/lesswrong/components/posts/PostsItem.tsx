@@ -1,12 +1,13 @@
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import React from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import EAPostsItem, { EAPostsItemProps } from "./EAPostsItem";
+import LWPostsItem, { PostsList2Props } from "./LWPostsItem";
 
-const PostsItem = isFriendlyUI ? Components.EAPostsItem : Components.LWPostsItem;
+const PostsItem = (props: EAPostsItemProps | PostsList2Props) => {
+  return isFriendlyUI ? <EAPostsItem {...props} /> : <LWPostsItem {...props} />;
+};
 
-const PostsItemComponent = registerComponent("PostsItem", PostsItem);
+export default registerComponent("PostsItem", PostsItem);
 
-declare global {
-  interface ComponentTypes {
-    PostsItem: typeof PostsItemComponent
-  }
-}
+

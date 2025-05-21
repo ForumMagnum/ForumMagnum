@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
-import DoneIcon from '@material-ui/icons/Done';
-import LinkIcon from '@material-ui/icons/Link';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/schema';
+import { COMMENT_MODERATOR_ACTION_TYPES } from "@/lib/collections/commentModeratorActions/constants";
+import CommentWithReplies from "../comments/CommentWithReplies";
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[0],
     boxShadow: theme.palette.boxShadow.eventCard,
@@ -116,9 +119,8 @@ export interface CommentWithModeratorActions {
 
 export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   commentModeratorAction: CommentWithModeratorActions,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentWithReplies, LWTooltip, Loading } = Components;
   const { comment, actions } = commentModeratorAction;
   const commentVotes = getVoteDistribution(comment);
   const [commentTreeNode] = unflattenComments([comment]);
@@ -208,11 +210,7 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   </div>;
 }
 
-const CommentsReviewInfoCardComponent = registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCard, {styles});
+export default registerComponent('CommentsReviewInfoCard', CommentsReviewInfoCard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsReviewInfoCard: typeof CommentsReviewInfoCardComponent
-  }
-}
+
 

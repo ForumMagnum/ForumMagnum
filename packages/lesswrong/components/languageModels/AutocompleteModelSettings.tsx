@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
+import LinearProgress from "@/lib/vendor/@material-ui/core/src/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
+import PostsItem from "../posts/PostsItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import ForumIcon from "../common/ForumIcon";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
@@ -140,7 +146,6 @@ const SelectableList = ({
   ItemComponent,
   classes,
 }: SelectableListProps<PostsList | CommentsList>) => {
-  const { ForumIcon } = Components
   return (
     <div className={classes.list}>
       {items.map((item, i) => (
@@ -231,7 +236,6 @@ const AuthorSection = ({
   onSelectAll,
   classes,
 }: AuthorSectionProps) => {
-  const { ForumIcon } = Components
   const [expanded, setExpanded] = useState(false);
 
   const postsTokens = useMemo(
@@ -303,7 +307,7 @@ const AuthorSection = ({
             selectedItems={selectedItems}
             onToggle={onToggle}
             onSelectAll={onSelectAll}
-            ItemComponent={({ item }) => <Components.PostsItem post={item as PostsListWithVotes} />}
+            ItemComponent={({ item }) => <PostsItem post={item as PostsListWithVotes} />}
             classes={classes}
           />
           <SelectableList
@@ -312,7 +316,7 @@ const AuthorSection = ({
             onToggle={onToggle}
             onSelectAll={onSelectAll}
             ItemComponent={({ item }) => (
-              <Components.CommentsNode
+              <CommentsNodeInner
                 treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                 comment={item as CommentsList}
               />
@@ -349,8 +353,7 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
   localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
-const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
-  const { SingleColumnSection, Loading, PostsItem, LoadMore, CommentsNode } = Components;
+const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
     const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
@@ -466,7 +469,7 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
               onToggle={setSelectedItems}
               onSelectAll={handleSelectAll}
               ItemComponent={({ item }) => (
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                   comment={item as CommentsList}
                 />
@@ -491,12 +494,8 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
   );
 };
 
-const AutocompleteModelSettingsComponent = registerComponent("AutocompleteModelSettings", AutocompleteModelSettings, {
+export default registerComponent("AutocompleteModelSettings", AutocompleteModelSettings, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    AutocompleteModelSettings: typeof AutocompleteModelSettingsComponent;
-  }
-}
+

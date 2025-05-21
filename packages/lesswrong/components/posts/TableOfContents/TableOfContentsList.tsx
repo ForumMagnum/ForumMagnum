@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation } from '../../../lib/routeUtil';
 import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
-import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import TableOfContentsRow from "./TableOfContentsRow";
+import AnswerTocRow from "./AnswerTocRow";
 
 export interface ToCDisplayOptions {
   /**
@@ -54,13 +57,16 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
-      let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace);
+
+      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+      if (!isLWorAF) {
+        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+      } else {
+        let sectionYdocumentSpace = anchorY + window.scrollY;
+        jumpToY(sectionYdocumentSpace);
+      }
     }
   }
-
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
@@ -242,14 +248,10 @@ export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDi
   }
 }
 
-const TableOfContentsListComponent = registerComponent(
+export default registerComponent(
   "TableOfContentsList", TableOfContentsList, {
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsList: typeof TableOfContentsListComponent
-  }
-}
+

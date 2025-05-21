@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
+import { htmlToTextDefault } from '@/lib/htmlToText';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import ForumIcon from "../common/ForumIcon";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: 10,
+    columnGap: isFriendlyUI ? 8 : 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -20,7 +23,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     
     "& a": {
-      textDecoration: "underline",
       '&:hover': {
         color: theme.palette.primary.dark,
         opacity: 1
@@ -29,10 +31,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   restoreLink: {
     color: theme.palette.text.primaryAlert,
+    whiteSpace: 'nowrap',
+    paddingLeft: 6,
+    paddingRight: 2,
+    fontWeight: isFriendlyUI ? 600 : undefined,
+  },
+  restoreBody: {
+    maxHeight: '1.5em',
+    lineHeight: '1.5em',
+    fontSize: '1.1rem',
+    overflow: 'hidden',
+    ...(isFriendlyUI
+      ? {
+        color: theme.palette.text.primaryAlert,
+        fontWeight: 500,
+        opacity: 0.75,
+      }
+      : {
+        color: theme.palette.grey[500],
+        padding: '0 4px',
+      }),
   },
   closeIcon: {
     fontSize: 16,
     cursor: 'pointer',
+    marginLeft: 'auto',
     '&:hover': {
       color: theme.palette.primary.dark,
     }
@@ -45,7 +68,9 @@ type RestorableState = {
 const restorableStateHasMetadata = (savedState: any) => {
   return typeof savedState === "object"
 }
-const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
+type GetLocalStorageHandlers = (editorType?: string) => any;
+
+const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: GetLocalStorageHandlers): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
   for (const editorType of editors) {
@@ -64,47 +89,60 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
-  getLocalStorageHandlers: (editorType?: string) => any,
+const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
+  getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
+  getNewPostLocalStorageHandlers: GetLocalStorageHandlers,
+  onRestoreNewPostLegacy: (newState: EditorContents) => void,
 }) => {
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
-  const [restorableState, setRestorableState] = useState<RestorableState|null>(null);
+  const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
   
   useEffect(() => {
     if (!localStorageChecked) {
       setLocalStorageChecked(true);
-      setRestorableState(getRestorableState(currentUser, getLocalStorageHandlers));
+      const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+      const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
+      setRestorableState({
+        restorableState,
+        newPostRestorableState,
+      });
     }
-  }, [localStorageChecked, getLocalStorageHandlers, currentUser]);
+  }, [localStorageChecked, getLocalStorageHandlers, getNewPostLocalStorageHandlers, currentUser]);
+
+  const restorableDocument = restorableState?.restorableState?.savedDocument ?? null;
+  const newPostRestorableDocument = restorableState?.newPostRestorableState?.savedDocument ?? null;
   
-  if (!restorableState)
+  if (!restorableDocument && !newPostRestorableDocument)
     return null;
-  
+
+  const displayedRestore = restorableDocument ? htmlToTextDefault(deserializeEditorContents(restorableDocument)?.value ?? '') : null;
+  const legacyRestored = newPostRestorableDocument ? htmlToTextDefault(deserializeEditorContents(newPostRestorableDocument)?.value ?? '') : null;
+
   return <div className={classes.root}>
     <div>
-      You have autosaved text.{" "}
       <a className={classes.restoreLink} onClick={() => {
         setRestorableState(null);
-        const restored = deserializeEditorContents(restorableState.savedDocument);
+        const restored = restorableDocument ? deserializeEditorContents(restorableDocument) : null;
+        const legacyRestored = newPostRestorableDocument ? deserializeEditorContents(newPostRestorableDocument) : null;
         if (restored) {
           onRestore(restored);
+        } else if (legacyRestored) {
+          onRestoreNewPostLegacy(legacyRestored);
         } else {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>Restore</a>
+      }}>{preferredHeadingCase("Restore Autosave")}</a>
     </div>
-    <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
+    <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
+
+    <ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }
 
-const LocalStorageCheckComponent = registerComponent('LocalStorageCheck', LocalStorageCheck, {styles});
+export default registerComponent('LocalStorageCheck', LocalStorageCheck, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalStorageCheck: typeof LocalStorageCheckComponent
-  }
-}
+

@@ -1,9 +1,12 @@
 import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { slugify } from "@/lib/utils/slugify";
+import SequencesTooltip from "../sequences/SequencesTooltip";
+import EASequenceOrCollectionCard from "./EASequenceOrCollectionCard";
 
 const EASequenceCard = ({sequence, className}: {
   sequence: SequencesPageFragment,
@@ -32,15 +35,12 @@ const EASequenceCard = ({sequence, className}: {
   const href = sequenceGetPageUrl(sequence);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
-    const {SequencesTooltip} = Components;
     return (
       <SequencesTooltip sequence={sequence} placement="bottom">
         {children}
       </SequencesTooltip>
     );
   }, [sequence]);
-
-  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={slug}>
       <EASequenceOrCollectionCard
@@ -58,13 +58,9 @@ const EASequenceCard = ({sequence, className}: {
   );
 };
 
-const EASequenceCardComponent = registerComponent(
+export default registerComponent(
   "EASequenceCard",
   EASequenceCard,
 );
 
-declare global {
-  interface ComponentTypes {
-    EASequenceCard: typeof EASequenceCardComponent;
-  }
-}
+

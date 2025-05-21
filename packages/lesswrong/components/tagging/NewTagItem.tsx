@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { tagPostTerms } from './TagPage';
+import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import UsersName from "../users/UsersName";
+import FormatDate from "../common/FormatDate";
+import PostsList2 from "../posts/PostsList2";
+import ContentItemBody from "../common/ContentItemBody";
+import TagDiscussionButton from "./TagDiscussionButton";
+import ContentStyles from "../common/ContentStyles";
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -37,10 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NewTagItem = ({tag, classes}: {
   tag: TagCreationHistoryFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tagUrl = tagGetUrl(tag);
-  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton, ContentStyles} = Components;
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
   
@@ -75,7 +79,6 @@ const NewTagItem = ({tag, classes}: {
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: description||""}}
           description={`tag ${tag.name}`}
-          className={classes.description}
         />
       </ContentStyles>
     </div>
@@ -93,10 +96,6 @@ const NewTagItem = ({tag, classes}: {
   </div>;
 }
 
-const NewTagItemComponent = registerComponent("NewTagItem", NewTagItem, {styles});
+export default registerComponent("NewTagItem", NewTagItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewTagItem: typeof NewTagItemComponent
-  }
-}
+

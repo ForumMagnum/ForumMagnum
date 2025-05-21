@@ -1,7 +1,8 @@
 import React, {ReactNode, useCallback, useEffect, useState} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import {useCurrentUser} from '../common/withUser'
 import {EAOnboardingContextProvider} from '../ea-forum/onboarding/useEAOnboarding'
+import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -25,7 +26,7 @@ const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
 
   useEffect(() => {
     // Set `isOnboarding` to true after a new user signs up.
-    setIsOnboarding((currentValue) => currentValue || currentUser?.usernameUnset)
+    setIsOnboarding((currentValue) => currentValue || !!currentUser?.usernameUnset)
   }, [currentUser?.usernameUnset])
 
   const onOnboardingComplete = useCallback(() => {
@@ -35,8 +36,6 @@ const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
   if (!isOnboarding) {
     return null
   }
-
-  const {BlurredBackgroundModal} = Components
   return (
     <BlurredBackgroundModal open className={classes.root} data-testid="onboarding-flow">
       <EAOnboardingContextProvider stages={stages} onOnboardingComplete={onOnboardingComplete} viewAsAdmin={viewAsAdmin}/>
@@ -44,14 +43,10 @@ const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
   )
 }
 
-const OnboardingFlowComponent = registerComponent(
+export default registerComponent(
   'OnboardingFlow',
   OnboardingFlow,
   {styles},
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    OnboardingFlow: typeof OnboardingFlowComponent
-  }
-}
+

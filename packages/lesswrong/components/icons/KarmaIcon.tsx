@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import KeyboardArrowUpIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     width: "1em",
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // this is currently unused, but will hopefully be used someday after we reflect on it a bit more.
 const KarmaIcon = ({classes, className}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <span className={classNames(classes.root, className)}>
@@ -37,10 +37,6 @@ const KarmaIcon = ({classes, className}: {
     </span>
 }
 
-const KarmaIconComponent = registerComponent('KarmaIcon', KarmaIcon, {styles});
+export default registerComponent('KarmaIcon', KarmaIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    KarmaIcon: typeof KarmaIconComponent
-  }
-}
+

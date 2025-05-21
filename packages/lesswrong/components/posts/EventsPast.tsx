@@ -1,19 +1,21 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { forumAllPostsNumDaysSetting } from '../../lib/publicSettings';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsTimeframeList from "./PostsTimeframeList";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   daily: {
     padding: theme.spacing.unit
   }
 })
 const EventsPast = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
-  const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = forumAllPostsNumDaysSetting.get();
   const terms: PostsViewTerms = {
     view: 'eventsInTimeRange',
@@ -42,11 +44,7 @@ const EventsPast = ({ classes }: {
   )
 }
 
-const EventsPastComponent = registerComponent('EventsPast', EventsPast, {styles});
+export default registerComponent('EventsPast', EventsPast, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventsPast: typeof EventsPastComponent
-  }
-}
+
 

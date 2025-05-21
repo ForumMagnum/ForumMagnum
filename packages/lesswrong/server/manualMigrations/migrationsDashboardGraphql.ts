@@ -1,29 +1,32 @@
-import { defineQuery } from '../utils/serverGraphqlUtil';
-import Migrations from '../../lib/collections/migrations/collection';
+import Migrations from '../../server/collections/migrations/collection';
 import { availableMigrations } from './migrationUtils';
 import * as _ from 'underscore';
 import moment from 'moment';
+import gql from 'graphql-tag';
 
-defineQuery({
-  name: "MigrationsDashboard",
-  resultType: "MigrationsDashboardData",
-  schema: `
-    type MigrationsDashboardData {
-      migrations: [MigrationStatus!]
-    }
-    type MigrationStatus {
-      name: String!
-      dateWritten: String
-      runs: [MigrationRun!]
-      lastRun: String
-    }
-    type MigrationRun {
-      name: String!
-      started: Date!
-      finished: Date
-      succeeded: Boolean
-    }`,
-  fn: async (root: void, args: void, context: ResolverContext) => {
+export const migrationsDashboardGraphQLTypeDefs = gql`
+  type MigrationsDashboardData {
+    migrations: [MigrationStatus!]
+  }
+  type MigrationStatus {
+    name: String!
+    dateWritten: String
+    runs: [MigrationRun!]
+    lastRun: String
+  }
+  type MigrationRun {
+    name: String!
+    started: Date!
+    finished: Date
+    succeeded: Boolean
+  }
+  extend type Query {
+    MigrationsDashboard: MigrationsDashboardData
+  }
+`;
+
+export const migrationsDashboardGraphQLQueries = {
+  MigrationsDashboard: async (root: void, args: void, context: ResolverContext) => {
     if (!context.currentUser || !context.currentUser.isAdmin)
       throw new Error("MigrationsDashboard graphQL API requires being logged in as an admin");
     
@@ -42,8 +45,8 @@ defineQuery({
       migrations: migrationNamesByDateWrittenDesc
         .map(name => makeMigrationStatus(name, runsByMigration))
     };
-  },
-});
+  }
+};
 
 const makeMigrationStatus = (name: string, runsByMigration: AnyBecauseTodo) => {
   const runs = runsByMigration[name]?.map((run: AnyBecauseTodo) => ({

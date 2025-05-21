@@ -1,11 +1,14 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "../comments/CommentsNode";
+import FormatDate from "../common/FormatDate";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"
@@ -40,17 +43,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
-  reviewedAt: Date
+  reviewedAt?: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, CommentsNode, FormatDate } = Components
-
   if (!comment) return null 
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
-    <Link className={classNames({[classes.highlight]: comment.postedAt > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
+    <Link className={classNames({[classes.highlight]: !reviewedAt || comment.postedAt > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
       to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
     >
       {displayTitle && <span className={classes.scoreTitleFormat}>
@@ -67,17 +68,13 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
+        <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>
   </span>
 }
 
-const CommentKarmaWithPreviewComponent = registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
+export default registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentKarmaWithPreview: typeof CommentKarmaWithPreviewComponent
-  }
-}
+
 

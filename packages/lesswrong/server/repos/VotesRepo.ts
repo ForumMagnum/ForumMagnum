@@ -1,19 +1,14 @@
 import AbstractRepo from "./AbstractRepo";
-import Votes from "../../lib/collections/votes/collection";
+import Votes from "../../server/collections/votes/collection";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
-import { getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
+import { eaEmojiPalette, getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type {
   AnyKarmaChange,
-  CommentKarmaChange,
-  KarmaChangeBase,
   KarmaChangesArgs,
-  PostKarmaChange,
-  ReactionChange,
-  TagRevisionKarmaChange,
-} from "../../lib/collections/users/karmaChangesGraphQL";
+} from "../collections/users/karmaChangesGraphQL";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -84,7 +79,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
   ): Promise<{
     changedComments: CommentKarmaChange[],
     changedPosts: PostKarmaChange[],
-    changedTagRevisions: TagRevisionKarmaChange[],
+    changedTagRevisions: RevisionsKarmaChange[],
   }> {
     const powerField = af ? "afPower" : "power";
 
@@ -172,9 +167,9 @@ class VotesRepo extends AbstractRepo<"Votes"> {
 
     let changedComments: CommentKarmaChange[] = [];
     let changedPosts: PostKarmaChange[] = [];
-    let changedTagRevisions: TagRevisionKarmaChange[] = [];
+    let changedTagRevisions: RevisionsKarmaChange[] = [];
     for (let votedContent of allScoreChanges) {
-      let change: KarmaChangeBase = {
+      let change = {
         _id: votedContent._id,
         collectionName: votedContent.collectionName,
         scoreChange: votedContent.scoreChange,
@@ -188,6 +183,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       if (votedContent.collectionName==="Comments") {
         changedComments.push({
           ...change,
+          commentId: votedContent._id,
           description: votedContent.commentHtml,
           postId: votedContent.commentPostId,
           postTitle: votedContent.commentPostTitle,
@@ -195,17 +191,24 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           tagId: votedContent.commentTagId,
           tagName: votedContent.commentTagName,
           tagCommentType: votedContent.commentTagCommentType,
+          tagSlug: null,
+          eaAddedReacts: null,
         });
       } else if (votedContent.collectionName==="Posts") {
         changedPosts.push({
           ...change,
+          postId: votedContent._id,
           title: votedContent.postTitle,
           slug: votedContent.postSlug,
+          eaAddedReacts: null,
         });
       } else if (votedContent.collectionName==="Revisions") {
         changedTagRevisions.push({
           ...change,
           tagId: votedContent.revisionTagId,
+          tagName: null,
+          tagSlug: null,
+          eaAddedReacts: null,
         });
       }
     }
@@ -332,7 +335,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         ARRAY[]::TEXT[] "addedReacts",
         post."title",
         post."slug",
-        comment."postId",
+        comment._id "commentId",
+        COALESCE(comment."postId", post._id) "postId",
         comment."tagCommentType",
         comment."contents"->>'html' "description",
         comment_post."title" "postTitle",
@@ -661,6 +665,94 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       GROUP BY c."userId"
       ORDER BY "longtermScore" DESC
     `, [userId]);
+  }
+
+  async getEAWrappedReactsReceived(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<string, number>> {
+    const fields = eaEmojiPalette.map(({name}) =>
+      `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
+    );
+    const result = await this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedReactsReceived
+      SELECT ${fields.join(", ")}
+      FROM "Votes"
+      WHERE
+        "authorIds" @> ARRAY[$1::VARCHAR]
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
+    if (!result) {
+      return {};
+    }
+    for (const key in result) {
+      result[key] = parseInt(result[key]);
+    }
+    return result;
+  }
+
+  async getEAWrappedReactsGiven(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<string, number>> {
+    const fields = eaEmojiPalette.map(({name}) =>
+      `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
+    );
+    const result = await this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedReactsGiven
+      SELECT ${fields.join(", ")}
+      FROM "Votes"
+      WHERE
+        "userId" = $1
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
+    if (!result) {
+      return {};
+    }
+    for (const key in result) {
+      result[key] = parseInt(result[key]);
+    }
+    return result;
+  }
+
+  async getEAWrappedAgreements(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<"agree" | "disagree", number>> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedAgreements
+      SELECT
+        COUNT(*) FILTER
+          (WHERE ("extendedVoteType"->'agree')::BOOLEAN IS TRUE) AS "agree",
+        COUNT(*) FILTER
+          (WHERE ("extendedVoteType"->'disagree')::BOOLEAN IS TRUE) AS "disagree"
+      FROM "Votes"
+      WHERE
+        "userId" = $1
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
+    if (!result) {
+      return {agree: 0, disagree: 0};
+    }
+    for (const key in result) {
+      result[key] = parseInt(result[key]) || 0;
+    }
+    return result;
   }
 }
 

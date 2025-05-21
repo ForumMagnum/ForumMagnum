@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
@@ -13,6 +13,23 @@ import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
+import { ChaptersForm } from './ChaptersForm';
+import Error404 from "../common/Error404";
+import Loading from "../vulcan-core/Loading";
+import SequencesEditForm from "./SequencesEditForm";
+import HeadTags from "../common/HeadTags";
+import CloudinaryImage from "../common/CloudinaryImage";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionSubtitle from "../common/SectionSubtitle";
+import ChaptersList from "./ChaptersList";
+import FormatDate from "../common/FormatDate";
+import SectionFooter from "../common/SectionFooter";
+import UsersName from "../users/UsersName";
+import ContentItemBody from "../common/ContentItemBody";
+import { Typography } from "../common/Typography";
+import SectionButton from "../common/SectionButton";
+import ContentStyles from "../common/ContentStyles";
+import NotifyMeButton from "../notifications/NotifyMeButton";
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -25,7 +42,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
@@ -120,12 +137,42 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   imageScrim: {
     ...sequencesImageScrim(theme)
-  }
+  },
+  newChapterForm: {
+    maxWidth: 695,
+    marginLeft: "auto",
+    marginRight: 90,
+    padding: 15,
+    border: theme.palette.border.normal,
+    borderRadius: 2,
+    marginBottom: "2em",
+  
+    "& form": {
+      clear: "both",
+      overflow: "auto",
+    },
+    "& .form-submit": {
+      float: "right",
+    },
+    "& h3": {
+      fontSize: "2em",
+      marginBottom: "1em",
+    },
+    "& label.control-label": {
+      display: "none",
+    },
+    "& .col-sm-9": {
+      padding: 0,
+    },
+    "& .input-title input": {
+      fontSize: "2em",
+    },
+  },
 })
 
 const SequencesPage = ({ documentId, classes }: {
   documentId: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
@@ -138,18 +185,19 @@ const SequencesPage = ({ documentId, classes }: {
     fragmentName: 'SequencesPageFragment',
   });
 
+  const { document: editDocument, loading: editLoading } = useSingle({
+    documentId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesEdit',
+    skip: !edit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
   const showSequence = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
-  } = Components
-  
   if (document?.isDeleted) {
     return <SingleColumnSection>
       <Typography variant="body2" className={classes.deletedText}>
@@ -160,15 +208,27 @@ const SequencesPage = ({ documentId, classes }: {
   if (loading) return <Loading />
   
   if (!document) {
-    return <Components.Error404/>
+    return <Error404/>
   }
-  if (edit) return (
-    <SequencesEditForm
-      documentId={documentId}
-      successCallback={showSequence}
-      cancelCallback={showSequence}
-    />
-  )
+  if (edit) {
+    if (!currentUser) {
+      return <div>You must be logged in to edit this sequence.</div>
+    }
+    if (editLoading) {
+      return <Loading />
+    }
+    if (!editDocument) {
+      return <Error404/>
+    }
+    return (
+      <SequencesEditForm
+        sequence={editDocument}
+        currentUser={currentUser}
+        successCallback={showSequence}
+        cancelCallback={showSequence}
+      />
+    )
+  }
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
@@ -264,7 +324,16 @@ const SequencesPage = ({ documentId, classes }: {
                 <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
               </SectionButton>
             </SectionFooter>}
-            {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
+            {showNewChapterForm && (
+              <div className={classes.newChapterForm}>
+                <h3>Add Chapter</h3>
+                <ChaptersForm
+                  prefilledProps={{ sequenceId: document._id, number: nextSuggestedNumberRef.current }}
+                  onSuccess={() => setShowNewChapterForm(false)}
+                  onCancel={() => setShowNewChapterForm(false)}
+                />
+              </div>
+            )}
           </div>
         </div>
       </SingleColumnSection>
@@ -272,10 +341,6 @@ const SequencesPage = ({ documentId, classes }: {
   </AnalyticsContext>
 }
 
-const SequencesPageComponent = registerComponent('SequencesPage', SequencesPage, {styles});
+export default registerComponent('SequencesPage', SequencesPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesPage: typeof SequencesPageComponent
-  }
-}
+

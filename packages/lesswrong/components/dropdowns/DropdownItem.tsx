@@ -1,13 +1,16 @@
-import React, { FC, ReactElement, MouseEvent, PropsWithChildren } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { ForumIconName } from "../common/ForumIcon";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
+import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
+import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { MenuItem } from "../common/Menus";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "&:hover": {
@@ -35,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     flexGrow: 1,
-    overflow: "hidden",
+    overflowX: "clip",
     textOverflow: "ellipsis",
   },
   afterIcon: {
@@ -66,7 +69,7 @@ export type DropdownItemAction = {
 }
 
 export type DropdownItemProps = DropdownItemAction & {
-  title: string,
+  title: ReactNode,
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
@@ -104,8 +107,7 @@ const DropdownItem = ({
   loading,
   rawLink,
   classes,
-}: DropdownItemProps & {classes: ClassesType}) => {
-  const {MenuItem, Loading, ForumIcon, LWTooltip} = Components;
+}: DropdownItemProps & {classes: ClassesType<typeof styles>}) => {
   const LinkWrapper = to ? rawLink ? RawLink : Link : DummyWrapper;
   const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
   return (
@@ -145,14 +147,10 @@ const DropdownItem = ({
   );
 }
 
-const DropdownItemComponent = registerComponent(
+export default registerComponent(
   "DropdownItem",
   DropdownItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownItem: typeof DropdownItemComponent
-  }
-}
+

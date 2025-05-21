@@ -1,12 +1,20 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import UsersNameDisplay from "../../users/UsersNameDisplay";
+import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPendingApprovalMessage";
+import LinkPostMessage from "../LinkPostMessage";
+import PostsRevisionMessage from "./PostsRevisionMessage";
+import LWTooltip from "../../common/LWTooltip";
+import ContentItemBody from "../../common/ContentItemBody";
+import ContentStyles from "../../common/ContentStyles";
+import PostPageReviewButton from "./PostPageReviewButton";
 
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -14,7 +22,7 @@ const shortformDraftMessage = isFriendlyUI
 
 export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reviewInfo: {
     textAlign: "center",
     marginBottom: 32
@@ -46,21 +54,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "top",
     color: theme.palette.icon.dim2,
   },
-  reviewVoting: {
-    textAlign: "center",
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*6
-  },
-  reviewButton: {
-    border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
-    display: "inline-block",
-    borderRadius: 3
-  }
 });
 
 const forumNewUserProcessingTime = forumSelect({
@@ -73,18 +66,12 @@ const forumNewUserProcessingTime = forumSelect({
 const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
-      {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-        <div className={classes.reviewButton}>Review</div>
-      </LWTooltip>}/>
-    </div>}
+    {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <PostPageReviewButton post={post}/>}
 
     <AlignmentPendingApprovalMessage post={post} />
 
@@ -93,7 +80,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
       <>
-        This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+        This is a special post for quick takes by <UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
       </>
     </div>}
 
@@ -122,10 +109,6 @@ const PostBodyPrefix = ({post, query, classes}: {
   </>;
 }
 
-const PostBodyPrefixComponent = registerComponent('PostBodyPrefix', PostBodyPrefix, {styles});
+export default registerComponent('PostBodyPrefix', PostBodyPrefix, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostBodyPrefix: typeof PostBodyPrefixComponent
-  }
-}
+

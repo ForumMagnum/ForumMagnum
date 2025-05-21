@@ -6,7 +6,7 @@ import { registerMigration } from './migrationUtils';
 //
 // NOTE: This is not the most up to date version of this migration, a new version is in
 // packages/lesswrong/server/manualMigrations/2023-07-28-viewUpdaterErrorHandling.ts
-registerMigration({
+export default registerMigration({
   name: "createViewUpdater",
   dateWritten: "2023-01-13",
   idempotent: true,

@@ -1,11 +1,12 @@
 import { useTracking } from '@/lib/analyticsEvents';
-import { Components, registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { gql, useMutation } from '@apollo/client';
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,8 +23,6 @@ export const FollowUserButton = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { LWTooltip } = Components;
   const { captureEvent } = useTracking();
 
   const { isSubscribed, onSubscribe, disabled } = useNotifyMe({
@@ -70,10 +69,6 @@ export const FollowUserButton = ({user, classes}: {
   </div>;
 }
 
-const FollowUserButtonComponent = registerComponent('FollowUserButton', FollowUserButton, {styles});
+export default registerComponent('FollowUserButton', FollowUserButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FollowUserButton: typeof FollowUserButtonComponent
-  }
-}
+

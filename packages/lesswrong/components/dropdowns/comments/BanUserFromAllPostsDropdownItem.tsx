@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import DropdownItem from "../DropdownItem";
 
 const BanUserFromAllPostsDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -28,7 +29,7 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
     event.preventDefault();
     if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedUserIds = clone(currentUser.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
@@ -38,8 +39,6 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your posts`}))
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban from all your posts"
@@ -48,13 +47,9 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
   );
 }
 
-const BanUserFromAllPostsDropdownItemComponent = registerComponent(
+export default registerComponent(
   'BanUserFromAllPostsDropdownItem', BanUserFromAllPostsDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    BanUserFromAllPostsDropdownItem: typeof BanUserFromAllPostsDropdownItemComponent,
-  }
-}
+
 

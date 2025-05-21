@@ -1,11 +1,11 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     display: 'inline-block',
     fontSize: 22,
@@ -33,8 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
-  inRecentDiscussion?: Boolean,
-  classes: ClassesType,
+  inRecentDiscussion?: boolean,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document } = useSingle({
     documentId,
@@ -61,12 +61,8 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   </div>
 }
 
-const PostsGroupDetailsComponent = registerComponent(
+export default registerComponent(
   'PostsGroupDetails', PostsGroupDetails, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsGroupDetails: typeof PostsGroupDetailsComponent
-  }
-}
+

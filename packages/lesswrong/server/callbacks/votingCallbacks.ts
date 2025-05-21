@@ -1,58 +1,124 @@
 import moment from 'moment';
-import Notifications from '../../lib/collections/notifications/collection';
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
-import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
+import Notifications from '../../server/collections/notifications/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
+import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
-import { createMutator } from '../vulcan-lib/mutators';
-import { Comments } from '../../lib/collections/comments';
-import { createAdminContext } from '../vulcan-lib/query';
-import Tags from '../../lib/collections/tags/collection';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { createManifoldMarket } from '../posts/annualReviewMarkets';
-import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
-import { cancelAlignmentKarmaServerCallback, cancelAlignmentUserKarmaServer, updateAlignmentKarmaServerCallback, updateAlignmentUserServerCallback } from './alignment-forum/callbacks';
-import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';
-import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
-import { increaseMaxBaseScore } from './postCallbacks';
+import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
+import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
+import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { captureException } from '@sentry/core';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { updatePostDenormalizedTags } from '../tagging/helpers';
+import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
+import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { userGetGroups } from '@/lib/vulcan-users/permissions';
 
-export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
-  cancelAlignmentKarmaServerCallback({newDocument, vote});
+const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
+const TRUSTLEVEL1_THRESHOLD = 2000;
+
+async function updateTrustedStatus({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Users } = context;
+
+  const user = await Users.findOne(newDocument.userId)
+  if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
+    const updatedUser = await Users.findOne(newDocument.userId)
+    //eslint-disable-next-line no-console
+    console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
+  }
+}
+
+async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Users } = context;
+  
+  const user = await Users.findOne(newDocument.userId)
+  if (!user) throw Error("Couldn't find user")
+  if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
+    const updatedUser = await Users.findOne(newDocument.userId)
+    if (!updatedUser) throw Error("Couldn't find user to update")
+    //eslint-disable-next-line no-console
+    console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
+  }
+}
+
+async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
+  if (vote.collectionName === "Posts") {
+    const post = newDocument as DbPost;
+    if (post.baseScore > (post.maxBaseScore || 0)) {
+      let thresholdTimestamp: any = {};
+      if (!post.scoreExceeded2Date && post.baseScore >= 2) {
+        thresholdTimestamp.scoreExceeded2Date = new Date();
+      }
+      if (!post.scoreExceeded30Date && post.baseScore >= 30) {
+        thresholdTimestamp.scoreExceeded30Date = new Date();
+      }
+      if (!post.scoreExceeded45Date && post.baseScore >= 45) {
+        thresholdTimestamp.scoreExceeded45Date = new Date();
+      }
+      if (!post.scoreExceeded75Date && post.baseScore >= 75) {
+        thresholdTimestamp.scoreExceeded75Date = new Date();
+      }
+      if (!post.scoreExceeded125Date && post.baseScore >= 125) {
+        thresholdTimestamp.scoreExceeded125Date = new Date();
+      }
+      if (!post.scoreExceeded200Date && post.baseScore >= 200) {
+        thresholdTimestamp.scoreExceeded200Date = new Date();
+      }
+      await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
+    }
+  }
+}
+
+function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
+  let postId: string;
+  if ("postId" in newDocument) { // is a tagRel
+    // Applying human knowledge here
+    postId = (newDocument as DbTagRel)["postId"];
+  } else if ("tagRelevance" in newDocument) { // is a post
+    postId = newDocument["_id"];
+  } else {
+    return;
+  }
+  void updatePostDenormalizedTags(postId);
+}
+
+export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
   cancelVoteKarma({newDocument, vote}, collection, user);
   void cancelVoteCount({newDocument, vote});
-  void cancelAlignmentUserKarmaServer({newDocument, vote});
+  void revokeUserAFKarmaForCancelledVote({newDocument, vote});
   
   
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision, context);
     }
   }
 }
-export async function onCastVoteSync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<VoteDocTuple> {
-  return await updateAlignmentKarmaServerCallback(voteDocTuple);
-}
+
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
-  void updateAlignmentUserServerCallback(voteDocTuple);
-  void updateTrustedStatus(voteDocTuple);
-  void updateModerateOwnPersonal(voteDocTuple);
+  void grantUserAFKarmaForVote(voteDocTuple);
+  void updateTrustedStatus(voteDocTuple, context);
+  void updateModerateOwnPersonal(voteDocTuple, context);
   void increaseMaxBaseScore(voteDocTuple);
   void voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision, context);
     }
   }
 
@@ -192,36 +258,32 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 // When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
-const reviewUserBot = reviewUserBotSetting.get()
-
-async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
-  const tag = await Tags.findOne({slug: tagSlug})
-  const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
-  if (!tag) {
-    const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-    const tagData = {
-      name: name,
-      slug: tagSlug,
-      userId: botUser._id
-    };   
-
-    const {data: newTag} = await createMutator({
-      collection: Tags,
-      document: tagData,
-      validate: false,
-      currentUser: botUser,
-    });
-    if (!newTag) {
-      //eslint-disable-next-line no-console
-      console.log(`Failed to create tag with slug "${tagSlug}"`); 
-      return;
-    }
-    await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
-  }
-  else {
-    await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
-  }
-}
+// async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
+//   const tag = await Tags.findOne({slug: tagSlug})
+//   const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
+//   if (!tag) {
+//     const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+//     const tagData = {
+//       name: name,
+//       slug: tagSlug,
+//       userId: botUser._id
+//     };   
+//
+//     const newTag = await createTag({
+//       data: tagData
+//     }, context);
+//     
+//     if (!newTag) {
+//       //eslint-disable-next-line no-console
+//       console.log(`Failed to create tag with slug "${tagSlug}"`); 
+//       return;
+//     }
+//     await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
+//   }
+//   else {
+//     await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+//   }
+// }
 
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
 // This is probably fine, but it's worth noting. We can deal with it if it comes up.
@@ -229,28 +291,16 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   // Forum gate
   if (!isLWorAF) return;
-  if (!reviewUserBot) {
-    //eslint-disable-next-line no-console
-    console.error("Review bot user not configured"); 
-    return;
-  }
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
-  if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
+  if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
-  if (!post) return;
+  if (!post || post.draft || post.deletedDraft) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
-  
-  const botUser = await context.Users.findOne({_id: reviewUserBot})
-  if (!botUser) {
-    //eslint-disable-next-line no-console
-    console.error("Bot user not found"); 
-    return
-  }
 
-  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
   const postLink = postGetPageUrl(post, true)
 
   const year = post.postedAt.getFullYear()
@@ -260,40 +310,11 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
   const visibility = isProduction ? "public" : "unlisted"
 
-  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
+  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb, post._id)
 
   // Return if market creation fails
   if (!liteMarket) return;
-
-  const [comment] = await Promise.all([
-    makeMarketComment(post._id, year, liteMarket.url, botUser),
-    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-  ])
-
-  await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
-}
-
-const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
-
-  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
-  `
-
-  const result = await createMutator({
-    collection: Comments,
-    document: {
-      postId: postId,
-      userId: botUser._id,
-      contents: {originalContents: {
-        type: "html",
-        data: commentString
-      }}
-    },
-    currentUser: botUser,
-    context: createAdminContext()
-  })
-
-
-  return result.data
+  await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
@@ -316,8 +337,8 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
       return;
     }
   
-    // If the user has already been flagged with this moderator action in the last month, no need to apply it again
-    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
+    // If the user has already been flagged with this moderator action in the last 3 months, no need to apply it again
+    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(3, 'month'))) {
       return;
     }
   
@@ -328,16 +349,13 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
     } = longtermDownvoteScore;
   
     if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-      void createMutator({
-        collection: context.ModeratorActions,
-        document: {
+      void createModeratorAction({
+        data: {
           type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
           userId: userId,
           endedAt: new Date()
         },
-        context: adminContext,
-        currentUser: adminContext.currentUser,
-      });
+      }, adminContext);
     }
   } catch (err) {
     captureException(err);

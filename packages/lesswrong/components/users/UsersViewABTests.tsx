@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   explanatoryText: {
@@ -30,9 +33,8 @@ const styles = (theme: ThemeType) => ({
 });
 
 const UsersViewABTests = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();
@@ -96,10 +98,6 @@ const UsersViewABTests = ({classes}: {
   </SingleColumnSection>
 }
 
-const UsersViewABTestsComponent = registerComponent("UsersViewABTests", UsersViewABTests, {styles});
+export default registerComponent("UsersViewABTests", UsersViewABTests, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersViewABTests: typeof UsersViewABTestsComponent
-  }
-}
+

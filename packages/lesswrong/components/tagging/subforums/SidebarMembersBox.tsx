@@ -1,9 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
+import SubforumSubscribeSection from "./SubforumSubscribeSection";
+import SubforumMember from "./SubforumMember";
+import Loading from "../../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
   },
@@ -61,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SidebarMembersBox = ({tag, className, classes}: {
   tag: TagSubforumFragment,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results: members, loading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
@@ -79,9 +82,6 @@ const SidebarMembersBox = ({tag, className, classes}: {
       otherMembers.push(member)
     }
   })
-  
-  const { SubforumSubscribeSection, SubforumMember, Loading } = Components
-  
   return (
     <div className={classNames(className, classes.root)}>
       <h2 className={classes.titleRow}>
@@ -109,10 +109,6 @@ const SidebarMembersBox = ({tag, className, classes}: {
   )
 }
 
-const SidebarMembersBoxComponent = registerComponent('SidebarMembersBox', SidebarMembersBox, { styles })
+export default registerComponent('SidebarMembersBox', SidebarMembersBox, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SidebarMembersBox: typeof SidebarMembersBoxComponent
-  }
-}
+

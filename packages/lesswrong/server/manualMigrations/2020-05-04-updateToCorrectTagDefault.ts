@@ -1,8 +1,8 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { getDefaultFilterSettings } from '../../lib/filterSettings';
 
-registerMigration({
+export default registerMigration({
   name: "updateToCorrectTagDefault",
   dateWritten: "2020-05-04",
   idempotent: true,

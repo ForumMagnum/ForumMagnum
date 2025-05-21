@@ -1,10 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import Answer from "./Answer";
+import SectionTitle from "../common/SectionTitle";
+import AnswersSorting from "./AnswersSorting";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {
@@ -33,12 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AnswersList = ({post, answersTree, classes}: {
   post: PostsList,
   answersTree: CommentTreeNode<CommentsList>[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const location = useLocation();
   const { query } = location;
-  const { Answer, SectionTitle, AnswersSorting } = Components
-
   if (answersTree?.length) {
     return <div className={classes.root}>
       <SectionTitle title={
@@ -63,10 +64,6 @@ const AnswersList = ({post, answersTree, classes}: {
   }
 };
 
-const AnswersListComponent = registerComponent('AnswersList', AnswersList, {styles});
+export default registerComponent('AnswersList', AnswersList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AnswersList: typeof AnswersListComponent
-  }
-}
+

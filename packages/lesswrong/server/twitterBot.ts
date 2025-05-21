@@ -1,17 +1,16 @@
-import { addCronJob } from "./cronUtil";
+import { addCronJob } from "./cron/cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { Posts } from "@/lib/collections/posts";
-import Tweets from "@/lib/collections/tweets/collection";
-import { Globals, createMutator } from "./vulcan-lib";
+import { Posts } from "@/server/collections/posts/collection.ts";
 import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import Users from "@/lib/vulcan-users";
+import Users from "@/server/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
-import { PublicInstanceSetting } from "@/lib/instanceSettings";
+import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import { createTweet } from "./collections/tweets/mutations";
+// import { createTweet } from "@/server/collections/tweets/mutations";
 
-const enabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
-const karmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaTreshold", 40, "optional");
 const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
 const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
 const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
@@ -85,19 +84,16 @@ async function postTweet(content: string) {
   }
 }
 
-async function runTwitterBot() {
-  if (!enabledSetting.get()) return;
+export async function runTwitterBot() {
+  if (!twitterBotEnabledSetting.get()) return;
 
   const repo = new TweetsRepo();
   const logger = loggerConstructor("twitter-bot");
 
-  // Get posts that have crossed `twitterBotKarmaThresholdSetting` in the last
-  // 7 days, and haven't already been tweeted. Then tweet the top one.
-  const since = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
-  const threshold = karmaThresholdSetting.get();
+  const threshold = twitterBotKarmaThresholdSetting.get();
 
   logger(`Checking for posts newly crossing ${threshold} karma`);
-  const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
+  const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ limit: 20, threshold });
 
   if (postIds.length < 1) {
     logger(`No posts found, returning`);
@@ -106,6 +102,8 @@ async function runTwitterBot() {
 
   const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
 
+  const anonymousContext = createAnonymousContext();
+
   for (const post of posts) {
     const content = await writeTweet(post);
     logger(`Attempting to post tweet with content: ${content}`);
@@ -113,15 +111,7 @@ async function runTwitterBot() {
 
     if (tweetId) {
       logger(`Tweet created, id: ${tweetId}`);
-      await createMutator({
-        collection: Tweets,
-        document: {
-          postId: post._id,
-          content,
-          tweetId
-        },
-        validate: false
-      });
+      await createTweet({ data: { postId: post._id, content, tweetId } }, anonymousContext);
       return;
     } else {
       logger(`Failed to create tweet for post with id: ${post._id}, trying next post`);
@@ -131,7 +121,7 @@ async function runTwitterBot() {
   logger(`All attempts failed, no tweets created.`);
 }
 
-addCronJob({
+export const runTwitterBotCron = addCronJob({
   name: "runTwitterBot",
   interval: "every 31 minutes",
   job: async () => {
@@ -139,4 +129,3 @@ addCronJob({
   },
 });
 
-Globals.runTwitterBot = runTwitterBot;

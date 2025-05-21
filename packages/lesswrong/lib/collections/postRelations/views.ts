@@ -1,5 +1,4 @@
-import { PostRelations } from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface PostRelationsViewTerms extends ViewTermsBase {
@@ -8,7 +7,7 @@ declare global {
   }
 }
 
-PostRelations.addView("allPostRelations", function (terms: PostRelationsViewTerms) {
+function allPostRelations(terms: PostRelationsViewTerms) {
   return {
     selector: {$or: [
       {sourcePostId: terms.postId},
@@ -16,5 +15,8 @@ PostRelations.addView("allPostRelations", function (terms: PostRelationsViewTerm
     ]},
     options: {sort: {order: 1, createdAt: -1}}
   };
+}
+
+export const PostRelationsViews = new CollectionViewSet('PostRelations', {
+  allPostRelations
 });
-ensureIndex(PostRelations, {sourcePostId:1, order:1, createdAt:-1});

@@ -1,10 +1,14 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
+import UsersEditForm from "./UsersEditForm";
+import UsersAccountManagement from "./UsersAccountManagement";
+import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,12 +32,9 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersAccount = ({ classes }: { classes: ClassesType }) => {
+const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
-
-  const { ErrorAccessDenied, Typography } = Components;
-
   const terms = { slug: params.slug ?? currentUser?.slug };
 
   if (!terms.slug || !userCanEditUser(currentUser, terms)) {
@@ -45,25 +46,21 @@ const UsersAccount = ({ classes }: { classes: ClassesType }) => {
       <Typography variant="display2" className={classes.header}>
         {preferredHeadingCase("Account Settings")}
       </Typography>
-      <Components.UsersEditForm terms={terms} />
+      <UsersEditForm terms={terms} />
       {hasAccountDeletionFlow && (
         <>
           <Typography variant="display2" className={classes.header}>
             {preferredHeadingCase("Manage Account")}
           </Typography>
-          <Components.UsersAccountManagement terms={terms} />
+          <UsersAccountManagement terms={terms} />
         </>
       )}
     </div>
   );
 };
 
-const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount, { styles });
+export default registerComponent('UsersAccount', UsersAccount, { styles });
 
-declare global {
-  interface ComponentTypes {
-    UsersAccount: typeof UsersAccountComponent
-  }
-}
+
 
 

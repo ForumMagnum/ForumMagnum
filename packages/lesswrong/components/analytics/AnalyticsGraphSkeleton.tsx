@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import {
   GRAPH_HEIGHT,
   GRAPH_LEFT_MARGIN,
@@ -80,14 +80,10 @@ export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   );
 }
 
-const AnalyticsGraphSkeletonComponent = registerComponent(
+export default registerComponent(
   "AnalyticsGraphSkeleton",
   AnalyticsGraphSkeleton,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsGraphSkeleton: typeof AnalyticsGraphSkeletonComponent
-  }
-}
+

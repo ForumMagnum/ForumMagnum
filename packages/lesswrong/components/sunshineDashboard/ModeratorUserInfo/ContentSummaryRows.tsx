@@ -1,11 +1,16 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import * as _ from 'underscore'
-import MessageIcon from '@material-ui/icons/Message'
-import DescriptionIcon from '@material-ui/icons/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import LWTooltip from "../../common/LWTooltip";
+import PostKarmaWithPreview from "../PostKarmaWithPreview";
+import CommentKarmaWithPreview from "../CommentKarmaWithPreview";
+import Loading from "../../vulcan-core/Loading";
+import Row from "../../common/Row";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -43,13 +48,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
   user: SunshineUsersList,
   loading: boolean
 }) => {
-  const { LWTooltip, PostKarmaWithPreview, CommentKarmaWithPreview, Loading, Row } = Components 
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 
@@ -60,7 +64,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
   const getAverageBaseScore = (list: Array<SunshinePostsList|CommentsListWithParentMetadata>) => { 
-    const average = list.reduce((sum, item) => item.baseScore + sum, 0) / list.length
+    const average = list.reduce((sum, item) => (item.baseScore ?? 0) + sum, 0) / list.length
     return average.toFixed(1) 
   }
 
@@ -110,7 +114,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
           <DescriptionIcon className={classes.hoverPostIcon}/>
         </span>
       </LWTooltip>
-      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt} displayTitle={contentDisplay === "titles"}/>)}
+      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt ?? undefined} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenPostCount ? <span> ({hiddenPostCount} drafted or rejected)</span> : null}
       {averagePostKarma}
     </div>
@@ -122,17 +126,13 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
           <MessageIcon className={classes.icon}/>
         </span>
       </LWTooltip>
-      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
+      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt ?? undefined} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted or rejected)</span> : null}
       {averageCommentKarma}
       </div>
   </div>;
 }
 
-const ContentSummaryRowsComponent = registerComponent('ContentSummaryRows', ContentSummaryRows, {styles});
+export default registerComponent('ContentSummaryRows', ContentSummaryRows, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ContentSummaryRows: typeof ContentSummaryRowsComponent
-  }
-}
+

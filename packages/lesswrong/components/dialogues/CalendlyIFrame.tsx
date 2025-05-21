@@ -1,9 +1,8 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import { calendlyPreviewStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType) => ({
-  ...calendlyPreviewStyles(theme),
   calendlyEmbed: {
     ...calendlyPreviewStyles(theme)["& div.calendly-preview"]
   }
@@ -40,10 +39,6 @@ const CalendlyIFrame = ({url, classes}: {url: string, classes: ClassesType<typeo
   </div>
 }
 
-const CalendlyIFrameComponent = registerComponent('CalendlyIFrame', CalendlyIFrame, {styles})
+export default registerComponent('CalendlyIFrame', CalendlyIFrame, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CalendlyIFrame: typeof CalendlyIFrameComponent
-  }
-}
+

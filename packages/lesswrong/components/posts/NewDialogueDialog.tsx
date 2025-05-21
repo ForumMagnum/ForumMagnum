@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { DialogActions } from '../widgets/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
-import Input from '@material-ui/core/Input';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import UserMultiselect from "../form-components/UserMultiselect";
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     padding: 24,
     paddingBottom: isFriendlyUI ? undefined : 12,
@@ -45,14 +49,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewDialogueDialog = ({onClose, classes}: {
+const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+  initialParticipantIds?: string[],
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
-  const [participants, setParticipants] = useState<string[]>([]);
+  const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
   const {create: createPost, loading} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const navigate = useNavigate();
 
@@ -102,7 +106,6 @@ const NewDialogueDialog = ({onClose, classes}: {
     onClose={onClose}
     fullWidth
     maxWidth={"sm"}
-    dialogClasses={{paper: classes.dialogPaper}}
   >
     <div className={classes.dialog}>
       <h2 className={classes.header}>{preferredHeadingCase("Start Dialogue")}</h2>
@@ -137,10 +140,6 @@ const NewDialogueDialog = ({onClose, classes}: {
   </LWDialog>
 }
 
-const NewDialogueDialogComponent = registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
+export default registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewDialogueDialog: typeof NewDialogueDialogComponent
-  }
-}
+

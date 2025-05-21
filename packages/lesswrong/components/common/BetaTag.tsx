@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingLeft: 4,
     ...theme.typography.body2,
@@ -12,15 +12,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const BetaTag = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <span className={classes.root}>[Beta]</span>
 }
 
-const BetaTagComponent = registerComponent('BetaTag', BetaTag, {styles});
+export default registerComponent('BetaTag', BetaTag, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BetaTag: typeof BetaTagComponent
-  }
-}
+

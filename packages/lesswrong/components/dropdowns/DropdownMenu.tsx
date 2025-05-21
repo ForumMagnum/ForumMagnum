@@ -1,9 +1,9 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       padding: 6,
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const DropdownMenu = ({children, className, classes}: {
   children: ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classNames(classes.root, className)}>
@@ -26,14 +26,10 @@ const DropdownMenu = ({children, className, classes}: {
   );
 }
 
-const DropdownMenuComponent = registerComponent(
+export default registerComponent(
   "DropdownMenu",
   DropdownMenu,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownMenu: typeof DropdownMenuComponent
-  }
-}
+

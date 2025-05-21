@@ -1,11 +1,15 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
+import ForumIcon from "../common/ForumIcon";
+import LWPopper from "../common/LWPopper";
+import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
+import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,6 +57,9 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
+  commentCountText: {
+    marginTop: -4,
+  },
 });
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
@@ -60,8 +67,6 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta } = Components;
-
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",
@@ -81,7 +86,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
 
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
-  const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
+  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5 && !isMobile();
 
   const commentsUrl = quickTake.post
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`
@@ -118,7 +123,9 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
       })}
     >
       <ForumIcon icon="Comment" />
-      {commentCount}
+      <span className={classes.commentCountText}>
+        {commentCount}
+      </span>
     </div>
   );
 
@@ -130,7 +137,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
       clickable={false}
     >
       <div className={classes.hoverOver}>
-        <CommentsNode
+        <CommentsNodeInner
           truncated
           nestingLevel={1}
           comment={quickTake}
@@ -149,7 +156,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   const body = (
     <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
       <div  className={classes.body}>
-        {htmlToTextDefault(quickTake.contents?.html)}
+        {quickTake.contents?.plaintextMainText}
       </div>
     </div>
   );
@@ -177,19 +184,16 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
         }}
       />
       {body}
+      <CommentBottomCaveats comment={quickTake} />
       {tooltip}
     </div>
   );
 }
 
-const LWQuickTakesCollapsedListItemComponent = registerComponent(
+export default registerComponent(
   "LWQuickTakesCollapsedListItem",
   LWQuickTakesCollapsedListItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWQuickTakesCollapsedListItem: typeof LWQuickTakesCollapsedListItemComponent
-  }
-}
+

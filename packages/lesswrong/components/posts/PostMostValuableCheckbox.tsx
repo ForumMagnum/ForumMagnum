@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.wrapped.background,
+    color: theme.palette.text.alwaysWhite,
     fontSize: 32,
     padding: 6,
     "&:hover": {
@@ -18,11 +19,12 @@ const styles = (theme: ThemeType) => ({
 });
 
 /**
- * This is used by the EA Forum Wrapped page, to let users indicate which posts they found particularly valuable.
+ * This is used by the EA Forum Wrapped page, to let users indicate which posts
+ * they found particularly valuable.
  */
 export const PostMostValuableCheckbox = ({post, classes}: {
-  post: PostsBase,
-  classes: ClassesType,
+  post: Pick<PostsBase, "_id">,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { results, loading } = useMulti({
@@ -52,12 +54,16 @@ export const PostMostValuableCheckbox = ({post, classes}: {
     if (loading || createMostValuableLoading || setMostValuableLoading || !currentUser) return
     
     if (userVote) {
-      setChecked(userVote.deleted)
+      setChecked(!!userVote.deleted)
       void setMostValuable({
         selector: {
           _id: userVote._id
         },
         data: {
+          deleted: !userVote.deleted
+        },
+        optimisticResponse: {
+          ...userVote,
           deleted: !userVote.deleted
         }
       })
@@ -74,18 +80,14 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   
   if (!currentUser || loading || !results) return null
   
-  return <Components.ForumIcon
+  return <ForumIcon
     onClick={toggleChecked}
     icon={checked ? "Heart" : "HeartOutline"}
     className={classes.root}
   />
 }
 
-const PostMostValuableCheckboxComponent = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
+export default registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostMostValuableCheckbox: typeof PostMostValuableCheckboxComponent
-  }
-}
+
 

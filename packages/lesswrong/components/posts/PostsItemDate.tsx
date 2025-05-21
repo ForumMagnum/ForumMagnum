@@ -1,13 +1,19 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ExpandedDate } from '../common/FormatDate';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FormatDate, { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { formatRelative } from '@/lib/utils/timeFormat';
+import EventTime from "../localGroups/EventTime";
+import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import TimeTag from "../common/TimeTag";
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
+const HOUR_IN_MS = 60*60*1000;
 
 const customStyles = (theme: ThemeType) => isFriendlyUI
   ? {}
@@ -16,7 +22,7 @@ const customStyles = (theme: ThemeType) => isFriendlyUI
     color: theme.palette.text.slightlyIntense2,
   };
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   postedAt: {
     ...(isFriendlyUI && {display: "flex"}),
     '&&': {
@@ -62,9 +68,8 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   includeAgo?: boolean,
   useCuratedDate?: boolean,
   emphasizeIfNew?: boolean,
-  classes: ClassesType,
+  classes: Partial<ClassesType<typeof styles>>,
 }) => {
-
   if (noStyles) {
     classes = {
       tooltipSmallText: classes.tooltipSmallText,
@@ -73,14 +78,12 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   }
 
   const now = useCurrentTime();
-  const { PostsItem2MetaInfo, FormatDate, LWTooltip, TimeTag } = Components;
-
   if (post.isEvent && post.startTime) {
     return <LWTooltip
       placement="right"
       title={<span>
         <div className={classes.tooltipSmallText}>Event starts at</div>
-        <Components.EventTime post={post} />
+        <EventTime post={post} />
       </span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
@@ -106,15 +109,17 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   const dateToDisplay = useCuratedDate
     ? post.curatedDate || post.postedAt
     : post.postedAt;
-  const timeFromNow = moment(new Date(dateToDisplay)).fromNow();
+  const timeFromNow = formatRelative(new Date(dateToDisplay), now);
   const ago = includeAgo && timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
-  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'hours') < 48;
+  const isEmphasized = emphasizeIfNew && Math.abs(new Date(post.postedAt).getTime() - now.getTime()) < 48*HOUR_IN_MS
 
   const dateElement = (
-    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
+    <PostsItem2MetaInfo className={classNames(classes.postedAt, {
+      [classes.isNew ?? ""]: classes.isNew && isEmphasized,
+    })}>
       <TimeTag dateTime={dateToDisplay}>
         {timeFromNow}
         {ago}
@@ -142,11 +147,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   </LWTooltip>
 }
 
-const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, {styles});
+export default registerComponent("PostsItemDate", PostsItemDate, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemDate: typeof PostsItemDateComponent
-  }
-}
+
 

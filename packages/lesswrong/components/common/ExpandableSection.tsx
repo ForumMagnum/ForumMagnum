@@ -1,9 +1,12 @@
 import React, { ComponentType } from "react";
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { SectionTitleProps } from "./SectionTitle";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import SectionTitle, { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import SingleColumnSection from "./SingleColumnSection";
+import LWTooltip from "./LWTooltip";
+import ForumIcon from "./ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -61,8 +64,7 @@ const ExpandableSection = ({
   children,
   classes,
   ...sectionTitleProps
-}: ExpandableSectionProps & {classes: ClassesType}) => {
-  const {SingleColumnSection, SectionTitle, LWTooltip, ForumIcon} = Components;
+}: ExpandableSectionProps & {classes: ClassesType<typeof styles>}) => {
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
       <SingleColumnSection>
@@ -105,14 +107,10 @@ const ExpandableSection = ({
   );
 }
 
-const ExpandableSectionComponent = registerComponent(
+export default registerComponent(
   "ExpandableSection",
   ExpandableSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ExpandableSection: typeof ExpandableSectionComponent
-  }
-}
+

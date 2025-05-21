@@ -1,47 +1,11 @@
-/*
-
-Utilities
-
-*/
-
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import getSlug from 'speakingurl';
-import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-import type { ToCData } from '../../lib/tableOfContents';
 import sanitizeHtml from 'sanitize-html';
-import { containsKana, fromKana } from "hepburn";
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
-
-interface UtilsType {
-  // In lib/helpers.ts
-  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
-  
-  // In server/vulcan-lib/connectors.ts
-  Connectors: any
-  
-  // In server/tableOfContents.ts
-  getToCforPost: ({document, version, context}: { document: DbPost, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  
-  // In server/vulcan-lib/mutators.ts
-  createMutator: CreateMutator
-  updateMutator: UpdateMutator
-  deleteMutator: DeleteMutator
-  
-  // In server/vulcan-lib/utils.ts
-  performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
-  
-  // In server/vulcan-lib/errors.ts
-  throwError: (error: { id: string; data?: Record<string, AnyBecauseTodo> }) => never,
-}
-
-export const Utils: UtilsType = ({} as UtilsType);
 
 // @summary Convert a camelCase string to a space-separated capitalized string
 // See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
@@ -55,11 +19,15 @@ export const dashToCamel = function (str: string): string {
 };
 
 // Convert a string to camelCase and remove spaces.
-export const camelCaseify = function(str: string): string {
-  str = dashToCamel(str.replace(' ', '-'));
-  str = str.slice(0,1).toLowerCase() + str.slice(1);
-  return str;
+export const camelCaseify = function<T extends string>(str: T): CamelCaseify<T> {
+  const camelCaseStr = dashToCamel(str.replace(' ', '-'));
+  const lowerCamelCaseStr = camelCaseStr.slice(0,1).toLowerCase() + camelCaseStr.slice(1);
+  return lowerCamelCaseStr as CamelCaseify<T>;
 };
+
+export type CamelCaseify<T extends string> = T extends `${infer Prefix}-${infer Rest}`
+  ? `${Uncapitalize<Prefix>}${Capitalize<CamelCaseify<Rest>>}`
+  : Uncapitalize<T>;
 
 // Capitalize a string.
 export const capitalize = function(str: string): string {
@@ -81,6 +49,12 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
+export function urlIsAbsolute(url: string): boolean {
+  // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
+  // or with double slashes (//) which indicates protocol-relative URL
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+}
+
 export const makeAbsolute = function (url: string): string {
   const baseUrl = getSiteUrl();
   if (url.startsWith("/"))
@@ -99,7 +73,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
   }
 }
 
-// NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
+// NOTE: validateUrl and tryToFixUrl are duplicates of the code in ckEditor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
 export const validateUrl = (url: string) => {
   try {
@@ -126,42 +100,19 @@ export const validateUrl = (url: string) => {
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
- * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
-export const getOutgoingUrl = function (url: string, foreignId?: string): string {
+export const getOutgoingUrl = function (url: string): string {
   // If no protocol is specified, guess that it is https://
   const cleanedUrl = validateUrl(url);
 
-  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
-  return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
-};
-
-export const slugify = function (s: string): string {
-  if (containsKana(s)) {
-    s = fromKana(s);
-  }
-
-  var slug = getSlug(s, {
-    truncate: 60
-  });
-
-  // can't have posts with an "edit" slug
-  if (slug === 'edit') {
-    slug = 'edit-1';
-  }
-
-  // If there is nothing in the string that can be slugified, just call it unicode
-  if (slug === "") {
-    slug = "unicode"
-  }
-
-  return slug;
+  return getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
 };
 
 export const getDomain = function(url: string | null): string|null {
   if (!url) return null;
   try {
-    const hostname = urlObject.parse(url).hostname
+    const URLClass = getUrlClass()
+    const hostname = new URLClass(url).hostname
     return hostname!.replace('www.', '');
   } catch (error) {
     return null;
@@ -279,6 +230,45 @@ export const removeProperty = (obj: any, propertyName: string): void => {
   }
 };
 
+export type UpdateSelector = {
+  _id: string;
+  documentId: null;
+} | {
+  _id: null;
+  documentId: string;
+};
+
+function isDocumentIdSelector(selector: UpdateSelector): selector is { _id: null; documentId: string } {
+  return !selector._id;
+}
+
+/**
+ * Given a mongodb-style selector, if it contains `documentId`, replace that
+ * with `_id`. This is a silly thing to do and a terrible hack; it's
+ * particularly terrible since `documentId` is an actual field name on some
+ * collections, corresponding to a foreign-key relation, eg on Votes it's the
+ * voted-on object. The reason this is here is because Vulcan did it (in
+ * `Connectors`, under the function name `convertUniqueSelector`), in a place
+ * where it leaks into the external API, where it might be used by GreaterWrong
+ * and other API users. So in order to remove this feature safely we need to
+ * remove it in two steps, first logging if any selectors are actually
+ * converted this way.
+ *
+ * If the change that got rid of `Connectors` has been deployed for awhile,
+ * and the console-log warning from this function isn't appearing in logs, then
+ * this function is a no-op and is safe to remove.
+ */
+export const convertDocumentIdToIdInSelector = (selector: UpdateSelector): { _id: string } => {
+  if (isDocumentIdSelector(selector)) {
+    //eslint-disable-next-line no-console
+    console.log("Warning: Performed documentId-to-_id replacement");
+    const { documentId, ...rest } = selector;
+    const result = { ...rest, _id: documentId };
+    return result;
+  }
+  return selector;
+};
+
 /**
  * Sanitizing html
  */
@@ -332,7 +322,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      '*': [...footnoteAttributes, 'data-internal-id'],
+      '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -343,7 +333,7 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
@@ -395,7 +385,8 @@ export const sanitize = function(s: string): string {
       'estimaker.app',
       'viewpoints.xyz',
       'calendly.com',
-      'neuronpedia.org'
+      'neuronpedia.org',
+      'lwartifacts.vercel.app'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
@@ -417,8 +408,13 @@ export const sanitize = function(s: string): string {
         'viewpoints-preview',
         'ck-cta-button',
         'ck-cta-button-centered',
+        'ck-poll',
         'detailsBlockContent',
         'calendly-preview',
+        'conditionallyVisibleBlock',
+        'defaultVisible',
+        'defaultHidden',
+        /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],

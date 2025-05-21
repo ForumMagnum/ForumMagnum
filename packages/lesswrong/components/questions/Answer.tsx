@@ -1,19 +1,32 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
-import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
+import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
+import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import type { ContentItemBody } from '../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
-import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import CommentsEditForm from "../comments/CommentsEditForm";
+import SmallSideVote from "../votes/SmallSideVote";
+import AnswerCommentsList from "./AnswerCommentsList";
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import ForumIcon from "../common/ForumIcon";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import UsersName from "../users/UsersName";
+import { Typography } from "../common/Typography";
+import CommentBottom from "../comments/CommentsItem/CommentBottom";
+import CommentsNewForm from "../comments/CommentsNewForm";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit*2.5,
@@ -78,6 +91,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 4px",
     position: "relative",
   },
+  linkIconHighlighted: {
+    strokeWidth: "0.7px",
+    stroke: "currentColor",
+    color: theme.palette.primary.main
+  },
   menu: {
     opacity:.5,
     cursor: "pointer",
@@ -129,14 +147,15 @@ const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
+  const { scrollToCommentId } = useCommentLinkState();
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
@@ -153,16 +172,9 @@ const Answer = ({ comment, post, childComments, classes }: {
   }, []);
 
   const CommentLinkWrapper = useCommentLink({comment, post});
-
-  const {
-    SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon,
-    CommentsItemDate, UsersName, CommentBottomCaveats, Typography,
-    HoveredReactionContextProvider, CommentBody, CommentBottom, CommentsNewForm
-  } = Components;
-
   const menuIcon = isFriendlyUI
     ? undefined
-    : <MoreHorizIcon className={classes.menuIcon} />;
+    : <MoreHorizIcon />;
 
   const treeOptions: CommentTreeOptions = useMemo(() => ({
     postPage: true,
@@ -170,6 +182,9 @@ const Answer = ({ comment, post, childComments, classes }: {
     post: post,
     switchAlternatingHighlights: true,
   }), [post]);
+
+  // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
+  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
 
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
@@ -180,7 +195,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           </Typography>
           {isFriendlyUI &&
             <CommentLinkWrapper>
-              <ForumIcon icon="Link" className={classes.linkIcon} />
+              <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
             </CommentLinkWrapper>
           }
           <CommentsMenu
@@ -208,7 +223,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 </span>
                 {isFriendlyUI &&
                   <CommentLinkWrapper>
-                    <ForumIcon icon="Link" className={classes.linkIcon} />
+                    <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
                   </CommentLinkWrapper>
                 }
                 <CommentsMenu
@@ -223,7 +238,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 Pinned by {comment.promotedByUser.displayName}
               </div>}
               { showEdit
-                ? <Components.CommentsEditForm
+                ? <CommentsEditForm
                     comment={comment}
                     successCallback={hideEdit}
                     cancelCallback={hideEdit}
@@ -252,7 +267,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           </AnalyticsContext>
           <div>
             {replyFormIsOpen &&
-              <div className={classes.editor}>
+              <div>
                 <CommentsNewForm
                   post={post}
                   parentComment={comment}
@@ -278,13 +293,9 @@ const Answer = ({ comment, post, childComments, classes }: {
   )
 }
 
-const AnswerComponent = registerComponent('Answer', Answer, {
+export default registerComponent('Answer', Answer, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    Answer: typeof AnswerComponent
-  }
-}
+

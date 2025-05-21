@@ -1,23 +1,21 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import InboxNavigation from "./InboxNavigation";
+import FriendlyInbox from "./FriendlyInbox";
 
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
   currentUser: UsersCurrent;
-  title?: JSX.Element | String;
+  title?: React.JSX.Element | string;
   isModInbox?: boolean;
-  classes: ClassesType;
 };
 
 const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
-
-  const { InboxNavigation, FriendlyInbox } = Components
-
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
@@ -39,10 +37,6 @@ const InboxWrapper = () => {
   return <InboxComponent terms={terms} currentUser={currentUser}/>
 }
 
-const InboxWrapperComponent = registerComponent('InboxWrapper', InboxWrapper);
+export default registerComponent('InboxWrapper', InboxWrapper);
 
-declare global {
-  interface ComponentTypes {
-    InboxWrapper: typeof InboxWrapperComponent
-  }
-}
+

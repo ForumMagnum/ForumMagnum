@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import DropdownItem from "../DropdownItem";
 
 const styles = (_: ThemeType) => ({
   icon: isFriendlyUI
@@ -13,7 +14,7 @@ const styles = (_: ThemeType) => ({
 const PinToProfileDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { mutate: updateComment } = useUpdate({
@@ -42,8 +43,6 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   const title = comment.isPinnedOnProfile
     ? `Unpin from ${username} profile`
     : `Pin to ${username} profile`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -53,15 +52,11 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   );
 };
 
-const PinToProfileDropdownItemComponent = registerComponent(
+export default registerComponent(
   "PinToProfileDropdownItem",
   PinToProfileDropdownItem,
   {styles},
 );
 
 
-declare global {
-  interface ComponentTypes {
-    PinToProfileDropdownItem: typeof PinToProfileDropdownItemComponent
-  }
-}
+

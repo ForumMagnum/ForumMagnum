@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { ExpandedDate } from '../../common/FormatDate';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import FormatDate, { ExpandedDate } from '../../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import PostsRevisionSelector from "./PostsRevisionSelector";
+import LWTooltip from "../../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
@@ -21,11 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   post: PostsBase,
   hasMajorRevision: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const now = moment(useCurrentTime())
-  const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
-  
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
     
@@ -58,10 +58,6 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   </LWTooltip>
 }
 
-const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate, {styles});
+export default registerComponent("PostsPageDate", PostsPageDate, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsPageDate: typeof PostsPageDateComponent
-  }
-}
+

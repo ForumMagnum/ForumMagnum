@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React, { Ref, useCallback, useState } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -7,11 +7,18 @@ import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-
-import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import DeferRender from '../common/DeferRender';
+import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SortButton from "../icons/SortButton";
+import SettingsButton from "../icons/SettingsButton";
+import PostsListSettings from "./PostsListSettings";
+import HeadTags from "../common/HeadTags";
+import AllPostsList from "./AllPostsList";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
     "& .SectionTitle-title": isFriendlyUI
@@ -38,13 +45,13 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes}: {classes: ClassesType}) => {
+const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
   const {captureEvent} = useTracking();
 
-  const [showSettings, setShowSettings] = useState<boolean>(!!currentUser?.allPostsOpenSettings);
+  const [showSettings, setShowSettings] = useState<boolean>(defaultHideSettings ? false : !!currentUser?.allPostsOpenSettings);
 
   const toggleSettings = useCallback(() => {
     const newValue = !showSettings;
@@ -67,30 +74,25 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
     currentUser?.allPostsShowLowKarma || false;
   const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
   const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
-
-  const {
-    SingleColumnSection, SectionTitle, SortButton, SettingsButton, PostsListSettings, HeadTags,
-    AllPostsList,
-  } = Components;
-
   return (
     <>
       <HeadTags description={description} />
       <AnalyticsContext pageContext="allPostsPage">
         <SingleColumnSection>
-          <Tooltip
+        <DeferRender ssr={false}>
+          <TooltipRef
             title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`}
             placement="top-end"
           >
-            <div className={classes.title} onClick={toggleSettings}>
+            {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
                 {isFriendlyUI ?
                   <SortButton label={formatSort(currentSorting)} /> :
                   <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 }
               </SectionTitle>
-            </div>
-          </Tooltip>
+            </div>}
+          </TooltipRef>
           {isFriendlyUI && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
@@ -114,20 +116,18 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               showSettings,
             }}
           />
+        </DeferRender>
         </SingleColumnSection>
       </AnalyticsContext>
     </>
   );
 }
 
-const AllPostsPageComponent = registerComponent(
+export default registerComponent(
   "AllPostsPage",
   AllPostsPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    AllPostsPage: typeof AllPostsPageComponent
-  }
-}
+
+

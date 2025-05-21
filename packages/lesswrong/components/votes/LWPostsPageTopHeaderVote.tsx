@@ -1,11 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
+import { TooltipSpan } from '../common/FMTooltip';
+import OverallVoteButton from "./OverallVoteButton";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -17,22 +19,18 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 4,
   },
   upvoteHorizontal: {
-    fontSize: 18,
-    marginBottom: isLW ? -1 : -3, // -1 for LW, -3 for AF
-    '& .VoteArrowIcon-root': {
+    marginBottom: 2,
+    '& .VoteArrowIconSolid-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
-    fontSize: 18,
-    marginTop: isLW ? -4 : -3, // -4 for LW, -3 for AF
-    '& .VoteArrowIcon-root': {
+    '& .VoteArrowIconSolid-root': {
       color: theme.palette.grey[800]
     },
   },
   voteScoresHorizontal: {
-    marginLeft: 8,
-    marginRight: 8,
+    margin: isLW ? '-2px 8px' : '-4px 8px'
   },
   voteScore: {
     color: theme.palette.grey[600],
@@ -61,7 +59,6 @@ const LWPostsPageTopHeaderVote = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
 
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -77,10 +74,12 @@ const LWPostsPageTopHeaderVote = ({
 
   return (
     <div className={classes.voteBlockHorizontal}>
-      <Tooltip
+      <TooltipSpan
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
-        classes={{tooltip: classes.tooltip}}
+        styling="tooltip"
+        distance={16}
+        popperClassName={classes.tooltip}
       >
         <div className={classes.upvoteHorizontal}>
           <OverallVoteButton
@@ -88,19 +87,22 @@ const LWPostsPageTopHeaderVote = ({
             color="secondary"
             upOrDown="Upvote"
             enabled={canVote}
+            solidArrow
             {...voteProps}
           />
         </div>
-      </Tooltip>
+      </TooltipSpan>
       <div className={classes.voteScoresHorizontal}>
-        <Tooltip
+        <TooltipSpan
           title={tooltipText}
           placement={tooltipPlacement}
-          classes={{tooltip: classes.tooltip}}
+          styling="tooltip"
+          distance={16}
+          popperClassName={classes.tooltip}
         >
+          {/* Have to make sure to wrap this in a div because Tooltip requires
+            * a child that takes refs */}
           <div>
-            {/* Have to make sure to wrap this in a div because Tooltip requires
-              * a child that takes refs */}
             <Typography
               variant="headline"
               className={classes.voteScore}
@@ -108,12 +110,14 @@ const LWPostsPageTopHeaderVote = ({
               {voteProps.baseScore}
             </Typography>
           </div>
-        </Tooltip>
+        </TooltipSpan>
       </div>
-      <Tooltip
+      <TooltipSpan
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
-        classes={{tooltip: classes.tooltip}}
+        styling="tooltip"
+        distance={16}
+        popperClassName={classes.tooltip}
       >
         <div className={classes.downvoteHorizontal}>
           <OverallVoteButton
@@ -121,22 +125,19 @@ const LWPostsPageTopHeaderVote = ({
             color="error"
             upOrDown="Downvote"
             enabled={canVote}
+            solidArrow
             {...voteProps}
           />
         </div>
-      </Tooltip>
+      </TooltipSpan>
     </div>
   );
 }
 
-const PostsSplashPageHeaderVoteComponent = registerComponent(
+export default registerComponent(
   "LWPostsPageTopHeaderVote",
   LWPostsPageTopHeaderVote,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPageTopHeaderVote: typeof PostsSplashPageHeaderVoteComponent
-  }
-}
+

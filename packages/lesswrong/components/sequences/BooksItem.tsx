@@ -1,9 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { BooksForm } from './BooksForm';
+import { useSingle } from '@/lib/crud/withSingle';
+import Loading from "../vulcan-core/Loading";
+import BooksProgressBar from "./BooksProgressBar";
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import LargeSequencesItem from "./LargeSequencesItem";
+import SequencesPostsList from "./SequencesPostsList";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import SequencesGrid from "./SequencesGrid";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,
@@ -31,13 +42,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,
   canEdit: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
+  const { document: editableBook, loading } = useSingle({
+    collectionName: 'Books',
+    documentId: book._id,
+    fragmentName: 'BookEdit',
+    skip: !edit,
+  });
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -46,11 +61,14 @@ const BooksItem = ({ book, canEdit, classes }: {
     setEdit(false);
   }, []);
 
-  if (edit) {
-    return <Components.BooksEditForm
-      documentId={book._id}
-      successCallback={showBook}
-      cancelCallback={showBook}
+  if (loading) {
+    return <Loading />
+  } else if (edit) {
+    return <BooksForm
+      initialData={editableBook}
+      collectionId={book.collectionId}
+      onSuccess={showBook}
+      onCancel={showBook}
     />
   } else {
     return <div>
@@ -76,17 +94,13 @@ const BooksItem = ({ book, canEdit, classes }: {
 
         {book.displaySequencesAsGrid && <SequencesGrid sequences={book.sequences}/>}
         {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
-          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
+          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters ?? undefined} />
         )}
     </div>
   }
 }
 
-const BooksItemComponent = registerComponent('BooksItem', BooksItem, {styles});
+export default registerComponent('BooksItem', BooksItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BooksItem: typeof BooksItemComponent
-  }
-}
+
 

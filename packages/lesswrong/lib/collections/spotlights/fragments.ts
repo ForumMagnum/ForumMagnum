@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SpotlightMinimumInfo = () => frag`
   fragment SpotlightMinimumInfo on Spotlight {
     _id
     documentId
@@ -23,23 +23,62 @@ registerFragment(`
     imageFade
     imageFadeColor
   }
-`)
+`
 
-registerFragment(`
+export const SpotlightReviewWinner = () => frag`
+  fragment SpotlightReviewWinner on Spotlight {
+    ...SpotlightMinimumInfo
+    description {
+      html
+    }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
+  }
+`
+
+export const SpotlightHeaderEventSubtitle = () => frag`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
-    document {
+    post {
+      _id
+      slug
+    }
+    sequence {
+      _id
+    }
+    tag {
       _id
       slug
     }
   }
-`);
-registerFragment(`
+`
+export const SpotlightDisplay = () => frag`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
-    document {
+    post {
+      ...PostsMinimumInfo
+      user {
+        _id
+        displayName
+        slug
+      }
+      reviews {
+        ...CommentsList
+      }
+    }
+    sequence {
       _id
       title
+      user {
+        _id
+        displayName
+        slug
+      }
+    }
+    tag {
+      _id
+      name
       slug
       user {
         _id
@@ -54,13 +93,14 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
-registerFragment(`
+
+export const SpotlightEditQueryFragment = () => frag`
   fragment SpotlightEditQueryFragment on Spotlight {
     ...SpotlightMinimumInfo
     description {
       ...RevisionEdit
     }
   }
-`);
+`

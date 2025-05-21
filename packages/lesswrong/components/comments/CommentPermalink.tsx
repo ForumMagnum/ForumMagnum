@@ -3,13 +3,24 @@ import { commentIsHidden } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
+import { scrollFocusOnElement } from '@/lib/scrollUtils';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { isBookUI } from '@/themes/forumTheme';
+import Loading from "../vulcan-core/Loading";
+import Divider from "../common/Divider";
+import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
+import HeadTags from "../common/HeadTags";
+import CommentWithReplies from "./CommentWithReplies";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    ...(isBookUI ? {
+      marginTop: 64
+    } : {}),
   },
   dividerMargins: {
     marginTop: 150,
@@ -48,8 +59,10 @@ const CommentPermalink = ({
   documentId: string,
   post?: PostsDetails,
   silentLoading?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
+  const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
+
   const { document: comment, data, loading, error } = useSingle({
     documentId,
     collectionName: "Comments",
@@ -57,8 +70,6 @@ const CommentPermalink = ({
     skip: isNotRandomId(documentId)
   });
   const refetch = data?.refetch;
-  const { Loading, Divider, CommentOnPostWithReplies, HeadTags, CommentWithReplies } = Components;
-
   if (silentLoading && !comment) return null;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -121,7 +132,12 @@ const CommentPermalink = ({
           />
         )}
         <div className={classes.seeInContext}>
-          <a href={`#${documentId}`}>See in context</a>
+          <a href={`#${documentId}`} onClick={(e) => {
+            if (!hasInContextComments) return;
+
+            scrollFocusOnElement({ id: comment._id, options: { behavior: "smooth" } });
+            e.preventDefault()
+          }}>See in context</a>
         </div>
       </div>
       {isLWorAF && <div className={classes.dividerMargins}>
@@ -131,11 +147,7 @@ const CommentPermalink = ({
   );
 }
 
-const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });
+export default registerComponent("CommentPermalink", CommentPermalink, { styles });
 
 
-declare global {
-  interface ComponentTypes {
-    CommentPermalink: typeof CommentPermalinkComponent,
-  }
-}
+

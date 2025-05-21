@@ -1,13 +1,16 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection from "../common/SingleColumnSection";
+import MixedTypeFeed from "../common/MixedTypeFeed";
+import TagRevisionItem from "./TagRevisionItem";
+import CommentsNodeInner from "../comments/CommentsNode";
+import NewTagItem from "./NewTagItem";
+import SectionTitle from "../common/SectionTitle";
 
-const TagActivityFeed = ({classes, pageSize = 50}: {
-  classes: ClassesType
+const TagActivityFeed = ({pageSize = 50}: {
   pageSize?: number
 }) => {
-  const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;
-  
   return <SingleColumnSection>
     <SectionTitle title={`Recent ${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag & Wiki'} Activity`}/>
     <MixedTypeFeed
@@ -34,7 +37,7 @@ const TagActivityFeed = ({classes, pageSize = 50}: {
         tagDiscussionComment: {
           fragmentName: "CommentsListWithParentMetadata",
           render: (comment: CommentsListWithParentMetadata) => <div>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={{
                 showPostTitle: true,
                 tag: comment.tag || undefined,
@@ -49,10 +52,6 @@ const TagActivityFeed = ({classes, pageSize = 50}: {
   </SingleColumnSection>
 }
 
-const TagActivityFeedComponent = registerComponent("TagActivityFeed", TagActivityFeed);
+export default registerComponent("TagActivityFeed", TagActivityFeed);
 
-declare global {
-  interface ComponentTypes {
-    TagActivityFeed: typeof TagActivityFeedComponent
-  }
-}
+

@@ -68,11 +68,13 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsIntegrationTest: false,
+    bundleIsCodegen: false,
     bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
+    enableVite: false,
     defaultSiteAbsoluteUrl: "",
-    serverPort: 3000,
   },
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
@@ -92,9 +94,6 @@ export default {
   //   "tsx",
   //   "node"
   // ],
-
-  // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -186,16 +185,30 @@ export default {
   // A map from regular expressions to paths to transformers
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": [
-      "esbuild-jest",
+      "<rootDir>/esbuild-jest-vendored.js",
       {
         sourcemap: true,
       },
     ],
   },
 
-  // Should match "paths" in tsconfig.json
   moduleNameMapper: {
+    // Should match "paths" in tsconfig.json
+    "@/allComponents": "<rootDir>/packages/lesswrong/lib/generated/allComponents",
+    "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
+    "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
+    // An incantation found at https://github.com/axios/axios/issues/5101
+    '^axios$': require.resolve('axios'),
+    // react-dom/server.edge is apparently needed instead of react-dom/server to avoid this error:
+    // > Uncaught ReferenceError: MessageChannel is not defined
+    // See https://github.com/facebook/react/issues/31827#issuecomment-2563094822
+    // While that issue is in the context of MessageChannel being used by
+    // React Server Components, the issue where this crashes the unit-test
+    // environment for us is actually upon importing draft-convert, which has
+    // nothing to do with that. I guess React 19 contains a broken polyfill or
+    // something?
+    "react-dom/server": "react-dom/server.edge",
   },
 
   // react-instantsearch contains a file (connectors.js) that requires
@@ -213,7 +226,7 @@ export default {
   // changes. If we've done *that* upgrade, this block might no longer be
   // necessary.
   transformIgnorePatterns: [
-    "/node_modules/(?!react-instantsearch)",
+    "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
   ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

@@ -1,10 +1,8 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
-import Button from '@material-ui/core/Button';
+import React, {ComponentProps, useState, useEffect, useRef, useMemo} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
-import { OpenDialogContextType, useDialog } from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 import { useSingle } from '../../lib/crud/withSingle';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -12,7 +10,6 @@ import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/c
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
@@ -20,10 +17,17 @@ import moment from 'moment';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { COMMENTS_NEW_FORM_PADDING } from '@/lib/collections/comments/constants';
+import { CommentForm } from './CommentForm';
+import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
+import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
+import RecaptchaWarning from "../common/RecaptchaWarning";
+import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
+import RateLimitWarning from "../editor/RateLimitWarning";
 
 export type FormDisplayMode = "default" | "minimalist"
 
-export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -82,169 +86,30 @@ const styles = (theme: ThemeType) => ({
     paddingTop: '4px',
     color: theme.palette.text.dim2,
   },
-  submit: {
-    textAlign: 'right',
-  },
-  submitQuickTakes: {
-    background: theme.palette.grey[100],
-    padding: COMMENTS_NEW_FORM_PADDING,
-    borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
-    borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
-  },
-  submitQuickTakesButtonAtBottom: isFriendlyUI
-    ? {
-      marginTop: 20,
-      padding: 20,
-      borderTop: `1px solid ${theme.palette.grey[300]}`,
-    }
-    : {},
-  formButton: isFriendlyUI ? {
-    fontSize: 14,
-    textTransform: 'none',
-    padding: '6px 12px',
-    borderRadius: 6,
-    boxShadow: 'none',
-    marginLeft: 8,
-  } : {
-    fontSize: "16px",
-    color: theme.palette.lwTertiary.main,
-    marginLeft: "5px",
-    "&:hover": {
-      opacity: .5,
-      backgroundColor: "none",
-    },
-  },
-  cancelButton: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[400],
-  },
-  submitButton: isFriendlyUI ? {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    '&:disabled': {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      opacity: .5,
-    }
-  } : {},
-  submitMinimalist: {
-    height: 'fit-content',
-    marginTop: "auto",
-    marginBottom: 4,
-  },
-  formButtonMinimalist: {
-    padding: "2px",
-    fontSize: "16px",
-    minWidth: 28,
-    minHeight: 28,
-    marginLeft: "5px",
-    "&:hover": {
-      opacity: .8,
-      backgroundColor: theme.palette.lwTertiary.main,
-    },
-    backgroundColor: theme.palette.lwTertiary.main,
-    color: theme.palette.background.pageActiveAreaBackground,
-    overflowX: "hidden",  // to stop loading dots from wrapping around
-  },
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
   }
 });
 
-export type BtnProps = {
-  variant?: 'contained',
-  color?: 'primary',
-  disabled?: boolean
-}
-
 export type CommentSuccessCallback = (
   comment: CommentsList,
-  otherArgs: {form: AnyBecauseTodo},
 ) => void | Promise<void>;
 
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<ComponentTypes['NewUserGuidelinesDialog']>, "onClose" | "classes"> => {
+): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose" | "classes"> => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-const getSubmitLabel = (isQuickTake: boolean) => {
+const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
+  if (isAnswer) {
+    return isFriendlyUI ? 'Add answer' : 'Submit';
+  }
   if (!isFriendlyUI) return 'Submit'
   return isQuickTake ? 'Publish' : 'Comment'
-}
-
-const CommentSubmit = ({
-  isMinimalist,
-  formDisabledDueToRateLimit,
-  isQuickTake,
-  quickTakesSubmitButtonAtBottom,
-  type,
-  cancelCallback,
-  loading,
-  submitLabel = "Submit",
-  classes,
-}: {
-  isMinimalist: boolean;
-  formDisabledDueToRateLimit: boolean;
-  isQuickTake: boolean;
-  quickTakesSubmitButtonAtBottom?: boolean;
-  type: string;
-  cancelCallback?: CommentCancelCallback;
-  loading: boolean;
-  submitLabel?: React.ReactNode;
-  classes: ClassesType<typeof styles>;
-}) => {
-  const { Loading } = Components;
-
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
-
-  const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  // by default, the EA Forum uses MUI contained buttons here
-  const cancelBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
-  const submitBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
-  if (formDisabledDueToRateLimit) {
-    submitBtnProps.disabled = true;
-  }
-
-  return (
-    <div
-      className={classNames(classes.submit, {
-        [classes.submitMinimalist]: isMinimalist,
-        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
-        [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
-      })}
-    >
-      {type === "reply" && !isMinimalist && (
-        <Button
-          onClick={cancelCallback}
-          className={classNames(formButtonClass, classes.cancelButton)}
-          {...cancelBtnProps}
-        >
-          Cancel
-        </Button>
-      )}
-      <Button
-        type="submit"
-        id="new-comment-submit"
-        className={classNames(formButtonClass, classes.submitButton)}
-        onClick={(ev) => {
-          if (!currentUser) {
-            openDialog({
-              componentName: "LoginPopup",
-              componentProps: {},
-            });
-            ev.preventDefault();
-          }
-        }}
-        {...submitBtnProps}
-      >
-        {loading ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
-      </Button>
-    </div>
-  );
 }
 
 export type CommentsNewFormProps = {
@@ -256,14 +121,21 @@ export type CommentsNewFormProps = {
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,
+  // RM: this no longer does anything; it's used in two places to remove the `af` field
+  // but I don't think it really matters.
   removeFields?: any,
-  fragment?: FragmentName,
-  formProps?: any,
+  formProps?: {
+    post?: PostsDetails;
+    maxHeight?: boolean;
+    editorHintText?: string;
+  },
   enableGuidelines?: boolean,
   padding?: boolean,
   formStyle?: FormDisplayMode,
   overrideHintText?: string,
   quickTakesSubmitButtonAtBottom?: boolean,
+  isAnswer?: boolean,
+  cancelLabel?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -278,13 +150,14 @@ const CommentsNewForm = ({
   type,
   cancelCallback,
   removeFields,
-  fragment="CommentsList",
   formProps,
   enableGuidelines=true,
   padding=true,
   formStyle="default",
   overrideHintText,
   quickTakesSubmitButtonAtBottom,
+  isAnswer,
+  cancelLabel,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -344,8 +217,11 @@ const CommentsNewForm = ({
       const dialogProps = { user: currentUser, post };
       if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
         openDialog({
-          componentName: 'NewUserGuidelinesDialog',
-          componentProps: dialogProps,
+          name: 'NewUserGuidelinesDialog',
+          contents: ({onClose}) => <NewUserGuidelinesDialog
+            onClose={onClose}
+            {...dialogProps}
+          />
         });
       }
       if (isLWorAF) {
@@ -354,13 +230,13 @@ const CommentsNewForm = ({
     }, 0);
   };
 
-  const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
+  const wrappedSuccessCallback = (comment: CommentsList) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
-    if (comment.deleted) {
+    if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
     }
     if (successCallback) {
-      void successCallback(comment, {form});
+      void successCallback(comment);
     }
     setLoading(false)
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
@@ -397,33 +273,28 @@ const CommentsNewForm = ({
     };
   }
 
-  const SubmitComponent = useCallback(
-    (formSubmitProps: ComponentProps<ComponentTypes['FormSubmit']>) => (
-      <CommentSubmit
-        {...{
-          isMinimalist,
-          classes,
-          formDisabledDueToRateLimit,
-          isQuickTake,
-          quickTakesSubmitButtonAtBottom,
-          type,
-          loading,
-          ...formSubmitProps,
-          // We want to pass in this cancel callback, rather than whatever gets passed in to FormSubmit
-          cancelCallback,
-        }}
-      />
-    ),
-    [cancelCallback, classes, formDisabledDueToRateLimit, isMinimalist, isQuickTake, loading, quickTakesSubmitButtonAtBottom, type]
+  prefilledProps = {
+    ...prefilledProps,
+    answer: !!isAnswer,
+  };
+
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get();
+  const commentWillBeHidden = (
+    hideDate
+    && new Date(hideDate) < new Date()
+    && currentUser
+    && !currentUser.isReviewed
   );
 
-  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
-  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
-    currentUser && !currentUser.isReviewed 
-  const extraFormProps = {
+  const extraFormProps = useMemo(() => ({
     ...(isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}),
     ...(overrideHintText ? {editorHintText: overrideHintText} : {})
-  }
+  }), [isMinimalist, overrideHintText]);
+
+  const answerFormProps = useMemo(() => isAnswer
+    ? {editorHintText: isFriendlyUI && isAnswer ? 'Write a new answer...' : undefined}
+    : {}, [isAnswer]);
+
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -437,18 +308,28 @@ const CommentsNewForm = ({
       return () => clearTimeout(timer);
     }
   }, [userNextAbleToComment, formDisabledDueToRateLimit]);
+
+  const mergedFormProps = useMemo(() => ({
+    formClassName: isQuickTake ? classes.quickTakesForm : '',
+    ...extraFormProps,
+    ...formProps,
+    ...answerFormProps,
+  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps, answerFormProps]);
+
+  const commentSubmitProps = useMemo(() => ({
+    isMinimalist,
+    formDisabledDueToRateLimit,
+    isQuickTake,
+    quickTakesSubmitButtonAtBottom,
+    type,
+    loading,
+  }), [isMinimalist, formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, type, loading]);
   
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
   if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user, !!parentComment)
   ) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
-
-  const {
-    ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning,
-    NewCommentModerationWarning, RateLimitWarning, FormGroupQuickTakes,
-    FormGroupNoStyling,
-  } = Components;
   return (
     <div className={classNames(
       className,
@@ -467,41 +348,36 @@ const CommentsNewForm = ({
           })
           : undefined
         }>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning
+            contentType="comment"
+            lastRateLimitExpiry={lastRateLimitExpiry}
+            rateLimitMessage={rateLimitMessage}
+          />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
           }}>
-            <WrappedSmartForm
-              id="new-comment-form"
-              collectionName="Comments"
-              mutationFragment={getFragment(fragment)}
-              successCallback={wrappedSuccessCallback}
-              cancelCallback={wrappedCancelCallback}
-              submitCallback={(data: unknown) => {
+            <CommentForm
+              prefilledProps={prefilledProps}
+              commentSubmitProps={commentSubmitProps}
+              alignmentForumPost={post?.af}
+              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}
+              formClassName={mergedFormProps.formClassName}
+              editorHintText={mergedFormProps.editorHintText}
+              commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}
+              maxHeight={mergedFormProps.maxHeight}
+              submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
+              cancelLabel={cancelLabel}
+              onSuccess={wrappedSuccessCallback}
+              onCancel={wrappedCancelCallback}
+              onSubmit={() => {
                 setLoading(true);
                 commentSubmitStartTimeRef.current = Date.now()
                 captureEvent("wrappedSubmitCallbackStarted")
-                return data
               }}
-              errorCallback={() => setLoading(false)}
-              prefilledProps={prefilledProps}
-              layout="elementOnly"
-              formComponents={{
-                FormSubmit: SubmitComponent,
-                FormGroupLayout: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)
-                  ? FormGroupQuickTakes
-                  : FormGroupNoStyling,
+              onError={() => {
+                setLoading(false)
               }}
-              alignmentForumPost={post?.af}
-              addFields={currentUser ? [] : ["title", "contents"]}
-              removeFields={removeFields}
-              formProps={{
-                formClassName: isQuickTake ? classes.quickTakesForm : '',
-                ...extraFormProps,
-                ...formProps,
-              }}
-              submitLabel={getSubmitLabel(isQuickTake)}
             />
           </div>
         </div>
@@ -516,14 +392,10 @@ const CommentsNewForm = ({
   );
 };
 
-const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, {
+export default registerComponent('CommentsNewForm', CommentsNewForm, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsNewForm: typeof CommentsNewFormComponent,
-  }
-}
+
 

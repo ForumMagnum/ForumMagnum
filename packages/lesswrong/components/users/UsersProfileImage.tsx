@@ -1,11 +1,12 @@
 import React, { FC, memo } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 export type ProfileImageFallback = "initials";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderRadius: "50%",
   },
@@ -61,7 +62,7 @@ const InitialFallback: FC<{
   displayName: string,
   size: number,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = memo(({displayName, size, className, classes}) => {
   displayName ??= "";
   const initials = displayName
@@ -105,8 +106,8 @@ const InitialFallback: FC<{
 });
 
 export type UserWithProfileImage = {
-  displayName: string,
-  profileImageId?: string,
+  displayName: string | null,
+  profileImageId?: string | null,
 }
 
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
@@ -114,7 +115,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!user?.displayName) {
     return (
@@ -133,7 +134,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
 
   if (user.profileImageId) {
     return (
-      <Components.CloudinaryImage2
+      <CloudinaryImage2
         width={size}
         height={size}
         imgProps={{q: "100", dpr: "2"}}
@@ -164,14 +165,10 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   return null;
 }
 
-const UsersProfileImageComponent = registerComponent(
+export default registerComponent(
   "UsersProfileImage",
   UsersProfileImage,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersProfileImage: typeof UsersProfileImageComponent
-  }
-}
+

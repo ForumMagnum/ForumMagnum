@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import SwapVert from '@material-ui/icons/SwapVert';
+import SwapVert from '@/lib/vendor/@material-ui/icons/src/SwapVert';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -25,10 +25,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
-  label?: JSX.Element|string,
+  label?: React.JSX.Element|string,
   showIcon?: boolean
 }) => {
   if (label) {
@@ -40,10 +40,6 @@ const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
   return <SwapVert className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SortButtonComponent = registerComponent('SortButton', SortButton, {styles});
+export default registerComponent('SortButton', SortButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SortButton: typeof SortButtonComponent
-  }
-}
+

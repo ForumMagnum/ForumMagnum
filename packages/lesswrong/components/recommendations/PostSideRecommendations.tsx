@@ -1,11 +1,13 @@
 import React, { MouseEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostSideRecommendations } from "../../lib/postSideRecommendations";
 import { useCurrentUser } from "../common/withUser";
 import classNames from "classnames";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import Loading from "../vulcan-core/Loading";
+import IntercomFeedbackButton from "../common/IntercomFeedbackButton";
 
 const WIDTH = 250;
 
@@ -60,7 +62,7 @@ const styles = (theme: ThemeType) => ({
 const PostSideRecommendations = ({post, className, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
@@ -94,8 +96,6 @@ const PostSideRecommendations = ({post, className, classes}: {
   if (!loading && items.length < 1) {
     return null;
   }
-
-  const {Loading, IntercomFeedbackButton} = Components;
   return (
     <AnalyticsContext pageSectionContext="postSideRecommendations">
       <div className={classNames(classes.root, className)}>
@@ -115,14 +115,10 @@ const PostSideRecommendations = ({post, className, classes}: {
   );
 }
 
-const PostSideRecommendationsComponent = registerComponent(
+export default registerComponent(
   "PostSideRecommendations",
   PostSideRecommendations,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostSideRecommendations: typeof PostSideRecommendationsComponent
-  }
-}
+

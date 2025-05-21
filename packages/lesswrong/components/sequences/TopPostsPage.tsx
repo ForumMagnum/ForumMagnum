@@ -2,20 +2,30 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
-
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
+import qs from "qs";
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
+import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/publicSettings';
+import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import SectionTitle from "../common/SectionTitle";
+import HeadTags from "../common/HeadTags";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import SpotlightItem from "../spotlights/SpotlightItem";
+import LWTooltip from "../common/LWTooltip";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
-type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
+export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
@@ -97,6 +107,8 @@ function gridPositionToClassesEntry(theme: ThemeType, gridPosition: number) {
   }] as const;
 };
 
+const IMAGE_GRID_HEADER_WIDTH = 40;
+
 const styles = (theme: ThemeType) => ({
   widerColumn: {
     marginLeft: "auto",
@@ -119,6 +131,7 @@ const styles = (theme: ThemeType) => ({
     flexWrap: 'wrap',
     rowGap: '20px',
     width: 1200,
+    marginTop: 24,
     [theme.breakpoints.down(1200)]: {
       width: 800
     },
@@ -131,6 +144,8 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     display: "flex",
     transition: 'height 0.5s ease-in-out',
+    marginRight: "auto",
+    marginLeft: "auto",
     '&:hover $imageGridHeader': {
       background: theme.palette.leastwrong.imageGridHeader
     },
@@ -143,6 +158,12 @@ const styles = (theme: ThemeType) => ({
     '&:hover $imageGridPostBody:not($imageGridPostRead)': {
       backdropFilter: 'grayscale(0) brightness(0.6)',
       '--top-posts-page-scrim-opacity': '0%'
+    },
+  },
+  gridMobileCollapsed: {
+    [theme.breakpoints.down(800)]: {
+      maxHeight: `159px !important`,
+      overflow: 'hidden',
     },
   },
   expandedImageGrid: {
@@ -195,7 +216,7 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.leastwrong.imageGridHeaderHighlighted
     },
     [theme.breakpoints.up(800)]: {
-      width: 40,
+      width: IMAGE_GRID_HEADER_WIDTH,
       height: 'inherit',
     },
     [theme.breakpoints.down(800)]: {
@@ -210,6 +231,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
     fontSize: 32,
     transition: 'opacity 0.5s ease-in 0.5s',
+    ...theme.typography.headerStyle
   },
   toggleIcon: {
     fontSize: 24,
@@ -435,23 +457,161 @@ const styles = (theme: ThemeType) => ({
       inherits: false,
       initialValue: '36%',
     }
+  },
+  postsByYearSectionCentered: {
+    marginTop: 60,
+    width: 'calc(100vw - 16px)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    '& h1': {
+      ...theme.typography.display3,
+      marginTop: 0,
+      ...theme.typography.headerStyle
+    }
+  },
+  categoryTitle: {
+    textTransform: 'capitalize',
+  },
+  year: {
+    ...theme.typography.display1,
+    ...theme.typography.headerStyle,
+    margin: 12,
+    color: theme.palette.grey[600],
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 6,
+      marginRight: 6,
+    }
+  },
+  yearAll: {
+    fontVariant: 'all-small-caps',
+    fontSize: 30,
+    position: 'relative',
+    top: -4
+  },
+  yearIsSelected: {
+    color: theme.palette.grey[900],
+    fontWeight: 600,
+  },
+  category: {
+    ...theme.typography.display1,
+    fontSize: '1.6rem',
+    margin: 12,
+    ...theme.typography.headerStyle,
+    fontVariantCaps: 'all-small-caps',
+    color: theme.palette.grey[600],
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    [theme.breakpoints.down('sm')]: {
+      margin: 8,
+      marginBottom: 2,
+      marginTop: 4,
+    }
+  },
+  categoryIsSelected: {
+    color: theme.palette.grey[900],
+    fontWeight: 600,
+  },
+  postsByYearCategory: {
+    display: 'flex',
+    marginBottom: 12
+  },
+  yearCategorySectionTitle: {
+    ...theme.typography.display2,
+    ...theme.typography.headerStyle,
+    marginBottom: 12,
+
+  },
+  yearSelector: {
+    textWrap: 'balance',
+    marginBottom: '12px',
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  categorySelector: {
+    textWrap: 'balance',
+    marginBottom: 24,
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  disabledCategory: {
+    opacity: .5,
+    cursor: 'default'
+  },
+  spotlightItem: {
+    marginBottom: 20,
+    display: 'flex',
+    alignItems: 'center',
+    '& .SpotlightItem-root': {
+      [theme.breakpoints.down('sm')]: {
+        width: 'calc(100vw - 16px)'
+      },
+      [theme.breakpoints.up('xs')]: {
+        marginBottom: -8
+      }
+    }
+  },
+  spotlightRanking: {
+    marginRight: 16,
+    width: 28,
+    textAlign: 'right',
+    ...theme.typography.body2,
+    ...theme.typography.headerStyle,
+    color: theme.palette.grey[500],
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
+  },
+  spotlightIsNotRead: {
+    filter: 'saturate(0) opacity(0.8)',
+    '&:hover': {
+      filter: 'saturate(1) opacity(1)',
+    }
+  },
+  spotlightCheckmarkRow: {
+    marginTop: 8,
+    marginBottom: 52,
+    textWrap: 'balance',
+    textAlign: 'center',
+    maxWidth: SECTION_WIDTH
+  },
+  spotlightCheckmark: {
+    display: 'inline-block',
+    width: 14,
+    height: 14,
+    borderRadius: 3,
+    border: `solid 1px ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[100],
+    margin: 2
+  },
+  spotlightCheckmarkIsRead: {
+    backgroundColor: theme.palette.lwTertiary.main,
+    borderColor: theme.palette.grey[700],
+    backgroundOpacity: .2,
+    opacity: .7
+  },
+  loading: {
+    height: 30
   }
 });
 
-function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
+function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult) {
   const sortedReviewWinners = [...reviewWinners];
-  switch (sortOrder) {
-    case 'curated':
-      return sortedReviewWinners.sort((a, b) => a.reviewWinner.curatedOrder - b.reviewWinner.curatedOrder);
-    case 'year':
-      return sortedReviewWinners.sort((a, b) => {
-        const yearDiff = a.reviewWinner.reviewYear - b.reviewWinner.reviewYear;
-        if (yearDiff === 0) {
-          return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
-        }
-        return yearDiff;
-      });
-  }
+  return sortedReviewWinners.sort((a, b) => {
+    const aCuratedOrder = a.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
+    const bCuratedOrder = b.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
+    const curatedOrderDiff = aCuratedOrder - bCuratedOrder
+    
+    // If one has curatedOrder and the other doesn't, prioritize the one with curatedOrder
+    if (curatedOrderDiff !== 0) {
+      return curatedOrderDiff
+    }
+  
+    // Otherwise sort by finalReviewVoteScoreHighKarma in descending order
+    return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
+  });
 }
 
 function getLeftOffset(index: number, columnLength: number) {
@@ -529,8 +689,6 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 }
 
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
-
   const location = useLocation();
   const { query } = location;
 
@@ -574,9 +732,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
   };
 
-  const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
-
-  const { data } = useQuery(gql`
+  const { data, loading } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo
@@ -586,7 +742,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   `);
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
-  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
+  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
@@ -608,8 +764,8 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return <PostsImageGrid {...props} />;
   }
 
-  const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
+  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
+  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
@@ -628,11 +784,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index, expandedNotYetMoved);
   });
 
-  const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl, coords }], index) => {
-    const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
-    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
-  });
-
   return (
     <>
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
@@ -642,21 +793,163 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           <div className={classes.description}>
             <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
             <ContentStyles contentType="post">
-              Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
+              When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
               <br /><br />
               For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
             </ContentStyles>
           </div>
-          <div>
-            <TopPostsDisplaySettings />
-            <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
-              {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
-            </div>
+          <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
+            {sectionGrid}
           </div>
         </div>
+        {loading && <div className={classes.loading}><Loading/></div>}
+        <TopSpotlightsSection classes={classes} 
+          yearGroupsInfo={yearGroupsInfo} 
+          sectionsInfo={sectionsInfo} 
+          reviewWinnersWithPosts={reviewWinnersWithPosts} 
+        />
+        {loading && <Loading/>}
       </AnalyticsContext>
     </>
   );
+}
+
+type YearSelectorState = PublishedReviewYear|'all'
+type CategorySelectorState = ReviewWinnerCategory|'all'
+
+function getInitialYear(yearQuery?: string): YearSelectorState {
+  if (!yearQuery) {
+    return BEST_OF_LESSWRONG_PUBLISH_YEAR
+  }
+  if (yearQuery === 'all') {
+    return 'all'
+  }
+  const yearQueryInt = parseInt(yearQuery);
+  if (publishedReviewYears.has(yearQueryInt)) {
+    return yearQueryInt
+  }
+  return BEST_OF_LESSWRONG_PUBLISH_YEAR
+}
+
+function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
+  classes: ClassesType<typeof styles>,
+  yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo>,
+  sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo>,
+  reviewWinnersWithPosts: PostsTopItemInfo[]
+}) {
+  const location = useLocation();
+  const { query: { year: yearQuery, category: categoryQuery } } = location;
+
+  const categories = [...reviewWinnerCategories]
+
+  const [year, setYear] = useState<YearSelectorState>(getInitialYear(yearQuery))
+
+  const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
+  const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
+
+  let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
+
+  filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
+
+
+  if (year === 'all' && category === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts
+  } else if (year === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === category)
+  } else if (category === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year)
+  } else {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
+  }
+
+  const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
+    ...post.spotlight,
+    post,
+    tag: null,
+    sequence: null,
+    ranking: post.reviewWinner?.reviewRanking
+  })).sort((a, b) => {
+    const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.post?._id)
+    const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.post?._id)
+    if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
+      return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
+      return (reviewWinnerA?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerB?.reviewWinner?.reviewYear ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
+      return (reviewWinnerA?.reviewWinner?.category ?? '').localeCompare(reviewWinnerB?.reviewWinner?.category ?? '')
+    } else {
+      return 0
+    }
+  })
+
+  const handleSetYear = (y: YearSelectorState) => {
+    const newSearch = qs.stringify({year: y, category});
+    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    setYear(y);
+  }
+  
+  const handleSetCategory = (t: CategorySelectorState) => {
+    const newSearch = qs.stringify({year, category: t});
+    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    setCategory(t);
+  }
+
+  return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
+    <div className={classes.postsByYearSectionCentered} id="year-category-section">
+      <div className={classes.yearSelector}>
+        {[...publishedReviewYears].map((y) => {
+          const postsCount = reviewWinnersWithPosts.filter(post => {
+            return post.reviewWinner?.reviewYear === y
+          }).length
+          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classNames(classes.year, y === year && classes.yearIsSelected)} key={y}>{y}</a></LWTooltip>
+        })}
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetYear('all')} className={classNames(classes.year, year === 'all' && classes.yearIsSelected, classes.yearAll)}>
+            All
+          </a>
+        </LWTooltip>
+      </div>
+      <div className={classes.categorySelector}>
+        {categories.map((t) => {
+          const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
+          return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
+            <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory, t === category && classes.categoryIsSelected)}>{sectionsInfo[t].title}</a>
+          </LWTooltip>
+        })}
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => {
+          if (year === 'all') return true
+          return post.reviewWinner?.reviewYear === year
+        }).length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetCategory('all')} className={classNames(classes.category, category === 'all' && classes.categoryIsSelected)}>
+            All
+          </a>
+        </LWTooltip>
+      </div>
+      <div className={classes.spotlightCheckmarkRow}>
+        {filteredSpotlights.map((spotlight) => {
+          const post = reviewWinnersWithPosts.find(post => post._id === spotlight.post?._id)
+          const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
+          const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
+          const postAuthor = post?.user?.displayName
+          const tooltip = <><div>{spotlight.post?.title}</div>
+          <div><em>by {postAuthor}</em></div>
+          {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
+
+          return <LWTooltip key={spotlight._id} title={tooltip}>
+            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.post?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+          </LWTooltip>
+        })}
+      </div>
+      <div style={{ maxWidth: SECTION_WIDTH }}>
+        {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.post?.isRead && classes.spotlightIsNotRead )}>
+          <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.post?.reviewWinner?.reviewYear}`}>
+            <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
+          </LWTooltip>
+          <SpotlightItem spotlight={spotlight} showSubtitle={false} />
+        </div>)}
+      </div>
+    </div>
+  </AnalyticsContext>
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {
@@ -689,7 +982,7 @@ const PostGridContents = (props: PostGridContentsProps) => {
   return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id ?? `empty-${rowIdx}-${columnIdx}`} {...cellArgs} />))}</>;
 }
 
-const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
+const PostGridCellContents = (props: PostGridCellContentsProps): React.JSX.Element => {
   const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved, dpr } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
@@ -749,7 +1042,7 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
     // We're explicitly not bothering with heightPct right now, since we just want to get "to the bottom" of the image
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = splashCoordinates;
-
+  
   const newXPct = Math.min(1, Math.max(0, xPct - (widthPct * leftBookOffset)));
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 
@@ -843,6 +1136,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     [classes.expandedImageGrid]: isExpanded,
     [classes.collapsedImageGrid]: isCollapsed,
     [classes.showAllImageGrid]: isShowingAll,
+    [classes.gridMobileCollapsed]: !isExpanded || isCollapsed,
   });
 
   const gridClassName = classNames(classes.imageGrid, classes[gridPositionClass]);
@@ -947,14 +1241,10 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   </Link>;
 }
 
-const TopPostsPageComponent = registerComponent(
+export default registerComponent(
   "TopPostsPage",
   TopPostsPage,
   { styles },
 );
 
-declare global {
-  interface ComponentTypes {
-    TopPostsPage: typeof TopPostsPageComponent
-  }
-}
+

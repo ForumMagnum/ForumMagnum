@@ -1,18 +1,24 @@
 import React, { ReactNode } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles'
+import LocalGroupsItem from "./LocalGroupsItem";
+import Loading from "../vulcan-core/Loading";
+import PostsNoResults from "../posts/PostsNoResults";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   localGroups: {
     boxShadow: theme.palette.boxShadow.default,
   }
-}))
+});
 
 const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showNoResults?: boolean,
   heading?: string,
 }) => {
@@ -22,8 +28,8 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
   });
-  const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore, SingleColumnSection, SectionTitle } = Components
-
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeTitleWrapper = ({children}: { children: ReactNode }) => heading ?
     <SingleColumnSection>
       <SectionTitle title={heading} />
@@ -54,10 +60,6 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   </MaybeTitleWrapper>;
 }
 
-const LocalGroupsListComponent = registerComponent('LocalGroupsList', LocalGroupsList, {styles})
+export default registerComponent('LocalGroupsList', LocalGroupsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupsList: typeof LocalGroupsListComponent
-  }
-}
+

@@ -1,8 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
+import SunshineListTitle from "./SunshineListTitle";
+import OmegaIcon from "../icons/OmegaIcon";
+import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
@@ -10,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestCommentsList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
     terms: {view:"alignmentSuggestedComments"},
@@ -19,8 +23,6 @@ const AFSuggestCommentsList = ({ classes }: {
     fragmentName: 'SuggestAlignmentComment',
     fetchPolicy: 'cache-and-network',
   });
-  const { SunshineListTitle, OmegaIcon, AFSuggestCommentsItem, LoadMore } = Components;
-  
   if (results && results.length) {
     return <div>
       <SunshineListTitle>
@@ -38,11 +40,7 @@ const AFSuggestCommentsList = ({ classes }: {
   }
 }
 
-const AFSuggestCommentsListComponent = registerComponent('AFSuggestCommentsList', AFSuggestCommentsList, {styles});
+export default registerComponent('AFSuggestCommentsList', AFSuggestCommentsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFSuggestCommentsList: typeof AFSuggestCommentsListComponent
-  }
-}
+
 

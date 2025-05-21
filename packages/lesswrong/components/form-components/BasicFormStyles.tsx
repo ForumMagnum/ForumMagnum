@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     [theme.breakpoints.up('md')]: {
       '& .form-input:first-child': {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const BasicFormStyles = ({classes, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
   return <div className={classes.root}>
@@ -27,11 +27,7 @@ export const BasicFormStyles = ({classes, children}: {
   </div>;
 }
 
-const BasicFormStylesComponent = registerComponent('BasicFormStyles', BasicFormStyles, {styles});
+export default registerComponent('BasicFormStyles', BasicFormStyles, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BasicFormStyles: typeof BasicFormStylesComponent
-  }
-}
+
 

@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
+import ErrorBoundary from "./ErrorBoundary";
 
 export const SECTION_WIDTH = 765
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     maxWidth: SECTION_WIDTH,
@@ -20,24 +21,20 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SingleColumnSection = ({classes, className, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   children?: React.ReactNode,
 }) => {
 
   return (
-    <Components.ErrorBoundary>
+    <ErrorBoundary>
       <div className={classNames(classes.root, className)}>
         { children }
       </div>
-    </Components.ErrorBoundary>
+    </ErrorBoundary>
   )
 };
 
-const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, {styles, stylePriority: -1});
+export default registerComponent('SingleColumnSection', SingleColumnSection, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SingleColumnSection: typeof SingleColumnSectionComponent
-  }
-}
+

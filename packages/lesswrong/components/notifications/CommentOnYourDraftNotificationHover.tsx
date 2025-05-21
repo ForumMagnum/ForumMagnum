@@ -1,10 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Link } from '../../lib/reactRouterWrapper';
 import {useCurrentUser} from "../common/withUser";
+import { NotifPopoverLink } from './useNotificationsPopoverContext';
+import UsersName from "../users/UsersName";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     ...theme.typography.commentStyle,
@@ -15,16 +17,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { UsersName, Loading } = Components;
-  const postId = notification.documentId;
+  const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
   const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsMinimumInfo",
+    skip: !postId,
   });
   
   const senderUserId = notification.extraData?.senderUserID;
@@ -35,19 +37,15 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
     <div>
       {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
       {(currentUser?._id !== post?.userId) ? " replied to your comment on " : ` commented on your draft ${postOrDraft}`}
-      <Link to={postEditUrl}>
+      <NotifPopoverLink to={postEditUrl}>
         {post ? post.title : <Loading/>}
-      </Link>
+      </NotifPopoverLink>
     </div>
     
     {notification.extraData && <blockquote dangerouslySetInnerHTML={{__html: notification.extraData.commentHtml}}/>}
   </div>
 }
 
-const CommentOnYourDraftNotificationHoverComponent = registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
+export default registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHoverComponent
-  }
-}
+

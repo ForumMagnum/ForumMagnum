@@ -1,8 +1,11 @@
 import React, { FC, MouseEvent, ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import { UseHoverEventHandlers } from "../common/withHover";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
@@ -95,16 +98,12 @@ const EASequenceOrCollectionCard = ({
   readCount: number,
   imageId: string,
   href: string,
-  eventHandlers: {
-    onMouseOver: (event: MouseEvent<HTMLDivElement>) => void,
-    onMouseLeave: () => void,
-  },
+  eventHandlers: UseHoverEventHandlers,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;
-  const {CloudinaryImage2, UsersNameDisplay} = Components;
   return (
     <div
       {...eventHandlers}
@@ -142,14 +141,10 @@ const EASequenceOrCollectionCard = ({
   );
 };
 
-const EASequenceOrCollectionCardComponent = registerComponent(
+export default registerComponent(
   "EASequenceOrCollectionCard",
   EASequenceOrCollectionCard,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EASequenceOrCollectionCard: typeof EASequenceOrCollectionCardComponent;
-  }
-}
+

@@ -1,14 +1,13 @@
 import { wrapVulcanAsyncScript } from './utils'
-import { Vulcan } from '../vulcan-lib';
-import Users from '../../lib/collections/users/collection'
+import Users from '../../server/collections/users/collection'
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
-import Tags from '../../lib/collections/tags/collection';
+import Tags from '../../server/collections/tags/collection';
 import { FilterMode } from '../../lib/filterSettings';
 
 /**
  * Sets the frontpage filter weight for the given tag for all users who have edited their filter settings before
  */
-Vulcan.setUserTagFilters = wrapVulcanAsyncScript(
+export const setUserTagFilters = wrapVulcanAsyncScript(
   'setUserTagFilters',
   async (slug: string, weight: FilterMode) => {
     const tag = await Tags.findOne({ slug });

@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { themeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 
-const getValue = (props: any) => {
-  if (props.value?.name) {
-    return props.value.name;
+const getValue = (field: TypedFieldApi<ThemeField>): string => {
+  if (field.state.value.name) {
+    return field.state.value.name;
   }
 
   if (typeof window !== "undefined" && window.themeOptions?.name) {
@@ -15,32 +16,42 @@ const getValue = (props: any) => {
   return getDefaultThemeOptions().name;
 }
 
-const ThemeSelect = (props: any) => {
+interface ThemeField {
+  name: "default" | "dark" | "auto",
+  siteThemeOverride?: AnyBecauseHard | null,
+}
+
+interface ThemeSelectProps {
+  field: TypedFieldApi<ThemeField>;
+}
+
+export const ThemeSelect = ({ field }: ThemeSelectProps) => {
   const themeOptions = useThemeOptions();
   const options = themeMetadata.map(({name, label}) => ({value: name, label}));
 
-  const updateCurrentValues = ({theme, ...rest}: AnyBecauseTodo) => {
-    props.updateCurrentValues({
-      ...rest,
-      theme: {...themeOptions, name: theme},
-    });
+  const updateTheme = (newName: ThemeField['name']) => {
+    const newThemeValue = {
+      ...themeOptions,
+      name: newName,
+    };
+
+    field.handleChange(newThemeValue);
   }
 
   return (
-    <Components.FormComponentSelect
-      {...props}
+    <FormComponentSelect
+      field={{
+        name: field.name,
+        state: {
+          value: getValue(field),
+          meta: field.state.meta,
+        },
+        handleChange: updateTheme,
+        handleBlur: field.handleBlur,
+      }}
       defaultValue={undefined}
-      value={getValue(props)}
-      updateCurrentValues={updateCurrentValues}
       options={options}
     />
   );
 }
 
-const ThemeSelectComponent = registerComponent("ThemeSelect", ThemeSelect);
-
-declare global {
-  interface ComponentTypes {
-    ThemeSelect: typeof ThemeSelectComponent
-  }
-}

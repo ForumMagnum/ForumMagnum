@@ -1,16 +1,15 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "../DropdownItem";
 
 const MoveToDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
-  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -35,13 +34,9 @@ const MoveToDraftDropdownItem = ({ post }: {
   }
 }
 
-const MoveToDraftDropdownItemComponent = registerComponent(
+export default registerComponent(
   'MoveToDraftDropdownItem',
   MoveToDraftDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToDraftDropdownItem: typeof MoveToDraftDropdownItemComponent
-  }
-}
+

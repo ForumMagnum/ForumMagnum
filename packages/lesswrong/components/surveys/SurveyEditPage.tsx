@@ -1,12 +1,22 @@
 import React, { useCallback, useState } from "react";
-import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import { gql, useMutation } from "@apollo/client";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
-import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/schema";
+import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import Error404 from "../common/Error404";
+import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import ForumDropdown from "../common/ForumDropdown";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,15 +96,6 @@ const formatOptions: Record<string, SettingsOption> = Object.fromEntries(
     ),
 );
 
-const updateSurveyMutation = gql`
-  mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
-    editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
-      ...SurveyMinimumInfo
-    }
-  }
-  ${getFragment("SurveyMinimumInfo")}
-`;
-
 export type SurveyQuestionInfo = {
   _id?: string,
   question: string,
@@ -160,7 +161,14 @@ const SurveyForm = ({survey, refetch, classes}: {
     }]);
   }, []);
 
-  const [updateSurvey] = useMutation(updateSurveyMutation);
+  const [updateSurvey] = useMutation(gql`
+    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
+      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
+        ...SurveyMinimumInfo
+      }
+    }
+    ${fragmentTextForQuery("SurveyMinimumInfo")}
+  `);
 
   const onSubmit = useCallback(async () => {
     setError("");
@@ -179,11 +187,6 @@ const SurveyForm = ({survey, refetch, classes}: {
     }
     setSaving(false);
   }, [updateSurvey, refetch, survey._id, name, questions]);
-
-  const {
-    EAOnboardingInput, EAButton, ForumIcon, LWTooltip, ForumDropdown,
-    SectionTitle, Loading,
-  } = Components;
   return (
     <div className={classes.form}>
       <EAOnboardingInput
@@ -267,8 +270,6 @@ const SurveyEditor = ({classes}: {
     fragmentName: "SurveyMinimumInfo",
     documentId: id,
   });
-
-  const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
@@ -296,17 +297,13 @@ const SurveyEditPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
-const SurveyEditPageComponent = registerComponent(
+export default registerComponent(
   "SurveyEditPage",
   SurveyEditPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    SurveyEditPage: typeof SurveyEditPageComponent
-  }
-}
+

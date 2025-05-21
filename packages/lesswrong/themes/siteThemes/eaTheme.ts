@@ -123,9 +123,6 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
-      zIndexes: {
-        searchResults: 1300,
-      },
       spacing: {
         mainLayoutPaddingTop: 20
       },
@@ -136,8 +133,8 @@ export const eaForumTheme: SiteThemeSpecification = {
       },
       typography: {
         fontDownloads: [
-          "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
-          "https://fonts.googleapis.com/css?family=Inter:300,400,450,500,600,700",
+          "https://fonts.googleapis.com/css?family=Merriweather:300,300italic,400,400italic,500,500italic,600,600italic,700,700italic&subset=all",
+          "https://fonts.googleapis.com/css?family=Inter:300,300italic,400,400italic,450,450italic,500,500italic,600,600italic,700,700italic",
           // TODO we need to find where this is used in material ui and remove
           "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
@@ -245,122 +242,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
       },
       overrides: {
-        MuiTooltip: {
-          tooltip: {
-            fontSize: 13,
-            padding: "9.1px",
-          }
-        },
-        MetaInfo: {
-          root: {
-            fontFamily: sansSerifStack
-          }
-        },
-        PostsVoteDefault: {
-          voteScore: {
-            paddingTop:4,
-            paddingBottom:2,
-            paddingLeft:1,
-            paddingRight:0,
-            fontSize: '50%',
-            fontFamily: sansSerifStack,
-          },
-        },
-        PostsTopSequencesNav: {
-          root: {
-            marginBottom: -8,
-          },
-          title: {
-            textTransform: 'uppercase',
-            fontSize: 18,
-            color: 'rgba(0,0,0,.7)',
-            fontWeight: 500,
-          }
-        },
-        FilterMode: {
-          selected: {
-            color: palette.primary.main
-          }
-        },
-        NavigationStandalone: {
-          sidebar: {
-            top: 26,
-          },
-          footerBar: {
-            backgroundColor: palette.grey[200],
-          }
-        },
-        TabNavigationItem: {
-          navButton: {
-            paddingTop: 10,
-            paddingBottom: 10,
-          },
-          icon: {
-            opacity: 1,
-          },
-        },
-        TabNavigationFooterItem: {
-          selected: {
-            backgroundColor: palette.secondary.main
-          }
-        },
-        TabNavigationCompressedItem: {
-          icon: {
-            opacity: 1
-          }
-        },
-        PostsPageTitle: {
-          root: {
-            lineHeight: 1.25,
-            fontWeight: 700
-          }
-        },
-        PostsTimeBlock: {
-          divider: {
-            display: 'none'
-          }
-        },
-        EAAllTagsPage: {
-          portal: {
-            background: palette.grey[0],
-            marginTop: 'unset',
-            marginBottom: 'unset',
-            padding: '20px',
-            boxShadow: "0 1px 5px rgba(0,0,0,.025)",
-          }
-        },
-        TagSmallPostLink: {
-          wrap: {
-            lineHeight: '1.2em'
-          }
-        },
-        TagsDetailsItem: {
-          description: {
-            maxWidth: 490,
-          }
-        },
-        ContentType: {
-          root: {
-            color: palette.grey[800],
-            fontWeight: 600
-          },
-          icon: {
-            color: palette.grey[800]
-          }
-        },
-        MuiSnackbarContent: {
-          root: {
-            backgroundColor: palette.lwTertiary.main
-          }
-        },
-        MuiMenuItem: {
-          root: {
-            fontFamily: sansSerifStack,
-            fontWeight: 500,
-            fontSize: 14.3,
-            color: palette.grey[900],
-          }
-        },
         MuiListItemIcon: {
           root: {
             color: palette.grey[700],

@@ -1,6 +1,11 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "./PostsItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LoadMore from "../common/LoadMore";
 
 const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   postIds: Array<string>,
@@ -10,8 +15,6 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore } = Components
-
   const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
 
@@ -36,17 +39,19 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   return <ErrorBoundary>
     <div>
       {posts.map(post => {
-        return <PostsItem key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} className={postItemClassName} />
+        return <PostsItem
+          key={post._id}
+          post={post}
+          showMostValuableCheckbox={showMostValuableCheckbox}
+          hideTag
+          className={postItemClassName}
+        />
       })}
       {showLoadMore && <LoadMore {...loadMoreProps} />}
     </div>
   </ErrorBoundary>
 }
 
-const PostsByVoteComponent = registerComponent("PostsByVote", PostsByVote);
+export default registerComponent("PostsByVote", PostsByVote);
 
-declare global {
-  interface ComponentTypes {
-    PostsByVote: typeof PostsByVoteComponent
-  }
-}
+

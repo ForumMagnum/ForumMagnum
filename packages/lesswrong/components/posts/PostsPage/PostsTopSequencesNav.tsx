@@ -1,34 +1,64 @@
 import React, {useCallback} from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useNavigate } from "../../../lib/routeUtil";
+import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import SequencesTooltip from "../../sequences/SequencesTooltip";
+import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const darkGreyAlpha = .7
+
+export const titleStyles = (theme: ThemeType) => ({
+  display: 'inline-block',
+  fontSize: 22,
+  verticalAlign: '-webkit-baseline-middle',
+  fontFamily: theme.typography.uiSecondary.fontFamily,
+  lineHeight: '24px',
+  color: theme.palette.text.dim,
+  ...theme.typography.smallCaps,
+})
+
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
     alignItems: "center",
+    
+    ...(isFriendlyUI && {
+      marginBottom: -8,
+    }),
   },
   title: {
-    display: 'inline-block',
-    fontSize: 22,
-    verticalAlign: '-webkit-baseline-middle',
-    fontFamily: theme.typography.uiSecondary.fontFamily,
-    lineHeight: '24px',
-    color: theme.palette.text.dim,
-    ...theme.typography.smallCaps,
+    ...titleStyles(theme),
+    
+    ...(isFriendlyUI && {
+      textTransform: 'uppercase',
+      fontSize: 18,
+      color: theme.palette.greyAlpha(0.7),
+      fontWeight: 500,
+    }),
+    ...(isFriendlyUI && theme.themeOptions.name === 'dark' && {
+      color: theme.palette.icon.dim,
+    }),
+  },
+  blackText: {
+    '&&': {
+      color: theme.palette.greyAlpha(darkGreyAlpha),
+    }
   }
 })
 
-const PostsTopSequencesNav = ({post, classes}: {
+const PostsTopSequencesNav = ({post, classes, blackText}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
+  blackText?: boolean
 }) => {
-  const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -67,7 +97,7 @@ const PostsTopSequencesNav = ({post, classes}: {
         direction="left" />
 
       <SequencesTooltip sequence={post.sequence}>
-        <div className={classes.title}>
+        <div className={classNames(classes.title, {[classes.blackText]: blackText})}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>
@@ -80,15 +110,11 @@ const PostsTopSequencesNav = ({post, classes}: {
   )
 }
 
-const PostsTopSequencesNavComponent = registerComponent(
+export default registerComponent(
   'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsTopSequencesNav: typeof PostsTopSequencesNavComponent
-  }
-}
+

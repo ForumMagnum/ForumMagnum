@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import DebateResponse from "./DebateResponse";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   divider: {
     display: 'flex',
     alignItems: 'center',
@@ -30,10 +31,8 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponse } = Components;
-
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
@@ -51,10 +50,6 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   </div>;
 }
 
-const DebateResponseBlockComponent = registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
+export default registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
 
-declare global {
-  interface ComponentTypes {
-    DebateResponseBlock: typeof DebateResponseBlockComponent
-  }
-}
+

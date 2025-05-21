@@ -1,5 +1,5 @@
-import React, { MouseEvent, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import React, { MouseEvent, useCallback } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getDisplayConfig } from "./NotificationsPage/NotificationsPageNotification";
 import { useClickableCell } from "../common/useClickableCell";
 import { useTracking } from "@/lib/analyticsEvents";
@@ -7,12 +7,15 @@ import { useCurrentUser } from "../common/withUser";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import classNames from "classnames";
 import moment from "moment";
+import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
+import { useUpdate } from "@/lib/crud/withUpdate";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import NotificationsPageItem from "./NotificationsPage/NotificationsPageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    padding: 8,
-    paddingLeft: 0,
+    padding: "6px 8px",
     borderRadius: theme.borderRadius.default,
     "&:hover": {
       background: theme.palette.grey[140],
@@ -88,37 +91,48 @@ const formatNotificationType = (type: string): string => {
   }
 }
 
-const NotificationsPopoverNotification = ({notification, onClick, classes}: {
+const NotificationsPopoverNotification = ({notification, refetch, classes}: {
   notification: NotificationDisplay,
-  onClick?: () => void,
+  refetch?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {_id, post, comment, type, link, viewed, message, createdAt} = notification;
+
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
   const {onClick: redirect} = useClickableCell({href: notification.link ?? "#"});
-  const [isRead, setIsRead] = useState(
-    (currentUser?.lastNotificationsCheck ?? new Date()) > notification.createdAt,
-  );
+  const {closeNotifications} = useNotificationsPopoverContext();
+  const {mutate: updateNotification} = useUpdate({
+    collectionName: "Notifications",
+    fragmentName: "NotificationsList",
+  });
 
   const onSelect = useCallback((ev: MouseEvent<HTMLDivElement>) => {
-    onClick?.();
-    setIsRead(true);
+    closeNotifications();
+    void updateNotification({
+      selector: {_id},
+      data: {viewed: true},
+    });
+    refetch?.();
     captureEvent("notificationClick", {
-      notification: {
-        _id: notification._id,
-        link: notification.link,
-      },
+      notification: {_id, link},
     });
     redirect(ev);
-  }, [redirect, onClick, captureEvent, notification]);
+  }, [
+    closeNotifications,
+    captureEvent,
+    _id,
+    link,
+    redirect,
+    updateNotification,
+    refetch,
+  ]);
 
   if (!currentUser) {
     return null;
   }
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
-  const {post, comment, type, message, createdAt} = notification;
-  const {PostsTooltip, NotificationsPageItem} = Components;
   return (
     <PostsTooltip
       postId={post?._id ?? comment?.post?._id}
@@ -141,13 +155,13 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
               </div>
               <div className={classNames(
                 classes.message,
-                isRead && classes.messageRead,
-                !isRead && classes.messageUnread,
+                viewed && classes.messageRead,
+                !viewed && classes.messageUnread,
               )}>
                 {message}
               </div>
             </div>
-            {!isRead && <div className={classes.unreadFlag} />}
+            {!viewed && <div className={classes.unreadFlag} />}
             <div className={classes.date}>
               {moment(createdAt).fromNow()}
             </div>
@@ -158,14 +172,10 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
   );
 }
 
-const NotificationsPopoverNotificationComponent = registerComponent(
+export default registerComponent(
   "NotificationsPopoverNotification",
   NotificationsPopoverNotification,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPopoverNotification: typeof NotificationsPopoverNotificationComponent
-  }
-}
+

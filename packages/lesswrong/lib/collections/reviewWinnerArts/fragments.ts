@@ -1,13 +1,13 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const ReviewWinnerArtImages = () => frag`
   fragment ReviewWinnerArtImages on ReviewWinnerArt {
     _id
     postId
     splashArtImagePrompt
     splashArtImageUrl
     activeSplashArtCoordinates {
-      ...SplashArtCoordinates
+      ...SplashArtCoordinatesEdit
     }
   }
-`);
+`

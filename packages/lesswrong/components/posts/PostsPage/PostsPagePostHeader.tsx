@@ -1,17 +1,36 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
-import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { captureException } from '@sentry/core';
+import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import PostsPageTitle from "./PostsPageTitle";
+import PostsAuthors from "./PostsAuthors";
+import LWTooltip from "../../common/LWTooltip";
+import PostsPageDate from "./PostsPageDate";
+import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import PostsVote from "../../votes/PostsVote";
+import PostsGroupDetails from "../PostsGroupDetails";
+import PostsTopSequencesNav from "./PostsTopSequencesNav";
+import PostsPageEventData from "./PostsPageEventData";
+import FooterTagList from "../../tagging/FooterTagList";
+import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
+import BookmarkButton from "../BookmarkButton";
+import ForumIcon from "../../common/ForumIcon";
+import GroupLinks from "../../localGroups/GroupLinks";
+import SharePostButton from "../SharePostButton";
+import AudioToggle from "./AudioToggle";
+import ReadTime from "./ReadTime";
 
 const SECONDARY_SPACING = 20;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   header: {
     position: 'relative',
     display:"flex",
@@ -164,6 +183,29 @@ export function getHostname(url: string): string {
   return parser.hostname;
 }
 
+/**
+ * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
+ * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
+ * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
+ */
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
+}
+
 export const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
@@ -198,18 +240,17 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   hideMenu?: boolean,
   hideTags?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
-    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
-
-  const rssFeedSource = ('feed' in post) ? post.feed : null;
-  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
-  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
-
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  let feedLinkDomain;
+  let feedLink;
+  if (rssFeedSource?.url) {
+    let feedLinkProtocol;
+    ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
+    feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
+  }
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
 
@@ -227,9 +268,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {postGetAnswerCountStr(answerCount)}
       </CommentsLink>
     );
-
-
-
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
@@ -265,7 +303,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {crosspostNode}
       </div>
       <div className={classes.secondaryInfoRight}>
-        <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+        <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
         <SharePostButton post={post} />
         {tripleDotMenuNode}
       </div>
@@ -288,7 +326,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
             {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
@@ -312,12 +350,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   </>
 }
 
-const PostsPagePostHeaderComponent = registerComponent(
+export default registerComponent(
   'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsPagePostHeader: typeof PostsPagePostHeaderComponent,
-  }
-}
+

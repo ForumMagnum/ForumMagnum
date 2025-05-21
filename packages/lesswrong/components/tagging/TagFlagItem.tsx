@@ -1,15 +1,18 @@
 import React from "react"
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import Card from "@material-ui/core/Card";
+import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
+import LWPopper from "../common/LWPopper";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
@@ -40,9 +43,8 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   itemType?: ItemTypeName,
   showNumber?: boolean,
   style?: "white"|"grey"|"black",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
@@ -98,7 +100,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
           <Card className={classes.hoverCard}>
             <ContentStyles contentType="comment">
               <ContentItemBody
-                className={classes.highlight}
                 dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
                 description={tagFlagDescription[itemType]}
               />
@@ -110,10 +111,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   </span>
 }
 
-const TagFlagItemComponent = registerComponent('TagFlagItem', TagFlagItem, { styles } );
+export default registerComponent('TagFlagItem', TagFlagItem, { styles } );
 
-declare global {
-  interface ComponentTypes {
-    TagFlagItem: typeof TagFlagItemComponent
-  }
-}
+

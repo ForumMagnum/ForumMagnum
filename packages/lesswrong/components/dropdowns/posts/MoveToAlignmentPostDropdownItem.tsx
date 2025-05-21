@@ -1,9 +1,10 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { isLWorAF } from "../../../lib/instanceSettings";
+import DropdownItem from "../DropdownItem";
 
 const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -29,8 +30,6 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   ) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   return post.af
     ? (
       <DropdownItem
@@ -46,13 +45,9 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
     );
 }
 
-const MoveToAlignmentPostDropdownItemComponent = registerComponent(
+export default registerComponent(
   "MoveToAlignmentPostDropdownItem",
   MoveToAlignmentPostDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    MoveToAlignmentPostDropdownItem: typeof MoveToAlignmentPostDropdownItemComponent
-  }
-}
+

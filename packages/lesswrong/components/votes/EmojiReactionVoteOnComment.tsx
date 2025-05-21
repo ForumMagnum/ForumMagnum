@@ -1,14 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, EmojiReaction, emojiReactions } from '../../lib/voting/votingSystems';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { CommentVotingComponentProps, EmojiReactionType, emojiReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { VotingProps } from './votingProps';
+import LoginPopup from "../users/LoginPopup";
+import PopperCard from "../common/PopperCard";
+import OverallVoteAxis from "./OverallVoteAxis";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   hoverBallot: {
@@ -67,13 +70,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 interface EmojiReactionVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const EmojiReaction = ({reaction, voteProps, classes}: {
-  reaction: EmojiReaction,
+  reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const count = voteProps.document?.extendedScore?.[reaction.name] || 0
   if (!count) return null
@@ -85,9 +88,9 @@ const EmojiReaction = ({reaction, voteProps, classes}: {
 }
 
 const BallotEmojiReaction = ({reaction, voteProps, classes}: {
-  reaction: EmojiReaction,
+  reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const isSelected = !!voteProps.document?.currentUserExtendedVote?.[reaction.name]
   const { openDialog } = useDialog()
@@ -96,9 +99,9 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
   return <div className={classNames(classes.voteButton, {[classes.voteButtonSelected]: isSelected})} onClick={async () => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      })
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
+      });
     } else {
       await voteProps.vote({
         document: voteProps.document,
@@ -117,12 +120,9 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
 
 const EmojiReactionsAxis = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover()
-  
-  const { PopperCard } = Components
-  
   // Only show the +reaction icon if there aren't any reactions yet.
   // Icon borrowed from here: https://iconduck.com/icons/67395/emoji-add
   const hasReactions = emojiReactions.some(reaction => voteProps.document?.extendedScore?.[reaction.name])
@@ -154,9 +154,6 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
 
 const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem)
-  
-  const { OverallVoteAxis } = Components
-  
   return <span className={classes.root}>
     <OverallVoteAxis
       document={document}
@@ -168,11 +165,7 @@ const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, 
 }
 
 
-const EmojiReactionVoteOnCommentComponent = registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnComment, {styles});
+export default registerComponent('EmojiReactionVoteOnComment', EmojiReactionVoteOnComment, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EmojiReactionVoteOnComment: typeof EmojiReactionVoteOnCommentComponent
-  }
-}
+
 

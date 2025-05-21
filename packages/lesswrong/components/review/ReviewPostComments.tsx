@@ -1,11 +1,17 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
+import Loading from "../vulcan-core/Loading";
+import CommentsList from "../comments/CommentsList";
+import SubSection from "../common/SubSection";
+import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
+import LoadMore from "../common/LoadMore";
+import ContentStyles from "../common/ContentStyles";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     fontSize: "1rem",
     ...theme.typography.commentStyle,
@@ -16,6 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   singleLinePlaceholder: {
     height: 30,
     width: "100%",
+    display: "flex",
     ...singleLineStyles(theme),
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -27,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title?: string,
   post: PostsList,
   singleLine?: boolean,
@@ -42,9 +49,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
     fetchPolicy: 'cache-and-network',
     limit: 5
   });
-  
-  const { Loading, CommentsList, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
-  
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)
@@ -93,10 +97,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   );
 };
 
-const ReviewPostCommentsComponent = registerComponent('ReviewPostComments', ReviewPostComments, {styles});
+export default registerComponent('ReviewPostComments', ReviewPostComments, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPostComments: typeof ReviewPostCommentsComponent
-  }
-}
+

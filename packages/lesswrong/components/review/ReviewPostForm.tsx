@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import PopupCommentEditor from "../comments/PopupCommentEditor";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   guidelines: {
     cursor: "default",
     marginTop: theme.spacing.unit,
@@ -34,14 +35,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ReviewPostForm = ({classes, post, onClose}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsBase,
   onClose: () => void,
 }) => {
-  const { PopupCommentEditor } = Components;
   const [ showPrompt, setShowPrompt ] = useState(true)
   
   return <PopupCommentEditor
+    key={post._id} // Force recreation when post changes
     title={<>
       Reviewing "<Link to={postGetPageUrl(post)}>{post.title}</Link>"
     </>}
@@ -71,10 +72,6 @@ const ReviewPostForm = ({classes, post, onClose}: {
   />
 }
 
-const ReviewPostFormComponent = registerComponent('ReviewPostForm', ReviewPostForm, {styles});
+export default registerComponent('ReviewPostForm', ReviewPostForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPostForm: typeof ReviewPostFormComponent
-  }
-}
+

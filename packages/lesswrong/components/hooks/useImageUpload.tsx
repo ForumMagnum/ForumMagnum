@@ -158,10 +158,10 @@ const cloudinaryArgsByImageType = {
     uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
   },
   socialPreviewImageId: {
-    minImageHeight: 400,
-    minImageWidth: 700,
+    minImageHeight: 270,
+    minImageWidth: 500,
     croppingAspectRatio: 1.91,
-    croppingDefaultSelectionRatio: 1,
+    croppingDefaultSelectionRatio: 1.91,
     uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
   eventImageId: {

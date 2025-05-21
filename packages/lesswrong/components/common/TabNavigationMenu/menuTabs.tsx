@@ -1,5 +1,5 @@
 import React from 'react';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { communityPath, getAllTagsPath } from '@/lib/pathConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
@@ -12,11 +12,11 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-import Home from '@material-ui/icons/Home'
-import LocalOffer from '@material-ui/icons/LocalOffer';
-import Sort from '@material-ui/icons/Sort'
-import Info from '@material-ui/icons/Info';
-import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import Home from '@/lib/vendor/@material-ui/icons/src/Home'
+import LocalOffer from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
+import Sort from '@/lib/vendor/@material-ui/icons/src/Sort'
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 
 // EA Forum menu icons
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
@@ -73,7 +73,7 @@ type MenuTabDivider = {
 
 type MenuTabCustomComponent = {
   id: string
-  customComponentName: string
+  customComponentName: 'EventsList' | 'SubscribeWidget'
 }
 
 type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
@@ -138,9 +138,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
-      id: 'leastwrong',
+      id: 'bestoflesswrong',
       title: 'Best of LessWrong',
-      link: '/leastwrong',
+      link: '/bestoflesswrong',
       tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,
     }, {
@@ -308,8 +308,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       selectedIconComponent: PeopleDirectorySelectedIcon,
       tooltip: 'Search and filter Forum users',
       showOnMobileStandalone: true,
-      showOnCompressed: true,
-      flag: "new",
+      showOnCompressed: true
     }, {
       id: 'takeAction',
       title: 'Take action',
@@ -371,6 +370,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'cookies',
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
+      subItem: true,
+    }, {
+      id: 'copyright',
+      title: preferredHeadingCase('Copyright'),
+      link: '/posts/KK6AE8HzPkR2KnqSg/new-forum-license-creative-commons',
       subItem: true,
     }, {
       id: 'divider2',

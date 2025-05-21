@@ -1,8 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import SunshineListTitle from "./SunshineListTitle";
+import OmegaIcon from "../icons/OmegaIcon";
+import AFSuggestPostsItem from "./AFSuggestPostsItem";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
@@ -10,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestPostsList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
     terms: {view:"alignmentSuggestedPosts"},
@@ -18,7 +22,6 @@ const AFSuggestPostsList = ({ classes }: {
     fragmentName: 'SuggestAlignmentPost',
     fetchPolicy: 'cache-and-network',
   });
-  const { SunshineListTitle, OmegaIcon, AFSuggestPostsItem, LoadMore } = Components;
   if (results && results.length) {
     return <div>
       <SunshineListTitle>
@@ -36,11 +39,7 @@ const AFSuggestPostsList = ({ classes }: {
   }
 }
 
-const AFSuggestPostsListComponent = registerComponent('AFSuggestPostsList', AFSuggestPostsList, {styles});
+export default registerComponent('AFSuggestPostsList', AFSuggestPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFSuggestPostsList: typeof AFSuggestPostsListComponent
-  }
-}
+
 

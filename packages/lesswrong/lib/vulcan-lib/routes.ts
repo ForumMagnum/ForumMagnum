@@ -8,11 +8,17 @@ export type PingbackDocument = {
   documentId: string,
 };
 
+export interface SegmentedUrl {
+  pathname: string
+  search: string
+  hash: string
+}
+
 export type RouterLocation = {
   // Null in 404
   currentRoute: Route|null,
   RouteComponent: any,
-  location: any,
+  location: SegmentedUrl,
   pathname: string,
   url: string,
   hash: string,
@@ -22,25 +28,31 @@ export type RouterLocation = {
 };
 
 export type Route = {
-  // Name of the route. Must be unique, but has no effect, except maybe
-  // appearing in debug logging occasionally.
+  /**
+   * Name of the route. Must be unique. In theory, should have no effect; in
+   * practice, some components are comparing route names to expected values,
+   * which we should refactor to make them not do anymore.
+   */
   name: string,
   
-  // URL pattern for this route. Syntax comes from the path-to-regexp library
-  // (via indirect dependency via react-router).
+  /**
+   * URL pattern for this route. Syntax comes from the path-to-regexp library
+   * (via indirect dependency via react-router).
+   */
   path: string,
   
-  componentName?: keyof ComponentTypes,
+  component?: React.ComponentType<any>,
+
   title?: string,
-  titleComponentName?: keyof ComponentTypes,
+  titleComponent?: React.FunctionComponent<{ siteName: string, isSubtitle: boolean }>,
   subtitle?: string,
   headerSubtitle?: string,
   subtitleLink?: string,
-  subtitleComponentName?: keyof ComponentTypes,
+  subtitleComponent?: React.FunctionComponent<{ isSubtitle?: boolean }>,
   description?: string,
-  redirect?: (location: RouterLocation) => string,
-  getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
-  previewComponentName?: keyof ComponentTypes,
+  redirect?: (location: RouterLocation) => string | null,
+  getPingback?: (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null,
+  previewComponent?: React.FunctionComponent<{ href: string, targetLocation?: RouterLocation, id?: string, noPrefetch?: boolean, children: React.ReactNode }>,
   _id?: string|null,
   noIndex?: boolean,
   background?: string,
@@ -52,6 +64,9 @@ export type Route = {
   staticHeader?: boolean // if true, the page header is not sticky to the top of the screen
   fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
   unspacedGrid?: boolean // for routes with standalone navigation, setting this to true allows the page body to be full-width (the default is to have empty columns providing padding)
+
+  hasLeftNavigationColumn?: boolean
+  navigationFooterBar?: boolean,
   
   // enableResourcePrefetch: Start loading stylesheet and JS bundle before the page is
   // rendered. This requires sending headers before rendering, which means
@@ -107,22 +122,6 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
-
-export const overrideRoute = (...routes: Route[]): void => {
-  // remove the old route if it exists, then call addRoute
-  for (let route of routes) {
-    const {name, path} = route;
-    delete Routes[name];
-
-    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
-    const routeWithSamePath = _.findWhere(Routes, { path });
-
-    if (routeWithSamePath) {
-      delete Routes[routeWithSamePath.name];
-    }
-  }
-  addRoute(...routes);
-}
 
 export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
   return Object.values(Routes).reverse().find((route) => matchPath(pathname, {

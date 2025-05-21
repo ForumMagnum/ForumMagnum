@@ -1,18 +1,22 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
-import { HIGHLIGHT_DURATION } from './CommentFrame';
-import { getCurrentSectionMark, getLandmarkY } from '../hooks/useScrollHighlight';
-import { commentIdToLandmark } from './CommentsTableOfContents';
+import CommentFrame, { HIGHLIGHT_DURATION } from './CommentFrame';
+import { scrollFocusOnElement } from '@/lib/scrollUtils';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { useCommentLinkState } from './CommentsItem/useCommentLink';
+import SingleLineComment from "./SingleLineComment";
+import CommentsItem from "./CommentsItem/CommentsItem";
+import RepliesToCommentList from "../shortform/RepliesToCommentList";
+import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
     top:0,
@@ -75,7 +79,7 @@ export interface CommentsNodeProps {
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
@@ -83,7 +87,7 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNode = ({
+const CommentsNodeInner = ({
   treeOptions,
   comment,
   startThreadTruncated,
@@ -114,32 +118,31 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const {hash: commentHash} = useSubscribedLocation();
-  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold));
-  const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
 
-  // If the comment starts collapsed, check if the commentHash in the url matches any of this
-  // comment's children and uncollapse if so. This needs to be done inside a useEffect because
-  // the hash part of the url isn't sent to the server
-  useEffect(() => {
-    if (!collapsed) return;
+  const hasInContextLinks = commentPermalinkStyleSetting.get() === 'in-context';
 
+  const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
+
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
+
+  const shouldUncollapseForAutoScroll = useCallback(() => {
     const commentAndChildren = [
       comment,
       ...(childComments ? childComments.flatMap((c) => flattenCommentBranch(c)) : []),
     ];
-    if (commentAndChildren.some(child => `#${child._id}` === commentHash)) {
-      setCollapsed(false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return commentAndChildren.some(child => child._id === scrollToCommentId)
+  }, [childComments, comment, scrollToCommentId])
 
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noHash, onToggleCollapsed } = treeOptions;
+  const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
 
-  const beginSingleLine = (): boolean => {
+  const beginCollapsed = useCallback(() => {
+    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
+  }, [comment.baseScore, comment.deleted, forceUnCollapsed, karmaCollapseThreshold, shouldUncollapseForAutoScroll])
+
+  const beginSingleLine = useCallback((): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
     const mostRecent = lastCommentId === comment._id
-    const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
+    const lowKarmaOrCondensed = ((comment.baseScore ?? 0) < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
 
@@ -151,6 +154,7 @@ const CommentsNode = ({
       return true;
 
     return (
+      !shouldExpandAndScrollTo &&
       !expandAllThreads &&
       !!(truncated || startThreadTruncated) &&
       lowKarmaOrCondensed &&
@@ -159,10 +163,19 @@ const CommentsNode = ({
       !postPageAndTop &&
       !forceNotSingleLine
     )
-  }
+  }, [comment._id, comment.baseScore, condensed, expandAllThreads, expandOnlyCommentIds, forceNotSingleLine, forceSingleLine, lastCommentId, nestingLevel, postPage, shortform, shouldExpandAndScrollTo, startThreadTruncated, treeOptions.isSideComment, truncated]);
+
+  const beginTruncated = useCallback(() => {
+    return !shouldExpandAndScrollTo && !!startThreadTruncated
+  }, [shouldExpandAndScrollTo, startThreadTruncated])
+
+  // Whether the comment is completely hidden (with the toggle arrow closed)
+  const [collapsed, setCollapsed] = useState<boolean>(beginCollapsed);
   
   const [singleLine, setSingleLine] = useState(beginSingleLine());
+  const [truncatedState, setTruncated] = useState(beginTruncated);
   const [truncatedStateSet, setTruncatedStateSet] = useState(false);
+
   const [highlighted, setHighlighted] = useState(false);
 
   const isInViewport = (): boolean => {
@@ -173,46 +186,55 @@ const CommentsNode = ({
   }
 
   const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
-    if (!isInViewport()) {
-      const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
-      if (commentTop) {
-        // Add window.scrollY because window.scrollTo takes a relative scroll distance
-        // rather than an absolute scroll position, and a +1 because of rounding issues
-        // that otherwise cause us to wind up just above the comment such that the ToC
-        // highlights the wrong one.
-        const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
-        window.scrollTo({ top: y, behavior });
-      }
+    if (!isInViewport() || hasInContextLinks) {
+      scrollFocusOnElement({ id: comment._id, options: { behavior } });
     }
     setHighlighted(true);
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       setHighlighted(false);
     }, HIGHLIGHT_DURATION*1000);
-  }, [comment._id]);
+  }, [comment._id, hasInContextLinks]);
 
-  const handleExpand = async (event?: React.MouseEvent) => {
-    event?.stopPropagation()
+  const handleExpand = ({
+    event,
+    scroll = false,
+    scrollBehaviour = "smooth",
+  }: {
+    event?: React.MouseEvent;
+    scroll?: boolean;
+    scrollBehaviour?: "auto" | "smooth";
+  }) => {
+    event?.stopPropagation();
     if (isTruncated || isSingleLine) {
-      captureEvent('commentExpanded', {postId: comment.postId, commentId: comment._id})
+      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id });
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
-      if (scrollOnExpand) {
-        scrollIntoView("auto") // should scroll instantly
+      if (scroll) {
+        scrollIntoView(scrollBehaviour);
       }
     }
-  }
+  };
+
+  // If not using in-context comments, scroll to top when the `commentId` query changes
+  useEffect(() => {
+    if (!hasInContextLinks && !noAutoScroll && comment && linkedCommentId === comment._id) {
+      window.scrollTo({top: 0})
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedCommentId]);
 
   useEffect(() => {
-    if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
-      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-        void handleExpand()
-        scrollIntoView()
-      }, 0);
+    // The comment hash isn't sent to the server, so `shouldUncollapseForAutoScroll` may be different from the first render pass
+    if (collapsed && shouldUncollapseForAutoScroll()) {
+      setCollapsed(false);
     }
-    //No exhaustive deps because this is supposed to run only on mount
+
+    if (shouldExpandAndScrollTo) {
+      handleExpand({scroll: true})
+    }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentHash]);
+  }, [scrollToCommentId]);
 
   const toggleCollapse = useCallback(
     () => {
@@ -238,9 +260,6 @@ const CommentsNode = ({
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
-
-  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
-
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
@@ -249,7 +268,7 @@ const CommentsNode = ({
   const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
     <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
     {showExtraChildrenButton}
-    {childComments.map(child => <Components.CommentsNode
+    {childComments.map(child => <CommentsNode
       isChild={true}
       treeOptions={treeOptions}
       comment={child.item}
@@ -267,8 +286,8 @@ const CommentsNode = ({
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
-      onClick={(event) => handleExpand(event)}
-      id={!noHash ? comment._id : undefined}
+      onClick={(event) => handleExpand({ event, scroll: scrollOnExpand })}
+      id={!noDOMId ? comment._id : undefined}
       nestingLevel={updatedNestingLevel}
       hasChildren={childComments && childComments.length>0}
       highlighted={highlighted}
@@ -328,7 +347,7 @@ const CommentsNode = ({
   </div>
 }
 
-const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
+const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
   styles,
   areEqual: {
     treeOptions: "shallow",
@@ -337,8 +356,4 @@ const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentsNode: typeof CommentsNodeComponent,
-  }
-}
+export default CommentsNode;

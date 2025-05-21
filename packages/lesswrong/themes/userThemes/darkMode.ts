@@ -4,7 +4,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
 export const invertedGreyscale = {
-  // Present in @material-ui/core/colors/grey
+  // Present in @/lib/vendor/@material-ui/core/src/colors/grey
   50: invertHexColor('#fafafa'),
   100: invertHexColor('#f5f5f5'),
   200: invertHexColor('#eeeeee'),
@@ -135,6 +135,13 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         main: "#0e9bb4",
         dark: "#0e9bb4",
       },
+      action: {
+        active: '#ffffff',
+        hover: 'rgba(255, 255, 255, 0.1)',
+        hoverOpacity: 0.1,
+        disabled: 'rgba(255, 255, 255, 0.3)',
+        disabledBackground: 'rgba(255, 255, 255, 0.12)',
+      },
       text: {
         primaryAlert: '#F3F9FA'
       },
@@ -160,30 +167,23 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
     LessWrong: {
       header: {
         background: 'rgba(50,50,50,.75)',
+      },
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
       }
     },
-    default: {},
+    default: {
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
+      }
+    },
   });
 
 const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
   forumSelect({
     EAForum: {
-      PostsTopSequencesNav: {
-        title: {
-          color: palette.icon.dim,
-        },
-      },
-      MuiPaper: {
-        elevation1: {boxShadow: "none"},
-        elevation2: {boxShadow: "none"},
-        elevation3: {boxShadow: "none"},
-        elevation4: {boxShadow: "none"},
-        elevation5: {boxShadow: "none"},
-        elevation6: {boxShadow: "none"},
-        elevation7: {boxShadow: "none"},
-        elevation8: {boxShadow: "none"},
-        elevation24: {boxShadow: "none"},
-      },
     },
     default: {},
   });
@@ -195,10 +195,12 @@ export const darkModeTheme: UserThemeSpecification = {
     inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    invertIfDarkMode: (color: string) => invertHexColor(color),
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      disabled: shadePalette.greyAlpha(0.5),
       primaryAlert: '#b2c5b5',
       warning: '#FFF7E6',
       alwaysWhite: '#fff',
@@ -211,11 +213,12 @@ export const darkModeTheme: UserThemeSpecification = {
       reviewWinner: {
         title: greyAlpha(0.75),
         author: greyAlpha(0.65)
-      }
+      },
+      jargonTerm: "#a8742a",
     },
     link: {
       primaryDim: '#3a7883',
-      visited: "#bb7c43",
+      visited: "#798754",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
@@ -226,6 +229,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
+      tagLensTab: shadePalette.greyAlpha(.15),
     },
     background: {
       default: shadePalette.grey[100],
@@ -239,6 +243,7 @@ export const darkModeTheme: UserThemeSpecification = {
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
       digestAdBannerInput: shadePalette.grey[300],
+      glossaryBackground: "rgba(180,160,160,.1)",
       sidenoteBackground: "rgba(180,160,160,.1)",
     },
     border: {
@@ -283,23 +288,20 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
-    wrapped: {
-      background: '#072C47',
-      highlightText: '#FFC443',
-      secondaryText: '#008DAC',
-      tertiaryText: "rgba(255, 255, 255, 0.50)",
-      black: '#212121',
-      darkGrey: '#424242',
-      grey: '#757575',
-      darkDot: "rgba(255, 255, 255, 0.40)",
-      panelBackground: "rgba(255, 255, 255, 0.10)",
-      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-      postScoreArrow: '#BCBCBC',
-    },
     tab: {
       inactive: {
         text: shadePalette.grey[600]
       },
+    },
+    arbital: {
+      arbitalGreen: '#02796b',
+    },
+    action: {
+      active: '#fff',
+      hover: greyAlpha(0.1),
+      hoverOpacity: 0.1,
+      disabled: greyAlpha(0.3),
+      disabledBackground: greyAlpha(0.12),
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({

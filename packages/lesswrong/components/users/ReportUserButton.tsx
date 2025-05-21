@@ -1,10 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
+import ReportForm from "../sunshineDashboard/ReportForm";
+import SingleColumnSection from "../common/SingleColumnSection";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reportUserSection: {
     marginTop: 80,
     textAlign: "right",
@@ -23,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ReportUserButton = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
@@ -34,20 +36,18 @@ const ReportUserButton = ({user, classes}: {
     if (!user) return
   
     openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        reportedUserId: user._id,
-        link: `/users/${user.slug}`,
-        userId: currentUser._id,
-        onSubmit: () => {
+      name: "ReportForm",
+      contents: ({onClose}) => <ReportForm
+        onClose={onClose}
+        reportedUserId={user._id}
+        link={`/users/${user.slug}`}
+        userId={currentUser._id}
+        onSubmit={() => {
           flash({messageString: "Your report has been sent to the moderators"})
-        }
-      }
+        }}
+      />,
     })
   }
-  
-  const { SingleColumnSection } = Components
-
   if (currentUser && (currentUser._id !== user._id)) {
     return <SingleColumnSection className={classes.reportUserSection}>
       <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
@@ -57,10 +57,6 @@ const ReportUserButton = ({user, classes}: {
   }
 }
 
-const ReportUserButtonComponent = registerComponent('ReportUserButton', ReportUserButton, {styles});
+export default registerComponent('ReportUserButton', ReportUserButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReportUserButton: typeof ReportUserButtonComponent
-  }
-}
+

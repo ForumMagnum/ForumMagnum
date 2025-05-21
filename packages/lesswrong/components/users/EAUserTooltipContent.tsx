@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
+import UsersProfileImage from "./UsersProfileImage";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const formatRole = (jobTitle?: string, organization?: string): string =>
+export const formatRole = (jobTitle?: string | null, organization?: string | null): string =>
   jobTitle && organization
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
@@ -82,14 +83,14 @@ const formatBio = (bio?: string): string => htmlToTextDefault(bio ?? "");
 
 export const formatStat = (value?: number): string => {
   value ??= 0;
-  return value > 10000
+  return value >= 10000
     ? `${Math.floor(value / 1000)} ${String(value % 1000).padStart(3, "0")}`
     : String(value);
 }
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     displayName,
@@ -103,7 +104,6 @@ const EAUserTooltipContent = ({user, classes}: {
   } = user;
   const role = formatRole(jobTitle, organization);
   const textBio = useMemo(() => formatBio(htmlBio), [htmlBio]);
-  const {UsersProfileImage} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -145,14 +145,10 @@ const EAUserTooltipContent = ({user, classes}: {
   );
 }
 
-const EAUserTooltipContentComponent = registerComponent(
+export default registerComponent(
   "EAUserTooltipContent",
   EAUserTooltipContent,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUserTooltipContent: typeof EAUserTooltipContentComponent
-  }
-}
+

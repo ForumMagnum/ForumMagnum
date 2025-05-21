@@ -1,17 +1,18 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
+import { UsersMinimumInfo } from "../users/fragments";
 
-registerFragment(`
+export const BansAdminPageFragment = () => frag`
   fragment BansAdminPageFragment on Ban {
     _id
     createdAt
     expirationDate
     userId
     user {
-      ...UsersMinimumInfo
+      ${UsersMinimumInfo}
     }
     reason
     comment
     ip
     properties
   }
-`);
+`

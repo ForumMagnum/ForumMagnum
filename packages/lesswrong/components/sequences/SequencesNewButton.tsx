@@ -1,18 +1,18 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
+import SectionButton from "../common/SectionButton";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   newSequence: {
     color: theme.palette.primary.light
   }
 });
 
 export const SequencesNewButton = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { SectionButton } = Components
   return  <Link to={"/sequencesnew"}> 
     <SectionButton>
       <LibraryAddIcon />
@@ -21,11 +21,7 @@ export const SequencesNewButton = ({ classes }: {
   </Link>
 }
 
-const SequencesNewButtonComponent = registerComponent('SequencesNewButton', SequencesNewButton, {styles});
+export default registerComponent('SequencesNewButton', SequencesNewButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNewButton: typeof SequencesNewButtonComponent
-  }
-}
+
 

@@ -1,20 +1,9 @@
-import { LanguageModelTemplate, getOpenAI, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
-import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { truncate } from '../../lib/editor/ellipsize';
-import { dataToMarkdown, htmlToMarkdown } from '../editor/conversionUtils';
+import { LanguageModelTemplate, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
+import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
-import { Tags } from '../../lib/collections/tags/collection';
-import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
-import { DatabaseServerSetting } from '../databaseSettings';
-import { Users } from '../../lib/collections/users/collection';
+import { autoFrontpageModelSetting, autoFrontpagePromptSetting, tagBotAccountSlug } from '../databaseSettings';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest, isE2E, isProduction } from '../../lib/executionEnvironment';
-import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
-import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
-import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
-import { updateMutator } from '../vulcan-lib';
-import { Posts } from '@/lib/collections/posts';
-import { isWeekend } from '@/lib/utils/timeUtil';
+import type { FetchedFragment } from '../fetchFragment';
 
 /**
  * To set up automatic tagging:
@@ -61,12 +50,12 @@ import { isWeekend } from '@/lib/utils/timeUtil';
  *    and consider whether you want to customize the date range, minimum karma,
  *    and other filters. Then make sure you have a locally running server connected
  *    to a database with suitable training data, and run the script with
- *        scripts/serverShellCommand.sh 'Globals.generateCandidateSetsForTagClassification()'
+ *        yarn repl prod packages/lesswrong/server/scripts/generativeModels/generateTaggingPostSets.ts "generateCandidateSetsForTagClassification()"
  *    This will generate two files, ml/tagClassificationPostIds.{train,test}.json
  *    each of which is a list of post IDs.
  *
  * 6. Prepare data for the training and test sets. Run
- *        scripts/serverShellCommand.sh 'Globals.generateTagClassifierData()'
+ *        yarn repl prod packages/lesswrong/server/scripts/generativeModels/generateTaggingPostSets.ts "generateTagClassifierData()"
  *    This step is memory-intensive (currently it just loads the whole data set
  *    into memory at once). If it runs out of memory, you may need to configure
  *    node to have a heap-size limit larger than the default of 4GB. To do this,
@@ -103,19 +92,13 @@ import { isWeekend } from '@/lib/utils/timeUtil';
  *
  * 10. Generate a comparison list between human-applied and auto-applied tags for
  *     the test set.
- *        scripts/serverShellCommand.sh 'Globals.evaluateTagModels("ml/tagClassificationPostIds.test.json", "ml/tagClassificationTestSetResults.txt")'
+ *        yarn repl prod packages/lesswrong/server/scripts/generativeModels/generateTaggingPostSets.ts 'evaluateTagModels("ml/tagClassificationPostIds.test.json", "ml/tagClassificationTestSetResults.txt")'
  *     This produces a text file ml/tagClassificationTestSetResults.txt with a
  *     list of post titles/links, how humans tagged them, and how the trained
  *     models tagged them. Make sure this looks reasonable.
  */
 
 const bodyWordCountLimit = 1500;
-const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
-const tagBotActiveTimeSetting = new DatabaseServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
-
-const autoFrontpageSetting = new DatabaseServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
-const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
-const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
 /**
  * Preprocess HTML before converting to markdown to be then converted into a
@@ -133,25 +116,16 @@ function preprocessHtml(html: string): string {
   return $.html();
 }
 
-export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
+export async function postToPrompt({template, post, promptSuffix, postBodyCache}: {
   template: LanguageModelTemplate,
-  post: FetchedFragment<"PostsHTML">|PostIsCriticismRequest,
+  post: FetchedFragment<"PostsHTML">,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
   postBodyCache?: PostBodyCache,
-  // Optionally pass in the post body as markdown
-  markdownBody?: string
 }): Promise<string> {
   const {header, body} = template;
   
-  const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
-  const htmlPostBody = (('body' in post && post.body) ? post.body : null)
-    ?? (('contents' in post && post.contents)
-        ? post.contents?.html
-        : null)
-    ?? ''
-  const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
-  
+  const markdownPostBody = postBodyCache?.preprocessedBody?.[post._id] ?? preprocessPostHtml(post.contents?.html ?? '');
   const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
   
   const withTemplate = substituteIntoTemplate({
@@ -226,8 +200,9 @@ export async function checkTags(
   post: FetchedFragment<"PostsHTML">,
   tags: DbTag[],
   openAIApi: OpenAI,
+  context: ResolverContext,
 ) {
-  const template = await wikiSlugToTemplate("lm-config-autotag");
+  const template = await wikiSlugToTemplate("lm-config-autotag", context);
   
   let tagsApplied: Record<string,boolean> = {};
   
@@ -251,8 +226,9 @@ export async function checkTags(
 export async function checkFrontpage(
   post: FetchedFragment<"PostsHTML">,
   openAIApi: OpenAI,
+  context: ResolverContext,
 ) {
-  const template = await wikiSlugToTemplate("lm-config-autotag");
+  const template = await wikiSlugToTemplate("lm-config-autotag", context);
 
   const autoFrontpageModel = autoFrontpageModelSetting.get()
   const autoFrontpagePrompt = autoFrontpagePromptSetting.get()
@@ -272,7 +248,8 @@ export async function checkFrontpage(
 }
 
 
-async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
+export async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
+  const { Users } = context;
   const accountSlug = tagBotAccountSlug.get();
   if (!accountSlug) return null;
   const account = await Users.findOne({slug: accountSlug});
@@ -315,153 +292,10 @@ export async function getTagBotUserId(context: ResolverContext): Promise<string|
   return tagBotUserId ?? null;
 }
 
-export async function getAutoAppliedTags(): Promise<DbTag[]> {
-  return await Tags.find({ autoTagPrompt: {$exists: true, $ne: ""} }).fetch();
+export async function getAutoAppliedTags(context: ResolverContext): Promise<DbTag[]> {
+  const { Tags } = context;
+  return await Tags.find({
+    autoTagPrompt: {$exists: true, $ne: ""},
+    deleted: false,
+  }).fetch();
 }
-
-async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {
-  const api = await getOpenAI();
-  if (!api) {
-    if (!isAnyTest && !isE2E) {
-      //eslint-disable-next-line no-console
-      console.log("Skipping autotagging (API not configured)");
-    }
-    return;
-  }
-  const tagBot = await getTagBotAccount(context);
-  const tagBotActiveTime = tagBotActiveTimeSetting.get();
-
-  if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
-    //eslint-disable-next-line no-console
-    console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
-    return;
-  }
-  
-  const tags = await getAutoAppliedTags();
-  const postHTML = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsHTML",
-    selector: {_id: post._id},
-    currentUser: context.currentUser,
-    context,
-    skipFiltering: true,
-  });
-  if (!postHTML) {
-    return;
-  }
-  const tagsApplied = await checkTags(postHTML, tags, api);
-  
-  //eslint-disable-next-line no-console
-  console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
-  
-  for (let tag of tags) {
-    if (tagsApplied[tag.slug]) {
-      await addOrUpvoteTag({
-        tagId: tag._id,
-        postId: post._id,
-        currentUser: tagBot,
-        context,
-      });
-    }
-  }
-
-  const autoFrontpageEnabled = autoFrontpageSetting.get()
-  if (!autoFrontpageEnabled) {
-    return;
-  }
-
-  const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
-  const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
-    post.isEvent,
-    post.submitToFrontpage,
-    post.draft,
-  )
-  if (requireFrontpageReview !== defaultFrontpageHide) {
-    // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
-    // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
-    return
-  }
-
-  const autoFrontpageReview = await checkFrontpage(postHTML, api);
-
-  // eslint-disable-next-line no-console
-  console.log(
-    `Frontpage auto-review result for ${post.title} (${post._id}): ${
-      autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
-    }`
-  );
-
-  if (autoFrontpageReview) {
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      data: {
-        frontpageDate: defaultFrontpageHide ? new Date() : null,
-        autoFrontpage: defaultFrontpageHide ? "show" : "hide"
-      },
-      currentUser: context.currentUser,
-      context,
-    });
-  }
-}
-
-/**
- * On the EA Forum, we're using some of the auto-tagging system to check if posts
- * could be categorized as "criticism of work in effective altruism". We check while
- * the editor is open, because if this returns true, then we want to show the author
- * a little card with tips on how to make it more likely to go well
- * (see PostsEditBotTips).
- *
- * The fine-tuned model is not super accurate, but that's partly because our dataset
- * does not cleanly represent the behavior we want from it. The "criticism of work in EA"
- * tag has a wider variety of posts than would benefit from the tips in the card, such as
- * posts announcing criticism contests and posts criticizing EA orgs broadly.
- *
- * So it will miss ~half of posts that a human would categorize as "criticism"
- * (i.e. it has a high false negative rate), but it has a low false positive rate (~2%).
- */
-export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
-  // Only run this on the EA Forum on production, since it costs money.
-  // (In particular, this model will only work if run with EA Forum prod credentials.)
-  if (!isEAForum || !isProduction) return false
-  
-  const api = await getOpenAI()
-  if (!api) {
-    if (!isAnyTest) {
-      //eslint-disable-next-line no-console
-      console.log("Skipping checking if the post is criticism (API not configured)")
-    }
-    return false
-  }
-  
-  const template = await wikiSlugToTemplate("lm-config-autotag")
-  const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
-  // This model was trained on ~2500 posts, generated using generateCandidateSetsForTagClassification
-  // (posts published from Nov 1 2022 - Nov 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
-  // Since it's not super accurate, we may want to fine-tune a new version in the future.
-  const languageModelResult = await api.completions.create({
-    model: 'ft:davinci-002:centre-for-effective-altruism::8PxrFevH',
-    prompt: await postToPrompt({
-      template,
-      post,
-      promptSuffix,
-      ...(post.contentType === 'markdown' ? {markdownBody: post.body} : {})
-    }),
-    max_tokens: 1,
-  })
-  const completion = languageModelResult.choices[0].text!
-  return (completion.trim().toLowerCase() === "yes")
-}
-
-getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
-  if (oldDocument.draft && !newDocument.draft) {
-    // Post was undrafted
-    void autoReview(newDocument, context);
-  }
-})
-getCollectionHooks("Posts").createAsync.add(async ({document, context}) => {
-  if (!document.draft) {
-    // Post created (and is not a draft)
-    void autoReview(document, context);
-  }
-})

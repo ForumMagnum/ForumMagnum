@@ -1,6 +1,6 @@
-import { Votes } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import moment from 'moment';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 declare global {
   interface VotesViewTerms extends ViewTermsBase {
@@ -13,17 +13,7 @@ declare global {
   }
 }
 
-ensureIndex(Votes, {cancelled:1, userId:1, documentId:1});
-ensureIndex(Votes, {cancelled:1, documentId:1});
-ensureIndex(Votes, {cancelled:1, userId:1, votedAt:-1});
-
-// Used by getKarmaChanges
-ensureIndex(Votes, {authorIds: 1});
-
-// Used by getUsersTopUpvotedUsers - the index that put `cancelled` first was not very helpful for this since it was doing a full index scan
-ensureIndex(Votes, { userId: 1, cancelled: 1, votedAt: 1 });
-
-Votes.addView("tagVotes", function () {
+function tagVotes(terms: VotesViewTerms) {
   return {
     selector: {
       collectionName: "TagRels",
@@ -35,10 +25,18 @@ Votes.addView("tagVotes", function () {
       }
     }
   }
-})
-ensureIndex(Votes, {collectionName: 1, votedAt: 1})
+}
 
-Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , before */}, _, context?: ResolverContext) {
+function userPostVotes(terms: VotesViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+  const { voteType, collectionName, after, before } = terms;
+  const votedAtFilter = []
+  if (after) {
+    votedAtFilter.push({votedAt: {$gte: moment(after).toDate()}})
+  }
+  if (before) {
+    votedAtFilter.push({votedAt: {$lt: moment(before).toDate()}})
+  }
+  
   return {
     selector: {
       collectionName: collectionName,
@@ -46,8 +44,7 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , be
       voteType: voteType,
       cancelled: false,
       isUnvote: false,
-      // $and: [{votedAt: {$gte: moment(after).toDate()}}, {votedAt: {$lt: moment(before).toDate()}}],
-      ...(after ? {votedAt: {$gte: moment(after).toDate()}} : {}),
+      $and: votedAtFilter,
     },
     options: {
       sort: {
@@ -55,10 +52,10 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , be
       }
     }
   }
-})
-ensureIndex(Votes, {collectionName: 1, userId: 1, voteType: 1, cancelled: 1, isUnvote: 1, votedAt: 1})
+}
 
-Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverContext) {
+function userVotes(terms: VotesViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+  const { collectionNames } = terms;
   const currentUserId = context?.currentUser?._id;
   return {
     selector: {
@@ -68,10 +65,10 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
       cancelled: {$ne: true},
       isUnvote: {$ne: true},
       // only include neutral votes that have extended vote data
-      $or: {
-        voteType: {$ne: "neutral"},
-        extendedVoteType: {$exists: true},
-      },
+      $or: [
+        { voteType: {$ne: "neutral"} },
+        { extendedVoteType: {$exists: true} }
+      ],
     },
     options: {
       sort: {
@@ -79,5 +76,10 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
       }
     }
   }
-})
-ensureIndex(Votes, {collectionName: 1, userId: 1, cancelled: 1, isUnvote: 1, voteType: 1, extendedVoteType: 1, votedAt: 1})
+}
+
+export const VotesViews = new CollectionViewSet('Votes', {
+  tagVotes,
+  userPostVotes,
+  userVotes
+});

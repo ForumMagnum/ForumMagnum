@@ -1,18 +1,21 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { getAllTagsPath } from '../../lib/routes';
+import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { getAllTagsPath } from '@/lib/pathConstants';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const TagPageTitle = ({isSubtitle, classes, siteName}: {
+const titleComponentStyles = defineStyles('TagPageTitle', styles);
+
+export const TagPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
-  classes: ClassesType,
   siteName: string
 }) => {
+  const classes = useStyles(titleComponentStyles);
+
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug, "TagFragment");
@@ -29,13 +32,5 @@ const TagPageTitle = ({isSubtitle, classes, siteName}: {
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>
-  }
-}
-
-const TagPageTitleComponent = registerComponent("TagPageTitle", TagPageTitle, {styles});
-
-declare global {
-  interface ComponentTypes {
-    TagPageTitle: typeof TagPageTitleComponent
   }
 }

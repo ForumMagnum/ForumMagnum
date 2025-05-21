@@ -1,16 +1,19 @@
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import { Paper, Card }from '@/components/widgets/Paper';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Card from '@material-ui/core/Card'
-import EditIcon from '@material-ui/icons/Edit'
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
+import LWTooltip from "../common/LWTooltip";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialogContent: {
     width: 400,
     backgroundColor: theme.palette.panelBackground.default,
@@ -59,11 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RejectContentDialog = ({classes, rejectContent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;
-
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
@@ -148,10 +149,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
   )
 };
 
-const RejectContentDialogComponent = registerComponent('RejectContentDialog', RejectContentDialog, { styles });
+export default registerComponent('RejectContentDialog', RejectContentDialog, { styles });
 
-declare global {
-  interface ComponentTypes {
-    RejectContentDialog: typeof RejectContentDialogComponent
-  }
-}
+

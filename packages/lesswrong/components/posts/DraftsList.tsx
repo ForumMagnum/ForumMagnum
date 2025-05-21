@@ -1,16 +1,23 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
-import { userCanPost } from '../../lib/collections/posts/collection';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
-import DescriptionIcon from "@material-ui/icons/Description";
-import ListIcon from '@material-ui/icons/List';
+import DescriptionIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import ListIcon from '@/lib/vendor/@material-ui/icons/src/List';
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import SettingsButton from "../icons/SettingsButton";
+import DraftsListSettings from "./DraftsListSettings";
+import LoadMore from "../common/LoadMore";
+import PostsItem from "./PostsItem";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {
     display: 'flex'
   },
@@ -35,11 +42,9 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   userId?: string,
   showAllDraftsLink?: boolean,
   hideHeaderRow?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem, Loading } = Components
-  
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
   
@@ -62,7 +67,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: currentSorting,
-    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
+    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : !!currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
   
@@ -77,28 +82,28 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   if (!currentUser) return null
   
   return <>
-    {!hideHeaderRow && <Components.SectionTitle title={title}>
+    {!hideHeaderRow && <SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
           {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
-            <Components.SectionButton>
+            <SectionButton>
               <DescriptionIcon /> New Post
-            </Components.SectionButton>
+            </SectionButton>
           </Link>}
         </div>
         {showAllDraftsLink && <div className={classes.draftsPageButton}>
           <Link to={"/drafts"}>
-            <Components.SectionButton>
+            <SectionButton>
               <ListIcon /> All Drafts
-            </Components.SectionButton>
+            </SectionButton>
           </Link>
         </div>}
-        <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
-          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+        <div onClick={() => setShowSettings(!showSettings)}>
+          <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>
-    </Components.SectionTitle>}
-    {showSettings && <Components.DraftsListSettings
+    </SectionTitle>}
+    {showSettings && <DraftsListSettings
       hidden={false}
       persistentSettings={true}
       currentSorting={currentSorting}
@@ -120,17 +125,13 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
         />
       )}
     </>}
-    <Components.LoadMore { ...loadMoreProps }/>
+    <LoadMore { ...loadMoreProps }/>
   </>
 }
 
-const DraftsListComponent = registerComponent('DraftsList', DraftsList, {
+export default registerComponent('DraftsList', DraftsList, {
   hocs: [withErrorBoundary], styles
 });
 
-declare global {
-  interface ComponentTypes {
-    DraftsList: typeof DraftsListComponent
-  }
-}
+
 

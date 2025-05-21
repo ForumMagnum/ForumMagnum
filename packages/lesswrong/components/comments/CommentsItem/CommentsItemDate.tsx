@@ -1,16 +1,26 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import FormatDate, { ExpandedDate } from '@/components/common/FormatDate';
+import LWTooltip from "../../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+// The amount of time during which you can edit a comment, without it causing
+// the comment to be marked as edited.
+const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
+
+const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI ? {
       marginLeft: 2,
       marginRight: 7,
+    } : {
+      marginLeft: 2,
+      marginRight: 16,
     }),
 
     "& a:hover, & a:active": {
@@ -47,16 +57,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: -2,
   },
-});
+  editedMarker: {
+    paddingLeft: 2,
+    fontSize: 12,
+  },
+}));
 
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
   preventDateFormatting?: boolean,
-  classes: ClassesType
+  className?: string,
 };
 
-const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {
-  const { FormatDate, ForumIcon } = Components
+const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
+  const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
   
@@ -71,19 +85,23 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
     dateFormat = undefined;
   }
 
-  const linkContents = (<>
+  const linkContents = (<LWTooltip
+    title={<CommentDateTooltip comment={comment}/>}
+  >
     <FormatDate
       date={comment.postedAt}
       format={dateFormat}
+      tooltip={false}
     />
-    {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
-  </>);
+    {markCommentAsEdited(comment) && <span className={classes.editedMarker}>{"*"}</span>}
+  </LWTooltip>);
   
   return (
     <span className={classNames(
       classes.root,
       !comment.answer && classes.date,
       comment.answer && classes.answerDate,
+      className,
     )}>
       <DeferRender ssr={!isLWorAF} fallback={linkContents}>
         <LinkWrapper>
@@ -94,13 +112,26 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
   );
 }
 
-const CommentsItemDateComponent = registerComponent(
-  'CommentsItemDate', CommentsItemDate, {styles}
-);
+const markCommentAsEdited = (comment: CommentsList): boolean => {
+  if (!comment.lastEditedAt) return false;
+  const timeBetweenPostingAndEditingMs = new Date(comment.lastEditedAt).getTime() - new Date(comment.postedAt).getTime();
+  return (timeBetweenPostingAndEditingMs > EDIT_GRACE_PERIOD);
+}
 
-declare global {
-  interface ComponentTypes {
-    CommentsItemDate: typeof CommentsItemDateComponent,
+const CommentDateTooltip = ({comment}: {
+  comment: CommentsList
+}) => {
+  if (markCommentAsEdited(comment) && comment.lastEditedAt) {
+    return <>
+      <div>Posted <ExpandedDate date={comment.postedAt} /></div>
+      <div>Last edited <ExpandedDate date={comment.lastEditedAt} /></div>
+    </>
+  } else {
+    return <ExpandedDate date={comment.postedAt} />
   }
 }
+
+export default registerComponent('CommentsItemDate', CommentsItemDate);
+
+
 

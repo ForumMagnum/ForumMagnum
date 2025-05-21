@@ -1,15 +1,17 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
+import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
+import OverallVoteButton from "./OverallVoteButton";
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   voteBlock: {
     width: 50,
   },
@@ -33,6 +35,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   voteScores: {
     margin:"15%",
+    
+    ...(isLW && {
+      margin: "25% 15% 15% 15%"
+    }),
+    ...(isAF && {
+      fontVariantNumeric: "lining-nums",
+    }),
   },
   voteScoresHorizontal: {
     margin: '0 12px'
@@ -43,6 +52,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: isFriendlyUI ? '50%' : '55%',
+    
+    ...(isFriendlyUI && {
+      paddingTop:4,
+      paddingBottom:2,
+      paddingLeft:1,
+      paddingRight:0,
+      fontSize: '50%',
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   voteScoreFooter: {
     fontSize: 18,
@@ -80,10 +98,9 @@ const PostsVoteDefault = ({
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
 
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -99,12 +116,12 @@ const PostsVoteDefault = ({
       [classes.voteBlock]: !useHorizontalLayout,
       [classes.voteBlockHorizontal]: useHorizontalLayout,
     })}>
-      <Tooltip
+      <TooltipRef
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
-        classes={{tooltip: classes.tooltip}}
+        popperClassName={classes.tooltip}
       >
-        <div className={classNames({
+        {(ref: Ref<HTMLDivElement>) => <div ref={ref}className={classNames({
           [classes.upvote]: !useHorizontalLayout,
           [classes.upvoteHorizontal]: useHorizontalLayout,
         })}>
@@ -115,36 +132,32 @@ const PostsVoteDefault = ({
             enabled={canVote}
             {...voteProps}
           />
-        </div>
-      </Tooltip>
+        </div>}
+      </TooltipRef>
       <div className={classNames({
         [classes.voteScores]: !useHorizontalLayout,
         [classes.voteScoresHorizontal]: useHorizontalLayout,
       })}>
-        <Tooltip
+        <TooltipSpan
           title={`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "Vote" : "Votes"}`}
           placement={tooltipPlacement}
-          classes={{tooltip: classes.tooltip}}
+          popperClassName={classes.tooltip}
         >
-          <div>
-            {/* Have to make sure to wrap this in a div because Tooltip requires
-              * a child that takes refs */}
-            <Typography
-              variant="headline"
-              className={classNames(classes.voteScore, {
-                [classes.voteScoreFooter]: isFooter,
-              })}
-            >
-              {voteProps.baseScore}
-            </Typography>
-          </div>
-        </Tooltip>
+          <Typography
+            variant="headline"
+            className={classNames(classes.voteScore, {
+              [classes.voteScoreFooter]: isFooter,
+            })}
+          >
+            {voteProps.baseScore}
+          </Typography>
+        </TooltipSpan>
 
         {!!post.af && !!post.afBaseScore && !isAF &&
-          <Tooltip
+          <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}
-            classes={{tooltip: classes.tooltip}}
+            popperClassName={classes.tooltip}
           >
             <Typography
               variant="headline"
@@ -153,15 +166,15 @@ const PostsVoteDefault = ({
               })}>
               Ω {post.afBaseScore}
             </Typography>
-          </Tooltip>
+          </TooltipSpan>
         }
       </div>
-      <Tooltip
+      <TooltipRef
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
-        classes={{tooltip: classes.tooltip}}
+        popperClassName={classes.tooltip}
       >
-        <div className={classNames({
+        {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classNames({
           [classes.downvote]: !useHorizontalLayout,
           [classes.downvoteHorizontal]: useHorizontalLayout,
         })}>
@@ -172,20 +185,16 @@ const PostsVoteDefault = ({
             enabled={canVote}
             {...voteProps}
           />
-        </div>
-      </Tooltip>
+        </div>}
+      </TooltipRef>
     </div>
   );
 }
 
-const PostsVoteDefaultComponent = registerComponent(
+export default registerComponent(
   "PostsVoteDefault",
   PostsVoteDefault,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsVoteDefault: typeof PostsVoteDefaultComponent
-  }
-}
+

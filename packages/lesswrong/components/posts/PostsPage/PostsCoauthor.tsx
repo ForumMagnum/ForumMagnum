@@ -1,10 +1,13 @@
 import React from 'react'
 import { useCurrentUser } from '../../common/withUser';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
+import UsersNamePending from "../../users/UsersNamePending";
+import UsersName from "../../users/UsersName";
+import UserCommentMarkers from "../../users/UserCommentMarkers";
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 });
 
@@ -12,7 +15,7 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   post: PostsList,
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const isPending = postCoauthorIsPending(post, coauthor._id);
@@ -23,8 +26,6 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   ) {
     return null;
   }
-
-  const { UsersNamePending, UsersName, UserCommentMarkers } = Components;
   const Component = isPending
     ? UsersNamePending
     : UsersName;
@@ -36,14 +37,10 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   );
 }
 
-const PostsCoauthorComponent = registerComponent(
+export default registerComponent(
   'PostsCoauthor',
   PostsCoauthor,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsCoauthor: typeof PostsCoauthorComponent
-  }
-}
+

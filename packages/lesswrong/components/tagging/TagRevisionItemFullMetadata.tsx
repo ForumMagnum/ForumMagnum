@@ -1,10 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import FormatDate from "../common/FormatDate";
+import UsersName from "../users/UsersName";
+import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
+import SmallSideVote from "../votes/SmallSideVote";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: isFriendlyUI ? 12 : undefined,
   },
@@ -53,9 +57,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {FormatDate, UsersName, ChangeMetricsDisplay, SmallSideVote} = Components;
   const tagUrl = tagGetUrl(tag);
 
   return <div className={classes.root}>
@@ -69,7 +72,7 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
         Edited by
         {" "}
         <span className={classes.username}>
-          <UsersName documentId={revision.userId}/>
+          <UsersName documentId={revision.userId ?? undefined}/>
         </span>
         {" "}
         <ChangeMetricsDisplay
@@ -100,10 +103,6 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   </div>;
 }
 
-const TagRevisionItemFullMetadataComponent = registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
+export default registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRevisionItemFullMetadata: typeof TagRevisionItemFullMetadataComponent
-  }
-}
+

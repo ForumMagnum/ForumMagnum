@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
 import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
@@ -9,7 +8,7 @@ import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 const Popup = componentWithChildren(BadlyTypedPopup);
 
 // Shared with LocalEventMarker
-export const styles = createStyles((theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     width: 250,
@@ -43,7 +42,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between'
   },
-}));
+});
 
 const StyledMapPopup = ({
   children, classes, link, title,
@@ -51,7 +50,7 @@ const StyledMapPopup = ({
   onClose, offsetTop=-20, offsetLeft, hideBottomLinks
 }: {
   children?: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   link: string,
   title: string|ReactNode,
   metaInfo?: any,
@@ -86,11 +85,7 @@ const StyledMapPopup = ({
   </Popup>
 }
 
-const StyledMapPopupComponent = registerComponent("StyledMapPopup", StyledMapPopup, {styles});
+export default registerComponent("StyledMapPopup", StyledMapPopup, {styles});
 
-declare global {
-  interface ComponentTypes {
-    StyledMapPopup: typeof StyledMapPopupComponent
-  }
-}
+
 

@@ -1,9 +1,9 @@
 import React from "react";
-import Checkbox from "@material-ui/core/Checkbox";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
-import { userCanComment } from "../../lib/vulcan-users";
+import { userCanQuickTake } from "../../lib/vulcan-users/permissions";
 import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
@@ -11,6 +11,15 @@ import {
 import { isEAForum } from "../../lib/instanceSettings";
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
+import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
+import { useMulti } from "@/lib/crud/withMulti";
+import ExpandableSection from "../common/ExpandableSection";
+import LWTooltip from "../common/LWTooltip";
+import QuickTakesEntry from "./QuickTakesEntry";
+import QuickTakesListItem from "./QuickTakesListItem";
+import Loading from "../vulcan-core/Loading";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -42,12 +51,8 @@ const styles = (theme: ThemeType) => ({
 });
 
 const QuickTakesSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
-  } = Components;
-
   const currentUser = useCurrentUser();
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -73,10 +78,30 @@ const QuickTakesSection = ({classes}: {
     forceSetCookieIfUndefined: true,
   });
 
+  const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
+
+  const {
+    results,
+    loading,
+    showLoadMore,
+    loadMoreProps,
+    refetch
+  } = useMulti({
+    terms: {
+      view: "shortformFrontpage",
+      showCommunity,
+      maxAgeDays,
+    },
+    limit: 5,
+    collectionName: "Comments",
+    fragmentName: "ShortformComments",
+    enableTotal: true,
+  });
+
   const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (
     <div>
-      A feed of quick takes by other users, sorted by recency.
+      A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
   const title = isFriendlyUI
@@ -113,25 +138,25 @@ const QuickTakesSection = ({classes}: {
       afterTitleTo={afterTitleTo}
       AfterTitleComponent={AfterTitleComponent}
     >
-      {userCanComment(currentUser) &&
-        <QuickTakesEntry currentUser={currentUser} />
-      }
-      
-      <QuickTakesList
-        showCommunity={showCommunity}
-        className={classes.list}
-      />
+      {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
+      <div className={classes.list}>
+        {results?.map((result) => (
+          <QuickTakesListItem key={result._id} quickTake={result} />
+        ))}
+        {loading && <Loading />}
+        {showLoadMore && (
+          <SectionFooter>
+            <LoadMore {...loadMoreProps} sectionFooterStyles />
+          </SectionFooter>
+        )}
+      </div>
     </ExpandableSection>
   );
 }
 
-const QuickTakesSectionComponent = registerComponent("QuickTakesSection", QuickTakesSection, {
+export default registerComponent("QuickTakesSection", QuickTakesSection, {
   styles,
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesSection: typeof QuickTakesSectionComponent
-  }
-}
+

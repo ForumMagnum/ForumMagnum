@@ -1,14 +1,15 @@
 import React from 'react';
-import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import type { EmojiReactName, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
+import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
-import filter from 'lodash/filter';
-import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
-import { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import ReactOrAntireactVote from "./ReactOrAntireactVote";
+import UsersWhoReacted from "./UsersWhoReacted";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
@@ -65,10 +66,9 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
-  classes: ClassesType
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
+  classes: ClassesType<typeof styles>
 }) => {
-  const { ReactOrAntireactVote, UsersWhoReacted } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
 
   const reactionsOfType: UserReactInfo[] = normalizedReactions?.reacts?.[react] ?? [];
@@ -113,11 +113,7 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
 }
 
 
-const ReactionQuotesHoverInfoComponent = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});
+export default registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionQuotesHoverInfo: typeof ReactionQuotesHoverInfoComponent
-  }
-}
+
 

@@ -1,9 +1,12 @@
 import React, { FC, ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useSingle } from "../../../lib/crud/withSingle";
-import type { ForumIconName } from "../../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import LWTooltip from "../../common/LWTooltip";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import Loading from "../../vulcan-core/Loading";
 
 const ICON_WIDTH = 24;
 
@@ -50,6 +53,27 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     transform: "scale(1.5)",
   },
+  "@keyframes wrapped-notification-shimmer": {
+    from: {
+      backgroundPosition: "right",
+    },
+    to: {
+      backgroundPosition: "left",
+    },
+  },
+  iconWrapped: {
+    background: `linear-gradient(
+      -75deg,
+      ${theme.palette.wrapped.notification} 33%,
+      ${theme.palette.wrapped.highlightText} 50%,
+      ${theme.palette.wrapped.notification} 66%
+    ) ${theme.palette.wrapped.notification}`,
+    backgroundSize: "300% 100%",
+    animation: "wrapped-notification-shimmer 2s infinite",
+    "& svg": {
+      transform: "translateY(-1px)",
+    },
+  },
   iconTooltip: {
     background: theme.palette.panelBackground.tooltipBackground2,
   },
@@ -72,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export type IconVariant = "primary" | "grey" | "yellow" | "clear";
+export type IconVariant = "primary" | "grey" | "yellow" | "clear" | "wrapped";
 
 export const NotificationsPageItem = ({
   Icon,
@@ -107,8 +131,6 @@ export const NotificationsPageItem = ({
     collectionName: "Comments",
     fragmentName: "CommentsListWithParentMetadata",
   });
-
-  const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -119,6 +141,7 @@ export const NotificationsPageItem = ({
             iconVariant === "grey" && classes.iconGrey,
             iconVariant === "yellow" && classes.iconYellow,
             iconVariant === "clear" && classes.iconClear,
+            iconVariant === "wrapped" && classes.iconWrapped,
             iconClassName,
           )}>
             <LWTooltip
@@ -149,7 +172,7 @@ export const NotificationsPageItem = ({
             <div className={classes.preview}>
               {previewCommentLoading && <Loading />}
               {previewComment &&
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{
                     scrollOnExpand: true,
                     condensed: true,
@@ -171,14 +194,10 @@ export const NotificationsPageItem = ({
   );
 }
 
-const NotificationsPageItemComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageItem",
   NotificationsPageItem,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageItem: typeof NotificationsPageItemComponent
-  }
-}
+

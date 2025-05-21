@@ -1,16 +1,19 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import Paper from '@material-ui/core/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import LoginPopup from "../users/LoginPopup";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -83,16 +86,13 @@ const WriteNewButton = ({
   isSubscribed: boolean,
   setNewShortformOpen: (open: boolean) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
-
-  const { LWClickAwayListener, LWPopper, ForumIcon, MenuItem } = Components;
-
   return (
     <div className={classNames(className, classes.root)}>
       <Button
@@ -103,8 +103,8 @@ const WriteNewButton = ({
           captureEvent('writeNewClicked', {tagId: tag._id, newState: open ? "closed" : "open"});
           if (!currentUser) {
             openDialog({
-              componentName: "LoginPopup",
-              componentProps: {},
+              name: "LoginPopup",
+              contents: ({onClose}) => <LoginPopup onClose={onClose} />
             });
             return
           }
@@ -114,7 +114,7 @@ const WriteNewButton = ({
       >
         <div className={classNames(classes.buttonSection, classes.buttonLabelContainer)} ref={anchorEl}>
           <ForumIcon icon="Plus" className={classes.icon} />
-          <span className={classes.subscribeText}>Write new</span>
+          <span>Write new</span>
         </div>
       </Button>
       <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-start">
@@ -125,7 +125,7 @@ const WriteNewButton = ({
             </Link>
             <MenuItem
               className={classes.menuItem}
-              onClick={(e) => {
+              onClick={(_e) => {
                 captureEvent('writeNewShortformClicked', {writeNewMenuItem: "newShortform"})
                 setNewShortformOpen(true);
                 setOpen(false);
@@ -143,10 +143,6 @@ const WriteNewButton = ({
   );
 }
 
-const WriteNewButtonComponent = registerComponent('WriteNewButton', WriteNewButton, {styles});
+export default registerComponent('WriteNewButton', WriteNewButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    WriteNewButton: typeof WriteNewButtonComponent
-  }
-}
+

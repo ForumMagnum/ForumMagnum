@@ -1,12 +1,15 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     padding: 8,
@@ -37,9 +40,8 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { PopperCard, TagPreview, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
     collectionName: "Tags",
@@ -72,11 +74,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   );
 }
 
-const TagSearchHitComponent = registerComponent("TagSearchHit", TagSearchHit, {styles});
+export default registerComponent("TagSearchHit", TagSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSearchHit: typeof TagSearchHitComponent
-  }
-}
+
 

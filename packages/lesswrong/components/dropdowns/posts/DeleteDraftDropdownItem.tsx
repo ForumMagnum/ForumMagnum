@@ -1,10 +1,10 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "../DropdownItem";
 
 const DeleteDraftDropdownItem = ({ post }: {
   post: PostsBase
@@ -14,10 +14,8 @@ const DeleteDraftDropdownItem = ({ post }: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const {DropdownItem} = Components;
-
   const handleDelete = useCallback(() => {
-    if (confirm("Are you sure you want to delete this post?")) {
+    if (confirm("Are you sure you want to archive this draft?")) {
       void updatePost({
         selector: {_id: post._id},
         data: {deletedDraft:true, draft: true}
@@ -28,7 +26,7 @@ const DeleteDraftDropdownItem = ({ post }: {
   if (currentUser && postCanDelete(currentUser, post)) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Delete Post")}
+        title={preferredHeadingCase("Archive Draft")}
         onClick={handleDelete}
       />
     );
@@ -37,13 +35,9 @@ const DeleteDraftDropdownItem = ({ post }: {
   }
 }
 
-const DeleteDraftDropdownItemComponent = registerComponent(
+export default registerComponent(
   'DeleteDraftDropdownItem',
   DeleteDraftDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    DeleteDraftDropdownItem: typeof DeleteDraftDropdownItemComponent
-  }
-}
+

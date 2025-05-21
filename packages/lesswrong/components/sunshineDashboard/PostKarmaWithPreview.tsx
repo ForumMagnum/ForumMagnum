@@ -1,10 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import FormatDate from "../common/FormatDate";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"
@@ -35,11 +37,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
-  reviewedAt: Date
+  reviewedAt?: Date
 }) => {
-  const {PostsTooltip, FormatDate} = Components;
   return (
     <PostsTooltip
       post={post}
@@ -51,7 +52,7 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
       })}>
         <Link
           className={classNames({
-            [classes.highlight]: post.postedAt > reviewedAt,
+            [classes.highlight]: !reviewedAt || post.postedAt > reviewedAt,
             [classes.draft]: post.draft,
             [classes.default]: !post.draft,
           })}
@@ -70,10 +71,6 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   );
 }
 
-const PostKarmaWithPreviewComponent = registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
+export default registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostKarmaWithPreview: typeof PostKarmaWithPreviewComponent
-  }
-}
+

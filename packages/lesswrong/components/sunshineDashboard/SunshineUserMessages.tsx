@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
-import EmailIcon from '@material-ui/icons/Email';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
+import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
+import MessagesNewForm from "../messaging/MessagesNewForm";
+import UsersName from "../users/UsersName";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
-const styles = (theme: JssStyles) => ({
+const styles = (_theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center"
@@ -23,10 +28,9 @@ const styles = (theme: JssStyles) => ({
 
 export const SunshineUserMessages = ({classes, user, currentUser}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineSendMessageWithDefaults, MessagesNewForm, UsersName, LWTooltip, MetaInfo } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
 
@@ -48,12 +52,12 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
     enableTotal: true
   });
 
-  return <div className={classes.root}>
+  return <div>
     {results?.map(conversation => <div key={conversation._id}>
       <LWTooltip title={`${conversation.messageCount} messages in this conversation`}>
         <Link to={`/inbox/${conversation._id}`}>
           <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-          <span className={classes.title}>
+          <span>
             Conversation with{" "} 
             {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
               return <MetaInfo key={`${conversation._id}${participant._id}`}>
@@ -84,10 +88,6 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   </div>;
 }
 
-const SunshineUserMessagesComponent = registerComponent('SunshineUserMessages', SunshineUserMessages, {styles});
+export default registerComponent('SunshineUserMessages', SunshineUserMessages, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineUserMessages: typeof SunshineUserMessagesComponent
-  }
-}
+

@@ -1,10 +1,11 @@
 import moment from "moment";
-import { Posts } from "../../lib/collections/posts";
-import ReviewWinners from "../../lib/collections/reviewWinners/collection";
+import { Posts } from "../../server/collections/posts/collection";
+import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
-import { Globals, createAdminContext, createMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createReviewWinner } from "../collections/reviewWinners/mutations";
 
 const AI_TAG_ID = 'sYm3HiWcfZvrGu3ui';
 
@@ -228,7 +229,7 @@ const reviewWinners2022 = [
   "SA9hDewwsYgnuscae"
 ]
 
-Globals.findReviewWinners = async function (year: number) {
+export const findReviewWinners = async function (year: number) {
   const posts = await Posts.find({
     postedAt: {
       $gte: moment(`${year}-01-01`).toDate(),
@@ -249,7 +250,7 @@ Globals.findReviewWinners = async function (year: number) {
 }
 
 
-registerMigration({
+export default registerMigration({
   name: "backfillReviewWinners",
   dateWritten: "2024-01-22",
   idempotent: true,
@@ -297,19 +298,15 @@ registerMigration({
         const naiveIsAI = naiveAiPostIdSet.has(reviewWinnerPostId);
         if (existingWinners.some(({ postId }) => postId === reviewWinnerPostId)) return Promise.resolve();
 
-        return createMutator({
-          collection: ReviewWinners,
-          document: {
+        return createReviewWinner({
+          data: {
             postId: reviewWinnerPostId,
             reviewYear,
             reviewRanking: idx,
             curatedOrder: naiveCuratedOrder,
-            isAI: naiveIsAI
-          },
-          context: adminContext,
-          currentUser: adminContext.currentUser,
-          validate: false
-        }).catch(e => {
+            isAI: naiveIsAI,
+          }
+        }, adminContext).catch(e => {
           // eslint-disable-next-line no-console
           console.dir(e);
           throw new Error(`Failed to create ReviewWinner for postId ${reviewWinnerPostId}`)

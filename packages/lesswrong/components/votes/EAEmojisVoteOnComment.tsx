@@ -1,10 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import type { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
-import { isEAReactableDocument } from "./EAReactsSection";
+import EAReactsSection, { isEAReactableDocument } from "./EAReactsSection";
+import OverallVoteAxis from "./OverallVoteAxis";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   overallAxis: {
     marginRight: 1,
     "&.OverallVoteAxis-overallSection": {
@@ -20,7 +21,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 });
 
 interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAEmojisVoteOnComment = ({
@@ -35,7 +36,6 @@ const EAEmojisVoteOnComment = ({
     collectionName,
     votingSystem,
   );
-  const {OverallVoteAxis, EAReactsSection} = Components;
   return (
     <>
       <OverallVoteAxis
@@ -55,14 +55,10 @@ const EAEmojisVoteOnComment = ({
   );
 }
 
-const EAEmojisVoteOnCommentComponent = registerComponent(
+export default registerComponent(
   "EAEmojisVoteOnComment",
   EAEmojisVoteOnComment,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAEmojisVoteOnComment: typeof EAEmojisVoteOnCommentComponent
-  }
-}
+

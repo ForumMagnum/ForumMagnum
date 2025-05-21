@@ -1,20 +1,22 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineReportedItem from "./SunshineReportedItem";
+import SunshineListCount from "./SunshineListCount";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineReportedContent,
   }
 })
 
 const SunshineReportedContentList = ({ classes, currentUser }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineListTitle, SunshineReportedItem, SunshineListCount, LoadMore } = Components
-  
   const { results, totalCount, loadMoreProps, refetch } = useMulti({
     terms: {view:"sunshineSidebarReports", limit: 30},
     collectionName: "Reports",
@@ -50,11 +52,7 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   }
 }
 
-const SunshineReportedContentListComponent = registerComponent('SunshineReportedContentList', SunshineReportedContentList, {styles});
+export default registerComponent('SunshineReportedContentList', SunshineReportedContentList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineReportedContentList: typeof SunshineReportedContentListComponent
-  }
-}
+
 

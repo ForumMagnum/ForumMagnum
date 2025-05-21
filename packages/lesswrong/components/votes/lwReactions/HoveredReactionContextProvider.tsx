@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { QuoteLocator } from '@/lib/voting/namesAttachedReactions';
 import type { VotingProps } from '../votingProps';
 
@@ -58,11 +58,7 @@ export const HoveredReactionContextProvider = ({voteProps, children}: {
   </HoveredReactionListContext.Provider>
 }
 
-const HoveredReactionContextProviderComponent = registerComponent('HoveredReactionContextProvider', HoveredReactionContextProvider);
+export default registerComponent('HoveredReactionContextProvider', HoveredReactionContextProvider);
 
-declare global {
-  interface ComponentTypes {
-    HoveredReactionContextProvider: typeof HoveredReactionContextProviderComponent
-  }
-}
+
 

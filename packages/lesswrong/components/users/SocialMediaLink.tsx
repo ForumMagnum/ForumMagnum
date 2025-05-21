@@ -1,17 +1,17 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import {
   SocialMediaProfileField,
   profileFieldToSocialMediaHref,
 } from "../../lib/collections/users/helpers";
 import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
+import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const SocialMediaLink = ({user, field, className}: {
   user: UsersProfile,
   field: SocialMediaProfileField,
   className?: string,
 }) => {
-  const { SocialMediaIcon } = Components;
   const url = user[field];
   if (!url) {
     return null;
@@ -28,13 +28,9 @@ const SocialMediaLink = ({user, field, className}: {
   );
 }
 
-const SocialMediaLinkComponent = registerComponent(
+export default registerComponent(
   "SocialMediaLink",
   SocialMediaLink,
 );
 
-declare global {
-  interface ComponentTypes {
-    SocialMediaLink: typeof SocialMediaLinkComponent
-  }
-}
+

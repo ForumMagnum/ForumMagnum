@@ -2,12 +2,16 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import ReviewVotingButtons from "./ReviewVotingButtons";
+import ErrorBoundary from "../common/ErrorBoundary";
+import LWTooltip from "../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -20,10 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
-
-  const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
-  
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
@@ -33,7 +34,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
         ...PostsReviewVotingList
       }
     }
-    ${getFragment("PostsReviewVotingList")} 
+    ${fragmentTextForQuery("PostsReviewVotingList")} 
   `);
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
@@ -64,10 +65,6 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     </ErrorBoundary>
 }
 
-const ReviewVotingWidgetComponent = registerComponent('ReviewVotingWidget', ReviewVotingWidget, {styles});
+export default registerComponent('ReviewVotingWidget', ReviewVotingWidget, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingWidget: typeof ReviewVotingWidgetComponent
-  }
-}
+

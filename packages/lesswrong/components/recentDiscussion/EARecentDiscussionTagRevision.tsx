@@ -1,6 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import {taggingNameSetting} from '../../lib/instanceSettings'
+import EARecentDiscussionItem from "./EARecentDiscussionItem";
+import TagRevisionItem from "../tagging/TagRevisionItem";
 
 const EARecentDiscussionTagRevision = ({
   tag,
@@ -10,13 +12,11 @@ const EARecentDiscussionTagRevision = ({
   documentId,
 }: {
   tag: TagRecentDiscussion,
-  revision: RevisionMetadataWithChangeMetrics,
+  revision: RevisionHistoryEntry,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
   documentId: string,
-  classes: ClassesType,
 }) => {
-  const {EARecentDiscussionItem, TagRevisionItem} = Components;
   return (
     <EARecentDiscussionItem
       icon="TagFilled"
@@ -39,13 +39,9 @@ const EARecentDiscussionTagRevision = ({
   );
 }
 
-const EARecentDiscussionTagRevisionComponent = registerComponent(
+export default registerComponent(
   "EARecentDiscussionTagRevision",
   EARecentDiscussionTagRevision,
 );
 
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionTagRevision: typeof EARecentDiscussionTagRevisionComponent,
-  }
-}
+

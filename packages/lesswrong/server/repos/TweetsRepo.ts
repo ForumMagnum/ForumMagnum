@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Tweets from "../../lib/collections/tweets/collection";
+import Tweets from "../../server/collections/tweets/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewablePostsSelector } from "./helpers";
 
@@ -11,7 +11,7 @@ class TweetsRepo extends AbstractRepo<"Tweets"> {
   /**
    * @returns {string[]} The ids of posts that have crossed `threshold` karma since `since`
    */
-  async getUntweetedPostsCrossingKarmaThreshold({threshold, since}: {threshold: number, since: Date}): Promise<string[]> {
+  async getUntweetedPostsCrossingKarmaThreshold({threshold, limit}: {threshold: number, limit: number}): Promise<string[]> {
     const res = await this.getRawDb().any<{postId: string}>(`
       -- TweetsRepo.getPostsCrossingKarmaThreshold
       WITH KarmaChanges AS (
@@ -41,9 +41,9 @@ class TweetsRepo extends AbstractRepo<"Tweets"> {
           WHERE
             "collectionName" = 'Posts'
             AND cancelled = FALSE
-            AND "votedAt" > $2
             AND ${getViewablePostsSelector("p")}
             AND t._id IS NULL
+            AND p."frontpageDate" IS NOT NULL
           ORDER BY
             "votedAt" DESC) q
       )
@@ -53,8 +53,9 @@ class TweetsRepo extends AbstractRepo<"Tweets"> {
         KarmaChanges
       WHERE
         prior_karma < $1
-        AND post_karma >= $1;
-    `, [threshold, since]);
+        AND post_karma >= $1
+      LIMIT $2;
+    `, [threshold, limit]);
 
     return res?.map(r => r.postId) ?? []
   }

@@ -1,17 +1,21 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import PopperCard from "../../common/PopperCard";
+import PostActions from "./PostActions";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
-    cursor: "pointer"
+    cursor: "pointer",
   },
   icon: {
     verticalAlign: 'middle',
@@ -22,9 +26,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     zIndex: theme.zIndexes.postItemMenu
   },
-})
+}));
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className, classes}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -32,8 +36,8 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   flip?: boolean,
   includeBookmark?: boolean,
   className?: string,
-  classes: ClassesType,
 }) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
@@ -64,11 +68,9 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   }
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-  const { PopperCard, PostActions, LWClickAwayListener } = Components
-
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
+      <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}
@@ -87,10 +89,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 }
 
 
-const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton, {styles});
+export default registerComponent('PostActionsButton', PostActionsButton);
 
-declare global {
-  interface ComponentTypes {
-    PostActionsButton: typeof PostActionsButtonComponent
-  }
-}
+
+

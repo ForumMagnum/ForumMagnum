@@ -1,12 +1,13 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classnames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
+import LoginToTrack from "./LoginToTrack";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: 28,
     
@@ -64,10 +65,9 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
   sequence: HasIdType|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
-  const { LoginToTrack } = Components
   const commentCount = postGetCommentCount(post) || "No"
   const url = postGetPageUrl(post, false, sequence?._id);
   
@@ -93,11 +93,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   )
 };
 
-const BottomNavigationItemComponent = registerComponent('BottomNavigationItem', BottomNavigationItem, {styles})
+export default registerComponent('BottomNavigationItem', BottomNavigationItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BottomNavigationItem: typeof BottomNavigationItemComponent
-  }
-}
+
 

@@ -1,14 +1,15 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useState} from 'react';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
-import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
+import FullscreenExitIcon from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
 import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
+import { TooltipSpan } from '../common/FMTooltip';
+import CommentsNewForm from "../comments/CommentsNewForm";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.intense,
     maxWidth:650 + (theme.spacing.unit*4),
@@ -69,74 +70,60 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
+const NewAnswerCommentQuestionForm = ({post, classes}: {
   post: PostsDetails,
-  refetch: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const { NewAnswerForm, CommentsNewForm } = Components
-
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
   }
 
-  const getNewForm = () => {
-    switch(selection) {
-      case "answer":
-        return <NewAnswerForm post={post} />
-      case "comment":
-        return <CommentsNewForm
-          post={post}
-          type="comment"
-        />
-    }
-  }
+  const isAnswer = selection === "answer";
 
   return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog)}>
     <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
     <div className={classes.form}>
       <div className={classes.chooseResponseType}>
-        <Tooltip title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
+        <TooltipSpan title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
           <div onClick={()=>setSelection("answer")}
             className={classNames(classes.responseType, {[classes.selected]: selection === "answer"})}
           >
             New Answer
           </div>
-        </Tooltip>
-        <Tooltip title="Discuss the question or ask clarifying questions">
+        </TooltipSpan>
+        <TooltipSpan title="Discuss the question or ask clarifying questions">
           <div onClick={()=>setSelection("comment")}
             className={classNames(classes.responseType, {[classes.selected]: selection === "comment"})}>
             New Comment
           </div>
-        </Tooltip>
+        </TooltipSpan>
         <div className={classes.toggleFocus} onClick={toggleFormFocus}>
           {formFocus ?
-            <Tooltip title="Exit focus mode">
+            <TooltipSpan title="Exit focus mode">
               <FullscreenExitIcon />
-            </Tooltip>
+            </TooltipSpan>
             :
-            <Tooltip title="Enter focus mode">
+            <TooltipSpan title="Enter focus mode">
               <FullscreenIcon />
-            </Tooltip>
+            </TooltipSpan>
             }
         </div>
       </div>
-      <div className={classes.responseForm}>
-        {getNewForm()}
+      <div>
+        <CommentsNewForm
+          post={post}
+          type="comment"
+          isAnswer={isAnswer}
+        />
       </div>
     </div>
   </div>
 }
 
-const NewAnswerCommentQuestionFormComponent = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
+export default registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionFormComponent
-  }
-}
 

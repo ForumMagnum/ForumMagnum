@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -7,12 +6,16 @@ import { useLocation } from '../../lib/routeUtil';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const UserPageTitle = ({isSubtitle, siteName, classes}: {
+const titleComponentStyles = defineStyles('UserPageTitle', styles);
+
+export const UserPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType,
 }) => {
+  const classes = useStyles(titleComponentStyles);
+
   const { params: {slug} } = useLocation();
   const { results, loading } = useMulti({
     terms: {
@@ -54,12 +57,3 @@ const UserPageTitle = ({isSubtitle, siteName, classes}: {
     </Helmet>
   }
 }
-
-const UserPageTitleComponent = registerComponent("UserPageTitle", UserPageTitle, {styles});
-
-declare global {
-  interface ComponentTypes {
-    UserPageTitle: typeof UserPageTitleComponent
-  }
-}
-

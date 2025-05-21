@@ -1,14 +1,27 @@
 import React, { useCallback, useState } from "react";
-import Button from "@material-ui/core/Button";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
-import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useCreate } from "@/lib/crud/withCreate";
+import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { useForm } from "@tanstack/react-form";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { useCurrentUser } from "../common/withUser";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import Error404 from "../common/Error404";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
@@ -19,17 +32,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
-    '& .form-section-default': {
-      width: "100%"
-    },
-    '& .form-input': {
-      width: "100%",
-      margin: '2.5px 0 0 0'
-    },
     '& form': {
       display: "flex",
       flexDirection: "row",
-    }
+      alignItems: "flex-end",
+    },
+    '& form > div': {
+      marginTop: '2.5px',
+      marginBottom: '2.5px',
+    },
+    '& form > .form-component-EditorFormComponent': {
+      flexGrow: 1,
+    },
+  },
+});
+
+const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
   },
   submitMinimalist: {
     height: 'fit-content',
@@ -74,27 +95,156 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.background.primaryDim,
     }
   },
-});
+}));
+
+interface MessagesNewFormProps {
+  isMinimalist: boolean;
+  submitLabel?: React.ReactNode;
+  prefilledProps: {
+    conversationId: string;
+    contents: {
+      originalContents: {
+        type: string;
+        data: string;
+      };
+    };
+  };
+  onSuccess: (doc: messageListFragment) => void;
+}
+
+const InnerMessagesNewForm = ({
+  isMinimalist,
+  submitLabel = "Submit",
+  prefilledProps,
+  onSuccess,
+}: MessagesNewFormProps) => {
+  const classes = useStyles(formStyles);
+  const currentUser = useCurrentUser();
+  
+  const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
+  const hintText = isMinimalist ? "Type a new message..." : defaultEditorPlaceholder;
+  const commentMinimalistStyle = isMinimalist ? true : false;
+
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+  } = useEditorFormCallbacks<messageListFragment>();
+
+  const { create } = useCreate({
+    collectionName: 'Messages',
+    fragmentName: 'messageListFragment',
+  });
+
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
+  const form = useForm({
+    defaultValues: {
+      ...prefilledProps,
+      noEmail: false,
+    },
+    onSubmit: async ({ formApi }) => {
+      await onSubmitCallback.current?.();
+
+      try {
+        let result: messageListFragment;
+
+        const { noEmail, ...rest } = formApi.state.values;
+        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;
+
+        const { data } = await create({ data: submitData });
+        result = data?.createMessage.data;
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+        setCaughtError(undefined);
+      } catch (error) {
+        setCaughtError(error);
+      }
+    },
+  });
+
+  const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
+  const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+
+  return (
+    <form className="vulcan-form" ref={formRef} onSubmit={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void form.handleSubmit();
+    }}>
+      {displayedErrorComponent}
+      <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <form.Field name="contents">
+          {(field) => (
+            <EditorFormComponent
+              field={field}
+              name="contents"
+              formType='new'
+              document={form.state.values}
+              addOnSubmitCallback={addOnSubmitCallback}
+              addOnSuccessCallback={addOnSuccessCallback}
+              hintText={hintText}
+              commentMinimalistStyle={commentMinimalistStyle}
+              fieldName="contents"
+              collectionName="Messages"
+              commentEditor={true}
+              commentStyles={true}
+              hideControls={false}
+            />
+          )}
+        </form.Field>
+      </div>
+
+      {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        <form.Field name="noEmail">
+          {(field) => (
+            <FormComponentCheckbox
+              field={field}
+              label="No email"
+            />
+          )}
+        </form.Field>
+      </div>}
+
+      <div className="form-submit">
+        <form.Subscribe selector={(s) => [s.isSubmitting]}>
+          {([isSubmitting]) => (
+            <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
+              <Button
+                type="submit"
+                id="new-message-submit"
+                className={classNames("primary-form-submit-button", formButtonClass)}
+              >
+                {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
+              </Button>
+            </div>
+          )}
+        </form.Subscribe>
+      </div>
+    </form>
+  );
+};
 
 export const MessagesNewForm = ({
-  classes,
   conversationId,
   templateQueries,
   successEvent,
+  submitLabel,
   formStyle="default",
+  classes,
 }: {
-  classes: ClassesType;
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
   successEvent: () => void;
+  submitLabel?: string,
   formStyle?: FormDisplayMode;
+  classes: ClassesType<typeof styles>;
 }) => {
-  const { WrappedSmartForm, Loading, ForumIcon, Error404 } = Components;
-  const [loading, setLoading] = useState(false);
-
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Type a new message..."} : {}
 
   const { document: template, loading: loadingTemplate } = useSingle({
     documentId: templateQueries?.templateId,
@@ -102,34 +252,6 @@ export const MessagesNewForm = ({
     fragmentName: "ModerationTemplateFragment",
     skip,
   });
-
-  const SubmitComponent = useCallback(
-    ({ submitLabel = "Submit" }) => {
-      const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-
-      return (
-        <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
-          <Button
-            type="submit"
-            id="new-message-submit"
-            className={classNames("primary-form-submit-button", formButtonClass, classes.submitButton)}
-          >
-            {loading ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
-          </Button>
-        </div>
-      );
-    },
-    [
-      ForumIcon,
-      Loading,
-      classes.formButton,
-      classes.formButtonMinimalist,
-      classes.submitButton,
-      classes.submitMinimalist,
-      isMinimalist,
-      loading,
-    ]
-  );
 
   // For some reason loading returns true even if we're skipping the query?
   if (!skip && loadingTemplate) return <Loading />;
@@ -141,46 +263,24 @@ export const MessagesNewForm = ({
 
   return (
     <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
-      <WrappedSmartForm
-        collectionName="Messages"
-        successCallback={() => {
-          setLoading(false);
-          return successEvent();
-        }}
-        submitCallback={(data: unknown) => {
-          setLoading(true);
-          return data;
-        }}
+      <InnerMessagesNewForm
+        isMinimalist={isMinimalist}
+        submitLabel={submitLabel}
         prefilledProps={{
           conversationId,
           contents: {
             originalContents: {
               type: "ckEditorMarkup",
-              data: templateHtml,
+              data: templateHtml ?? '',
             },
           },
         }}
-        mutationFragment={getFragment("messageListFragment")}
-        errorCallback={(message: any) => {
-          setLoading(false);
-          //eslint-disable-next-line no-console
-          console.error("Failed to send", message);
-        }}
-        formComponents={{
-          FormSubmit: SubmitComponent,
-        }}
-        formProps={{
-          ...extraFormProps,
-        }}
+        onSuccess={() => successEvent()}
       />
     </div>
   );
 };
 
-const MessagesNewFormComponent = registerComponent("MessagesNewForm", MessagesNewForm, { styles });
+export default registerComponent("MessagesNewForm", MessagesNewForm, { styles });
 
-declare global {
-  interface ComponentTypes {
-    MessagesNewForm: typeof MessagesNewFormComponent;
-  }
-}
+

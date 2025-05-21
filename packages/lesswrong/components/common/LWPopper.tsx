@@ -1,11 +1,12 @@
-import { registerComponent } from '../../lib/vulcan-lib';
-import React, {ReactNode, useState} from 'react';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import React, {MutableRefObject, ReactNode, useState} from 'react';
+import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
+import type { State } from '@popperjs/core/lib/types';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   popper: {
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper
@@ -47,11 +48,13 @@ const LWPopper = ({
   flip,
   open,
   anchorEl,
+  distance=0,
   placement,
   clickable = true,
   hideOnTouchScreens,
+  updateRef
 }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
@@ -60,9 +63,11 @@ const LWPopper = ({
   open: boolean,
   placement?: PopperPlacementType,
   anchorEl: any,
+  distance?: number,
   className?: string,
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
+  updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
@@ -81,7 +86,7 @@ const LWPopper = ({
     }
   ];
 
-  const { styles, attributes } = usePopper(anchorEl, popperElement, {
+  const { styles, attributes, update } = usePopper(anchorEl, popperElement, {
     placement,
     modifiers: [
       {
@@ -90,10 +95,20 @@ const LWPopper = ({
           gpuAcceleration: false, // true by default
         },
       },
+      ...(distance>0 ? [{
+        name: "offset",
+        options: {
+          offset: [0, distance]
+        },
+      }] : []),
       ...flipModifier,
       ...preventOverflowModifier
     ],
   });
+
+  if (updateRef && update) {
+    updateRef.current = update
+  }
 
   if (!open)
     return null;
@@ -128,10 +143,6 @@ const LWPopper = ({
   }</>
 };
 
-const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});
+export default registerComponent('LWPopper', LWPopper, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPopper: typeof LWPopperComponent
-  }
-}
+

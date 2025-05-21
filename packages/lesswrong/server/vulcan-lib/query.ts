@@ -3,14 +3,15 @@
 Run a GraphQL request from the server with the proper context
 
 */
-import { DocumentNode, graphql, GraphQLError, print } from 'graphql';
-import { localeSetting } from '../../lib/publicSettings';
-import { getExecutableSchema } from './apollo-server/initGraphQL';
-import { generateDataLoaders } from './apollo-server/context';
-import { getAllRepos } from '../repos';
-import { collectionNameToTypeName, getCollectionsByName } from '../../lib/vulcan-lib/getCollection';
-import { getGraphQLQueryFromOptions } from '@/lib/crud/withMulti';
-import { getMultiResolverName } from '@/lib/crud/utils';
+import { PrimitiveGraphQLType } from '@/lib/crud/types';
+import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
+import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
+import { getGraphQLSingleQueryFromOptions } from '@/lib/crud/withSingle';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { DocumentNode, ExecutionResult, graphql, GraphQLError, print } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
+import { typeDefs, resolvers } from './apollo-server/initGraphQL';
+import { createAnonymousContext } from './createContexts';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -31,7 +32,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 
 // note: if no context is passed, default to running requests with full admin privileges
 export const runQuery = async <T = Record<string, any>>(query: string | DocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
-  const executableSchema = getExecutableSchema();
+  const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
   const queryContext = createAnonymousContext(context);
 
   const stringQuery = typeof query === 'string'
@@ -39,7 +40,7 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
     : print(query)
 
   // see http://graphql.org/graphql-js/graphql/#graphql
-  const result = await graphql<T>(executableSchema, stringQuery, {}, queryContext, variables);
+  const result = await graphql(executableSchema, stringQuery, {}, queryContext, variables) as ExecutionResult<T>;
 
   if (result.errors) {
     onGraphQLError(result.errors);
@@ -49,56 +50,54 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
   return result;
 };
 
-export const runFragmentQuery = async <
+export const runFragmentSingleQuery = async <
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString,
->({ collectionName, fragmentName, terms, extraVariables, context }: {
+>({ collectionName, fragmentName, documentId, extraVariables, extraVariablesValues, context }: {
+  collectionName: CollectionName,
+  fragmentName: FragmentTypeName,
+  documentId: string,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
+  extraVariablesValues?: Record<string, unknown>,
+  context?: ResolverContext,
+}) => {
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName);
+
+  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, resolverName, extraVariables });
+
+  const variables = {
+    input: { selector: { documentId }, resolverArgs: extraVariablesValues },
+    ...extraVariablesValues
+  };
+
+  const queryResult = await runQuery<Record<string, { result?: FragmentTypes[FragmentTypeName] }>>(query, variables, context);
+
+  return queryResult.data?.[resolverName]?.result;
+};
+
+export const runFragmentMultiQuery = async <
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString,
+>({ collectionName, fragmentName, terms, extraVariables, extraVariablesValues, context }: {
   collectionName: CollectionName,
   fragmentName: FragmentTypeName,
   terms: ViewTermsByCollectionName[CollectionName],
-  extraVariables?: AnyBecauseHard,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
+  extraVariablesValues?: Record<string, unknown>,
   context?: ResolverContext,
 }) => {
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getMultiResolverName(typeName);
 
-  const query = getGraphQLQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
-    input: { terms },
-    ...extraVariables
+    input: { terms, resolverArgs: extraVariablesValues },
+    ...extraVariablesValues
   };
 
   const result = await runQuery<Record<string, { results: Array<FragmentTypes[FragmentTypeName]> }>>(query, variables, context);
 
-  const results = result.data?.[resolverName]?.results ?? [];
-
-  return results;
+  return result.data?.[resolverName]?.results ?? [];
 };
-
-export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
-  const queryContext = {
-    userId: null,
-    clientId: null,
-    visitorActivity: null,
-    currentUser: null,
-    headers: null,
-    locale: localeSetting.get(),
-    isSSR: false,
-    isGreaterWrong: false,
-    repos: getAllRepos(),
-    ...getCollectionsByName(),
-    ...generateDataLoaders(),
-    ...options,
-  };
-  
-  return queryContext;
-}
-export const createAdminContext = (options?: Partial<ResolverContext>): ResolverContext => {
-  return {
-    ...createAnonymousContext(),
-    // HACK: Instead of a full user object, this is just a mostly-empty object with isAdmin set to true
-    currentUser: {isAdmin: true} as DbUser,
-    ...options,
-  };
-}

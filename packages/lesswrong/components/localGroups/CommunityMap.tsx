@@ -1,25 +1,27 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import PersonIcon from '@material-ui/icons/Person';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
 import { useMapStyle } from '../hooks/useMapStyle';
+import CommunityMapFilter from "./CommunityMapFilter";
+import LocalEventMarker from "./LocalEventMarker";
+import LocalGroupMarker from "./LocalGroupMarker";
+import StyledMapPopup from "./StyledMapPopup";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -72,20 +74,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
     width: 100
   }
-}));
-
-
+});
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
   initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   showUsersByDefault?: boolean,
   showGroupsByDefault?: boolean,
@@ -153,7 +153,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     terms: {view: "usersMapLocations"},
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
-    limit: 500,
+    limit: 5000,
     skip: !showUsers
   })
 
@@ -163,9 +163,9 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showGroups && <LocalGroupsMapMarkers groups={visibleGroups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {showUsers && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showUsers && <PersonalMapLocationMarkersTypes users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {!hideLegend && <div className={classes.mapButtons}>
-        <Components.CommunityMapFilter 
+        <CommunityMapFilter 
           showHideMap={showHideMap} 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
           toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
@@ -197,7 +197,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   </div>
 }
 
-const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
+const personalMapMarkerStyles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
@@ -205,19 +205,21 @@ const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
     opacity: 0.8
   }
 })
-const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}: {
+
+const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openWindows, classes}: {
   users: Array<UsersMapEntry>,
   handleClick: (userId: string) => void,
   handleClose: (userId: string) => void,
   openWindows: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof personalMapMarkerStyles>,
 }) => {
-  const { StyledMapPopup } = Components
-  
   const mapLocations = filterNonnull(users.map(user => {
-    const location = user.mapLocation
-    if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-    const { geometry: {location: {lat, lng}}} = location
+    const location = user.mapLocationLatLng
+    if (!location) return null
+    
+    const {lat, lng} = location
+    if (typeof lat !== 'number' || typeof lng !== 'number') return null
+    
     return {
       lat, lng,
       data: user,
@@ -228,7 +230,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   
   return <React.Fragment>
     {spreadMapLocations.map(({lat, lng, data: user}) => {
-      const htmlBody = {__html: user.htmlMapMarkerText};
+      const htmlBody = {__html: user.htmlMapMarkerText ?? ''};
       return <React.Fragment key={user._id}>
         <Marker
           latitude={lat}
@@ -254,7 +256,8 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
     })}
   </React.Fragment>
 }
-const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkers, {
+
+export const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkersInner, {
   styles: personalMapMarkerStyles
 });
 
@@ -265,7 +268,7 @@ const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: 
   openWindows: any,
 }) => {
   return <>{events.map((event) => {
-    return <Components.LocalEventMarker
+    return <LocalEventMarker
       key={event._id}
       event={event}
       handleMarkerClick={handleClick}
@@ -284,7 +287,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 }) => {
   return <>{groups.map((group) => {
     return(
-      <Components.LocalGroupMarker
+      <LocalGroupMarker
         key={group._id}
         group={group}
         handleMarkerClick={handleClick}
@@ -298,11 +301,6 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 
 
-const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles });
+export default registerComponent("CommunityMap", CommunityMap, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CommunityMap: typeof CommunityMapComponent
-    PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersTypes
-  }
-}
+

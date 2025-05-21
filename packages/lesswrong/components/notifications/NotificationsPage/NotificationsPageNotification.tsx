@@ -1,5 +1,5 @@
 import React, { FC, useCallback } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
@@ -11,8 +11,11 @@ import {
   getNotificationTypeByName,
 } from "../../../lib/notificationTypes";
 import type { ForumIconName } from "../../common/ForumIcon";
-import type { IconVariant } from "./NotificationsPageItem";
+import NotificationsPageItem, { IconVariant } from "./NotificationsPageItem";
 import { sequenceGetPageUrl } from "../../../lib/collections/sequences/helpers";
+import UsersName from "../../users/UsersName";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   primaryText: {
@@ -37,6 +40,9 @@ export const getDisplayConfig = ({
       ...(comment
         ? {Icon: "CommentFilled", iconVariant: "primary"}
         : {Icon: "DocumentFilled", iconVariant: "grey"}
+      ),
+      ...(type === "wrapped" &&
+        {Icon: "Gift", iconVariant: "wrapped"}
       ),
     };
   } catch (e) {
@@ -77,14 +83,14 @@ export const NotificationsPageNotification = ({
   // interactive notification displays. They _must_ be wrapped in `useCallback`
   // otherwise rerenders will badly break referential transparency.
   const User: FC = useCallback(() => (
-    <Components.UsersName
+    <UsersName
       user={displayUser}
       tooltipPlacement="bottom-start"
       className={classes.primaryText}
     />
   ), [displayUser, classes]);
   const LazyUser: FC<{userId: string}> = useCallback(({userId}) => (
-    <Components.UsersName
+    <UsersName
       documentId={userId}
       tooltipPlacement="bottom-start"
       className={classes.primaryText}
@@ -92,7 +98,7 @@ export const NotificationsPageNotification = ({
   ), [classes]);
   const Post: FC = useCallback(() => displayPost
     ? (
-      <Components.PostsTooltip
+      <PostsTooltip
         post={displayPost as unknown as PostsList}
         tagRelId={tagRelId}
       >
@@ -103,12 +109,12 @@ export const NotificationsPageNotification = ({
         >
           {displayPost.title}
         </Link>
-      </Components.PostsTooltip>
+      </PostsTooltip>
     )
     : null, [displayPost, link, tagRelId, classes]);
   const Comment: FC = useCallback(() => comment
     ? (
-      <Components.PostsTooltip
+      <PostsTooltip
         postId={comment.post?._id ?? displayPost?._id}
         commentId={comment._id}
         tagRelId={tagRelId}
@@ -125,7 +131,7 @@ export const NotificationsPageNotification = ({
         >
           comment
         </Link>
-      </Components.PostsTooltip>
+      </PostsTooltip>
     )
     : null, [comment, displayPost, tag, tagRelId, classes]);
   const Tag: FC = useCallback(() => tag
@@ -169,8 +175,6 @@ export const NotificationsPageNotification = ({
   const previewCommentId = hideCommentPreviews
     ? undefined
     : notification.comment?._id;
-
-  const {NotificationsPageItem} = Components;
   return (
     <NotificationsPageItem
       Icon={Icon}
@@ -187,19 +191,15 @@ export const NotificationsPageNotification = ({
         Tag={Tag}
         Sequence={Sequence}
         Localgroup={Localgroup}
-      /> <Components.FormatDate date={new Date(createdAt)} includeAgo />
+      /> <FormatDate date={new Date(createdAt)} includeAgo />
     </NotificationsPageItem>
   );
 }
 
-const NotificationsPageNotificationComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageNotification",
   NotificationsPageNotification,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageNotification: typeof NotificationsPageNotificationComponent
-  }
-}
+

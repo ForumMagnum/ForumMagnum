@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   metaInfo: {
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? "13px" : "1.1rem",
@@ -13,24 +14,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostsItem2MetaInfo = ({children, className, classes, read}: {
+const PostsItem2MetaInfo = ({children, className, classes}: {
   children?: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   read?: boolean,
 }) => {
-  return <Components.Typography
+  return <Typography
     component='span'
-    className={classNames(classes.metaInfo, {[classes.read]: read}, className)}
+    className={classNames(classes.metaInfo, className)}
     variant='body2'>
       {children}
-  </Components.Typography>
+  </Typography>
 }
 
-const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});
+export default registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});
   
-declare global {
-  interface ComponentTypes {
-    PostsItem2MetaInfo: typeof PostsItem2MetaInfoComponent
-  }
-}
+

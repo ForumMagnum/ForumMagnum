@@ -1,22 +1,13 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import './EmailFormatDate';
-import './EmailPostAuthors';
-import './EmailContentItemBody';
-import './EmailPostDate';
-import './EmailFooterRecommendations';
-import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
-import { annualReviewNominationPhaseEnd } from '../../lib/publicSettings';
-import moment from 'moment';
-import { getSiteUrl } from '../vulcan-lib';
+import { getNominationPhaseEnd, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 
 
-const PostNominatedEmail = ({documentId, reason}: {
+export const PostNominatedEmail = ({documentId, reason}: {
   documentId: string,
   reason?: string,
-  classes: any,
 }) => {
   const { document: post } = useSingle({
     documentId,
@@ -28,7 +19,7 @@ const PostNominatedEmail = ({documentId, reason}: {
     }
   });
   if (!post) return null;
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
+  const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
 
   return (<React.Fragment>
     <p>Your post <a href={postGetPageUrl(post, true)}>{post.title}</a> has received multiple positive votes for the {REVIEW_NAME_IN_SITU}! On {nominationEndDate.format('MMM Do')}, the nomination vote results will be published, and will be used to help prioritize the Review Phase.</p>
@@ -41,10 +32,3 @@ const PostNominatedEmail = ({documentId, reason}: {
   </React.Fragment>);
 }
 
-const PostNominatedEmailComponent = registerComponent("PostNominatedEmail", PostNominatedEmail);
-
-declare global {
-  interface ComponentTypes {
-    PostNominatedEmail: typeof PostNominatedEmailComponent
-  }
-}

@@ -1,8 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import classNames from 'classnames';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import FooterTagList from "../../tagging/FooterTagList";
+import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
+import AudioToggle from "./AudioToggle";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,7 +19,11 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       top: 8,
       right: 8
-    }
+    },
+    
+    // Ensure this is above the side-items column, which extends to the top of
+    // the page.
+    zIndex: 100,
   },
   vote: {
     display: 'flex',
@@ -48,24 +58,23 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
-  higherContrast?: boolean
+  higherContrast?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
-
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
-          <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} />
+          <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
       </AnalyticsContext>}
-      {!post.shortform && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
+      {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
@@ -75,10 +84,6 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   </div>;
 }
 
-const LWPostsPageHeaderTopRightComponent = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
+export default registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPageHeaderTopRight: typeof LWPostsPageHeaderTopRightComponent
-  }
-}
+

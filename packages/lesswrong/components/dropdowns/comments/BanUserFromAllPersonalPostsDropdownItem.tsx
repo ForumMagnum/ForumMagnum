@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import DropdownItem from "../DropdownItem";
 
 const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -28,7 +29,7 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
     if (!currentUser) return;
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on all your personal blog posts?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedPersonalUserIds = clone(currentUser.bannedPersonalUserIds) || []
       if (!bannedPersonalUserIds.includes(commentUserId)) {
         bannedPersonalUserIds.push(commentUserId)
@@ -38,8 +39,6 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your personal blog posts`}))
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban from all your personal blog posts"
@@ -48,13 +47,9 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
   );
 }
 
-const BanUserFromAllPersonalPostsDropdownItemComponent = registerComponent(
+export default registerComponent(
   'BanUserFromAllPersonalPostsDropdownItem', BanUserFromAllPersonalPostsDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    BanUserFromAllPersonalPostsDropdownItem: typeof BanUserFromAllPersonalPostsDropdownItemComponent,
-  }
-}
+
 

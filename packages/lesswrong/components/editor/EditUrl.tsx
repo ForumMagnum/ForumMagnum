@@ -1,12 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import classNames from 'classnames'
-import Input from '@material-ui/core/Input';
-import LinkIcon from '@material-ui/icons/Link'
-import LinkOffIcon from '@material-ui/icons/LinkOff';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link'
+import LinkOffIcon from '@/lib/vendor/@material-ui/icons/src/LinkOff';
+import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: theme.spacing.unit
   },
@@ -55,34 +57,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
   value: string,
   path: keyof DbPost,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   document: Partial<DbPost>,
   defaultValue?: string,
   label?: string,
   hintText?: string,
   placeholder?: string,
-  tooltip?: string,
-  updateCurrentValues<T extends {}>(values: T): void,
-  setFooterContent(content: any): void,
-  inputProperties: {
-    labels?: {
-      active: string,
-      inactive: string,
-    },
-  },
+  updateCurrentValues: UpdateCurrentValues,
+  setFooterContent: (content: React.ReactNode) => void,
 }) => {
   const [active, setActive] = useState(!!value);
-  const inputRef = useRef<HTMLInputElement>();
-  let HintTextComponent: React.ComponentClass | React.FC;
-  if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
-    HintTextComponent = Components[hintText as keyof ComponentTypes]
-  }
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  
+  // RobertM: we're deleting the global components table.
+  // This form component isn't currently in use, and was only ever used by
+  // the FeaturedResources.ctaUrl field.  FeaturedResources don't currently
+  // have a form implemented for them.  If any future use of this component
+  // needs a hintText component, it should probably just be passed in as a prop.
+  
+  // let HintTextComponent: React.ComponentClass | React.FC;
+  // if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
+  //   HintTextComponent = Components[hintText as keyof ComponentTypes]
+  // }
 
   const updateValue = (value: string | null) => {
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: value,
     });
   }
@@ -94,9 +96,10 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       }
       setFooterContent(
         <div className={classes.footer}>
-          <Components.Typography variant='body2' className={classes.hintText}>
-            {HintTextComponent ? <HintTextComponent /> : hintText}
-          </Components.Typography>
+          <Typography variant='body2' className={classes.hintText}>
+            {/* {HintTextComponent ? <HintTextComponent /> : hintText} */}
+            {hintText}
+          </Typography>
         </div>
       );
     } else {
@@ -114,10 +117,6 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
     if (!value || value.length < 1) {
       setEditorActive(false);
     }
-  }
-
-  if (inputProperties.labels) {
-    placeholder = inputProperties.labels[active ? 'active' : 'inactive'];
   }
 
   return (
@@ -145,10 +144,6 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   );
 }
 
-export const EditUrlComponent = registerComponent("EditUrl", EditUrl, {styles});
+export default registerComponent("EditUrl", EditUrl, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditUrl: typeof EditUrlComponent
-  }
-}
+

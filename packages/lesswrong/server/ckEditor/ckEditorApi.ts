@@ -3,19 +3,20 @@ import fs from 'fs';
 import difference from 'lodash/difference';
 import moment from 'moment';
 import _ from 'underscore';
-import Posts from '../../lib/collections/posts/collection';
-import Revisions from '../../lib/collections/revisions/collection';
-import Users from '../../lib/collections/users/collection';
+import Posts from '../../server/collections/posts/collection';
+import Revisions from '../../server/collections/revisions/collection';
+import Users from '../../server/collections/users/collection';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevision } from '../editor/make_editable_callbacks';
-import { createAdminContext, createMutator, Globals, updateMutator } from '../vulcan-lib';
+import { buildRevision } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
-import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createRevision } from '../collections/revisions/mutations';
+import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -129,9 +130,10 @@ const documentHelpers = {
   },
   
   async saveDocumentRevision(userId: string, documentId: string, html: string) {
+    const context = createAdminContext();
     const fieldName = "contents";
     const user = await Users.findOne(userId);
-    const previousRev = await getLatestRev(documentId, fieldName);
+    const previousRev = await getLatestRev(documentId, fieldName, context);
     
     const newOriginalContents = {
       data: html,
@@ -146,6 +148,7 @@ const documentHelpers = {
         ...await buildRevision({
           originalContents: newOriginalContents,
           currentUser: user,
+          context,
         }),
         documentId,
         fieldName,
@@ -156,17 +159,15 @@ const documentHelpers = {
         commitMessage: cloudEditorAutosaveCommitMessage,
         changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
       };
-      await createMutator({
-        collection: Revisions,
-        document: newRevision,
-        validate: false,
-      });
+      
+      await createRevision({ data: newRevision }, context);
     }
   },
 
   async saveOrUpdateDocumentRevision(postId: string, html: string) {
+    const context = createAdminContext();
     const fieldName = "contents";
-    const previousRev = await getLatestRev(postId, fieldName);
+    const previousRev = await getLatestRev(postId, fieldName, context);
     
     // Time relative to which to compute the max autosave interval, in ms since
     // epoch.
@@ -181,7 +182,7 @@ const documentHelpers = {
       && previousRev.commitMessage===cloudEditorAutosaveCommitMessage
     ) {
       // Get the revision prior to the one being replaced, for computing change metrics
-      const precedingRev = await getPrecedingRev(previousRev);
+      const precedingRev = await getPrecedingRev(previousRev, context);
       
       // eslint-disable-next-line no-console
       console.log("Updating rev "+previousRev._id);
@@ -205,14 +206,11 @@ const documentHelpers = {
 
   async endCkEditorUserSession(documentId: string, endedBy: string, endedAt: Date = new Date()) {
     const adminContext = createAdminContext();
-  
-    return updateMutator({
-      collection: CkEditorUserSessions,
-      documentId,
-      set: { endedAt, endedBy },
-      context: adminContext,
-      currentUser: adminContext.currentUser,
-    });
+
+    return updateCkEditorUserSession({
+      data: { endedAt, endedBy },
+      selector: { _id: documentId },
+    }, adminContext);
   }
 };
 
@@ -385,7 +383,7 @@ const ckEditorApi = {
     if (!bundleVersion)
       throw new Error("Missing argument: bundleVersion");
     
-    const editorBundle = fs.readFileSync("public/lesswrong-editor/build/ckeditor-cloud.js", 'utf8');
+    const editorBundle = fs.readFileSync("ckEditor/build/ckeditor-cloud.js", 'utf8');
     const editorBundleHash = crypto.createHash('sha256').update(editorBundle, 'utf8').digest('hex');
     
     // eslint-disable-next-line no-console
@@ -476,7 +474,7 @@ const ckEditorApiHelpers = {
   // (This is used when reverting through the revision-history UI.)
   async pushRevisionToCkEditor(postId: string, html: string) {
     // eslint-disable-next-line no-console
-    console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html}`);
+    console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html.slice(0, 100)}`);
     const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
     
     // Check for unsaved changes and save them first
@@ -520,28 +518,12 @@ const ckEditorApiHelpers = {
   }
 };
 
-Globals.cke = {
+// Exported to allow running manually with "yarn repl"
+export const cke = {
   ...ckEditorApi,
   ...ckEditorApiHelpers,
-  ...documentHelpers
+  ...documentHelpers,
 };
 
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this is only useful for GET calls, since ckEditor doesn't often return anything for POST/DELETE/etc operations.
-// This isn't guaranteed to produce sane results in every single case, but seems fine for the things I've tested.
-Globals.cke.log = Object.fromEntries(Object.entries(Globals.cke).map(([key, val]) => {
-  if (typeof val !== 'function') {
-    return [key, val];
-  }
-
-  const withLoggedOutput = async (...args: any[]) => {
-    const result = await val(...args);
-    // eslint-disable-next-line no-console
-    console.log({ result });
-    return result;
-  };
-
-  return [key, withLoggedOutput];
-}));
 
 export { ckEditorApi, ckEditorApiHelpers, documentHelpers };

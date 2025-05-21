@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defaultFilter, getNamesAttachedReactionsByName} from '../../lib/voting/reactions';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reactionSvg: {
     verticalAlign: "middle",
     marginTop: 1
@@ -20,7 +20,7 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   react: string,
   inverted?: boolean,
   size?: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const reactionType = getNamesAttachedReactionsByName(react);
   const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;
@@ -53,11 +53,7 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
 }
 
 
-const ReactionIconComponent = registerComponent('ReactionIcon', ReactionIcon, {styles});
+export default registerComponent('ReactionIcon', ReactionIcon, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionIcon: typeof ReactionIconComponent
-  }
-}
+
 

@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { EnvironmentOverride, EnvironmentOverrideContext } from '../../lib/utils/timeUtil';
+import { localeSetting, siteImageSetting } from '../../lib/publicSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
-import { useLocation, withRouter } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
 import {
   LocationContext,
@@ -19,29 +18,30 @@ import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
-
-export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
+import { onUserChanged } from '@/client/logging';
+import PermanentRedirect from "../common/PermanentRedirect";
+import Loading from "./Loading";
+import HeadTags from "../common/HeadTags";
+import ScrollToTop from "./ScrollToTop";
+import Layout from "../Layout";
 
 interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
-  envOverride: EnvironmentOverride,
 }
 
-const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
-  history: History
-}) => {
+const App = ({serverRequestStatus}: ExternalProps) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
+  const history = useHistory();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
-  const navigationContext = useRef<{ history: History<unknown> } | null>();
+  const navigationContext = useRef<{ history: History<unknown> } | null>(null);
 
   const locale = localeSetting.get();
 
   useEffect(() => {
     if (!bundleIsServer) {
-      const { onUserChanged } = require('@/client/logging');
       onUserChanged(currentUser);
     }
     moment.locale(locale);
@@ -49,7 +49,6 @@ const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
 
   useEffect(() => {
     if (!bundleIsServer) {
-      const { onUserChanged } = require('@/client/logging');
       onUserChanged(currentUser);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,7 +59,7 @@ const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
   
   if (location.redirected) {
     return (
-      <Components.PermanentRedirect url={location.url} />
+      <PermanentRedirect url={location.url} />
     );
   }
 
@@ -97,7 +96,7 @@ const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
   // and logged-out views.)
   if (currentUserLoading && !currentUser) {
     return (
-      <Components.Loading />
+      <Loading />
     );
   }
 
@@ -106,17 +105,15 @@ const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
     <NavigationContext.Provider value={navigationContext.current}>
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
-    <EnvironmentOverrideContext.Provider value={envOverride}>
     <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
       <MessageContextProvider>
-        <Components.HeadTags image={siteImageSetting.get()} />
-        <Components.ScrollToTop />
-        <Components.Layout currentUser={currentUser}>
+        <HeadTags image={siteImageSetting.get()} />
+        <ScrollToTop />
+        <Layout currentUser={currentUser}>
           <location.RouteComponent />
-        </Components.Layout>
+        </Layout>
       </MessageContextProvider>
     </RefetchCurrentUserContext.Provider>
-    </EnvironmentOverrideContext.Provider>
     </ServerRequestStatusContext.Provider>
     </SubscribeLocationContext.Provider>
     </NavigationContext.Provider>
@@ -124,14 +121,6 @@ const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
   );
 }
 
-const AppComponent = registerComponent<ExternalProps>('App', App, {
-  hocs: [withRouter],
-});
+export default registerComponent('App', App);
 
-declare global {
-  interface ComponentTypes {
-    App: typeof AppComponent
-  }
-}
 
-export default App;

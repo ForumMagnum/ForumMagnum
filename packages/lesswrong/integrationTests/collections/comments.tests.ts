@@ -1,6 +1,6 @@
 import "../integrationTestSetup";
 import chai from 'chai';
-import { runQuery } from '../../server/vulcan-lib';
+import { runQuery } from '../../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,
@@ -13,7 +13,7 @@ import {
   createDummyUserRateLimit,
 } from '../utils';
 import moment from 'moment';
-import { Comments } from "../../lib/collections/comments";
+import { Comments } from "../../server/collections/comments/collection";
 
 const { assert } = chai;
 
@@ -188,7 +188,7 @@ describe('moderator-applied user comment rate limit', () => {
       actionsPerInterval: 1,
       endedAt: moment().add(1, 'day').toDate(),
       schemaVersion: 1,
-    })
+    } as unknown as CreateUserRateLimitDataInput)
 
     function createCommentQuery(postId: string) {
       return `

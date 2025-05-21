@@ -1,10 +1,11 @@
-import React, { FC, MouseEvent, PropsWithChildren } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { useSubscribedLocation } from "../../../lib/routeUtil";
-import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -52,12 +53,9 @@ export const useCommentLink = ({
     }
 
     event.preventDefault();
-    const navigateArgs = commentPermalinkStyleSetting.get() === 'top' ? {
+    const navigateArgs = {
       search: qs.stringify({...query, commentId: comment._id}),
-      hash: null,
-    } : {
-      search: qs.stringify(query),
-      hash: comment._id,
+      hash: undefined,
     }
     navigate({
       ...location,
@@ -82,4 +80,22 @@ export const useCommentLink = ({
     );
 
   return Wrapper;
+}
+
+/**
+ * Retrieve the ids of the currently permalinked comment, and the comment that should be scrolled to.
+ * If using 'in-context' links then these will both generally be the `?commentId=id` comment.
+ * If using 'top' links then the permalinked comment will be the `?commentId=id` one and the scrollToCommentId
+ * will be taken from the `#id` part of the URL if present.
+ */
+export const useCommentLinkState = () => {
+  const { query, hash } = useSubscribedLocation();
+  const { matchSSR } = useContext(EnvironmentOverrideContext);
+
+  const queryId = query.commentId
+  const hashId = matchSSR ? '' : hash.slice(1)
+
+  const scrollToCommentId = commentPermalinkStyleSetting.get() === 'in-context' ? queryId ?? hashId : hashId
+
+  return { linkedCommentId: queryId, scrollToCommentId }
 }

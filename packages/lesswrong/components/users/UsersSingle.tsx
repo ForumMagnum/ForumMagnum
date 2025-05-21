@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { slugify } from '../../lib/vulcan-lib/utils';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { slugify } from '@/lib/utils/slugify';
+import PermanentRedirect from "../common/PermanentRedirect";
+import FriendlyUsersProfile from "./FriendlyUsersProfile";
+import UsersProfile from "./UsersProfile";
 
 /**
  * Build structured data for a user to help with SEO.
@@ -54,18 +57,14 @@ const UsersSingle = () => {
     // A Javascript redirect, which replaces the history entry (so you don't
     // have a redirector interfering with the back button). Does not cause a
     // pageload.
-    return <Components.PermanentRedirect url={canonicalUrl} />;
+    return <PermanentRedirect url={canonicalUrl} />;
   } else {
     return isFriendlyUI ?
-      <Components.FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
-      <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+      <FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
+      <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
 };
 
-const UsersSingleComponent = registerComponent('UsersSingle', UsersSingle);
+export default registerComponent('UsersSingle', UsersSingle);
 
-declare global {
-  interface ComponentTypes {
-    UsersSingle: typeof UsersSingleComponent
-  }
-}
+

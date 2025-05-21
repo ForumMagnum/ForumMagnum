@@ -1,7 +1,9 @@
 import React, { ReactNode } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import EAButton from "../../ea-forum/EAButton";
+import Loading from "../../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   blurb: {
     fontSize: 14,
     lineHeight: '20px',
@@ -13,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type ActionButtonSectionProps = {
   buttonText: string;
-  buttonProps: Partial<Omit<ComponentProps<typeof Components.EAButton>, "onClick">>;
+  buttonProps: Partial<Omit<ComponentProps<typeof EAButton>, "onClick">>;
   description: ReactNode;
   loading?: boolean;
   onClick: () => void;
@@ -28,8 +30,6 @@ const ActionButtonSection = ({
   onClick,
   classes,
 }: ActionButtonSectionProps) => {
-  const { EAButton, Loading } = Components;
-
   return (
     <div>
       <div className={classes.blurb}>{description}</div>
@@ -40,12 +40,8 @@ const ActionButtonSection = ({
   );
 };
 
-const ActionButtonSectionComponent = registerComponent('ActionButtonSection', ActionButtonSection, {styles});
+export default registerComponent('ActionButtonSection', ActionButtonSection, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ActionButtonSection: typeof ActionButtonSectionComponent
-  }
-}
 
-export default ActionButtonSectionComponent;
+
+

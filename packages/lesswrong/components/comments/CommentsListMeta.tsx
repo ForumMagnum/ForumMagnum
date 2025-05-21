@@ -1,11 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontSize: 14,
     clear: 'both',
-    overflow: 'auto',
     marginTop: 24,
     marginBottom: 10,
     display: 'flex',
@@ -17,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const CommentsListMeta = ({classes, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
   return <div className={classes.root}>
@@ -25,10 +24,6 @@ const CommentsListMeta = ({classes, children}: {
   </div>
 }
 
-const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});
+export default registerComponent('CommentsListMeta', CommentsListMeta, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsListMeta: typeof CommentsListMetaComponent,
-  }
-}
+

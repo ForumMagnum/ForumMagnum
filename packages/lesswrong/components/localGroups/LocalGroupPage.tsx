@@ -1,23 +1,43 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users';
-import { isEAForum } from '../../lib/instanceSettings';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
-import EmailIcon from '@material-ui/icons/Email';
-import LocationIcon from '@material-ui/icons/LocationOn';
-import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
+import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import Person from '@/lib/vendor/@material-ui/icons/src/Person';
+import ForumIcon from "../common/ForumIcon";
+import HeadTags from "../common/HeadTags";
+import CommunityMapWrapper from "./CommunityMapWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import PostsList2 from "../posts/PostsList2";
+import Loading from "../vulcan-core/Loading";
+import SectionButton from "../common/SectionButton";
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import SectionFooter from "../common/SectionFooter";
+import GroupFormLink from "./GroupFormLink";
+import ContentItemBody from "../common/ContentItemBody";
+import Error404 from "../common/Error404";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import EventCards from "../events/modules/EventCards";
+import LoadMore from "../common/LoadMore";
+import ContentStyles from "../common/ContentStyles";
+import { Typography } from "../common/Typography";
+import HoverOver from "../common/HoverOver";
+import LocalGroupSubscribers from "./LocalGroupSubscribers";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 
-
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
@@ -82,6 +102,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
+  groupOrganizers: {
+    display: "flex",
+    alignItems: 'center',
+    ...theme.typography.body2,
+    color: theme.palette.text.slightlyDim2,
+    marginBottom: 5,
+  },
+  organizedBy: {
+    marginLeft: 5,
+  },
   groupLocation: {
     ...theme.typography.body2,
     display: "flex",
@@ -90,6 +120,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.text.slightlyDim2,
   },
   groupLocationIcon: {
+    fontSize: 20
+  },
+  organizersIcon: {
     fontSize: 20
   },
   groupCategories: {
@@ -211,20 +244,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       maxWidth: 'none'
     },
   }
-}));
+});
 
 const LocalGroupPage = ({ classes, documentId: groupId }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   documentId: string,
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const {
-    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
-    Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography
-  } = Components
-
   const { document: group, loading: groupLoading } = useSingle({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
@@ -278,7 +305,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   if (!group || group.deleted) return <Error404 />
 
   const { html = ""} = group.contents || {}
-  const htmlBody = {__html: html}
+  const htmlBody = {__html: html ?? ""}
   const isAdmin = userIsAdmin(currentUser);
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
 
@@ -336,7 +363,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       </Typography>
   }
   
-  let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+  let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
   if (isEAForum) {
     tbdEventsList = tbdEvents?.length ? <>
       <Typography variant="headline" className={classes.eventsHeadline}>
@@ -354,7 +381,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     </> : null
   }
   
-  let pastEventsList: JSX.Element|null = <>
+  let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
       Past Events
     </Typography>
@@ -398,6 +425,17 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             {isEAForum ? <Typography variant="display1" className={classes.groupName}>
               {groupNameHeading}
             </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
+
+            {!isEAForum && <div className={classes.groupOrganizers}>
+              <Person className={classes.organizersIcon}/>
+              <div className={classes.organizedBy}>
+                Organized by: {group.organizers.map((user, i) => <>
+                  {(i>0) && <>,&nbsp;</>}
+                  <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
+                </>)}
+              </div>
+            </div>}
+
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}
@@ -420,13 +458,20 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <SectionFooter className={classes.organizerActions}>
               {canCreateEvent &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
-                  <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
-                    New event
-                  </Link>
+                  <HoverOver
+                    disabled={!isLWorAF}
+                    title={<div>
+                      Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
+                    </div>}
+                  >
+                    <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
+                      New event
+                    </Link>
+                  </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
-                (!isEAForum || isAdmin || isGroupAdmin ) &&
-                <GroupFormLink documentId={groupId} />
+                (!isEAForum || isAdmin || isGroupAdmin) &&
+                  <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>
           </div>
@@ -499,7 +544,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   target="_blank" rel="noopener noreferrer"
                   className={classes.externalLinkBtn}
                 >
-                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
+                  <ForumIcon icon="Link" className={classes.linkIcon} />
                   Explore our website
                 </Button>
               </div>}
@@ -522,15 +567,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {tbdEventsList}
 
         {pastEventsList}
+        
+        {((isAdmin || isGroupAdmin)) && <LocalGroupSubscribers groupId={groupId}/>}
       </SingleColumnSection>
     </div>
   )
 }
 
-const LocalGroupPageComponent = registerComponent('LocalGroupPage', LocalGroupPage, {styles});
+export default registerComponent('LocalGroupPage', LocalGroupPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroupPage: typeof LocalGroupPageComponent
-  }
-}
+

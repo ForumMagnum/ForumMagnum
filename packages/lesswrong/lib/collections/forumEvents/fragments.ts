@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const ForumEventsMinimumInfo = () => frag`
   fragment ForumEventsMinimumInfo on ForumEvent {
     _id
     title
@@ -8,19 +8,32 @@ registerFragment(`
     endDate
     darkColor
     lightColor
+    bannerTextColor
     contrastColor
     tagId
+    postId
     bannerImageId
-    includesPoll
-  }
-`);
+    eventFormat
+    customComponent
+    commentPrompt
+    isGlobal
 
-registerFragment(`
+    pollAgreeWording
+    pollDisagreeWording
+
+    maxStickersPerUser
+  }
+`
+
+export const ForumEventsDisplay = () => frag`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     publicData
     voteCount
 
+    post {
+      ...PostsMinimumInfo
+    }
     tag {
       ...TagBasicInfo
     }
@@ -36,10 +49,15 @@ registerFragment(`
       _id
       html
     }
+    pollQuestion {
+      _id
+      html
+      plaintextMainText
+    }
   }
-`);
+`
 
-registerFragment(`
+export const ForumEventsEdit = () => frag`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {
@@ -51,5 +69,8 @@ registerFragment(`
     postPageDescription {
       ...RevisionEdit
     }
+    pollQuestion {
+      ...RevisionEdit
+    }
   }
-`);
+`

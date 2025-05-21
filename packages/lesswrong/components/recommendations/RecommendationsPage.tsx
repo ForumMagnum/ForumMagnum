@@ -1,13 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { isLW } from '../../lib/instanceSettings';
+import ConfigurableRecommendationsList from "./ConfigurableRecommendationsList";
+import RecommendationsPageCuratedList from "./RecommendationsPageCuratedList";
+import SpotlightHistory from "../spotlights/SpotlightHistory";
 
-const RecommendationsPage = ({classes}: {
-  classes: ClassesType
-}) => {
-  const { ConfigurableRecommendationsList, RecommendationsPageCuratedList, SpotlightHistory  } = Components;
-
+const RecommendationsPage = () => {
   return (
     <AnalyticsContext pageSectionContext={"recommendationsPage"} capturePostItemOnMount>
       {isLW && <SpotlightHistory/>}
@@ -17,11 +16,7 @@ const RecommendationsPage = ({classes}: {
   )
 };
 
-const RecommendationsPageComponent = registerComponent('RecommendationsPage', RecommendationsPage);
+export default registerComponent('RecommendationsPage', RecommendationsPage);
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsPage: typeof RecommendationsPageComponent
-  }
-}
+
 

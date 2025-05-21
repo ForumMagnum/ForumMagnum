@@ -26,8 +26,61 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
-  runPlaywrightTests:
+  checkCodeGeneration:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
+      SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+      PG_URL: postgres://postgres:password@localhost:5433/postgres
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Setup database
+      run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+    - name: Create database connection string file
+      run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt
+    - name: Start the server
+      uses: JarvusInnovations/background-action@v1
+      with:
+        run: yarn start-ci &
+        wait-on: http://localhost:3000/api/health
+        wait-for: 1m
+        tail: true
+        log-output: true
+        log-output-resume: stderr
+    - name: Run code generation (EA Forum)
+      run: yarn generate test
+    - name: Throw if code changed
+      run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run yarn generate"; exit 1; fi
+    - name: Switch forum type
+      run: |
+        sed -i -e 's/"forumType": "EAForum"/"forumType": "LessWrong"/g' settings-test.json
+    - name: Run code generation (LessWrong)
+      run: yarn generate test
+    - name: Throw if forum schemas differ
+      run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
+
+  runPlaywrightTests:
+    # Pin Ubuntu to 22.04 to avoid a problem installing browser dependencies.
+    # This can probably be changed back to ubuntu-latest in the future when the
+    # bugs are ironed out.
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -76,7 +129,10 @@ jobs:
         path: test-results
 
   runCrosspostTests:
-    runs-on: ubuntu-latest
+    # Pin Ubuntu to 22.04 to avoid a problem installing browser dependencies.
+    # This can probably be changed back to ubuntu-latest in the future when the
+    # bugs are ironed out.
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
     services:

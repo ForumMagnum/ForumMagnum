@@ -1,14 +1,15 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -127,7 +128,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     padding: 20
   },
-}))
+});
 
 /**
  * Calculates the distance between the starting location and the ending location, as the crow flies
@@ -170,10 +171,8 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   distanceUnit: 'km'|'mi',
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { CommunityMapWrapper, CloudinaryImage2 } = Components
-
   let groupsListTerms: LocalgroupsViewTerms = {}
   groupsListTerms = userLocation.known ? {
     view: 'nearby',
@@ -201,7 +200,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   let localGroups = results
   if (results && keywordSearch) {
     localGroups = results.filter(group => (
-      `${group.name.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
+      `${group.name?.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
     ))
   }
 
@@ -271,10 +270,6 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   )
 }
 
-const LocalGroupsComponent = registerComponent('LocalGroups', LocalGroups, {styles});
+export default registerComponent('LocalGroups', LocalGroups, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocalGroups: typeof LocalGroupsComponent
-  }
-}
+

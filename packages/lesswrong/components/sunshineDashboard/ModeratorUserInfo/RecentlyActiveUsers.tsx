@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { userIsAdminOrMod } from '../../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
+import UserAutoRateLimitsDisplay, { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { useLocation } from '../../../lib/routeUtil';
+import UsersReviewInfoCard from "../UsersReviewInfoCard";
+import LoadMore from "../../common/LoadMore";
+import LWTooltip from "../../common/LWTooltip";
+import UsersName from "../../users/UsersName";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
+import Row from "../../common/Row";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     width: '90%',
@@ -114,10 +122,8 @@ type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"
 
 
 const RecentlyActiveUsers = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay, SectionFooterCheckbox, Row } = Components;
-
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
@@ -331,10 +337,6 @@ const RecentlyActiveUsers = ({ classes }: {
   );
 };
 
-const RecentlyActiveUsersComponent = registerComponent('RecentlyActiveUsers', RecentlyActiveUsers, { styles });
+export default registerComponent('RecentlyActiveUsers', RecentlyActiveUsers, { styles });
 
-declare global {
-  interface ComponentTypes {
-    RecentlyActiveUsers: typeof RecentlyActiveUsersComponent
-  }
-}
+

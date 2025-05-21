@@ -3,6 +3,7 @@ import { blackBarTitle } from "../../lib/publicSettings";
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
+  'gill-sans-nova',
   '"Gill Sans"',
   '"Gill Sans MT"',
   "Myriad Pro",
@@ -58,8 +59,15 @@ export const lessWrongTheme: SiteThemeSpecification = {
       color: "#327E09",
       visited: "#798754"
     },
+    fundraisingThermometer: {
+      shadow: '#222',
+    }
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
@@ -74,13 +82,17 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontSize: '.85em'
       },
       body2: {
-        fontSize: 15.08
+        fontSize: 15.08,
+        lineHeight: "19.8px"
       },
       commentStyle: {
         fontFamily: sansSerifStack,
         '& b, & strong': {
           fontWeight: 600
         }
+      },
+      ultraFeedMobileStyle: {
+        fontSize: 17,
       },
       errorStyle: {
         color: palette.error.main,
@@ -101,45 +113,12 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVoteDefault: {
-        voteScores: {
-          margin: "25% 15% 15% 15%"
-        }
-      },
-      MuiTooltip: {
-        tooltip: {
-          fontSize: 13,
-          padding: "9.1px",
-          zIndex: 10000000
-        }
-      },
-      MuiDialogContent: {
-        root: {
-          fontFamily: sansSerifStack,
-          fontSize: 15.08,
-          lineHeight: "1.5em"
-        }
-      },
-      MuiMenuItem: {
-        root: {
-          fontFamily: sansSerifStack,
-          color: palette.grey[800],
-          fontSize: 14.3,
-          lineHeight: "1.1em"
-        }
-      },
       MuiListItem: {
         root: {
           paddingTop: 8,
           paddingBottom: 8
         }
       },
-      MuiCard: {
-        root: {
-          borderRadius: 1,
-          boxShadow: palette.boxShadow.lwCard,
-        }
-      }
     }
   }),
 };

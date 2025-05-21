@@ -1,13 +1,8 @@
-import {
-  addGraphQLResolvers,
-  addGraphQLQuery,
-  addGraphQLMutation,
-} from "../../../lib/vulcan-lib/graphql";
+import gql from "graphql-tag";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import ElasticExporter from "./ElasticExporter";
 
-addGraphQLResolvers({
-  Query: {
+export const elasticGqlQueries = {
     SearchSynonyms(
       _root: void,
       _args: {},
@@ -19,8 +14,8 @@ addGraphQLResolvers({
       const exporter = new ElasticExporter();
       return exporter.getExistingSynonyms();
     },
-  },
-  Mutation: {
+  }
+export const elasticGqlMutations = {
     async UpdateSearchSynonyms(
       _root: void,
       {synonyms}: {synonyms: string[]},
@@ -33,8 +28,13 @@ addGraphQLResolvers({
       await exporter.updateSynonyms(synonyms);
       return synonyms;
     }
-  },
-});
+  }
 
-addGraphQLQuery("SearchSynonyms: [String!]!");
-addGraphQLMutation("UpdateSearchSynonyms(synonyms: [String!]!): [String!]!");
+export const elasticGqlTypeDefs = gql`
+  extend type Query {
+    SearchSynonyms: [String!]!
+  }
+  extend type Mutation {
+    UpdateSearchSynonyms(synonyms: [String!]!): [String!]!
+  }
+`

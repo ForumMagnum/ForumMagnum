@@ -3,9 +3,10 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
-// to run a migration, first start a server, 
-// then execute the following in a terminal for each migration you wish to run:
-// scripts/serverShellCommand.sh "Globals.migrations.nameOfMigration()"
+// To run a migration, run:
+//   yarn repl dev "packages/lesswrong/server/manualMigrations/migrationUtils.ts" 'runMigration("migrationName")'
+// Replace "dev" with the environment (dev, prod, local) you want to migrate.
+// You do not need to have a server running.
 
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';
@@ -140,5 +141,13 @@ import './2024-06-10-messageResumeReadingUsers'
 import './2024-06-17-assignSecondRecommendationTestGroup'
 import './2024-07-11-updateShortformPostTitles'
 import './2024-08-14-undraftPublicRevisions'
+import './2024-08-29-fillMissingWordCounts'
 import './2024-09-03-fixTagHoverRevs'
-import './2024-09-05-denormalizeCrossposts.ts'
+import './2024-09-25-fixMalformedRevisions'
+import './2024-10-31-undoBestOfCollectionClobbering'
+import './2025-01-08-markNotificationsAsViewed'
+import './2025-01-23-commentLastEditedAt'
+import './2025-02-14-updateKarmaNotifDefault'
+import './2023-01-07-updateReviewFinalVote'
+import './2025-02-26-fieldChangesPopulateTable'
+import './2025-05-21-denormalizeCrossposts.ts'

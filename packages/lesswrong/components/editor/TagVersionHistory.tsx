@@ -1,25 +1,28 @@
 import React, {useEffect, useState} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
-import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import {useMessages} from "../common/withMessages";
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
+import ContentItemBody from "../common/ContentItemBody";
+import FormatDate from "../common/FormatDate";
+import LoadMore from "../common/LoadMore";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
     display: "flex",
@@ -61,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagVersionHistoryButton = ({tagId, classes}: {
   tagId: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
@@ -70,10 +73,12 @@ const TagVersionHistoryButton = ({tagId, classes}: {
     onClick={() => {
       captureEvent("tagVersionHistoryButtonClicked", {tagId})
       openDialog({
-        componentName: "TagVersionHistory",
-        componentProps: {
-          tagId
-        },
+        name: "TagVersionHistory",
+        contents: ({onClose}) => <TagVersionHistory
+          onClose={onClose}
+          tagId={tagId}
+          classes={classes}
+        />
       })
     }}
   >
@@ -84,9 +89,8 @@ const TagVersionHistoryButton = ({tagId, classes}: {
 const TagVersionHistory = ({tagId, onClose, classes}: {
   tagId: string,
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
   const currentUser = useCurrentUser();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
@@ -172,7 +176,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
           }
         </div>}
         {revision && <ContentItemBody
-          dangerouslySetInnerHTML={{__html: revision.html}}
+          dangerouslySetInnerHTML={{__html: revision.html ?? ''}}
           description="TagVersionHistory revision"
         />}
       </div>
@@ -180,12 +184,6 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   </LWDialog>
 }
 
-const TagVersionHistoryButtonComponent = registerComponent("TagVersionHistoryButton", TagVersionHistoryButton, {styles});
-const TagVersionHistoryComponent = registerComponent("TagVersionHistory", TagVersionHistory, {styles});
+export default registerComponent("TagVersionHistoryButton", TagVersionHistoryButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagVersionHistoryButton: typeof TagVersionHistoryButtonComponent
-    TagVersionHistory: typeof TagVersionHistoryComponent
-  }
-}
+

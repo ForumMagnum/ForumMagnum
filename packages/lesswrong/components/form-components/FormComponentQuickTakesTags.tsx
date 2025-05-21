@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
+import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
+import TagsChecklist from "../tagging/TagsChecklist";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = defineStyles('FormComponentQuickTakesTags', (_theme: ThemeType) => ({
   tagContainer: {
     display: "flex",
     flexWrap: "wrap",
@@ -16,16 +19,13 @@ const styles = (_theme: ThemeType): JssStyles => ({
     fontSize: 13,
     marginRight: 8,
   },
-})
+}));
 
-const FormComponentQuickTakesTags = ({
-  value,
-  path,
-  updateCurrentValues,
-  classes,
-}: FormComponentProps<AnyBecauseTodo> & {
-  classes: ClassesType,
+export const FormComponentQuickTakesTags = ({ field }: {
+  field: TypedFieldApi<string[] | null>;
 }) => {
+  const classes = useStyles(styles);
+  
   const {
     loading,
     frontpage,
@@ -34,13 +34,11 @@ const FormComponentQuickTakesTags = ({
     frontpageTagId,
     onTagSelected,
     onTagRemoved,
-  } = useQuickTakesTags(value);
+  } = useQuickTakesTags(field.state.value ?? []);
 
   useEffect(() => {
-    void updateCurrentValues({[path]: selectedTagIds})
-  }, [updateCurrentValues, path, selectedTagIds])
-
-  const {TagsChecklist, Loading} = Components;
+    field.handleChange(selectedTagIds ?? null);
+  }, [field, selectedTagIds])
   return <div className={classes.tagContainer}>
     <span className={classes.tagLabel}>Set topic</span>
     {loading
@@ -63,16 +61,4 @@ const FormComponentQuickTakesTags = ({
         />
     )}
   </div>
-}
-
-const FormComponentQuickTakesTagsComponent = registerComponent(
-  "FormComponentQuickTakesTags",
-  FormComponentQuickTakesTags,
-  {styles}
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentQuickTakesTags: typeof FormComponentQuickTakesTagsComponent
-  }
 }

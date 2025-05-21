@@ -3,11 +3,14 @@ import { RecommendationsAlgorithm } from '../../lib/collections/users/recommenda
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
+import SectionTitle from "../common/SectionTitle";
+import RecommendationsList from "../recommendations/RecommendationsList";
+import PostsItem from "../posts/PostsItem";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     zIndex: theme.zIndexes.frontpageSplashImage,
@@ -65,11 +68,9 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 }
 
 export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components
-
   const { document: postVoting } = useSingle({
     documentId: "zajNa9fdr8JYJpxrG",
     collectionName: "Posts",
@@ -87,14 +88,10 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   </div>;
 }
 
-const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
+export default registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
   styles,
   allowNonThemeColors: true, // Overlayed on an image
 });
 
-declare global {
-  interface ComponentTypes {
-    FrontpageBestOfLWWidget: typeof FrontpageBestOfLWWidgetComponent
-  }
-}
+
 

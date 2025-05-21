@@ -1,11 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import BottomNavigationItem from "./BottomNavigationItem";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative"
   },
@@ -69,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const BottomNavigation = ({post, classes}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { nextPost, prevPost, sequence } = post;
   const currentUser = useCurrentUser();
@@ -86,14 +87,14 @@ const BottomNavigation = ({post, classes}: {
   return <div className={classes.root}>
     {prevPost &&
       <div className={classnames(classes.post, classes.prevPost)}>
-      <Components.BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
+      <BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
       </div>}
     
     <div className={classes.divider}></div>
     
     {nextPost &&
       <div className={classnames(classes.post, classes.nextPost)}>
-        <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
+        <BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
       </div>}
     
     <div className={classes.clear}></div>
@@ -101,14 +102,10 @@ const BottomNavigation = ({post, classes}: {
 };
 
 
-const BottomNavigationComponent = registerComponent('BottomNavigation', BottomNavigation, {
+export default registerComponent('BottomNavigation', BottomNavigation, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    BottomNavigation: typeof BottomNavigationComponent
-  }
-}
+
 

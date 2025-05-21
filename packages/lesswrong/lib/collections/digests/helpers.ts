@@ -1,8 +1,8 @@
 import moment from "moment"
-import { capitalize, combineUrls, getSiteUrl } from "../../vulcan-lib"
+import { capitalize, combineUrls, getSiteUrl } from "../../vulcan-lib/utils"
 import { SettingsOption } from "../posts/dropdownOptions"
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils"
-import { DIGEST_STATUSES } from "../digestPosts/schema"
+import { DIGEST_STATUSES } from "../digestPosts/newSchema"
 import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
 import { isPostWithForeignId } from "../../../components/hooks/useForeignCrosspost"
 
@@ -82,14 +82,19 @@ export const getEmailDigestPostListData = (posts: PostsListWithVotes[]) => {
  */
 export const getStatusFilterOptions = ({posts, postStatuses, statusFieldName}: {
   posts: PostsListBase[],
-  postStatuses: Record<string, DigestPost>,
+  postStatuses: Record<string, Partial<DigestPost>>,
   statusFieldName: StatusField
 }) => {
   // count how many posts have each status, to be displayed in the labels
   const counts: Record<string, number> = {}
   DIGEST_STATUS_OPTIONS.forEach(option => counts[option] = 0)
-  posts.forEach(p => counts[postStatuses[p._id][statusFieldName]]++)
-  
+  posts.forEach(p => {
+    const status = postStatuses[p._id][statusFieldName];
+    if (status) {
+      counts[status]++
+    }
+  })
+
   const options: Record<string, SettingsOption> = {}
   DIGEST_STATUS_OPTIONS.forEach((option: InDigestStatusOption) => {
     options[option] = {label: `${capitalize(option)} (${counts[option]})`}

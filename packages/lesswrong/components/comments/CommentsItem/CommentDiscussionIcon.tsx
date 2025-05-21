@@ -1,9 +1,10 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import classNames from 'classnames';
+import LWTooltip from "../../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     color: theme.palette.grey[500],
     width: 20,
@@ -23,9 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CommentDiscussionIcon = ({comment, small = false, classes}: {
   comment: CommentsList,
   small?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components
   if (comment.tagCommentType !== "SUBFORUM" || comment.topLevelCommentId) return null
 
   return (
@@ -35,13 +35,9 @@ const CommentDiscussionIcon = ({comment, small = false, classes}: {
   )
 }
 
-const CommentDiscussionIconComponent = registerComponent(
+export default registerComponent(
   'CommentDiscussionIcon', CommentDiscussionIcon, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentDiscussionIcon: typeof CommentDiscussionIconComponent,
-  }
-}
+
 

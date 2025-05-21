@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import Card from '@material-ui/core/Card';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ReviewVotingWidget from "./ReviewVotingWidget";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ReviewPostButton from "./ReviewPostButton";
 
-export const voteTextStyling = (theme: ThemeType): JssStyles => ({
+export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",
   width: 40,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   buttonWrapper: {
     cursor: "pointer",
     ...voteTextStyling(theme)
@@ -71,13 +75,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main
   },
   marginRight: {
-    marginRight: 10,
     marginLeft: 10
   }
 })
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType, post: PostsListBase, marginRight?: boolean}) => {
-  const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
+const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
@@ -93,7 +95,17 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: Classe
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a nomination vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {(voteIndex !== 0) ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
+        {(voteIndex !== 0)
+          ? (
+            <span className={classNames(
+              classes.button,
+              [(classes as AnyBecauseTodo)[voteIndex]],
+            )}>
+              {displayVote}
+            </span>
+          )
+          : <span className={classes.voteButton}>Vote</span>
+        }
       </div>
     </LWTooltip>
 
@@ -108,10 +120,6 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: Classe
   </div>
 }
 
-const PostsItemReviewVoteComponent = registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
+export default registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemReviewVote: typeof PostsItemReviewVoteComponent
-  }
-}
+

@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "lib": ["es2019", "dom"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "rootDir": ".",
+    "module": "commonjs",
+    "target": "es2018",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strictBindCallApply": true,
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./packages/lesswrong/*"],
+      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"]
+    }
+  },
+  "include": [
+    "packages/lesswrong",
+    "ckEditor/src/editorConfigs.js",
+    "playwright",
+    "./build.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "packages/lesswrong/viteClient",
+    "build",
+    "packages/lesswrong/lib/vendor/@material-ui"
+  ],
+  "ts-node": {
+    "files": true
+  }
+}

@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "../../lib/routeUtil";
-import { Components, capitalize, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
-import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useMulti } from "../../lib/crud/withMulti";
 import { getUserFromResults } from "../users/UsersProfile";
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
-import { useNavigate } from "../../lib/reactRouterWrapper";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
-import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
+import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
+import { slugify } from "@/lib/utils/slugify";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { capitalize } from "../../lib/vulcan-lib/utils";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "../common/SingleColumnSection";
+import HeadTags from "../common/HeadTags";
+import { Typography } from "../common/Typography";
+import LoadMore from "../common/LoadMore";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import AnalyticsPostItem from "./AnalyticsPostItem";
+import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -210,7 +219,7 @@ const AuthorAnalyticsPage = ({ classes }: {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location, search: `?${qs.stringify(newQuery)}` });
     setRestoreScrollPos(window.scrollY)
   };
 
@@ -249,12 +258,6 @@ const AuthorAnalyticsPage = ({ classes }: {
     setPosts([]);
     setTotalCount(0);
   }, [slug]);
-
-  const {
-    SingleColumnSection, HeadTags, Typography, LoadMore, ForumIcon, LWTooltip,
-    AnalyticsGraph, AnalyticsPostItem, AnalyticsPostItemSkeleton,
-  } = Components;
-
   const isCurrentUser = currentUser?.slug === slug
   if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
     return (
@@ -344,10 +347,6 @@ const AuthorAnalyticsPage = ({ classes }: {
   );
 };
 
-const AuthorAnalyticsPageComponent = registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
+export default registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
 
-declare global {
-  interface ComponentTypes {
-    AuthorAnalyticsPage: typeof AuthorAnalyticsPageComponent;
-  }
-}
+

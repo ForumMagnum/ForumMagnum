@@ -1,14 +1,15 @@
 import { wrapVulcanAsyncScript } from './utils'
-import { Vulcan } from '../vulcan-lib';
-import Users from '../../lib/collections/users/collection'
+import Users from '../../server/collections/users/collection'
 
 /*
  * This script attempts to ensure that all users with an "email" value
  * also have that email address listed in their "emails" array,
  * by appending it to the array if it is not already there
  * and it is not in another user's "emails" array.
+ *
+ * Exported to allow running manually with "yarn repl"
  */
-Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
+export const ensureEmailInEmails = wrapVulcanAsyncScript(
   'ensureEmailInEmails',
   async () => {
     const allUsers = Users.find({}, {projection: {emails: 1}});

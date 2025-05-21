@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
@@ -7,8 +7,10 @@ import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isAF } from '@/lib/instanceSettings';
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -22,6 +24,9 @@ const styles = (theme: ThemeType): JssStyles => ({
         lineHeight: "24px",
       }
       : {}),
+    ...(isAF && {
+      fontWeight: 500,
+    }),
   },
   afterPostsListMarginTop: {
     marginTop: 6,
@@ -86,7 +91,7 @@ const LoadMore = ({
   // hideLoading: Reserve space for the load spinner as normal, but don't show it
   hideLoading?: boolean,
   hidden?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   sectionFooterStyles?: boolean,
   afterPostsListMarginTop?: boolean,
   message?: string,
@@ -96,8 +101,6 @@ const LoadMore = ({
   // Don't show the loading animation on the initial render
   const isFirstRender = useIsFirstRender();
   loading = loading && !isFirstRender;
-
-  const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     void loadMore();
@@ -125,10 +128,6 @@ const LoadMore = ({
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
+export default registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    LoadMore: typeof LoadMoreComponent
-  }
-}
+

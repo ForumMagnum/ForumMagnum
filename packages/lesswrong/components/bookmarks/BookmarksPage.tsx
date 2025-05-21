@@ -1,17 +1,22 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { useLocation } from '../../lib/routeUtil';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import BookmarksTab from "./BookmarksTab";
+import ReadHistoryTab from "./ReadHistoryTab";
+import VoteHistoryTab from "./VoteHistoryTab";
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
     fontSize: isFriendlyUI ? 28 : undefined,
@@ -36,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const BookmarksPage = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
   const { location } = useLocation()
@@ -58,11 +63,8 @@ const BookmarksPage = ({ classes }: {
 
   const currentUser = useCurrentUser()
   if (!currentUser) {
-    return <Components.ErrorAccessDenied />
+    return <ErrorAccessDenied />
   }
-  
-  const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components
-
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
@@ -85,13 +87,9 @@ const BookmarksPage = ({ classes }: {
 }
 
 
-const BookmarksPageComponent = registerComponent('BookmarksPage', BookmarksPage, {
+export default registerComponent('BookmarksPage', BookmarksPage, {
   hocs: [withErrorBoundary],
   styles
 });
 
-declare global {
-  interface ComponentTypes {
-    BookmarksPage: typeof BookmarksPageComponent
-  }
-}
+

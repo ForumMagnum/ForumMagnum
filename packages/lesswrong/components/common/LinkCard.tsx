@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import LWTooltip from "./LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     position: "relative",
@@ -41,11 +42,10 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable
   to: string,
   tooltip?: any,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClick?: any,
   clickable?: boolean
 }) => {
-  const { LWTooltip } = Components
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>
@@ -67,10 +67,6 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable
 }
 
 
-const LinkCardComponent = registerComponent("LinkCard", LinkCard, {styles});
+export default registerComponent("LinkCard", LinkCard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LinkCard: typeof LinkCardComponent
-  }
-}
+

@@ -1,20 +1,24 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import { Card } from "@/components/widgets/Paper";
+import CardContent from '@/lib/vendor/@material-ui/core/src/CardContent';
 import { useTimezone } from '../../common/withTimezone';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
-import { communityPath } from '../../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import VirtualProgramCard from "./VirtualProgramCard";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     gridColumn: '1 / 4',
@@ -116,8 +120,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 195,
     width: 373,
   },
-}))
-
+});
 
 const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
   events: PostsList[],
@@ -126,7 +129,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   hideSpecialCards?: boolean,
   hideGroupNames?: boolean,
   cardClassName?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { timezone } = useTimezone()
@@ -135,9 +138,6 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
-  
-  const { AddToCalendarButton, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard, PrettyEventDateTime } = Components
-  
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
     return numDefaultCards ? <>
@@ -166,7 +166,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name ?? undefined}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>
@@ -212,10 +212,6 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   </>
 }
 
-const EventCardsComponent = registerComponent('EventCards', EventCards, {styles});
+export default registerComponent('EventCards', EventCards, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventCards: typeof EventCardsComponent
-  }
-}
+

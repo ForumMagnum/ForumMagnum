@@ -1,17 +1,19 @@
 import React, { FC, useState, useCallback, PropsWithChildren } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
 
 export const LicenseLink: FC<PropsWithChildren<{}>> = ({children}) =>
-  <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer">
-    {children ?? "CC-BY"}
+  <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
+    {children ?? "Creative Commons Attribution 4.0"}
   </a>
 
 const styles = (theme: ThemeType) => ({
@@ -34,7 +36,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostsAcceptTos = ({currentUser, classes}: {
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [loading, setLoading] = useState(false);
   const [accepted, setAccepted] = useState(currentUser.acceptedTos);
@@ -73,20 +75,16 @@ const PostsAcceptTos = ({currentUser, classes}: {
         disableRipple
       />
       {loading
-        ? <Components.Loading className={classes.spinner} />
-        : <Components.Typography variant="body2" className={classes.label}>
+        ? <Loading className={classes.spinner} />
+        : <Typography variant="body2" className={classes.label}>
           Before you can publish this post you must agree to the <TosLink /> including
           your content being available under a <LicenseLink /> license
-        </Components.Typography>
+        </Typography>
       }
     </div>
   );
 }
 
-const PostsAcceptTosComponent = registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
+export default registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsAcceptTos: typeof PostsAcceptTosComponent
-  }
-}
+

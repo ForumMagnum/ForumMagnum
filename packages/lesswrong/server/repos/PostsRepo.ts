@@ -1,11 +1,16 @@
-import Posts from "../../lib/collections/posts/collection";
+import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
+import { FilterSettings, FilterMode } from "@/lib/filterSettings";
+import { FeedFullPost, FeedItemSourceType, FeedPostFromDb } from "@/components/ultraFeed/ultraFeedTypes";
+import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -41,6 +46,98 @@ export type PostAndCommentsResultRow = {
   postedAt: Date|null
   last_commented: Date|null
 };
+
+const constructFilters = (
+  {
+    startDate,
+    endDate,
+    minKarma,
+    showEvents,
+  }: FilterPostsForReview,
+): [string, Record<string, any>] => {
+  const params = {
+    ...(startDate && {startDate: startDate.toISOString()}),
+    ...(endDate && {endDate: endDate.toISOString()}),
+    ...(minKarma && {minKarma}),
+  }
+
+  const filters = [
+    startDate ? `AND p."postedAt" >= $(startDate)` : '',
+    endDate ? `AND p."postedAt" <= $(endDate)` : '',
+    minKarma ? `AND p."baseScore" >= $(minKarma)` : '',
+    showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '',
+  ].filter(Boolean).join(' ')
+
+  return [filters, params]
+}
+
+function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === 'number') return mode;
+  if (mode === 'Subscribed') return 25;
+  return 0;
+}
+
+function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === 'string' && mode.startsWith('x')) {
+    return parseFloat(mode.substring(1)) || 1;
+  }
+  return 1;
+}
+
+/**
+ * Constructs a SQL expression for calculating the filteredScore based on filterSettings
+ * This mirrors the logic in the "magic" view's filterSettingsToParams function
+ */
+function constructFilteredScoreSql(filterSettings: FilterSettings): string {
+  const tagsSoftFiltered = filterSettings.tags.filter(
+    t => t.filterMode !== "Hidden" && t.filterMode !== "Required" && t.filterMode !== "Default"
+  );
+
+  const additiveModifiersSql = tagsSoftFiltered.map(tag => `
+    (CASE
+      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
+      ELSE 0
+    END)`
+  ).join(' + ');
+
+  const multiplicativeModifiersSql = tagsSoftFiltered.map(tag => `
+    (CASE
+      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
+      ELSE 1
+    END)`
+  ).join(' * ');
+
+  const frontpageBonus = 10;
+  const curatedBonus = 10;
+
+  const standardScoreModifiers = `
+    + (CASE WHEN p."frontpageDate" IS NOT NULL THEN ${frontpageBonus} ELSE 0 END)
+    + (CASE WHEN p."curatedDate" IS NOT NULL THEN ${curatedBonus} ELSE 0 END)
+  `;
+  
+  const timeDecayFactor = TIME_DECAY_FACTOR.get();
+  const ageOffset = isAF ? 6 : SCORE_BIAS;
+  
+  const timeDecayDenominatorSql = `
+    POWER(
+      (EXTRACT(EPOCH FROM NOW() - p."postedAt") / 3600) + ${ageOffset},
+      ${timeDecayFactor}
+    )
+  `;
+  
+  return `
+    (
+      (
+        p."baseScore"
+        ${additiveModifiersSql ? ` + ${additiveModifiersSql}` : ''}
+        ${standardScoreModifiers}
+      ) -- Numerator End (before multiplication)
+      ${multiplicativeModifiersSql ? ` * ${multiplicativeModifiersSql}` : ''}
+    ) / ${timeDecayDenominatorSql}
+  `;
+}
 
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
@@ -118,18 +215,54 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [], "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
+  
+  async getReadHistoryForUser(
+    userId: string,
+    limit: number,
+    filter: FilterPostsForReview | null,
+    sort: {
+      karma?: boolean
+    } | null, 
+  ): Promise<Array<DbPost & { lastUpdated: Date }>> {
+    const orderBy = sort?.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
+    const [filters, params] = constructFilters(filter ?? {});
 
-  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
     return await this.getRawDb().manyOrNone(`
       -- PostsRepo.getReadHistoryForUser
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
-      WHERE rs."userId" = '${userId}'
-      ORDER BY rs."lastUpdated" desc
-      LIMIT $1
-    `, [limit], "getReadHistoryForUser");
+      WHERE rs."userId" = $(userId)
+      ${filters}
+      ORDER BY ${orderBy}
+      LIMIT $(limit)
+    `, {userId, limit, ...params}, 'getReadHistoryForUser')
   }
+
+  async getPostsUserCommentedOn(
+    userId: string,
+    limit = 20,
+    filter: FilterPostsForReview | null,
+    sort: {
+      karma?: boolean
+    } | null,
+  ): Promise<DbPost[]> {
+    const orderBy = sort?.karma ? 'ORDER BY p."baseScore" DESC' : '';
+    const [filters, params] = constructFilters(filter ?? {});
+
+    return this.getRawDb().manyOrNone(`
+      -- PostsRepo.getPostsUserCommentedOn
+      SELECT DISTINCT p.*
+      FROM "Posts" p
+      INNER JOIN "Comments" c ON c."postId" = p._id
+      WHERE
+          c."userId" = $(userId)
+          ${filters}
+      ${orderBy}
+      LIMIT $(limit)
+    `, { userId, limit, ...params }, 'getPostsUserCommentedOn');
+  }
+
 
   async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
     const end = endDate ?? new Date()
@@ -410,11 +543,19 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."isEvent", FALSE) AS "isEvent",
         COALESCE(p."rejected", FALSE) AS "rejected",
         COALESCE(p."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
+        COALESCE(p."unlisted", FALSE) AS "unlisted",
         COALESCE(p."viewCount", 0) AS "viewCount",
         p."lastCommentedAt",
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
-        fm_post_tag_ids(p."_id") AS "tags",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(fm_post_tag_ids(p."_id")) AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
         CASE
           WHEN author."deleted" THEN NULL
           ELSE author."slug"
@@ -463,6 +604,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return count;
   }
 
+  async getViewablePostsIdsWithTag(tagId: string): Promise<string[]> {
+    const results: {_id: string}[] = await this.getRawDb().any(`
+      SELECT "_id"
+      FROM "Posts"
+      WHERE
+        ("tagRelevance"->$1)::INT > 0
+        AND "baseScore" >= 5
+        AND "hideFromRecentDiscussions" IS NOT TRUE
+        AND "hideFromPopularComments" IS NOT TRUE
+        AND ${getViewablePostsSelector()}
+    `, [tagId]);
+    return results.map(({_id}) => _id);
+  }
+
   async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getUsersReadPostsOfTargetUser
@@ -477,6 +632,16 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY rs."lastUpdated" DESC
       LIMIT $3
     `, [userId, targetUserId, limit]);
+  }
+
+  async getPostWithContents(postId: string): Promise<DbPostWithContents> {
+    return await this.getRawDb().one(`
+      -- PostsRepo.getPostWithContents
+      SELECT p.*, ROW_TO_JSON(r.*) "contents"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
+      WHERE p."_id" = $1
+    `, [postId]);
   }
 
   async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
@@ -665,8 +830,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   /**
-   * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
-   * for Wrapped.
+   * Get stats on how much the given user reads each core topic (excluding "Opportunities"),
+   * relative to the average user. This is currently used for Wrapped.
    */
   async getReadCoreTagStats({
     userId,
@@ -684,7 +849,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH core_tags AS (
           SELECT _id
           FROM "Tags"
-          WHERE core IS TRUE AND deleted is not true
+          WHERE core IS TRUE AND deleted is not true AND _id != 'z8qFsGt5iXyZiLbjN'
       ),
       read_posts AS (
           SELECT
@@ -916,6 +1081,197 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND r."draft" IS TRUE
     `, {
       postId
+    });
+  }
+
+  async getPostsWithApprovedJargon(limit: number): Promise<Array<DbPost & { jargonTerms: DbJargonTerm[] }>> {
+    return this.getRawDb().any(`
+      SELECT DISTINCT p.*, JSONB_AGG(jt.*) AS "jargonTerms"
+      FROM "Posts" p
+      JOIN "JargonTerms" jt
+      ON p._id = jt."postId"
+      WHERE jt."approved" IS TRUE
+      AND ${getViewablePostsSelector('p')}
+      GROUP BY p._id
+      ORDER BY p."postedAt" DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
+  /**
+   * Get posts for UltraFeed with filteredScore calculation and user interaction data
+   * This functions fails to perfectly replicate Latest Posts but it doesn't really matter
+   */
+  async getLatestPostsForUltraFeed(
+    context: ResolverContext,
+    filterSettings: FilterSettings,
+    seenPenalty: number,
+    maxAgeDays: number,
+    excludedPostIds: string[] = [],
+    limit = 100
+  ): Promise<FeedFullPost[]> {
+    
+    const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
+    const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
+    
+    const tagRequiredConditions = tagsRequired.map(tag => 
+      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) >= 1`
+    ).join(' AND ');
+    
+    const tagExcludedConditions = tagsExcluded.map(tag => 
+      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) < 1`
+    ).join(' AND ');
+    
+    const tagFilterClause = [
+      tagRequiredConditions ? `(${tagRequiredConditions})` : null,
+      tagExcludedConditions ? `(${tagExcludedConditions})` : null,
+    ].filter(Boolean).join(' AND ');
+    
+    const personalBlogFilter = filterSettings.personalBlog === "Hidden" 
+      ? 'AND p."frontpageDate" IS NOT NULL' 
+      : '';
+    
+    const excludedPostIdsCondition = excludedPostIds.length > 0 
+      ? `AND p."_id" NOT IN ($(excludedPostIds:csv))` 
+      : '';
+
+    const filteredScoreSql = constructFilteredScoreSql(filterSettings);
+
+    const feedPostsData = await this.getRawDb().manyOrNone<FeedPostFromDb>(`
+      -- PostsRepo.getLatestPostsForUltraFeed
+      WITH "UniversalPostFilter" AS (
+        -- Apply basic post filters
+        SELECT p.*,
+          -- Calculate filteredScore using dynamic expression
+          (${filteredScoreSql}) AS "initialFilteredScore" -- Calculate score before event join
+        FROM "Posts" p
+        WHERE
+          p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+          AND p."baseScore" >= 5
+          AND p."draft" IS FALSE
+          AND p."isFuture" IS FALSE
+          AND p."authorIsUnreviewed" IS FALSE
+          AND p.rejected IS NOT TRUE
+          AND p."hiddenRelatedQuestion" IS FALSE
+          AND p.unlisted IS FALSE
+          AND p.shortform IS FALSE
+          AND ${getViewablePostsSelector('p')}
+          ${personalBlogFilter}
+          ${excludedPostIdsCondition}
+          ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
+        -- No ORDER BY here, it needs interaction data
+      ),
+      "ReadStatusViews" AS (
+        -- Generate implied view events from ReadStatuses table
+        SELECT
+          p._id AS "documentId",
+          rs."lastUpdated" AS "createdAt",
+          'viewed' AS "eventType"
+        FROM "UniversalPostFilter" p
+        JOIN "ReadStatuses" rs ON p._id = rs."postId"
+        WHERE rs."userId" = $(userId)
+          AND rs."isRead" IS TRUE
+      ),
+      "UsersEvents" AS (
+        -- Select from the combined and ordered events
+        SELECT * FROM (
+          -- Combine both real events and implied events from read statuses
+          SELECT
+            ue."documentId",
+            ue."createdAt",
+            ue."eventType"
+          FROM "UltraFeedEvents" ue
+          WHERE ue."collectionName" = 'Posts'
+            AND "userId" = $(userId)
+            AND ue."documentId" IN (SELECT _id FROM "UniversalPostFilter")
+          
+          UNION ALL
+          
+          -- Add the implied view events from ReadStatuses
+          SELECT * FROM "ReadStatusViews"
+        ) AS CombinedEvents -- Treat the UNION result as a derived table
+        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
+      ),
+      "PostEvents" AS (
+          -- Aggregate the user's latest events for each post
+          SELECT
+              pe."documentId",
+              MAX(CASE WHEN pe."eventType" = 'viewed' THEN pe."createdAt" ELSE NULL END) AS "lastViewed",
+              MAX(CASE WHEN pe."eventType" <> 'viewed' AND pe."eventType" <> 'served' THEN pe."createdAt" ELSE NULL END) AS "lastInteracted",
+              MAX(CASE WHEN pe."eventType" = 'served' THEN pe."createdAt" ELSE NULL END) AS "lastServed"
+         FROM "UsersEvents" pe
+          GROUP BY pe."documentId"
+      )
+      -- Final Selection and Ordering
+      SELECT
+          p.*,
+          pe."lastServed",
+          pe."lastViewed",
+          pe."lastInteracted"
+      FROM "UniversalPostFilter" p
+      LEFT JOIN "PostEvents" pe ON p._id = pe."documentId"
+      WHERE NOT (pe."lastViewed" IS NOT NULL AND $(seenPenalty) = 0)
+      ORDER BY p."initialFilteredScore" * (CASE WHEN pe."lastViewed" IS NOT NULL THEN $(seenPenalty) ELSE 1 END) DESC
+      LIMIT $(limit)
+    `, { 
+      userId: context.currentUser?._id, 
+      seenPenalty,
+      maxAgeDays,
+      excludedPostIds,
+      limit
+    });
+
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', feedPostsData, context);
+
+    return filteredPosts.map((post): FeedFullPost => {
+      const { lastServed, lastViewed, lastInteracted, ...postData } = post;
+      
+      return {
+        post: postData,
+        postMetaInfo: {
+          sources: ['hacker-news'],
+          displayStatus: 'expanded',
+          lastServed: lastServed,
+          lastViewed: lastViewed,
+          lastInteracted: lastInteracted,
+        },
+      };
+    });
+  }
+
+  /**
+   * Get posts from users the current user is subscribed to, for UltraFeed
+   */
+  async getPostsFromSubscribedUsersForUltraFeed(
+    userId: string,
+    maxAgeDays: number,
+    limit = 100
+  ): Promise<{ postId: string }[]> {
+
+    return await this.getRawDb().manyOrNone<{ postId: string }>(`
+      -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
+      SELECT
+        p._id AS "postId"
+      FROM "Posts" p
+      JOIN (
+        SELECT DISTINCT "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" IN ('newActivityForFeed', 'newPosts')
+          AND "userId" = $(userId)
+      ) AS user_subscriptions ON p."userId" = user_subscriptions."userId"
+      WHERE 
+        p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
+        AND p.rejected IS NOT TRUE 
+        AND ${getViewablePostsSelector('p')} 
+      ORDER BY p."postedAt" DESC
+      LIMIT $(limitParam)
+    `, { 
+      userId: userId, 
+      maxAgeDaysParam: maxAgeDays,
+      limitParam: limit
     });
   }
 }

@@ -1,6 +1,4 @@
 import { addCronJob, removeCronJob } from './cronUtil';
-import { createMutator, Globals } from './vulcan-lib';
-import { LWEvents } from '../lib/collections/lwevents/collection';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
@@ -9,6 +7,8 @@ import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { isLW } from '../lib/instanceSettings';
 import type { OpenEvent } from 'ws';
+import { createLWEvent } from './collections/lwevents/mutations';
+import { createAdminContext } from './vulcan-lib/createContexts';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
@@ -49,9 +49,8 @@ const pollGatherTownUsers = async () => {
   const {gatherTownUsers, checkFailed, failureReason} = result;
   // eslint-disable-next-line no-console
   console.log(`GatherTown users: ${JSON.stringify(result)}`);
-  void createMutator({
-    collection: LWEvents,
-    document: {
+  void createLWEvent({
+    data: {
       name: 'gatherTownUsersCheck',
       important: false,
       properties: {
@@ -59,11 +58,9 @@ const pollGatherTownUsers = async () => {
         trackerVersion: currentGatherTownTrackerVersion,
         gatherTownUsers, checkFailed, failureReason
       }
-    },
-    validate: false,
-  })
+    }
+  }, createAdminContext());
 }
-Globals.pollGatherTownUsers = pollGatherTownUsers;
 
 type GatherTownPlayerInfo = any;
 interface GatherTownCheckResult {

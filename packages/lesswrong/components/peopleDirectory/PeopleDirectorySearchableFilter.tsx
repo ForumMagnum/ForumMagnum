@@ -1,6 +1,11 @@
 import React, { Fragment, ReactNode, useCallback, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { SearchableMultiSelectResult } from "../hooks/useSearchableMultiSelect";
+import PeopleDirectoryFilterDropdown from "./PeopleDirectoryFilterDropdown";
+import PeopleDirectoryInput from "./PeopleDirectoryInput";
+import Loading from "../vulcan-core/Loading";
+import PeopleDirectorySelectOption from "./PeopleDirectorySelectOption";
+import PeopleDirectoryClearAll from "./PeopleDirectoryClearAll";
 
 const styles = (theme: ThemeType) => ({
   search: {
@@ -78,21 +83,16 @@ const PeopleDirectorySearchableFilter = ({
       );
     }
     return (
-      <Components.PeopleDirectoryFilterDropdown
+      <PeopleDirectoryFilterDropdown
         title={summary}
         active={selectedValues.length > 0}
         onOpen={onOpen}
         onClose={onClose}
       >
         {children}
-      </Components.PeopleDirectoryFilterDropdown>
+      </PeopleDirectoryFilterDropdown>
     );
   }, [justContent, summary, selectedValues.length, onOpen, onClose]);
-
-  const {
-    PeopleDirectoryInput, Loading, PeopleDirectorySelectOption,
-    PeopleDirectoryClearAll,
-  } = Components;
   return (
     <Wrapper>
       <div className={classes.search}>
@@ -132,14 +132,10 @@ const PeopleDirectorySearchableFilter = ({
   );
 }
 
-const PeopleDirectorySearchableFilterComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectorySearchableFilter",
   PeopleDirectorySearchableFilter,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectorySearchableFilter: typeof PeopleDirectorySearchableFilterComponent
-  }
-}
+

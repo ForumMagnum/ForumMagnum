@@ -70,7 +70,7 @@ export type IndexConfig = {
    * results when used on more structured strings like ids or slugs, which should
    * instead be given the "keyword" mapping.
    * Note that making a change here requires reindexing the data with
-   * `Globals.elasticConfigureIndex`.
+   * `elasticConfigureIndex`.
    */
   mappings?: Mappings,
   /**
@@ -106,8 +106,9 @@ const fullTextMapping: MappingProperty = {
       analyzer: "fm_exact_analyzer",
     },
     sort: {
-      type: "keyword",
-      normalizer: "fm_sortable_keyword",
+      // A wildcard is similar to a keyword, but supports data larger than 32KB
+      type: "wildcard",
+      null_value: "",
     },
   },
 };
@@ -223,6 +224,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
+      {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
@@ -234,12 +236,17 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       body: fullTextMapping,
       feedLink: keywordMapping,
       slug: keywordMapping,
-      tags: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: keywordMapping,
+      }),
       url: keywordMapping,
       userId: keywordMapping,
     },
     privateFields: [
       "authorIsUnreviewed",
+      "unlisted",
       "draft",
       "isFuture",
       "legacy",
@@ -359,7 +366,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
   Tags: {
     fields: [
-      "name^3",
+      "name^30",
       "description",
     ],
     snippet: "description",
@@ -371,6 +378,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         scoring: {type: "bool"},
       },
       {
+        field: "baseScore",
+        order: "desc",
+        weight: 0.5,
+        scoring: {type: "numeric", pivot: 20},
+      },
+      {
         field: "postCount",
         order: "desc",
         weight: 0.25,
@@ -380,6 +393,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},
+      {term: {isPlaceholderPage: false}},
       {term: {adminOnly: false}},
     ],
     mappings: {

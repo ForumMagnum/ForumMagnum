@@ -1,22 +1,13 @@
-import { Tags } from '../lib/collections/tags/collection';
-import {
-  KarmaChangeSettingsType,
-  KarmaChangeUpdateFrequency,
-  karmaChangeNotifierDefaultSettings,
-} from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import VotesRepo from './repos/VotesRepo';
 import type {
-  KarmaChanges,
   KarmaChangesArgs,
-  PostKarmaChange,
-  CommentKarmaChange,
-  TagRevisionKarmaChange,
   AnyKarmaChange,
-} from '../lib/collections/users/karmaChangesGraphQL';
+} from './collections/users/karmaChangesGraphQL';
 import { isFriendlyUI } from '../themes/forumTheme';
+import type VotesRepo from './repos/VotesRepo';
+import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
@@ -29,21 +20,24 @@ const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
 const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaChange =>
   "tagCommentType" in change && !!change.tagCommentType;
 
-const getEAKarmaChanges = async (
-  votesRepo: VotesRepo,
-  args: KarmaChangesArgs,
-  nextBatchDate: Date|null,
-  updateFrequency: KarmaChangeUpdateFrequency,
-): Promise<KarmaChanges> => {
-  const changes = await votesRepo.getEAKarmaChanges(args);
-
+/**
+ * Given an array of karma changes on an account's content,
+ * calculates the total karma change for that account,
+ * and splits the karma changes into buckets by content type.
+ *
+ * Takes an optional _id suffix to separately identify these changes.
+ */
+const categorizeKarmaChanges = (changes: AnyKarmaChange[], suffix?: string): KarmaChangesSimple & {totalChange: number} => {
   const posts: PostKarmaChange[] = [];
   const comments: CommentKarmaChange[] = [];
-  const tagRevisions: TagRevisionKarmaChange[] = [];
+  const tagRevisions: RevisionsKarmaChange[] = [];
   let totalChange = 0;
 
   for (const change of changes) {
     totalChange += change.scoreChange;
+    if (suffix) {
+      change._id += suffix
+    }
     if (isPostKarmaChange(change)) {
       posts.push(change);
     } else if (isCommentKarmaChange(change)) {
@@ -56,16 +50,61 @@ const getEAKarmaChanges = async (
       tagRevisions.push(change);
     }
   }
+  
+  return {
+    totalChange, posts, comments, tagRevisions
+  }
+}
+
+const getEAKarmaChanges = async (
+  votesRepo: VotesRepo,
+  args: KarmaChangesArgs,
+  nextBatchDate: Date|null,
+  updateFrequency: KarmaChangeUpdateFrequency,
+): Promise<KarmaChanges> => {
+  const changes = await votesRepo.getEAKarmaChanges(args);
+  const newChanges = categorizeKarmaChanges(changes)
+  
+  // We also display the rest of the karma changes that they got
+  // in the past 24 hours and in the past week underneath
+  // the ones they got since the last time they checked.
+  // This reduces the chance that they lose the changes after viewing them once.
+
+  let todaysKarmaChanges: KarmaChangesSimple|null = null;
+  const yesterday = moment().subtract(1, 'day').toDate()
+  // "Today" is only relevant for realtime notifications.
+  if (updateFrequency === 'realtime' && args.startDate > yesterday) {
+    const todaysChanges = await votesRepo.getEAKarmaChanges({
+      ...args,
+      startDate: yesterday,
+      endDate: args.startDate,
+    })
+    todaysKarmaChanges = categorizeKarmaChanges(todaysChanges, '-today')
+  }
+
+  let thisWeeksKarmaChanges: KarmaChangesSimple|null = null;
+  const lastWeek = moment().subtract(1, 'week').toDate()
+  // "This week" is only relevant for realtime and daily notifications.
+  if (['realtime', 'daily'].includes(updateFrequency) && args.startDate > lastWeek) {
+    const thisWeeksChanges = await votesRepo.getEAKarmaChanges({
+      ...args,
+      startDate: lastWeek,
+      endDate: !!todaysKarmaChanges ? yesterday : args.startDate,
+    })
+    thisWeeksKarmaChanges = categorizeKarmaChanges(thisWeeksChanges, '-thisWeek')
+  }
 
   return {
-    totalChange,
+    totalChange: newChanges.totalChange,
     startDate: args.startDate,
     endDate: args.endDate,
-    nextBatchDate: nextBatchDate ?? undefined,
+    nextBatchDate,
     updateFrequency,
-    posts,
-    comments,
-    tagRevisions,
+    posts: newChanges.posts,
+    comments: newChanges.comments,
+    tagRevisions: newChanges.tagRevisions,
+    todaysKarmaChanges,
+    thisWeeksKarmaChanges,
   };
 }
 
@@ -118,7 +157,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   endDate: Date,
   nextBatchDate?: Date|null,
   af?: boolean,
-  context?: ResolverContext,
+  context: ResolverContext,
 }): Promise<KarmaChanges> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -127,9 +166,9 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
   const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
-    karmaChangeNotifierDefaultSettings;
+    karmaChangeNotifierDefaultSettings.get();
 
-  const votesRepo = context?.repos.votes ?? new VotesRepo();
+  const votesRepo = context.repos.votes;
   const queryArgs: KarmaChangesArgs = {
     userId: user._id,
     startDate,
@@ -162,7 +201,8 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
       tagIdsReferenced.add(changedComment.tagId);
   }
   for (let changedTagRevision of changedTagRevisions) {
-    tagIdsReferenced.add(changedTagRevision.tagId);
+    if (changedTagRevision.tagId)
+      tagIdsReferenced.add(changedTagRevision.tagId);
   }
   
   const tagIdToMetadata = await mapTagIdsToMetadata([...tagIdsReferenced.keys()], context)
@@ -172,8 +212,10 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     }
   }
   for (let changedRevision of changedTagRevisions) {
-    changedRevision.tagSlug = tagIdToMetadata[changedRevision.tagId].slug;
-    changedRevision.tagName = tagIdToMetadata[changedRevision.tagId].name;
+    if (changedRevision.tagId) {
+      changedRevision.tagSlug = tagIdToMetadata[changedRevision.tagId].slug;
+      changedRevision.tagName = tagIdToMetadata[changedRevision.tagId].name;
+    }
   }
   
   
@@ -186,19 +228,22 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     totalChange,
     startDate,
     endDate,
-    nextBatchDate: nextBatchDate ?? undefined,
+    nextBatchDate,
     updateFrequency,
     posts: changedPosts,
     comments: changedComments,
     tagRevisions: changedTagRevisions,
+    todaysKarmaChanges: null,
+    thisWeeksKarmaChanges: null,
   };
 }
 
-const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug: string, name: string}>> => {
+const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext): Promise<Record<string,{slug: string, name: string}>> => {
+  const { Tags, loaders } = context;
   const mapping: Record<string,{slug: string, name: string}> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
-      ? await context.loaders.Tags.load(tagId)
+      ? await loaders.Tags.load(tagId)
       : await Tags.findOne(tagId)
     if (tag?.slug) {
       mapping[tagId] = {

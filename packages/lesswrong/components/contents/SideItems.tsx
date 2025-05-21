@@ -3,12 +3,13 @@ import classNames from 'classnames';
 import orderBy from 'lodash/orderBy';
 import { createPortal } from 'react-dom';
 import { useHover } from '@/components/common/withHover';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
-type SideItemOptions = {
-  format: "block"|"icon"
+export type SideItemOptions = {
+  format: "block"|"icon",
   offsetTop: number,
+  measuredElement?: React.RefObject<HTMLElement|null>,
 }
 const defaultSideItemOptions: SideItemOptions = {
   format: "block",
@@ -51,6 +52,7 @@ export const styles = (theme: ThemeType) => ({
   },
   sidebar: {
     position: "relative",
+    height: "100%",
   },
 });
 
@@ -61,7 +63,7 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-const SideItemsContainer = ({classes, children}: {
+const SideItemsContainerInner = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
@@ -145,7 +147,7 @@ const SideItemsContainer = ({classes, children}: {
   );
 }
 
-const SideItemsSidebar = ({classes}: {
+const SideItemsSidebarInner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const placementContext = useContext(SideItemsPlacementContext);
@@ -180,7 +182,7 @@ const SideItemsSidebar = ({classes}: {
       const sideItem = displayContext.sideItems[i];
       sideItem.anchorTop = getOffsetChainTop(sideItem.anchorEl) - sidebarColumnTop + sideItem.options.offsetTop;
       sideItem.anchorLeft = sideItem.anchorEl.offsetLeft;
-      sideItem.sideItemHeight = sideItem.container.clientHeight;
+      sideItem.sideItemHeight = sideItem.options.measuredElement?.current?.clientHeight ?? sideItem.container.clientHeight;
     }
     
     // Sort side-items by their anchor position
@@ -193,8 +195,13 @@ const SideItemsSidebar = ({classes}: {
     for (let i=0; i<sortedSideItems.length; i++) {
       const sideItem = sortedSideItems[i];
       let newTop = Math.max(top, sideItem.anchorTop!);
-      sideItem.container.setAttribute("style", `top:${newTop}px;`);
-      top = newTop + sideItem.sideItemHeight!;
+
+      const sidebarColumnHeight = sideItemColumnRef.current?.clientHeight;
+
+      const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px`;
+
+      sideItem.container.setAttribute("style", style);
+      top = newTop + sideItem.sideItemHeight!;  
     }
     
     // Use a ResizeObserver to watch for size-changes of side-item containers
@@ -219,7 +226,7 @@ const SideItemsSidebar = ({classes}: {
   />, [classes]);
 }
 
-const SideItem = ({options, children}: {
+export const SideItem = ({options, children}: {
   options?: Partial<SideItemOptions>,
   children: React.ReactNode
 }) => {
@@ -239,7 +246,7 @@ const SideItem = ({options, children}: {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placementContext, JSON.stringify(mergedOptions)]);
+  }, [placementContext, mergedOptions.format, mergedOptions.offsetTop, mergedOptions.measuredElement]);
 
   if (!placementContext) {
     return null;
@@ -254,14 +261,7 @@ export const useHasSideItemsSidebar = (): boolean => {
   return !!useContext(SideItemsPlacementContext);
 }
 
-const SideItemsContainerComponent = registerComponent('SideItemsContainer', SideItemsContainer, {styles});
-const SideItemsSidebarComponent = registerComponent('SideItemsSidebar', SideItemsSidebar, {styles});
-const SideItemComponent = registerComponent('SideItem', SideItem, {});
+export const SideItemsContainer = registerComponent('SideItemsContainer', SideItemsContainerInner, {styles});
+export const SideItemsSidebar = registerComponent('SideItemsSidebar', SideItemsSidebarInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SideItemsContainer: typeof SideItemsContainerComponent,
-    SideItemsSidebar: typeof SideItemsSidebarComponent,
-    SideItem: typeof SideItemComponent
-  }
-}
+

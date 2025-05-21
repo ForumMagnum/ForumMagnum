@@ -1,8 +1,8 @@
 import { registerMigration } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts'
+import { Posts } from '../../server/collections/posts/collection'
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "migrateLinkPosts",
   dateWritten: "2019-04-24",
   idempotent: true,

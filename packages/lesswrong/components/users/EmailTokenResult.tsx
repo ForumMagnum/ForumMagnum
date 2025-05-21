@@ -1,16 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Typography } from "../common/Typography";
 
-const EmailTokenResult = ({message}: {
+export const EmailTokenResult = ({message}: {
   message: string,
 }) => {
-  return <Components.Typography variant="body2">{message}</Components.Typography>
-}
-
-const EmailTokenResultComponent = registerComponent("EmailTokenResult", EmailTokenResult);
-
-declare global {
-  interface ComponentTypes {
-    EmailTokenResult: typeof EmailTokenResultComponent
-  }
+  return <Typography variant="body2">{message}</Typography>
 }

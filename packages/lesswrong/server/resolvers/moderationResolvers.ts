@@ -1,46 +1,29 @@
-import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
-import { LWEvents } from '../../lib/collections/lwevents/collection';
+import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
-import { Comments } from '../../lib/collections/comments/collection';
-import { updateMutator } from '../vulcan-lib/mutators';
+import { Comments } from '../../server/collections/comments/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
+import gql from 'graphql-tag';
+import { updateComment } from '../collections/comments/mutations';
 
-defineQuery({
-  name: "moderatorViewIPAddress",
-  argTypes: "(ipAddress: String!)",
-  resultType: "ModeratorIPAddressInfo",
-  schema: `
-    type ModeratorIPAddressInfo {
-      ip: String!
-      userIds: [String!]!
-    }
-  `,
-  fn: async (_root: void, args: {ipAddress: string}, context: ResolverContext) => {
-    const { currentUser } = context;
-    const { ipAddress } = args;
-    if (!currentUser || !currentUser.isAdmin)
-      throw new Error("Only admins can see IP address information");
-    
-    const loginEvents = await LWEvents.find({
-      name: "login",
-      "properties.ip": ipAddress,
-    }, {limit: 20}).fetch();
-    
-    const userIds = uniq(loginEvents.map(loginEvent => loginEvent.userId));
-    return {
-      ip: ipAddress,
-      userIds,
-    };
+export const moderationGqlTypeDefs = gql`
+  type ModeratorIPAddressInfo {
+    ip: String!
+    userIds: [String!]!
   }
-});
+  extend type Query {
+    moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+  }
 
-defineMutation({
-  name: "lockThread",
-  argTypes: "(commentId: String!, until: String)",
-  resultType: "Boolean!",
-  fn: async (_root: void, args: {commentId: string, until?: string}, context: ResolverContext) => {
+  extend type Mutation {
+    lockThread(commentId: String!, until: String): Boolean!
+    unlockThread(commentId: String!): Boolean!
+  }
+`
+
+export const moderationGqlMutations = {
+  async lockThread (_root: void, args: {commentId: string, until?: string}, context: ResolverContext) {
     const { currentUser } = context;
     if (!userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can lock or unlock threads");
@@ -60,25 +43,16 @@ defineMutation({
     
     // Mark them all as replies-locked
     await Promise.all(commentsInThread.map(async (comment) => {
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        set: {
+      await updateComment({
+        data: {
           repliesBlockedUntil: expiryDate,
-        },
-        context,
-      });
+        }, selector: { _id: comment._id }
+      }, context);
     }));
     
     return true;
-  }
-});
-
-defineMutation({
-  name: "unlockThread",
-  argTypes: "(commentId: String!)",
-  resultType: "Boolean!",
-  fn: async (_root: void, args: {commentId: string}, context: ResolverContext) => {
+  },
+  async unlockThread (_root: void, args: {commentId: string}, context: ResolverContext) {
     const { currentUser } = context;
     if (!userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can lock or unlock threads");
@@ -108,19 +82,32 @@ defineMutation({
 
     // Get a list of all comments nested under this one, recursively
     const commentsInThread: DbComment[] = await getCommentSubtree(rootOfLocking);
-    
+
     // Unmark them all as replies-locked
     await Promise.all(commentsInThread.map(async (comment) => {
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        unset: {
-          repliesBlockedUntil: 1,
-        },
-        context,
-      });
+      await updateComment({ data: { repliesBlockedUntil: null }, selector: { _id: comment._id } }, context);
     }));
 
     return true;
   }
-});
+}
+
+export const moderationGqlQueries = {
+  async moderatorViewIPAddress (_root: void, args: {ipAddress: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    const { ipAddress } = args;
+    if (!currentUser || !currentUser.isAdmin)
+      throw new Error("Only admins can see IP address information");
+    
+    const loginEvents = await LWEvents.find({
+      name: "login",
+      "properties.ip": ipAddress,
+    }, {limit: 100}).fetch();
+    
+    const userIds = uniq(loginEvents.map(loginEvent => loginEvent.userId));
+    return {
+      ip: ipAddress,
+      userIds,
+    };
+  }
+}

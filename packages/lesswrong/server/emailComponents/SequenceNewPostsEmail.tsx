@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = defineStyles("SequenceNewPostsEmail", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
@@ -16,13 +16,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: 250,
     margin: '0 auto 25px',
   },
-});
+}));
 
-const SequenceNewPostsEmail = ({sequence, posts, classes}: {
+export const SequenceNewPostsEmail = ({sequence, posts}: {
   sequence: DbSequence,
   posts: DbPost[],
-  classes: any,
 }) => {
+  const classes = useStyles(styles);
   const img = sequence.gridImageId || sequence.bannerImageId;
     const imgUrl = img ? makeCloudinaryImageUrl(img, {
       c: "fill",
@@ -47,10 +47,3 @@ const SequenceNewPostsEmail = ({sequence, posts, classes}: {
   </div>
 }
 
-const SequenceNewPostsEmailComponent = registerComponent("SequenceNewPostsEmail", SequenceNewPostsEmail, {styles});
-
-declare global {
-  interface ComponentTypes {
-    SequenceNewPostsEmail: typeof SequenceNewPostsEmailComponent
-  }
-}

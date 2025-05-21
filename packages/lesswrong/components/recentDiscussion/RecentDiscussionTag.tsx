@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
@@ -10,9 +10,11 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import CommentsNodeInner from "../comments/CommentsNode";
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -34,9 +36,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
+    paddingBottom: 12,
     background: theme.palette.panelBackground.default,
     borderRadius: 3,
-    marginBottom:4
+    marginBottom: 4,
+
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      paddingLeft: 14,
+      paddingRight: 14,
+    },
   },
   content: {
     marginLeft: 4,
@@ -66,10 +75,8 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   
@@ -113,7 +120,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
             description={`tag ${tag.name}`}
-            className={classes.description}
           />
         </ContentStyles>
       </div>
@@ -123,7 +129,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
       <div className={classes.commentsList}>
         {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
           <div key={comment.item._id}>
-            <CommentsNode
+            <CommentsNodeInner
               treeOptions={commentTreeOptions}
               startThreadTruncated={true}
               expandAllThreads={initialExpandAllThreads || expandAllThreads}
@@ -139,15 +145,11 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   </div>
 }
 
-const RecentDiscussionTagComponent = registerComponent(
+export default registerComponent(
   'RecentDiscussionTag', RecentDiscussionTag, {
     styles,
     hocs: [withErrorBoundary],
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionTag: typeof RecentDiscussionTagComponent,
-  }
-}
+

@@ -2,17 +2,18 @@ import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { userCanDo } from '../../../lib/vulcan-users';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentBottomCaveats from "./CommentBottomCaveats";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bottom: {
     paddingBottom: isFriendlyUI ? 12 : 5,
     paddingTop: isFriendlyUI ? 4 : undefined,
@@ -36,11 +37,10 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   treeOptions: CommentTreeOptions,
   votingSystem: VotingSystem
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   replyButton: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const isMinimalist = treeOptions.formStyle === "minimalist"
@@ -84,11 +84,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   );
 }
 
-const CommentBottomComponent = registerComponent('CommentBottom', CommentBottom, {styles});
+export default registerComponent('CommentBottom', CommentBottom, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBottom: typeof CommentBottomComponent
-  }
-}
+
 

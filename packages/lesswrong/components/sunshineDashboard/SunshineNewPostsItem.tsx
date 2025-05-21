@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -7,16 +7,28 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary';
-import Button from '@material-ui/core/Button';
-import PersonIcon from '@material-ui/icons/Person'
-import HomeIcon from '@material-ui/icons/Home';
-import ClearIcon from '@material-ui/icons/Clear';
-import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
+import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { useCreate } from '../../lib/crud/withCreate';
-import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import MetaInfo from "../common/MetaInfo";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import ContentItemBody from "../common/ContentItemBody";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import FormatDate from "../common/FormatDate";
+import FooterTagList from "../tagging/FooterTagList";
+import { Typography } from "../common/Typography";
+import ContentStyles from "../common/ContentStyles";
+import SmallSideVote from "../votes/SmallSideVote";
+import ForumIcon from "../common/ForumIcon";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     width: 14,
     marginRight: 4
@@ -50,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
@@ -116,21 +128,6 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     // The backend state only gets changed in a moderator action callback, so apollo doesn't handle it for us by updating the cache
     refetch();
   }
-
-  const {
-    MetaInfo,
-    LinkPostMessage,
-    ContentItemBody,
-    SunshineListItem,
-    SidebarHoverOver,
-    SidebarInfo,
-    FormatDate,
-    FooterTagList,
-    Typography,
-    ContentStyles,
-    SmallSideVote,
-    ForumIcon
-  } = Components;
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -184,7 +181,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
             </div>}
             {(modGuidelinesHtml || userGuidelinesHtml) && <div>
               <MetaInfo>
-                <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                <span dangerouslySetInnerHTML={{__html: (modGuidelinesHtml || userGuidelinesHtml) ?? ''}}/>
                 {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
               </MetaInfo>
             </div>}
@@ -212,12 +209,8 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   )
 }
 
-const SunshineNewPostsItemComponent = registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
+export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewPostsItem: typeof SunshineNewPostsItemComponent
-  }
-}
+

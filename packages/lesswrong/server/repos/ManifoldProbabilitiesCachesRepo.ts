@@ -1,5 +1,5 @@
-import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
-import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
+import { AnnualReviewMarketInfo } from "../../lib/collections/posts/annualReviewMarkets";
+import ManifoldProbabilitiesCaches from "../../server/collections/manifoldProbabilitiesCaches/collection";
 import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 
@@ -10,9 +10,9 @@ class ManifoldProbabilitiesCachesRepo extends AbstractRepo<"ManifoldProbabilitie
 
   async upsertMarketInfoInCache (marketId: string, marketInfo: AnnualReviewMarketInfo): Promise<unknown> {
     return this.getRawDb().none(`
-      INSERT INTO "ManifoldProbabilitiesCaches" (_id, "marketId", probability, "isResolved", year, "lastUpdated")
-      VALUES ($(_id), $(marketId), $(marketInfo.probability), $(marketInfo.isResolved), $(marketInfo.year), NOW())
-      ON CONFLICT ("marketId") DO UPDATE SET probability = $(marketInfo.probability), "isResolved" = $(marketInfo.isResolved), year = $(marketInfo.year), "lastUpdated" = NOW()`,
+      INSERT INTO "ManifoldProbabilitiesCaches" (_id, "marketId", probability, "isResolved", year, "lastUpdated", url)
+      VALUES ($(_id), $(marketId), $(marketInfo.probability), $(marketInfo.isResolved), $(marketInfo.year), NOW(), $(marketInfo.url))
+      ON CONFLICT ("marketId") DO UPDATE SET probability = $(marketInfo.probability), "isResolved" = $(marketInfo.isResolved), year = $(marketInfo.year), "lastUpdated" = NOW(), url = $(marketInfo.url)`,
     {_id: randomId(), marketId: marketId, marketInfo});
   }
 }

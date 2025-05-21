@@ -1,4 +1,4 @@
-import LlmConversations from "@/lib/collections/llmConversations/collection";
+import LlmConversations from "@/server/collections/llmConversations/collection";
 import { updateFieldType } from "./meta/utils";
 
 /**

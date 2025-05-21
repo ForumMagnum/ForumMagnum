@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { CommentsNodeProps } from './CommentsNode';
-import { useLocation } from '../../lib/routeUtil';
+import CommentsNodeInner, { CommentsNodeProps } from './CommentsNode';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -25,7 +24,7 @@ export interface CommentWithRepliesProps {
   commentNodeProps?: Partial<CommentsNodeProps>;
   startExpanded?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }
 
 const CommentWithReplies = ({
@@ -38,12 +37,6 @@ const CommentWithReplies = ({
   className,
   classes,
 }: CommentWithRepliesProps) => {
-  const { hash: focusCommentId } = useLocation();
-
-  const commentId = focusCommentId.slice(1) || null;
-
-  startExpanded ??= comment.latestChildren.some(c => c._id === commentId);
-
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
   if (!comment) return null;
@@ -56,12 +49,9 @@ const CommentWithReplies = ({
     condensed: true,
     showPostTitle: true,
     post: post ?? comment.post ?? undefined,
-    noHash: true,
+    noDOMId: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
-
-  const { CommentsNode } = Components;
-
   const renderedChildren = comment.latestChildren.slice(0, maxChildren);
   const extraChildrenCount = Math.max(0, comment.latestChildren.length - renderedChildren.length);
 
@@ -78,7 +68,7 @@ const CommentWithReplies = ({
     ) : null;
 
   return (
-    <CommentsNode
+    <CommentsNodeInner
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}
@@ -96,15 +86,11 @@ const CommentWithReplies = ({
   );
 };
 
-const CommentWithRepliesComponent = registerComponent(
+export default registerComponent(
   'CommentWithReplies', CommentWithReplies, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentWithReplies: typeof CommentWithRepliesComponent;
-  }
-}
+

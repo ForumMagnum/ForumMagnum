@@ -3,14 +3,6 @@ declare module "deepmerge" {
   export default function deepmerge(a: any, b: any, options?: {isMergeableObject: any}): any
 }
 
-declare module "draft-js-buttons" {
-  export const createBlockStyleButton: AnyBecauseObsolete
-  export const ItalicButton: AnyBecauseObsolete
-  export const BoldButton: AnyBecauseObsolete
-  export const UnderlineButton: AnyBecauseObsolete
-  export const BlockquoteButton: AnyBecauseObsolete
-}
-
 declare module "markdown-it-footnote" {
   const markdownItFootnote: AnyBecauseTodo;
   export default markdownItFootnote;
@@ -72,4 +64,8 @@ declare module "html-lexer" {
 declare module "passport-auth0/lib/Profile" {
   const Profile: AnyBecauseTodo
   export default Profile;
+}
+
+declare module "@extractus/article-extractor" {
+  export const extract: AnyBecauseTodo
 }

@@ -2,14 +2,18 @@ import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import UsersReviewInfoCard from "./UsersReviewInfoCard";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import FirstContentIcons from "./FirstContentIcons";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   page: {
     width: '90%',
     maxWidth: 1800,
@@ -106,10 +110,8 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 
 
 const ModerationDashboard = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { UsersReviewInfoCard, LoadMore, Loading, FirstContentIcons } = Components;
-
   const currentUser = useCurrentUser();
 
   const navigate = useNavigate();
@@ -217,10 +219,6 @@ const ModerationDashboard = ({ classes }: {
   );
 };
 
-const ModerationDashboardComponent = registerComponent('ModerationDashboard', ModerationDashboard, { styles });
+export default registerComponent('ModerationDashboard', ModerationDashboard, { styles });
 
-declare global {
-  interface ComponentTypes {
-    ModerationDashboard: typeof ModerationDashboardComponent
-  }
-}
+

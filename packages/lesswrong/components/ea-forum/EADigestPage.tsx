@@ -1,5 +1,4 @@
 import React, { CSSProperties } from "react";
-import { Components, fragmentTextForQuery, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
@@ -10,8 +9,18 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import Error404 from "../common/Error404";
+import HeadTags from "../common/HeadTags";
+import PostsLoading from "../posts/PostsLoading";
+import EAPostsItem from "../posts/EAPostsItem";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import EAButton from "./EAButton";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -158,15 +167,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const digestPostsQuery = gql`
-  query getDigestPosts($num: Int) {
-    DigestPosts(num: $num) {
-      ...PostsListWithVotes
-    }
-  }
-  ${fragmentTextForQuery('PostsListWithVotes')}
-`
-
 const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -189,12 +189,18 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const digest = results?.[0]
   
   // get the list of posts in this digest
-  const { data, loading } = useQuery(digestPostsQuery, {
-      ssr: true,
-      skip: !digestNum || !digest,
-      variables: {num: digestNum},
+  const { data, loading } = useQuery(gql`
+    query getDigestPosts($num: Int) {
+      DigestPosts(num: $num) {
+        ...PostsListWithVotes
+      }
     }
-  )
+    ${fragmentTextForQuery('PostsListWithVotes')}
+  `, {
+    ssr: true,
+    skip: !digestNum || !digest,
+    variables: {num: digestNum},
+  })
   
   const onSubscribeClick = async () => {
     captureEvent("digestAdSubscribed")
@@ -220,11 +226,6 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       }
     }
   }
-  
-  const {
-    Error404, HeadTags, PostsLoading, EAPostsItem, CloudinaryImage2, ForumIcon, LWTooltip, EAButton
-  } = Components;
-  
   // TODO: Probably we'll want to check the publishedDate instead of the endDate, but we haven't been using it.
   // If we do start using it, we'll need to backfill the publishedDate values and update this condition.
   const isPublished = digest && digest.endDate
@@ -283,7 +284,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <HeadTags title={`EA Forum Digest #${digestNum}`} />
       <AnalyticsContext pageContext="DigestPage">
         <div className={classes.root} style={style}>
-          <div className={classes.content}>
+          <div>
             <section className={classes.topSection}>
               <div>
                 <h1 className={classes.pageTitle}>
@@ -319,14 +320,10 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const EADigestPageComponent = registerComponent(
+export default registerComponent(
   "EADigestPage",
   EADigestPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EADigestPage: typeof EADigestPageComponent;
-  }
-}
+

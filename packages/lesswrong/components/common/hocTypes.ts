@@ -1,33 +1,19 @@
 import type { FetchResult } from '@apollo/client';
-import { RouterLocation } from '../../lib/vulcan-lib';
-import { ReactElement } from 'react';
+import { RouterLocation } from '../../lib/vulcan-lib/routes';
+import type { JssStylesCallback } from '@/lib/jssStyles';
+import type { StyleDefinition } from '@/server/styleGeneration';
 
 declare global {
 
-// This `any` should actually be `CSSProperties` from either MUI or JSS but this
-// currently causes an avalanche of type errors, I think due to the fact that
-// we're stuck on a precambrian version of MUI. Upgrading would probably fix this.
-type JssStyles<ClassKey extends string = string> = Record<ClassKey, AnyBecauseHard>;
-
-type JssStylesCallback<ClassKey extends string = string> = (
-  theme: ThemeType,
-) => JssStyles<ClassKey>;
+type AnyStyles = JssStylesCallback<string>;
 
 type ClassesType<
-  Styles extends JssStylesCallback<ClassKey> = JssStylesCallback<string>,
+  Styles extends JssStylesCallback<ClassKey>,
   ClassKey extends string = string
 > = Readonly<Record<keyof ReturnType<Styles>, string>>;
 
-interface WithStylesProps {
-  classes: ClassesType,
-}
-
-type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string|ReactElement, type?: string, action?: any};
-
-interface WithMessagesProps {
-  messages: Array<WithMessagesMessage>,
-  flash: (message: WithMessagesMessage) => void,
-  clear: () => void,
+interface WithStylesProps<T extends StyleDefinition<any>=any> {
+  classes: ClassesType<T["styles"]>,
 }
 
 interface WithUserProps {
@@ -62,14 +48,15 @@ type DbObjectForCollectionBase<C> = C extends CollectionBase<infer T> ? T : neve
 
 type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
 
-type WithUpdateFunction<N extends CollectionNameString> = (args: {
+type WithUpdateFunction<N extends CollectionNameString, F extends FragmentName = FragmentName> = (args: {
   selector: MongoSelector<ObjectsByCollectionName[N]>,
-  data: NullablePartial<ObjectsByCollectionName[N]>,
+  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
+  optimisticResponse?: FragmentTypes[F],
   extraVariables?: any,
 }) => Promise<FetchResult>;
 
 type WithCreateFunction<N extends CollectionNameString> = (args: {
-  data: NullablePartial<ObjectsByCollectionName[N]>,
+  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
   extraVariables?: any,
 }) => Promise<FetchResult>;
 

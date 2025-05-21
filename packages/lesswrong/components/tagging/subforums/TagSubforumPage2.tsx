@@ -3,21 +3,35 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
-import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useTagBySlug } from '../useTag';
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
+import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
+import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import qs from "qs";
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';
+import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { useCreate } from '@/lib/crud/withCreate';
+import Loading from "../../vulcan-core/Loading";
+import Error404 from "../../common/Error404";
+import PermanentRedirect from "../../common/PermanentRedirect";
+import HeadTags from "../../common/HeadTags";
+import TagFlagItem from "../TagFlagItem";
+import SubforumLayout from "./SubforumLayout";
+import WriteNewButton from "../WriteNewButton";
+import SubscribeButton from "../SubscribeButton";
+import TagTableOfContents from "../TagTableOfContents";
+import SidebarSubtagsBox from "./SidebarSubtagsBox";
+import SubforumWikiTab from "./SubforumWikiTab";
+import SubforumSubforumTab from "./SubforumSubforumTab";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   tabRow: {
     display: 'flex',
     alignItems: 'center',
@@ -110,23 +124,8 @@ type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
 const TagSubforumPage2 = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const {
-    Loading,
-    Error404,
-    PermanentRedirect,
-    HeadTags,
-    TagFlagItem,
-    SubforumLayout,
-    WriteNewButton,
-    SubscribeButton,
-    TagTableOfContents,
-    SidebarSubtagsBox,
-    SubforumWikiTab,
-    SubforumSubforumTab,
-  } = Components;
-
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const navigate = useNavigate();
@@ -184,17 +183,33 @@ const TagSubforumPage2 = ({classes}: {
     skip: !query.flagId
   })
 
-  const { results: userTagRelResults } = useMulti({
+  const skipUserTagRel = !tag || !currentUser
+
+  const { results: userTagRelResults, loading: userTagRelLoading } = useMulti({
     terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelDetails",
-    // Create a new UserTagRel if none exists. The check for the existence of tagId and userId is
-    // in principle redundant because of `skip`, but it would be bad to create a UserTagRel with
-    // a null tagId or userId so be extra careful.
-    createIfMissing: tag?._id && currentUser?._id ? { tagId: tag?._id, userId: currentUser?._id } : undefined,
-    skip: !tag || !currentUser
+    skip: skipUserTagRel
   });
-  const userTagRel = userTagRelResults?.[0];
+
+  const { create: createUserTagRel, data: createdUserTagRelData, called: createUserTagRelCalled } = useCreate({
+    collectionName: "UserTagRels",
+    fragmentName: "UserTagRelDetails",
+  })
+
+  useEffect(() => {
+    // Create a new UserTagRel if none exists.  This is replacing the previous behavior of
+    // the legacy (since removed) `createIfMissing` in the `useMulti` call above.
+    // It's a bit slower than implementing a custom resolver that does both but
+    // I don't think subforums are even a thing right now; if the EA forum wants me to do that I can.
+    if (userTagRelResults?.length === 0 && !userTagRelLoading && !skipUserTagRel && !createUserTagRelCalled) {
+      void createUserTagRel({
+        data: { tagId: tag._id, userId: currentUser._id },
+      });
+    }
+  }, [userTagRelResults, userTagRelLoading, createUserTagRel, createUserTagRelCalled, tag, currentUser, skipUserTagRel]);
+
+  const userTagRel = createdUserTagRelData ?? userTagRelResults?.[0];
 
   // "feed" -> "card" for backwards compatibility, TODO remove after a month or so
   if (query.layout === "feed") {
@@ -252,7 +267,7 @@ const TagSubforumPage2 = ({classes}: {
     <div className={classNames(classes.header, classes.centralColumn)}>
       {query.flagId && (
         <span>
-          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+          <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
             <TagFlagItem
               itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
               documentId={query.flagId}
@@ -305,7 +320,7 @@ const TagSubforumPage2 = ({classes}: {
     <div className={classes.subtitle}>{tag.subtitle}</div>
   </div>
 
-  const rightSidebarComponents: Record<SubforumTab, JSX.Element[]> = {
+  const rightSidebarComponents: Record<SubforumTab, React.JSX.Element[]> = {
     posts: [
       <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
     ],
@@ -321,7 +336,7 @@ const TagSubforumPage2 = ({classes}: {
     ],
   };
   
-  const tabComponents: Record<SubforumTab, JSX.Element> = {
+  const tabComponents: Record<SubforumTab, React.JSX.Element> = {
     posts: (
       <SubforumSubforumTab
         tag={tag}
@@ -345,7 +360,7 @@ const TagSubforumPage2 = ({classes}: {
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
         titleComponent={titleComponent}
-        bannerImageId={tag.bannerImageId}
+        bannerImageId={tag.bannerImageId!}
         headerComponent={headerComponent}
         sidebarComponents={rightSidebarComponents[tab]}
       >
@@ -355,10 +370,6 @@ const TagSubforumPage2 = ({classes}: {
   );
 }
 
-const TagSubforumPage2Component = registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
+export default registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagSubforumPage2: typeof TagSubforumPage2Component
-  }
-}
+

@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useMessages } from '../common/withMessages';
-import Select from '@material-ui/core/Select';
-import CloseIcon from '@material-ui/icons/Close';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -17,10 +17,15 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import ContentItemBody from "../common/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: "calc(100vh - 160px)"
+    height: "calc(100vh - 190px)"
   },
   subRoot: {
     display: "flex",
@@ -129,6 +134,8 @@ const styles = (theme: ThemeType) => ({
     // TODO: maybe really the styling of the options section should be flex display and flex grow stuff
     maxWidth: 250,
   },
+  ragModeSelect: {
+  },
   menuItem: {
     zIndex: theme.zIndexes.languageModelChat + 10,
     display: "flex",
@@ -148,12 +155,10 @@ const styles = (theme: ThemeType) => ({
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
-const LLMChatMessage = ({message, classes}: {
+const LLMChatMessageInner = ({message, classes}: {
   message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
-
   const { role, content } = message;
 
   return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
@@ -162,17 +167,17 @@ const LLMChatMessage = ({message, classes}: {
         [classes.userMessage]: role === 'user',
         [classes.errorMessage]: role === 'error'
       })}
-      dangerouslySetInnerHTML={{__html: content}}
+      dangerouslySetInnerHTML={{__html: content ?? ''}}
     />
   </ContentStyles>
 }
+
+export const LlmChatMessage = registerComponent('LlmChatMessage', LLMChatMessageInner, {styles});
 
 const LLMInputTextbox = ({onSubmit, classes}: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles } = Components;
-  
   const [currentMessage, setCurrentMessage] = useState('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -234,7 +239,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
-        editor={getCkCommentEditor(forumTypeSetting.get())}
+        editor={getCkCommentEditor()}
         isCollaborative={false}
         onChange={(_event, editor: Editor) => {
           // debouncedValidateEditor(editor.model.document)
@@ -269,20 +274,45 @@ const welcomeGuideHtml = [
   `<p><strong>Posts and comments may be loaded into the context window based on your <em>first message</em> (and based on the current post you are viewing).</strong></p>`,
 ].join('');
 
+type CurrentPostContext = {
+  currentPostId: string;
+  postContext: Exclude<PromptContextOptions['postContext'], undefined>
+} | {
+  currentPostId?: undefined;
+  postContext?: undefined;
+};
+
+function useCurrentPostContext(): CurrentPostContext {
+  const { query, location } = useLocation();
+  const { pathname } = location;
+  const parsedPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
+
+  if (query.postId) {
+    return {
+      currentPostId: query.postId,
+      postContext: 'post-editor'
+    };
+  }
+
+  if (parsedPostId) {
+    return {
+      currentPostId: parsedPostId,
+      postContext: 'post-page'
+    };
+  }
+
+  return {};
+}
+
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
-
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
+  const { currentPostId, postContext } = useCurrentPostContext();
+  const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
-
+  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
   const { flash } = useMessages();
-
-  // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
-  const { location } = useLocation();
-  const { pathname } = location;
-  const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
@@ -322,7 +352,7 @@ export const ChatInterface = ({classes}: {
     // Content of the last message changed (e.g., streaming)
     else if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      const currentLastMessageLength = lastMessage.content.length;
+      const currentLastMessageLength = lastMessage.content?.length ?? 0;
 
       if (currentLastMessageLength !== lastMessageLengthRef.current) {
         lastMessageLengthRef.current = currentLastMessageLength;
@@ -388,20 +418,32 @@ export const ChatInterface = ({classes}: {
     value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
     disableUnderline
     className={classes.select}
-    MenuProps={{style: {zIndex: 10000000002}}} // TODO: figure out sensible z-index stuff
     renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
     >
       {
         orderedConversations.map(({ title, _id }, index) => (
           <MenuItem key={index} value={_id} className={classes.menuItem}>
             {title ?? "...Title Pending..."}
-            <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
+            <CloseIcon onClick={(ev: React.MouseEvent) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
           </MenuItem>
       ))}
       <MenuItem value={NEW_CONVERSATION_MENU_ITEM} className={classes.menuItem}>
         New Conversation
       </MenuItem>
     </Select>;
+
+    const ragModeSelect = <Select 
+      onChange={(e) => setRagMode(e.target.value as RagModeType)}
+      value={ragMode}
+      disableUnderline
+      className={classes.ragModeSelect}
+    >
+      {RAG_MODE_SET.map((ragMode) => (
+        <MenuItem key={ragMode} value={ragMode}>
+          {ragMode}
+        </MenuItem>
+      ))}
+    </Select>
 
 
   const options = <div className={classes.options}>
@@ -412,11 +454,15 @@ export const ChatInterface = ({classes}: {
       Export
     </Button>
     {conversationSelect}
+    {ragModeSelect}
   </div>  
 
-  const handleSubmit = useCallback((message: string) => {
-    submitMessage(message, currentPostId);
-  }, [currentPostId, submitMessage]);
+  const handleSubmit = useCallback(async (message: string) => {
+    if (autosaveEditorState) {
+      await autosaveEditorState();
+    }
+    submitMessage({ query: message, ragMode, currentPostId, postContext });
+  }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}
@@ -428,7 +474,7 @@ export const ChatInterface = ({classes}: {
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChat = ({classes}: {
+const LanguageModelChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>
@@ -440,13 +486,7 @@ export const LanguageModelChat = ({classes}: {
   </DeferRender>;
 }
 
-const LanguageModelChatComponent = registerComponent('LanguageModelChat', LanguageModelChat, {styles});
+export default registerComponent('LanguageModelChat', LanguageModelChat, {styles});
 
-const LlmChatMessageComponent = registerComponent('LlmChatMessage', LLMChatMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LanguageModelChat: typeof LanguageModelChatComponent
-    LlmChatMessage: typeof LlmChatMessageComponent
-  }
-}
+

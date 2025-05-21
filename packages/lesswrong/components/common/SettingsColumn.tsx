@@ -1,13 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';
-import Tooltip from '@material-ui/core/Tooltip';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { TooltipSpan } from './FMTooltip';
+import MetaInfo from "./MetaInfo";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selectionList: {
     marginRight: theme.spacing.unit*2,
     [theme.breakpoints.down('xs')]: {
@@ -54,14 +55,12 @@ interface Props {
   title: string;
   options: Partial<Record<string, SettingsOption>>;
   currentOption: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   setSetting: (type: string, newSetting: any) => void;
   nofollow?: boolean;
 }
 
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
-  const { MetaInfo } = Components
-
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
       {title}
@@ -80,9 +79,9 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
-              <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
-                <span>{ label }</span>
-              </Tooltip> :
+              <TooltipSpan title={<div>{optionValue.tooltip}</div>} placement="left-start">
+                {label}
+              </TooltipSpan> :
               <span>{ label }</span>
             }
           </MetaInfo>
@@ -92,10 +91,6 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
   </div>
 }
 
-const SettingsColumnComponent = registerComponent('SettingsColumn', SettingsColumn, {styles});
+export default registerComponent('SettingsColumn', SettingsColumn, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SettingsColumn: typeof SettingsColumnComponent
-  }
-}
+

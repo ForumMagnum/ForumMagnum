@@ -1,12 +1,14 @@
 import React, { useRef, useEffect } from 'react';
-import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql, ObservableQuery, QueryHookOptions, WatchQueryFetchPolicy } from '@apollo/client';
+import { useQuery, gql, ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
-import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useTracking } from '@/lib/analyticsEvents';
+import Loading from "../vulcan-core/Loading";
 
-const loadMoreDistance = 500;
+const defaultLoadMoreDistance = 500;
 
 export interface FeedRequest<CutoffType> {
   cutoff: CutoffType|null,
@@ -18,6 +20,7 @@ export interface FeedResponse<CutoffType, ResultType> {
   cutoff: CutoffType|null,
 }
 
+
 const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers}: {
   resolverName: string,
   resolverArgs: any,
@@ -25,7 +28,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   sortKeyType: string,
   renderers: any,
 }) => {
-  const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
+  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
   const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
@@ -56,7 +59,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
 
 interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
   fragmentName: FragmentName,
-  render: (result: FragmentTypes[FragmentName]) => React.ReactNode,
+  render: (result: FragmentTypes[FragmentName], index?: number) => React.ReactNode,
 }
 
 // An infinitely scrolling feed of elements, which may be of multiple types.
@@ -108,10 +111,40 @@ const MixedTypeFeed = (args: {
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
-  
+
+  // Hide the loading spinner
+  hideLoading?: boolean,
+
+  // Disable automatically loading more - only show the initially fetched documents
+  disableLoadMore?: boolean,
+
+  className?: string,
+
+  // Distance from bottom of viewport to trigger loading more items
+  loadMoreDistanceProp?: number,
+
+  // Apollo fetch policy
+  fetchPolicy?: WatchQueryFetchPolicy;
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, reorderOnRefetch=false } = args;
-  
+  const {
+    resolverName,
+    resolverArgs=null,
+    resolverArgsValues=null,
+    fragmentArgs=null,
+    fragmentArgsValues=null,
+    sortKeyType,
+    renderers,
+    firstPageSize=20,
+    pageSize=20,
+    refetchRef,
+    reorderOnRefetch=false,
+    hideLoading,
+    disableLoadMore,
+    className,
+    loadMoreDistanceProp = defaultLoadMoreDistance,
+    fetchPolicy = "cache-and-network",
+  } = args;
+
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
   
@@ -119,9 +152,7 @@ const MixedTypeFeed = (args: {
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
-  
-  const {Loading} = Components;
-  
+  const {captureEvent} = useTracking();
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
   const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {
@@ -131,7 +162,7 @@ const MixedTypeFeed = (args: {
       offset: 0,
       limit: firstPageSize,
     },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy,
     nextFetchPolicy: "cache-only",
     ssr: true,
   });
@@ -151,7 +182,7 @@ const MixedTypeFeed = (args: {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
       && bottomRef?.current
-      && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
+      && elementIsNearVisible(bottomRef?.current, loadMoreDistanceProp)
       && !reachedEnd
       && data)
     {
@@ -177,10 +208,14 @@ const MixedTypeFeed = (args: {
             const newResults = fetchMoreResult[resolverName].results;
             const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
             
+            // If the server sent back data, but none of it was new after deduplication, 
+            // treat it as the end of the feed by setting cutoff to null. This shouldn't happen though.
+            const newCutoff = (newResults.length > 0 && deduplicatedResults.length === 0) ? null : fetchMoreResult[resolverName].cutoff;
+
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
-                cutoff: fetchMoreResult[resolverName].cutoff,
+                cutoff: newCutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
@@ -200,28 +235,30 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
-  return <div>
-    {orderedResults.map((result) =>
+
+  return <div className={className}>
+    {orderedResults.map((result, index) =>
       <div key={keyFunc(result)}>
-        <RenderFeedItem renderers={renderers} item={result}/>
+        <RenderFeedItem renderers={renderers} item={result} index={index}/>
       </div>
     )}
-    
-    <div ref={bottomRef}/>
+
+    {!disableLoadMore && <div ref={bottomRef}/>}
     {error && <div>{error.toString()}</div>}
-    {!reachedEnd && <Loading/>}
+    {!hideLoading && !reachedEnd && <Loading/>}
   </div>
 }
 
 // Render an item in a mixed-type feed. This component is mainly just here to
 // have a React.memo wrapper around it, so that users of the component don't
 // have to carefully memoize every feed item type individually.
-const RenderFeedItem = React.memo(({renderers, item}: {
+const RenderFeedItem = React.memo(({renderers, item, index}: {
   renderers: any,
-  item: any
+  item: any,
+  index?: number
 }) => {
   const renderFn = renderers[item.type]?.render;
-  return renderFn ? renderFn(item[item.type]) : item[item.type];
+  return renderFn ? renderFn(item[item.type], index) : item[item.type];
 });
 
 // Returns whether an element, which is presumed to be either visible or below
@@ -235,11 +272,6 @@ function elementIsNearVisible(element: HTMLElement|null, distance: number) {
   return (top-distance) <= windowHeight;
 }
 
-const MixedTypeInfiniteComponent = registerComponent('MixedTypeFeed', MixedTypeFeed);
+export default registerComponent('MixedTypeFeed', MixedTypeFeed);
 
-declare global {
-  interface ComponentTypes {
-    MixedTypeFeed: typeof MixedTypeInfiniteComponent,
-  }
-}
 

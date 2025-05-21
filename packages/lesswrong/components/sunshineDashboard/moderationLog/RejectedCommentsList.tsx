@@ -2,9 +2,17 @@ import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import LoadMore from "../../common/LoadMore";
+import RejectedReasonDisplay from "../RejectedReasonDisplay";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import CommentBody from "../../comments/CommentsItem/CommentBody";
+import Row from "../../common/Row";
+import ForumIcon from "../../common/ForumIcon";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   commentPadding: {
     padding: 16,
     paddingTop: 12,
@@ -27,13 +35,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const RejectedCommentsList = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const {
-    RejectedReasonDisplay, FormatDate, MetaInfo, PostsTooltip, CommentBody,
-    Row, ForumIcon,
-  } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
     collectionName: "Comments",
@@ -41,7 +45,7 @@ export const RejectedCommentsList = ({classes}: {
     enableTotal: false,
   });
   
-  return <div className={classes.root}>
+  return <div>
     {results?.map(comment =>
       <div key={comment._id}>
         <div className={classes.commentPadding} onClick={()=>setExpanded(true)}>
@@ -49,9 +53,9 @@ export const RejectedCommentsList = ({classes}: {
             <MetaInfo>
               <FormatDate date={comment.postedAt}/>
             </MetaInfo>
-            <PostsTooltip postId={comment.postId}>
+            <PostsTooltip postId={comment.postId ?? undefined}>
               <MetaInfo>
-                <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}
                   {comment.post?.title} <ForumIcon icon="Link" className={classes.linkIcon} />
                 </Link>
@@ -65,15 +69,11 @@ export const RejectedCommentsList = ({classes}: {
         </div>
       </div>
     )}
-    <Components.LoadMore {...loadMoreProps} />
+    <LoadMore {...loadMoreProps} />
   </div>;
 }
 
-const RejectedCommentsListComponent = registerComponent('RejectedCommentsList', RejectedCommentsList, {styles});
+export default registerComponent('RejectedCommentsList', RejectedCommentsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectedCommentsList: typeof RejectedCommentsListComponent
-  }
-}
+
 

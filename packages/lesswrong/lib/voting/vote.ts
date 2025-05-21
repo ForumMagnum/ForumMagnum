@@ -1,8 +1,13 @@
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
-import { voteTypes, calculateVotePower } from './voteTypes';
+import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
-import { collectionNameToTypeName } from '../vulcan-lib';
+import { collectionNameToTypeName } from '../generated/collectionTypeNames';
+import { DatabasePublicSetting } from '../publicSettings';
+
+export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
+export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
+
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType
@@ -45,7 +50,7 @@ const addVoteClient = ({ document, collectionName, voteType, extendedVote, user,
     voteCount: (document.voteCount||0) + 1,
     afBaseScore: (document.afBaseScore||0) + afPower,
     afVoteCount: (document.afVoteCount||0) + (isAfVote?1:0),
-    __typename: collectionNameToTypeName(collectionName),
+    __typename: collectionNameToTypeName[collectionName],
   };
 
   newDocument.score = recalculateScore(newDocument);
@@ -100,7 +105,6 @@ const cancelVoteClient = ({document, collectionName, user, votingSystem}: {
   return newDocument;
 }
 
-
 // Determine a user's voting power for a given operation.
 // If power is a function, call it on user
 export const getVotePower = ({ user, voteType, document }: {
@@ -108,8 +112,10 @@ export const getVotePower = ({ user, voteType, document }: {
   voteType: string,
   document: VoteableType,
 }) => {
-  const power = (voteTypes[voteType]?.power) || 1;
-  return typeof power === 'function' ? power(user, document) : power;
+  const userKarma = user.karma;
+  if (user._id === karmaRewarderId100.get()) return 100;
+  if (user._id === karmaRewarderId1000.get()) return 1000;
+  return calculateVotePower(userKarma, voteType);
 };
 
 // Optimistic response for votes
@@ -121,7 +127,7 @@ export const setVoteClient = async ({ document, collectionName, voteType = 'neut
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }): Promise<VoteableTypeClient> => {
-  if (voteType && !voteTypes[voteType]) throw new Error(`Invalid vote type in setVoteClient: ${voteType}`);
+  if (voteType && !isValidVoteType(voteType)) throw new Error(`Invalid vote type in setVoteClient: ${voteType}`);
 
   // make sure item and user are defined
   if (!document || !user || (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`))) {

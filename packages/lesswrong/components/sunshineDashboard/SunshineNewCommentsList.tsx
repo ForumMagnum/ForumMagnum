@@ -1,8 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import SunshineListCount from "./SunshineListCount";
+import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
+import SunshineListTitle from "./SunshineListTitle";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewComments,
   }
@@ -10,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewCommentsList = ({ terms, classes }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, totalCount } = useMulti({
     terms,
@@ -18,8 +21,6 @@ const SunshineNewCommentsList = ({ terms, classes }: {
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: true,
   });
-  const { SunshineListCount, SunshineNewCommentsItem, SunshineListTitle } = Components
-  
   if (results && results.length) {
     return (
       <div className={classes.root}>
@@ -38,11 +39,7 @@ const SunshineNewCommentsList = ({ terms, classes }: {
   }
 }
 
-const SunshineNewCommentsListComponent = registerComponent('SunshineNewCommentsList', SunshineNewCommentsList, {styles});
+export default registerComponent('SunshineNewCommentsList', SunshineNewCommentsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewCommentsList: typeof SunshineNewCommentsListComponent
-  }
-}
+
 

@@ -1,11 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { styles } from './PostsPage/PostsPage';
+import { useMulti } from '@/lib/crud/withMulti';
+import CompareRevisions from "../revisions/CompareRevisions";
+import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
+import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
+import ErrorPage from "../common/ErrorPage";
 
 const PostsCompareRevisions = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const postId = params._id;
@@ -13,7 +19,7 @@ const PostsCompareRevisions = ({ classes }: {
   const versionAfter = query.after;
   
   // Load the post, just for the current title
-  const { document: post, loading: loadingPost } = useSingle({
+  const { document: post, loading: loadingPost, error: postError } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsWithNavigation",
@@ -21,8 +27,29 @@ const PostsCompareRevisions = ({ classes }: {
     extraVariablesValues: { sequenceId: null },
   });
   
-  const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, Loading } = Components;
-  if (loadingPost || !post) return <Loading/>
+  // Load the after- revision
+  const { results: revisionResults, loading: loadingRevision, error: revisionError } = useMulti({
+    collectionName: "Revisions",
+    fragmentName: "RevisionHistoryEntry",
+    terms: {
+      view: "revisionByVersionNumber",
+      documentId: postId,
+      version: versionAfter,
+    },
+    skip: !versionAfter,
+  });
+  
+  if (!post) {
+    return <LoadingOrErrorPage loading={loadingPost} error={postError} />
+  }
+  if (!revisionResults) {
+    return <LoadingOrErrorPage loading={loadingRevision} error={revisionError} />
+  }
+  if (!revisionResults.length) {
+    return <ErrorPage error="Revision not found or you do not have access"/>
+  }
+
+  const revision = revisionResults[0];
   
   return <div className={classes.centralColumn}>
     <PostsPagePostHeader post={post}/>
@@ -35,15 +62,12 @@ const PostsCompareRevisions = ({ classes }: {
         documentId={postId}
         versionBefore={versionBefore}
         versionAfter={versionAfter}
+        revisionAfter={revision}
       />
     </div>
   </div>;
 }
 
-const PostsCompareRevisionsComponent = registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
+export default registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsCompareRevisions: typeof PostsCompareRevisionsComponent
-  }
-}
+

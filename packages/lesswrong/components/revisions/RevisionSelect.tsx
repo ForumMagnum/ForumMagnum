@@ -1,11 +1,16 @@
 import React, { useCallback, useState } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
-import Radio from '@material-ui/core/Radio';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import classNames from 'classnames';
+import FormatDate from "../common/FormatDate";
+import UsersName from "../users/UsersName";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   revisionRow: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -50,12 +55,10 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   count?: number,
   totalCount?: number
 }) => {
-  const { FormatDate, UsersName, LoadMore, LWTooltip, ChangeMetricsDisplay } = Components;
-  
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
   
@@ -105,7 +108,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
                 </LWTooltip>
             </td>
             <td className={classes.username}>
-              <UsersName documentId={rev.userId}/>{" "}
+              <UsersName documentId={rev.userId ?? undefined}/>{" "}
             </td>
             <td className={classes.link}>
               <Link to={getRevisionUrl(rev)}>
@@ -129,12 +132,8 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   </React.Fragment>
 }
 
-const RevisionSelectComponent = registerComponent(
+export default registerComponent(
   'RevisionSelect', RevisionSelect, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-   RevisionSelect: typeof RevisionSelectComponent
-  }
-}
+

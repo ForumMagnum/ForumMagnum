@@ -9,7 +9,7 @@ import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
 import { lightbulbIcon } from '../icons/lightbulbIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     height: isEAForum ? 34 : 48,
     [theme.breakpoints.down('sm')]: {
@@ -24,12 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SiteLogo = ({eaWhite, classes}: {
-  eaWhite?: boolean,
-  classes: ClassesType;
+const SiteLogo = ({eaContrast, classes}: {
+  eaContrast?: boolean,
+  classes: ClassesType<typeof styles>;
 }) => {
-  // Use this icon when we want a pure white version of the EAF logo
-  if (isEAForum && eaWhite) {
+  // Use this icon when we want version of the EAF logo with an editable (usually white) color
+  if (isEAForum && eaContrast) {
     return <div className={classes.icon}>{lightbulbIcon}</div>
   }
 
@@ -44,12 +44,8 @@ const SiteLogo = ({eaWhite, classes}: {
 }
 
 SiteLogo.displayName = "SiteLogo";
-const SiteLogoComponent = registerComponent(
+export default registerComponent(
   'SiteLogo', SiteLogo, {styles}
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    SiteLogo: typeof SiteLogoComponent
-  }
-}
+

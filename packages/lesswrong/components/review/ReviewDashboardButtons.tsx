@@ -1,12 +1,14 @@
 import React from 'react';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import Row from "../common/Row";
+import SectionFooter from "../common/SectionFooter";
+import LWTooltip from "../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     paddingTop: 8,
@@ -36,16 +38,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
   showAdvancedDashboard?: boolean,
   showQuickReview?: boolean
 }) => {
-  const { Row, SectionFooter, LWTooltip } = Components 
   const currentUser = useCurrentUser()
 
-  return <div className={classes.root}>
+  return <div>
     <Row justifyContent="space-between">
       <SectionFooter>
         {userIsAdmin(currentUser) && <LWTooltip title={`Look at metrics related to the Review`}>
@@ -55,7 +56,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
         </LWTooltip>}
         {reviewPhase === "NOMINATIONS" && <LWTooltip title={`Look over your upvotes from ${reviewYear}. (This is most useful during the nomination phase, but you may still enjoy looking them over in the latter phases to help compare)`}>
           <Link to={`/votesByYear/${reviewYear}`}>
-            Your {reviewYear} Upvotes
+            Nominate Posts
           </Link>
         </LWTooltip>}
         <LWTooltip title={`Look at all reviews (from this year or other years)`}>
@@ -65,7 +66,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
         </LWTooltip>
         {showAdvancedDashboard && <LWTooltip title="Look at reviews, update your votes, and see more detailed info from the Nomination Vote results">
           <Link to={`/reviewVoting/${reviewYear}`}>
-            Advanced Dashboard
+            Advanced Review
           </Link>
         </LWTooltip>}
         {showQuickReview && <LWTooltip title="A simplified review UI">
@@ -93,11 +94,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
   </div>;
 }
 
-const ReviewDashboardButtonsComponent = registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
+export default registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewDashboardButtons: typeof ReviewDashboardButtonsComponent
-  }
-}
+
 

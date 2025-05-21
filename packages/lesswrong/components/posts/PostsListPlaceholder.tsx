@@ -1,13 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { styles } from './LWPostsItem';
 
 const PostsListPlaceholder = ({count, classes}: {
   count: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  let placeholders: Array<JSX.Element> = [];
+  let placeholders: Array<React.JSX.Element> = [];
   for(let i=0; i<count; i++) {
     placeholders.push(
       <div key={i} className={classNames(
@@ -16,7 +16,7 @@ const PostsListPlaceholder = ({count, classes}: {
       )}>
         <div className={classes.postsItem}>
           <span className={classes.title}>
-            <span className={classes.titlePlaceholder}>{" "}</span>
+            <span>{" "}</span>
           </span>
         </div>
       </div>
@@ -25,10 +25,6 @@ const PostsListPlaceholder = ({count, classes}: {
   return <React.Fragment>{placeholders}</React.Fragment>;
 }
 
-const PostsListPlaceholderComponent = registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
+export default registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsListPlaceholder: typeof PostsListPlaceholderComponent
-  }
-}
+

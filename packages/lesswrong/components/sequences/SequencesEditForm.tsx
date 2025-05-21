@@ -1,35 +1,28 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import { styles } from './SequencesNewForm';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { SequencesForm } from './SequencesForm';
 
-const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback, classes }: {
-  documentId: string,
-  successCallback?: () => void,
-  cancelCallback?: () => void,
-  removeSuccessCallback?: any,
-  classes: ClassesType,
+const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallback, classes }: {
+  sequence: SequencesEdit,
+  currentUser: UsersCurrent,
+  successCallback: () => void,
+  cancelCallback: () => void,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.sequencesForm}>
-      <Components.WrappedSmartForm
-        collectionName="Sequences"
-        documentId={documentId}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        removeSuccessCallback={removeSuccessCallback}
-        showRemove={true}
-        queryFragment={getFragment('SequencesEdit')}
-        mutationFragment={getFragment('SequencesEdit')}
+      <SequencesForm
+        initialData={sequence}
+        currentUser={currentUser}
+        onSuccess={successCallback}
+        onCancel={cancelCallback}
       />
     </div>
   )
 }
 
-const SequencesEditFormComponent = registerComponent('SequencesEditForm', SequencesEditForm, {styles});
+export default registerComponent('SequencesEditForm', SequencesEditForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesEditForm: typeof SequencesEditFormComponent
-  }
-}
+
 

@@ -1,143 +1,67 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { useMessages } from '../common/withMessages';
-import { userCanPost } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
+import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { useLocation } from '../../lib/routeUtil';
-import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
-import { useDialog } from "../common/withDialog";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { useUpdate } from "../../lib/crud/withUpdate";
+import { isAF } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
-import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
-import type { PostSubmitProps } from './PostSubmit';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-import { QuestionIcon } from '../icons/questionIcon';
-import DeferRender from '../common/DeferRender';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useCreate } from '@/lib/crud/withCreate';
+import { hasAuthorModeration } from '@/lib/betas';
+import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
+import ErrorMessage from "../common/ErrorMessage";
+import LoginForm from "../users/LoginForm";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import Loading from "../vulcan-core/Loading";
 
-// Also used by PostsEditForm
-export const styles = (theme: ThemeType): JssStyles => ({
-  postForm: {
-    maxWidth: 715,
-    margin: "0 auto",
+type EventTemplateFields =
+  | "contents"
+  | "activateRSVPs"
+  | "location"
+  | "googleLocation"
+  | "onlineEvent"
+  | "globalEvent"
+  | "startTime"
+  | "endTime"
+  | "eventRegistrationLink"
+  | "joinEventLink"
+  | "website"
+  | "contactInfo"
+  | "isEvent"
+  | "eventImageId"
+  | "eventType"
+  | "types"
+  | "groupId"
+  | "title"
+  | "hasCoauthorPermission"
+  | "coauthorStatuses";
 
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    },
+type PrefilledPostFields =
+  | "isEvent"
+  | "question"
+  | "activateRSVPs"
+  | "onlineEvent"
+  | "globalEvent"
+  | "types"
+  | "meta"
+  | "groupId"
+  | "moderationStyle"
+  | "generateDraftJargon"
+  | "postCategory";
 
-    "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
-      margin: 0,
-      [theme.breakpoints.down('xs')]: {
-        width:125,
-      },
+type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields>;
+type PrefilledPostBase = Pick<PostsEditMutationFragment, PrefilledPostFields>;
 
-      "& .form-group.row": {
-        marginBottom:0,
-      },
+type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
+  af?: boolean;
+  subforumTagId?: string;
+  tagRelevance?: Record<string, number>;
+};
 
-      "& .checkbox": {
-        width: 150,
-        margin: "0 0 6px 0",
-        [theme.breakpoints.down('xs')]: {
-          width: 150,
-        }
-      }
-    },
-    "& .document-new .input-frontpage .checkbox": {
-      marginBottom: 12,
-    },
-    "& .document-new .input-draft .checkbox": {
-      marginBottom: 12,
-    },
-
-    "& .vulcan-form .input-draft": {
-      right:115,
-      width:125,
-      [theme.breakpoints.down('xs')]: {
-        bottom: 50,
-        right: 0,
-        width: 100,
-
-        "& .checkbox": {
-          width: 100,
-        }
-      }
-    },
-
-    "& .vulcan-form .input-frontpage": {
-      right: 255,
-      width: 150,
-      [theme.breakpoints.down('xs')]: {
-        bottom: 50,
-        right: 150,
-        width: 100,
-      }
-    },
-
-    "& .document-edit > div > hr": {
-    // Ray Sept 2017:
-    // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
-    // path: /packages/vulcan-forms/lib/Form.jsx
-      display: "none",
-    },
-
-    "& .form-submit": {
-      textAlign: "right",
-    },
-    
-    "& .form-input.input-url": {
-      margin: 0,
-      width: "100%"
-    },
-    "& .form-input.input-contents": {
-      marginTop: 0,
-    },
-  },
-  formSubmit: {
-    display: "flex",
-    flexWrap: "wrap",
-    marginTop: 20
-  },
-  collaborativeRedirectLink: {
-    color:  theme.palette.secondary.main
-  },
-  modNote: {
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 20,
-    },
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20
-  },
-  editorGuideOffset: {
-    paddingTop: isLW ? 80 : 100,
-  },
-  editorGuide: {
-    display: 'flex',
-    alignItems: 'center',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 10,
-    borderRadius: theme.borderRadius.default,
-    color: theme.palette.primary.main,
-    [theme.breakpoints.up('lg')]: {
-      width: 'max-content',
-      paddingLeft: 20,
-      paddingRight: 20
-    },
-  },
-  editorGuideIcon: {
-    height: 40,
-    width: 40,
-    fill: theme.palette.primary.main,
-    marginRight: -4
-  },
-  editorGuideLink: {}
-})
-
-const prefillFromTemplate = (template: PostsEdit) => {
+const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
   return pick(
     template,
     [
@@ -149,8 +73,6 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "globalEvent",
       "startTime",
       "endTime",
-      "localStartTime",
-      "localEndTime",
       "eventRegistrationLink",
       "joinEventLink",
       "website",
@@ -160,50 +82,71 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "eventType",
       "types",
       "groupId",
-      "group",
       "title",
-      "coauthorStatuses",
       "hasCoauthorPermission",
-    ]
+      ...(userCanEditCoauthors(currentUser) ? ["coauthorStatuses"] as const : []),
+    ] as const
   )
 }
 
-export const getPostEditorGuide = (classes: ClassesType) => {
-  const {LWTooltip, NewPostHowToGuides} = Components;
-  if (isLWorAF) {
-    return (
-      <div className={classes.editorGuideOffset}>
-        <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
-          <div className={classes.editorGuide}>
-            <QuestionIcon className={classes.editorGuideIcon} />
-            <div className={classes.editorGuideLink}>
-              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
-            </div>
-          </div>
-        </LWTooltip>
-      </div>
-    );
-  }
-  if (isEAForum) {
-    return <NewPostHowToGuides />;
-  }
-  return undefined;
+function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
+  return isPostCategory(query.category)
+    ? query.category
+    : questionInQuery
+      ? ("question" as const)
+      : postDefaultCategory;
 }
 
-const PostsNewForm = ({classes}: {
-  classes: ClassesType,
-}) => {
+/**
+ * This is to pre-hydrate the apollo cache for when we redirect to PostsEditForm after doing an autosave.
+ * If we don't do that, the user will experience an unfortunate loading state.
+ * The transition still isn't totally seamless because ckEditor needs to remount, but if you blink you can miss it.
+ * We also use userWithRateLimit (UsersCurrentPostRateLimit) on both pages, but that's less critical.
+ * 
+ * We don't rely on fetching the document with the initial `useSingle`, but only on the refetch - this is basically a hacky way to imperatively run a query on demand
+ */
+function usePrefetchForAutosaveRedirect() {
+  const { refetch: fetchAutosavedPostForEditPage } = useSingle({
+    documentId: undefined,
+    collectionName: "Posts",
+    fragmentName: 'PostsPage',
+    skip: true,
+  });
+
+  const extraVariablesValues = { version: 'draft' };
+
+  const { refetch: fetchAutosavedPostForEditForm } = useSingle({
+    documentId: undefined,
+    collectionName: "Posts",
+    fragmentName: 'PostsEditQueryFragment',
+    extraVariables: { version: 'String' },
+    extraVariablesValues,
+    fetchPolicy: 'network-only',
+    skip: true,
+  });
+
+  const prefetchPostFragmentsForRedirect = (postId: string) => {
+    return Promise.all([
+      fetchAutosavedPostForEditPage({ input: { selector: { documentId: postId } } }),
+      fetchAutosavedPostForEditForm({ input: { selector: { documentId: postId }, resolverArgs: extraVariablesValues }, ...extraVariablesValues })
+    ]);
+  };
+
+  return prefetchPostFragmentsForRedirect;
+}
+
+const PostsNewForm = () => {
   const { query } = useLocation();
+  const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { flash } = useMessages();
-  const { openDialog } = useDialog();
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
-  })
+
   const templateId = query && query.templateId;
-  
+  const questionInQuery = query && !!query.question;
+  const eventForm = query && query.eventForm
+
+  const postCategory = getPostCategory(query, questionInQuery);
+
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
   const { document: groupData } = useSingle({
@@ -212,12 +155,14 @@ const PostsNewForm = ({classes}: {
     documentId: query && query.groupId,
     skip: !query || !query.groupId
   });
+
   const { document: templateDocument, loading: templateLoading } = useSingle({
     documentId: templateId,
     collectionName: "Posts",
-    fragmentName: 'PostsEdit',
+    fragmentName: 'PostsEditMutationFragment',
     skip: !templateId,
   });
+
   // `UsersCurrent` doesn't have the editable field with their originalContents for performance reasons, so we need to fetch them explicitly
   const { document: currentUserWithModerationGuidelines } = useSingle({
     documentId: currentUser?._id,
@@ -226,22 +171,7 @@ const PostsNewForm = ({classes}: {
     skip: !currentUser,
   });
 
-  const {
-    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
-    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
-  } = Components;
-
-  const debateForm = !!(query && query.debate);
-
-  const questionInQuery = query && !!query.question
-  const postCategory = isPostCategory(query.category)
-    ? query.category
-    : questionInQuery
-    ? ("question" as const)
-    : postDefaultCategory;
-
-  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
+  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
     question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
@@ -249,33 +179,65 @@ const PostsNewForm = ({classes}: {
     globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: currentUserWithModerationGuidelines?.moderationGuidelines ?? undefined,
-    debate: debateForm,
+    generateDraftJargon: currentUser?.generateJargonForDrafts,
     postCategory
   }
-  const eventForm = query && query.eventForm
 
-  if (query?.subforumTagId) {
+  if (userIsMemberOf(currentUser, 'alignmentForum')) {
     prefilledProps = {
       ...prefilledProps,
-      subforumTagId: query.subforumTagId,
-      tagRelevance: {[query.subforumTagId]: 1},
+      af: isAF || (query && !!query.af),
+    };
+  }
+
+  if (query?.subforumTagId || query?.tagId) {
+    prefilledProps = {
+      ...prefilledProps,
+      subforumTagId: query.subforumTagId || query.tagId,
+      tagRelevance: {[query.subforumTagId || query.tagId]: 1},
     }
   }
 
-  const {document: userWithRateLimit} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentPostRateLimit",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser,
-    extraVariables: { eventForm: 'Boolean' },
-    extraVariablesValues: { eventForm: !!eventForm }
+  const createPost = useCreate({
+    collectionName: "Posts",
+    fragmentName: "PostsEdit",
   });
-  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
+
+  const attemptedToCreatePostRef = useRef(false);
+  useEffect(() => {
+    if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
+      attemptedToCreatePostRef.current = true;
+      void (async () => {
+        const sanitizedPrefilledProps = 'contents' in prefilledProps
+          ? sanitizeEditableFieldValues(prefilledProps, ['contents'])
+          : prefilledProps;
+
+        const moderationGuidelinesField = currentUserWithModerationGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration
+          ? { moderationGuidelines: sanitizeEditableFieldValues(currentUserWithModerationGuidelines, ['moderationGuidelines']).moderationGuidelines }
+          : {};
+
+        try {
+          const { data } = await createPost.create({
+            data: {
+              title: "Untitled Draft",
+              draft: true,
+              ...sanitizedPrefilledProps,
+              ...moderationGuidelinesField,
+            },
+          });
+          if (data) {
+            navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+          }
+        } catch(e) {
+          setError(e.message);
+        }
+      })();
+    }
+  // Disable warning because lint doesn't know depending on JSON.stringify(prefilledProps) is the same as depending on prefilledProps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser, currentUserWithModerationGuidelines, templateLoading, createPost, navigate, JSON.stringify(prefilledProps)]);
 
   if (!currentUser) {
     return (<LoginForm />);
@@ -292,71 +254,13 @@ const PostsNewForm = ({classes}: {
     </SingleColumnSection>);
   }
 
-  if (templateId && templateLoading) {
-    return <Loading />
-  }
-
-  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
-    return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit {...props} />
-    </div>
-  }
-
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
-
-  return (
-    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
-      <div className={classes.postForm}>
-        <RecaptchaWarning currentUser={currentUser}>
-          <PostsAcceptTos currentUser={currentUser} />
-          {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <DeferRender ssr={false}>
-              <WrappedSmartForm
-                collectionName="Posts"
-                mutationFragment={getFragment('PostsPage')}
-                prefilledProps={prefilledProps}
-                successCallback={(post: any, options: any) => {
-                  if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                  if (options?.submitOptions?.noReload) {
-                    navigate(postGetEditUrl(post._id, true), { replace: true });
-                  } else if (options?.submitOptions?.redirectToEditor) {
-                    navigate(postGetEditUrl(post._id));
-                  } else {
-                    // If they are publishing a non-draft post, show the share popup
-                    const showSharePopup = !isLWorAF && !post.draft
-                    const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                    const url  = postGetPageUrl(post);
-                    navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
-
-                    const postDescription = post.draft ? "Draft" : "Post";
-                    if (!showSharePopup) {
-                      flash({ messageString: `${postDescription} created`, type: 'success'});
-                    }
-                  }
-                }}
-                eventForm={eventForm}
-                debateForm={debateForm}
-                repeatErrors
-                noSubmitOnCmdEnter
-                formComponents={{
-                  FormSubmit: NewPostsSubmit
-                }}
-              />
-          </DeferRender>
-        </RecaptchaWarning>
-      </div>
-    </DynamicTableOfContents>
-
-  );
-}
-
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, {styles});
-
-declare global {
-  interface ComponentTypes {
-    PostsNewForm: typeof PostsNewFormComponent
+  if (error) {
+    return <ErrorMessage message={error}/>
+  } else {
+    return <Loading/>
   }
 }
+
+export default registerComponent('PostsNewForm', PostsNewForm);
+
+

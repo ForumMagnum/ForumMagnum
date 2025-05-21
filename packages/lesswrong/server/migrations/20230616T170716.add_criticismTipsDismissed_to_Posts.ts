@@ -24,18 +24,19 @@
  */
 export const acceptsSchemaHash = "88bc10e632764af3e6cff68763da9113";
 
-import Posts from "../../lib/collections/posts/collection"
-import Tags from "../../lib/collections/tags/collection";
-import { addField, dropField, updateDefaultValue } from "./meta/utils"
+import Posts from "../../server/collections/posts/collection"
+import Tags from "../../server/collections/tags/collection";
+import { BoolType } from "../sql/Type";
+import { addRemovedField, dropRemovedField, updateDefaultValue } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Posts, 'criticismTipsDismissed')
+  await addRemovedField(db, Posts, 'criticismTipsDismissed', new BoolType())
   await updateDefaultValue(db, Tags, "autoTagModel")
   await updateDefaultValue(db, Tags, "autoTagPrompt")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Posts, 'criticismTipsDismissed')
+  await dropRemovedField(db, Posts, 'criticismTipsDismissed')
   await updateDefaultValue(db, Tags, "autoTagModel")
   await updateDefaultValue(db, Tags, "autoTagPrompt")
 }

@@ -1,16 +1,16 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import IconButton from '@material-ui/core/IconButton'
-import Tooltip from '@material-ui/core/Tooltip';
-import NavigateBefore from '@material-ui/icons/NavigateBefore'
-import NavigateNext from '@material-ui/icons/NavigateNext'
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton'
+import NavigateBefore from '@/lib/vendor/@material-ui/icons/src/NavigateBefore'
+import NavigateNext from '@/lib/vendor/@material-ui/icons/src/NavigateNext'
 import React from 'react';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import { TooltipSpan } from '../common/FMTooltip';
 
 // Shared with SequencesNavigationLinkDisabled
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     padding: 0,
     margin: 12,
@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const SequencesNavigationLink = ({ post, direction, classes }: {
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
   
@@ -51,7 +51,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
       </Link>
     )
     if (post.title) {
-      return <Tooltip title={post.title} placement="top">{button}</Tooltip>
+      return <TooltipSpan title={post.title} placement="top">{button}</TooltipSpan>
     } else {
       return button;
     }
@@ -60,11 +60,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   }
 };
 
-const SequencesNavigationLinkComponent = registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
+export default registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNavigationLink: typeof SequencesNavigationLinkComponent
-  }
-}
+
 

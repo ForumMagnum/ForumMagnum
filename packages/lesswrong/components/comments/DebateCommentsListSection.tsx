@@ -1,15 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import { CommentsNewFormProps } from './CommentsNewForm';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import CantCommentExplanation from "./CantCommentExplanation";
+import CommentsList from "./CommentsList";
+import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     margin: "10px auto 5px auto",
@@ -63,13 +66,10 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   comments: CommentsList[],
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-  
-  const { CommentsList, PostsPageCrosspostComments } = Components
-
   const highlightDate = post?.lastVisitedAt && new Date(post.lastVisitedAt);
 
   const postAuthor = post.user;
@@ -89,7 +89,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
         && (
         <div id={`posts-debate-thread-new-comment`} className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
-          <Components.CommentsNewForm
+          <CommentsNewForm
             post={post}
             type="comment"
             {...newFormProps}
@@ -97,7 +97,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
         </div>
       )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
-        <Components.CantCommentExplanation post={post}/>
+        <CantCommentExplanation post={post}/>
       }
       <div className={classes.debateCommentsList}>
         <CommentsList
@@ -118,11 +118,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   );
 }
 
-const DebateCommentsListSectionComponent = registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
+export default registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateCommentsListSection: typeof DebateCommentsListSectionComponent,
-  }
-}
+
 

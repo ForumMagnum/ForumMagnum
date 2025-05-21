@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
+import { slugify } from '@/lib/utils/slugify';
+import { Typography } from "./Typography";
 
 export const sectionTitleStyle = isFriendlyUI
-  ? (theme: ThemeType): JssStyles => ({
+  ? (theme: ThemeType) => ({
     margin: 0,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "14px",
@@ -15,13 +17,13 @@ export const sectionTitleStyle = isFriendlyUI
     color: theme.palette.grey[600],
     textTransform: "uppercase",
   })
-  : (theme: ThemeType): JssStyles => ({
+  : (theme: ThemeType) => ({
     margin: 0,
     ...theme.typography.headerStyle,
     fontSize: "2.3rem",
   });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -80,10 +82,10 @@ const SectionTitle = ({
   titleClassName,
   rootClassName,
   classes,
-}: SectionTitleProps & {classes: ClassesType}) => {
+}: SectionTitleProps & {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
-      <Components.Typography
+      <Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
         className={classNames(classes.title, titleClassName)}
@@ -92,16 +94,12 @@ const SectionTitle = ({
           ? <Link to={href}>{title}</Link>
           : title
         }
-      </Components.Typography>
+      </Typography>
       {!centered && <div className={classes.children}>{ children }</div>}
     </div>
   )
 }
 
-const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
+export default registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    SectionTitle: typeof SectionTitleComponent
-  }
-}
+

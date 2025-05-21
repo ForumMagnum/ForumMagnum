@@ -1,14 +1,19 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { siteImageSetting } from "../vulcan-core/App";
+import { siteImageSetting } from '@/lib/publicSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import moment from "moment";
 import classNames from "classnames";
+import TruncatedAuthorsList from "./TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import Loading from "../vulcan-core/Loading";
+import TimeTag from "../common/TimeTag";
 
 const styles = (theme: ThemeType) => ({
   postListItem: {
@@ -105,11 +110,11 @@ const EALargePostsItem = ({
   className,
   classes,
 }: {
-  post: PostsPage,
+  post: PostsList,
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
 
@@ -126,7 +131,7 @@ const EALargePostsItem = ({
 
   const {postContents, loading, error} = usePostContents({
     post: post,
-    fragmentName: "PostsPage",
+    fragmentName: "PostsList",
   });
 
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
@@ -141,8 +146,6 @@ const EALargePostsItem = ({
 
   const description = postContents?.plaintextDescription ??
     post?.contents?.plaintextDescription;
-
-  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading, TimeTag} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div
@@ -205,14 +208,10 @@ const EALargePostsItem = ({
   );
 };
 
-const EALargePostsItemComponent = registerComponent(
+export default registerComponent(
   "EALargePostsItem",
   EALargePostsItem,
   {styles, stylePriority: -1,},
 );
 
-declare global {
-  interface ComponentTypes {
-    EALargePostsItem: typeof EALargePostsItemComponent;
-  }
-}
+

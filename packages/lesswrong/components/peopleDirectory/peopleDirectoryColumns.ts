@@ -1,5 +1,16 @@
 import type { ComponentProps } from "react";
 import { taggingNameCapitalSetting } from "@/lib/instanceSettings";
+import { PeopleDirectoryUserCell } from "./PeopleDirectoryUserCell";
+import { PeopleDirectoryTextCell } from "./PeopleDirectoryTextCell";
+import { PeopleDirectoryDateCell } from "./PeopleDirectoryDateCell";
+import { PeopleDirectoryNumberCell } from "./PeopleDirectoryNumberCell";
+import { PeopleDirectorySocialMediaCell } from "./PeopleDirectorySocialMediaCell";
+import { PeopleDirectoryCareerStageCell } from "./PeopleDirectoryCareerStageCell";
+import { PeopleDirectorySkeletonUserCell } from "./PeopleDirectorySkeletonUserCell";
+import { PeopleDirectorySkeletonTextCell } from "./PeopleDirectorySkeletonTextCell";
+import { PeopleDirectoryTopicsCell } from "./PeopleDirectoryTopicsCell";
+import { PeopleDirectoryCommentCountCell } from "./PeopleDirectoryCommentCountCell";
+import { PeopleDirectoryPostsCell } from "./PeopleDirectoryPostsCell";
 
 const cellComponents = [
   "PeopleDirectoryUserCell",
@@ -14,6 +25,20 @@ const cellComponents = [
   "PeopleDirectoryCommentCountCell",
   "PeopleDirectoryPostsCell",
 ] as const;
+
+export const cellComponentsByName = {
+  "PeopleDirectoryUserCell": PeopleDirectoryUserCell,
+  "PeopleDirectoryTextCell": PeopleDirectoryTextCell,
+  "PeopleDirectoryDateCell": PeopleDirectoryDateCell,
+  "PeopleDirectoryNumberCell": PeopleDirectoryNumberCell,
+  "PeopleDirectorySocialMediaCell": PeopleDirectorySocialMediaCell,
+  "PeopleDirectoryCareerStageCell": PeopleDirectoryCareerStageCell,
+  "PeopleDirectorySkeletonUserCell": PeopleDirectorySkeletonUserCell,
+  "PeopleDirectorySkeletonTextCell": PeopleDirectorySkeletonTextCell,
+  "PeopleDirectoryTopicsCell": PeopleDirectoryTopicsCell,
+  "PeopleDirectoryCommentCountCell": PeopleDirectoryCommentCountCell,
+  "PeopleDirectoryPostsCell": PeopleDirectoryPostsCell,
+};
 
 type CellComponentName = typeof cellComponents[number];
 
@@ -34,9 +59,9 @@ export type PeopleDirectoryColumn<
   defaultSort?: "asc" | "desc",
   columnWidth?: string,
   componentName: T,
-  props?: Omit<ComponentProps<ComponentTypes[T]>, "user">,
+  props?: Omit<ComponentProps<typeof cellComponentsByName[T]>, "user"|"ref">,
   skeletonComponentName?: S,
-  skeletonProps?: Omit<ComponentProps<ComponentTypes[S]>, "user">,
+  skeletonProps?: Omit<ComponentProps<typeof cellComponentsByName[S]>, "user"|"ref">,
 } & PeopleDirectoryColumnState;
 
 export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] = [

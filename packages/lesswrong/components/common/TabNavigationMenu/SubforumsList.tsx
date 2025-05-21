@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
+import TabNavigationSubItem from "./TabNavigationSubItem";
+import { MenuItemLink, MenuItem } from "../Menus";
 
-const styles = ((theme: ThemeType): JssStyles => ({
+const styles = ((theme: ThemeType) => ({
   menuItem: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -37,7 +39,7 @@ const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }: {
   onClick: () => void
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { results } = useMulti({
     terms: {view: 'coreTags', limit: 100},
@@ -59,9 +61,6 @@ const SubforumsList = ({ onClick, classes }: {
   const initialResults = results.slice(0, INITIAL_LIMIT)
   const maybeHiddenResults = results.slice(INITIAL_LIMIT)
   const displayShowMoreOrLess = results.length > INITIAL_LIMIT
-
-  const { TabNavigationSubItem, MenuItem, MenuItemLink } = Components
-  
   const getListItem = (tag: TagSubforumSidebarFragment) => (
     <MenuItemLink
       key={tag._id}
@@ -92,10 +91,6 @@ const SubforumsList = ({ onClick, classes }: {
   );
 }
 
-const SubforumsListComponent = registerComponent("SubforumsList", SubforumsList, {styles})
+export default registerComponent("SubforumsList", SubforumsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubforumsList: typeof SubforumsListComponent;
-  }
-}
+

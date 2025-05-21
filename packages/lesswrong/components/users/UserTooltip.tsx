@@ -1,7 +1,10 @@
 import React, { ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
+import HoverOver from "../common/HoverOver";
+import EAUserTooltipContent from "./EAUserTooltipContent";
+import LWUserTooltipContent from "./LWUserTooltipContent";
 
 const styles = () => ({
   root: isFriendlyUI
@@ -21,16 +24,16 @@ const styles = () => ({
   }
 });
 
-const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, classes}: {
+const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children, classes}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
   // LW specific
   hideFollowButton?: boolean,
+  disabled?: boolean,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const content = isFriendlyUI 
     ? <EAUserTooltipContent user={user} />
     : <LWUserTooltipContent user={user} hideFollowButton={hideFollowButton} />;
@@ -42,16 +45,13 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
       clickable={!isFriendlyUI}
+      disabled={disabled}
     >
       {children}
     </HoverOver>
   );
 }
 
-const UserTooltipComponent = registerComponent("UserTooltip", UserTooltip, {styles});
+export default registerComponent("UserTooltip", UserTooltip, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserTooltip: typeof UserTooltipComponent
-  }
-}
+

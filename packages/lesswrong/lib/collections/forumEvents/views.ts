@@ -1,5 +1,5 @@
-import ForumEvents from "./collection";
-import { ensureIndex } from "../../collectionIndexUtils";
+import moment from 'moment';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ForumEventsViewTerms extends ViewTermsBase {
@@ -7,37 +7,64 @@ declare global {
   }
 }
 
-ForumEvents.addView("upcomingForumEvents", (terms: ForumEventsViewTerms) => {
+function upcomingForumEvents(terms: ForumEventsViewTerms) {
   return {
-    selector: {endDate: {$gt: new Date()}},
+    selector: {
+      endDate: {$gt: new Date()},
+      isGlobal: true,
+    },
     options: {
       sort: {createdAt: 1},
       limit: terms.limit ?? 20,
     },
   };
-});
-ensureIndex(ForumEvents, {endDate: 1})
+}
 
-ForumEvents.addView("pastForumEvents", (terms: ForumEventsViewTerms) => {
+function pastForumEvents(terms: ForumEventsViewTerms) {
   return {
-    selector: {endDate: {$lte: new Date()}},
+    selector: {
+      endDate: {$lte: new Date()},
+      isGlobal: true,
+    },
     options: {
       sort: {createdAt: 1},
       limit: terms.limit ?? 20,
     },
   };
-});
+}
 
-ForumEvents.addView("currentForumEvent", (_terms: ForumEventsViewTerms) => {
+function currentForumEvent(_terms: ForumEventsViewTerms) {
   const now = new Date();
   return {
     selector: {
       startDate: {$lt: now},
       endDate: {$gt: now},
+      isGlobal: true,
     },
     options: {
       sort: {createdAt: 1},
       limit: 1,
     },
   };
+}
+
+function currentAndRecentForumEvents(terms: ForumEventsViewTerms) {
+  return {
+    selector: {
+      startDate: {$lt: new Date()},
+      endDate: {$gt: moment().subtract(2, 'weeks').toDate()},
+      isGlobal: true,
+    },
+    options: {
+      sort: {endDate: 1},
+      limit: terms.limit ?? 20,
+    },
+  };
+}
+
+export const ForumEventsViews = new CollectionViewSet('ForumEvents', {
+  upcomingForumEvents,
+  pastForumEvents,
+  currentForumEvent,
+  currentAndRecentForumEvents,
 });

@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
-const collapsedStyles = (theme: ThemeType): JssStyles => ({
+const collapsedStyles = (theme: ThemeType) => ({
   [theme.breakpoints.up('lg')]: {
     '& .book-container': {
       left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
@@ -25,7 +25,7 @@ const collapsedStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   success: {
     '& .parent-container': {
       ...collapsedStyles(theme)
@@ -212,7 +212,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Book2019Animation = ({ classes, children, successContent }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   successContent?: any
 }) => {
@@ -258,15 +258,11 @@ const Book2019Animation = ({ classes, children, successContent }: {
 }
 
 
-const Book2019AnimationComponent = registerComponent('Book2019Animation', Book2019Animation, {
+export default registerComponent('Book2019Animation', Book2019Animation, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Book2019Animation: typeof Book2019AnimationComponent
-  }
-}
+

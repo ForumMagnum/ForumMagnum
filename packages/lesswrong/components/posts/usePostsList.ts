@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import {useState, useCallback, ReactNode} from 'react'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
+import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
@@ -13,7 +13,7 @@ export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: any,
+  terms?: PostsViewTerms,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -76,13 +76,14 @@ export type PostsListConfig = {
    * An array of postIds. If provided, we reorder the results to match this order.
    */
   order?: string[],
+  header?: ReactNode,
 }
 
 const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
-export const usePostsList = ({
+export const usePostsList = <TagId extends string | undefined = undefined>({
   children,
   terms,
   dimWhenLoading = false,
@@ -117,6 +118,7 @@ export const usePostsList = ({
   viewType: configuredViewType = "list",
   showPlacement = false,
   order,
+  ...restProps
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -126,7 +128,7 @@ export const usePostsList = ({
         tagId: "String"
       },
       extraVariablesValues: { tagId }
-    }
+    } as const
     : {};
 
   const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({
@@ -284,5 +286,6 @@ export const usePostsList = ({
     placeholderCount,
     viewType,
     showPlacement,
+    ...restProps,
   };
 }

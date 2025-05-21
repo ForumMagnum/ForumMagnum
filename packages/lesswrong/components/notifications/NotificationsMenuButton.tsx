@@ -1,15 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import { Badge } from "@/components/widgets/Badge";
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import ForumIcon from "../common/ForumIcon";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import NotificationsPopover from "./NotificationsPopover";
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -113,14 +117,11 @@ const BookNotificationsMenuButton = ({
   classes,
 }: NotificationsMenuButtonProps) => {
   const {unreadNotifications} = useUnreadNotifications();
-  const {ForumIcon} = Components;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
-      classes={{
-        root: classNames(classes.badgeContainer, className),
-        badge: classNames(classes.badge, classes.badgeBackground),
-      }}
+      className={classNames(classes.badgeContainer, className)}
+      badgeClassName={classNames(classes.badge, classes.badgeBackground)}
       badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
@@ -150,7 +151,7 @@ const hasKarmaChange = (
     return false;
   }
   const lastOpened = currentUser.karmaChangeLastOpened ?? new Date(0);
-  return lastOpened < endDate || updateFrequency === "realtime";
+  return lastOpened < (endDate ?? new Date(0)) || updateFrequency === "realtime";
 }
 
 const FriendlyNotificationsMenuButton = ({
@@ -179,7 +180,7 @@ const FriendlyNotificationsMenuButton = ({
     void refetch();
   }, [refetch, currentUser?.karmaChangeLastOpened]);
 
-  const markAllAsRead = useCallback(() => {
+  const onOpenNotificationsPopover = useCallback(() => {
     const now = new Date();
     void updateCurrentUser({
       karmaChangeLastOpened: now,
@@ -194,76 +195,72 @@ const FriendlyNotificationsMenuButton = ({
     setOpen((open) => !open);
     toggle();
   }, [toggle]);
-
-  const {
-    LWTooltip, LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
-  } = Components;
   return (
     <div ref={anchorEl}>
-      <LWTooltip
-        title="Notifications"
-        placement="bottom"
-        popperClassName={classes.tooltip}
+      <Badge
+        className={classNames(classes.badgeContainer, className)}
+        badgeClassName={classNames(classes.badge, {
+          [classes.badgeBackground]: hasBadge,
+          [classes.badge1Char]: badgeText.length === 1,
+          [classes.badge2Chars]: badgeText.length === 2,
+        })}
+        badgeContent={
+          <>
+            {badgeText}
+            {showKarmaStar &&
+              <ForumIcon
+                icon="Star"
+                className={classNames(classes.karmaStar, {
+                  [classes.karmaStarWithBadge]: hasBadge,
+                  [classes.karmaStarWithoutBadge]: !hasBadge,
+                })}
+              />
+            }
+          </>
+        }
       >
-        <Badge
-          classes={{
-            root: classNames(classes.badgeContainer, className),
-            badge: classNames(classes.badge, {
-              [classes.badgeBackground]: hasBadge,
-              [classes.badge1Char]: badgeText.length === 1,
-              [classes.badge2Chars]: badgeText.length === 2,
-            })
-          }}
-          badgeContent={
-            <>
-              {badgeText}
-              {showKarmaStar &&
-                <ForumIcon
-                  icon="Star"
-                  className={classNames(classes.karmaStar, {
-                    [classes.karmaStarWithBadge]: hasBadge,
-                    [classes.karmaStarWithoutBadge]: !hasBadge,
-                  })}
-                />
-              }
-            </>
-          }
-        >
-          <IconButton
-            classes={{root: classNames(classes.buttonClosed, {
-              [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
-            })}}
-            onClick={onClick}
-          >
-            <ForumIcon icon="BellBorder" />
-          </IconButton>
-        </Badge>
-      </LWTooltip>
-      <DeferRender ssr={false}>
-        <LWPopper
-          open={open}
-          anchorEl={anchorEl.current}
-          placement="bottom"
-          tooltip={false}
-          overflowPadding={16}
-          clickable
-        >
-          {open &&
-            <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        {/*
+          * `LWClickAwayListener` is outside the `LWPopper` so that clicks on the notification bell
+          * itself don't trigger the clickaway listener (which would result in the popper closing and
+          * then reopening).
+          *
+          * Note that this violates a general rule in favour of putting the clickaway listener inside
+          * `LWPopper` see this PR description for why that rule exists: https://github.com/ForumMagnum/ForumMagnum/pull/9331
+          */}
+        <LWClickAwayListener onClickAway={() => setOpen(false)}>
+          <>
+            <IconButton
+              classes={{root: classNames(classes.buttonClosed, {
+                [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
+              })}}
+              onClick={onClick}
+            >
+              <ForumIcon icon="BellBorder" />
+            </IconButton>
+            <DeferRender ssr={false}>
+              <LWPopper
+                open={open}
+                anchorEl={anchorEl.current}
+                placement="bottom"
+                tooltip={false}
+                overflowPadding={16}
+                clickable
+              >
                 <NotificationsPopover
-                  karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
-                  markAllAsRead={markAllAsRead}
+                  karmaChanges={karmaChanges?.karmaChanges}
+                  onOpenNotificationsPopover={onOpenNotificationsPopover}
                   closePopover={closePopover}
                 />
-            </LWClickAwayListener>
-          }
-        </LWPopper>
-      </DeferRender>
+              </LWPopper>
+            </DeferRender>
+          </>
+        </LWClickAwayListener>
+      </Badge>
     </div>
   );
 }
 
-const NotificationsMenuButtonComponent = registerComponent(
+export default registerComponent(
   "NotificationsMenuButton",
   isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
   {
@@ -273,8 +270,4 @@ const NotificationsMenuButtonComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsMenuButton: typeof NotificationsMenuButtonComponent
-  }
-}
+

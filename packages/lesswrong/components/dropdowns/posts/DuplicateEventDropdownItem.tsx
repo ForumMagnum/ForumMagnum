@@ -1,10 +1,11 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
 
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "../DropdownItem";
 
 const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -14,8 +15,6 @@ const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const linkUrl = `/newPost?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase("Duplicate Event")}
@@ -25,13 +24,9 @@ const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const DuplicateEventDropdownItemComponent = registerComponent(
+export default registerComponent(
   "DuplicateEventDropdownItem",
   DuplicateEventDropdownItem,
 );
 
-declare global {
-  interface ComponentTypes {
-    DuplicateEventDropdownItem: typeof DuplicateEventDropdownItemComponent
-  }
-}
+

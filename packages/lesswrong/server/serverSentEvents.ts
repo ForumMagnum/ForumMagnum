@@ -1,6 +1,6 @@
 import type { Express, Response } from 'express';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
-import { Notifications } from "../lib/collections/notifications/collection";
+import { Notifications } from "../server/collections/notifications/collection";
 import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
@@ -79,7 +79,7 @@ export function addServerSentEventsEndpoint(app: Express) {
   setInterval(checkForNotifications, 1000);
   if (!isEAForum) {
     setInterval(checkForTypingIndicators, 1000);
-    setInterval(checkForActiveDialoguePartners, 1000);
+    // setInterval(checkForActiveDialoguePartners, 1000);
   }
 }
 

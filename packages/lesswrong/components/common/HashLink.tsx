@@ -12,11 +12,14 @@ type ScrollFunction = ((el: HTMLElement) => void);
 
 export type HashLinkProps = {
   to: string
+  anchorRef?: React.Ref<HTMLAnchorElement>
   id?: string,
   nofollow?: boolean,
   target?: string,
   doOnDown?: boolean
   onMouseDown?: React.MouseEventHandler<HTMLAnchorElement>
+  onMouseEnter?: React.MouseEventHandler<HTMLAnchorElement>
+  onMouseLeave?: React.MouseEventHandler<HTMLAnchorElement>
   onClick?: React.MouseEventHandler<HTMLAnchorElement>
   scroll?: ScrollFunction,
   smooth?: boolean
@@ -88,10 +91,11 @@ export function HashLink(props: HashLinkProps) {
       hashLinkScroll();
     }
   }
-  const { scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
+  const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
   if (doOnDown && !filteredProps.target) {
     return <a
       {...filteredProps}
+      ref={anchorRef}
       href={to}
       onMouseDown={(ev) => {
         // Run any custom onMouseDown logic, including event tracking (such as that passed in from `Link`) before checking for modifier keys
@@ -107,7 +111,7 @@ export function HashLink(props: HashLinkProps) {
       {props.children}
     </a>
   } else {
-    return <Link to={to} {...filteredProps} onClick={handleClick}>
+    return <Link to={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
       {props.children}
     </Link>
   }

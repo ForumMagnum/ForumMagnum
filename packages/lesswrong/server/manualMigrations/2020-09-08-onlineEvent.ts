@@ -1,8 +1,8 @@
 
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 
-registerMigration({
+export default registerMigration({
   name: "onlineEvents",
   dateWritten: "2020-09-08",
   idempotent: true,

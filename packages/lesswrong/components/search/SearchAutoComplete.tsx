@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,
@@ -49,7 +49,7 @@ const SearchAutoComplete = ({
   renderSuggestion: any,
   hitsPerPage?: number,
   indexName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   renderInputComponent?: any,
   facetFilters?: Record<string, boolean>,
 }) => {
@@ -117,11 +117,7 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-const SearchAutoCompleteComponent = registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
+export default registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchAutoComplete: typeof SearchAutoCompleteComponent
-  }
-}
+
 

@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
@@ -8,6 +8,9 @@ import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemBody from "../common/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const BANNER_HEIGHT = 60;
 
@@ -35,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
   },
   description: {
-    ...forumEventBannerDescriptionStyles(theme),
+    ...forumEventBannerDescriptionStyles(),
   },
   image: {
     position: "absolute",
@@ -50,43 +53,44 @@ export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
+
+  const hideBanner =
+    !currentForumEvent ||
+    currentForumEvent.eventFormat !== "BASIC" ||
+    !!currentForumEvent.customComponent;
 
   const {document: post} = useSingle({
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || !!currentForumEvent?.includesPoll,
+    skip:
+      !hasForumEvents ||
+      !params._id ||
+      hideBanner ||
+      !currentForumEvent?.tagId,
   });
 
-  // For now, events that have polls have a special post page UI, so hide this banner
-  if (!currentForumEvent || !post || currentForumEvent.includesPoll) {
+  if (hideBanner || !post) {
     return null;
   }
 
-  const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
+  const relevance = currentForumEvent.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0;
   if (relevance < 1) {
     return null;
   }
 
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
-  // Define background color with a CSS variable to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-  } as CSSProperties;
-
-  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
+  if (!postPageDescription?.html) return null;
   return (
-    <div className={classes.root} style={style}>
-      {postPageDescription?.html &&
-        <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: postPageDescription.html}}
-            className={classes.description}
-          />
-        </ContentStyles>
-      }
+    <div className={classes.root}>
+      <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: postPageDescription.html}}
+          className={classes.description}
+        />
+      </ContentStyles>
       {bannerImageId &&
         <CloudinaryImage2
           publicId={bannerImageId}
@@ -97,14 +101,10 @@ export const ForumEventPostPageBanner = ({classes}: {
   );
 }
 
-const ForumEventPostPageBannerComponent = registerComponent(
+export default registerComponent(
   "ForumEventPostPageBanner",
   ForumEventPostPageBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPostPageBanner: typeof ForumEventPostPageBannerComponent
-  }
-}
+

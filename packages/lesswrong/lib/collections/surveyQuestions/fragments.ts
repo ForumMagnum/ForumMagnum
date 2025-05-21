@@ -1,10 +1,10 @@
-import { registerFragment } from "@/lib/vulcan-lib";
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SurveyQuestionMinimumInfo = () => frag`
   fragment SurveyQuestionMinimumInfo on SurveyQuestion {
     _id
     question
     format
     order
   }
-`);
+`

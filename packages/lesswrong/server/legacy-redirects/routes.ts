@@ -1,13 +1,13 @@
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../server/collections/comments/collection';
 import { commentGetPageUrlFromDB, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { faviconUrlSetting, isAF } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
-import { addStaticRoute } from '../vulcan-lib';
-import { createAnonymousContext } from '../vulcan-lib/query';
+import { addStaticRoute } from '../vulcan-lib/staticRoutes';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import type { ServerResponse } from 'http';
 
 // Some legacy routes have an optional subreddit prefix, which is either

@@ -1,8 +1,8 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   spinner: {
     height: 10,
     maxWidth: 100,
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const Loading = ({classes, className, white}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   white?: boolean
 }) => {
@@ -64,12 +64,4 @@ const Loading = ({classes, className, white}: {
   );
 };
 
-const LoadingComponent = registerComponent('Loading', Loading, {styles});
-
-declare global {
-  interface ComponentTypes {
-    Loading: typeof LoadingComponent
-  }
-}
-
-export default Loading;
+export default registerComponent('Loading', Loading, {styles});

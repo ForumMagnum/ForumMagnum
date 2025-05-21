@@ -1,11 +1,14 @@
 import React, { useContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { recombeeApi } from '../../lib/recombee/client';
 import { RecombeeRecommendationsContext } from '../recommendations/RecombeeRecommendationsContextWrapper';
 import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import LoginPopup from "../users/LoginPopup";
+import VoteButton from "./VoteButton";
+import VoteArrowIcon from "./VoteArrowIcon";
 
 export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   vote?: (props: {
@@ -21,6 +24,7 @@ export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   orientation: "up"|"down"|"left"|"right",
   enabled: boolean,
   solidArrow?: boolean,
+  largeArrow?: boolean
 }
 
 const OverallVoteButton = <T extends VoteableTypeClient>({
@@ -29,6 +33,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   orientation = "up",
   enabled,
   solidArrow,
+  largeArrow,
 }: OverallVoteButtonProps<T>) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -40,8 +45,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     } else {
       vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
@@ -52,8 +57,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     }
   }
 
-  return <Components.VoteButton
-    VoteIconComponent={Components.VoteArrowIcon}
+  return <VoteButton
+    VoteIconComponent={VoteArrowIcon}
     vote={wrappedVote}
     currentStrength={
       (document.currentUserVote === "big"+upOrDown)
@@ -68,14 +73,11 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     color={color}
     orientation={orientation}
     solidArrow={solidArrow}
+    largeArrow={largeArrow}
     enabled={enabled}
   />
 }
 
-const OverallVoteButtonComponent = registerComponent('OverallVoteButton', OverallVoteButton);
+export default registerComponent('OverallVoteButton', OverallVoteButton);
 
-declare global {
-  interface ComponentTypes {
-    OverallVoteButton: typeof OverallVoteButtonComponent
-  }
-}
+

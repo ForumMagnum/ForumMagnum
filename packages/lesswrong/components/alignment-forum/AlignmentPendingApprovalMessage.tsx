@@ -1,10 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AlignmentPendingApprovalMessage = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   if (!currentUser) return null
@@ -39,10 +39,6 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   }
 }
 
-const AlignmentPendingApprovalMessageComponent = registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
+export default registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AlignmentPendingApprovalMessage: typeof AlignmentPendingApprovalMessageComponent
-  }
-}
+

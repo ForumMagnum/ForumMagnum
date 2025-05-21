@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
@@ -13,8 +13,12 @@ import { taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
+import PopperCard from "../common/PopperCard";
+import TagPreview from "./TagPreview";
+import ContentStyles from "../common/ContentStyles";
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -31,7 +35,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tag: {
     padding: 8,
     paddingLeft: 10,
@@ -118,6 +122,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: -4,
     marginBottom: -4,
     borderRadius: 2,
+    
+    ...(isFriendlyUI && {
+      color: theme.palette.primary.main
+    }),
   },
   input: {
     padding: 0,
@@ -144,14 +152,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
-  mode: FilterMode,
+  mode: FilterModeType,
   canRemove?: boolean,
-  onChangeMode: (mode: FilterMode) => void,
+  onChangeMode: (mode: FilterModeType) => void,
   onRemove?: () => void,
   description?: React.ReactNode
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });
@@ -193,7 +200,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   // case they continue to type.
   const [inputTime, setInputTime] = useState(0);
 
-  const setMode = (mode: FilterMode, inputTime = 0) => {
+  const setMode = (mode: FilterModeType, inputTime = 0) => {
     onChangeMode(mode);
     setInputTime(inputTime);
   }
@@ -229,7 +236,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   // Show a `+` in front of the custom "other" input if there's a custom additive value (rather than multiplicative)
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
 
-  return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
+  return <span {...eventHandlers} className={classes.tag}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {tag ? (
         <>
@@ -245,27 +252,27 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => setMode("Hidden")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={_ev => setMode("Hidden")}>
                 Hidden
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(reducedVal)}>
               <span
                 className={classNames(classes.filterButton, {[classes.selected]: [0.5, "Reduced"].includes(mode)})}
-                onClick={ev => setMode(reducedVal)}
+                onClick={_ev => setMode(reducedVal)}
               >
                 {reducedName}
               </span>
             </LWTooltip>
             <div className={classes.defaultLabel}>
               <LWTooltip title={filterModeToTooltip("Default")}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===0 || mode==="Default"})} onClick={ev => setMode("Default")}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===0 || mode==="Default"})} onClick={_ev => setMode("Default")}>
                   Default
                 </span>
               </LWTooltip>
             </div>
             <LWTooltip title={filterModeToTooltip(25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => setMode(25)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={_ev => setMode(25)}>
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "Promoted"}
               </span>
             </LWTooltip>
@@ -284,7 +291,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             </LWTooltip>
             <div className={classes.rightContainer}>
               {canRemove && !tag?.suggestedAsFilter &&
-                <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
+                <div className={classes.removeLabel} onClick={_ev => {if (onRemove) onRemove()}}>
                   <LWTooltip title={<div><div>This filter will no longer appear in {LATEST_POSTS_NAME}.</div><div>You can add it back later if you want</div></div>}>
                     <a>Remove</a>
                   </LWTooltip>
@@ -305,9 +312,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   </span>
 }
 
-function filterModeToTooltip(mode: FilterMode): React.ReactNode {
+function filterModeToTooltip(mode: FilterModeType): React.ReactNode {
   // Avoid floating point equality comparisons
-  let modeWithoutFloat: FilterMode | "0.5" = mode
+  let modeWithoutFloat: FilterModeType | "0.5" = mode
   if (
     typeof mode === "number" &&
     Math.abs(0.5 - mode) < .000000001
@@ -344,7 +351,7 @@ type FilterModeString =
   | "Reduced"
   | "";
 
-function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): FilterModeString {
+function filterModeToStr(mode: FilterModeType, currentUser: UsersCurrent | null): FilterModeString {
   if (typeof mode === "number") {
     if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
     if (
@@ -386,10 +393,6 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
+export default registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FilterMode: typeof FilterModeComponent
-  }
-}
+

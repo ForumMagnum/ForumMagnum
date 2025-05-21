@@ -1,4 +1,3 @@
-import { Utils } from './vulcan-lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
@@ -25,7 +24,7 @@ export async function getWithLoader<N extends CollectionNameString>(
   baseQuery: any={},
   groupByField: string & keyof ObjectsByCollectionName[N],
   id: string,
-  projection: any=undefined,
+  options: MongoFindOptions<ObjectsByCollectionName[N]> | undefined = undefined,
 ): Promise<ObjectsByCollectionName[N][]> {
   if (!context.extraLoaders) {
     context.extraLoaders = {};
@@ -36,7 +35,7 @@ export async function getWithLoader<N extends CollectionNameString>(
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults: ObjectsByCollectionName[N][] = await Utils.Connectors.find(collection, query, projection);
+      const queryResults: ObjectsByCollectionName[N][] = await collection.find(query, options).fetch();
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {

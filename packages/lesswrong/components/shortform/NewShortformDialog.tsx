@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
+import ShortformSubmitForm from "./ShortformSubmitForm";
+import LWDialog from "../common/LWDialog";
 
 const styles = (_theme: ThemeType) => ({
   content: {
@@ -19,11 +21,10 @@ const styles = (_theme: ThemeType) => ({
 
 const NewShortformDialog = ({onClose, classes}: {
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
-  const {ShortformSubmitForm, LWDialog} = Components;
   return (
     <LWDialog
       open={open}
@@ -32,7 +33,7 @@ const NewShortformDialog = ({onClose, classes}: {
       maxWidth={isFriendlyUI ? "md" : "sm"}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
-      dialogClasses={{paper: classes.dialogPaper}}
+      paperClassName={classes.dialogPaper}
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm
@@ -52,14 +53,10 @@ const NewShortformDialog = ({onClose, classes}: {
   );
 }
 
-const NewShortformDialogComponent = registerComponent(
+export default registerComponent(
   'NewShortformDialog',
   NewShortformDialog,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NewShortformDialog: typeof NewShortformDialogComponent
-  }
-}
+

@@ -1,6 +1,6 @@
-import { registerFragment } from "../../vulcan-lib/fragments";
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const ConversationsMinimumInfo = () => frag`
   fragment ConversationsMinimumInfo on Conversation {
     _id
     createdAt
@@ -11,9 +11,9 @@ registerFragment(`
     messageCount
     moderator
   }
-`);
+`
 
-registerFragment(`
+export const ConversationsList = () => frag`
   fragment ConversationsList on Conversation {
     ...ConversationsMinimumInfo
     participants {
@@ -23,11 +23,11 @@ registerFragment(`
       ...messageListFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const ConversationsListWithReadStatus = () => frag`
   fragment ConversationsListWithReadStatus on Conversation {
     ...ConversationsList
     hasUnreadMessages
   }
-`);
+`

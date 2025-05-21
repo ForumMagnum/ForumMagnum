@@ -1,18 +1,17 @@
 import React from 'react';
-import { addCronJob } from './cronUtil';
+import { addCronJob } from './cron/cronUtil';
 import { wrapAndSendEmail } from './emails/renderEmail';
-import './emailComponents/EmailInactiveUserSurvey';
-import { Components, Globals } from './vulcan-lib';
 import { loggerConstructor } from '../lib/utils/logging';
-import { UsersRepo } from './repos';
-import Users from '../lib/vulcan-users';
+import UsersRepo from './repos/UsersRepo';
+import Users from '@/server/collections/users/collection';
 import { isEAForum } from '../lib/instanceSettings';
-
+import { EmailInactiveUserSurvey } from './emailComponents/EmailInactiveUserSurvey';
 
 /**
  * Sends emails to inactive users with a link to a feedback survey
+ * Exported to allow running with "yarn repl".
  */
-const sendInactiveUserSurveyEmails = async () => {
+export const sendInactiveUserSurveyEmails = async () => {
   if (!isEAForum) return
   
   const logger = loggerConstructor(`cron-sendInactiveUserSurveyEmails`)
@@ -31,7 +30,7 @@ const sendInactiveUserSurveyEmails = async () => {
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `Help us improve the site`,
-        body: <Components.EmailInactiveUserSurvey user={user} />,
+        body: <EmailInactiveUserSurvey user={user} />,
       })
       await Users.rawUpdateOne(
         {_id: user._id},
@@ -45,14 +44,12 @@ const sendInactiveUserSurveyEmails = async () => {
   logger(`Sent inactive user survey emails to ${users.length} users`)
 }
 
-if (isEAForum) {
-  addCronJob({
-    name: 'sendInactiveUserSurveyEmails',
-    interval: `every 1 day`,
-    job() {
-      void sendInactiveUserSurveyEmails();
-    }
-  });
-}
+export const sendInactiveUserSurveyEmailsCron = addCronJob({
+  name: 'sendInactiveUserSurveyEmails',
+  interval: `every 1 day`,
+  disabled: !isEAForum,
+  job() {
+    void sendInactiveUserSurveyEmails();
+  }
+});
 
-Globals.sendInactiveUserSurveyEmails = sendInactiveUserSurveyEmails;

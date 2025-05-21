@@ -1,8 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import SequencesGridWrapper from "../sequences/SequencesGridWrapper";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SequencesNewButton from "../sequences/SequencesNewButton";
+import { Typography } from "../common/Typography";
+import EACoreReading from "../sequences/EACoreReading";
+import ContentStyles from "../common/ContentStyles";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: `${theme.spacing.unit * 2}px !important`,
@@ -13,10 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const eaSequencesHomeDescription = "Featured readings and collections of posts on specific topics.";
 
 const EASequencesHome = ({classes}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
-  
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
       <SectionTitle title="Core Reading" />
@@ -31,8 +36,8 @@ const EASequencesHome = ({classes}: {
           add posts written by other people to a sequence if you think they should be read together.
         </Typography>
       </ContentStyles>
-      <div className={classes.sequencesGridWrapperWrapper}>
-        <Components.SequencesGridWrapper
+      <div>
+        <SequencesGridWrapper
           terms={{'view': 'communitySequences', limit: 12}}
           showAuthor={true}
           showLoadMore={true}
@@ -42,10 +47,6 @@ const EASequencesHome = ({classes}: {
   </AnalyticsContext>
 };
 
-const EASequencesHomeComponent = registerComponent('EASequencesHome', EASequencesHome, {styles});
+export default registerComponent('EASequencesHome', EASequencesHome, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EASequencesHome: typeof EASequencesHomeComponent
-  }
-}
+

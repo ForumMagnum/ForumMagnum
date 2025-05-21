@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -8,11 +8,18 @@ import { useMulti } from "../../lib/crud/withMulti";
 import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
+import Loading from "../vulcan-core/Loading";
+import HeadTags from "../common/HeadTags";
+import EASequenceCard from "./EASequenceCard";
+import EACollectionCard from "./EACollectionCard";
+import EAPostsItem from "../posts/EAPostsItem";
+import PostsAudioCard from "../posts/PostsAudioCard";
+import PostsVideoCard from "../posts/PostsVideoCard";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -105,11 +112,11 @@ const featuredCollectionsSequenceIds = [
   "gBjPorwZHRArNSQ5w", // Most important century implications
 ];
 const bestOfYearPostIds = [
-  "EEMpNRJK5qqCw6zqH", // Historical farmed animal welfare ballot initiatives
-  "hFPbe2ZwmB9athsXT", // Clean Water - the incredible 30% mortality reducer we can’t explain
-  "SZJBE3fuk2majqwJQ", // Principles for AI Welfare Research
-  "z8ZWwm4xeHBAiLZ6d", // Thoughts on far-UVC after working in the field for 8 months
-  "jCwuozHHjeoLPLemB", // How Long Do Policy Changes Matter? New Paper
+  "XkLnbSsjK7TpNFgPn", // Truthseeking is the ground in which other principles grow
+  "da6iKGxco8hjwH4nv", // Detecting Genetically Engineered Viruses With Metagenomic Sequencing
+  "upR4t3gM4YxsKFBCG", // Can we help individual people cost-effectively? Our trial with three sick kids
+  "JuGhpwTJxbeGt5GhH", // Good Judgment with Numbers
+  "bT3WrFn6H4fpvLSk8", // Policy advocacy for eradicating screwworm looks remarkably cost-effective
 ];
 const introToCauseAreasSequenceIds = [
   "vtmN9g6C57XbqPrZS", // AI risk
@@ -124,13 +131,14 @@ const featuredVideoPostIds = [
   "whEmrvK9pzioeircr", // Will AI end everything?
   "LtaT28tevyLbDwidb", // An update to our thinking on climate change
 ];
-const featuredAudioPostIds = [
-  "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
-  "rXYW9GPsmwZYu3doX", // What happens on the average day?
-  "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
-];
+// TODO: re-enable these when we fix the audio player
+// const featuredAudioPostIds = [
+//   "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
+//   "rXYW9GPsmwZYu3doX", // What happens on the average day?
+//   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
+// ];
 
-const allPostIds = [...bestOfYearPostIds, ...featuredVideoPostIds, ...featuredAudioPostIds];
+const allPostIds = [...bestOfYearPostIds, ...featuredVideoPostIds];
 
 const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasSequenceIds];
 
@@ -138,7 +146,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
+const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { results: posts, loading } = useMulti({
@@ -168,7 +176,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     fragmentName: "PostsListWithVotes",
     terms: {
       view: "curated",
-      after: moment(currentTime).subtract(1, "month").startOf("day").toDate(),
+      curatedAfter: moment(currentTime).subtract(1, "month").startOf("day").toDate(),
     },
   });
 
@@ -177,20 +185,15 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
 
   if (loading || sequencesLoading || collectionsLoading || monthlyHighlightsLoading) {
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
   const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]).filter(p => !!p);
-  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]).filter(p => !!p);
+  // const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]).filter(p => !!p);
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
-
-  const {
-    HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
-    PostsVideoCard,
-  } = Components;
   return (
     <>
       <HeadTags title="Best of the Forum" />
@@ -286,7 +289,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 </div>
               </div>
             </AnalyticsContext>
-            <AnalyticsContext pageSectionContext="featuredAudio">
+            {/* <AnalyticsContext pageSectionContext="featuredAudio">
               <div>
                 <h2 className={classes.heading}>Featured audio</h2>
                 <div className={classNames(classes.listSection, classes.listGap)}>
@@ -295,7 +298,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                   ))}
                 </div>
               </div>
-            </AnalyticsContext>
+            </AnalyticsContext> */}
           </div>
         </div>
       </AnalyticsContext>
@@ -303,14 +306,10 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   );
 };
 
-const EABestOfPageComponent = registerComponent(
+export default registerComponent(
   "EABestOfPage",
   EABestOfPage,
   {styles, stylePriority: 2},
 );
 
-declare global {
-  interface ComponentTypes {
-    EABestOfPage: typeof EABestOfPageComponent;
-  }
-}
+

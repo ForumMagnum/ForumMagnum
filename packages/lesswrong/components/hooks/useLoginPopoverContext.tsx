@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
+import React, { FC, ReactNode, createContext, useCallback, useContext, useState, useMemo } from "react";
 
 export type LoginAction = "login" | "signup";
 
@@ -17,13 +17,16 @@ export const LoginPopoverContextProvider: FC<{
   const [loginAction, setLoginAction] = useState<LoginAction | null>(null);
   const onLogin = useCallback(() => setLoginAction("login"), []);
   const onSignup = useCallback(() => setLoginAction("signup"), []);
+  
+  const providedContext: LoginPopoverContext = useMemo(() => ({
+    loginAction,
+    setLoginAction,
+    onLogin,
+    onSignup,
+  }), [loginAction, setLoginAction, onLogin, onSignup]);
+  
   return (
-    <loginPopoverContext.Provider value={{
-      loginAction,
-      setLoginAction,
-      onLogin,
-      onSignup,
-    }}>
+    <loginPopoverContext.Provider value={providedContext}>
       {children}
     </loginPopoverContext.Provider>
   );

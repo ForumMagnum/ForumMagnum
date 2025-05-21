@@ -1,10 +1,18 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { usePostsList } from '../../posts/usePostsList';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import SingleColumnSection from "../../common/SingleColumnSection";
+import SectionFooter from "../../common/SectionFooter";
+import LoadMore from "../../common/LoadMore";
+import PostsHighlight from "../../posts/PostsHighlight";
+import RejectedReasonDisplay from "../RejectedReasonDisplay";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import Row from "../../common/Row";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display1,
     ...theme.typography.postStyle,
@@ -22,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const RejectedPostsList = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     children,
@@ -31,10 +39,7 @@ export const RejectedPostsList = ({classes}: {
     loadMoreProps,
     itemProps,
   } = usePostsList({terms:{view:'rejected'}, enableTotal: true});
-
-  const { SingleColumnSection, SectionFooter, LoadMore, PostsHighlight, RejectedReasonDisplay, FormatDate, MetaInfo, Row } = Components
-
-  return <SingleColumnSection className={classes.root}>
+  return <SingleColumnSection>
     {itemProps?.map(({post}) => <div key={post._id} className={classes.rejectedPost}>
       <Row justifyContent="space-between">
         <MetaInfo><FormatDate date={post.postedAt}/></MetaInfo>
@@ -60,11 +65,7 @@ export const RejectedPostsList = ({classes}: {
   </SingleColumnSection>;
 }
 
-const RejectedPostsListComponent = registerComponent('RejectedPostsList', RejectedPostsList, {styles});
+export default registerComponent('RejectedPostsList', RejectedPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectedPostsList: typeof RejectedPostsListComponent
-  }
-}
+
 

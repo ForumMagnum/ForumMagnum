@@ -1,8 +1,10 @@
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isE2E } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
+import { getInstanceSettings } from './getInstanceSettings';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -136,6 +138,30 @@ export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSettin
 export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
 export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
 export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
+export const taggingNameIsPluralized = {get: () => !isLWorAF && taggingNameIsSet.get()};
+export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
+  if (taggingNameIsPluralized.get()) {
+    return taggingNamePluralCapitalSetting.get();
+  }
+  return taggingNameCapitalSetting.get();
+}};
+
+/** 
+ * If set, this defines the "path part" previously occupied by "tag" in tag-related urls.
+ * This allows the url for tags to be something other than the tag name, e.g. LessWrong is setting this to "w".
+ * External consumers should use `tagUrlBaseSetting`, which defaults to taggingNameSetting (with or without pluralization).
+ */
+const taggingUrlCustomBaseSetting = new PublicInstanceSetting<string|null>('taggingUrlCustomBase', null, 'optional')
+export const tagUrlBaseSetting = {get: () => {
+  const customBase = taggingUrlCustomBaseSetting.get();
+  if (customBase) {
+    return customBase;
+  }
+  if (taggingNameIsPluralized.get()) {
+    return taggingNamePluralSetting.get();
+  }
+  return taggingNameSetting.get();
+}}
 
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created
@@ -148,7 +174,14 @@ export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolea
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
+const getDefaultAbsoluteUrl = (): string => {
+  if (defaultSiteAbsoluteUrl?.length>0) {
+    return defaultSiteAbsoluteUrl;
+  } else {
+    return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
+  }
+}
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")
 
 // FM Crossposting
 export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
@@ -281,4 +314,15 @@ export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId
 
 export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
+export const falApiKey = new PublicInstanceSetting<string>('falAI.apiKey', "", "optional")
+
+export const jargonBotClaudeKey = new PublicInstanceSetting<string>('anthropic.jargonBotClaudeKey', "", "optional")
+
 export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.apiKey', "", "optional")
+
+export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
+export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");
+
+export const saplingApiKey = new PublicInstanceSetting<string>("sapling.apiKey", "", "optional");
+export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
+export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");

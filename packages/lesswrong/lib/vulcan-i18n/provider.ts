@@ -16,12 +16,14 @@ export const formatMessage = (
  * @param  {object} params
  * @param  {string} params.fieldName          The name of the field to evaluate (required)
  * @param  {string} params.collectionName     The name of the collection the field belongs to
- * @param  {object} params.schema             The schema of the collection
  * @param  {object} values                    The values to pass to format the i18n string
  * @return {string}                           The translated label
  */
 export const formatLabel = (
-  { fieldName, collectionName, schema }: AnyBecauseTodo,
+  { fieldName, collectionName }: {
+    fieldName: string,
+    collectionName: string,
+  },
   values?: AnyBecauseTodo
 ) => {
   if (!fieldName) {
@@ -48,7 +50,5 @@ export const formatLabel = (
     return intlLabel;
   }
 
-  // define the schemaLabel. If the schema has been initialized with SimpleSchema, the label should be here even if it has not been declared https://github.com/aldeed/simple-schema-js#label
-  let schemaLabel = schema && schema[fieldName] ? schema[fieldName].label : null;
-  return schemaLabel || camelToSpaces(fieldName);
+  return camelToSpaces(fieldName);
 };

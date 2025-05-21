@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Menu from '@material-ui/core/Menu';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
+import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentActions from "./CommentActions";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "& .MuiList-padding": {
@@ -21,7 +22,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 })
 
 const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,
@@ -61,7 +62,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
         anchorEl={anchorEl}
         className={classes.root}
       >
-        {everOpened && <Components.CommentActions
+        {everOpened && <CommentActions
           currentUser={currentUser}
           comment={comment}
           post={post}
@@ -73,11 +74,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   )
 }
 
-const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, {styles});
+export default registerComponent('CommentsMenu', CommentsMenu, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsMenu: typeof CommentsMenuComponent,
-  }
-}
+
 

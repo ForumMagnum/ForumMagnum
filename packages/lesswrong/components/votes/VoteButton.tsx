@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isMobile } from '../../lib/utils/isMobile'
 import { useTheme } from '../themes/useTheme';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 const VoteButton = ({
@@ -13,6 +13,7 @@ const VoteButton = ({
   orientation = "up",
   enabled,
   solidArrow,
+  largeArrow,
   VoteIconComponent,
 }: {
   vote: (strength: "big"|"small"|"neutral") => void,
@@ -22,7 +23,8 @@ const VoteButton = ({
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
   enabled: boolean,
-  solidArrow?: boolean
+  solidArrow?: boolean,
+  largeArrow?: boolean,
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
 }) => {
   const theme = useTheme();
@@ -81,7 +83,7 @@ const VoteButton = ({
   }
 
   const voteArrowProps = {
-    solidArrow, strongVoteDelay, orientation, enabled, color, voted,
+    solidArrow, largeArrow, strongVoteDelay, orientation, enabled, color, voted,
     bigVotingTransition, bigVoted,
     bigVoteCompleted, theme,
     eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},
@@ -90,13 +92,9 @@ const VoteButton = ({
   return <VoteIconComponent {...voteArrowProps} />
 }
 
-const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {
+export default registerComponent('VoteButton', VoteButton, {
   areEqual: "auto"
 });
 
-declare global {
-  interface ComponentTypes {
-    VoteButton: typeof VoteButtonComponent
-  }
-}
+
 

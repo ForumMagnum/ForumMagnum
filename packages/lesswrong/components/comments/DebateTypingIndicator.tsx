@@ -1,13 +1,14 @@
 import React, {useState} from 'react';
-import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
-import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
+import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle
   },
@@ -17,7 +18,7 @@ const INCIDATOR_UPDATE_PERIOD = 15000
 const INDICATOR_DISPLAY_PERIOD = 20000;
 
 export const DebateTypingIndicator = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
 
@@ -57,7 +58,7 @@ export const DebateTypingIndicator = ({classes, post}: {
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
     const twentySecondsAgo = Date.now() - INDICATOR_DISPLAY_PERIOD;
-    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated).getTime()) > twentySecondsAgo;
+    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated ?? 0).getTime()) > twentySecondsAgo;
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
   })
@@ -72,10 +73,6 @@ export const DebateTypingIndicator = ({classes, post}: {
   </div>;
 }
 
-const DebateTypingIndicatorComponent = registerComponent('DebateTypingIndicator', DebateTypingIndicator, {styles});
+export default registerComponent('DebateTypingIndicator', DebateTypingIndicator, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateTypingIndicator: typeof DebateTypingIndicatorComponent
-  }
-}
+

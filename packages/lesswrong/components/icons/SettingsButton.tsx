@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ForumIcon from "../common/ForumIcon";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -42,18 +43,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
-  label?: string,
+  label?: React.ReactNode,
   showIcon?: boolean,
   useArrow?: 'up' | 'down'
   textShadow?: boolean,
   labelClassName?: string,
 }) => {
-
-  const { ForumIcon } = Components
-
   const iconType = !!useArrow ? "ThickChevronDown" : "Settings"
 
   if (label) {
@@ -65,13 +63,9 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
 }
 
-const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {
+export default registerComponent('SettingsButton', SettingsButton, {
   styles,
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    SettingsButton: typeof SettingsButtonComponent
-  }
-}
+

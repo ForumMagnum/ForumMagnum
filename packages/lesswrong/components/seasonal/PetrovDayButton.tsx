@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
@@ -16,16 +16,19 @@ import {
 } from "../../lib/petrovHelpers";
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';
+import LWTooltip from "../common/LWTooltip";
+import LoginPopupButton from "../users/LoginPopupButton";
+import { Typography } from "../common/Typography";
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
+export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
@@ -140,8 +143,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
-  classes: ClassesType,
+const PetrovDayButton = ({classes, alreadyLaunched }: {
+  classes: ClassesType<typeof styles>,
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {
@@ -161,9 +164,6 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   );
   
   const { flash } = useMessages();
-  
-  const { LWTooltip, LoginPopupButton, Typography } = Components
-
   const updateCurrentUser = useUpdateCurrentUser();
   
   const pressButton = () => {
@@ -229,7 +229,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
               <div className={classes.button}>
                 {renderButtonAsPressed ? 
                   <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                    <img src={"../petrovButtonPressedDark.png"}/> 
                   </LWTooltip>
                   :
                   <LWTooltip title="Are you sure?" placement="right">
@@ -277,11 +277,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   )
 }
 
-const PetrovDayButtonComponent = registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+export default registerComponent('PetrovDayButton', PetrovDayButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayButton: typeof PetrovDayButtonComponent
-  }
-}
+
 

@@ -1,12 +1,9 @@
-import Users from "../../../lib/collections/users/collection";
+import Users from "../../../server/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { Votes } from '../../../lib/collections/votes';
-import { getCollection } from '../../vulcan-lib';
+import { Votes } from '../../../server/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
-import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
-import { ensureIndex } from "../../../lib/collectionIndexUtils";
-import { UsersRepo } from "../../repos";
+import UsersRepo from "../../repos/UsersRepo";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -17,44 +14,19 @@ export const recalculateAFBaseScore = async (document: VoteableType): Promise<nu
   return votes ? votes.reduce((sum, vote) => { return (vote.afPower ?? 0) + sum }, 0) : 0
 }
 
-async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: DbVote): Promise<VoteDocTuple> {
-  // Update a
-  const voter = await Users.findOne(vote.userId)
-  if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
-
-  if (userCanDo(voter, "votes.alignment")) {
-    const votePower = calculateVotePower(voter.afKarma, vote.voteType)
-
-    await Votes.rawUpdateOne({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
-    const newAFBaseScore = await recalculateAFBaseScore(newDocument)
-
-    const collection = getCollection(vote.collectionName as VoteableCollectionName)
-
-    await collection.rawUpdateOne({_id: newDocument._id}, {$set: {afBaseScore: newAFBaseScore}});
-
-    return {
-      newDocument:{
-        ...newDocument,
-        afBaseScore: newAFBaseScore
-      },
-      vote: {
-        ...vote,
-        afPower: votePower
-      }
-    }
-  } else {
-    return {
-      newDocument,
-      vote
-    }
+export function getVoteAFPower({user, voteType, document}: {
+  user: DbUser|UsersCurrent,
+  voteType: string,
+  document: VoteableType,
+}) {
+  if (!userCanDo(user, "votes.alignment")) {
+    return 0;
   }
+  return calculateVotePower(user.afKarma, voteType);
 }
 
-export async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocTuple) {
-  return await updateAlignmentKarmaServer(newDocument, vote)
-}
 
-async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
+async function updateUserAFKarmaForVote (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId !== vote.userId)) {
     const documentUser = await Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")
@@ -62,7 +34,7 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
     const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:newDocument.userId}, {
-        $set: {afKarma: newAfKarma },
+        $inc: {afKarma: karmaUpdate},
         $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
@@ -72,21 +44,16 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
   }
 }
 
-export async function updateAlignmentUserServerCallback ({newDocument, vote}: VoteDocTuple) {
-  await updateAlignmentUserServer(newDocument, vote, 1)
+export async function grantUserAFKarmaForVote ({newDocument, vote}: VoteDocTuple) {
+  await updateUserAFKarmaForVote(newDocument, vote, 1)
 }
 
-export async function cancelAlignmentUserKarmaServer ({newDocument, vote}: VoteDocTuple) {
-  await updateAlignmentUserServer(newDocument, vote, -1)
+export async function revokeUserAFKarmaForCancelledVote ({newDocument, vote}: VoteDocTuple) {
+  await updateUserAFKarmaForVote(newDocument, vote, -1)
 
 }
 
-export function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocTuple) {
-  void updateAlignmentKarmaServer(newDocument, vote)
-}
-
-
-export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
+export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
       $inc: {afKarma: document.afBaseScore ?? 0},
@@ -111,6 +78,10 @@ export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, ol
     }, {multi: true})
   }
 }
-ensureIndex(Votes, {documentId:1});
 
-getCollectionHooks("Posts").editAsync.add(moveToAFUpdatesUserAFKarma);
+
+export async function postsMoveToAFAddsAlignmentVoting (post: DbPost, oldPost: DbPost) {
+  if (post.af && !oldPost.af) {
+    await Users.rawUpdateOne({_id:post.userId}, {$addToSet: {groups: 'alignmentVoters'}})
+  }
+}

@@ -1,14 +1,19 @@
 import React from 'react';
-import { Components, registerComponent, sanitizeAllowedTags } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
-import type { Column } from '../vulcan-core/Datatable';
+import Datatable, { Column } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
+import UsersName from "../users/UsersName";
+import FormatDate from "../common/FormatDate";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     fontFamily: theme.typography.fontFamily,
@@ -35,7 +40,7 @@ const UserDisplay = ({column, document}: {
 }) => {
   const user = document.user || document
   return <div>
-    <Components.UsersName user={user} nofollow />
+    <UsersName user={user} nofollow />
   </div>
 }
 
@@ -64,7 +69,7 @@ const DateDisplay = ({column, document}: {
   column: Column;
   document: any;
 }) => {
-  return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
+  return <div>{document[column.name] && <FormatDate date={document[column.name]}/>}</div>
 }
 
 const columns: Column[] = [
@@ -95,19 +100,19 @@ const columns: Column[] = [
 
 
 const ModGPTDashboard = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   
   if (!userIsAdminOrMod(currentUser)) {
-    return <Components.Error404 />
+    return <Error404 />
   }
 
   return (
     <div className={classes.root}>
-      <Components.SectionTitle title="ModGPT Dashboard" noTopMargin />
+      <SectionTitle title="ModGPT Dashboard" noTopMargin />
 
-      <Components.Datatable
+      <Datatable
         collectionName="Comments"
         columns={columns}
         fragmentName={'CommentsListWithModGPTAnalysis'}
@@ -118,10 +123,6 @@ const ModGPTDashboard = ({classes}: {
   )
 }
 
-const ModGPTDashboardComponent = registerComponent('ModGPTDashboard', ModGPTDashboard, {styles});
+export default registerComponent('ModGPTDashboard', ModGPTDashboard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModGPTDashboard: typeof ModGPTDashboardComponent
-  }
-}
+

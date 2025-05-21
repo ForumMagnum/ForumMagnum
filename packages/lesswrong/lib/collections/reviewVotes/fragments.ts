@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const reviewVoteFragment = () => frag`
   fragment reviewVoteFragment on ReviewVote {
     _id
     createdAt
@@ -13,10 +13,10 @@ registerFragment(`
     dummy
     reactions
   }
-`)
+`
 
 
-registerFragment(`
+export const reviewVoteWithUserAndPost = () => frag`
   fragment reviewVoteWithUserAndPost on ReviewVote {
     ...reviewVoteFragment
     user {
@@ -28,4 +28,19 @@ registerFragment(`
       ...PostsMinimumInfo
     }
   }
-`)
+`
+
+export const reviewAdminDashboard = () => frag`
+  fragment reviewAdminDashboard on ReviewVote {
+    _id
+    createdAt
+    userId
+    user {
+      _id
+      displayName
+      karma
+    }
+  }
+`
+
+

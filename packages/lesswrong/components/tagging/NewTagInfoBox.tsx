@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { styles as postInfoStyles } from "../posts/NewPostHowToGuides";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { taggingNameSetting } from "@/lib/instanceSettings";
@@ -69,14 +69,10 @@ const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const NewTagInfoBoxComponent = registerComponent(
+export default registerComponent(
   "NewTagInfoBox",
   NewTagInfoBox,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NewTagInfoBox: typeof NewTagInfoBoxComponent
-  }
-}
+

@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import EmailIcon from '@material-ui/icons/Email';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import LWTooltip from "../../common/LWTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -15,11 +16,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewUserDMSummary = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
 }) => {
-  const { LWTooltip } = Components;
-  
   if (!user.usersContactedBeforeReview?.length) return null
   
   return <div className={classes.root}>
@@ -29,10 +28,6 @@ export const NewUserDMSummary = ({classes, user}: {
   </div>
 }
 
-const NewUserDMSummaryComponent = registerComponent('NewUserDMSummary', NewUserDMSummary, {styles});
+export default registerComponent('NewUserDMSummary', NewUserDMSummary, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NewUserDMSummary: typeof NewUserDMSummaryComponent
-  }
-}
+

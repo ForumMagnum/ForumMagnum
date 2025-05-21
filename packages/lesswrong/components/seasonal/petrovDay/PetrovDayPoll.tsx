@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
+import SingleColumnSection from "../../common/SingleColumnSection";
+import Error404 from "../../common/Error404";
+import ContentStyles from "../../common/ContentStyles";
 
-export const PetrovDayPoll = ({classes}: {
-  classes: ClassesType,
-}) => {
-  const { SingleColumnSection, Error404, ContentStyles } = Components
+export const PetrovDayPoll = () => {
   const currentUser = useCurrentUser()
   if (!currentUser) return <Error404/>
   return <SingleColumnSection>
@@ -16,10 +16,6 @@ export const PetrovDayPoll = ({classes}: {
   </SingleColumnSection>;
 }
 
-const PetrovDayPollComponent = registerComponent('PetrovDayPoll', PetrovDayPoll);
+export default registerComponent('PetrovDayPoll', PetrovDayPoll);
 
-declare global {
-  interface ComponentTypes {
-    PetrovDayPoll: typeof PetrovDayPollComponent
-  }
-}
+

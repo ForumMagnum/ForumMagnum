@@ -1,16 +1,17 @@
 import classNames from 'classnames';
-import React from 'react';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import React, { useEffect, useRef } from 'react';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
+import LWCommentCount from "./LWCommentCount";
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
 
 export const HOVER_CLASSNAME = 'ToCRowHover'
-export const FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
+export const DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
 
 const STICKY_BLOCK_SCROLLER_CLASS_NAME = 'MultiToCLayoutStickyBlockScroller';
 
@@ -85,6 +86,13 @@ const styles = (theme: ThemeType) => ({
     // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
     top: '-1px !important'
   },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
+      top: HEADER_HEIGHT,
+      height: `calc(100vh - ${HEADER_HEIGHT}px - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
+    }
+  },
   stickyBlockScroller: {
     position: "sticky",
     fontSize: 12,
@@ -94,8 +102,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    maxHeight: `calc(100vh - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
-    height: fullHeightToCEnabled ? `calc(100vh - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)` : undefined,
+    maxHeight: `calc(100vh - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
+    height: fullHeightToCEnabled ? `calc(100vh - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -106,15 +114,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]:{
       display:'none'
     },
-  },
-  '@global': {
-    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
-    [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      '&&': {
-        top: HEADER_HEIGHT,
-        height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
-      }
-    }
   },
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
@@ -151,7 +150,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 12,
     paddingTop: 12,
     paddingBottom: 20,
-    height: FIXED_TOC_COMMENT_COUNT_HEIGHT,
+    height: `var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
     bottom: 0,
     left: 0,
     width: 240,
@@ -160,9 +159,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-    '&:hover $commentsLabel': {
-      opacity: 1
-    }
   }
 });
 
@@ -173,22 +169,40 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
   answerCount?: number,
   commentCount?: number,
+  tocContext?: 'tag' | 'post'
 }) => {
-  const { LWCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)
-    .join('\n')
+    .join('\n');
 
-  return <div className={classes.root}>
-    <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas }}>
+  const gridTemplateRows = segments
+    .map((_segment,i) => (i + 1) >= segments.length ? '1fr' : 'min-content')
+    .join(' ');
+
+  const showCommentCount = commentCount !== undefined || answerCount !== undefined;
+
+  // Create a ref for the root element to set CSS variable
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Set the CSS variable when the component mounts
+  useEffect(() => {
+    if (rootRef.current) {
+      const fixedTocCommentCountHeight = tocContext === 'tag' ? 20 : DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT;
+      rootRef.current.style.setProperty('--fixed-toc-comment-count-height', `${fixedTocCommentCountHeight}px`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <div className={classes.root} ref={rootRef}>
+    <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas, gridTemplateRows }}>
       {segments.map((segment,i) => <React.Fragment key={i}>
         {segment.toc && tocVisible && <>
           <div
@@ -220,20 +234,16 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
         </div>}
       </React.Fragment>)}
     </div>
-    <div className={classes.commentCount}>
+    {showCommentCount && <div className={classes.commentCount}>
       <LWCommentCount
         answerCount={answerCount}
         commentCount={commentCount}
       />
-    </div>
+    </div>}
   </div>
 }
 
-const MultiToCLayoutComponent = registerComponent('MultiToCLayout', MultiToCLayout, {styles});
+export default registerComponent('MultiToCLayout', MultiToCLayout, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MultiToCLayout: typeof MultiToCLayoutComponent
-  }
-}
+
 

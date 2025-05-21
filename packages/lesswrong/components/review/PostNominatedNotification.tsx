@@ -2,11 +2,16 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
+import Loading from "../vulcan-core/Loading";
+import PostsTitle from "../posts/PostsTitle";
+import ReviewPostButton from "./ReviewPostButton";
+import LWTooltip from "../common/LWTooltip";
+import ContentStyles from "../common/ContentStyles";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*1.5,
     width: POST_PREVIEW_WIDTH,
@@ -20,10 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostNominatedNotification = ({classes, postId}: {classes: ClassesType, postId: string}) => {
-
-  const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
-
+const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -51,10 +53,6 @@ const PostNominatedNotification = ({classes, postId}: {classes: ClassesType, pos
   </div>
 }
 
-const PostNominatedNotificationComponent = registerComponent('PostNominatedNotification', PostNominatedNotification, {styles});
+export default registerComponent('PostNominatedNotification', PostNominatedNotification, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostNominatedNotification: typeof PostNominatedNotificationComponent
-  }
-}
+

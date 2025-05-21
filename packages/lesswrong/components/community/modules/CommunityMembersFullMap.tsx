@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
+import SearchResultsMap from "./SearchResultsMap";
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   map: {
     height: '100vh',
     marginTop: -theme.spacing.mainLayoutPaddingTop,
@@ -13,14 +13,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: 0,
     },
   }
-}))
-
+});
 
 const CommunityMembersFullMap = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { SearchResultsMap } = Components
-  
   return <InstantSearch
     indexName={'test_users'}
     searchClient={getSearchClient()}
@@ -30,11 +27,7 @@ const CommunityMembersFullMap = ({classes}: {
   </InstantSearch>
 }
 
-const CommunityMembersFullMapComponent = registerComponent('CommunityMembersFullMap', CommunityMembersFullMap, {styles});
+export default registerComponent('CommunityMembersFullMap', CommunityMembersFullMap, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommunityMembersFullMap: typeof CommunityMembersFullMapComponent
-  }
-}
+
 

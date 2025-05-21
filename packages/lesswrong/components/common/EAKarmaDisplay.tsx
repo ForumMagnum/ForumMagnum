@@ -1,7 +1,8 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import classNames from "classnames";
+import KarmaDisplay from "./KarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,9 +20,8 @@ const styles = (theme: ThemeType) => ({
 const EAKarmaDisplay = ({post, className, classes}: {
   post: PostsList,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {KarmaDisplay} = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.voteArrow}>
@@ -32,14 +32,10 @@ const EAKarmaDisplay = ({post, className, classes}: {
   );
 };
 
-const EAKarmaDisplayComponent = registerComponent(
+export default registerComponent(
   "EAKarmaDisplay",
   EAKarmaDisplay,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAKarmaDisplay: typeof EAKarmaDisplayComponent,
-  }
-}
+

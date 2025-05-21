@@ -1,18 +1,22 @@
 import React from 'react';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import type { EmojiReactName, UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import { VotingProps } from '../votingProps';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import sumBy from 'lodash/sumBy';
+import UsersWhoReacted from "./UsersWhoReacted";
+import ReactOrAntireactVote from "./ReactOrAntireactVote";
+import ReactionDescription from "./ReactionDescription";
+import ReactionIcon from "../ReactionIcon";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
     paddingLeft: 12,
     paddingRight: 8,
     "&:hover": {
@@ -20,7 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
+    borderRadius: 4,
   },
   hoverInfo: {
     paddingLeft: 10,
@@ -48,9 +53,8 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
   userReactions: UserReactInfo[],
   showNonInlineVoteButtons: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionDescription, ReactionIcon } = Components;
   const nonInlineReactions = filter(userReactions, r => !(r.quotes?.length));
   const nonInlineNetReactionCount = sumBy(nonInlineReactions, r => r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
@@ -66,9 +70,9 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
         reaction={getNamesAttachedReactionsByName(reactionName)}
         className={classes.hoverBallotReactDescription}
       />
-      <Components.UsersWhoReacted reactions={nonInlineReactions} wrap showTooltip={false}/>
+      <UsersWhoReacted reactions={nonInlineReactions} wrap showTooltip={false}/>
     </div>
-    {showNonInlineVoteButtons && <Components.ReactOrAntireactVote
+    {showNonInlineVoteButtons && <ReactOrAntireactVote
       reactionName={reactionName}
       quote={null}
       netReactionCount={nonInlineNetReactionCount}
@@ -78,11 +82,7 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
   </div>
 }
 
-const ReactionHoverTopRowComponent = registerComponent('ReactionHoverTopRow', ReactionHoverTopRow, {styles});
+export default registerComponent('ReactionHoverTopRow', ReactionHoverTopRow, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReactionHoverTopRow: typeof ReactionHoverTopRowComponent
-  }
-}
+
 

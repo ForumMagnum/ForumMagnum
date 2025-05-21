@@ -1,24 +1,32 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
-import { useCommentLink } from "./useCommentLink";
-import { userIsAdmin } from "../../../lib/vulcan-users";
+import { useCommentLink, useCommentLinkState } from "./useCommentLink";
+import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
+import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import CommentShortformIcon from "./CommentShortformIcon";
+import CommentDiscussionIcon from "./CommentDiscussionIcon";
+import ShowParentComment from "../ShowParentComment";
+import CommentUserName from "./CommentUserName";
+import CommentsItemDate from "./CommentsItemDate";
+import SmallSideVote from "../../votes/SmallSideVote";
+import CommentOutdatedWarning from "./CommentOutdatedWarning";
+import FooterTag from "../../tagging/FooterTag";
+import LoadMore from "../../common/LoadMore";
+import ForumIcon from "../../common/ForumIcon";
+import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
+import UserCommentMarkers from "../../users/UserCommentMarkers";
+import CommentPollVote from "./CommentPollVote";
+import { metaNoticeStyles } from "./metaNoticeStyles";
 
-export const metaNoticeStyles = (theme: ThemeType) => ({
-    color: theme.palette.lwTertiary.main,
-    fontSize: "1rem",
-    marginLeft: theme.spacing.unit / 2,
-    ...theme.typography.italic,
-});
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& > div": {
       marginRight: 5,
@@ -113,12 +121,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
   },
   linkIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     verticalAlign: "top",
     color: theme.palette.icon.dim,
     margin: "0 4px",
     position: "relative",
     top: 1,
+  },
+  linkIconHighlighted: {
+    strokeWidth: "0.7px",
+    stroke: "currentColor",
+    color: theme.palette.primary.main
   },
   menu: isFriendlyUI
     ? {
@@ -163,6 +176,7 @@ export const CommentsItemMeta = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const { scrollToCommentId } = useCommentLinkState();
 
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
@@ -217,14 +231,8 @@ export const CommentsItemMeta = ({
     shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked;
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
-
-
-
-  const {
-    CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
-    CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
-  } = Components;
+  // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
+  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
 
   return (
     <div className={classNames(
@@ -311,6 +319,7 @@ export const CommentsItemMeta = ({
         {relevantTagsTruncated.map(tag =>
           <FooterTag
             tag={tag}
+            hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
             neverCoreStyling={isBookUI}
@@ -323,12 +332,13 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
+      <CommentPollVote comment={comment} />
 
       <span className={classes.rightSection}>
         {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
-            <ForumIcon icon="Link" className={classes.linkIcon} />
+            <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }
         {!isParentComment && !hideActionsMenu &&
@@ -347,14 +357,10 @@ export const CommentsItemMeta = ({
   );
 }
 
-const CommentsItemMetaComponent = registerComponent(
+export default registerComponent(
   "CommentsItemMeta",
   CommentsItemMeta,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CommentsItemMeta: typeof CommentsItemMetaComponent,
-  }
-}
+

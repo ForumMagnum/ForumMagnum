@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   },
@@ -19,7 +19,7 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   changeMetrics: ChangeMetrics,
   showCharacters?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {added, removed} = changeMetrics;
   const characters = showCharacters ? " characters" : "";
@@ -34,14 +34,10 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   </span>
 }
 
-const ChangeMetricsDisplayComponent = registerComponent(
+export default registerComponent(
   "ChangeMetricsDisplay",
   ChangeMetricsDisplay,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ChangeMetricsDisplay: typeof ChangeMetricsDisplayComponent
-  }
-}
+

@@ -1,7 +1,8 @@
-import ReviewWinners from "../../lib/collections/reviewWinners/collection";
+import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import type { ReviewWinnerWithPost } from "../../lib/collections/reviewWinners/cache";
+import type { ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "../../lib/reviewUtils";
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   constructor() {
@@ -10,14 +11,14 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   
   async updateCuratedOrder(reviewWinnerId: string, newCuratedOrder: number) {
     await this.getRawDb().tx(async (tx) => {
-      const { curatedOrder: currentOrder } = await tx.one<Pick<DbReviewWinner, 'curatedOrder'>>(`
-        SELECT "curatedOrder"
+      const { curatedOrder: currentOrder, category } = await tx.one<Pick<DbReviewWinner, 'curatedOrder' | 'category'>>(`
+        SELECT "curatedOrder", "category"
         FROM "ReviewWinners"
         WHERE _id = $1
       `, [reviewWinnerId]);
 
       // Moving it earlier in the curated ranking
-      if (newCuratedOrder < currentOrder) {
+      if (currentOrder === null || newCuratedOrder < currentOrder) {
         await tx.none(`
           UPDATE "ReviewWinners"
           SET "curatedOrder" = (SELECT MAX("curatedOrder") + 1 FROM "ReviewWinners")
@@ -29,12 +30,13 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           -- the old currentOrder (the "rightmost" boundary, hence the "<" comparison)
           SET "curatedOrder" = "curatedOrder" + 1
           WHERE "curatedOrder" >= $(newCuratedOrder)
-          AND "curatedOrder" < $(currentOrder);
+          AND ($(currentOrder) IS NULL OR "curatedOrder" < $(currentOrder))
+          AND "category" = $(category);
 
           UPDATE "ReviewWinners"
           SET "curatedOrder" = $(newCuratedOrder)
           WHERE _id = $(reviewWinnerId);
-        `, { newCuratedOrder, currentOrder, reviewWinnerId });
+        `, { newCuratedOrder, currentOrder, reviewWinnerId, category });
       // Moving it later in the curated ranking
       } else if (newCuratedOrder > currentOrder) {
         await tx.none(`
@@ -48,12 +50,13 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           -- the old currentOrder (the "leftmost" boundary, hence the ">" comparison)
           SET "curatedOrder" = "curatedOrder" - 1
           WHERE "curatedOrder" <= $(newCuratedOrder)
-          AND "curatedOrder" > $(currentOrder);
+          AND "curatedOrder" > $(currentOrder)
+          AND "category" = $(category);
 
           UPDATE "ReviewWinners"
           SET "curatedOrder" = $(newCuratedOrder)
           WHERE _id = $(reviewWinnerId);
-        `, { newCuratedOrder, currentOrder, reviewWinnerId });
+        `, { newCuratedOrder, currentOrder, reviewWinnerId, category });
       }
     });
   }
@@ -74,11 +77,21 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           ORDER BY sac."createdAt" DESC
           LIMIT 1    
         ) AS "reviewWinnerArt",
+        (
+          SELECT TO_JSONB(s.*)
+          FROM "Spotlights" s
+          WHERE s."documentId" = p._id
+          AND s."draft" IS false
+          AND s."deletedDraft" IS false
+          ORDER BY s."createdAt" DESC
+          LIMIT 1
+        ) AS "spotlight",
         p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
-    `);
+      WHERE rw."reviewYear" <= $1
+    `, [BEST_OF_LESSWRONG_PUBLISH_YEAR]);
 
     // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
     return postsWithMetadata.map(postWithMetadata => {

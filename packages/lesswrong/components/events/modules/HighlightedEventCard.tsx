@@ -1,19 +1,21 @@
 import React from 'react';
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import Loading from "../../vulcan-core/Loading";
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
   return `https://res.cloudinary.com/cea/image/upload/w_${width}${blur ? ',e_blur:500' : ''}/Banner/yeldubyolqpl3vqqy0m6.jpg`
 }
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     display: 'flex',
@@ -100,13 +102,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginBottom: 0
     }
   },
-}))
-
+});
 
 const HighlightedEventCard = ({event, loading, classes}: {
   event?: PostsList,
   loading: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone()
   const { captureEvent } = useTracking()
@@ -115,9 +116,6 @@ const HighlightedEventCard = ({event, loading, classes}: {
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
-  
-  const { Loading, AddToCalendarButton, PrettyEventDateTime } = Components
-  
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
   const eventImg = event?.eventImageId ?
@@ -182,10 +180,6 @@ const HighlightedEventCard = ({event, loading, classes}: {
   )
 }
 
-const HighlightedEventCardComponent = registerComponent('HighlightedEventCard', HighlightedEventCard, {styles});
+export default registerComponent('HighlightedEventCard', HighlightedEventCard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HighlightedEventCard: typeof HighlightedEventCardComponent
-  }
-}
+

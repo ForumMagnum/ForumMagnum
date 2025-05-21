@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
@@ -13,11 +13,14 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
+import StyledMapPopup from "../../localGroups/StyledMapPopup";
+import GroupLinks from "../../localGroups/GroupLinks";
+import HomepageMapFilter from "./HomepageMapFilter";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -49,11 +52,10 @@ const styles = (theme: JssStyles) => ({
   },
 })
 
-const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
+export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
-  const { StyledMapPopup, GroupLinks } = Components
   const { document, loading } = useSingle({
     documentId: localEvent._id,
     collectionName: "Posts",
@@ -80,10 +82,9 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
     <div dangerouslySetInnerHTML={htmlBody} />
   </StyledMapPopup>
 }
-const LocalEventWrapperPopUpComponent = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUp);
 
 
-const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
+const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
@@ -100,11 +101,11 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
     opacity: 1
   }
 })
-const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
+
+const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
-  classes: ClassesType,
+  classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
-  const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
     (id: string) => { setOpenWindows([id]) }
@@ -141,17 +142,16 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
     })}
   </React.Fragment>
 }
-const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappers, {
+
+export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner, {
   styles: localEventMapMarkerWrappersStyles
 });
 
 
 export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
-
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
@@ -170,7 +170,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
         <HomepageMapFilter />
       </div>
     </>
-  }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
+  }, [classes.mapButtons])
 
   const mapStyle = useMapStyle();
 
@@ -191,13 +191,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   </div>;
 }
 
-const HomepageCommunityMapComponent = registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
+export default registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomepageCommunityMap: typeof HomepageCommunityMapComponent
-    LocalEventMapMarkerWrappers: typeof LocalEventMapMarkerWrappersComponent
-    LocalEventWrapperPopUp: typeof LocalEventWrapperPopUpComponent
-  }
-}
+
 

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useLocation } from "../../../lib/routeUtil";
 import { useOnSearchHotkey } from "../../common/withGlobalKeydown";
 import { InteractionWrapper } from "../../common/useClickableCell";
-import Collapse from "@material-ui/core/Collapse";
+import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import classNames from "classnames";
 
 const TRANSITION_DURATION = 200;
@@ -12,6 +12,8 @@ export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
 export const locationHashIsFootnote = (hash: string) =>
   hash.startsWith("#fn") && !hash.startsWith("#fnref");
+export const locationHashIsFootnoteBackreference = (hash: string) =>
+  hash.startsWith("#fnref");
 
 const styles = (theme: ThemeType) => ({
   collapse: {
@@ -71,7 +73,7 @@ const CollapsedFootnotes = ({
   footnotesHtml: string,
   attributes?: Record<string, unknown>,
   previewCount?: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {hash} = useLocation();
   const [collapsed, setCollapsed] = useState(!locationHashIsFootnote(hash ?? ""));
@@ -131,14 +133,10 @@ const CollapsedFootnotes = ({
   );
 }
 
-const CollapsedFootnotesComponent = registerComponent(
+export default registerComponent(
   "CollapsedFootnotes",
   CollapsedFootnotes,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CollapsedFootnotes: typeof CollapsedFootnotesComponent
-  }
-}
+

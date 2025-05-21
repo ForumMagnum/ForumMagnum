@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -10,8 +10,12 @@ import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import ContentStyles from "../common/ContentStyles";
+import LinkPostMessage from "./LinkPostMessage";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
@@ -34,17 +38,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TruncatedSuffix: FC<{
   post: PostsList,
   forceSeeMore?: boolean,
-  wordsLeft: number,
+  wordsLeft: number|null,
   clickExpand: (ev: MouseEvent) => void,
 }> = ({post, forceSeeMore, wordsLeft, clickExpand}) => {
-  if (forceSeeMore || wordsLeft < 1000) {
+  if (forceSeeMore || (wordsLeft && wordsLeft < 1000)) {
     return (
       <Link
         to={postGetPageUrl(post)}
         onClick={clickExpand}
         eventProps={{intent: 'expandPost'}}
       >
-        ({preferredHeadingCase("See More")} – {wordsLeft} more words)
+        {"("}{preferredHeadingCase("See More")}
+        {wordsLeft && <>{" – "}{wordsLeft} more words</>}{")"}
       </Link>
     );
   }
@@ -88,7 +93,7 @@ const HighlightBody = ({
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
@@ -97,9 +102,9 @@ const HighlightBody = ({
     ev.preventDefault();
   }, [setExpanded]);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
-    <Components.LinkPostMessage post={post} />
-    <Components.ContentItemTruncated
+  return <ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
+    <LinkPostMessage post={post} />
+    <ContentItemTruncated
       maxLengthWords={maxLengthWords}
       graceWords={20}
       rawWordCount={wordCount ?? 0}
@@ -118,8 +123,8 @@ const HighlightBody = ({
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, loading, classes}: {
@@ -128,7 +133,7 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, sm
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
   loading: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const apolloClient = useForeignApolloClient();
@@ -140,7 +145,7 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, sm
   });
 
   return loading
-    ? <Components.Loading />
+    ? <Loading />
     : <HighlightBody {...{
       post,
       maxLengthWords,
@@ -159,7 +164,7 @@ const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smalle
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {loading, error, combinedPost} = useForeignCrosspost(post, foreignFetchProps);
   post = combinedPost ?? post;
@@ -176,7 +181,7 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const {document: expandedDocument, loading: expandedLoading} = useSingle({
@@ -203,15 +208,11 @@ const PostsHighlight = ({post, ...rest}: {
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => isPostWithForeignId(post)
   ? <ForeignPostsHighlight post={post} {...rest} />
   : <LocalPostsHighlight post={post} {...rest} />;
 
-const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});
+export default registerComponent('PostsHighlight', PostsHighlight, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsHighlight: typeof PostsHighlightComponent
-  }
-}
+

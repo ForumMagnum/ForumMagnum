@@ -1,8 +1,11 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { PeopleDirectoryProvider } from "./usePeopleDirectory";
 import { Link } from "../../lib/reactRouterWrapper";
+import PeopleDirectoryMainSearch from "./PeopleDirectoryMainSearch";
+import PeopleDirectoryFilters from "./PeopleDirectoryFilters";
+import PeopleDirectoryResults from "./PeopleDirectoryResults";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,9 +40,6 @@ const styles = (theme: ThemeType) => ({
 const PeopleDirectoryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    PeopleDirectoryMainSearch, PeopleDirectoryFilters, PeopleDirectoryResults,
-  } = Components;
   return (
     <AnalyticsContext pageContext="peopleDirectory">
       <div className={classes.root}>
@@ -66,14 +66,10 @@ const PeopleDirectoryPage = ({classes}: {
   );
 }
 
-const PeopleDirectoryPageComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryPage",
   PeopleDirectoryPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryPage: typeof PeopleDirectoryPageComponent
-  }
-}
+

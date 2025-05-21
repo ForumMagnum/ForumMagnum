@@ -1,13 +1,16 @@
 import React from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import {captureEvent, useTracking} from "../../lib/analyticsEvents";
+import BookAnimation from "./BookAnimation";
+import BookCheckout from "../review/BookCheckout";
+import HeadTags from "../common/HeadTags";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 
   textSettings: {
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`
@@ -302,7 +305,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Hidden = ({classes}: {classes: ClassesType}) => {
+const Hidden = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -317,14 +320,14 @@ const Hidden = ({classes}: {classes: ClassesType}) => {
 
 
 const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   imageURL: string,
   coverImageUrl: string,
   spreadImageUrl: string,
   bigQuote: string,
   bigQuoteAuthor: string,
   accentColor: string,
-  bodyText: JSX.Element
+  bodyText: React.JSX.Element
 }) => {
   
   const { captureEvent } = useTracking()
@@ -357,10 +360,8 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
 }
 
 const Book2018Landing = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {BookAnimation, BookCheckout, HeadTags} = Components;
-
   return (
     <div>
       <HeadTags 
@@ -526,7 +527,7 @@ const Book2018Landing = ({classes}: {
   )
 }
 
-const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {
+export default registerComponent('Book2018Landing', Book2018Landing, {
   styles,
   
   // (Manually checked that there are no horrible contrast problems in dark mode.
@@ -534,8 +535,4 @@ const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018La
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Book2018Landing: typeof Book2018LandingComponent
-  }
-}
+

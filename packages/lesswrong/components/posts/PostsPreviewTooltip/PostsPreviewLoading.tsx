@@ -1,14 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from './helpers';
+import Loading from "../../vulcan-core/Loading";
 
-export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
+export const notificationLoadingStyles = (theme: ThemeType) => ({
   width: POST_PREVIEW_WIDTH,
   paddingTop: theme.spacing.unit,
   paddingBottom: theme.spacing.unit,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loading: {
     ...notificationLoadingStyles(theme),
     background: theme.palette.grey[0],
@@ -18,8 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsPreviewLoading = ({classes}: {classes: ClassesType}) => {
-  const {Loading} = Components;
+const PostsPreviewLoading = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.loading}>
       <Loading/>
@@ -27,14 +27,10 @@ const PostsPreviewLoading = ({classes}: {classes: ClassesType}) => {
   );
 }
 
-const PostsPreviewLoadingComponent = registerComponent(
+export default registerComponent(
   'PostsPreviewLoading',
   PostsPreviewLoading,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PostsPreviewLoading: typeof PostsPreviewLoadingComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified, userHasEmailAddress} from '../../lib/collections/users/helpers';
@@ -7,20 +7,24 @@ import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { randInt } from '../../lib/random';
 import SimpleSchema from 'simpl-schema';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
-import MailOutline from '@material-ui/icons/MailOutline'
-import CheckRounded from '@material-ui/icons/CheckRounded'
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'
+import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LoginForm from "../users/LoginForm";
+import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
+import Loading from "../vulcan-core/Loading";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -118,7 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * See EAHomeRightHandSide.tsx for the other component.
  */
 const RecentDiscussionSubscribeReminder = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -129,7 +133,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const emailAddressInput = useRef<HTMLInputElement|null>(null);
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
-  const {LoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
   
@@ -196,7 +199,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = isLW ?
+    const userSubscriptionData: UpdateUserDataInput = isLW ?
     {emailSubscribedToCurated: true} : {subscribedToDigest: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
@@ -215,6 +218,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     setLoading(false);
   }
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
     return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
       <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
@@ -306,7 +311,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = isEAForum ?
+              const userSubscriptionData: UpdateUserDataInput = isEAForum ?
                 {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
               userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;
@@ -422,15 +427,11 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }
 }
 
-const RecentDiscussionSubscribeReminderComponent = registerComponent(
+export default registerComponent(
   'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminder, {
     styles,
     hocs: [withErrorBoundary],
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    RecentDiscussionSubscribeReminder: typeof RecentDiscussionSubscribeReminderComponent,
-  }
-}
+

@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
+import LWTooltip from "../common/LWTooltip";
 
-const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
+const selectedTextToolbarStyles = (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
   },
@@ -55,11 +56,15 @@ type SelectedTextToolbarState =
  * If there's no space in the right margin (eg on mobile), adding the button
  * might introduce horizontal scrolling.
  */
-const CommentOnSelectionPageWrapper = ({children}: {
+export const CommentOnSelectionPageWrapper = ({children}: {
   children: React.ReactNode
 }) => {
-  const { SelectedTextToolbar } = Components;
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
+  
+  const closeToolbar = useCallback(() => {
+    // When changing toolbarState, do it in a way where if this is {open: false}, we reuse the previous value to avoid triggering a rerender.
+    setToolbarState((prevState) => prevState.open ? {open: false} : prevState);
+  }, []);
  
   useEffect(() => {
     const selectionChangedHandler = () => {
@@ -68,7 +73,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
       
       // Is this selection non-empty?
       if (!selection || !selectionText?.length) {
-        setToolbarState({open: false});
+        closeToolbar();
         return;
       }
       
@@ -89,7 +94,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
       }
       
       if (!commonWrapper || !hasCommonWrapper) {
-        setToolbarState({open: false});
+        closeToolbar();
         return;
       }
       
@@ -109,10 +114,10 @@ const CommentOnSelectionPageWrapper = ({children}: {
     return () => {
       document.removeEventListener('selectionchange', selectionChangedHandler);
     };
-  }, []);
+  }, [closeToolbar]);
   
   useOnNavigate(() => {
-    setToolbarState({open: false});
+    closeToolbar();
   });
   
   const onClickComment = () => {
@@ -147,19 +152,18 @@ const CommentOnSelectionPageWrapper = ({children}: {
  * x, y: In the page coordinate system, ie, relative to the top-left corner when
  *   the page is scrolled to the top.
  */
-const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
+const SelectedTextToolbarInner = ({onClickComment, x, y, classes}: {
   onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof selectedTextToolbarStyles>,
 }) => {
-  const { LWTooltip } = Components;
   const { captureEvent } = useTracking()
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
       <div className={classes.toolbar}>
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={ev => {
+          <CommentIcon onClick={(ev: React.MouseEvent) => {
             captureEvent("commentOnSelectionClicked");
             onClickComment(ev);
           }}/>
@@ -178,7 +182,7 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
  *
  * See CommentOnSelectionPageWrapper for notes on implementation details.
  */
-const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
+export const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   onClickComment: (html: string) => void,
   children: React.ReactNode,
 }) => {
@@ -258,17 +262,9 @@ function selectionToBlockquoteHTML(selection: Selection|null): string {
 }
 
 
-const CommentOnSelectionPageWrapperComponent = registerComponent('CommentOnSelectionPageWrapper', CommentOnSelectionPageWrapper);
-const SelectedTextToolbarComponent = registerComponent(
-  'SelectedTextToolbar', SelectedTextToolbar,
+export const SelectedTextToolbar = registerComponent(
+  'SelectedTextToolbar', SelectedTextToolbarInner,
   {styles: selectedTextToolbarStyles}
 );
-const CommentOnSelectionContentWrapperComponent = registerComponent("CommentOnSelectionContentWrapper", CommentOnSelectionContentWrapper);
 
-declare global {
-  interface ComponentTypes {
-    CommentOnSelectionPageWrapper: typeof CommentOnSelectionPageWrapperComponent
-    SelectedTextToolbar: typeof SelectedTextToolbarComponent
-    CommentOnSelectionContentWrapper: typeof CommentOnSelectionContentWrapperComponent,
-  }
-}
+

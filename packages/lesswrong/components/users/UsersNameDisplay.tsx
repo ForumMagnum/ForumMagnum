@@ -1,14 +1,16 @@
 import React, { useContext, createContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
+import UserNameDeleted from "./UserNameDeleted";
+import UserTooltip from "./UserTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   color: {
     color: theme.palette.primary.main,
   },
@@ -36,6 +38,7 @@ const UsersNameDisplay = ({
   nofollow=false,
   simple=false,
   nowrap=false,
+  noTooltip=false,
   hideFollowButton=false,
   tooltipPlacement="left",
   pageSectionContext,
@@ -48,6 +51,8 @@ const UsersNameDisplay = ({
   color?: boolean,
   /** If the name is a link, it's marked nofollow */
   nofollow?: boolean,
+  /** If set, the tooltip is not shown though otherwise is a link */
+  noTooltip?: boolean,
   /** The name is only text, not a link, and doesn't have a hover */
   simple?: boolean,
   /** If set, usernames with spaces are not allowed to wrap. Default false. */
@@ -61,7 +66,7 @@ const UsersNameDisplay = ({
   /** An additional class to apply to the text */
   className?: string,
 
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {eventHandlers, hover} = useHover({
     eventProps: {
@@ -81,10 +86,8 @@ const UsersNameDisplay = ({
   const nameHidden = noKibitz && !hover;
 
   if (!user || user.deleted) {
-    return <Components.UserNameDeleted userShownToAdmins={user}/>
+    return <UserNameDeleted userShownToAdmins={user}/>
   }
-  const { UserTooltip } = Components
-
   const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const colorClass = color?classes.color:classes.noColor;
 
@@ -113,6 +116,7 @@ const UsersNameDisplay = ({
           placement={tooltipPlacement}
           inlineBlock={false}
           hideFollowButton={hideFollowButton}
+          disabled={noTooltip}
         >
           <Link
             to={profileUrl}
@@ -131,12 +135,8 @@ const UsersNameDisplay = ({
   </span>
 }
 
-const UsersNameDisplayComponent = registerComponent(
+export default registerComponent(
   'UsersNameDisplay', UsersNameDisplay, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersNameDisplay: typeof UsersNameDisplayComponent
-  }
-}
+

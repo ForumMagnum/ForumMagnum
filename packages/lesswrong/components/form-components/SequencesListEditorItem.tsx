@@ -1,10 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import DragIcon from '@material-ui/icons/DragHandle';
-import RemoveIcon from '@material-ui/icons/Close';
+import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
+import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   box: {
     display: "block",
     marginLeft: 30,
@@ -51,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   documentId: string;
   removeItem: (itemId: string) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { document, loading } = useSingle({
     documentId,
@@ -77,14 +78,10 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
       </div>
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const SequencesListEditorItemComponent = registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
+export default registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesListEditorItem: typeof SequencesListEditorItemComponent
-  }
-}
+

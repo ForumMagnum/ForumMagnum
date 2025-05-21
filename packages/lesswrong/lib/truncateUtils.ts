@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import type { JssStylesCallback } from "./jssStyles";
 
 const TRUNCATION_PADDING = 10;
 
@@ -11,6 +12,8 @@ const getMaxExpandableWidth = (container: HTMLElement): number => {
   }
   return width;
 }
+
+type TruncationClasses = "more" | "scratch" | "placeholder" | "item";
 
 /**
  * Here be dragons
@@ -29,9 +32,9 @@ const getMaxExpandableWidth = (container: HTMLElement): number => {
  * example, '+ n more' where n is the number of excluded items.
  */
 export const recalculateTruncation = (
-  ref: RefObject<HTMLDivElement>,
-  expandContainer: RefObject<HTMLDivElement>,
-  classes: ClassesType,
+  ref: RefObject<HTMLDivElement|null>,
+  expandContainer: RefObject<HTMLDivElement|null>,
+  classes: ClassesType<JssStylesCallback<TruncationClasses>>,
   reformatPlaceholder: (
     moreCount: number,
     totalItems: number,

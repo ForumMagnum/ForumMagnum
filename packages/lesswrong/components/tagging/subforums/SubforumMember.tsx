@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import LocationIcon from '@material-ui/icons/LocationOn'
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import {
   SocialMediaProfileField,
@@ -9,10 +9,15 @@ import {
 } from '../../../lib/collections/users/helpers';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import ProfilePhoto from "../../messaging/ProfilePhoto";
+import ContentStyles from "../../common/ContentStyles";
+import ContentItemBody from "../../common/ContentItemBody";
+import { Typography } from "../../common/Typography";
+import SocialMediaLink from "../../users/SocialMediaLink";
 
 const COLLAPSED_SECTION_HEIGHT = 70
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     columnGap: 14,
@@ -136,7 +141,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumMember = ({user, isOrganizer, classes}: {
   user: UsersProfile,
   isOrganizer?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const bioRef = useRef<HTMLDivElement>(null)
   
@@ -146,16 +151,11 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   })
   // this tracks whether the bio section is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
-
-  const {
-    ProfilePhoto, ContentStyles, ContentItemBody, Typography, SocialMediaLink,
-  } = Components;
-
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const userKarma = user.karma || 0
   const bioNode = (
-    user.biography?.html ||
+    user.htmlBio ||
     user.howICanHelpOthers?.html
   ) && <>
     <div
@@ -163,9 +163,9 @@ const SubforumMember = ({user, isOrganizer, classes}: {
       ref={bioRef}
       onClick={() => setCollapsed(false)}
     >
-      {user.biography?.html && <ContentStyles contentType="post" className={classes.bioContentStyles}>
+      {user.htmlBio && <ContentStyles contentType="post" className={classes.bioContentStyles}>
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: user.biography.html }}
+          dangerouslySetInnerHTML={{__html: user.htmlBio }}
           description={`user ${user._id} bio`}
           nofollow={userKarma < nofollowKarmaThreshold.get()}
         />
@@ -183,7 +183,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </>
   
   return <div className={classes.root}>
-    <div className={classes.profilePhotoCol}>
+    <div>
       <ProfilePhoto user={user} from="subforum_members" />
     </div>
     <div>
@@ -224,12 +224,8 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </div>
 }
 
-const SubforumMemberComponent = registerComponent(
+export default registerComponent(
   'SubforumMember', SubforumMember, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SubforumMember: typeof SubforumMemberComponent
-  }
-}
+

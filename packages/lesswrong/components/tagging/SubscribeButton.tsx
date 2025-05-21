@@ -1,21 +1,27 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Paper }from '@/components/widgets/Paper';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
+import LoginPopup from "../users/LoginPopup";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import { Typography } from "../common/Typography";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -98,7 +104,7 @@ const SubscribeButton = ({
   isSubscribedOverride?: boolean,
   subscribeUserToTagOverride?: (tag: TagBasicInfo, filterMode: FilterMode) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // useSubscribeUserToTag ultimately uses a useState to store the filter settings internally,
   // this means that updates here do not affect the isSubscribed of other places this hook is used.
@@ -117,9 +123,6 @@ const SubscribeButton = ({
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
-
-  const { LWClickAwayListener, LWPopper, Typography, LWTooltip, ForumIcon } = Components;
-  
   // Get existing NOTIFICATIONS subscription, if there is one
   const subscriptionType = "newTagPosts"
   const { results: notifSubscriptions } = useMulti({
@@ -182,8 +185,8 @@ const SubscribeButton = ({
         flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <LoginPopup onClose={onClose} />
         });
       }
     } catch(error) {
@@ -243,10 +246,6 @@ const SubscribeButton = ({
   );
 }
 
-const SubscribeButtonComponent = registerComponent('SubscribeButton', SubscribeButton, {styles});
+export default registerComponent('SubscribeButton', SubscribeButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubscribeButton: typeof SubscribeButtonComponent
-  }
-}
+

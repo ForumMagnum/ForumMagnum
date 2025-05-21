@@ -3,6 +3,11 @@ import type { StrategySpecification } from "../../lib/collections/users/recommen
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { featureRegistry } from "./Feature";
 
+type FeatureStrategyOptions = {
+  publishedAfter: Date,
+  publishedBefore: Date,
+}
+
 /**
  * The feature strategy can be used to combine multiple composable "features" that
  * contribute to a score. Features should extend the `Feature` abstract class and
@@ -14,6 +19,7 @@ class FeatureStrategy extends RecommendationStrategy {
     currentUser: DbUser|null,
     count: number,
     {postId, features}: StrategySpecification,
+    options?: Partial<FeatureStrategyOptions>,
   ): Promise<RecommendationResult> {
     if (!features) {
       throw new Error("No features supplied to FeatureStrategy");
@@ -31,6 +37,13 @@ class FeatureStrategy extends RecommendationStrategy {
     let score = "";
     let args = {};
 
+    if (options?.publishedAfter) {
+      filters += `p."createdAt" > $(publishedAfter) AND `;
+    }
+    if (options?.publishedBefore) {
+      filters += `p."createdAt" < $(publishedBefore) AND `;
+    }
+
     for (const {feature: featureName, weight} of features) {
       if (weight === 0) {
         continue;
@@ -44,6 +57,7 @@ class FeatureStrategy extends RecommendationStrategy {
     }
 
     const posts = await db.any(`
+      -- FeatureStrategy
       SELECT p.*
       FROM (
         SELECT p.*
@@ -69,6 +83,7 @@ class FeatureStrategy extends RecommendationStrategy {
       ...postFilter.args,
       ...tagFilter.args,
       ...args,
+      ...options,
       postId,
       count,
     });

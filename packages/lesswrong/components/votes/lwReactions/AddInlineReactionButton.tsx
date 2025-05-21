@@ -1,9 +1,12 @@
 import React, { useRef, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
 import classNames from "classnames";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
+import ReactionsPalette from "../ReactionsPalette";
 
 const styles = (theme: ThemeType) => ({
   tooltip: {
@@ -40,12 +43,12 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
-  const { LWTooltip, ForumIcon, ReactionsPalette } = Components;
-
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
   const handleOpen = (e: React.MouseEvent) => {
-    !disabled && setOpen(true)
+    if (!disabled) {
+      setOpen(true)
+    }
   }
 
   const handleToggleReaction = (reaction: string, quote: QuoteLocator) => {
@@ -63,7 +66,11 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
     <span
       ref={buttonRef}
     >
-      {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
+      {/* This needs to trigger on mouse down, not on click, because in Safari
+        * (specifically), clicking outside of a text selection deselects on
+        * press, which makes the button disappear.
+        */}
+      {!open && <ForumIcon icon="AddReaction" onMouseDown={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}
@@ -75,10 +82,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   </LWTooltip>
 }
 
-const AddInlineReactionButtonComponent = registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
+export default registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddInlineReactionButton: typeof AddInlineReactionButtonComponent
-  }
-}
+

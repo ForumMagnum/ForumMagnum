@@ -1,7 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import Loading from "../vulcan-core/Loading";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
@@ -9,30 +12,26 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const UsersAutoCompleteHit = ({document, classes}: {
   document: SearchUser
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (document) {
     return <div className={classes.root}>
-      <Components.MetaInfo>
+      <MetaInfo>
         {document.displayName}
-      </Components.MetaInfo>
-      <Components.MetaInfo>
+      </MetaInfo>
+      <MetaInfo>
         {document.karma} karma
-      </Components.MetaInfo>
-      <Components.MetaInfo>
-        <Components.FormatDate date={document.createdAt}/>
-      </Components.MetaInfo>
+      </MetaInfo>
+      <MetaInfo>
+        <FormatDate date={document.createdAt}/>
+      </MetaInfo>
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
-const UsersAutoCompleteHitComponent = registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
+export default registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UsersAutoCompleteHit: typeof UsersAutoCompleteHitComponent
-  }
-}
+
 

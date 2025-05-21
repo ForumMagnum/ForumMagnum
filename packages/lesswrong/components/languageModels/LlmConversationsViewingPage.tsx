@@ -1,16 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
 import { useSingle } from '@/lib/crud/withSingle';
-import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
+import LWTooltip from "../common/LWTooltip";
+import FormatDate from "../common/FormatDate";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import { LlmChatMessage } from "./LanguageModelChat";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,12 +32,26 @@ const styles = (theme: ThemeType) => ({
   conversationSelectorRoot: {
     marginRight: 24,
   },
+  conversationSelector: {
+    height: "calc(100vh - 162px)",
+    overflowY: "scroll",
+  },
   conversationViewer: {
+    marginTop: 48,
     borderRadius: 5,
     width: 500,
-    height: "calc(100vh - 114px)",
+    height: "calc(100vh - 162px)",
     backgroundColor: theme.palette.grey[0],
     overflowY: "scroll",
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    fontFamily: theme.palette.fonts.sansSerifStack
+  },
+  checkbox: {
+    margin: 0,
   },
   conversationViewerTitle: {
     ...theme.typography.commentStyle,
@@ -101,7 +122,6 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, FormatDate, UsersNameDisplay } = Components;
   const isCurrentlySelected = currentConversationId === conversation._id;
   const { title, user, lastUpdatedAt, createdAt } = conversation;
 
@@ -131,11 +151,22 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(true);
+
   const { results, loading } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsViewingPageFragment",
-    terms: { view: "llmConversationsAll" },
+    terms: { view: "llmConversationsAll", showDeleted },
     limit: 200,
+  });
+
+  const filteredResults = results?.filter((conversation) => {
+    if (!showAdmin && userIsAdmin(conversation.user)) {
+      return false;
+    }
+    return true;
   });
 
   const navigate = useNavigate();
@@ -158,7 +189,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   }, []);
 
   if (!results && loading) {
-    return <Components.Loading />
+    return <Loading />
   }
   
   if (!results) {
@@ -166,14 +197,23 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   }
 
   return <div className={classes.conversationSelectorRoot}>
-    {results.map((conversation, idx) => {
-      return <LlmConversationRow
-        key={idx} 
-        conversation={conversation}
-        currentConversationId={currentConversationId}
-        setCurrentConversationId={updateConversationId}
-        classes={classes} />;
-    })}
+    <div className={classes.checkboxContainer}>
+      <span>Deleted <Checkbox checked={showDeleted} onChange={() => setShowDeleted(!showDeleted)} className={classes.checkbox}/></span>
+      <span>Show admin <Checkbox checked={showAdmin} onChange={() => setShowAdmin(!showAdmin)} className={classes.checkbox}/></span>
+    </div>
+    <div className={classes.conversationSelector}>
+      {filteredResults && filteredResults.length > 0
+        ? filteredResults.map((conversation, idx) => {
+          return <LlmConversationRow
+            key={idx} 
+            conversation={conversation}
+            currentConversationId={currentConversationId}
+            setCurrentConversationId={updateConversationId}
+            classes={classes} />;
+        })
+        : <div>No conversations found</div>
+    }
+  </div>
   </div>
 }
 
@@ -182,8 +222,6 @@ const LlmConversationViewer = ({conversationId, classes}: {
   conversationId?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, SectionTitle } = Components
-
   const { document: conversation, loading } = useSingle({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsWithMessagesFragment",
@@ -200,7 +238,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
 
   if (!conversation && loading) {
     return <div className={classes.conversationViewer}>
-      <Components.Loading />
+      <Loading />
     </div>
   }
 
@@ -227,7 +265,7 @@ export const LlmConversationsViewingPage = ({classes}: {
   const [currentConversationId, setCurrentConversationId] = useState<string>();
 
   if (!userIsAdmin(currentUser)) {
-    return <Components.Error404 />
+    return <Error404 />
   }
 
   return <AnalyticsContext pageContext="llmConversationViewingPage">
@@ -247,10 +285,6 @@ export const LlmConversationsViewingPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const LlmConversationsViewingPageComponent = registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
+export default registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LlmConversationsViewingPage: typeof LlmConversationsViewingPageComponent
-  }
-}
+

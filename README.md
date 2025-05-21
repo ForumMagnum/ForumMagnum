@@ -78,10 +78,8 @@ psql forummagnum -f ./schema/accepted_schema.sql
 TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
-  * Start server and run it for ~30 sec which would create DB indexes 😅
-  * Then run `yarn ea-load-dev-db <settings file>` to load the database settings from the file. (TODO: example of the file)
-* You won't be able to run migrations yet. TODO: fix migrations so they can be
-  run on a new db (NB: goal is still to have the db have the accepted_schema).
+  * Then run `yarn ea-load-dev-db <settings file>` to load the database settings
+    from the file. (TODO: example of the file)
 
 ### Creating branch-specific development databases
 
@@ -156,7 +154,7 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
   There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). New components should be functional components, using hooks and ideally minimizing usage of higher-order components. Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
   We use Vulcan’s `registerComponent` function to add them as children to a central “Components” table.
-  
+
 * **Smart Forms** - Vulcan also allows us to automatically generate simple forms to create and edit Documents (in the Mongo sense of the word Document, any instance of a Collection). This functionality is called Smart Forms.
 
   You can create an `EditFoo` page, which renders `WrappedSmartForm`, which then automagically creates a form for you. We use this to edit just about every Document in the codebase. How does it know what type of input you want though? This is the interesting part. You define the way you want to edit fields in the collection schema. So in Posts you have (selected examples):
@@ -167,7 +165,7 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
       - It's grouped among admin options, so it appears with the other admin options
   - Title
       - It's control is `'EditTitle'`, which means the Smart Form will look in Components for an EditTitle component, and then use that as the UI for modifying the Title.
-      
+
 * **useFoo (React Hooks)** - We make heavy use of [React hooks](https://reactjs.org/docs/hooks-intro.html) for querying data, managing state, and accessing shared data like the current user.
 
 * **withFoo (Higher Order Components)** – Higher-order components exist as alternatives for most hooks, and are sometimes used because class-components cannot use hooks. However, these are deprecated and we are migrating towards only using hooks.
@@ -221,34 +219,21 @@ All migrations should be designed to be idempotent and should represent a
 one-off operation (such as updating a table schema). Operations that need to be
 run multiple times should instead be implemented as a server script.
 
+After making any change that alters the database schema (eg; adding tables,
+adding fields, adding indexes, adding postgres functions, etc.) you must run
+`yarn generate` to update the current SQL schema and Typescript types, and
+commit the results to the Git repo.
+
 * Run pending migrations with `yarn migrate up [dev|staging|prod]`
 * Revert migrations with `yarn migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
-* Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
+* Create a new migration with `yarn migrate create my_new_migration`
 * View pending migrations with `yarn migrate pending [dev|staging|prod]`
 * View executed migrations with `yarn migrate executed [dev|staging|prod]`
 
-Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environment variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
-
-### Schema changing migrations
-
-Many (most) migrations will just be to update the database schema to be in line with what the code expects. For these we have
-scripts to autogenerate a migration template, and assert that the new schema has been "accepted" (i.e. you have remembered to write a migration).
-For these the development process will be like this:
-
-* Make some changes which add or alter fields in one of the `schema.ts` files
-* Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
-* Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
-* Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
-
-#### Migrations and git conflicts
-* When you created a new migration, but then someone else merged a PR that also created a migration, you will get a git conflict.
-* To resolve it you basically need to re-run migration process:
-  * merge/rebase on top of new changes accepting their versions of schema files (i.e. `accepted_schema.sql` and `schema_changelog.json`)
-  * run `yarn makemigrations` again, to generate new hashes for the schema
-  * copy the logic from the migration file you've crated previously, but keep new `acceptedSchemaHash` value and timestamp in the file name
-  * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
-  * run `yarn acceptmigrations`
-  * finish merge/rebase
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a
+postgres connection string through a `PG_URL` environment variable. Use that
+option if you are not using the \[EA\] ForumCredentials repo or the LessWrong
+credentials repo.
 
 ## Testing
 

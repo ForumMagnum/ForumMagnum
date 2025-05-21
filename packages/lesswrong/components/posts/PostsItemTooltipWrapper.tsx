@@ -1,6 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { PopperPlacementType } from '@material-ui/core/Popper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import type { Placement as PopperPlacementType } from "popper.js"
+import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 
 /**
  * This is mostly deprecated - you should probably just use `PostsTooltip`
@@ -17,11 +18,10 @@ const PostsItemTooltipWrapper = ({
   children?: React.ReactNode,
   post: PostsList,
   placement?: PopperPlacementType,
-  As?: keyof JSX.IntrinsicElements,
+  As?: keyof React.JSX.IntrinsicElements,
   disabled?: boolean,
   className?: string,
 }) => {
-  const {PostsTooltip} = Components;
   return (
     <PostsTooltip
       post={post}
@@ -38,12 +38,8 @@ const PostsItemTooltipWrapper = ({
   );
 }
 
-const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper
-)
+export default registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper
+);
 
-declare global {
-  interface ComponentTypes {
-    PostsItemTooltipWrapper: typeof PostsItemTooltipWrapperComponent
-  }
-}
+
 

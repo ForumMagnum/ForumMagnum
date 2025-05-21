@@ -34,14 +34,16 @@ jobs:
     needs: [migrate, upload-ckeditor-bundle]
     strategy:
       matrix: 
-        node-version: [18.x]
+        node-version: [22.12]
         environment: [Lesswrongexpress-env, AlignmentForumProd]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
         python-version: '>=3.5 <3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-    - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip awsebcli # pip3 install "pyyaml<5.4" is a temporary workaround for this bug: https://github.com/aws/aws-elastic-beanstalk-cli/issues/441
+      # pip3 install "pyyaml<5.4" is a temporary workaround for this bug: https://github.com/aws/aws-elastic-beanstalk-cli/issues/441
+      # `packaging` is a workaround for https://github.com/aws/aws-elastic-beanstalk-cli/issues/541
+    - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip packaging awsebcli
     - name: Run Deploy
       run: scripts/deploy.sh LessWrongExpress ${{ matrix.environment }}
       env: 

@@ -1,7 +1,6 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -12,7 +11,7 @@ const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBa
 const bannerHeight = 250
 const container = cloudinaryCloudNameSetting.get()
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     '&:hover': {
       opacity: 'unset'
@@ -28,13 +27,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginLeft: -8,
     },
   }
-}))
+});
 
 const EventBanner = ({ classes }: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection } = Components
-
   const mobileImageId = eventBannerMobileImageSetting.get()
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()
@@ -53,12 +50,8 @@ const EventBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-const EventBannerComponent = registerComponent(
+export default registerComponent(
   'EventBanner', EventBanner, {styles},
-)
+);
 
-declare global {
-  interface ComponentTypes {
-    EventBanner: typeof EventBannerComponent
-  }
-}
+

@@ -1,8 +1,7 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
-import Popover from "@material-ui/core/Popover";
-import Fade from "@material-ui/core/Fade";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import LWDialog from "./LWDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 50000,
+    zIndex: theme.zIndexes.blurredBackgroundModal,
     [theme.breakpoints.down("xs")]: {
       "& .MuiPopover-paper": {
         maxWidth: "unset !important",
@@ -48,32 +47,17 @@ export const BlurredBackgroundModal = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  return (
-    <Popover
-      open={open}
-      onClose={onClose}
-      anchorReference="none"
-      ModalClasses={{root: classes.modal}}
-      BackdropProps={{className: classes.backdrop}}
-      TransitionComponent={Fade}
-    >
-      {open &&
-        <div className={classNames(classes.root, className)}>
-          {children}
-        </div>
-      }
-    </Popover>
-  );
+  return <LWDialog open={open} onClose={onClose} backdrop="blur">
+    <div className={classNames(classes.root, className)}>
+      {children}
+    </div>
+  </LWDialog>
 }
 
-const BlurredBackgroundModalComponent = registerComponent(
+export default registerComponent(
   "BlurredBackgroundModal",
   BlurredBackgroundModal,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    BlurredBackgroundModal: typeof BlurredBackgroundModalComponent
-  }
-}
+

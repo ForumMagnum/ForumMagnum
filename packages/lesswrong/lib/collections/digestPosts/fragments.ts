@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const DigestPostsMinimumInfo = () => frag`
   fragment DigestPostsMinimumInfo on DigestPost {
     _id
     digestId
@@ -8,4 +8,4 @@ registerFragment(`
     emailDigestStatus
     onsiteDigestStatus
   }
-`);
+`

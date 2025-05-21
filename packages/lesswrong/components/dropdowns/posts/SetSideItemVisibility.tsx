@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
-import Paper from '@material-ui/core/Paper';
-import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Check from '@material-ui/icons/Check';
+import { Paper }from '@/components/widgets/Paper';
+import ChatBubbleOutline from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOutline';
+import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
+import Check from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
+import LWTooltip from "../../common/LWTooltip";
+import { MenuItem } from "../../common/Menus";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -64,11 +66,9 @@ export type SideItemVisibilityContextType = {
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
 const SetSideItemVisibility = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const sideItemVisibility = useContext(SideItemVisibilityContext);
-  const { LWTooltip, MenuItem } = Components;
-  
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
   // hide it.
@@ -123,7 +123,7 @@ const SetSideItemVisibility = ({classes}: {
         <ListItemIcon>
           <ChatBubbleOutline/>
         </ListItemIcon>
-        <span className={classes.sideItemLabel}>
+        <span>
           Side-comments
         </span>
         <span className={classNames(classes.showOnlyIfMobile, classes.currentSelectionPreview)}>
@@ -144,7 +144,7 @@ const SetSideItemVisibility = ({classes}: {
         <ListItemIcon>
           <ChatBubbleOutline/>
         </ListItemIcon>
-        <span className={classes.sideItemLabel}>
+        <span>
           Inline Reactions
         </span>
         <span className={classes.currentSelectionPreview}>
@@ -175,10 +175,6 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   </SideItemVisibilityContext.Provider>
 }
 
-const SetSideItemVisibilityComponent = registerComponent('SetSideItemVisibility', SetSideItemVisibility, {styles});
+export default registerComponent('SetSideItemVisibility', SetSideItemVisibility, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SetSideItemVisibility: typeof SetSideItemVisibilityComponent
-  }
-}
+

@@ -1,21 +1,10 @@
 import { checkNested } from '../vulcan-lib/utils';
-import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
 
-// Get a user
-export const getUser = async function(userOrUserId: DbUser|string|undefined): Promise<DbUser|null> {
-  if (typeof userOrUserId === 'undefined') {
-    throw new Error();
-  } else if (typeof userOrUserId === 'string') {
-    return await mongoFindOne("Users", userOrUserId);
-  } else {
-    return userOrUserId;
-  }
-};
-
-export const userGetDisplayNameById = async function(userId: string): Promise<string> {
-  return userGetDisplayName(await mongoFindOne("Users", userId));
+export const userGetDisplayNameById = async function(userId: string, context: ResolverContext): Promise<string> {
+  const user = await context.loaders.Users.load(userId);
+  return userGetDisplayName(user);
 };
 
 // Get a user's account edit URL
@@ -42,7 +31,12 @@ export const userFindLast = async function<N extends CollectionNameWithCreatedAt
   collection: CollectionBase<N>,
   filter?: MongoSelector<ObjectsByCollectionName[N]>,
 ): Promise<ObjectsByCollectionName[N]|null> {
-  return await collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
+  const sortOption = { createdAt: -1 } as MongoSort<ObjectsByCollectionName[N]>
+  const result = await collection.findOne(
+    { ...filter, userId: user._id },
+    { sort: sortOption },
+  );
+  return result;
 };
 
 export const userTimeSinceLast = async function<N extends CollectionNameWithCreatedAt>(

@@ -1,23 +1,11 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import { Globals } from "../vulcan-lib";
-import ReadStatuses from "../../lib/collections/readStatus/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
 import type { ReadStatusWithPostId } from "../google-vertex/types";
-
-interface CreateAEPostRecordArgs {
-  post: DbPost & {contents: EditableFieldContents | null};
-  tags: {
-    _id: string;
-    name: string;
-    core: boolean;
-  }[];
-  authors?: string[];
-  upvoteCount?: number;
-}
 
 interface FrontpageView {
   userId: string;
@@ -105,25 +93,6 @@ function getPostBatch(offsetDate: Date) {
   }>(postBatchQuery, [offsetDate, limit]);
 }
 
-function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRecordArgs) {
-  const tagNames = filterNonnull(tags.map(tag => tag.name));
-  const postText = htmlToTextDefault(post.contents?.html);
-
-  return {
-    _id: post._id,
-    title: post.title,
-    authors,
-    score: post.score,
-    karma: post.baseScore,
-    body: postText,
-    postedAt: post.postedAt,
-    tags: tagNames,
-    commentCount: post.commentCount,
-    upvoteCount,
-    url: `https://www.lesswrong.com/posts/${post._id}/${post.slug}`
-  };
-}
-
 interface InViewEvent {
   userId: string;
   postId: string;
@@ -151,7 +120,8 @@ function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<s
   return indexedInViewEvents;
 }
 
-async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Date) {
+// Exported to allow running manually with "yarn repl"
+export async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Date) {
   const db = getSqlClientOrThrow();
 
   const inViewEvents: InViewEvent[] = JSON.parse((await readFile(inViewEventsFilepath)).toString());
@@ -226,55 +196,10 @@ async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Da
   }
 }
 
-async function backfillFrontpageViews(frontpageLoadsFilepath: string) {
+// Exported to allow running manually with "yarn repl"
+export async function backfillFrontpageViews(frontpageLoadsFilepath: string) {
   const frontpageViewEvents: FrontpageView[] = JSON.parse((await readFile(frontpageLoadsFilepath)).toString());
   const frontpageViewEventsWithDates = frontpageViewEvents.map(event => ({ ...event, timestamp: new Date(event.timestamp) }));
   const userHomePageEvents = frontpageViewEventsWithDates.map((event) => googleVertexHelpers.createViewHomePageEvent(event));
   await googleVertexApi.importUserEvents(userHomePageEvents);
 }
-
-async function exportAEPostRecords(offsetDate?: Date) {
-  const db = getSqlClientOrThrow();
-
-  if (!offsetDate) {
-    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
-  }
-
-  // eslint-disable-next-line no-console
-  console.log(`Initial post batch offset date: ${offsetDate.toISOString()}`);
-
-  let batch = await getPostBatch(offsetDate);
-
-  try {
-    while (batch.length) {
-      // eslint-disable-next-line no-console
-      console.log(`Post batch size: ${batch.length}.`);
-
-      const postsWithMetadata = batch.map(({ tags, authors, authorIds, upvoteCount, ...post }) => ({
-        post,
-        tags: filterNonnull(tags.map(([_id, name, core]) => ({ _id, name, core }))),
-        authors,
-        authorIds,
-        upvoteCount,
-      }));
-
-      const postRecords = postsWithMetadata.map(createAEPostRecord);
-
-      await writeFile(`./aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(postRecords));
-
-      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
-      if (!nextOffsetDate) {
-        return;
-      }
-      offsetDate = nextOffsetDate;
-      batch = await getPostBatch(offsetDate);
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(`Error when exporting AE Studio post records.  Last offset date: ${offsetDate.toISOString()}`, { err });
-  }
-}
-
-Globals.backfillVertexPosts = backfillVertexPosts;
-Globals.backfillVertexFrontpageViews = backfillFrontpageViews;
-Globals.exportAEPosts = exportAEPostRecords;

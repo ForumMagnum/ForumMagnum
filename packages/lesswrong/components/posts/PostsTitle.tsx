@@ -1,17 +1,21 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
-import { communityPath } from '../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { useTheme } from '../themes/useTheme';
+import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
+import ForumIcon from "../common/ForumIcon";
+import TagsTooltip from "../tagging/TagsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,7 +57,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
     : {
-      fontSize: "1.2rem",
+      "--icon-size": "1.2rem",
     },
   primaryIcon: {
     color: theme.palette.icon.dim55,
@@ -104,10 +108,15 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
+  eventTagLink: {
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
   eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
-    display: "inline-flex",
+    display: "flex",
     alignItems: "center",
     marginLeft: 10,
     padding: "0 6px",
@@ -119,9 +128,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.themeOptions.name === "dark"
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
-    "&:hover": {
-      opacity: 0.9,
-    },
+  },
+  eventTagBordered: {
+    border: theme.palette.border.normal,
+    borderRadius: 2,
   },
   highlightedTagTooltip: {
     marginTop: -2,
@@ -142,6 +152,21 @@ const postIcon = (post: PostsBase|PostsListBase) => {
     return tagSettingIcons.get(matchingTagSetting);
   }
   return null;
+}
+
+const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
+  const {currentForumEvent, isEventPost} = useCurrentAndRecentForumEvents();
+  if (!showEventTag) {
+    return undefined;
+  }
+  const event = isEventPost(post, {includeRecent: true});
+  if (event?.tag) {
+    if (event.tag._id === currentForumEvent?.tag?._id) {
+      return {event: event, current: true};
+    }
+    return {event: event, current: false};
+  }
+  return undefined;
 }
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
@@ -185,9 +210,8 @@ const PostsTitle = ({
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
-  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
-
+  const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
+  const theme = useTheme();
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
@@ -238,21 +262,28 @@ const PostsTitle = ({
           />
         </InteractionWrapper>
       </span>}
-      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
+      {taggedEvent?.tag &&
         <InteractionWrapper className={classes.interactionWrapper}>
           <TagsTooltip
-            tagSlug={currentForumEvent.tag.slug}
+            tagSlug={taggedEvent.tag.slug}
             className={classes.highlightedTagTooltip}
           >
-            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)}>
+            <Link doOnDown={true} to={tagGetUrl(taggedEvent.tag)} className={classes.eventTagLink}>
               <span
-                className={classes.eventTag}
+                className={classNames(
+                  classes.eventTag,
+                  {[classes.eventTagBordered]: !taggedEventIsCurrent}
+                )}
                 style={{
-                  "--post-title-tag-background": currentForumEvent.lightColor,
-                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                  "--post-title-tag-background": taggedEventIsCurrent ?
+                    taggedEvent.lightColor :
+                    theme.palette.tag.background,
+                  "--post-title-tag-foreground": taggedEventIsCurrent ?
+                    taggedEvent.darkColor :
+                    theme.palette.tag.text,
                 } as CSSProperties}
               >
-                {currentForumEvent.tag.name}
+                {taggedEvent.tag.shortName || taggedEvent.tag.name}
               </span>
             </Link>
           </TagsTooltip>
@@ -262,10 +293,6 @@ const PostsTitle = ({
   )
 }
 
-const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
+export default registerComponent('PostsTitle', PostsTitle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTitle: typeof PostsTitleComponent
-  }
-}
+

@@ -1,24 +1,27 @@
 import React, { useCallback } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
-import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagUrlBaseSetting } from '../../lib/instanceSettings';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import RevisionSelect from "./RevisionSelect";
+import TagRevisionItem from "../tagging/TagRevisionItem";
+import LoadMore from "../common/LoadMore";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 });
 
 const TagPageRevisionSelect = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;
   const focusedUser = query.user;
   const navigate = useNavigate();
-
-  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
-  
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
   const { results: revisions, loadMoreProps, count, totalCount } = useMulti({
     skip: !tag,
@@ -29,14 +32,14 @@ const TagPageRevisionSelect = ({ classes }: {
     },
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    fragmentName: "RevisionHistoryEntry",
     enableTotal: true,
     itemsPerPage: 30,
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;
-    navigate(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
+    navigate(`/compare/${tagUrlBaseSetting.get()}/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [navigate, tag]);
 
   if (!tag) return null
@@ -71,10 +74,6 @@ const TagPageRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-const TagPageRevisionSelectComponent = registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
+export default registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagPageRevisionSelect: typeof TagPageRevisionSelectComponent
-  }
-}
+

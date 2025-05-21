@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -7,7 +7,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { requireCssVar } from '../../themes/cssVars';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
     paddingTop: 2,
@@ -61,7 +61,7 @@ const greyBackground = requireCssVar("palette", "grey", 0);
 
 const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tag = hit as SearchTag
 
@@ -87,11 +87,7 @@ const ExpandedTagsSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedTagsSearchHitComponent = registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
+export default registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedTagsSearchHit: typeof ExpandedTagsSearchHitComponent
-  }
-}
+
 

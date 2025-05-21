@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Sequences from "../../lib/collections/sequences/collection";
+import Sequences from "../../server/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";

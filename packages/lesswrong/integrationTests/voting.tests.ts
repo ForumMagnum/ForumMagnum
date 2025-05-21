@@ -1,17 +1,18 @@
 import "./integrationTestSetup";
-import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
-import { Users } from '../lib/collections/users/collection'
-import { Posts } from '../lib/collections/posts'
-import { Comments } from '../lib/collections/comments'
+import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilPgQueriesFinished } from './utils'
+import { Users } from '../server/collections/users/collection'
+import { Posts } from '../server/collections/posts/collection'
+import { Comments } from '../server/collections/comments/collection'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { slugify } from '../lib/vulcan-lib/utils';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
+import { slugify } from "@/lib/utils/slugify";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from "@/server/collections/posts/mutations";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -32,7 +33,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const sixty_days_ago = new Date().getTime()-(60*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(sixty_days_ago), inactive: false})
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
 
       const updatedPost = await Posts.find({_id: post._id}).fetch();
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
@@ -43,7 +44,7 @@ describe('Voting', function() {
       const normalPost = await createDummyPost(user, {baseScore: 10});
       const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
       const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
       // TODO: HACK - one of the callbacks seems to set normalPost.frontpageDate, but we want it to be null
       await Posts.rawUpdateOne({_id: normalPost._id}, {$set: {frontpageDate: null}});
       await batchUpdateScore({collection: Posts});
@@ -61,7 +62,7 @@ describe('Voting', function() {
         createDummyPost(user, {frontpageDate: new Date(), baseScore: 10}),
         createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10}),
       ]);
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
       await batchUpdateScore({collection: Posts});
       const [updatedNormalPost, updatedFrontpagePost, updatedCuratedPost] = await Promise.all([
         Posts.findOne({_id: normalPost._id}),
@@ -117,7 +118,7 @@ describe('Voting', function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
 
       (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
       (updatedPost[0].baseScore as any).should.be.equal(0);
@@ -144,7 +145,7 @@ describe('Voting', function() {
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
-        await waitUntilCallbacksFinished();
+        await waitUntilPgQueriesFinished();
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
   
         (updatedComment[0].extendedScore.agreement as any).should.be.above(preUpdateComment[0].extendedScore.agreement);
@@ -173,7 +174,7 @@ describe('Voting', function() {
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
-        await waitUntilCallbacksFinished();
+        await waitUntilPgQueriesFinished();
 
         (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
         (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
@@ -207,7 +208,7 @@ describe('Voting', function() {
       expect(coauthor.karma).toBe(0);
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
 
       const updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
       const updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
@@ -224,23 +225,22 @@ describe('Voting', function() {
       });
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
 
       let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
       let updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
       expect(updatedAuthor.karma).toBe(1);
       expect(updatedCoauthor.karma).toBe(0);
 
-      await updateMutator({
-        collection: Posts,
-        documentId: post._id,
-        set: { coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ] },
-        unset: {},
-        validate: false,
-      });
+      await updatePost({
+        data: {
+          coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ]
+        },
+        selector: { _id: post._id }
+      }, createAnonymousContext());
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
-      await waitUntilCallbacksFinished();
+      await waitUntilPgQueriesFinished();
 
       updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
       updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
@@ -287,6 +287,7 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -294,6 +295,7 @@ describe('Voting', function() {
       const resultPost = omitBy(karmaChanges.posts[0], isNil);
       resultPost.should.deep.equal({
         _id: post._id,
+        postId: post._id,
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -324,6 +326,7 @@ describe('Voting', function() {
         user: coauthor,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -331,6 +334,7 @@ describe('Voting', function() {
       const resultPost = omitBy(karmaChanges.posts[0], isNil);
       resultPost.should.deep.equal({
         _id: post._id,
+        postId: post._id,
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -359,6 +363,7 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 1),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(0);
@@ -384,6 +389,7 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -391,6 +397,7 @@ describe('Voting', function() {
       const resultComment = omitBy(karmaChanges.comments[0], isNil);
       resultComment.should.deep.equal({
         _id: comment._id,
+        commentId: comment._id,
         collectionName: "Comments",
         addedReacts: [],
         scoreChange: 1,

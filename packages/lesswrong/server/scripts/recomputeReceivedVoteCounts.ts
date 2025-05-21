@@ -1,8 +1,7 @@
 import { migrateDocuments } from "../manualMigrations/migrationUtils";
-import { Users } from '../../lib/collections/users/collection';
-import { Votes } from "../../lib/collections/votes";
+import { Users } from '../../server/collections/users/collection';
+import { Votes } from "../../server/collections/votes/collection";
 import { collectionsThatAffectKarma } from "../callbacks/votingCallbacks";
-import { Globals } from "../vulcan-lib";
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 
 type UserVoteFields = {
@@ -30,7 +29,7 @@ const DEFAULT_USER_VOTE_FIELDS: UserVoteFields = {
  * smallDownvoteReceivedCount
  * bigDownvoteReceivedCount
  */
-async function recalculateReceivedVoteCounts() {
+export async function recalculateReceivedVoteCounts() {
   await migrateDocuments({
     collection: Users,
     batchSize: 100,
@@ -70,6 +69,8 @@ async function recalculateReceivedVoteCounts() {
             case 'bigDownvote':
               voteCounts.bigDownvoteReceivedCount++;
               break;
+            case 'neutral': // We weren't previously counting neutral votes when I added this to fix types. I don't think we need to start, but, flagging the inconsistency.
+              break;
           }
           voteCounts.voteReceivedCount++;
 
@@ -101,5 +102,3 @@ async function recalculateReceivedVoteCounts() {
     }
   })
 }
-
-Globals.recalculateReceivedVoteCounts = recalculateReceivedVoteCounts;

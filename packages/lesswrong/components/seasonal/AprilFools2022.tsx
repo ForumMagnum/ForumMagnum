@@ -1,16 +1,20 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FavoriteIcon from '@/lib/vendor/@material-ui/icons/src/Favorite';
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import SectionFooter from "../common/SectionFooter";
 
 export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject',false) // enables UI for 2022 LW April Fools
 
 export const goodHeartStartDate = new Date("04/01/2022")
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     flexWrap: "wrap",
@@ -77,10 +81,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AprilFools2022 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
-
   const {results} = useMulti({
       terms: {
         // view: 'usersByGoodHeartTokens'
@@ -136,11 +138,7 @@ export const AprilFools2022 = ({classes}: {
   </SingleColumnSection>;
 }
 
-const AprilFools2022Component = registerComponent('AprilFools2022', AprilFools2022, {styles});
+export default registerComponent('AprilFools2022', AprilFools2022, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AprilFools2022: typeof AprilFools2022Component
-  }
-}
+
 

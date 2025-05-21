@@ -1,13 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import AccountCircleIcon from '@/lib/vendor/@material-ui/icons/src/AccountCircle';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 export const PROFILE_IMG_DIAMETER = 36
 export const PROFILE_IMG_DIAMETER_MOBILE = 26
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   img: {
     height: PROFILE_IMG_DIAMETER,
     width: PROFILE_IMG_DIAMETER,
@@ -64,13 +65,13 @@ const getUserInitials = (displayName: string) => {
 const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   user: {
     slug: string,
-    profileImageId?: string,
+    profileImageId: string | null,
     displayName?: string
   }|null,
   noLink?: boolean,
   from?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // placeholder icon, in case nothing else is available
   let imgNode = <AccountCircleIcon
@@ -87,7 +88,7 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   
   if (user.profileImageId) {
     // use the profile photo if possible
-    imgNode = <Components.CloudinaryImage2
+    imgNode = <CloudinaryImage2
       imgProps={{q: '100', h: `${PROFILE_IMG_DIAMETER*2}`, w: `${PROFILE_IMG_DIAMETER*2}`}}
       publicId={user.profileImageId}
       className={classNames(classes.img, classes.profileImg)}
@@ -108,11 +109,7 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
 }
 
 
-const ProfilePhotoComponent = registerComponent('ProfilePhoto', ProfilePhoto, {styles});
+export default registerComponent('ProfilePhoto', ProfilePhoto, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ProfilePhoto: typeof ProfilePhotoComponent
-  }
-}
+
 

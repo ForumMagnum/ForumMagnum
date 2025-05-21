@@ -4,7 +4,7 @@ export const getPostEditorConfig = () => {
   if (isMigrations) {
     return {};
   } else {
-    const {postEditorConfig} = require('../../../../public/lesswrong-editor/src/editorConfigs');
+    const {postEditorConfig} = require('../../../../ckEditor/src/editorConfigs');
     return postEditorConfig;
   }
 }

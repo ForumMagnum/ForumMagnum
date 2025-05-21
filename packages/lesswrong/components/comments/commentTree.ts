@@ -132,7 +132,7 @@ export interface CommentTreeOptions {
    * IDs (eg because the same comment would appear in the page more than
    * once and this isn't the one you want to link to.)
    */
-  noHash?: boolean,
+  noDOMId?: boolean,
   
   /**
    * "default" | "minimalist" . If "minimalist", overrides the style of the reply button

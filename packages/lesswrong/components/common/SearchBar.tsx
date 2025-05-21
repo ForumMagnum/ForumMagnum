@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
-import CloseIcon from '@material-ui/icons/Close';
-import Portal from '@material-ui/core/Portal';
-import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { isAF } from '../../lib/instanceSettings';
@@ -13,12 +12,15 @@ import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { createPortal } from 'react-dom';
+import SearchBarResults from "../search/SearchBarResults";
+import ForumIcon from "./ForumIcon";
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -70,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
-    "&.open .SearchBar-searchIcon": {
+    "&.open .SearchBar-searchIconButton": {
       position: 'fixed',
     },
   },
@@ -78,9 +80,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 34,
   } : {},
   searchIcon: {
+    "--icon-size": "24px",
+  },
+  searchIconButton: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
-  searchIconSmall: isFriendlyUI ? {
+  searchIconButtonSmall: isFriendlyUI ? {
     padding: 6,
     marginTop: 6,
   } : {},
@@ -107,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
@@ -164,9 +169,6 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
       captureSearch("searchBar", {query: currentQuery});
     }
   }, [currentQuery, captureSearch])
-
-  const { SearchBarResults, ForumIcon } = Components
-
   if (!isSearchEnabled()) {
     return <div>Search is disabled (ElasticSearch not configured on server)</div>
   }
@@ -175,7 +177,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     <div className={classes.rootChild}>
       <InstantSearch
         indexName={getSearchIndexName("Posts")}
-        searchClient={getSearchClient()}
+        searchClient={getSearchClient({emptyStringSearchResults: "empty"})}
         onSearchStateChange={queryStateControl}
       >
         <div className={classNames(
@@ -185,8 +187,8 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         )}>
           {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
-            <IconButton className={classNames(classes.searchIcon, {[classes.searchIconSmall]: !currentUser})}>
-              <ForumIcon icon="Search" />
+            <IconButton className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
+              <ForumIcon icon="Search" className={classes.searchIcon} />
             </IconButton>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
@@ -197,9 +199,10 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
             <CloseIcon className={classes.closeSearchIcon}/>
           </div>}
           <div>
-            { searchOpen && <Portal container={searchResultsArea.current}>
-                <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} />
-              </Portal> }
+            {searchOpen && createPortal(
+              <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} />,
+              searchResultsArea.current
+            )}
           </div>
         </div>
       </InstantSearch>
@@ -207,14 +210,10 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   </div>
 }
 
-const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
+export default registerComponent("SearchBar", SearchBar, {
   styles,
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    SearchBar: typeof SearchBarComponent
-  }
-}
+

@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, RefObject } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import FooterTag from "./FooterTag";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -42,12 +43,11 @@ const reformatTagPlaceholder = (
 
 const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
-  expandContainer: RefObject<HTMLDivElement>,
+  expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-
   const tags = post.tags;
 
   useEffect(() => {
@@ -68,15 +68,13 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   if (!tags?.length) {
     return null;
   }
-
-  const {FooterTag} = Components;
   return (
     <div className={classNames(classes.root, className)} ref={ref}>
       <span className={classNames(classes.item, classes.placeholder)} />
       <div className={classes.scratch} aria-hidden="true">
-        {tags.map((tag) =>
+        {tags.map((tag) => tag &&
           <span key={tag._id} className={classes.item}>
-            <FooterTag tag={tag} smallText />
+            <FooterTag tag={tag} smallText hoverable={false} />
           </span>
         )}
         <span className={classes.more}>
@@ -87,14 +85,10 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   );
 }
 
-const TruncatedTagsListComponent = registerComponent(
+export default registerComponent(
   "TruncatedTagsList",
   TruncatedTagsList,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    TruncatedTagsList: typeof TruncatedTagsListComponent
-  }
-}
+

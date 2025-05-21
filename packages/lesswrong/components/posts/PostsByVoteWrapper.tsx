@@ -1,6 +1,12 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { isLWorAF } from '@/lib/instanceSettings';
+import PostsByVote from "./PostsByVote";
+import ErrorBoundary from "../common/ErrorBoundary";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LWPostsByVote from "./LWPostsByVote";
 
 const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   voteType: string,
@@ -10,8 +16,6 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsByVote, ErrorBoundary, Loading, Typography } = Components
-
   // const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
 
@@ -33,21 +37,24 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   const postIds = (votes ?? []).map(vote=>vote.documentId)
 
   return <ErrorBoundary>
-    <PostsByVote
+    {isLWorAF ? <LWPostsByVote
       postIds={postIds}
       year={year}
       limit={limit}
       showMostValuableCheckbox={showMostValuableCheckbox}
       hideEmptyStateText={hideEmptyStateText}
       postItemClassName={postItemClassName}
-    />
+    /> : <PostsByVote
+      postIds={postIds}
+      year={year}
+      limit={limit}
+      showMostValuableCheckbox={showMostValuableCheckbox}
+      hideEmptyStateText={hideEmptyStateText}
+      postItemClassName={postItemClassName}
+    />}
   </ErrorBoundary>
 }
 
-const PostsByVoteWrapperComponent = registerComponent("PostsByVoteWrapper", PostsByVoteWrapper);
+export default registerComponent("PostsByVoteWrapper", PostsByVoteWrapper);
 
-declare global {
-  interface ComponentTypes {
-    PostsByVoteWrapper: typeof PostsByVoteWrapperComponent
-  }
-}
+

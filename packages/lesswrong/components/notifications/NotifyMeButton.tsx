@@ -1,16 +1,21 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
-import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
+import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
+import EAButton from "../ea-forum/EAButton";
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
 // 'notifications enabled'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -23,12 +28,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     marginRight: 6,
   } : {},
-  hideOnMobile: {
+  hideLabelOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
     }
   },
-  hide: {
+  hideLabel: {
     display: "none"
   },
 })
@@ -57,7 +62,7 @@ const NotifyMeButton = ({
   asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showIcon?: boolean,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
@@ -68,7 +73,7 @@ const NotifyMeButton = ({
   // uses <a> by default, set this to use <button>
   asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
-  componentIfSubscribed?: JSX.Element,
+  componentIfSubscribed?: React.JSX.Element,
 }) => {
   const {loading, disabled, isSubscribed, onSubscribe} = useNotifyMe({
     document,
@@ -81,9 +86,6 @@ const NotifyMeButton = ({
   if (disabled) {
     return null;
   }
-
-  const {LWTooltip, Loading, ForumIcon, MenuItem, EAButton} = Components;
-
   const icon = showIcon && <ListItemIcon>
     {loading
       ? <Loading/>
@@ -140,14 +142,10 @@ const NotifyMeButton = ({
     : maybeToolipButton;
 }
 
-const SubscribeToComponent = registerComponent(
+export default registerComponent(
   'NotifyMeButton',
   NotifyMeButton,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotifyMeButton: typeof SubscribeToComponent
-  }
-}
+

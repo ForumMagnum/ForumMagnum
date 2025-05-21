@@ -1,18 +1,21 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { userCanComment } from '../../lib/vulcan-users/permissions';
+import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LoadMore from "../common/LoadMore";
+import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   shortformItem: {
     marginTop: theme.spacing.unit * (isFriendlyUI ? 2 : 4),
   }
 })
 
 const ShortformThreadList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {results, loadMoreProps, refetch} = useMulti({
@@ -26,12 +29,9 @@ const ShortformThreadList = ({ classes }: {
     enableTotal: false,
     pollInterval: 0,
   });
-
-  const { LoadMore, CommentOnPostWithReplies, QuickTakesEntry } = Components;
-  
   return (
     <div>
-      {userCanComment(currentUser) &&
+      {(userCanQuickTake(currentUser) || !currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
 
@@ -52,10 +52,6 @@ const ShortformThreadList = ({ classes }: {
   )
 }
 
-const ShortformThreadListComponent = registerComponent('ShortformThreadList', ShortformThreadList, {styles});
+export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformThreadList: typeof ShortformThreadListComponent
-  }
-}
+

@@ -1,24 +1,23 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "../posts/PostsItem";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
 
   }
 });
 
 export const ProfileShortform = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
-
-  const { PostsItem } = Components
-
   const { document } = useSingle({
-    documentId: user.shortformFeedId,
+    documentId: user.shortformFeedId!,
     collectionName: "Posts",
     fragmentName: "PostsListWithVotes",
+    skip: !user.shortformFeedId,
   });
 
   return <div className={classes.root}>
@@ -26,11 +25,7 @@ export const ProfileShortform = ({classes, user}: {
   </div>;
 }
 
-const ProfileShortformComponent = registerComponent('ProfileShortform', ProfileShortform, {styles});
+export default registerComponent('ProfileShortform', ProfileShortform, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ProfileShortform: typeof ProfileShortformComponent
-  }
-}
+
 

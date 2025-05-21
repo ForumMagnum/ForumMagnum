@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
+import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
@@ -12,6 +12,9 @@ import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import OmegaIcon from "../icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconSet: {
@@ -29,14 +32,15 @@ const styles = (theme: ThemeType) => ({
     // note: the specificity seems necessary to successfully override the OmegaIcon styling.
     // not sure if this is best way to do this
     '&&': {
-      fontSize: "1.2rem",
+      "--icon-size": "15.6px",
+      fontSize: "15.6px",
       color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     position: "relative",
     top: isFriendlyUI ? 2 : 3,
@@ -45,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     color: isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
   },
   question: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     fontWeight: '600'
   },
@@ -56,14 +60,13 @@ const styles = (theme: ThemeType) => ({
   },
   linkIcon: {
     position: "relative",
+    "--icon-size": "15.6px",
     ...(isFriendlyUI
       ? {
-        fontSize: "1.2rem",
         top: 1,
         color: theme.palette.grey[600],
       }
       : {
-        fontSize: "1.2rem",
         top: 3,
         color: theme.palette.icon.dim4,
       }),
@@ -79,12 +82,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CuratedIcon = ({hasColor, classes}: {
+const CuratedIconInner = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, ForumIcon } = Components;
-
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}>
@@ -97,7 +98,7 @@ export const CuratedIcon = ({hasColor, classes}: {
     </span>
 }
 
-const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
+export const CuratedIcon = registerComponent('CuratedIcon', CuratedIconInner, {styles});
 
 
 const RecommendedPostIcon = ({post, hover, classes}: {
@@ -105,8 +106,6 @@ const RecommendedPostIcon = ({post, hover, classes}: {
   hover?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, ForumIcon } = Components;
-
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
   const currentUser = useCurrentUser();
@@ -134,14 +133,13 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 }
 
 
-const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
+const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
   classes: ClassesType<typeof styles>,
 }) => {
-  const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
@@ -189,11 +187,6 @@ const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon
   </span>
 }
 
-const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, {styles});
+export const PostsItemIcons = registerComponent('PostsItemIcons', PostsItemIconsInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsItemIcons: typeof PostsItemIconsComponent
-    CuratedIcon: typeof CuratedIconComponent
-  }
-}
+

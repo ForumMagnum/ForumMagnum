@@ -1,32 +1,28 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
-import Divider from "@material-ui/core/Divider";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import SimpleDivider from "../widgets/SimpleDivider";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
-    margin: isFriendlyUI ? `6px 0` : undefined,
+    margin: isFriendlyUI ? `6px 0 !important` : undefined,
   },
 });
 
 const DropdownDivider = ({className, classes}: {
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <Divider className={classNames(className, classes.root)} />
+    <SimpleDivider className={classNames(className, classes.root)} />
   );
 }
 
-const DropdownDividerComponent = registerComponent(
+export default registerComponent(
   "DropdownDivider",
   DropdownDivider,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    DropdownDivider: typeof DropdownDividerComponent
-  }
-}
+

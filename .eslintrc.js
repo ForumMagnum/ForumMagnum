@@ -3,21 +3,22 @@ const restrictedImportsPaths = [
   { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
   { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
   { name: "@material-ui", message: "Don't import all of material-ui/icons" },
-  { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
-  { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
+  { name: "@/lib/vendor/@material-ui/core/src", message: "Don't import all of material-ui/core" },
+  { name: "@/lib/vendor/@material-ui/core/src/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
   { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
-  { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
-  { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
-  { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
-  { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
-  { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
-  { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
+  { name: "@/lib/vendor/@material-ui/core/src/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
+  { name: "@/lib/vendor/@material-ui/core/src/NoSsr", importNames: ["Popper"], message: "Don't use @/lib/vendor/@material-ui/core/src/NoSsr/NoSsr; use react-no-ssr instead" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
-  { name: "@material-ui/core/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
+  { name: "url", message: "'url' is a nodejs polyfill; use getUrlClass() instead" },
 ]
 
 module.exports = {
@@ -88,6 +89,17 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
+
+    // Warn if defining a component inside a function, which results in the
+    // component's subtree and its state being destroyed on every render
+    "react/no-unstable-nested-components": [1, {
+      // Allow it if the component is passed directly as a prop. This is still
+      // potentially a bug, but components passed directly as props are often
+      // leaf-nodes with no state, like icons, so it's annoying to have to
+      // handle them properly and these are lower-priority to fix than the ones
+      // that aren't.
+      allowAsProps: true,
+    }],
     "react/no-unknown-property": ["error", {ignore: ["test-id"]}],
 
     // Differs from no-mixed-operators default only in that "??" is added to the first group
@@ -133,38 +145,17 @@ module.exports = {
     "import/no-extraneous-dependencies": 0,
     "import/no-duplicates": 1,
     "import/extensions": 0,
-    "import/no-cycle": ["error", {
-      // A dynamic cyclic import (ie,  a require() inside a function) is okay
-      // if you're confident it won't be called at import-time.
-      allowUnsafeDynamicCyclicDependency: true,
-    }],
+    "import/no-cycle": 0,
+    // "import/no-cycle": ["error", {
+    //   // A dynamic cyclic import (ie,  a require() inside a function) is okay
+    //   // if you're confident it won't be called at import-time.
+    //   allowUnsafeDynamicCyclicDependency: true,
+    // }],
     "import/no-mutable-exports": 1,
-    "import/no-restricted-paths": ["error", {"zones": [
-      {
-        target: "packages/lesswrong/components",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into components - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/lib",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into lib - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/client",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into client - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/themes",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into themes - move the shared code into lib",
-      },
-    ]}],
     "no-restricted-imports": ["error", {
       "paths": restrictedImportsPaths,
       patterns: [
-        "@material-ui/core/colors/*"
+        "@/lib/vendor/@material-ui/core/src/colors/*"
       ]
     }],
 
@@ -215,9 +206,8 @@ module.exports = {
     // interface members non-optional.
     "@typescript-eslint/member-delimiter-style": 0,
     
-    // type-annotation-spacing: Disabled. Would enforce spaces around => and
-    // after : in type annotations.
-    "@typescript-eslint/type-annotation-spacing": 0,
+    // type-annotation-spacing: Enforces spaces around => and after : in type annotations.
+    "@stylistic/ts/type-annotation-spacing": 1,
     
     // no-empty-function: Disabled. Would forbid functions with empty bodies.
     "@typescript-eslint/no-empty-function": 0,
@@ -236,6 +226,15 @@ module.exports = {
     
     // no-this-alias. Currently disabled. Would forbid 'const self=this'.
     "@typescript-eslint/no-this-alias": 0,
+
+    // no-require-imports: Disabled. Would forbit any usage of require()
+    "@typescript-eslint/no-require-imports": 0,
+
+    // consistent-type-imports: Would enforce that imports of types use "import type"
+    "@typescript-eslint/consistent-type-imports": 0,
+
+    // no-empty-object-type: Forbids using {} as a type
+    "@typescript-eslint/no-empty-object-type": 0,
     
     // class-name-casing: Disabled. Forbids types from deviating from upper-
     // camelcase, which would forbid the naming convention we are using for
@@ -274,8 +273,15 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
-    "@typescript-eslint/type-annotation-spacing": 1,
-    "@typescript-eslint/switch-exhaustiveness-check": 1,
+
+    "@typescript-eslint/no-unused-expressions": 0,
+    "@typescript-eslint/no-unsafe-function-type": 0,
+
+    "@typescript-eslint/switch-exhaustiveness-check": [1, {
+      considerDefaultExhaustiveForUnions: true
+    }],
+
+    "no-barrel-files/no-barrel-files": 1,
   },
   "overrides": [
     {
@@ -308,7 +314,9 @@ module.exports = {
     "babel",
     "react",
     "react-hooks",
-    "import"
+    "import",
+    "no-barrel-files",
+    "@stylistic/ts",
   ],
   "settings": {
     "import/core-modules": [
@@ -337,8 +345,12 @@ module.exports = {
     "afterEach": true
   },
   "ignorePatterns": [
-    "build.js",
+    "build.ts",
+    // Excluded here because it's also excluded in `tsconfig.json`, and they
+    // need to match.
+    "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "packages/lesswrong/lib/vendor/@material-ui"
   ]
 }

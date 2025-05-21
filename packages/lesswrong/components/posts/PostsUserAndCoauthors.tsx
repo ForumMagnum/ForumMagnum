@@ -1,15 +1,19 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import ModeCommentIcon from '@material-ui/icons/ModeComment';
+import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
+import UsersName from "../users/UsersName";
+import UserNameDeleted from "../users/UserNameDeleted";
+import UserCommentMarkers from "../users/UserCommentMarkers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
-    overflowX: "hidden",
+    overflowX: "clip",
+    overflowY: 'clip',
     textAlign: "right",
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
@@ -50,16 +54,13 @@ const PostsUserAndCoauthors = ({
 }: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,
   showMarkers?: boolean,
 }) => {
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
-
-  const {UsersName, UserNameDeleted, UserCommentMarkers} = Components
-
   if (isAnon)
     return <UserNameDeleted/>;
 
@@ -81,10 +82,6 @@ const PostsUserAndCoauthors = ({
   </div>;
 };
 
-const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
+export default registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsUserAndCoauthors: typeof PostsUserAndCoauthorsComponent
-  }
-}
+

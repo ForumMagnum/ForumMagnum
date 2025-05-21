@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import { getFragment } from "../vulcan-lib/fragments";
-import { collectionNameToTypeName } from "../vulcan-lib";
+import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 import { useSingle } from "./withSingle";
 
 export function useSingleWithPreload<
@@ -20,7 +20,7 @@ export function useSingleWithPreload<
 }) {
   const apolloClient = useApolloClient();
 
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
 
   const cachedResult = apolloClient.cache.readFragment<FragmentTypes[PreloadFragmentName]>({
     fragment: getFragment(preloadFragmentName),
