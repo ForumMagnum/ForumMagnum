@@ -15,6 +15,7 @@ import { updateReport } from "../collections/reports/mutations";
 import { updateSequence } from "../collections/sequences/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
 import { inspect } from "util";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 
 
 
@@ -36,7 +37,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
       }
     }
   `;
-  const IPs: any = await runQuery(query, {userId: user._id});
+  const IPs: any = await runQuery(query, {userId: user._id}, createAdminContext());
   if (IPs) {
     try {
       await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
