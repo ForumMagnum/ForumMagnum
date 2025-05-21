@@ -3873,6 +3873,7 @@ const schema = {
         const filter = {
           ...getDefaultViewSelector("Comments"),
           score: { $gt: 0 },
+          draft: false,
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
