@@ -3,8 +3,9 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
-import { gql, useMutation } from "@apollo/client";
-import { registerComponent } from "@/lib/vulcan-lib/components";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 import { SummaryForm } from "./SummaryForm";
 import LWTooltip from "../common/LWTooltip";
 import ContentItemBody from "../common/ContentItemBody";
@@ -275,11 +276,11 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
     },
   });
 
-  const [reorderSummaries] = useMutation(gql`
+  const [reorderSummaries] = useMutation(gql(`
     mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {
       reorderSummaries(parentDocumentId: $parentDocumentId, parentDocumentCollectionName: $parentDocumentCollectionName, summaryIds: $summaryIds)
     }
-  `);
+  `));
 
   const icon = newSummaryEditorOpen ? 'MinusSmall' : 'PlusSmall';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments'; 
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useMulti } from '@/lib/crud/withMulti';
@@ -121,15 +121,14 @@ export const BestOfLessWrongAdmin = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
-  const { data, loading: reviewWinnersLoading } = useQuery(gql`
+  const { data, loading: reviewWinnersLoading } = useQuery(gql(`
     query BestOfLessWrongAdmin {
       GetAllReviewWinners {
         ...PostsTopItemInfo
       }
     }
-    ${fragmentTextForQuery('PostsTopItemInfo')}
-  `);
-  const reviewWinners: PostsTopItemInfo[] = data?.BestOfLessWrongAdmin ?? [];
+  `));
+  const reviewWinners = data?.GetAllReviewWinners ?? [];
   const reviewWinnersWithoutArt = reviewWinners.filter((reviewWinner: PostsTopItemInfo) => !reviewWinner.reviewWinner?.reviewWinnerArt);
 
   const { params: { year } } = useLocation()

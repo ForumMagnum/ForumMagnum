@@ -254,8 +254,8 @@ const PostsTimeBlock = ({
         />}
 
         {timeframe==="daily" && includeTags && <TagEditsTimeBlock
-          before={before.toString()}
-          after={after.toString()}
+          before={before.toDate()}
+          after={after.toDate()}
           reportEmpty={reportEmptyTags}
         />}
       </div>

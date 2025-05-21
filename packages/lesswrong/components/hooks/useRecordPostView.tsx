@@ -1,5 +1,6 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
@@ -46,27 +47,27 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
-  const [increasePostViewCount] = useMutation(gql`
+  const [increasePostViewCount] = useMutation(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
 
-  const [sendVertexViewItemEvent] = useMutation(gql`
+  const [sendVertexViewItemEvent] = useMutation(gql(`
     mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
       sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
 
-  const [markPostCommentsRead] = useMutation(gql`
+  const [markPostCommentsRead] = useMutation(gql(`
     mutation markPostCommentsRead($postId: String!) {
       markPostCommentsRead(postId: $postId)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
   

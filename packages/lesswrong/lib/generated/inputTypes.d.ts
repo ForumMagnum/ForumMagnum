@@ -662,23 +662,23 @@ interface SurveyQuestionInfo {
 interface DocumentDeletion {
   userId: string | null;
   documentId: string;
-  netChange: string;
-  type: string | null;
+  netChange: DocumentDeletionNetChange;
+  type: MultiDocumentType | null;
   docFields: MultiDocument | null;
   createdAt: Date;
 }
 
 interface TagUpdates {
   tag: Tag;
-  revisionIds: Array<string> | null;
-  commentCount: number | null;
-  commentIds: Array<string> | null;
+  revisionIds: Array<string>;
+  commentCount: number;
+  commentIds: Array<string>;
   lastRevisedAt: Date | null;
   lastCommentedAt: Date | null;
-  added: number | null;
-  removed: number | null;
-  users: Array<User> | null;
-  documentDeletions: Array<DocumentDeletion> | null;
+  added: number;
+  removed: number;
+  users: Array<User>;
+  documentDeletions: Array<DocumentDeletion>;
 }
 
 interface TagPreviewWithSummaries {

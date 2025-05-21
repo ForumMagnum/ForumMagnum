@@ -2,11 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import MigrationsDashboardRow, { rowStyles } from './MigrationsDashboardRow';
 import SingleColumnSection from "../../common/SingleColumnSection";
 import Loading from "../../vulcan-core/Loading";
 import SectionTitle from "../../common/SectionTitle";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   ...rowStyles,

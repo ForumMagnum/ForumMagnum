@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useMulti } from '../../lib/crud/withMulti';
-import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
+import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -277,7 +277,7 @@ function isTabEnabled(
   tab: PostFeedDetails,
   currentUser: UsersCurrent | null,
   query: Record<string, string>,
-  continueReading: ContinueReading[]
+  continueReading: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[]
 ): boolean {
   if (tab.disabled) {
     return false;

@@ -1,5 +1,7 @@
 import { useMulti } from "@/lib/crud/withMulti";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
@@ -132,11 +134,11 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [removeSticker] = useMutation(gql`
+  const [removeSticker] = useMutation(gql(`
     mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
       RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
     }
-  `);
+  `));
   const {moderateCommentMutation} = useModerateComment();
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length

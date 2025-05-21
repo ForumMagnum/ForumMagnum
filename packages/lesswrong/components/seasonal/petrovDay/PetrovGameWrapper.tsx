@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import PetrovAdminConsole from "./PetrovAdminConsole";
 import PetrovWarningConsole from "./PetrovWarningConsole";
@@ -53,11 +54,11 @@ export const PetrovGameWrapper = ({classes}: {
     skip: !currentUser
   });
 
-  const { data, refetch: refetchCheckIfNuked } = useQuery(gql`
+  const { data, refetch: refetchCheckIfNuked } = useQuery(gql(`
     query petrov2024checkIfNuked {
       petrov2024checkIfNuked
     }
-  `, {
+  `), {
     ssr: true,
   });
 

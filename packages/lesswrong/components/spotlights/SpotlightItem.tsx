@@ -485,9 +485,7 @@ export const SpotlightItem = ({
 
   const [updateSpotlight] = useMutation(SpotlightDisplayUpdateMutation);
 
-  const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight({
-    fragmentName: "SpotlightDisplay",
-  });
+  const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight();
 
   const toggleDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {

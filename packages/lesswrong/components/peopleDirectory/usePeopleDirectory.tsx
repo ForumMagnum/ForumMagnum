@@ -12,7 +12,9 @@ import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/insta
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
 import { useMulti } from "@/lib/crud/withMulti";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 
 type PeopleDirectoryView = "list" | "map";
 
@@ -85,11 +87,11 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     },
   });
 
-  const {data: tagCountResult} = useQuery(gql`
+  const {data: tagCountResult} = useQuery(gql(`
     query ActiveTagCount {
       ActiveTagCount
     }
-  `);
+  `));
   const tagCount = tagCountResult?.ActiveTagCount ?? 0;
 
   const roles = useSearchableMultiSelect({

@@ -55,7 +55,7 @@ function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
 }
 
 
-export function onUserChanged(user: UsersCurrent) {
+export function onUserChanged(user: UsersCurrent | null) {
   identifyUserToSentry(user);
   addUserIdToGoogleAnalytics(user);
   configureDatadogRum(user);

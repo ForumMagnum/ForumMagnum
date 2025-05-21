@@ -1,10 +1,11 @@
 import React, { useState, MouseEvent, useEffect, useCallback } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 import { useCurrentUser } from "@/components/common/withUser";
 import { useDialog } from "@/components/common/withDialog";
 import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { useMulti } from "@/lib/crud/withMulti";
 import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import LoginPopup from "../users/LoginPopup";
@@ -26,7 +27,7 @@ export const useBookmark = (
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
 
-  const TOGGLE_BOOKMARK_MUTATION = gql`
+  const TOGGLE_BOOKMARK_MUTATION = gql(`
     mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
       toggleBookmark(input: $input) {
         data {
@@ -34,8 +35,7 @@ export const useBookmark = (
         }
       }
     }
-    ${fragmentTextForQuery('BookmarksDefaultFragment')}
-  `;
+  `);
 
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 

@@ -36,6 +36,7 @@ import { getLatestRev } from '../editor/utils';
 import gql from 'graphql-tag';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { updateTag } from '../collections/tags/mutations';
+import { WithDateFields } from '@/lib/utils/dateUtils';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -158,25 +159,33 @@ export const subForumFeedGraphQLQueries = {
 }
 
 export const tagGraphQLTypeDefs = gql`
+  enum DocumentDeletionNetChange {
+    deleted
+    restored
+  }
+  enum MultiDocumentType {
+    lens
+    summary
+  }
   type DocumentDeletion {
     userId: String
     documentId: String!
-    netChange: String!
-    type: String
+    netChange: DocumentDeletionNetChange!
+    type: MultiDocumentType
     docFields: MultiDocument
     createdAt: Date!
   }
   type TagUpdates {
     tag: Tag!
-    revisionIds: [String!]
-    commentCount: Int
-    commentIds: [String!]
+    revisionIds: [String!]!
+    commentCount: Int!
+    commentIds: [String!]!
     lastRevisedAt: Date
     lastCommentedAt: Date
-    added: Int
-    removed: Int
-    users: [User!]
-    documentDeletions: [DocumentDeletion!]
+    added: Int!
+    removed: Int!
+    users: [User!]!
+    documentDeletions: [DocumentDeletion!]!
   }
   type TagPreviewWithSummaries {
     tag: Tag!
@@ -192,7 +201,7 @@ export const tagGraphQLTypeDefs = gql`
     promoteLensToMain(lensId: String!): Boolean
   }
   extend type Query {
-    TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]
+    TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]!
     TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]
     RandomTag: Tag!
     ActiveTagCount: Int!
@@ -203,15 +212,15 @@ export const tagGraphQLTypeDefs = gql`
 
 interface TagUpdates {
   tag: Partial<DbTag>;
-  revisionIds: string[] | null;
+  revisionIds: string[];
   commentCount: number | null;
-  commentIds: string[] | null;
+  commentIds: string[];
   lastRevisedAt: Date | null;
   lastCommentedAt: Date | null;
   added: number | null;
   removed: number | null;
-  users: Partial<DbUser>[] | null;
-  documentDeletions: CategorizedDeletionEvent[] | null;
+  users: Partial<DbUser>[];
+  documentDeletions: CategorizedDeletionEvent[];
 }
 
 function getRootCommentsInTimeBlockSelector(before: Date, after: Date) {
@@ -304,7 +313,7 @@ function getNetDeletionsByDocumentId(documentDeletions: DbLWEvent[]) {
         return null;
       }
 
-      const netChange = endingDeleted ? 'deleted' : 'restored';
+      const netChange = endingDeleted ? 'deleted' as const : 'restored' as const;
       const netChangeEvent = {
         userId: lastDeletionEvent.userId,
         documentId,
@@ -334,7 +343,7 @@ interface CategorizedDeletionEvent {
   createdAt: Date;
 }
 
-function hydrateDocumentDeletionEvent(deletionEvent: CategorizedDeletionEvent, lenses: Partial<DbMultiDocument>[], summaries: Partial<DbMultiDocument>[]): CategorizedDeletionEvent {
+function hydrateDocumentDeletionEvent<T extends CategorizedDeletionEvent>(deletionEvent: T, lenses: Partial<DbMultiDocument>[], summaries: Partial<DbMultiDocument>[]): T {
   const { documentId } = deletionEvent;
   const lens = lenses.find(lens => lens._id === documentId);
   if (lens) {
@@ -389,13 +398,13 @@ async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, su
   const documentDeletionEvents = getNetDeletionsByDocumentId(documentDeletions);
 
   // First, categorize the deletions by whether they were for a lens or summary
-  const categorizedDeletionEvents: Record<string, CategorizedDeletionEvent> = mapValues(
+  const categorizedDeletionEvents = mapValues(
     documentDeletionEvents,
     (deletionEvent) => hydrateDocumentDeletionEvent(deletionEvent, lenses, summaries)
   );
 
   // Then group by the tag that each deletion event's document is a child of
-  const deletionEventsByTagId: Record<string, CategorizedDeletionEvent[]> = {};
+  const deletionEventsByTagId: Record<string, (CategorizedDeletionEvent & { netChange: DocumentDeletionNetChange })[]> = {};
 
   Object.values(categorizedDeletionEvents).reduce((acc, deletionEvent) => {
     const { documentId } = deletionEvent;

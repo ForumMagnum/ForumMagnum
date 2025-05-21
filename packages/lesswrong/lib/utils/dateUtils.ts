@@ -22,7 +22,7 @@ type StringToDateFields<T, K extends keyof T> = {
     : T[k];
 }
 
-type WithDateFields<T, K extends (StringFieldNamesOf<T> & keyof T)[]> = T extends null | undefined ? T : StringToDateFields<T, K[number]>;
+export type WithDateFields<T, K extends (StringFieldNamesOf<T> & keyof T)[]> = T extends null | undefined ? T : StringToDateFields<T, K[number]>;
 
 export function withDateFields<T extends Record<string, unknown> | null | undefined, const K extends (StringFieldNamesOf<NonNullable<T>> & keyof NonNullable<T>)[]>(obj: T, fields: K): WithDateFields<NonNullable<T>, K> {
   if (!obj) {

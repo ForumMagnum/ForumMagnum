@@ -2162,10 +2162,14 @@ type DocumentDeletion = {
   createdAt: Scalars['Date']['output'];
   docFields?: Maybe<MultiDocument>;
   documentId: Scalars['String']['output'];
-  netChange: Scalars['String']['output'];
-  type?: Maybe<Scalars['String']['output']>;
+  netChange: DocumentDeletionNetChange;
+  type?: Maybe<MultiDocumentType>;
   userId?: Maybe<Scalars['String']['output']>;
 };
+
+type DocumentDeletionNetChange =
+  | 'deleted'
+  | 'restored';
 
 type ElectionCandidate = {
   __typename?: 'ElectionCandidate';
@@ -3418,6 +3422,10 @@ type MultiDocumentSelector = {
   pingbackLensPages?: InputMaybe<MultiDocumentsPingbackLensPagesInput>;
   summariesByParentId?: InputMaybe<MultiDocumentsSummariesByParentIdInput>;
 };
+
+type MultiDocumentType =
+  | 'lens'
+  | 'summary';
 
 type MultiDocumentsLensBySlugInput = {
   excludedDocumentIds?: InputMaybe<Scalars['String']['input']>;
@@ -7066,7 +7074,7 @@ type Query = {
   TagHistoryFeed: TagHistoryFeedQueryResults;
   TagPreview?: Maybe<TagPreviewWithSummaries>;
   TagUpdatesByUser?: Maybe<Array<TagUpdates>>;
-  TagUpdatesInTimeBlock?: Maybe<Array<TagUpdates>>;
+  TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagsByCoreTagId: TagWithTotalCount;
   UltraFeed: UltraFeedQueryResults;
   UserReadHistory?: Maybe<UserReadHistoryResult>;
@@ -10395,16 +10403,16 @@ type TagSelector = {
 
 type TagUpdates = {
   __typename?: 'TagUpdates';
-  added?: Maybe<Scalars['Int']['output']>;
-  commentCount?: Maybe<Scalars['Int']['output']>;
-  commentIds?: Maybe<Array<Scalars['String']['output']>>;
-  documentDeletions?: Maybe<Array<DocumentDeletion>>;
+  added: Scalars['Int']['output'];
+  commentCount: Scalars['Int']['output'];
+  commentIds: Array<Scalars['String']['output']>;
+  documentDeletions: Array<DocumentDeletion>;
   lastCommentedAt?: Maybe<Scalars['Date']['output']>;
   lastRevisedAt?: Maybe<Scalars['Date']['output']>;
-  removed?: Maybe<Scalars['Int']['output']>;
-  revisionIds?: Maybe<Array<Scalars['String']['output']>>;
+  removed: Scalars['Int']['output'];
+  revisionIds: Array<Scalars['String']['output']>;
   tag: Tag;
-  users?: Maybe<Array<User>>;
+  users: Array<User>;
 };
 
 type TagWithTotalCount = {
@@ -16580,6 +16588,21 @@ type SpotlightItemQueryVariables = Exact<{
 
 type SpotlightItemQuery = SpotlightItemQuery_Query;
 
+type publishAndDeDuplicateSpotlightMutation_publishAndDeDuplicateSpotlight_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type publishAndDeDuplicateSpotlightMutation_Mutation = { __typename?: 'Mutation', publishAndDeDuplicateSpotlight: publishAndDeDuplicateSpotlightMutation_publishAndDeDuplicateSpotlight_Spotlight | null };
+
+
+type publishAndDeDuplicateSpotlightMutationVariables = Exact<{
+  spotlightId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type publishAndDeDuplicateSpotlightMutation = publishAndDeDuplicateSpotlightMutation_Mutation;
+
 type createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput_data_Subscription = (
   { __typename?: 'Subscription' }
   & SubscriptionState
@@ -17389,11 +17412,11 @@ type getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_users_User = (
 
 type getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion_docFields_MultiDocument = { __typename?: 'MultiDocument', _id: string, slug: string, tabTitle: string, tabSubtitle: string | null };
 
-type getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion = { __typename?: 'DocumentDeletion', userId: string | null, documentId: string, netChange: string, type: string | null, createdAt: string, docFields: getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion_docFields_MultiDocument | null };
+type getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion = { __typename?: 'DocumentDeletion', userId: string | null, documentId: string, netChange: DocumentDeletionNetChange, type: MultiDocumentType | null, createdAt: string, docFields: getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion_docFields_MultiDocument | null };
 
-type getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates = { __typename?: 'TagUpdates', revisionIds: Array<string> | null, commentCount: number | null, commentIds: Array<string> | null, lastRevisedAt: string | null, lastCommentedAt: string | null, added: number | null, removed: number | null, tag: getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_tag_Tag, users: Array<getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_users_User> | null, documentDeletions: Array<getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion> | null };
+type getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates = { __typename?: 'TagUpdates', revisionIds: Array<string>, commentCount: number, commentIds: Array<string>, lastRevisedAt: string | null, lastCommentedAt: string | null, added: number, removed: number, tag: getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_tag_Tag, users: Array<getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_users_User>, documentDeletions: Array<getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates_documentDeletions_DocumentDeletion> };
 
-type getTagUpdatesQuery_Query = { __typename?: 'Query', TagUpdatesInTimeBlock: Array<getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates> | null };
+type getTagUpdatesQuery_Query = { __typename?: 'Query', TagUpdatesInTimeBlock: Array<getTagUpdatesQuery_TagUpdatesInTimeBlock_TagUpdates> };
 
 
 type getTagUpdatesQueryVariables = Exact<{

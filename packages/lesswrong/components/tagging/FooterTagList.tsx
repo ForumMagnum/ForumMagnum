@@ -1,6 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
@@ -17,14 +18,12 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
-import type { EditablePost } from '@/lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -233,14 +232,13 @@ const FooterTagList = ({
     skip: isLWorAF || !tagIds.length || loading
   });
 
-  const [mutate] = useMutation(gql`
+  const [mutate] = useMutation(gql(`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
         ...TagRelMinimumFragment
       }
     }
-    ${fragmentTextForQuery("TagRelMinimumFragment")}
-  `);
+  `));
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
     try {

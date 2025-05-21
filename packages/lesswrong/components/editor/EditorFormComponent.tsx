@@ -20,7 +20,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import LastEditedInWarning from "./LastEditedInWarning";

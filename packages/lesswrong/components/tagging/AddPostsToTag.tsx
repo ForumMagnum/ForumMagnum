@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import classNames from 'classnames';
@@ -13,7 +14,6 @@ import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import LoginPopup from "../users/LoginPopup";
 import SearchPagination from "../search/SearchPagination";
 import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
@@ -107,14 +107,13 @@ const AddPostsToTag = ({classes, tag}: {
   const [ searchOpen, setSearchOpen ] = useState(false)  
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const [mutate] = useMutation(gql`
+  const [mutate] = useMutation(gql(`
     mutation addPostsToTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
         ...TagRelCreationFragment
       }
     }
-    ${fragmentTextForQuery("TagRelCreationFragment")}
-  `);
+  `));
 
   const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {

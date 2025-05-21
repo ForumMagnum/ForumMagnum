@@ -927,26 +927,36 @@ extend type Mutation {
   editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey
 }
 
+enum DocumentDeletionNetChange {
+  deleted
+  restored
+}
+
+enum MultiDocumentType {
+  lens
+  summary
+}
+
 type DocumentDeletion {
   userId: String
   documentId: String!
-  netChange: String!
-  type: String
+  netChange: DocumentDeletionNetChange!
+  type: MultiDocumentType
   docFields: MultiDocument
   createdAt: Date!
 }
 
 type TagUpdates {
   tag: Tag!
-  revisionIds: [String!]
-  commentCount: Int
-  commentIds: [String!]
+  revisionIds: [String!]!
+  commentCount: Int!
+  commentIds: [String!]!
   lastRevisedAt: Date
   lastCommentedAt: Date
-  added: Int
-  removed: Int
-  users: [User!]
-  documentDeletions: [DocumentDeletion!]
+  added: Int!
+  removed: Int!
+  users: [User!]!
+  documentDeletions: [DocumentDeletion!]!
 }
 
 type TagPreviewWithSummaries {
@@ -966,7 +976,7 @@ extend type Mutation {
 }
 
 extend type Query {
-  TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]
+  TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]!
   TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]
   RandomTag: Tag!
   ActiveTagCount: Int!

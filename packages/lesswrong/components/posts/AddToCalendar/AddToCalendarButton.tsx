@@ -67,7 +67,7 @@ const AddToCalendarIcon = ({className=''}) => {
 }
 
 const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
-  post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision|(PostsEdit & { contents?: PostsWithNavigation['contents']}),
   label?: string,
   hideTooltip?: boolean,
   hideIcon?: boolean,

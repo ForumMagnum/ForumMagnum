@@ -7,7 +7,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from "../common/withMessages";
 import {
   getPetrovDayKarmaThreshold,
@@ -154,14 +155,13 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   const [launchCode, setLaunchCode] = useState('')
 
 
-  const [ mutate ] = useMutation(gql`
+  const [ mutate ] = useMutation(gql(`
     mutation launchPetrovMissile($launchCode: String) {
       PetrovDayLaunchMissile(launchCode: $launchCode) {
         launchCode
       }
     }
-  `
-  );
+  `));
   
   const { flash } = useMessages();
   const updateCurrentUser = useUpdateCurrentUser();
