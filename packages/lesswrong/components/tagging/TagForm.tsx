@@ -24,6 +24,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import ContentStyles from "../common/ContentStyles";
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -180,7 +181,7 @@ export const TagForm = ({
 
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="description" listeners={{ onChange }}>
-          {(field) => (
+          {(field) => <ContentStyles contentType="tag">
             <EditorFormComponent
               field={field}
               name="description"
@@ -208,7 +209,7 @@ export const TagForm = ({
               commentStyles={true}
               hideControls={false}
             />
-          )}
+          </ContentStyles>}
         </form.Field>
       </div>
 
