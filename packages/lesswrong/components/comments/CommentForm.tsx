@@ -43,25 +43,6 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
-  submitMinimalist: {
-    height: 'fit-content',
-    marginTop: "auto",
-    marginBottom: 4,
-  },
-  formButtonMinimalist: {
-    padding: "2px",
-    fontSize: "16px",
-    minWidth: 28,
-    minHeight: 28,
-    marginLeft: "5px",
-    "&:hover": {
-      opacity: .8,
-      backgroundColor: theme.palette.lwTertiary.main,
-    },
-    backgroundColor: theme.palette.lwTertiary.main,
-    color: theme.palette.background.pageActiveAreaBackground,
-    overflowX: "hidden",  // to stop loading dots from wrapping around
-  },
   submitSegmented: {
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,

@@ -34,6 +34,9 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
 }) => {
   const { linkedCommentId } = useCommentLinkState();
 
+  // Usually, there will be no linked comment (`?commentId=...` in the url), and the rawResults below
+  // will be displayed directly. If there is a linked comment, bump it to the top of the list so
+  // we know we can scroll to it.
   const { document: linkedComment, loading: linkedCommentLoading } = useSingle({
     documentId: linkedCommentId,
     collectionName: "Comments",
@@ -84,7 +87,7 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
       <CommentsNode
         comment={comment}
         key={comment._id}
-        // Don't auto-scroll to this comment if it appear elsewhere in the page, prefer showing it properly in context
+        // Don't auto-scroll to this comment if it probably appears as a reply elsewhere in the page, prefer showing it properly in context
         noAutoScroll={!!(postId && comment.parentCommentId)}
         treeOptions={{
           ...COMMENT_DRAFT_TREE_OPTIONS,
