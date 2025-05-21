@@ -15,7 +15,7 @@ import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from 
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { Helmet } from '../lib/utils/componentsWithChildren';
+import { Helmet } from "react-helmet-async";
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere

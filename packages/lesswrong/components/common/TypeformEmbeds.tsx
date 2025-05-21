@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from "react";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
+import { Helmet } from "react-helmet-async";
 
 type TypeformParameters = Record<string, boolean | string>;
 

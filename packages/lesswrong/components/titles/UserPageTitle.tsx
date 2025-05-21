@@ -5,7 +5,7 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from 'react-helmet-async';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const titleComponentStyles = defineStyles('UserPageTitle', styles);

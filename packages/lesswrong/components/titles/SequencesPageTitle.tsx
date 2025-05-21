@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { styles } from '../common/HeaderSubtitle';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from 'react-helmet-async';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const titleComponentStyles = defineStyles('SequencesPageTitle', styles);

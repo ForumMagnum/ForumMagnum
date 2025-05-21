@@ -13,6 +13,7 @@ import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptio
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '../lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import AppComponent from '../components/vulcan-core/App';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
@@ -25,6 +26,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   ssrMetadata?: SSRMetadata,
 }) => {
   return (
+    <HelmetProvider>
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         <CookiesProvider>
@@ -44,6 +46,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
         </CookiesProvider>
       </ForeignApolloClientProvider>
     </ApolloProvider>
+    </HelmetProvider>
   );
 };
 

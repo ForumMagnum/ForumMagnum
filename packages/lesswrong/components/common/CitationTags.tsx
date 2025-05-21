@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
+import { Helmet } from "react-helmet-async";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 
 /**

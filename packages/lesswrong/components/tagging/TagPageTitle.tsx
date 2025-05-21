@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getAllTagsPath } from '@/lib/pathConstants';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from 'react-helmet-async';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const titleComponentStyles = defineStyles('TagPageTitle', styles);

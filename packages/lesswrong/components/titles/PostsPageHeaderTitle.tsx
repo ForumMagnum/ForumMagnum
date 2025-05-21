@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from 'react-helmet-async';
 
 export const PostsPageHeaderTitle = ({siteName}: {
   siteName: string,

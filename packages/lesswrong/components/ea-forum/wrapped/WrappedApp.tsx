@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
-import { Helmet } from "@/lib/utils/componentsWithChildren";
+import { Helmet } from "react-helmet-async";
 import range from "lodash/range";
 import classNames from "classnames";
 import ForumIcon from "../../common/ForumIcon";

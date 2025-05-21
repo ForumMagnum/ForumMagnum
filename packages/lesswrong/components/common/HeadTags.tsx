@@ -4,7 +4,7 @@ import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from "react-helmet-async";
 
 const HeadTags = ({
   ogUrl: ogUrlProp,

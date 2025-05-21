@@ -5,7 +5,7 @@ import {
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
 import { useTheme } from "../themes/useTheme";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
+import { Helmet } from "react-helmet-async";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
   "cloudinary.uploadPresetGridImage",

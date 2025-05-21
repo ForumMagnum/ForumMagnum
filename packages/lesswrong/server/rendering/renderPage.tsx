@@ -11,7 +11,7 @@ import { getUserFromReq, computeContextFromUser, configureSentryScope } from '@/
 import { createClient } from '@/server/vulcan-lib/apollo-ssr/apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
-import Head from '@/server/vulcan-lib/apollo-ssr/components/Head';
+import Head from './Head';
 import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from '@/server/vulcan-lib/apollo-ssr/components/AppGenerator';
 import { captureException } from '@sentry/core';
@@ -45,6 +45,7 @@ import { ResponseForwarderStream } from '@/server/rendering/ResponseManager';
 import { queueRenderRequest } from '@/server/rendering/requestQueue';
 import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings, slowSSRWarnThresholdSetting } from './renderLogging';
 import { getIpFromRequest } from '../datadog/datadogMiddleware';
+import { HelmetServerState } from 'react-helmet-async';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -402,9 +403,7 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
   const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
   const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
+  return `${prefix}${htmlContent}${suffix}`;
 }
 
 
@@ -461,6 +460,7 @@ export const renderRequest = async ({req, user, startTime, res, userAgent, isStr
   
   const now = new Date();
   const themeOptions = getThemeOptionsFromReq(req, user);
+  const helmetContext: {helmet?: HelmetServerState} = {};
 
   const WrappedApp = <div id="react-app">
     <AppGenerator
@@ -472,6 +472,7 @@ export const renderRequest = async ({req, user, startTime, res, userAgent, isStr
       ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
       enableSuspense={isStreaming}
       themeOptions={themeOptions}
+      helmetContext={helmetContext}
     />
   </div>
 
@@ -500,7 +501,7 @@ export const renderRequest = async ({req, user, startTime, res, userAgent, isStr
   const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
-  const head = ReactDOM.renderToString(<Head userAgent={userAgent}/>);
+  const head = ReactDOM.renderToString(<Head userAgent={userAgent} helmetContext={helmetContext}/>);
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
