@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 type WebServers = Extract<Parameters<typeof defineConfig>[0]["webServer"], any[]>;
 type Projects = Extract<Parameters<typeof defineConfig>[0]["projects"], any[]>;
 
-const CROSSPOST_TEST_REGEX = "**/crossposts.spec.ts";
+const CROSSPOST_TEST_REGEX = /.*crossposts.spec.ts/
 
 const getWebServers = () => {
   const webServers: WebServers = [];
@@ -53,13 +53,14 @@ const getProjects = () => {
     return [{
       name: "crosspost",
       use: {...devices["Desktop Chrome"]},
-      testMatch: CROSSPOST_TEST_REGEX,
+      grep: CROSSPOST_TEST_REGEX,
     }];
   }
   let projects: Projects = [
     {
       name: "chromium",
       use: {...devices["Desktop Chrome"]},
+      grepInvert: CROSSPOST_TEST_REGEX,
     },
   ];
   if (process.env.CI) {
@@ -79,30 +80,36 @@ const getProjects = () => {
             },
           },
         },
+        grepInvert: CROSSPOST_TEST_REGEX,
       },
       {
         name: "webkit",
         use: {...devices["Desktop Safari"]},
+        grepInvert: CROSSPOST_TEST_REGEX,
       },
 
       /* Test against mobile viewports. */
       {
         name: "mobile-chrome",
         use: {...devices["Pixel 5"]},
+        grepInvert: CROSSPOST_TEST_REGEX,
       },
       {
         name: "mobile-webkit",
         use: {...devices["iPhone 12"]},
+        grepInvert: CROSSPOST_TEST_REGEX,
       },
 
       /* Test against branded browsers. */
       {
         name: "edge",
         use: {...devices["Desktop Edge"], channel: "msedge"},
+        grepInvert: CROSSPOST_TEST_REGEX,
       },
       {
         name: "chrome",
         use: {...devices["Desktop Chrome"], channel: "chrome"},
+        grepInvert: CROSSPOST_TEST_REGEX,
       },
     ]);
   }
@@ -160,5 +167,4 @@ export default defineConfig({
   },
   projects: getProjects(),
   webServer: getWebServers(),
-  testIgnore: process.env.CROSSPOST_TEST ? "" : CROSSPOST_TEST_REGEX,
 });
