@@ -12,7 +12,7 @@ import { createClient } from '@/server/vulcan-lib/apollo-ssr/apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
 import Head from '@/server/vulcan-lib/apollo-ssr/components/Head';
-import { embedAsGlobalVar, healthCheckUserAgentSetting } from '@/server/vulcan-lib/apollo-ssr/renderUtil';
+import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from '@/server/vulcan-lib/apollo-ssr/components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';

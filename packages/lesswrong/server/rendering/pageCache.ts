@@ -5,7 +5,7 @@ import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '@/server/utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '@/themes/themeNames';
 import { dogstatsd } from '@/server/datadog/tracer';
-import { healthCheckUserAgentSetting } from '@/server/vulcan-lib/apollo-ssr/renderUtil';
+import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '@/server/repos/PageCacheRepo';
 import { DatabaseServerSetting } from '@/server/databaseSettings';
 import { isDatadogEnabled } from '@/lib/instanceSettings';
