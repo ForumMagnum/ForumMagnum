@@ -797,7 +797,7 @@ const schema = {
     graphql: {
       outputType: "Boolean!",
       inputType: "Boolean",
-      canRead: ["guests"], // The status itself is readable, visibility of comment content is handled elsewhere
+      canRead: ["guests"], // Access to the whole comment is gated in `commentCheckAccess`, not here
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
