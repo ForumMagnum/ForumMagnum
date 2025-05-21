@@ -1,14 +1,9 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { usePostContents } from "../../hooks/useForeignCrosspost";
-import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
 import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 import Loading from "../../vulcan-core/Loading";
-
-const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
-  "user" in post;
 
 const PostExcerpt = ({
   post,
@@ -21,19 +16,6 @@ const PostExcerpt = ({
   useCustomHighlight?: boolean,
   hash?: string | null,
 }) => {
-  // Get the post body, accounting for whether or not this is a crosspost
-  const {postContents, loading, error} = usePostContents({
-    post,
-    fragmentName: isSunshine(post) ? "SunshinePostsList" : "PostsList",
-    skip: !!hash,
-  });
-
-  // If a hash is supplied then we need to run a query to get the section
-  // of the content starting at the hash, whether of not this is a crosspost
-  const isForeign = post?.fmCrosspost?.isCrosspost &&
-    !post.fmCrosspost.hostedHere &&
-    !!post.fmCrosspost.foreignPostId;
-  const foreignApolloClient = useForeignApolloClient();
   const {document: postHighlight, loading: loadingHighlight} = useSingle({
     collectionName: "Posts",
     fragmentName: "HighlightWithHash",
@@ -42,21 +24,16 @@ const PostExcerpt = ({
     fetchPolicy: "cache-first",
     extraVariables: {hash: "String"},
     extraVariablesValues: {hash},
-    apolloClient: isForeign ? foreignApolloClient : undefined,
   });
-  if ((loading && !hash) || (loadingHighlight && hash)) {
+
+  if (loadingHighlight && hash) {
     return (
       <Loading />
     );
   }
 
-  if (error) {
-    // eslint-disable-next-line
-    console.error("Error loading excerpt body:", error);
-  }
-
   const customHighlight = post.customHighlight?.html;
-  const postDefaultHighlight: string | undefined = postContents?.htmlHighlight || (postContents as AnyBecauseHard)?.html;
+  const postDefaultHighlight: string | undefined = post.contents?.htmlHighlight || (post.contents as AnyBecauseHard)?.html;
 
   const contentHtml =
     postHighlight?.contents?.htmlHighlightStartingAtHash ||

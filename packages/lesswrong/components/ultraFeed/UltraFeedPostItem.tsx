@@ -13,8 +13,6 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
-import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
-import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { Link } from "../../lib/reactRouterWrapper";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
@@ -205,7 +203,6 @@ const UltraFeedPostItem = ({
   post,
   postMetaInfo,
   index,
-  showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
   post: PostsListWithVotes,
@@ -222,25 +219,19 @@ const UltraFeedPostItem = ({
   const { captureEvent } = useTracking();
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
-  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
-  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
   const [shouldShowLoading, setShouldShowLoading] = useState(false);
   const [resetSig, setResetSig] = useState(0);
 
   const { displaySettings } = settings;
-  const apolloClient = useForeignApolloClient();
-  
-  const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
 
   const { document: fullPost, loading: loadingFullPost } = useSingle({
-    documentId,
+    documentId: post._id,
     collectionName: "Posts",
-    apolloClient: isForeignCrosspost ? apolloClient : undefined,
-    fragmentName: isForeignCrosspost ? "PostsPage" : "UltraFeedPostFragment",
+    fragmentName: "UltraFeedPostFragment",
     fetchPolicy: "cache-first",
     skip: !isLoadingFull
   });
-
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -382,7 +373,3 @@ const UltraFeedPostItem = ({
 };
 
 export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
-
-
-
- 
