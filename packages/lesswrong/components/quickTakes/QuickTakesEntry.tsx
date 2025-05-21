@@ -116,7 +116,24 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
+  // Desired behaviour here:
+  // 1. Always expand on focus
+  // 2. If the focus was triggered by a click and the user is logged out, show the login popup
+  //
+  // (2) requires tracking `isUnexpandedClickRef`, as the mouseup for the click will occur after the element has expanded
+  const isUnexpandedClickRef = useRef(false);
+  const onFocus = useCallback(() => {
+    if (!expanded) {
+      setExpanded(true);
+      isUnexpandedClickRef.current = true;
+    }
+  }, [currentUser, openDialog, onSignup, expanded]);
+
   const handleLoggedOut = useCallback(() => {
+    if (expanded && !isUnexpandedClickRef.current) return;
+
+    isUnexpandedClickRef.current = false;
+
     if (isFriendlyUI) {
       onSignup();
     } else {
@@ -125,7 +142,7 @@ const QuickTakesEntry = ({
         contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
-  }, [currentUser, openDialog, onSignup]);
+  }, [currentUser, openDialog, onSignup, expanded]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -154,7 +171,7 @@ const QuickTakesEntry = ({
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
-      onFocus={() => setExpanded(true)}
+      onFocus={onFocus}
       onClick={handleLoggedOut}
     >
       <CommentsNewForm
