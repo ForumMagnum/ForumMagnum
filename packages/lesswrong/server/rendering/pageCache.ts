@@ -1,15 +1,14 @@
 import LRU from 'lru-cache';
 import type { RenderResult, RenderSuccessResult } from './renderPage';
-import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '../../../lib/abTestImpl';
+import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '@/lib/abTestImpl';
 import type { Request, Response } from 'express';
-import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
-import sumBy from 'lodash/sumBy';
-import { dogstatsd } from '../../datadog/tracer';
-import { healthCheckUserAgentSetting } from './renderUtil';
-import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
-import { DatabaseServerSetting } from '../../databaseSettings';
-import { isDatadogEnabled } from '../../../lib/instanceSettings';
+import { getCookieFromReq, getPathFromReq } from '@/server/utils/httpUtil';
+import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '@/themes/themeNames';
+import { dogstatsd } from '@/server/datadog/tracer';
+import { healthCheckUserAgentSetting } from '@/server/vulcan-lib/apollo-ssr/renderUtil';
+import PageCacheRepo, { maxCacheAgeMs } from '@/server/repos/PageCacheRepo';
+import { DatabaseServerSetting } from '@/server/databaseSettings';
+import { isDatadogEnabled } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { ensureClientId } from '@/server/clientIdMiddleware';
 

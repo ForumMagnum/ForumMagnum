@@ -1,18 +1,13 @@
 import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
-
 import { isDevelopment } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptionsFromReq, handleRequest } from './vulcan-lib/apollo-ssr/renderPage';
-
+import { handleRequest } from './rendering/renderPage';
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
-
 import universalCookiesMiddleware from 'universal-cookie-express';
-
 import { formatError } from 'apollo-errors';
-
 import * as Sentry from '@sentry/node';
 import { app } from './expressServer';
 import path from 'path'
@@ -37,10 +32,9 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
-import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
+import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';

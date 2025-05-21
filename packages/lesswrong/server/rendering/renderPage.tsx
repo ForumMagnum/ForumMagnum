@@ -7,47 +7,46 @@
 import React from 'react';
 import ReactDOM, { renderToPipeableStream } from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { getUserFromReq, computeContextFromUser, configureSentryScope } from '../apollo-server/context';
-import { createClient } from './apolloClient';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from '@/server/vulcan-lib/apollo-server/context';
+import { createClient } from '@/server/vulcan-lib/apollo-ssr/apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
-import Head from './components/Head';
-import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
-import AppGenerator from './components/AppGenerator';
+import Head from '@/server/vulcan-lib/apollo-ssr/components/Head';
+import { embedAsGlobalVar, healthCheckUserAgentSetting } from '@/server/vulcan-lib/apollo-ssr/renderUtil';
+import AppGenerator from '@/server/vulcan-lib/apollo-ssr/components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq, trySetResponseStatus } from '../../utils/httpUtil';
-import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
-import { renderJssSheetImports, renderJssSheetPreloads } from '../../utils/renderJssSheetImports';
-import { DatabaseServerSetting } from '../../databaseSettings';
+import { getCookieFromReq, getPathFromReq, trySetResponseStatus } from '@/server/utils/httpUtil';
+import { getThemeOptions, AbstractThemeOptions } from '@/themes/themeNames';
+import { renderJssSheetImports, renderJssSheetPreloads } from '@/server/utils/renderJssSheetImports';
+import { DatabaseServerSetting } from '@/server/databaseSettings';
 import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
-import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
-import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting, commentPermalinkStyleSetting } from '../../../lib/publicSettings';
-import { faviconUrlSetting, performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
+import { getIpFromRequest } from '@/server/datadog/datadogMiddleware';
+import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { faviconUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
-import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
-import { isAnyTest, isProduction, isE2E } from '../../../lib/executionEnvironment';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
-import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
-import { responseIsCacheable } from '../../cacheControlMiddleware';
-import moment from 'moment';
+import { isProduction, isE2E } from '@/lib/executionEnvironment';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { visitorGetsDynamicFrontpage } from '@/lib/betas';
+import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 import { ensureClientId } from '@/server/clientIdMiddleware';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
 import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
-import { Writable } from 'node:stream';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
 import { getPublicSettings, getPublicSettingsLoaded } from '@/lib/settingsCache';
 import { randomId } from '@/lib/random';
-import { getClientBundle } from '../../utils/bundleUtils';
+import { getClientBundle } from '@/server/utils/bundleUtils';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
-import { createAnonymousContext } from '../../vulcan-lib/createContexts';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import express from 'express'
+import { ResponseForwarderStream } from '@/server/rendering/ResponseManager';
+import { queueRenderRequest } from '@/server/rendering/requestQueue';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -101,12 +100,7 @@ interface BaseRenderRequestParams {
   isStreaming: boolean
 }
 
-type RenderRequestParams = BaseRenderRequestParams & (CacheMissParams | CacheSkipParams);
-
-interface RenderPriorityQueueSlot extends RequestData {
-  callback: () => Promise<void>;
-  renderRequestParams: RenderRequestParams;
-}
+export type RenderRequestParams = BaseRenderRequestParams & (CacheMissParams | CacheSkipParams);
 
 interface AttemptCachedRenderParams {
   req: Request;
@@ -239,10 +233,15 @@ function shouldSkipCache(req: Request, user: DbUser|null) {
   const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
 
   return (
-    (!isHealthCheck && (user || isExcludedFromPageCache(url))) ||
+    (!isHealthCheck && (user || pathIsExcludedFromPageCache(url))) ||
     isSlackBot ||
     showDynamicFrontpage
   );
+}
+
+function pathIsExcludedFromPageCache(path: string): boolean {
+  if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
+  return false
 }
 
 function logRequestToConsole(
@@ -265,7 +264,7 @@ function logRequestToConsole(
 }
 
 
-/**
+/** {{{
  * End-to-end tests automate interactions with the page. If we try to, for
  * instance, click on a button before the page has been hydrated then the "click"
  * will occur but nothing will happen as the event listener won't be attached
@@ -283,6 +282,7 @@ const ssrInteractionDisable = isE2E
     </style>
   `
   : "";
+//}}}
 
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
@@ -508,164 +508,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   };
 };
 
-let inFlightRenderCount = 0;
-const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
-
-/**
- * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
- * To solve this, we introduce a queue for incoming requests, such that we have a maximum number of requests being rendered at the same time
- * See {@link maybeStartQueuedRequests} for the part that kicks off requests when appropriate
- */
-function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
-  return new Promise((resolve) => {
-    requestPriorityQueue.enqueue({
-      ip: getClientIP(params.req) ?? "unknown",
-      userAgent: params.userAgent ?? 'sus-missing-user-agent',
-      userId: params.user?._id,
-      callback: async () => {
-        let result: RenderResult;
-        addStartRenderTimeToPerfMetric();
-        try {
-          result = await renderRequest(params);
-        } finally {
-          inFlightRenderCount--;
-        }
-        resolve(result);
-        maybeStartQueuedRequests();
-      },
-      renderRequestParams: params,
-    });
-
-    maybeStartQueuedRequests();
-  });
-}
-
-function maybeStartQueuedRequests() {
-  while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
-    let requestToStartRendering = requestPriorityQueue.dequeue();
-    if (requestToStartRendering.request) {
-      const { preOpPriority, request } = requestToStartRendering;
-      const { startTime, res } = request.renderRequestParams;
-      
-      const queuedRequestTimeoutSeconds = queuedRequestTimeoutSecondsSetting.get();
-      const maxRequestAge = moment().subtract(queuedRequestTimeoutSeconds, 'seconds').toDate();
-      if (maxRequestAge > startTime) {
-        trySetResponseStatus({ response: res, status: 429 });
-        res.end();
-        continue;
-      }
-
-      // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
-      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
-        if (!incompletePerfMetric) return;
-        return {
-          ...incompletePerfMetric,
-          queue_priority: preOpPriority
-        }
-      });
-
-      inFlightRenderCount++;
-      void request.callback();
-    }
-  }
-}
-
-export function initRenderQueueLogging() {
-  if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
-    setInterval(logRenderQueueState, 5000)
-  }
-}
-
-function logRenderQueueState() {
-  if (requestPriorityQueue.size() > 0) {
-    const queueState = requestPriorityQueue.getQueueState().map(([{ renderRequestParams }, priority]) => {
-      return {
-        userId: renderRequestParams.user?._id,
-        ip: getIpFromRequest(renderRequestParams.req),
-        userAgent: renderRequestParams.userAgent,
-        url: getPathFromReq(renderRequestParams.req),
-        startTime: renderRequestParams.startTime,
-        priority
-      }
-    })
-
-    captureEvent("renderQueueState", {
-      queueState: queueState.map(q => ({
-        ...q,
-        userId: q.userId ?? null,
-        userAgent: q.userAgent ?? null,
-        startTime: q.startTime.toISOString(),
-      })) as JsonArray,
-    });
-  }
-}
-
-function isExcludedFromPageCache(path: string): boolean {
-  if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
-  return false
-}
-
-const userAgentExclusions = [
-  'health',
-  'bot',
-  'spider',
-  'crawler',
-  'curl',
-  'node',
-  'python'
-];
-
-function shouldRecordSsrAnalytics(userAgent?: string) {
-  if (!userAgent) {
-    return true;
-  }
-
-  return !userAgentExclusions.some(excludedAgent => userAgent.toLowerCase().includes(excludedAgent));
-}
-
-export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
-  const themeCookie = getCookieFromReq(req, "theme");
-  return getThemeOptions(themeCookie, user);
-}
-
-const buildSSRBody = (htmlContent: string, userAgent?: string) => {
-  // When the theme name is "auto", we load the correct style by combining @import url()
-  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
-  // Firefox bug where this can cause a flash of unstyled content. For reasons that
-  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
-  // first child of <body> which forces the browser to load the CSS before rendering.
-  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
-  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
-  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
-}
-
-class ResponseForwarderStream extends Writable {
-  private res: Response
-  private _data: string[] = [];
-
-  constructor(res: Response) {
-    super();
-    this.res = res;
-  }
-
-  _write(chunk: any, _encoding: string, callback: (error?: Error|null) => void) {
-    this.res.write(chunk);
-    this._data.push(chunk);
-    /*const decoder = new TextDecoder("utf-8");
-    console.log(decoder.decode(chunk));
-    console.log('==================');*/
-    callback();
-  }
-
-  public getString(): string {
-    return this._data.join('');
-  }
-}
-
-const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
+export const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
   const startCpuTime = getCpuTimeMs();
   const startSqlBytesDownloaded = getSqlBytesDownloaded();
 
@@ -735,7 +578,7 @@ const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming,
   let htmlContent = '';
   try {
     if (isStreaming) {
-      const stream = new ResponseForwarderStream(res);
+      const stream = new ResponseForwarderStream({res, corked: false});
       await new Promise<void>((resolve) => {
         const reactPipe = renderToPipeableStream(WrappedApp, {
           onAllReady: () => {
@@ -753,8 +596,6 @@ const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming,
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
-
-  const afterPrerenderTime = new Date();
 
   const ssrBody = buildSSRBody(htmlContent, userAgent);
 
@@ -823,6 +664,45 @@ const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming,
     aborted: false,
   };
 }
+
+
+const ssrAnalyticsUserAgentExclusions = [ //{{_}}
+  'health',
+  'bot',
+  'spider',
+  'crawler',
+  'curl',
+  'node',
+  'python'
+];
+
+function shouldRecordSsrAnalytics(userAgent?: string) {
+  if (!userAgent) {
+    return true;
+  }
+
+  return !ssrAnalyticsUserAgentExclusions.some(excludedAgent => userAgent.toLowerCase().includes(excludedAgent));
+}
+
+export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
+  const themeCookie = getCookieFromReq(req, "theme");
+  return getThemeOptions(themeCookie, user);
+}
+
+const buildSSRBody = (htmlContent: string, userAgent?: string) => {
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
+  // TODO: there should be a cleaner way to set this wrapper
+  // id must always match the client side start.jsx file
+  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
+}
+
 
 const formatTimings = (timings: RenderTimings): string => {
   return `${timings.wallTime}ms`;
