@@ -1,11 +1,11 @@
-import { getCookieFromReq } from '@/server/utils/httpUtil';
+import { getCookieFromReq, getRequestMetadata } from '@/server/utils/httpUtil';
 import type { Request } from 'express';
 import { closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { AttemptCachedRenderParams, AttemptNonCachedRenderParams, getRequestMetadata, RenderResult } from './renderPage';
+import { AttemptCachedRenderParams, AttemptNonCachedRenderParams, RenderResult } from './renderPage';
 
 export const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 

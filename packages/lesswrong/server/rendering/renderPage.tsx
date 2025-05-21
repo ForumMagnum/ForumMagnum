@@ -16,12 +16,11 @@ import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from '@/server/vulcan-lib/apollo-ssr/components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq, trySetResponseStatus } from '@/server/utils/httpUtil';
+import { getCookieFromReq, getPathFromReq, getRequestMetadata, trySetResponseStatus } from '@/server/utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '@/themes/themeNames';
 import { renderJssSheetImports, renderJssSheetPreloads } from '@/server/utils/renderJssSheetImports';
 import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
-import { getIpFromRequest } from '@/server/datadog/datadogMiddleware';
 import { asyncLocalStorage } from '@/server/perfMetrics';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { faviconUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
@@ -45,6 +44,7 @@ import express from 'express'
 import { ResponseForwarderStream } from '@/server/rendering/ResponseManager';
 import { queueRenderRequest } from '@/server/rendering/requestQueue';
 import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings, slowSSRWarnThresholdSetting } from './renderLogging';
+import { getIpFromRequest } from '../datadog/datadogMiddleware';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -113,14 +113,6 @@ export interface AttemptNonCachedRenderParams {
   ip: string;
   cacheAttempt: false;
   user: DbUser|null;
-}
-
-export function getRequestMetadata(req: Request) {
-  const ip = getIpFromRequest(req)
-  const userAgent = req.headers["user-agent"];
-  const url = getPathFromReq(req);
-
-  return { ip, userAgent, url };
 }
 
 function shouldSkipCache(req: Request, user: DbUser|null) {
@@ -414,6 +406,7 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   // id must always match the client side start.jsx file
   return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
+
 
 export const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
   const startCpuTime = getCpuTimeMs();
