@@ -12,6 +12,7 @@ export default registerMigration({
   dateWritten: "2025-05-21",
   idempotent: true,
   action: async () => {
+    const missingContents: string[] = [];
     await forEachDocumentBatchInCollection({
       collection: Posts,
       filter: {
@@ -20,9 +21,6 @@ export default registerMigration({
       },
       callback: async (batch) => {
         for (const post of batch) {
-          if (post._id !== "kNCpGNyRAkYAXM4gc") {
-            continue;
-          }
           try {
             const {foreignPostId} = post.fmCrosspost;
             if (!foreignPostId) {
@@ -50,6 +48,7 @@ export default registerMigration({
             const contents = document?.contents;
             if (!contents) {
               console.warn("Post", post._id, "has no contents");
+              missingContents.push(post._id);
               continue;
             }
 
@@ -76,5 +75,9 @@ export default registerMigration({
         }
       },
     });
+    if (missingContents.length) {
+      console.error(`Found ${missingContents.length} posts without contents:`);
+      console.error(missingContents);
+    }
   },
 });
