@@ -19,21 +19,18 @@ import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vul
 import { getCookieFromReq, getPathFromReq, trySetResponseStatus } from '@/server/utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '@/themes/themeNames';
 import { renderJssSheetImports, renderJssSheetPreloads } from '@/server/utils/renderJssSheetImports';
-import { DatabaseServerSetting } from '@/server/databaseSettings';
 import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
 import { getIpFromRequest } from '@/server/datadog/datadogMiddleware';
-import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
+import { asyncLocalStorage } from '@/server/perfMetrics';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { faviconUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
-import { getClientIP } from '@/server/utils/getClientIP';
 import { isProduction, isE2E } from '@/lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '@/lib/betas';
 import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 import { ensureClientId } from '@/server/clientIdMiddleware';
-import { captureEvent } from '@/lib/analyticsEvents';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
 import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
@@ -47,14 +44,7 @@ import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import express from 'express'
 import { ResponseForwarderStream } from '@/server/rendering/ResponseManager';
 import { queueRenderRequest } from '@/server/rendering/requestQueue';
-
-const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
-
-type RenderTimings = {
-  wallTime: number
-  cpuTime: number
-  sqlBytesDownloaded?: number
-}
+import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings, slowSSRWarnThresholdSetting } from './renderLogging';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -102,7 +92,7 @@ interface BaseRenderRequestParams {
 
 export type RenderRequestParams = BaseRenderRequestParams & (CacheMissParams | CacheSkipParams);
 
-interface AttemptCachedRenderParams {
+export interface AttemptCachedRenderParams {
   req: Request;
   res: Response;
   startTime: Date;
@@ -113,7 +103,7 @@ interface AttemptCachedRenderParams {
   cacheAttempt: true;
 }
 
-interface AttemptNonCachedRenderParams {
+export interface AttemptNonCachedRenderParams {
   req: Request;
   res: Response;
   startTime: Date;
@@ -125,91 +115,7 @@ interface AttemptNonCachedRenderParams {
   user: DbUser|null;
 }
 
-function openRenderRequestPerfMetric(renderParams: AttemptCachedRenderParams | AttemptNonCachedRenderParams) {
-  if (!performanceMetricLoggingEnabled.get()) return;
-
-  const { req, startTime, userAgent } = renderParams;
-  
-  const userIdField = !renderParams.cacheAttempt
-    ? { user_id: renderParams.user?._id }
-    : {};
-
-  const opName = renderParams.cacheAttempt
-    ? "unknown"
-    : "skipCache";
-
-  const perfMetric = openPerfMetric({
-    op_type: "ssr",
-    op_name: opName,
-    client_path: req.originalUrl,
-    ip: getClientIP(req),
-    user_agent: userAgent,
-    ...userIdField,
-  }, startTime);
-
-  setAsyncStoreValue('requestPerfMetric', perfMetric);
-}
-
-function closeRenderRequestPerfMetric(rendered: RenderResult & { cached?: boolean }) {
-  if (!performanceMetricLoggingEnabled.get()) return;
-
-  setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
-    if (!incompletePerfMetric) return;
-
-    if (incompletePerfMetric.op_name !== "unknown") {
-      return incompletePerfMetric;
-    }
-
-    // If we're closing a request that was eligible for caching, we would have initially set the op_name to "unknown"
-    // We need to set the op_name to "cacheHit" or "cacheMiss" here, after we've determined which it was
-    const opName = rendered.cached ? "cacheHit" : "cacheMiss";
-    return {
-      ...incompletePerfMetric,
-      op_name: opName
-    }
-  });
-
-  closeRequestPerfMetric();
-}
-
-function recordSsrAnalytics(
-  params: AttemptCachedRenderParams | AttemptNonCachedRenderParams,
-  rendered: Exclude<RenderResult, { aborted: true }> & { cached?: boolean }
-) {
-  const { req, startTime, userAgent, url, tabId, ip } = params;
-
-  if (!shouldRecordSsrAnalytics(userAgent)) return;
-
-  const clientId = getCookieFromReq(req, "clientId");
-
-  const userId = params.cacheAttempt
-    ? null
-    : params.user?._id;
-
-  const timings = params.cacheAttempt
-    ? { totalTime: new Date().valueOf() - startTime.valueOf() }
-    : rendered.timings;
-
-  const cached = params.cacheAttempt
-    ? rendered.cached
-    : false;
-
-  const abTestGroups = rendered.allAbTestGroups;
-
-  captureEvent("ssr", {
-    url,
-    tabId,
-    clientId,
-    ip,
-    userAgent,
-    userId,
-    timings,
-    abTestGroups,
-    cached,
-  });
-}
-
-function getRequestMetadata(req: Request) {
+export function getRequestMetadata(req: Request) {
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   const url = getPathFromReq(req);
@@ -242,25 +148,6 @@ function shouldSkipCache(req: Request, user: DbUser|null) {
 function pathIsExcludedFromPageCache(path: string): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
-}
-
-function logRequestToConsole(
-  req: Request,
-  user: DbUser | null,
-  tabId: string | null,
-  rendered: Exclude<RenderResult, { aborted: true }> & { cached?: boolean }
-) {
-  const { ip, userAgent, url } = getRequestMetadata(req);
-
-  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
-
-  if (rendered.cached) {
-    // eslint-disable-next-line no-console
-    console.log(`Served ${url} from cache for ${userDescription}`);
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
-  }
 }
 
 
@@ -508,6 +395,26 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   };
 };
 
+
+export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
+  const themeCookie = getCookieFromReq(req, "theme");
+  return getThemeOptions(themeCookie, user);
+}
+
+const buildSSRBody = (htmlContent: string, userAgent?: string) => {
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
+  // TODO: there should be a cleaner way to set this wrapper
+  // id must always match the client side start.jsx file
+  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
+}
+
 export const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
   const startCpuTime = getCpuTimeMs();
   const startSqlBytesDownloaded = getSqlBytesDownloaded();
@@ -665,50 +572,3 @@ export const renderRequest = async ({req, user, startTime, res, userAgent, isStr
   };
 }
 
-
-const ssrAnalyticsUserAgentExclusions = [ //{{_}}
-  'health',
-  'bot',
-  'spider',
-  'crawler',
-  'curl',
-  'node',
-  'python'
-];
-
-function shouldRecordSsrAnalytics(userAgent?: string) {
-  if (!userAgent) {
-    return true;
-  }
-
-  return !ssrAnalyticsUserAgentExclusions.some(excludedAgent => userAgent.toLowerCase().includes(excludedAgent));
-}
-
-export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
-  const themeCookie = getCookieFromReq(req, "theme");
-  return getThemeOptions(themeCookie, user);
-}
-
-const buildSSRBody = (htmlContent: string, userAgent?: string) => {
-  // When the theme name is "auto", we load the correct style by combining @import url()
-  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
-  // Firefox bug where this can cause a flash of unstyled content. For reasons that
-  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
-  // first child of <body> which forces the browser to load the CSS before rendering.
-  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
-  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
-  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
-}
-
-
-const formatTimings = (timings: RenderTimings): string => {
-  return `${timings.wallTime}ms`;
-}
-
-const getCpuTimeMs = (): number => {
-  const cpuUsage = process.cpuUsage();
-  return (cpuUsage.system + cpuUsage.user) / 1000.0;
-}
