@@ -1,4 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -15,6 +14,18 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModerationTemplateFragmentMutation = gql(`
+  mutation createModerationTemplateModerationTemplateForm($data: CreateModerationTemplateDataInput!) {
+    createModerationTemplate(data: $data) {
+      data {
+        ...ModerationTemplateFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -42,10 +53,7 @@ export const ModerationTemplatesForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<ModerationTemplateFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'ModerationTemplates',
-    fragmentName: 'ModerationTemplateFragment',
-  });
+  const [create] = useMutation(ModerationTemplateFragmentMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'ModerationTemplates',
@@ -58,11 +66,19 @@ export const ModerationTemplatesForm = ({
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    ...newFormDefaults,
+  };
+
+  const defaultValuesWithRequiredFields = {
+    ...defaultValues,
+    collectionName: defaultValues.collectionName ?? 'Rejections',
+    name: defaultValues.name ?? '',
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-      ...newFormDefaults,
-    },
+    defaultValues: defaultValuesWithRequiredFields,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -70,8 +86,11 @@ export const ModerationTemplatesForm = ({
         let result: ModerationTemplateFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createModerationTemplate.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createModerationTemplate?.data) {
+            throw new Error('Failed to create moderation template');
+          }
+          result = data.createModerationTemplate.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
@@ -84,7 +103,7 @@ export const ModerationTemplatesForm = ({
         onSuccessCallback.current?.(result);
 
         onSuccess?.(result);
-        formApi.reset(newFormDefaults);
+        formApi.reset(defaultValuesWithRequiredFields);
       } catch (error) {
         setCaughtError(error);
       }

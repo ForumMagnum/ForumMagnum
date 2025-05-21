@@ -81,7 +81,6 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
 
     return mutate({
       variables: { selector, data, ...extraVariables },
-      // update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName),
       ...optimisticMutationResponse
     });
   }, [mutate, typeName, resolverName]);

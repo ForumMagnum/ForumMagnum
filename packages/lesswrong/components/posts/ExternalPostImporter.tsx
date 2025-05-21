@@ -1,19 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { gql, useMutation } from '@apollo/client';
+import { gql as graphql, useMutation } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
 import { forumTypeSetting } from '@/lib/instanceSettings';
-import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMutation = gql(`
+  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {
+    createComment(data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 export type ExternalPostImportData = {
   alreadyExists: boolean;
@@ -234,7 +244,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
   const currentUser = useCurrentUser();
 
-  const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql`
+  const [importUrlAsDraftPost, { data, loading, error }] = useMutation(graphql`
     mutation importUrlAsDraftPost($url: String!) {
       importUrlAsDraftPost(url: $url) {
         alreadyExists
@@ -249,10 +259,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
     }
   `);
 
-  const { create } = useCreate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsList',
-  });
+  const [create] = useMutation(CommentsListMutation);
 
   const { mutate: updatePost } = useUpdate({
     collectionName: 'Posts',
@@ -289,7 +296,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
         },
       };
 
-      await create({ data: commentData });
+      await create({ variables: { data: commentData } });
 
       // Update and publish the post using useUpdate
       await updatePost({

@@ -1,14 +1,23 @@
-import { useCreate } from '../crud/withCreate';
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const newEventFragmentMutation = gql(`
+  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {
+    createLWEvent(data: $data) {
+      data {
+        ...newEventFragment
+      }
+    }
+  }
+`);
 
 export const useNewEvents = () => {
   const [events, setEvents] = useState<any>({});
-  const {create: createLWEvent} = useCreate({
-    collectionName: "LWEvents",
-    fragmentName: "newEventFragment",
+  const [createLWEvent] = useMutation(newEventFragmentMutation, {
     ignoreResults: true,
   });
   
@@ -31,7 +40,7 @@ export const useNewEvents = () => {
       setEvents({ ...events, eventId: event });
     }
     
-    void createLWEvent({data: event});
+    void createLWEvent({ variables: { data: event } });
     return eventId;
   }, [events, createLWEvent]);
   
@@ -39,15 +48,19 @@ export const useNewEvents = () => {
     let event = events[eventId];
     let currentTime = new Date();
     
-    void createLWEvent({data: {
-      ...event,
-      properties: {
-        endTime: currentTime,
-        duration: currentTime.valueOf() - event.properties.startTime.valueOf(),
-        ...event.properties,
-        ...properties,
-      },
-    }});
+    void createLWEvent({
+      variables: {
+        data: {
+          ...event,
+          properties: {
+            endTime: currentTime,
+            duration: currentTime.valueOf() - event.properties.startTime.valueOf(),
+            ...event.properties,
+            ...properties,
+          },
+        }
+      }
+});
     
     setEvents(_.omit(events, eventId));
     return eventId;

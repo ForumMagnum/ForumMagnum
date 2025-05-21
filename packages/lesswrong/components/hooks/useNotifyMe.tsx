@@ -1,6 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
-import { useCreate } from "../../lib/crud/withCreate";
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
@@ -14,6 +13,18 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SubscriptionStateMutation = gql(`
+  mutation createSubscriptionuseNotifyMe($data: CreateSubscriptionDataInput!) {
+    createSubscription(data: $data) {
+      data {
+        ...SubscriptionState
+      }
+    }
+  }
+`);
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -83,10 +94,7 @@ export const useNotifyMe = ({
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
-  const {create: createSubscription} = useCreate({
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-  });
+  const [createSubscription] = useMutation(SubscriptionStateMutation);
 
   const collectionName = graphqlTypeToCollectionName(document.__typename);
   if (!isDefaultSubscriptionType(collectionName)) {
@@ -148,7 +156,7 @@ export const useNotifyMe = ({
         type: subscriptionType,
       } as const;
 
-      await createSubscription({data: newSubscription});
+      await createSubscription({ variables: { data: newSubscription } });
 
       // We have to manually invalidate the cache as this hook can sometimes be
       // unmounted before the create mutation has finished (eg; when used inside

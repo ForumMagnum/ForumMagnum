@@ -7,6 +7,16 @@ import { MultiDocumentsViews } from "@/lib/collections/multiDocuments/views";
 
 export const graphqlMultiDocumentQueryTypeDefs = gql`
   type MultiDocument ${ getAllGraphQLFields(schema) }
+
+  enum MultiDocumentCollectionName {
+    Tags
+    MultiDocuments
+  }
+  
+  enum MultiDocumentFieldName {
+    description
+    summary
+  }
   
   input SingleMultiDocumentInput {
     selector: SelectorInput

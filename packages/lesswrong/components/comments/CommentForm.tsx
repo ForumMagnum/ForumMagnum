@@ -1,4 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
@@ -34,6 +33,18 @@ import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMutation = gql(`
+  mutation createCommentCommentForm($data: CreateCommentDataInput!) {
+    createComment(data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -252,10 +263,7 @@ export const CommentForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<CommentsList>();
 
-  const { create } = useCreate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsList',
-  });
+  const [create] = useMutation(CommentsListMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'Comments',
@@ -280,8 +288,11 @@ export const CommentForm = ({
           const { af, ...rest } = formApi.state.values;
           const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
 
-          const { data } = await create({ data: submitData });
-          result = data?.createComment.data;
+          const { data } = await create({ variables: { data: submitData } });
+          if (!data?.createComment?.data) {
+            throw new Error('Failed to create comment');
+          }
+          result = data.createComment.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({

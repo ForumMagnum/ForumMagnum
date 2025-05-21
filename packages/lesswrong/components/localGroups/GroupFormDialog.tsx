@@ -16,7 +16,6 @@ import { FormUserMultiselect } from '@/components/form-components/UserMultiselec
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { GroupFormSubmit } from './GroupFormSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
@@ -27,9 +26,19 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from '@/lib/utils/dateUtils';
+
+const localGroupsHomeFragmentMutation = gql(`
+  mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {
+    createLocalgroup(data: $data) {
+      data {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
 
 const localGroupsEditQuery = gql(`
   query GroupFormDialog($documentId: String) {
@@ -95,10 +104,7 @@ const LocalGroupForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<localGroupsHomeFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Localgroups',
-    fragmentName: 'localGroupsHomeFragment',
-  });
+  const [create] = useMutation(localGroupsHomeFragmentMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'Localgroups',
@@ -123,8 +129,11 @@ const LocalGroupForm = ({
         let result: localGroupsHomeFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createLocalgroup.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createLocalgroup?.data) {
+            throw new Error('Failed to create local group');
+          }
+          result = data.createLocalgroup.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({

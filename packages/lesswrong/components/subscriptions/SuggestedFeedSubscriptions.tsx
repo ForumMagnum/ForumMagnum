@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
-import { useCreate } from '../../lib/crud/withCreate';
 import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -21,6 +20,18 @@ import FollowUserSearch from "./FollowUserSearch";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SubscriptionStateMutation = gql(`
+  mutation createSubscriptionSuggestedFeedSubscriptions($data: CreateSubscriptionDataInput!) {
+    createSubscription(data: $data) {
+      data {
+        ...SubscriptionState
+      }
+    }
+  }
+`);
 
 const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;
@@ -381,10 +392,7 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
     }
   };
 
-  const { create: createSubscription } = useCreate({
-    collectionName: 'Subscriptions',
-    fragmentName: 'SubscriptionState',
-  });
+  const [createSubscription] = useMutation(SubscriptionStateMutation);
 
   const subscribeToUser = (user: HasIdType & UserDisplayNameInfo, index?: number, dismiss = false) => {
     const newSubscription = {
@@ -394,7 +402,7 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
       type: "newActivityForFeed",
     } as const;
 
-    void createSubscription({data: newSubscription});
+    void createSubscription({ variables: { data: newSubscription } });
     captureEvent("subscribedToUserFeedActivity", {subscribedUserId: user._id, state: newSubscription.state})
     
     const username = userGetDisplayName(user)

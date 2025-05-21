@@ -1,5 +1,4 @@
 import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/helpers";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
@@ -13,6 +12,18 @@ import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const MultiDocumentContentDisplayMutation = gql(`
+  mutation createMultiDocumentSummaryForm($data: CreateMultiDocumentDataInput!) {
+    createMultiDocument(data: $data) {
+      data {
+        ...MultiDocumentContentDisplay
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
   defaultFormSection: {
@@ -36,20 +47,26 @@ const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
   },
 }));
 
+type SummaryFormProps = ({
+  initialData: UpdateMultiDocumentDataInput & { _id: string; userId: string; createdAt: Date; collectionName: MultiDocumentCollectionName; fieldName: CreateMultiDocumentDataInput['fieldName']; parentDocumentId: CreateMultiDocumentDataInput['parentDocumentId'] };
+  prefilledProps?: undefined;
+} | {
+  initialData?: undefined;
+  prefilledProps: {
+    parentDocumentId: string;
+    collectionName: 'MultiDocuments' | 'Tags';
+  };
+}) & {
+  onSuccess: (doc: MultiDocumentContentDisplay) => void;
+  onCancel: () => void;
+};
+
 export const SummaryForm = ({
   initialData,
   prefilledProps,
   onSuccess,
   onCancel,
-}: {
-  initialData?: UpdateMultiDocumentDataInput & { _id: string; userId: string; createdAt: Date };
-  prefilledProps?: {
-    parentDocumentId: string;
-    collectionName: 'MultiDocuments' | 'Tags';
-  };
-  onSuccess: (doc: MultiDocumentContentDisplay) => void;
-  onCancel: () => void;
-}) => {
+}: SummaryFormProps) => {
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 
@@ -62,10 +79,7 @@ export const SummaryForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<MultiDocumentContentDisplay>();
 
-  const { create } = useCreate({
-    collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentContentDisplay',
-  });
+  const [create] = useMutation(MultiDocumentContentDisplayMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'MultiDocuments',
@@ -74,11 +88,22 @@ export const SummaryForm = ({
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    ...(formType === 'new' ? prefilledProps : {}),
+  };
+
+  const defaultValuesWithRequiredFields = {
+    ...defaultValues,
+    collectionName: defaultValues.collectionName ?? 'Tags',
+    fieldName: defaultValues.fieldName ?? 'summary',
+    parentDocumentId: defaultValues.parentDocumentId ?? '',
+    tabTitle: defaultValues.tabTitle ?? '',
+  };
+    
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-      ...(formType === 'new' ? { ...prefilledProps, fieldName: 'summary' as const } : {}),
-    },
+    defaultValues: defaultValuesWithRequiredFields,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -86,8 +111,11 @@ export const SummaryForm = ({
         let result: MultiDocumentContentDisplay;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createMultiDocument.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createMultiDocument?.data) {
+            throw new Error('Failed to create multi document');
+          }
+          result = data.createMultiDocument.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({

@@ -17,7 +17,6 @@ import { getTagStructuredData } from '../TagPageRouter';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
-import { useCreate } from '@/lib/crud/withCreate';
 import Loading from "../../vulcan-core/Loading";
 import Error404 from "../../common/Error404";
 import PermanentRedirect from "../../common/PermanentRedirect";
@@ -30,6 +29,18 @@ import TagTableOfContents from "../TagTableOfContents";
 import SidebarSubtagsBox from "./SidebarSubtagsBox";
 import SubforumWikiTab from "./SubforumWikiTab";
 import SubforumSubforumTab from "./SubforumSubforumTab";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserTagRelDetailsMutation = gql(`
+  mutation createUserTagRelTagSubforumPage2($data: CreateUserTagRelDataInput!) {
+    createUserTagRel(data: $data) {
+      data {
+        ...UserTagRelDetails
+      }
+    }
+  }
+`);
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {
@@ -192,10 +203,7 @@ const TagSubforumPage2 = ({classes}: {
     skip: skipUserTagRel
   });
 
-  const { create: createUserTagRel, data: createdUserTagRelData, called: createUserTagRelCalled } = useCreate({
-    collectionName: "UserTagRels",
-    fragmentName: "UserTagRelDetails",
-  })
+  const [createUserTagRel, { data: createdUserTagRelData, called: createUserTagRelCalled }] = useMutation(UserTagRelDetailsMutation);
 
   useEffect(() => {
     // Create a new UserTagRel if none exists.  This is replacing the previous behavior of
@@ -204,12 +212,12 @@ const TagSubforumPage2 = ({classes}: {
     // I don't think subforums are even a thing right now; if the EA forum wants me to do that I can.
     if (userTagRelResults?.length === 0 && !userTagRelLoading && !skipUserTagRel && !createUserTagRelCalled) {
       void createUserTagRel({
-        data: { tagId: tag._id, userId: currentUser._id },
+        variables: { data: { tagId: tag._id, userId: currentUser._id } },
       });
     }
   }, [userTagRelResults, userTagRelLoading, createUserTagRel, createUserTagRelCalled, tag, currentUser, skipUserTagRel]);
 
-  const userTagRel = createdUserTagRelData ?? userTagRelResults?.[0];
+  const userTagRel = createdUserTagRelData?.createUserTagRel?.data ?? userTagRelResults?.[0];
 
   // "feed" -> "card" for backwards compatibility, TODO remove after a month or so
   if (query.layout === "feed") {

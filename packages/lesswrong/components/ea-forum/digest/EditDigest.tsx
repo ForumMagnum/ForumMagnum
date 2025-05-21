@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
-import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
 import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
@@ -22,6 +21,16 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
+
+const DigestPostsMinimumInfoMutation = gql(`
+  mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {
+    createDigestPost(data: $data) {
+      data {
+        ...DigestPostsMinimumInfo
+      }
+    }
+  }
+`);
 
 
 const styles = (theme: ThemeType) => ({
@@ -247,10 +256,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }, [eligiblePosts])
   
   // the digest status of each post is saved on a DigestPost record
-  const { create: createDigestPost } = useCreate({
-    collectionName: 'DigestPosts',
-    fragmentName: 'DigestPostsMinimumInfo',
-  })
+  const [createDigestPost] = useMutation(DigestPostsMinimumInfoMutation);
   const { mutate: updateDigestPost } = useUpdate({
     collectionName: 'DigestPosts',
     fragmentName: 'DigestPostsMinimumInfo',
@@ -336,13 +342,15 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     } else if (digest) {
       // this should only happen when setting a status to "yes"
       const response = await createDigestPost({
-        data: {
-          postId,
-          digestId: digest._id,
-          [statusField]: newStatus
+        variables: {
+          data: {
+            postId,
+            digestId: digest._id,
+            [statusField]: newStatus
+          }
         }
       })
-      newPostStatuses[postId]._id = response.data?.createDigestPost.data._id
+      newPostStatuses[postId]._id = response.data?.createDigestPost?.data?._id
     }
     
     // update the page state

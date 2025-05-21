@@ -12,7 +12,6 @@ import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
-import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import MetaInfo from "../common/MetaInfo";
@@ -27,6 +26,18 @@ import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModeratorActionsDefaultFragmentMutation = gql(`
+  mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {
+    createModeratorAction(data: $data) {
+      data {
+        ...ModeratorActionsDefaultFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -72,10 +83,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     fragmentName: 'PostsList',
   });
 
-  const { create: createModeratorAction } = useCreate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionsDefaultFragment'
-  });
+  const [createModeratorAction] = useMutation(ModeratorActionsDefaultFragmentMutation);
   
   const handlePersonal = () => {
     void updatePost({
@@ -118,9 +126,11 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     if (isUserAlreadyFlagged) return;
 
     await createModeratorAction({
-      data: {
-        type: MANUAL_FLAG_ALERT,
-        userId: post.userId,
+      variables: {
+        data: {
+          type: MANUAL_FLAG_ALERT,
+          userId: post.userId,
+        }
       }
     });
     

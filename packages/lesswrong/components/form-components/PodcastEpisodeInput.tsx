@@ -2,7 +2,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -10,6 +9,18 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PodcastEpisodesDefaultFragmentMutation = gql(`
+  mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {
+    createPodcastEpisode(data: $data) {
+      data {
+        ...PodcastEpisodesDefaultFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({
   podcastEpisodeName: {
@@ -52,12 +63,9 @@ export const PodcastEpisodeInput = ({ field, document }: {
     terms,
   });
 
-  const { create: createEpisodeMutation, data: createdEpisode } = useCreate({
-    collectionName: 'PodcastEpisodes',
-    fragmentName: 'PodcastEpisodesDefaultFragment'
-  });
+  const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodesDefaultFragmentMutation);
 
-  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value ?? undefined);
+  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?.createPodcastEpisode?.data?._id ?? value ?? undefined);
 
   const syncPodcastEpisodeId = useCallback((id: string) => {
     setPodcastEpisodeId(id);
@@ -127,7 +135,7 @@ export const PodcastEpisodeInput = ({ field, document }: {
       title: episodeTitle
     };
 
-    await createEpisodeMutation({ data: episodeData });
+    await createEpisodeMutation({ variables: { data: episodeData } });
   }, [podcastId, externalEpisodeId, episodeLink, episodeTitle, createEpisodeMutation]);
 
   useEffect(() => {

@@ -2,7 +2,6 @@ import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
@@ -47,6 +46,18 @@ import Error404 from "../common/Error404";
 import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsEditMutationFragmentMutation = gql(`
+  mutation createPostPostForm($data: CreatePostDataInput!) {
+    createPost(data: $data) {
+      data {
+        ...PostsEditMutationFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -148,10 +159,7 @@ const PostForm = ({
     addOnSuccessCallback: addOnSuccessCallbackModerationGuidelines
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Posts',
-    fragmentName: 'PostsEditMutationFragment',
-  });
+  const [create] = useMutation(PostsEditMutationFragmentMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'Posts',
@@ -163,6 +171,7 @@ const PostForm = ({
   const form = useForm({
     defaultValues: {
       ...initialData,
+      title: initialData?.title ?? "Untitled Draft",
     },
     onSubmitMeta: ON_SUBMIT_META,
     onSubmit: async ({ formApi, meta }) => {
@@ -176,8 +185,11 @@ const PostForm = ({
         let result: PostsEditMutationFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createPost.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createPost?.data) {
+            throw new Error('Failed to create post');
+          }
+          result = data.createPost.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
           const { data } = await mutate({

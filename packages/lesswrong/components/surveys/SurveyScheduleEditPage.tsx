@@ -4,7 +4,6 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -22,9 +21,19 @@ import LWTooltip from "../common/LWTooltip";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from "@/lib/utils/dateUtils";
+
+const SurveyScheduleEditMutation = gql(`
+  mutation createSurveyScheduleSurveyScheduleEditPage($data: CreateSurveyScheduleDataInput!) {
+    createSurveySchedule(data: $data) {
+      data {
+        ...SurveyScheduleEdit
+      }
+    }
+  }
+`);
 
 const SurveyScheduleEditQuery = gql(`
   query SurveyScheduleEditPage($documentId: String) {
@@ -62,10 +71,7 @@ const SurveySchedulesForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const { create } = useCreate({
-    collectionName: 'SurveySchedules',
-    fragmentName: 'SurveyScheduleEdit',
-  });
+  const [create] = useMutation(SurveyScheduleEditMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'SurveySchedules',
@@ -75,7 +81,10 @@ const SurveySchedulesForm = ({
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const defaultValues = {
-    ...(initialData ?? { target: 'allUsers', startDate: null, endDate: null, deactivated: null } as const),
+    ...(initialData
+        ? { ...initialData, name: initialData.name ?? '', surveyId: initialData.surveyId ?? '', target: initialData.target ?? 'allUsers' }
+        : { target: 'allUsers', surveyId: '', name: '', startDate: null, endDate: null, deactivated: null } as const
+    )
   };
 
   const form = useForm({
@@ -85,8 +94,11 @@ const SurveySchedulesForm = ({
         let result: SurveyScheduleEdit;
 
         if (formType === 'new') {
-          const { data } = await create({ data: value });
-          result = data?.createSurveySchedule.data;
+          const { data } = await create({ variables: { data: value } });
+          if (!data?.createSurveySchedule?.data) {
+            throw new Error('Failed to create survey schedule');
+          }
+          result = data.createSurveySchedule.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({

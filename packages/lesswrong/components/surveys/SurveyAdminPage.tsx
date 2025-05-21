@@ -1,7 +1,6 @@
 import React, { FormEvent, useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useMulti } from "@/lib/crud/withMulti";
 import { Link } from "@/lib/reactRouterWrapper";
 import Error404 from "../common/Error404";
@@ -13,6 +12,18 @@ import FormatDate from "../common/FormatDate";
 import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import LoadMore from "../common/LoadMore";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SurveyMinimumInfoMutation = gql(`
+  mutation createSurveySurveyAdminPage($data: CreateSurveyDataInput!) {
+    createSurvey(data: $data) {
+      data {
+        ...SurveyMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,14 +75,7 @@ const SurveysEditor = ({classes}: {
     },
   });
 
-  const {
-    create: createSurvey,
-    loading: loadingCreateSurvey,
-    error: createSurveyError,
-  } = useCreate({
-    collectionName: "Surveys",
-    fragmentName: "SurveyMinimumInfo",
-  });
+  const [createSurvey, { loading: loadingCreateSurvey, error: createSurveyError }] = useMutation(SurveyMinimumInfoMutation);
 
   const {
     results: surveySchedules,
@@ -95,8 +99,10 @@ const SurveysEditor = ({classes}: {
 
   const onCreateSurvey = useCallback(async () => {
     await createSurvey({
-      data: {
-        name: newSurveyName,
+      variables: {
+        data: {
+          name: newSurveyName,
+        }
       },
     });
     await refetchSurveys();

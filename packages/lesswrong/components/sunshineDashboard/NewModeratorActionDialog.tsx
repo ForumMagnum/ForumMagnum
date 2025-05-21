@@ -1,5 +1,4 @@
 import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from "@/lib/collections/moderatorActions/constants";
-import { useCreate } from '@/lib/crud/withCreate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { useForm } from '@tanstack/react-form';
@@ -13,6 +12,18 @@ import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-fo
 import { FormUserSelect } from '@/components/form-components/UserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModeratorActionDisplayMutation = gql(`
+  mutation createModeratorActionNewModeratorActionDialog($data: CreateModeratorActionDataInput!) {
+    createModeratorAction(data: $data) {
+      data {
+        ...ModeratorActionDisplay
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -33,10 +44,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
 }) => {
   const classes = useStyles(styles);
 
-  const { create, error } = useCreate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionDisplay',
-  });
+  const [create, { error }] = useMutation(ModeratorActionDisplayMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -52,8 +60,11 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
       let result: ModeratorActionDisplay;
 
       try {
-        const { data } = await create({ data: value });
-        result = data?.createModeratorAction.data;
+        const { data } = await create({ variables: { data: value } });
+        if (!data?.createModeratorAction?.data) {
+          throw new Error('Failed to create moderator action');
+        }
+        result = data.createModeratorAction.data;
         onClose();
       } catch (error) {
         setCaughtError(error);

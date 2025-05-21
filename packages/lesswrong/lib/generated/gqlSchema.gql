@@ -3775,8 +3775,8 @@ type MultiDocument {
   parentDocumentId: String!
   parentTag: Tag
   parentLens: MultiDocument
-  collectionName: String!
-  fieldName: String!
+  collectionName: MultiDocumentCollectionName!
+  fieldName: MultiDocumentFieldName!
   index: Float!
   tableOfContents(version: String): JSON
   contributors(limit: Int, version: String): TagContributorsList
@@ -3795,6 +3795,16 @@ type MultiDocument {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+}
+
+enum MultiDocumentCollectionName {
+  Tags
+  MultiDocuments
+}
+
+enum MultiDocumentFieldName {
+  description
+  summary
 }
 
 input SingleMultiDocumentInput {
@@ -8223,15 +8233,15 @@ input CreateForumEventDataInput {
   title: String!
   startDate: Date!
   endDate: Date
-  darkColor: String!
-  lightColor: String!
-  bannerTextColor: String!
+  darkColor: String
+  lightColor: String
+  bannerTextColor: String
   contrastColor: String
   tagId: String
   postId: String
   bannerImageId: String
   includesPoll: Boolean
-  isGlobal: Boolean!
+  isGlobal: Boolean
   eventFormat: ForumEventFormat
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
@@ -8539,8 +8549,8 @@ input CreateMultiDocumentDataInput {
   tabSubtitle: String
   userId: String
   parentDocumentId: String!
-  collectionName: String!
-  fieldName: String!
+  collectionName: MultiDocumentCollectionName!
+  fieldName: MultiDocumentFieldName!
 }
 
 input CreateMultiDocumentInput {
@@ -9086,7 +9096,7 @@ input CreateSpotlightDataInput {
   headerTitleRightColor: String
   lastPromotedAt: Date!
   spotlightSplashImageUrl: String
-  draft: Boolean!
+  draft: Boolean
   showAuthor: Boolean
   imageFade: Boolean
   imageFadeColor: String

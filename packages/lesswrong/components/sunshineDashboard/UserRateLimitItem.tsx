@@ -1,7 +1,6 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
@@ -22,6 +21,28 @@ import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserRateLimitsDefaultFragmentMutation = gql(`
+  mutation createUserRateLimitUserRateLimitItem1($data: CreateUserRateLimitDataInput!) {
+    createUserRateLimit(data: $data) {
+      data {
+        ...UserRateLimitsDefaultFragment
+      }
+    }
+  }
+`);
+
+const UserRateLimitDisplayMutation = gql(`
+  mutation createUserRateLimitUserRateLimitItem($data: CreateUserRateLimitDataInput!) {
+    createUserRateLimit(data: $data) {
+      data {
+        ...UserRateLimitDisplay
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -162,7 +183,10 @@ const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-type EditableUserRateLimit = Required<Omit<UpdateUserRateLimitDataInput, 'legacyData'>> & { _id: string; intervalUnit: DbUserRateLimit['intervalUnit']; type: DbUserRateLimit['type'] };
+
+type EditableUserRateLimit = Required<Omit<{
+  [k in keyof UpdateUserRateLimitDataInput]-?: NonNullable<UpdateUserRateLimitDataInput[k]>
+}, 'legacyData'>> & { _id: string; };
 
 type EditableUserRateLimitFormData = {
   onSuccess: (doc: UserRateLimitDisplay) => void;
@@ -187,10 +211,7 @@ export const UserRateLimitsForm = ({
   const classes = useStyles(formStyles);
   const formType = initialData ? 'edit' : 'new';
 
-  const { create } = useCreate({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay',
-  });
+  const [create] = useMutation(UserRateLimitDisplayMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'UserRateLimits',
@@ -208,8 +229,11 @@ export const UserRateLimitsForm = ({
         let result: UserRateLimitDisplay;
 
         if (formType === 'new') {
-          const { data } = await create({ data: value });
-          result = data?.createUserRateLimit.data;
+          const { data } = await create({ variables: { data: value } });
+          if (!data?.createUserRateLimit?.data) {
+            throw new Error('Failed to create user rate limit');
+          }
+          result = data.createUserRateLimit.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({
@@ -340,10 +364,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
     terms: { view: 'userRateLimits', userIds: [userId], active: true }
   });
 
-  const { create } = useCreate({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitsDefaultFragment',
-  });
+  const [create] = useMutation(UserRateLimitsDefaultFragmentMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'UserRateLimits',
@@ -356,7 +377,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
     } else {
       const newRateLimit = DEFAULT_RATE_LIMITS[rateLimitName](userId);
       await create({
-        data: newRateLimit
+        variables: { data: newRateLimit }
       });
       await refetch();
     }

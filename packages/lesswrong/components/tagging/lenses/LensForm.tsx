@@ -8,7 +8,6 @@ import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/helpers";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -19,6 +18,18 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import Error404 from "../../common/Error404";
 import SummariesEditForm from "../SummariesEditForm";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const MultiDocumentEditMutation = gql(`
+  mutation createMultiDocumentLensForm($data: CreateMultiDocumentDataInput!) {
+    createMultiDocument(data: $data) {
+      data {
+        ...MultiDocumentEdit
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('MultiDocumentsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -54,10 +65,7 @@ export const LensForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<MultiDocumentEdit>();
 
-  const { create } = useCreate({
-    collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentEdit',
-  });
+  const [create] = useMutation(MultiDocumentEditMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'MultiDocuments',
@@ -66,14 +74,21 @@ export const LensForm = ({
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    ...(formType === 'new' ? { parentDocumentId, collectionName: 'Tags' as const, fieldName: 'description' as const } : {}),
+  };
+
+  const defaultValuesWithRequiredFields = {
+    ...defaultValues,
+    collectionName: defaultValues.collectionName ?? 'Tags',
+    fieldName: defaultValues.fieldName ?? 'description',
+    parentDocumentId: defaultValues.parentDocumentId ?? '',
+    tabTitle: defaultValues.tabTitle ?? '',
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-      ...(formType === 'new'
-          ? { parentDocumentId, collectionName: 'Tags' as const, fieldName: 'description' as const }
-          : {}
-        ),
-    },
+    defaultValues: defaultValuesWithRequiredFields,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -81,8 +96,11 @@ export const LensForm = ({
         let result: MultiDocumentEdit;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createMultiDocument.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createMultiDocument?.data) {
+            throw new Error('Failed to create lens');
+          }
+          result = data.createMultiDocument.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({

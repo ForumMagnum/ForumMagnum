@@ -6,9 +6,8 @@ import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { useCreate } from '@/lib/crud/withCreate';
 import { hasAuthorModeration } from '@/lib/betas';
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
@@ -17,6 +16,16 @@ import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
+
+const PostsEditMutation = gql(`
+  mutation createPostPostsNewForm($data: CreatePostDataInput!) {
+    createPost(data: $data) {
+      data {
+        ...PostsEdit
+      }
+    }
+  }
+`);
 
 const UsersEditQuery = gql(`
   query PostsNewForm4($documentId: String) {
@@ -252,10 +261,7 @@ const PostsNewForm = () => {
     }
   }
 
-  const createPost = useCreate({
-    collectionName: "Posts",
-    fragmentName: "PostsEdit",
-  });
+  const [createPost] = useMutation(PostsEditMutation);
 
   const attemptedToCreatePostRef = useRef(false);
   useEffect(() => {
@@ -271,16 +277,21 @@ const PostsNewForm = () => {
           : {};
 
         try {
-          const { data } = await createPost.create({
-            data: {
-              title: "Untitled Draft",
-              draft: true,
-              ...sanitizedPrefilledProps,
-              ...moderationGuidelinesField,
+          const { data } = await createPost({
+            variables: {
+              data: {
+                title: "Untitled Draft",
+                draft: true,
+                ...sanitizedPrefilledProps,
+                ...moderationGuidelinesField,
+              }
             },
           });
-          if (data) {
-            navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+
+          const createdPost = data?.createPost?.data;
+
+          if (createdPost) {
+            navigate(postGetEditUrl(createdPost._id, false, createdPost.linkSharingKey ?? undefined), {replace: true});
           }
         } catch(e) {
           setError(e.message);

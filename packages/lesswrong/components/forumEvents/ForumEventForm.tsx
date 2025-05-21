@@ -3,7 +3,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
@@ -22,9 +21,19 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from "@/lib/utils/dateUtils";
+
+const ForumEventsEditMutation = gql(`
+  mutation createForumEventForumEventForm($data: CreateForumEventDataInput!) {
+    createForumEvent(data: $data) {
+      data {
+        ...ForumEventsEdit
+      }
+    }
+  }
+`);
 
 const ForumEventsEditQuery = gql(`
   query ForumEventForm($documentId: String) {
@@ -52,7 +61,7 @@ const InnerForumEventForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: UpdateForumEventDataInput & { _id: string; eventFormat?: DbForumEvent['eventFormat']; customComponent?: DbForumEvent['customComponent'] };
+  initialData?: UpdateForumEventDataInput & { _id: string; eventFormat?: DbForumEvent['eventFormat']; customComponent?: DbForumEvent['customComponent']; };
   onSuccess: (doc: ForumEventsEdit) => void;
 }) => {
   const classes = useStyles(styles);
@@ -65,10 +74,7 @@ const InnerForumEventForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<ForumEventsEdit>();
 
-  const { create } = useCreate({
-    collectionName: 'ForumEvents',
-    fragmentName: 'ForumEventsEdit',
-  });
+  const [create] = useMutation(ForumEventsEditMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'ForumEvents',
@@ -78,6 +84,9 @@ const InnerForumEventForm = ({
   const form = useForm({
     defaultValues: {
       ...initialData,
+      customComponent: 'GivingSeason2024Banner' as const,
+      startDate: initialData?.startDate ?? new Date(),
+      title: initialData?.title ?? '',
     },
     onSubmit: async ({ value, formApi }) => {
       await onSubmitCallback.current?.();
@@ -85,8 +94,11 @@ const InnerForumEventForm = ({
       let result: ForumEventsEdit;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
-        result = data?.createForumEvent.data;
+        const { data } = await create({ variables: { data: value } });
+        if (!data?.createForumEvent?.data) {
+          throw new Error('Failed to create forum event');
+        }
+        result = data.createForumEvent.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['frontpageDescription', 'frontpageDescriptionMobile', 'pollQuestion', 'postPageDescription']);
         const { data } = await mutate({

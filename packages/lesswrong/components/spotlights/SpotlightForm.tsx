@@ -1,4 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
@@ -18,6 +17,18 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SpotlightEditQueryFragmentMutation = gql(`
+  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {
+    createSpotlight(data: $data) {
+      data {
+        ...SpotlightEditQueryFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
   defaultFormSection: {
@@ -53,10 +64,7 @@ export const SpotlightForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<SpotlightEditQueryFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightEditQueryFragment',
-  });
+  const [create] = useMutation(SpotlightEditQueryFragmentMutation);
 
   const { mutate } = useUpdate({
     collectionName: 'Spotlights',
@@ -69,11 +77,21 @@ export const SpotlightForm = ({
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    ...newFormDefaults,
+  };
+
+  const defaultValuesWithRequiredFields = {
+    ...defaultValues,
+    documentId: defaultValues.documentId ?? '',
+    documentType: defaultValues.documentType ?? 'Post',
+    duration: defaultValues.duration ?? 3,
+    lastPromotedAt: defaultValues.lastPromotedAt ?? new Date(0),
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-      ...newFormDefaults,
-    },
+    defaultValues: defaultValuesWithRequiredFields,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -81,8 +99,11 @@ export const SpotlightForm = ({
         let result: SpotlightEditQueryFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createSpotlight.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createSpotlight?.data) {
+            throw new Error('Failed to create spotlight');
+          }
+          result = data.createSpotlight.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['description']);
           const { data } = await mutate({

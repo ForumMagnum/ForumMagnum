@@ -4,11 +4,10 @@ import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
@@ -17,6 +16,16 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
+
+const UserJobAdsMinimumInfoMutation = gql(`
+  mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {
+    createUserJobAd(data: $data) {
+      data {
+        ...UserJobAdsMinimumInfo
+      }
+    }
+  }
+`);
 
 type UserCoreTagReads = {
   tagId: string,
@@ -35,10 +44,7 @@ const TargetedJobAdSection = () => {
   const { flash } = useMessages()
   const recordCreated = useRef<boolean>(false)
 
-  const { create: createUserJobAd } = useCreate({
-    collectionName: 'UserJobAds',
-    fragmentName: 'UserJobAdsMinimumInfo',
-  })
+  const [createUserJobAd] = useMutation(UserJobAdsMinimumInfoMutation);
   const { mutate: updateUserJobAd } = useUpdate({
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
@@ -196,10 +202,12 @@ const TargetedJobAdSection = () => {
     // make sure to only create up to one record per view
     recordCreated.current = true
     void createUserJobAd({
-      data: {
-        userId: currentUser._id,
-        jobName: activeJob,
-        adState: 'seen'
+      variables: {
+        data: {
+          userId: currentUser._id,
+          jobName: activeJob,
+          adState: 'seen'
+        }
       }
     }).finally(refetchUserJobAds)
   }, [currentUser, userJobAds, userJobAdsLoading, refetchUserJobAds, activeJob, entry, createUserJobAd])

@@ -4,7 +4,6 @@ import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { captureException } from "@sentry/core";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
-import { useCreate } from "@/lib/crud/withCreate";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { CLIENT_ID_COOKIE, HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
@@ -15,7 +14,6 @@ import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
 } from "@/lib/collections/surveyQuestions/constants";
-import { SurveyResponseMinimumInfo } from "@/lib/collections/surveyResponses/fragments";
 import EAButton from "../ea-forum/EAButton";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import LWTooltip from "../common/LWTooltip";
@@ -25,6 +23,19 @@ import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import PopperCard from "../common/PopperCard";
 import Loading from "../vulcan-core/Loading";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SurveyResponsesMinimumInfoMutation = gql(`
+  mutation createSurveyResponseSurveyPostsItem($data: CreateSurveyResponseDataInput!) {
+    createSurveyResponse(data: $data) {
+      data {
+        ...SurveyResponseMinimumInfo
+      }
+    }
+  }
+`);
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -157,7 +168,7 @@ const SurveyPostsItemInternal = ({
   classes,
 }: {
   survey: SurveyMinimumInfo,
-  surveyScheduleId?: string,
+  surveyScheduleId: string,
   refetchSurvey?: () => Promise<void>,
   collapse: () => void,
   classes: ClassesType<typeof styles>,
@@ -189,21 +200,24 @@ const SurveyPostsItemInternal = ({
     });
   }, [captureEvent, survey._id]);
 
-  const {create: createResponse} = useCreate({
-    collectionName: "SurveyResponses",
-    fragment: SurveyResponseMinimumInfo,
-  });
+  const [createResponse] = useMutation(SurveyResponsesMinimumInfoMutation);
 
   const onSubmit = useCallback(async (response: Record<string, QuestionResponse>) => {
+    if (!currentUser?._id) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await createResponse({
-        data: {
-          surveyId: survey._id,
-          surveyScheduleId,
-          userId: currentUser?._id,
-          clientId,
-          response,
+        variables: {
+          data: {
+            surveyId: survey._id,
+            surveyScheduleId,
+            userId: currentUser?._id,
+            clientId,
+            response,
+          },
         },
       });
       captureEvent("surveySubmit", {
@@ -371,7 +385,7 @@ const SurveyPostsItemInternal = ({
 
 const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   survey: SurveyMinimumInfo,
-  surveyScheduleId?: string,
+  surveyScheduleId: string,
   refetchSurvey?: () => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {

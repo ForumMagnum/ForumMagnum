@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { gql, useQuery } from '@apollo/client';
+import { gql as graphql, useQuery, useMutation } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
-import { useCreate } from '@/lib/crud/withCreate';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PetrovDayActionInfoMutation = gql(`
+  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {
+    createPetrovDayAction(data: $data) {
+      data {
+        ...PetrovDayActionInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +72,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const reportWindow = inWarningWindow(currentMinute)
   const minutesRemaining = Math.abs(currentMinute - STARTING_MINUTE)
 
-  const { data, refetch: refetchCount } = useQuery(gql`
+  const { data, refetch: refetchCount } = useQuery(graphql`
     query petrovDay2024Resolvers {
       PetrovDay2024CheckNumberOfIncoming {
         count
@@ -77,18 +87,17 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
 
   const count = data?.PetrovDay2024CheckNumberOfIncoming?.count?.toLocaleString()
 
-  const { create: createPetrovDayAction, loading: createPetrovDayActionLoading } = useCreate({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo'
-  })
+  const [createPetrovDayAction, { loading: createPetrovDayActionLoading }] = useMutation(PetrovDayActionInfoMutation);
 
   const handleReport = async (incoming: boolean) => {
     if (!canSendNewReport || !reportWindow) return
     const reportActionType = incoming ? (side === 'east' ? 'eastPetrovNukesIncoming' : 'westPetrovNukesIncoming') : (side === 'east' ? 'eastPetrovAllClear' : 'westPetrovAllClear')
     await createPetrovDayAction({  
-      data: {
-        userId: currentUser._id,
-        actionType: reportActionType,
+      variables: {
+        data: {
+          userId: currentUser._id,
+          actionType: reportActionType,
+        }
       }
     }) 
     refetchPetrovDayActions()

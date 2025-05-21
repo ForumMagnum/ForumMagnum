@@ -1,5 +1,4 @@
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { Link } from '@/lib/reactRouterWrapper';
 import { isFriendlyUI } from '@/themes/forumTheme';
@@ -11,6 +10,18 @@ import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
 import ContentItemBody from "../common/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMutation = gql(`
+  mutation createCommentCurationNoticesItem($data: CreateCommentDataInput!) {
+    createComment(data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -97,10 +108,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   const [edit, setEdit] = useState<boolean>(false)
   const [clickedPushing, setClickedPushing] = useState<boolean>(false)
 
-  const { create } = useCreate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList'
-  });
+  const [create] = useMutation(CommentsListMutation);
 
   const { mutate: updateCurrentCurationNotice } = useUpdate({
     collectionName: "CurationNotices",
@@ -130,8 +138,8 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     };
 
     try {
-      const result = await create({ data: comment });
-      const commentId = result.data?.createComment.data._id;
+      const result = await create({ variables: { data: comment } });
+      const commentId = result.data?.createComment?.data?._id;
       await updateCurrentCurationNotice({
         selector: { _id: curationNotice._id },
         data: { commentId: commentId }
@@ -151,7 +159,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
 
   if (curationNotice.post === null || curationNotice.postId === null || !currentUser) return null;
 
-  const { _id, contents, commentId, deleted } = curationNotice;
+  const { _id, contents, commentId, deleted, userId } = curationNotice;
 
   return <div className={classes.root}>
     {edit ? 
@@ -159,7 +167,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
         <BasicFormStyles>
           {curationNotice.post.title}
           <CurationNoticesForm
-            initialData={{ _id, contents, commentId, deleted }}
+            initialData={{ _id, contents, commentId, deleted, userId }}
             currentUser={currentUser}
             postId={curationNotice.postId}
             onSuccess={() => setEdit(false)}

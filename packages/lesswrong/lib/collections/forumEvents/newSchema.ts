@@ -125,6 +125,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -139,6 +140,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -153,6 +155,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -262,6 +265,7 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"], // newCheck ensures this can only be false for user-created events

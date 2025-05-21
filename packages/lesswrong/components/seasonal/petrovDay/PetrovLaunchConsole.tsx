@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import type { PetrovDayActionType } from "@/lib/collections/petrovDayActions/constants";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PetrovDayActionInfoMutation = gql(`
+  mutation createPetrovDayActionPetrovLaunchConsole($data: CreatePetrovDayActionDataInput!) {
+    createPetrovDayAction(data: $data) {
+      data {
+        ...PetrovDayActionInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,18 +103,17 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   const launchActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
   const launchAction = petrovDayActions.find((action) => action.actionType === launchActionType) || launched
 
-  const { create: createPetrovDayAction } = useCreate({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo'
-  })
+  const [createPetrovDayAction] = useMutation(PetrovDayActionInfoMutation);
 
   const handleLaunch = () => {
     if (launchAction || launchCode !== "000000") return
     const attackActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
     void createPetrovDayAction({  
-      data: {
-        userId: currentUser._id,
-        actionType: attackActionType,
+      variables: {
+        data: {
+          userId: currentUser._id,
+          actionType: attackActionType,
+        }
       }
     }) 
     setLaunched(true)

@@ -1201,19 +1201,19 @@ type CreateElicitQuestionInput = {
 
 type CreateForumEventDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
-  bannerTextColor: Scalars['String']['input'];
+  bannerTextColor?: InputMaybe<Scalars['String']['input']>;
   commentPrompt?: InputMaybe<Scalars['String']['input']>;
   contrastColor?: InputMaybe<Scalars['String']['input']>;
   customComponent: ForumEventCustomComponent;
-  darkColor: Scalars['String']['input'];
+  darkColor?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['Date']['input']>;
   eventFormat?: InputMaybe<ForumEventFormat>;
   frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
   frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
   includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
-  isGlobal: Scalars['Boolean']['input'];
+  isGlobal?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  lightColor: Scalars['String']['input'];
+  lightColor?: InputMaybe<Scalars['String']['input']>;
   maxStickersPerUser?: InputMaybe<Scalars['Float']['input']>;
   pollAgreeWording?: InputMaybe<Scalars['String']['input']>;
   pollDisagreeWording?: InputMaybe<Scalars['String']['input']>;
@@ -1321,9 +1321,9 @@ type CreateModeratorActionInput = {
 };
 
 type CreateMultiDocumentDataInput = {
-  collectionName: Scalars['String']['input'];
+  collectionName: MultiDocumentCollectionName;
   contents?: InputMaybe<CreateRevisionDataInput>;
-  fieldName: Scalars['String']['input'];
+  fieldName: MultiDocumentFieldName;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   parentDocumentId: Scalars['String']['input'];
   slug?: InputMaybe<Scalars['String']['input']>;
@@ -1567,7 +1567,7 @@ type CreateSpotlightDataInput = {
   description?: InputMaybe<CreateRevisionDataInput>;
   documentId: Scalars['String']['input'];
   documentType: SpotlightDocumentType;
-  draft: Scalars['Boolean']['input'];
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
   duration: Scalars['Float']['input'];
   headerTitle?: InputMaybe<Scalars['String']['input']>;
   headerTitleLeftColor?: InputMaybe<Scalars['String']['input']>;
@@ -3345,7 +3345,7 @@ type MultiDocument = {
   afVoteCount?: Maybe<Scalars['Float']['output']>;
   arbitalLinkedPages?: Maybe<ArbitalLinkedPages>;
   baseScore: Scalars['Float']['output'];
-  collectionName: Scalars['String']['output'];
+  collectionName: MultiDocumentCollectionName;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   contributionStats?: Maybe<Scalars['JSON']['output']>;
@@ -3355,7 +3355,7 @@ type MultiDocument = {
   currentUserVote?: Maybe<Scalars['String']['output']>;
   deleted: Scalars['Boolean']['output'];
   extendedScore?: Maybe<Scalars['JSON']['output']>;
-  fieldName: Scalars['String']['output'];
+  fieldName: MultiDocumentFieldName;
   htmlWithContributorAnnotations?: Maybe<Scalars['String']['output']>;
   index: Scalars['Float']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
@@ -3395,9 +3395,17 @@ type MultiDocumenttableOfContentsArgs = {
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
+type MultiDocumentCollectionName =
+  | 'MultiDocuments'
+  | 'Tags';
+
 type MultiDocumentDefaultViewInput = {
   excludedDocumentIds?: InputMaybe<Scalars['String']['input']>;
 };
+
+type MultiDocumentFieldName =
+  | 'description'
+  | 'summary';
 
 type MultiDocumentOutput = {
   __typename?: 'MultiDocumentOutput';
@@ -12276,6 +12284,26 @@ type UpdateSearchSynonymsMutationVariables = Exact<{
 
 type UpdateSearchSynonymsMutation = { __typename?: 'Mutation', UpdateSearchSynonyms: Array<string> };
 
+type createCurationNoticeCurationNoticesFormMutationVariables = Exact<{
+  data: CreateCurationNoticeDataInput;
+}>;
+
+
+type createCurationNoticeCurationNoticesFormMutation = { __typename?: 'Mutation', createCurationNotice: { __typename?: 'CurationNoticeOutput', data: (
+      { __typename?: 'CurationNotice' }
+      & CurationNoticesFragment
+    ) | null } | null };
+
+type createCommentCurationNoticesItemMutationVariables = Exact<{
+  data: CreateCommentDataInput;
+}>;
+
+
+type createCommentCurationNoticesItemMutation = { __typename?: 'Mutation', createComment: { __typename?: 'CommentOutput', data: (
+      { __typename?: 'Comment' }
+      & CommentsList
+    ) | null } | null };
+
 type randomUserQueryVariables = Exact<{
   userIsAuthor: Scalars['String']['input'];
 }>;
@@ -12319,6 +12347,16 @@ type CommentByIdQueryVariables = Exact<{
 
 
 type CommentByIdQuery = { __typename?: 'Query', comment: { __typename?: 'SingleCommentOutput', result: (
+      { __typename?: 'Comment' }
+      & CommentsList
+    ) | null } | null };
+
+type createCommentCommentFormMutationVariables = Exact<{
+  data: CreateCommentDataInput;
+}>;
+
+
+type createCommentCommentFormMutation = { __typename?: 'Mutation', createComment: { __typename?: 'CommentOutput', data: (
       { __typename?: 'Comment' }
       & CommentsList
     ) | null } | null };
@@ -12575,12 +12613,32 @@ type EAHomeHandbookQuery = { __typename?: 'Query', sequence: { __typename?: 'Sin
       & SequencesPageFragment
     ) | null } | null };
 
+type createUserJobAdTargetedJobAdSectionMutationVariables = Exact<{
+  data: CreateUserJobAdDataInput;
+}>;
+
+
+type createUserJobAdTargetedJobAdSectionMutation = { __typename?: 'Mutation', createUserJobAd: { __typename?: 'UserJobAdOutput', data: (
+      { __typename?: 'UserJobAd' }
+      & UserJobAdsMinimumInfo
+    ) | null } | null };
+
 type getUserReadsPerCoreTagQueryVariables = Exact<{
   userId: Scalars['String']['input'];
 }>;
 
 
 type getUserReadsPerCoreTagQuery = { __typename?: 'Query', UserReadsPerCoreTag: Array<{ __typename?: 'UserCoreTagReads', tagId: string, userReadCount: number }> };
+
+type createDigestPostEditDigestMutationVariables = Exact<{
+  data: CreateDigestPostDataInput;
+}>;
+
+
+type createDigestPostEditDigestMutation = { __typename?: 'Mutation', createDigestPost: { __typename?: 'DigestPostOutput', data: (
+      { __typename?: 'DigestPost' }
+      & DigestPostsMinimumInfo
+    ) | null } | null };
 
 type getDigestPlannerDataQueryVariables = Exact<{
   digestId: InputMaybe<Scalars['String']['input']>;
@@ -12719,6 +12777,16 @@ type revertToRevisionMutation = { __typename?: 'Mutation', revertTagToRevision: 
     & TagPageFragment
   ) | null };
 
+type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
+  data: CreateElicitQuestionDataInput;
+}>;
+
+
+type createElicitQuestionCreateClaimDialogMutation = { __typename?: 'Mutation', createElicitQuestion: { __typename?: 'ElicitQuestionOutput', data: (
+      { __typename?: 'ElicitQuestion' }
+      & ElicitQuestionFragment
+    ) | null } | null };
+
 type ConvertDocumentQueryVariables = Exact<{
   document: InputMaybe<Scalars['JSON']['input']>;
   targetFormat: InputMaybe<Scalars['String']['input']>;
@@ -12750,6 +12818,16 @@ type ImageUploadQueryVariables = Exact<{
 type ImageUploadQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
       { __typename?: 'User' }
       & UsersMinimumInfo
+    ) | null } | null };
+
+type createPodcastEpisodePodcastEpisodeInputMutationVariables = Exact<{
+  data: CreatePodcastEpisodeDataInput;
+}>;
+
+
+type createPodcastEpisodePodcastEpisodeInputMutation = { __typename?: 'Mutation', createPodcastEpisode: { __typename?: 'PodcastEpisodeOutput', data: (
+      { __typename?: 'PodcastEpisode' }
+      & PodcastEpisodesDefaultFragment
     ) | null } | null };
 
 type SequencesListEditorItemQueryVariables = Exact<{
@@ -12790,6 +12868,16 @@ type TagSelectQueryVariables = Exact<{
 type TagSelectQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
       { __typename?: 'Tag' }
       & TagBasicInfo
+    ) | null } | null };
+
+type createForumEventForumEventFormMutationVariables = Exact<{
+  data: CreateForumEventDataInput;
+}>;
+
+
+type createForumEventForumEventFormMutation = { __typename?: 'Mutation', createForumEvent: { __typename?: 'ForumEventOutput', data: (
+      { __typename?: 'ForumEvent' }
+      & ForumEventsEdit
     ) | null } | null };
 
 type ForumEventFormQueryVariables = Exact<{
@@ -12940,6 +13028,16 @@ type markConversationReadMutationVariables = Exact<{
 
 type markConversationReadMutation = { __typename?: 'Mutation', markConversationRead: boolean };
 
+type createSubscriptionuseNotifyMeMutationVariables = Exact<{
+  data: CreateSubscriptionDataInput;
+}>;
+
+
+type createSubscriptionuseNotifyMeMutation = { __typename?: 'Mutation', createSubscription: { __typename?: 'SubscriptionOutput', data: (
+      { __typename?: 'Subscription' }
+      & SubscriptionState
+    ) | null } | null };
+
 type PostAnalyticsQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];
 }>;
@@ -12993,6 +13091,16 @@ type getNewJargonTermsMutation = { __typename?: 'Mutation', getNewJargonTerms: A
     { __typename?: 'JargonTerm' }
     & JargonTerms
   ) | null> | null };
+
+type createJargonTermJargonTermFormMutationVariables = Exact<{
+  data: CreateJargonTermDataInput;
+}>;
+
+
+type createJargonTermJargonTermFormMutation = { __typename?: 'Mutation', createJargonTerm: { __typename?: 'JargonTermOutput', data: (
+      { __typename?: 'JargonTerm' }
+      & JargonTerms
+    ) | null } | null };
 
 type getPostsWithApprovedJargonQueryVariables = Exact<{
   limit: Scalars['Int']['input'];
@@ -13072,6 +13180,16 @@ type ArbitalPageRequestQueryVariables = Exact<{ [key: string]: never; }>;
 
 type ArbitalPageRequestQuery = { __typename?: 'Query', ArbitalPageData: { __typename?: 'ArbitalPageData', title: string | null, html: string | null } | null };
 
+type createLocalgroupGroupFormDialogMutationVariables = Exact<{
+  data: CreateLocalgroupDataInput;
+}>;
+
+
+type createLocalgroupGroupFormDialogMutation = { __typename?: 'Mutation', createLocalgroup: { __typename?: 'LocalgroupOutput', data: (
+      { __typename?: 'Localgroup' }
+      & localGroupsHomeFragment
+    ) | null } | null };
+
 type GroupFormDialogQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13132,12 +13250,32 @@ type FriendlyInboxQuery = { __typename?: 'Query', conversation: { __typename?: '
       & ConversationsListWithReadStatus
     ) | null } | null };
 
+type createMessageMessagesNewFormMutationVariables = Exact<{
+  data: CreateMessageDataInput;
+}>;
+
+
+type createMessageMessagesNewFormMutation = { __typename?: 'Mutation', createMessage: { __typename?: 'MessageOutput', data: (
+      { __typename?: 'Message' }
+      & messageListFragment
+    ) | null } | null };
+
 type MessagesNewFormQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
 type MessagesNewFormQuery = { __typename?: 'Query', moderationTemplate: { __typename?: 'SingleModerationTemplateOutput', result: (
+      { __typename?: 'ModerationTemplate' }
+      & ModerationTemplateFragment
+    ) | null } | null };
+
+type createModerationTemplateModerationTemplateFormMutationVariables = Exact<{
+  data: CreateModerationTemplateDataInput;
+}>;
+
+
+type createModerationTemplateModerationTemplateFormMutation = { __typename?: 'Mutation', createModerationTemplate: { __typename?: 'ModerationTemplateOutput', data: (
       { __typename?: 'ModerationTemplate' }
       & ModerationTemplateFragment
     ) | null } | null };
@@ -13228,6 +13366,16 @@ type AddToCalendarButtonQuery = { __typename?: 'Query', post: { __typename?: 'Si
       & PostsPlaintextDescription
     ) | null } | null };
 
+type createCommentExternalPostImporterMutationVariables = Exact<{
+  data: CreateCommentDataInput;
+}>;
+
+
+type createCommentExternalPostImporterMutation = { __typename?: 'Mutation', createComment: { __typename?: 'CommentOutput', data: (
+      { __typename?: 'Comment' }
+      & CommentsList
+    ) | null } | null };
+
 type importUrlAsDraftPostMutationVariables = Exact<{
   url: Scalars['String']['input'];
 }>;
@@ -13270,6 +13418,36 @@ type ImportGoogleDocMutation = { __typename?: 'Mutation', ImportGoogleDoc: (
     { __typename?: 'Post' }
     & PostsBase
   ) | null };
+
+type createPostNewDialogueDialogMutationVariables = Exact<{
+  data: CreatePostDataInput;
+}>;
+
+
+type createPostNewDialogueDialogMutation = { __typename?: 'Mutation', createPost: { __typename?: 'PostOutput', data: (
+      { __typename?: 'Post' }
+      & PostsEdit
+    ) | null } | null };
+
+type createPostPostFormMutationVariables = Exact<{
+  data: CreatePostDataInput;
+}>;
+
+
+type createPostPostFormMutation = { __typename?: 'Mutation', createPost: { __typename?: 'PostOutput', data: (
+      { __typename?: 'Post' }
+      & PostsEditMutationFragment
+    ) | null } | null };
+
+type createUserMostValuablePostPostMostValuableCheckboxMutationVariables = Exact<{
+  data: CreateUserMostValuablePostDataInput;
+}>;
+
+
+type createUserMostValuablePostPostMostValuableCheckboxMutation = { __typename?: 'Mutation', createUserMostValuablePost: { __typename?: 'UserMostValuablePostOutput', data: (
+      { __typename?: 'UserMostValuablePost' }
+      & UserMostValuablePostInfo
+    ) | null } | null };
 
 type PostsCompareRevisionsQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13342,6 +13520,16 @@ type PostsItemWrapperQuery = { __typename?: 'Query', post: { __typename?: 'Singl
       & PostsList
     ) | null } | null };
 
+type createPostPostsNewFormMutationVariables = Exact<{
+  data: CreatePostDataInput;
+}>;
+
+
+type createPostPostsNewFormMutation = { __typename?: 'Mutation', createPost: { __typename?: 'PostOutput', data: (
+      { __typename?: 'Post' }
+      & PostsEdit
+    ) | null } | null };
+
 type PostsNewForm4QueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13391,6 +13579,26 @@ type PostsNewFormQueryVariables = Exact<{
 type PostsNewFormQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsPage
+    ) | null } | null };
+
+type createSplashArtCoordinateImageCropPreviewMutationVariables = Exact<{
+  data: CreateSplashArtCoordinateDataInput;
+}>;
+
+
+type createSplashArtCoordinateImageCropPreviewMutation = { __typename?: 'Mutation', createSplashArtCoordinate: { __typename?: 'SplashArtCoordinateOutput', data: (
+      { __typename?: 'SplashArtCoordinate' }
+      & SplashArtCoordinates
+    ) | null } | null };
+
+type createSplashArtCoordinatePostWithArtGridMutationVariables = Exact<{
+  data: CreateSplashArtCoordinateDataInput;
+}>;
+
+
+type createSplashArtCoordinatePostWithArtGridMutation = { __typename?: 'Mutation', createSplashArtCoordinate: { __typename?: 'SplashArtCoordinateOutput', data: (
+      { __typename?: 'SplashArtCoordinate' }
+      & SplashArtCoordinatesEdit
     ) | null } | null };
 
 type flipSplashArtImageMutationVariables = Exact<{
@@ -13533,6 +13741,16 @@ type PostsPreviewTooltipSingleQueryVariables = Exact<{
 type PostsPreviewTooltipSingleQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsList
+    ) | null } | null };
+
+type createCommentDialogueSubmitMutationVariables = Exact<{
+  data: CreateCommentDataInput;
+}>;
+
+
+type createCommentDialogueSubmitMutation = { __typename?: 'Mutation', createComment: { __typename?: 'CommentOutput', data: (
+      { __typename?: 'Comment' }
+      & CommentEdit
     ) | null } | null };
 
 type WelcomePostItemQueryVariables = Exact<{
@@ -13729,6 +13947,16 @@ type PostsRevisionSelectQuery = { __typename?: 'Query', post: { __typename?: 'Si
       & PostsDetails
     ) | null } | null };
 
+type createRSSFeedNewFeedButtonMutationVariables = Exact<{
+  data: CreateRSSFeedDataInput;
+}>;
+
+
+type createRSSFeedNewFeedButtonMutation = { __typename?: 'Mutation', createRSSFeed: { __typename?: 'RSSFeedOutput', data: (
+      { __typename?: 'RSSFeed' }
+      & newRSSFeedFragment
+    ) | null } | null };
+
 type HomepageCommunityMapQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13751,15 +13979,55 @@ type petrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDayLaunchResolversQuery = { __typename?: 'Query', PetrovDayCheckIfIncoming: { __typename?: 'PetrovDayCheckIfIncomingData', launched: boolean | null, createdAt: string | null } | null };
 
+type createPetrovDayActionOptIntoPetrovButtonMutationVariables = Exact<{
+  data: CreatePetrovDayActionDataInput;
+}>;
+
+
+type createPetrovDayActionOptIntoPetrovButtonMutation = { __typename?: 'Mutation', createPetrovDayAction: { __typename?: 'PetrovDayActionOutput', data: (
+      { __typename?: 'PetrovDayAction' }
+      & PetrovDayActionInfo
+    ) | null } | null };
+
 type petrov2024checkIfNukedQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type petrov2024checkIfNukedQuery = { __typename?: 'Query', petrov2024checkIfNuked: boolean | null };
 
+type createPetrovDayActionPetrovLaunchConsoleMutationVariables = Exact<{
+  data: CreatePetrovDayActionDataInput;
+}>;
+
+
+type createPetrovDayActionPetrovLaunchConsoleMutation = { __typename?: 'Mutation', createPetrovDayAction: { __typename?: 'PetrovDayActionOutput', data: (
+      { __typename?: 'PetrovDayAction' }
+      & PetrovDayActionInfo
+    ) | null } | null };
+
+type createPetrovDayActionPetrovWarningConsoleMutationVariables = Exact<{
+  data: CreatePetrovDayActionDataInput;
+}>;
+
+
+type createPetrovDayActionPetrovWarningConsoleMutation = { __typename?: 'Mutation', createPetrovDayAction: { __typename?: 'PetrovDayActionOutput', data: (
+      { __typename?: 'PetrovDayAction' }
+      & PetrovDayActionInfo
+    ) | null } | null };
+
 type petrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type petrovDay2024ResolversQuery = { __typename?: 'Query', PetrovDay2024CheckNumberOfIncoming: { __typename?: 'PetrovDay2024CheckNumberOfIncomingData', count: number | null } | null };
+
+type createBookBooksFormMutationVariables = Exact<{
+  data: CreateBookDataInput;
+}>;
+
+
+type createBookBooksFormMutation = { __typename?: 'Mutation', createBook: { __typename?: 'BookOutput', data: (
+      { __typename?: 'Book' }
+      & BookPageFragment
+    ) | null } | null };
 
 type BooksItemQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -13769,6 +14037,16 @@ type BooksItemQueryVariables = Exact<{
 type BooksItemQuery = { __typename?: 'Query', book: { __typename?: 'SingleBookOutput', result: (
       { __typename?: 'Book' }
       & BookEdit
+    ) | null } | null };
+
+type createChapterChaptersFormMutationVariables = Exact<{
+  data: CreateChapterDataInput;
+}>;
+
+
+type createChapterChaptersFormMutation = { __typename?: 'Mutation', createChapter: { __typename?: 'ChapterOutput', data: (
+      { __typename?: 'Chapter' }
+      & ChaptersEdit
     ) | null } | null };
 
 type ChaptersItemQueryVariables = Exact<{
@@ -13799,6 +14077,16 @@ type CollectionsEditQueryVariables = Exact<{
 type CollectionsEditQuery = { __typename?: 'Query', collection: { __typename?: 'SingleCollectionOutput', result: (
       { __typename?: 'Collection' }
       & CollectionsEditFragment
+    ) | null } | null };
+
+type createSequenceSequencesFormMutationVariables = Exact<{
+  data: CreateSequenceDataInput;
+}>;
+
+
+type createSequenceSequencesFormMutation = { __typename?: 'Mutation', createSequence: { __typename?: 'SequenceOutput', data: (
+      { __typename?: 'Sequence' }
+      & SequencesEdit
     ) | null } | null };
 
 type SequencesPageQueryVariables = Exact<{
@@ -13847,6 +14135,16 @@ type ProfileShortformQuery = { __typename?: 'Query', post: { __typename?: 'Singl
       & PostsListWithVotes
     ) | null } | null };
 
+type createSpotlightSpotlightFormMutationVariables = Exact<{
+  data: CreateSpotlightDataInput;
+}>;
+
+
+type createSpotlightSpotlightFormMutation = { __typename?: 'Mutation', createSpotlight: { __typename?: 'SpotlightOutput', data: (
+      { __typename?: 'Spotlight' }
+      & SpotlightEditQueryFragment
+    ) | null } | null };
+
 type SpotlightItemQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13855,6 +14153,16 @@ type SpotlightItemQueryVariables = Exact<{
 type SpotlightItemQuery = { __typename?: 'Query', spotlight: { __typename?: 'SingleSpotlightOutput', result: (
       { __typename?: 'Spotlight' }
       & SpotlightEditQueryFragment
+    ) | null } | null };
+
+type createSubscriptionSuggestedFeedSubscriptionsMutationVariables = Exact<{
+  data: CreateSubscriptionDataInput;
+}>;
+
+
+type createSubscriptionSuggestedFeedSubscriptionsMutation = { __typename?: 'Mutation', createSubscription: { __typename?: 'SubscriptionOutput', data: (
+      { __typename?: 'Subscription' }
+      & SubscriptionState
     ) | null } | null };
 
 type ModerationAltAccountsQueryVariables = Exact<{
@@ -13884,6 +14192,16 @@ type NewCommentModerationWarningQuery = { __typename?: 'Query', comment: { __typ
       & CommentsList
     ) | null } | null };
 
+type createModeratorActionNewModeratorActionDialogMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionNewModeratorActionDialogMutation = { __typename?: 'Mutation', createModeratorAction: { __typename?: 'ModeratorActionOutput', data: (
+      { __typename?: 'ModeratorAction' }
+      & ModeratorActionDisplay
+    ) | null } | null };
+
 type NewPostModerationWarningQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13894,6 +14212,26 @@ type NewPostModerationWarningQuery = { __typename?: 'Query', comment: { __typena
       & CommentsList
     ) | null } | null };
 
+type createReportReportFormMutationVariables = Exact<{
+  data: CreateReportDataInput;
+}>;
+
+
+type createReportReportFormMutation = { __typename?: 'Mutation', createReport: { __typename?: 'ReportOutput', data: (
+      { __typename?: 'Report' }
+      & UnclaimedReportsList
+    ) | null } | null };
+
+type createModeratorActionSunshineNewPostsItemMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionSunshineNewPostsItemMutation = { __typename?: 'Mutation', createModeratorAction: { __typename?: 'ModeratorActionOutput', data: (
+      { __typename?: 'ModeratorAction' }
+      & ModeratorActionsDefaultFragment
+    ) | null } | null };
+
 type SunshineNewUsersProfileInfoQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13902,6 +14240,36 @@ type SunshineNewUsersProfileInfoQueryVariables = Exact<{
 type SunshineNewUsersProfileInfoQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
       { __typename?: 'User' }
       & SunshineUsersList
+    ) | null } | null };
+
+type createUserRateLimitUserRateLimitItem1MutationVariables = Exact<{
+  data: CreateUserRateLimitDataInput;
+}>;
+
+
+type createUserRateLimitUserRateLimitItem1Mutation = { __typename?: 'Mutation', createUserRateLimit: { __typename?: 'UserRateLimitOutput', data: (
+      { __typename?: 'UserRateLimit' }
+      & UserRateLimitsDefaultFragment
+    ) | null } | null };
+
+type createUserRateLimitUserRateLimitItemMutationVariables = Exact<{
+  data: CreateUserRateLimitDataInput;
+}>;
+
+
+type createUserRateLimitUserRateLimitItemMutation = { __typename?: 'Mutation', createUserRateLimit: { __typename?: 'UserRateLimitOutput', data: (
+      { __typename?: 'UserRateLimit' }
+      & UserRateLimitDisplay
+    ) | null } | null };
+
+type createSurveySurveyAdminPageMutationVariables = Exact<{
+  data: CreateSurveyDataInput;
+}>;
+
+
+type createSurveySurveyAdminPageMutation = { __typename?: 'Mutation', createSurvey: { __typename?: 'SurveyOutput', data: (
+      { __typename?: 'Survey' }
+      & SurveyMinimumInfo
     ) | null } | null };
 
 type SurveyEditPageQueryVariables = Exact<{
@@ -13925,6 +14293,26 @@ type editSurveyMutation = { __typename?: 'Mutation', editSurvey: (
     { __typename?: 'Survey' }
     & SurveyMinimumInfo
   ) | null };
+
+type createSurveyResponseSurveyPostsItemMutationVariables = Exact<{
+  data: CreateSurveyResponseDataInput;
+}>;
+
+
+type createSurveyResponseSurveyPostsItemMutation = { __typename?: 'Mutation', createSurveyResponse: { __typename?: 'SurveyResponseOutput', data: (
+      { __typename?: 'SurveyResponse' }
+      & SurveyResponseMinimumInfo
+    ) | null } | null };
+
+type createSurveyScheduleSurveyScheduleEditPageMutationVariables = Exact<{
+  data: CreateSurveyScheduleDataInput;
+}>;
+
+
+type createSurveyScheduleSurveyScheduleEditPageMutation = { __typename?: 'Mutation', createSurveySchedule: { __typename?: 'SurveyScheduleOutput', data: (
+      { __typename?: 'SurveySchedule' }
+      & SurveyScheduleEdit
+    ) | null } | null };
 
 type SurveyScheduleEditPageQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -14023,6 +14411,16 @@ type getRandomTagQueryVariables = Exact<{ [key: string]: never; }>;
 
 type getRandomTagQuery = { __typename?: 'Query', RandomTag: { __typename?: 'Tag', slug: string } };
 
+type createSubscriptionSubscribeButtonMutationVariables = Exact<{
+  data: CreateSubscriptionDataInput;
+}>;
+
+
+type createSubscriptionSubscribeButtonMutation = { __typename?: 'Mutation', createSubscription: { __typename?: 'SubscriptionOutput', data: (
+      { __typename?: 'Subscription' }
+      & SubscriptionState
+    ) | null } | null };
+
 type reorderSummariesMutationVariables = Exact<{
   parentDocumentId: Scalars['String']['input'];
   parentDocumentCollectionName: Scalars['String']['input'];
@@ -14031,6 +14429,16 @@ type reorderSummariesMutationVariables = Exact<{
 
 
 type reorderSummariesMutation = { __typename?: 'Mutation', reorderSummaries: boolean | null };
+
+type createMultiDocumentSummaryFormMutationVariables = Exact<{
+  data: CreateMultiDocumentDataInput;
+}>;
+
+
+type createMultiDocumentSummaryFormMutation = { __typename?: 'Mutation', createMultiDocument: { __typename?: 'MultiDocumentOutput', data: (
+      { __typename?: 'MultiDocument' }
+      & MultiDocumentContentDisplay
+    ) | null } | null };
 
 type TagContributorsListQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
@@ -14056,6 +14464,16 @@ type getTagUpdatesQuery = { __typename?: 'Query', TagUpdatesInTimeBlock: Array<{
       & UsersMinimumInfo
     )> | null, documentDeletions: Array<{ __typename?: 'DocumentDeletion', userId: string | null, documentId: string, netChange: string, type: string | null, createdAt: string, docFields: { __typename?: 'MultiDocument', _id: string, slug: string, tabTitle: string, tabSubtitle: string | null } | null }> | null }> | null };
 
+type createTagFlagTagFlagEditAndNewFormMutationVariables = Exact<{
+  data: CreateTagFlagDataInput;
+}>;
+
+
+type createTagFlagTagFlagEditAndNewFormMutation = { __typename?: 'Mutation', createTagFlag: { __typename?: 'TagFlagOutput', data: (
+      { __typename?: 'TagFlag' }
+      & TagFlagFragment
+    ) | null } | null };
+
 type TagFlagItemQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -14064,6 +14482,16 @@ type TagFlagItemQueryVariables = Exact<{
 type TagFlagItemQuery = { __typename?: 'Query', tagFlag: { __typename?: 'SingleTagFlagOutput', result: (
       { __typename?: 'TagFlag' }
       & TagFlagFragment
+    ) | null } | null };
+
+type createTagTagFormMutationVariables = Exact<{
+  data: CreateTagDataInput;
+}>;
+
+
+type createTagTagFormMutation = { __typename?: 'Mutation', createTag: { __typename?: 'TagOutput', data: (
+      { __typename?: 'Tag' }
+      & TagWithFlagsFragment
     ) | null } | null };
 
 type TagMergePageQueryVariables = Exact<{
@@ -14135,6 +14563,16 @@ type GetTagsByCoreTagIdQuery = { __typename?: 'Query', TagsByCoreTagId: { __type
       & ConceptItemFragment
     )> } };
 
+type createMultiDocumentLensFormMutationVariables = Exact<{
+  data: CreateMultiDocumentDataInput;
+}>;
+
+
+type createMultiDocumentLensFormMutation = { __typename?: 'Mutation', createMultiDocument: { __typename?: 'MultiDocumentOutput', data: (
+      { __typename?: 'MultiDocument' }
+      & MultiDocumentEdit
+    ) | null } | null };
+
 type SidebarSubtagsBoxQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -14164,6 +14602,16 @@ type SubforumWikiTabQueryVariables = Exact<{
 type SubforumWikiTabQuery = { __typename?: 'Query', tag: { __typename?: 'SingleTagOutput', result: (
       { __typename?: 'Tag' }
       & TagEditFragment
+    ) | null } | null };
+
+type createUserTagRelTagSubforumPage2MutationVariables = Exact<{
+  data: CreateUserTagRelDataInput;
+}>;
+
+
+type createUserTagRelTagSubforumPage2Mutation = { __typename?: 'Mutation', createUserTagRel: { __typename?: 'UserTagRelOutput', data: (
+      { __typename?: 'UserTagRel' }
+      & UserTagRelDetails
     ) | null } | null };
 
 type LocalgroupPageTitleQueryVariables = Exact<{
@@ -14204,6 +14652,26 @@ type UltraFeedCommentsDialogQueryVariables = Exact<{
 type UltraFeedCommentsDialogQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsDetails
+    ) | null } | null };
+
+type createUltraFeedEventUltraFeedItemFooterMutationVariables = Exact<{
+  data: CreateUltraFeedEventDataInput;
+}>;
+
+
+type createUltraFeedEventUltraFeedItemFooterMutation = { __typename?: 'Mutation', createUltraFeedEvent: { __typename?: 'UltraFeedEventOutput', data: (
+      { __typename?: 'UltraFeedEvent' }
+      & UltraFeedEventsDefaultFragment
+    ) | null } | null };
+
+type createUltraFeedEventUltraFeedObserverMutationVariables = Exact<{
+  data: CreateUltraFeedEventDataInput;
+}>;
+
+
+type createUltraFeedEventUltraFeedObserverMutation = { __typename?: 'Mutation', createUltraFeedEvent: { __typename?: 'UltraFeedEventOutput', data: (
+      { __typename?: 'UltraFeedEvent' }
+      & UltraFeedEventsDefaultFragment
     ) | null } | null };
 
 type UltraFeedPostDialogQueryVariables = Exact<{
@@ -14781,7 +15249,7 @@ type ModeratorActionDisplay = { __typename?: 'ModeratorAction', _id: string, use
     & UsersMinimumInfo
   ) | null };
 
-type MultiDocumentMinimumInfo = { __typename?: 'MultiDocument', _id: string, parentDocumentId: string, collectionName: string, fieldName: string, userId: string, slug: string, oldSlugs: Array<string>, title: string | null, tabTitle: string, tabSubtitle: string | null, preview: string | null, index: number, deleted: boolean, createdAt: string, legacyData: any | null, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
+type MultiDocumentMinimumInfo = { __typename?: 'MultiDocument', _id: string, parentDocumentId: string, collectionName: MultiDocumentCollectionName, fieldName: MultiDocumentFieldName, userId: string, slug: string, oldSlugs: Array<string>, title: string | null, tabTitle: string, tabSubtitle: string | null, preview: string | null, index: number, deleted: boolean, createdAt: string, legacyData: any | null, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
 type MultiDocumentContentDisplay = (
   { __typename?: 'MultiDocument', tableOfContents: any | null, textLastUpdatedAt: string | null, contents: (
@@ -15858,6 +16326,16 @@ type getCurrentUserQuery = { __typename?: 'Query', currentUser: (
     & UsersCurrent
   ) | null };
 
+type createLWEventwithNewEventsMutationVariables = Exact<{
+  data: CreateLWEventDataInput;
+}>;
+
+
+type createLWEventwithNewEventsMutation = { __typename?: 'Mutation', createLWEvent: { __typename?: 'LWEventOutput', data: (
+      { __typename?: 'LWEvent' }
+      & newEventFragment
+    ) | null } | null };
+
 type AdvisorRequestsDefaultFragment = { __typename?: 'AdvisorRequest', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, interestedInMetaculus: boolean | null, jobAds: any | null };
 
 type ArbitalCachesDefaultFragment = { __typename?: 'ArbitalCaches', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
@@ -15948,7 +16426,7 @@ type ModerationTemplatesDefaultFragment = { __typename?: 'ModerationTemplate', _
 
 type ModeratorActionsDefaultFragment = { __typename?: 'ModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: ModeratorActionType, endedAt: string | null };
 
-type MultiDocumentsDefaultFragment = { __typename?: 'MultiDocument', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, oldSlugs: Array<string>, title: string | null, preview: string | null, tabTitle: string, tabSubtitle: string | null, userId: string, parentDocumentId: string, collectionName: string, fieldName: string, index: number, contributionStats: any | null, htmlWithContributorAnnotations: string | null, deleted: boolean, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
+type MultiDocumentsDefaultFragment = { __typename?: 'MultiDocument', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, oldSlugs: Array<string>, title: string | null, preview: string | null, tabTitle: string, tabSubtitle: string | null, userId: string, parentDocumentId: string, collectionName: MultiDocumentCollectionName, fieldName: MultiDocumentFieldName, index: number, contributionStats: any | null, htmlWithContributorAnnotations: string | null, deleted: boolean, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
 type NotificationsDefaultFragment = { __typename?: 'Notification', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, userId: string | null, documentId: string | null, documentType: string | null, extraData: any | null, link: string | null, title: string | null, message: string | null, type: string | null, deleted: boolean | null, viewed: boolean | null, emailed: boolean | null, waitingForBatch: boolean | null };
 

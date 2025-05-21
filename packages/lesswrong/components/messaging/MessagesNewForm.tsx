@@ -6,9 +6,8 @@ import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useCreate } from "@/lib/crud/withCreate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -21,6 +20,16 @@ import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import Error404 from "../common/Error404";
+
+const messageListFragmentMutation = gql(`
+  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {
+    createMessage(data: $data) {
+      data {
+        ...messageListFragment
+      }
+    }
+  }
+`);
 
 const ModerationTemplateFragmentQuery = gql(`
   query MessagesNewForm($documentId: String) {
@@ -143,10 +152,7 @@ const InnerMessagesNewForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<messageListFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Messages',
-    fragmentName: 'messageListFragment',
-  });
+  const [create] = useMutation(messageListFragmentMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -164,8 +170,11 @@ const InnerMessagesNewForm = ({
         const { noEmail, ...rest } = formApi.state.values;
         const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;
 
-        const { data } = await create({ data: submitData });
-        result = data?.createMessage.data;
+        const { data } = await create({ variables: { data: submitData } });
+        if (!data?.createMessage?.data) {
+          throw new Error('Failed to create message');
+        }
+        result = data.createMessage.data;
 
         onSuccessCallback.current?.(result);
 

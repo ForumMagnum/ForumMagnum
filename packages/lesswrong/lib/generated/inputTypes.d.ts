@@ -3095,8 +3095,8 @@ interface MultiDocument {
   parentDocumentId: string;
   parentTag: Tag | null;
   parentLens: MultiDocument | null;
-  collectionName: string;
-  fieldName: string;
+  collectionName: MultiDocumentCollectionName;
+  fieldName: MultiDocumentFieldName;
   index: number;
   tableOfContents: any;
   contributors: TagContributorsList | null;
@@ -7223,15 +7223,15 @@ interface CreateForumEventDataInput {
   title: string;
   startDate: Date;
   endDate?: Date | null;
-  darkColor: string;
-  lightColor: string;
-  bannerTextColor: string;
+  darkColor?: string | null;
+  lightColor?: string | null;
+  bannerTextColor?: string | null;
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
-  isGlobal: boolean;
+  isGlobal?: boolean | null;
   eventFormat?: ForumEventFormat | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;
@@ -7501,8 +7501,8 @@ interface CreateMultiDocumentDataInput {
   tabSubtitle?: string | null;
   userId?: string | null;
   parentDocumentId: string;
-  collectionName: string;
-  fieldName: string;
+  collectionName: MultiDocumentCollectionName;
+  fieldName: MultiDocumentFieldName;
 }
 
 interface CreateMultiDocumentInput {
@@ -8003,7 +8003,7 @@ interface CreateSpotlightDataInput {
   headerTitleRightColor?: string | null;
   lastPromotedAt: Date;
   spotlightSplashImageUrl?: string | null;
-  draft: boolean;
+  draft?: boolean | null;
   showAuthor?: boolean | null;
   imageFade?: boolean | null;
   imageFadeColor?: string | null;

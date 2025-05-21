@@ -2,9 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserMostValuablePostInfoMutation = gql(`
+  mutation createUserMostValuablePostPostMostValuableCheckbox($data: CreateUserMostValuablePostDataInput!) {
+    createUserMostValuablePost(data: $data) {
+      data {
+        ...UserMostValuablePostInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,10 +46,7 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   })
   const userVote = results?.length ? results[0] : null
   
-  const { create: createMostValuable, loading: createMostValuableLoading } = useCreate({
-    collectionName: 'UserMostValuablePosts',
-    fragmentName: 'UserMostValuablePostInfo',
-  })
+  const [createMostValuable, { loading: createMostValuableLoading }] = useMutation(UserMostValuablePostInfoMutation);
   const { mutate: setMostValuable, loading: setMostValuableLoading } = useUpdate({
     collectionName: "UserMostValuablePosts",
     fragmentName: 'UserMostValuablePostInfo',
@@ -70,9 +78,11 @@ export const PostMostValuableCheckbox = ({post, classes}: {
     } else {
       setChecked(true)
       void createMostValuable({
-        data: {
-          userId: currentUser._id,
-          postId: post._id
+        variables: {
+          data: {
+            userId: currentUser._id,
+            postId: post._id
+          }
         }
       })
     }
