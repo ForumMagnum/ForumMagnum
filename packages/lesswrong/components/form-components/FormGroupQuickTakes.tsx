@@ -5,7 +5,7 @@ import { FormGroupLayoutProps } from './FormGroupLayout';
 const styles = (_theme: ThemeType) => ({
   root: {
     display: 'contents',
-    '& .form-component-FormComponentQuickTakesTags': {
+    '& .input-relevantTagIds': {
       order: 100,
     },
   },
