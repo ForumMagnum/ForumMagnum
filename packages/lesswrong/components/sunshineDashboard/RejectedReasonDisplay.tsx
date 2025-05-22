@@ -4,7 +4,7 @@ import { Card } from "@/components/widgets/Paper";
 import { htmlToText } from 'html-to-text';
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({

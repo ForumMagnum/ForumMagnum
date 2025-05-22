@@ -9,7 +9,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
 
 const styles = (theme: ThemeType) => ({

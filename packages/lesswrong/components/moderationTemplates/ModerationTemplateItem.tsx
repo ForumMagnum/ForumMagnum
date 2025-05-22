@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ModerationTemplatesForm } from './ModerationTemplateForm';
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import MetaInfo from "../common/MetaInfo";
 import BasicFormStyles from "../form-components/BasicFormStyles";
 import Row from "../common/Row";

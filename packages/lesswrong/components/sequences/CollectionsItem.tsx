@@ -13,7 +13,7 @@ import { TooltipSpan } from '../common/FMTooltip';
 import { Typography } from "../common/Typography";
 import LinkCard from "../common/LinkCard";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({

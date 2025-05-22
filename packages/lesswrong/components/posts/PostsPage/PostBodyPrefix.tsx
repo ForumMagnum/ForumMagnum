@@ -12,7 +12,7 @@ import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPend
 import LinkPostMessage from "../LinkPostMessage";
 import PostsRevisionMessage from "./PostsRevisionMessage";
 import LWTooltip from "../../common/LWTooltip";
-import ContentItemBody from "../../common/ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 import ContentStyles from "../../common/ContentStyles";
 import PostPageReviewButton from "./PostPageReviewButton";
 

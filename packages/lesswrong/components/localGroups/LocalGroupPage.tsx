@@ -26,7 +26,7 @@ import SectionButton from "../common/SectionButton";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import SectionFooter from "../common/SectionFooter";
 import GroupFormLink from "./GroupFormLink";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Error404 from "../common/Error404";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import EventCards from "../events/modules/EventCards";

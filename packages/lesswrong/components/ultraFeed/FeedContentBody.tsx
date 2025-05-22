@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { generateTextFragment } from './textFragmentHelpers'
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,

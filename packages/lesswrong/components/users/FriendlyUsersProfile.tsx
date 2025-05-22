@@ -36,7 +36,7 @@ import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
 import LoadMore from "../common/LoadMore";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import HeadTags from "../common/HeadTags";

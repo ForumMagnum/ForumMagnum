@@ -5,7 +5,7 @@ import { useTagBySlug } from '../tagging/useTag';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button'
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import LWDialog from "../common/LWDialog";
 import ContentStyles from "../common/ContentStyles";
 

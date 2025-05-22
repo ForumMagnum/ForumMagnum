@@ -5,7 +5,7 @@ import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import WarningBanner from "../common/WarningBanner";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   lwBanner: {

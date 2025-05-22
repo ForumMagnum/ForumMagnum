@@ -5,7 +5,7 @@ import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
-import type { ContentItemBodyImperative } from '../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
 import CommentUserName from "./CommentsItem/CommentUserName";
 import CommentsItemDate from "./CommentsItem/CommentsItemDate";
 import CommentBody from "./CommentsItem/CommentBody";

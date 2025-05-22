@@ -11,7 +11,7 @@ import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import ProfilePhoto from "../../messaging/ProfilePhoto";
 import ContentStyles from "../../common/ContentStyles";
-import ContentItemBody from "../../common/ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 import { Typography } from "../../common/Typography";
 import SocialMediaLink from "../../users/SocialMediaLink";
 

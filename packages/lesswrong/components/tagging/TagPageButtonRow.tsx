@@ -20,7 +20,7 @@ import NewLensDialog from "./lenses/NewLensDialog";
 import LWTooltip from "../common/LWTooltip";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import TagDiscussionButton from "./TagDiscussionButton";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ForumIcon from "../common/ForumIcon";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";

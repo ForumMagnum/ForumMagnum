@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
-import ContentItemBody from "./ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const TRUNCATION_MAX_HEIGHT = 600;
 

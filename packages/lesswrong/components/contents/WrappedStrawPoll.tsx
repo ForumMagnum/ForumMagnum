@@ -1,9 +1,11 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from './withUser';
+import { useCurrentUser } from '@/components/common/withUser';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useDialog } from '@/components/common/withDialog';
+import LoginPopup from '../users/LoginPopup';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("WrappedStrawPoll", (theme: ThemeType) => ({
   loginRequired: {
     border: theme.palette.border.faint,
     borderRadius: "4px",
@@ -24,32 +26,30 @@ const styles = (theme: ThemeType) => ({
   text: {
     marginBottom: 0
   }
-});
+}));
 
-const WrappedStrawPoll = ({ id, src, classes }: {
-  id: string|null
-  src: string
-  classes: ClassesType<typeof styles>
+export const WrappedStrawPoll = ({children}: {
+  children: React.ReactNode
 }) => {
   const currentUser = useCurrentUser();
   const { location } = useLocation();
   const { pathname } = location;
+  const classes = useStyles(styles);
+  const { openDialog } = useDialog();
+
+  const openLoginDialog = () => {
+    openDialog({ name: "LoginPopup", contents: ({onClose}) => <LoginPopup onClose={onClose} /> });
+  }
   
   if (currentUser) {
-    return <div className="strawpoll-embed">
-      <iframe id={id??undefined} src={src} />
-    </div>
+    return <>{children}</>
   } else {
     return <div className={classes.loginRequired}>
       <div className={classes.yellowBar} />
       <h3 className={classes.heading}>This poll is hidden</h3>
       <p className={classes.text}>
-        Please <a href={`/auth/auth0?returnTo=${pathname}`}>log in</a> to vote in this poll.
+        Please <a href="#" onClick={openLoginDialog}>log in</a> to vote in this poll.
       </p>
     </div>
   }
 }
-
-export default registerComponent("WrappedStrawPoll", WrappedStrawPoll, {styles});
-
-

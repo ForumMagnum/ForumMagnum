@@ -7,7 +7,7 @@ import { gql, useMutation } from "@apollo/client";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { SummaryForm } from "./SummaryForm";
 import LWTooltip from "../common/LWTooltip";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";

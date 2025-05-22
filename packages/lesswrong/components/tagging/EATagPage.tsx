@@ -27,7 +27,7 @@ import { useSingle } from "@/lib/crud/withSingle";
 import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import AddPostsToTag from "./AddPostsToTag";
 import Error404 from "../common/Error404";

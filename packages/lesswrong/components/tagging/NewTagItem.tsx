@@ -9,7 +9,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import TagDiscussionButton from "./TagDiscussionButton";
 import ContentStyles from "../common/ContentStyles";
 

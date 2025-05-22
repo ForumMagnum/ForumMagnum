@@ -4,7 +4,7 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import ContentStyles, { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
-import ContentItemBody from "../ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;

@@ -9,7 +9,7 @@ import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const sharedStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.fontFamily,

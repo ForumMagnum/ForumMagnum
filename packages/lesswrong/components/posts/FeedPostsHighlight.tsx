@@ -12,7 +12,7 @@ import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({

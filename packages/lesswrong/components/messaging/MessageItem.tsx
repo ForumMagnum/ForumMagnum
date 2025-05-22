@@ -9,7 +9,7 @@ import { Typography } from "../common/Typography";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   root: {

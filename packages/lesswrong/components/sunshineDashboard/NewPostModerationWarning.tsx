@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 
 const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
