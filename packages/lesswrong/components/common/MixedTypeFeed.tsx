@@ -64,6 +64,225 @@ interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
   render: (result: FragmentTypes[FragmentName], index?: number) => React.ReactNode,
 }
 
+type NamedFeed = keyof {
+ [k in keyof Query as k extends `${string}Feed` ? Query[k] extends { results?: any[] | null } ? k : never : never]: Query[k]
+};
+
+const AllTagsActivityFeedQuery = gql(`
+  query AllTagsActivityFeed($limit: Int, $cutoff: Date, $offset: Int) {
+    AllTagsActivityFeed(limit: $limit, cutoff: $cutoff, offset: $offset) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagCreated {
+          ...TagCreationHistoryFragment
+        }
+        tagRevision {
+          ...RevisionTagFragment
+        }
+        tagDiscussionComment {
+          ...CommentsListWithParentMetadata
+        }
+      }
+    }
+  }
+`);
+
+const TagHistoryFeedQuery = gql(`
+  query TagHistoryFeed($limit: Int, $cutoff: Date, $offset: Int, $tagId: String!, $options: JSON) {
+    TagHistoryFeed(limit: $limit, cutoff: $cutoff, offset: $offset, tagId: $tagId, options: $options) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagCreated {
+          ...TagHistoryFragment
+        }
+        tagRevision {
+          ...RevisionHistoryEntry
+        }
+        lensRevision {
+          ...RevisionHistoryEntry
+        }
+        summaryRevision {
+          ...RevisionHistorySummaryEdit
+        }
+        tagApplied {
+          ...TagRelHistoryFragment
+        }
+        tagDiscussionComment {
+          ...CommentsList
+        }
+        wikiMetadataChanged {
+          ...FieldChangeFragment
+        }
+        lensOrSummaryMetadataChanged {
+          ...FieldChangeFragment
+        }
+      }
+    }
+  }
+`);
+
+const RecentDiscussionFeedQuery = gql(`
+  query RecentDiscussionFeed($limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $tagCommentsLimit: Int) {
+    RecentDiscussionFeed(limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        postCommented {
+          ...PostsRecentDiscussion
+        }
+        shortformCommented {
+          ...ShortformRecentDiscussion
+        }
+        tagDiscussed {
+          ...TagRecentDiscussion
+        }
+        tagRevised {
+          ...RecentDiscussionRevisionTagFragment
+        }
+      }
+    }
+  }
+`);
+
+const SubscribedFeed = gql(`
+  query SubscribedFeed($limit: Int, $cutoff: Date, $offset: Int, $af: Boolean) {
+    SubscribedFeed(limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        postCommented {
+          ...SubscribedPostAndCommentsFeed
+        }
+      }
+    }
+  }
+`);
+
+const SubforumMagicFeedQuery = gql(`
+  query SubforumMagicFeed($tagId: String!, $limit: Int, $cutoff: Float, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
+    SubforumMagicFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagSubforumPosts {
+          ...PostsRecentDiscussion
+        }
+        tagSubforumComments {
+          ...CommentWithRepliesFragment
+        }
+        tagSubforumStickyComments {
+          ...StickySubforumCommentFragment
+        }
+      }
+    }
+  }
+`);
+
+const SubforumNewFeedQuery = gql(`
+  query SubforumNewFeed($tagId: String!, $limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
+    SubforumNewFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagSubforumPosts {
+          ...PostsRecentDiscussion
+        }
+        tagSubforumComments {
+          ...CommentWithRepliesFragment
+        }
+        tagSubforumStickyComments {
+          ...StickySubforumCommentFragment
+        }
+      }
+    }
+  }
+`);
+
+const SubforumOldFeedQuery = gql(`
+  query SubforumOldFeed($tagId: String!, $limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
+    SubforumOldFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagSubforumPosts {
+          ...PostsRecentDiscussion
+        }
+        tagSubforumComments {
+          ...CommentWithRepliesFragment
+        }
+        tagSubforumStickyComments {
+          ...StickySubforumCommentFragment
+        }
+      }
+    }
+  }
+`);
+
+const SubforumRecentCommentsFeedQuery = gql(`
+  query SubforumRecentCommentsFeed($tagId: String!, $limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
+    SubforumRecentCommentsFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagSubforumPosts {
+          ...PostsRecentDiscussion
+        }
+        tagSubforumComments {
+          ...CommentWithRepliesFragment
+        }
+        tagSubforumStickyComments {
+          ...StickySubforumCommentFragment
+        }
+      }
+    }
+  }
+`);
+
+const SubforumTopFeedQuery = gql(`
+  query SubforumTopFeed($tagId: String!, $limit: Int, $cutoff: Int, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
+    SubforumTopFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagSubforumPosts {
+          ...PostsRecentDiscussion
+        }
+        tagSubforumComments {
+          ...CommentWithRepliesFragment
+        }
+        tagSubforumStickyComments {
+          ...StickySubforumCommentFragment
+        }
+      }
+    }
+  }
+`);
+
+type NamedFeedProps<T extends NamedFeed> = {
+  resolverName: T,
+  renderers: Partial<Record<string,FeedRenderer<any>>>,
+}
+
 // An infinitely scrolling feed of elements, which may be of multiple types.
 // This should have a corresponding server-side resolver created using
 // `defineFeedResolver`.

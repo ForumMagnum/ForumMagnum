@@ -15,7 +15,7 @@ export const useRecommendations = ({
 } => {
   const { data, loading } = useQuery(
     gql(`
-      query RecommendationsQuery($count: Int, $algorithm: JSON) {
+      query RecommendationsQuery($count: Int, $algorithm: JSON, $batchKey: String) {
         Recommendations(count: $count, algorithm: $algorithm) {
           ...PostsListWithVotesAndSequence
         }

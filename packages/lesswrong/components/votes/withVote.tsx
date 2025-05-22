@@ -1,41 +1,110 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, DocumentNode } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { isAF } from '../../lib/instanceSettings';
 import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';
 import type { VotingSystem } from '@/lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
+import { gql } from '@/lib/generated/gql-codegen';
 
-const getVoteMutationQuery = (typeName: string) => {
-  const mutationName = `performVote${typeName}`;
-
-  const gqlText = `
-    mutation ${mutationName}($documentId: String, $voteType: String, $extendedVote: JSON) {
-      ${mutationName}(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
-        document {
-          ...WithVote${typeName}
-        }
-        showVotingPatternWarning
+const performVoteCommentMutation = gql(`
+  mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteComment(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteComment
       }
+      showVotingPatternWarning
     }
-    ${fragmentTextForQuery(`WithVote${typeName}` as any)}
-  `
-  
-  return gql`${gqlText}`
-}
+  }
+`)
+
+const performVotePostMutation = gql(`
+  mutation performVotePost($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVotePost(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVotePost
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
+const performVoteTagRelMutation = gql(`
+  mutation performVoteTagRel($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteTagRel(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteTagRel
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
+const performVoteRevisionMutation = gql(`
+  mutation performVoteRevision($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteRevision(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteRevision
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
+const performVoteElectionCandidateMutation = gql(`
+  mutation performVoteElectionCandidate($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteElectionCandidate(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteElectionCandidate
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
+const performVoteTagMutation = gql(`
+  mutation performVoteTag($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteTag(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteTag
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
+const performVoteMultiDocumentMutation = gql(`
+  mutation performVoteMultiDocument($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteMultiDocument(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteMultiDocument
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
+const performVoteMutations = {
+  Comment: performVoteCommentMutation,
+  Post: performVotePostMutation,
+  TagRel: performVoteTagRelMutation,
+  Revision: performVoteRevisionMutation,
+  ElectionCandidate: performVoteElectionCandidateMutation,
+  Tag: performVoteTagMutation,
+  MultiDocument: performVoteMultiDocumentMutation,
+} satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const typeName = collectionNameToTypeName[collectionName];
-  const query = getVoteMutationQuery(typeName);
+  const query = performVoteMutations[typeName];
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();
   

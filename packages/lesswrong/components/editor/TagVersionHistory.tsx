@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -105,14 +104,13 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
   // We need the $contributorsLimit arg to satisfy the fragment, other graphql complains, even though we don't use any results that come back.
-  const [revertMutation] = useMutation(graphql`
+  const [revertMutation] = useMutation(graphql(`
     mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {
       revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {
         ...TagPageFragment
       }
     }
-    ${fragmentTextForQuery("TagPageFragment")}
-  `, {
+  `), {
     ignoreResults: true
   });
   const [revertLoading, setRevertLoading] = useState(false);

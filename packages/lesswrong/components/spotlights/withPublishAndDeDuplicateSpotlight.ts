@@ -9,7 +9,7 @@ export const usePublishAndDeDuplicateSpotlight = () => {
       }
     }
   `));
-  
+
   async function mutate(args: {spotlightId: string}) {
     return await publishAndDeDuplicateSpotlight({
       variables: args

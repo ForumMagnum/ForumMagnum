@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
-import { useMutation, useQuery, gql } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
@@ -12,36 +12,71 @@ import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import LoginPopup from "../users/LoginPopup";
 import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
+import { gql } from '@/lib/generated/gql-codegen';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 
-const elicitDataFragment = `
-  _id
-  title
-  notes
-  resolvesBy
-  resolution
-  predictions {
-    _id,
-    predictionId,
-    prediction,
-    createdAt,
-    notes,
-    sourceUrl,
-    sourceId,
-    binaryQuestionId
-    creator {
-      _id,
-      displayName,
-      sourceUserId
-      lwUser {
-        ...UsersMinimumInfo
+const elicitBlockDataQuery = gql(`
+  query ElicitBlockData($questionId: String) {
+    ElicitBlockData(questionId: $questionId) {
+      _id
+      title
+      notes
+      resolvesBy
+      resolution
+      predictions {
+        _id,
+        predictionId,
+        prediction,
+        createdAt,
+        notes,
+        sourceUrl,
+        sourceId,
+        binaryQuestionId
+        creator {
+          _id,
+          displayName,
+          sourceUserId
+          lwUser {
+            ...UsersMinimumInfo
+          }
+        }
       }
     }
   }
-`
+`);
+
+const elicitPredictionMutation = gql(`
+  mutation ElicitPrediction($questionId:String, $prediction: Int) {
+    MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
+      _id
+      title
+      notes
+      resolvesBy
+      resolution
+      predictions {
+        _id,
+        predictionId,
+        prediction,
+        createdAt,
+        notes,
+        sourceUrl,
+        sourceId,
+        binaryQuestionId
+        creator {
+          _id,
+          displayName,
+          sourceUserId
+          lwUser {
+            ...UsersMinimumInfo
+          }
+        }
+      }
+    }
+  }
+`);
 
 const rootHeight = 50
 const rootPaddingTop = 12
@@ -185,24 +220,13 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
-  const { data, loading } = useQuery(gql`
-    query ElicitBlockData($questionId: String) {
-      ElicitBlockData(questionId: $questionId) {
-       ${elicitDataFragment}
-      }
-    }
-    ${fragmentTextForQuery("UsersMinimumInfo")}
-  `, { ssr: true, variables: { questionId } })
-  const [makeElicitPrediction] = useMutation(gql`
-    mutation ElicitPrediction($questionId:String, $prediction: Int) {
-      MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
-        ${elicitDataFragment}
-      }
-    }
-    ${fragmentTextForQuery("UsersMinimumInfo")}  
-  `);
+
+  const { data, loading } = useQuery(elicitBlockDataQuery, { ssr: true, variables: { questionId } });
+
+  const [makeElicitPrediction] = useMutation(elicitPredictionMutation);
+
   const allPredictions = data?.ElicitBlockData?.predictions || [];
-  const nonCancelledPredictions = allPredictions.filter((p: AnyBecauseTodo) => p.prediction !== null);
+  const nonCancelledPredictions = filterWhereFieldsNotNull(allPredictions, 'prediction');
   const sortedPredictions = sortBy(nonCancelledPredictions, ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
@@ -236,7 +260,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
             onClick={() => {
-              if (currentUser) {
+              if (currentUser && data?.ElicitBlockData?._id) {
                 const predictions = data?.ElicitBlockData?.predictions || []
                 const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
@@ -305,17 +329,17 @@ export default registerComponent('ElicitBlock', ElicitBlock, {
 
 function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
   return {
-    __typename: "ElicitPrediction",
+    __typename: "ElicitPrediction" as const,
     _id: randomId(),
     predictionId: randomId(),
     prediction: prediction,
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
     notes: "",
     sourceUrl: elicitSourceURL.get(),
     sourceId: elicitSourceId.get(),
     binaryQuestionId: questionId,
     creator: {
-      __typename: "ElicitUser",
+      __typename: "ElicitUser" as const,
       _id: randomId(),
       displayName: currentUser.displayName,
       sourceUserId: currentUser._id, 

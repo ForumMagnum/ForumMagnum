@@ -5,7 +5,6 @@ import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
-import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import ToCColumn, { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import PostsLoading from "../posts/PostsLoading";
@@ -13,6 +12,8 @@ import EAPostsItem from "../posts/EAPostsItem";
 import EALargePostsItem from "../posts/EALargePostsItem";
 import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,15 +89,23 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     ssr
   });
 
-  const {
-    results: curatedAndPopularPosts,
-    loading: curatedAndPopularLoading,
-  } = usePaginatedResolver({
-    fragmentName: "PostsListWithVotes",
-    resolverName: "CuratedAndPopularThisWeek",
-    limit: 3,
+  const { data: curatedAndPopularData, loading: curatedAndPopularLoading } = useQuery(gql(`
+    query CuratedAndPopularThisWeek($limit: Int) {
+      CuratedAndPopularThisWeek(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: 3 },
+    pollInterval: 0,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
     ssr
   });
+
+  const curatedAndPopularPosts = curatedAndPopularData?.CuratedAndPopularThisWeek?.results;
 
   const {
     results: opportunityPosts,

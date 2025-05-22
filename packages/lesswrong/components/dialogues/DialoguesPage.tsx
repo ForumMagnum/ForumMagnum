@@ -2,8 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
@@ -13,6 +11,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
+import { useLoadMore } from '../hooks/useLoadMore';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {
@@ -25,17 +24,53 @@ const PostsListWithVotesQuery = gql(`
 `);
 
 const DialoguesPage = () => {
-  const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
-    fragmentName: "PostsPage",
-    resolverName: "RecentlyActiveDialogues",
-    limit: 20,
-  }); 
+  const initialLimit = 20;
+
+  const { data: recentlyActiveDialoguesData, loading, fetchMore } = useQuery(gql(`
+    query RecentlyActiveDialogues($limit: Int) {
+      RecentlyActiveDialogues(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    pollInterval: 0,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
+  });
+
+  const dialoguePosts = recentlyActiveDialoguesData?.RecentlyActiveDialogues?.results;
+  const dialoguePostsLoadMoreProps = useLoadMore({
+    data: recentlyActiveDialoguesData?.RecentlyActiveDialogues,
+    loading,
+    fetchMore,
+    initialLimit,
+  });
   
-  const { results: myDialogues, loadMoreProps: myDialoguesLoadMoreProps } = usePaginatedResolver({
-    fragmentName: "PostsPage",
-    resolverName: "MyDialogues",
-    limit: 10,
+  const { data: myDialoguesData } = useQuery(gql(`
+    query MyDialogues($limit: Int) {
+      MyDialogues(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: 10 },
+    pollInterval: 0,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
   }); 
+
+  const myDialogues = myDialoguesData?.MyDialogues?.results;
+  const myDialoguesLoadMoreProps = useLoadMore({
+    data: myDialoguesData?.MyDialogues,
+    loading,
+    fetchMore,
+    initialLimit,
+  });
 
   const currentUser = useCurrentUser();
 
@@ -89,7 +124,7 @@ const DialoguesPage = () => {
           />
         )}
         <SectionFooter>
-          <LoadMore {...loadMoreProps}/>
+          <LoadMore {...dialoguePostsLoadMoreProps}/>
         </SectionFooter>
       </AnalyticsContext>
    </SingleColumnSection>

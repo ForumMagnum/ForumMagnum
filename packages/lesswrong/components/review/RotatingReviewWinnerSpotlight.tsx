@@ -1,9 +1,7 @@
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { gql as graphql, useQuery } from '@apollo/client';
-import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
+import { useQuery } from '@apollo/client';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import SpotlightItem from "../spotlights/SpotlightItem";
 
@@ -17,8 +15,16 @@ const SpotlightDisplayQuery = gql(`
   }
 `);
 
-const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
-  const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)
+const RotatingReviewWinnerQuery = gql(`
+  query RotatingReviewWinnerSpotlight {
+    GetAllReviewWinners {
+      ...PostForReviewWinnerItem
+    }
+  }
+`);
+
+const getTodayReviewInfo = (reviewWinners: RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post[], category: string) => {
+  const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner?.category === category)
   const totalWinners = categoryReviewWinners.length;
   if (totalWinners === 0) return null;
   
@@ -35,17 +41,8 @@ const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, categ
 
 export const RotatingReviewWinnerSpotlight = () => {
   const category = "ai safety"
-  const { data } = useQuery(
-    graphql`
-      query RotatingReviewWinnerSpotlight {
-        GetAllReviewWinners {
-          ...PostForReviewWinnerItem
-        }
-      }
-      ${fragmentTextForQuery('PostForReviewWinnerItem')}
-    `,
-  )
-  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.RotatingReviewWinnerSpotlight ?? []];
+  const { data } = useQuery(RotatingReviewWinnerQuery);
+  const reviewWinnersWithPosts = [...data?.GetAllReviewWinners ?? []];
   const winner = getTodayReviewInfo(reviewWinnersWithPosts, category);
 
   const { data: dataSpotlight } = useQuery(SpotlightDisplayQuery, {

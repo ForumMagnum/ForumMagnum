@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useMutation, gql, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
-import type { GoogleDocMetadata } from "../../server/collections/revisions/helpers";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -14,6 +12,7 @@ import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -109,15 +108,15 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { data: latestGoogleDocMetadataQuery } = useQuery<{ latestGoogleDocMetadata: GoogleDocMetadata }>(
-    gql`
-      query latestGoogleDocMetadata($postId: String!, $version: String) {
+  const { data: latestGoogleDocMetadataQuery } = useQuery(
+    gql(`
+      query latestGoogleDocMetadata($postId: String!, $version: String, $batchKey: String) {
         latestGoogleDocMetadata(postId: $postId, version: $version)
       }
-    `,
+    `),
     {
       variables: {
-        postId,
+        postId: postId!,
         version,
         batchKey: "docImportInfo"
       },
@@ -138,12 +137,12 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     data: canAccessQuery,
     loading: canAccessQueryLoading,
     refetch,
-  } = useQuery<{ CanAccessGoogleDoc: boolean }>(
-    gql`
+  } = useQuery(
+    gql(`
       query CanAccessGoogleDoc($fileUrl: String!) {
         CanAccessGoogleDoc(fileUrl: $fileUrl)
       }
-    `,
+    `),
     {
       variables: {
         fileUrl: googleDocUrl,
@@ -205,14 +204,13 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const email = serviceAccounts?.[0]?.email
 
   const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(
-    gql`
+    gql(`
       mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {
         ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
           ...PostsBase
         }
       }
-      ${fragmentTextForQuery("PostsBase")}
-    `,
+    `),
     {
       onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
         const postId = data?.ImportGoogleDoc?._id;

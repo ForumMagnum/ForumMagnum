@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { NetworkStatus, useQuery } from '@apollo/client';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import PostsItem from "../posts/PostsItem";
 import JargonTooltip from "./JargonTooltip";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -13,6 +12,7 @@ import ContentStyles from "../common/ContentStyles";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,11 +44,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-interface PostWithJargon {
-  post: PostsListWithVotes,
-  jargonTerms: JargonTerms[],
-}
-
 const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
   post: PostsListWithVotes,
   jargonTerms: JargonTerms[],
@@ -76,7 +71,7 @@ export const PostsWithApprovedJargonPage = ({classes}: {
 
   const currentUser = useCurrentUser();
 
-  const getPostsQuery = gql`
+  const getPostsQuery = gql(`
     query getPostsWithApprovedJargon($limit: Int!) {
       PostsWithApprovedJargon(limit: $limit) {
         results {
@@ -89,15 +84,13 @@ export const PostsWithApprovedJargonPage = ({classes}: {
         }
       }
     }
-    ${fragmentTextForQuery('PostsListWithVotes')}
-    ${fragmentTextForQuery('JargonTerms')}
-  `;
+  `);
 
   const { data, loading, fetchMore, networkStatus } = useQuery(getPostsQuery, {
     variables: { limit },
   });
 
-  const postsWithJargon: PostWithJargon[] = data?.PostsWithApprovedJargon?.results ?? [];
+  const postsWithJargon = data?.PostsWithApprovedJargon?.results ?? [];
 
   if (!userIsAdmin(currentUser)) {
     return <ErrorAccessDenied />

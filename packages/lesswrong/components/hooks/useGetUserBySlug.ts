@@ -1,22 +1,37 @@
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
-import { gql, useQuery } from "@apollo/client";
+import { gql as dynamicGql, useQuery } from "@apollo/client";
+import { UsersMinimumInfo, UsersEdit, UsersProfileEdit } from "@/lib/collections/users/fragments";
 
-interface GetUserBySlugOptions<FragmentName extends FragmentTypesByCollection['Users']> {
+type UserFragments = 'UsersMinimumInfo' | 'UsersEdit' | 'UsersProfileEdit';
+
+interface GetUserBySlugOptions<FragmentName extends UserFragments> {
   fragmentName: FragmentName;
   skip?: boolean;
 }
 
-export function useGetUserBySlug<FragmentName extends FragmentTypesByCollection['Users']>(slug: string | undefined, options: GetUserBySlugOptions<FragmentName>) {
+function useUserFragment<FragmentName extends UserFragments>(fragmentName: FragmentName) {
+  switch (fragmentName) {
+    case 'UsersMinimumInfo':
+      return UsersMinimumInfo;
+    case 'UsersEdit':
+      return UsersEdit;
+    case 'UsersProfileEdit':
+      return UsersProfileEdit;
+  }
+}
+
+export function useGetUserBySlug<FragmentName extends UserFragments>(slug: string | undefined, options: GetUserBySlugOptions<FragmentName>) {
   const { fragmentName, skip } = options;
-  const queryText = `
+  const fragment = useUserFragment(fragmentName);
+
+  // const queryText = 
+  const { data, ...rest } = useQuery<{ GetUserBySlug: UserFragments }>(dynamicGql`
     query GetUserBySlug($slug: String!) {
       GetUserBySlug(slug: $slug) {
         ...${fragmentName}
       }
+      ${fragment}
     }
-    ${fragmentTextForQuery(fragmentName)}
-  `
-  const { data, ...rest } = useQuery<{ GetUserBySlug: FragmentTypes[FragmentName] }>(gql`${queryText}`, {
+  `, {
     fetchPolicy: 'network-only',
     variables: { slug },
     skip: skip || !slug,

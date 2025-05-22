@@ -1,12 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { gql as graphql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import Error404 from "../common/Error404";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
@@ -171,14 +170,13 @@ const SurveyForm = ({survey, refetch, classes}: {
     }]);
   }, []);
 
-  const [updateSurvey] = useMutation(graphql`
+  const [updateSurvey] = useMutation(gql(`
     mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
       editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
         ...SurveyMinimumInfo
       }
     }
-    ${fragmentTextForQuery("SurveyMinimumInfo")}
-  `);
+  `));
 
   const onSubmit = useCallback(async () => {
     setError("");

@@ -494,7 +494,7 @@ type ElicitBlockData {
   notes: String
   resolvesBy: Date
   resolution: Boolean
-  predictions: [ElicitPrediction]
+  predictions: [ElicitPrediction!]
 }
 
 extend type Query {
@@ -633,7 +633,7 @@ type VertexRecommendedPost {
 
 type PostWithApprovedJargon {
   post: Post!
-  jargonTerms: [JargonTerm!]
+  jargonTerms: [JargonTerm!]!
 }
 
 type DigestHighlightsResult {

@@ -2259,7 +2259,7 @@ type ElicitBlockData = {
   __typename?: 'ElicitBlockData';
   _id?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
-  predictions?: Maybe<Array<Maybe<ElicitPrediction>>>;
+  predictions?: Maybe<Array<ElicitPrediction>>;
   resolution?: Maybe<Scalars['Boolean']['output']>;
   resolvesBy?: Maybe<Scalars['Date']['output']>;
   title?: Maybe<Scalars['String']['output']>;
@@ -5871,7 +5871,7 @@ type PostSelector = {
 
 type PostWithApprovedJargon = {
   __typename?: 'PostWithApprovedJargon';
-  jargonTerms?: Maybe<Array<JargonTerm>>;
+  jargonTerms: Array<JargonTerm>;
   post: Post;
 };
 
@@ -12426,6 +12426,23 @@ type randomUserQueryVariables = Exact<{
 
 type randomUserQuery = randomUserQuery_Query;
 
+type CrossedKarmaThresholdQuery_CrossedKarmaThreshold_CrossedKarmaThresholdResult_results_Post = (
+  { __typename?: 'Post' }
+  & PostsTwitterAdmin
+);
+
+type CrossedKarmaThresholdQuery_CrossedKarmaThreshold_CrossedKarmaThresholdResult = { __typename?: 'CrossedKarmaThresholdResult', results: Array<CrossedKarmaThresholdQuery_CrossedKarmaThreshold_CrossedKarmaThresholdResult_results_Post> };
+
+type CrossedKarmaThresholdQuery_Query = { __typename?: 'Query', CrossedKarmaThreshold: CrossedKarmaThresholdQuery_CrossedKarmaThreshold_CrossedKarmaThresholdResult | null };
+
+
+type CrossedKarmaThresholdQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type CrossedKarmaThresholdQuery = CrossedKarmaThresholdQuery_Query;
+
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun = { __typename?: 'MigrationRun', name: string, started: string, finished: string | null, succeeded: boolean | null };
 
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus = { __typename?: 'MigrationStatus', name: string, dateWritten: string | null, lastRun: string | null, runs: Array<MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun> | null };
@@ -12840,6 +12857,23 @@ type ParentCommentSingleQueryVariables = Exact<{
 
 type ParentCommentSingleQuery = ParentCommentSingleQuery_Query;
 
+type PopularCommentsQuery_PopularComments_PopularCommentsResult_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type PopularCommentsQuery_PopularComments_PopularCommentsResult = { __typename?: 'PopularCommentsResult', results: Array<PopularCommentsQuery_PopularComments_PopularCommentsResult_results_Comment> };
+
+type PopularCommentsQuery_Query = { __typename?: 'Query', PopularComments: PopularCommentsQuery_PopularComments_PopularCommentsResult | null };
+
+
+type PopularCommentsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type PopularCommentsQuery = PopularCommentsQuery_Query;
+
 type SideCommentSingleQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentWithRepliesFragment
@@ -12928,6 +12962,40 @@ type updateUserCommunityMutationVariables = Exact<{
 
 
 type updateUserCommunityMutation = updateUserCommunityMutation_Mutation;
+
+type RecentlyActiveDialoguesQuery_RecentlyActiveDialogues_RecentlyActiveDialoguesResult_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type RecentlyActiveDialoguesQuery_RecentlyActiveDialogues_RecentlyActiveDialoguesResult = { __typename?: 'RecentlyActiveDialoguesResult', results: Array<RecentlyActiveDialoguesQuery_RecentlyActiveDialogues_RecentlyActiveDialoguesResult_results_Post> };
+
+type RecentlyActiveDialoguesQuery_Query = { __typename?: 'Query', RecentlyActiveDialogues: RecentlyActiveDialoguesQuery_RecentlyActiveDialogues_RecentlyActiveDialoguesResult | null };
+
+
+type RecentlyActiveDialoguesQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type RecentlyActiveDialoguesQuery = RecentlyActiveDialoguesQuery_Query;
+
+type MyDialoguesQuery_MyDialogues_MyDialoguesResult_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type MyDialoguesQuery_MyDialogues_MyDialoguesResult = { __typename?: 'MyDialoguesResult', results: Array<MyDialoguesQuery_MyDialogues_MyDialoguesResult_results_Post> };
+
+type MyDialoguesQuery_Query = { __typename?: 'Query', MyDialogues: MyDialoguesQuery_MyDialogues_MyDialoguesResult | null };
+
+
+type MyDialoguesQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MyDialoguesQuery = MyDialoguesQuery_Query;
 
 type DialoguesPageQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -14464,7 +14532,7 @@ type getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJa
   & JargonTerms
 );
 
-type getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon = { __typename?: 'PostWithApprovedJargon', post: getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon_post_Post, jargonTerms: Array<getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon_jargonTerms_JargonTerm> | null };
+type getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon = { __typename?: 'PostWithApprovedJargon', post: getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon_post_Post, jargonTerms: Array<getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon_jargonTerms_JargonTerm> };
 
 type getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult = { __typename?: 'PostsWithApprovedJargonResult', results: Array<getPostsWithApprovedJargonQuery_PostsWithApprovedJargon_PostsWithApprovedJargonResult_results_PostWithApprovedJargon> };
 
@@ -15066,6 +15134,49 @@ type updatePostDraftsListMutationVariables = Exact<{
 
 type updatePostDraftsListMutation = updatePostDraftsListMutation_Mutation;
 
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser = { __typename?: 'ElicitUser', _id: string | null, displayName: string | null, sourceUserId: string | null, lwUser: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User | null };
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction = { __typename?: 'ElicitPrediction', _id: string | null, predictionId: string | null, prediction: number | null, createdAt: string | null, notes: string | null, sourceUrl: string | null, sourceId: string | null, binaryQuestionId: string | null, creator: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser | null };
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData = { __typename?: 'ElicitBlockData', _id: string | null, title: string | null, notes: string | null, resolvesBy: string | null, resolution: boolean | null, predictions: Array<ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction> | null };
+
+type ElicitBlockDataQuery_Query = { __typename?: 'Query', ElicitBlockData: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData | null };
+
+
+type ElicitBlockDataQueryVariables = Exact<{
+  questionId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ElicitBlockDataQuery = ElicitBlockDataQuery_Query;
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser = { __typename?: 'ElicitUser', _id: string | null, displayName: string | null, sourceUserId: string | null, lwUser: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User | null };
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction = { __typename?: 'ElicitPrediction', _id: string | null, predictionId: string | null, prediction: number | null, createdAt: string | null, notes: string | null, sourceUrl: string | null, sourceId: string | null, binaryQuestionId: string | null, creator: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser | null };
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData = { __typename?: 'ElicitBlockData', _id: string | null, title: string | null, notes: string | null, resolvesBy: string | null, resolution: boolean | null, predictions: Array<ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction> | null };
+
+type ElicitPredictionMutation_Mutation = { __typename?: 'Mutation', MakeElicitPrediction: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData | null };
+
+
+type ElicitPredictionMutationVariables = Exact<{
+  questionId: InputMaybe<Scalars['String']['input']>;
+  prediction: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ElicitPredictionMutation = ElicitPredictionMutation_Mutation;
+
 type updatePostExternalPostImporterMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -15138,6 +15249,7 @@ type latestGoogleDocMetadataQuery_Query = { __typename?: 'Query', latestGoogleDo
 type latestGoogleDocMetadataQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   version: InputMaybe<Scalars['String']['input']>;
+  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -15750,6 +15862,46 @@ type PostsPreviewTooltipSingleQueryVariables = Exact<{
 
 type PostsPreviewTooltipSingleQuery = PostsPreviewTooltipSingleQuery_Query;
 
+type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost_post_Post };
+
+type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult = { __typename?: 'RecombeeLatestPostsResult', results: Array<getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost> };
+
+type getRecombeeLatestPostsQuery_Query = { __typename?: 'Query', RecombeeLatestPosts: getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult | null };
+
+
+type getRecombeeLatestPostsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type getRecombeeLatestPostsQuery = getRecombeeLatestPostsQuery_Query;
+
+type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost_post_Post };
+
+type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult = { __typename?: 'RecombeeHybridPostsResult', results: Array<getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost> };
+
+type getRecombeeHybridPostsQuery_Query = { __typename?: 'Query', RecombeeHybridPosts: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult | null };
+
+
+type getRecombeeHybridPostsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type getRecombeeHybridPostsQuery = getRecombeeHybridPostsQuery_Query;
+
 type createCommentDialogueSubmitMutation_createComment_CommentOutput_data_Comment = (
   { __typename?: 'Comment' }
   & CommentEdit
@@ -15766,6 +15918,23 @@ type createCommentDialogueSubmitMutationVariables = Exact<{
 
 
 type createCommentDialogueSubmitMutation = createCommentDialogueSubmitMutation_Mutation;
+
+type CuratedAndPopularThisWeekQuery_CuratedAndPopularThisWeek_CuratedAndPopularThisWeekResult_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type CuratedAndPopularThisWeekQuery_CuratedAndPopularThisWeek_CuratedAndPopularThisWeekResult = { __typename?: 'CuratedAndPopularThisWeekResult', results: Array<CuratedAndPopularThisWeekQuery_CuratedAndPopularThisWeek_CuratedAndPopularThisWeekResult_results_Post> };
+
+type CuratedAndPopularThisWeekQuery_Query = { __typename?: 'Query', CuratedAndPopularThisWeek: CuratedAndPopularThisWeekQuery_CuratedAndPopularThisWeek_CuratedAndPopularThisWeekResult | null };
+
+
+type CuratedAndPopularThisWeekQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type CuratedAndPopularThisWeekQuery = CuratedAndPopularThisWeekQuery_Query;
 
 type WelcomePostItemQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -15850,6 +16019,7 @@ type RecommendationsQueryQuery_Query = { __typename?: 'Query', Recommendations: 
 type RecommendationsQueryQueryVariables = Exact<{
   count: InputMaybe<Scalars['Int']['input']>;
   algorithm: InputMaybe<Scalars['JSON']['input']>;
+  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -16620,6 +16790,23 @@ type createSubscriptionSuggestedFeedSubscriptionsMutationVariables = Exact<{
 
 type createSubscriptionSuggestedFeedSubscriptionsMutation = createSubscriptionSuggestedFeedSubscriptionsMutation_Mutation;
 
+type SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult_results_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult = { __typename?: 'SuggestedFeedSubscriptionUsersResult', results: Array<SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult_results_User> };
+
+type SuggestedFeedSubscriptionUsersQuery_Query = { __typename?: 'Query', SuggestedFeedSubscriptionUsers: SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult | null };
+
+
+type SuggestedFeedSubscriptionUsersQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SuggestedFeedSubscriptionUsersQuery = SuggestedFeedSubscriptionUsersQuery_Query;
+
 type updateCommentAFSuggestCommentsItemMutation_updateComment_CommentOutput_data_Comment = (
   { __typename?: 'Comment' }
   & SuggestAlignmentComment
@@ -16673,6 +16860,23 @@ type updateUserAFSuggestUsersItemMutationVariables = Exact<{
 
 
 type updateUserAFSuggestUsersItemMutation = updateUserAFSuggestUsersItemMutation_Mutation;
+
+type AllReactedCommentsQuery_CommentsWithReacts_CommentsWithReactsResult_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type AllReactedCommentsQuery_CommentsWithReacts_CommentsWithReactsResult = { __typename?: 'CommentsWithReactsResult', results: Array<AllReactedCommentsQuery_CommentsWithReacts_CommentsWithReactsResult_results_Comment> };
+
+type AllReactedCommentsQuery_Query = { __typename?: 'Query', CommentsWithReacts: AllReactedCommentsQuery_CommentsWithReacts_CommentsWithReactsResult | null };
+
+
+type AllReactedCommentsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AllReactedCommentsQuery = AllReactedCommentsQuery_Query;
 
 type ModerationAltAccountsQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -17762,6 +17966,62 @@ type createUserTagRelTagSubforumPage2MutationVariables = Exact<{
 
 type createUserTagRelTagSubforumPage2Mutation = createUserTagRelTagSubforumPage2Mutation_Mutation;
 
+type getTagPreviewQuery_TagPreview_TagPreviewWithSummaries_tag_Tag = (
+  { __typename?: 'Tag' }
+  & TagPreviewFragment
+);
+
+type getTagPreviewQuery_TagPreview_TagPreviewWithSummaries_lens_MultiDocument = (
+  { __typename?: 'MultiDocument' }
+  & MultiDocumentContentDisplay
+);
+
+type getTagPreviewQuery_TagPreview_TagPreviewWithSummaries_summaries_MultiDocument = (
+  { __typename?: 'MultiDocument' }
+  & MultiDocumentContentDisplay
+);
+
+type getTagPreviewQuery_TagPreview_TagPreviewWithSummaries = { __typename?: 'TagPreviewWithSummaries', tag: getTagPreviewQuery_TagPreview_TagPreviewWithSummaries_tag_Tag, lens: getTagPreviewQuery_TagPreview_TagPreviewWithSummaries_lens_MultiDocument | null, summaries: Array<getTagPreviewQuery_TagPreview_TagPreviewWithSummaries_summaries_MultiDocument> };
+
+type getTagPreviewQuery_Query = { __typename?: 'Query', TagPreview: getTagPreviewQuery_TagPreview_TagPreviewWithSummaries | null };
+
+
+type getTagPreviewQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+  hash: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type getTagPreviewQuery = getTagPreviewQuery_Query;
+
+type getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries_tag_Tag = (
+  { __typename?: 'Tag' }
+  & TagSectionPreviewFragment
+);
+
+type getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries_lens_MultiDocument = (
+  { __typename?: 'MultiDocument' }
+  & MultiDocumentContentDisplay
+);
+
+type getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries_summaries_MultiDocument = (
+  { __typename?: 'MultiDocument' }
+  & MultiDocumentContentDisplay
+);
+
+type getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries = { __typename?: 'TagPreviewWithSummaries', tag: getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries_tag_Tag, lens: getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries_lens_MultiDocument | null, summaries: Array<getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries_summaries_MultiDocument> };
+
+type getTagSectionPreviewQuery_Query = { __typename?: 'Query', TagPreview: getTagSectionPreviewQuery_TagPreview_TagPreviewWithSummaries | null };
+
+
+type getTagSectionPreviewQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+  hash: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type getTagSectionPreviewQuery = getTagSectionPreviewQuery_Query;
+
 type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
   { __typename?: 'Localgroup' }
   & localGroupsBase
@@ -18132,6 +18392,139 @@ type updateUserReactionsPaletteMutationVariables = Exact<{
 
 
 type updateUserReactionsPaletteMutation = updateUserReactionsPaletteMutation_Mutation;
+
+type performVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment = (
+  { __typename?: 'Comment' }
+  & WithVoteComment
+);
+
+type performVoteCommentMutation_performVoteComment_VoteResultComment = { __typename?: 'VoteResultComment', showVotingPatternWarning: boolean, document: performVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment };
+
+type performVoteCommentMutation_Mutation = { __typename?: 'Mutation', performVoteComment: performVoteCommentMutation_performVoteComment_VoteResultComment | null };
+
+
+type performVoteCommentMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteCommentMutation = performVoteCommentMutation_Mutation;
+
+type performVotePostMutation_performVotePost_VoteResultPost_document_Post = (
+  { __typename?: 'Post' }
+  & WithVotePost
+);
+
+type performVotePostMutation_performVotePost_VoteResultPost = { __typename?: 'VoteResultPost', showVotingPatternWarning: boolean, document: performVotePostMutation_performVotePost_VoteResultPost_document_Post };
+
+type performVotePostMutation_Mutation = { __typename?: 'Mutation', performVotePost: performVotePostMutation_performVotePost_VoteResultPost | null };
+
+
+type performVotePostMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVotePostMutation = performVotePostMutation_Mutation;
+
+type performVoteTagRelMutation_performVoteTagRel_VoteResultTagRel_document_TagRel = (
+  { __typename?: 'TagRel' }
+  & WithVoteTagRel
+);
+
+type performVoteTagRelMutation_performVoteTagRel_VoteResultTagRel = { __typename?: 'VoteResultTagRel', showVotingPatternWarning: boolean, document: performVoteTagRelMutation_performVoteTagRel_VoteResultTagRel_document_TagRel };
+
+type performVoteTagRelMutation_Mutation = { __typename?: 'Mutation', performVoteTagRel: performVoteTagRelMutation_performVoteTagRel_VoteResultTagRel | null };
+
+
+type performVoteTagRelMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteTagRelMutation = performVoteTagRelMutation_Mutation;
+
+type performVoteRevisionMutation_performVoteRevision_VoteResultRevision_document_Revision = (
+  { __typename?: 'Revision' }
+  & WithVoteRevision
+);
+
+type performVoteRevisionMutation_performVoteRevision_VoteResultRevision = { __typename?: 'VoteResultRevision', showVotingPatternWarning: boolean, document: performVoteRevisionMutation_performVoteRevision_VoteResultRevision_document_Revision };
+
+type performVoteRevisionMutation_Mutation = { __typename?: 'Mutation', performVoteRevision: performVoteRevisionMutation_performVoteRevision_VoteResultRevision | null };
+
+
+type performVoteRevisionMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteRevisionMutation = performVoteRevisionMutation_Mutation;
+
+type performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate_document_ElectionCandidate = (
+  { __typename?: 'ElectionCandidate' }
+  & WithVoteElectionCandidate
+);
+
+type performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate = { __typename?: 'VoteResultElectionCandidate', showVotingPatternWarning: boolean, document: performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate_document_ElectionCandidate };
+
+type performVoteElectionCandidateMutation_Mutation = { __typename?: 'Mutation', performVoteElectionCandidate: performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate | null };
+
+
+type performVoteElectionCandidateMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteElectionCandidateMutation = performVoteElectionCandidateMutation_Mutation;
+
+type performVoteTagMutation_performVoteTag_VoteResultTag_document_Tag = (
+  { __typename?: 'Tag' }
+  & WithVoteTag
+);
+
+type performVoteTagMutation_performVoteTag_VoteResultTag = { __typename?: 'VoteResultTag', showVotingPatternWarning: boolean, document: performVoteTagMutation_performVoteTag_VoteResultTag_document_Tag };
+
+type performVoteTagMutation_Mutation = { __typename?: 'Mutation', performVoteTag: performVoteTagMutation_performVoteTag_VoteResultTag | null };
+
+
+type performVoteTagMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteTagMutation = performVoteTagMutation_Mutation;
+
+type performVoteMultiDocumentMutation_performVoteMultiDocument_VoteResultMultiDocument_document_MultiDocument = (
+  { __typename?: 'MultiDocument' }
+  & WithVoteMultiDocument
+);
+
+type performVoteMultiDocumentMutation_performVoteMultiDocument_VoteResultMultiDocument = { __typename?: 'VoteResultMultiDocument', showVotingPatternWarning: boolean, document: performVoteMultiDocumentMutation_performVoteMultiDocument_VoteResultMultiDocument_document_MultiDocument };
+
+type performVoteMultiDocumentMutation_Mutation = { __typename?: 'Mutation', performVoteMultiDocument: performVoteMultiDocumentMutation_performVoteMultiDocument_VoteResultMultiDocument | null };
+
+
+type performVoteMultiDocumentMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteMultiDocumentMutation = performVoteMultiDocumentMutation_Mutation;
 
 type emailstestsQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

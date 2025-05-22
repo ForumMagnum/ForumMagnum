@@ -1,12 +1,11 @@
 import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import React, { useCallback } from 'react';
 import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import ReviewVotingButtons from "./ReviewVotingButtons";
 import ErrorBoundary from "../common/ErrorBoundary";
 import LWTooltip from "../common/LWTooltip";
@@ -28,14 +27,13 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
-  const [submitVote] = useMutation(gql`
+  const [submitVote] = useMutation(gql(`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
       submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
         ...PostsReviewVotingList
       }
     }
-    ${fragmentTextForQuery("PostsReviewVotingList")} 
-  `);
+  `));
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
     _id: string|null,

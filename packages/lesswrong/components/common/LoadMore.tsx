@@ -9,6 +9,8 @@ import { useIsFirstRender } from "../hooks/useFirstRender";
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
+import type { ObservableQueryFields } from '@apollo/client';
+import type { WrappedFetchMore } from '../hooks/useLoadMore';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,7 +79,7 @@ const LoadMore = ({
   message=preferredHeadingCase("Load More"),
 }: {
   // loadMore: Callback when clicked.
-  loadMore: LoadMoreCallback,
+  loadMore: WrappedFetchMore<ObservableQueryFields<any, any>['fetchMore']> | LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,

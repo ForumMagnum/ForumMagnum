@@ -11,7 +11,6 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { JargonTermForm } from './JargonTermForm';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import LoadMore from "../common/LoadMore";
@@ -359,14 +358,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
-  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(graphql`
+  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(graphql(`
     mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {
       getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {
         ...JargonTerms
       }
     }
-    ${fragmentTextForQuery("JargonTerms")}
-  `);
+  `));
 
   const autogenerateJargonTerms = async () => {
     if (!glossaryPrompt) return;

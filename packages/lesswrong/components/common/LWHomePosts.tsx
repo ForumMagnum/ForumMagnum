@@ -39,7 +39,6 @@ import CuratedPostsList from "../recommendations/CuratedPostsList";
 import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
 import BookmarksList from "../bookmarks/BookmarksList";
 import ContinueReadingList from "../recommendations/ContinueReadingList";
-import VertexPostsList from "../posts/VertexPostsList";
 import WelcomePostItem from "../recommendations/WelcomePostItem";
 import MixedTypeFeed from "./MixedTypeFeed";
 import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
@@ -680,11 +679,6 @@ const LWHomePosts = ({ children, classes }: {
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
-              </AnalyticsContext>}
-
-              {/* VERTEX RECOMMENDATIONS */}
-              {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
-                <VertexPostsList />  
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}

@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
@@ -165,14 +164,13 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
 
-  const [revertMutation] = useMutation(graphql`
+  const [revertMutation] = useMutation(graphql(`
     mutation revertPostToRevision($postId: String!, $revisionId: String!) {
       revertPostToRevision(postId: $postId, revisionId: $revisionId) {
         ...PostsEdit
       }
     }
-    ${fragmentTextForQuery("PostsEdit")}
-  `);
+  `));
   const canRevert = canUserEditPostMetadata(currentUser, post);
 
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({

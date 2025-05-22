@@ -10,7 +10,6 @@ import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useCurrentUser } from '../common/withUser';
 import { Paper }from '@/components/widgets/Paper';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';
 import UsersName from "../users/UsersName";
@@ -20,7 +19,7 @@ import FollowUserSearch from "./FollowUserSearch";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SubscriptionStateMutation = gql(`
@@ -243,20 +242,32 @@ function useSuggestedUsers() {
   const currentUser = useCurrentUser();
   const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
 
-  const { results, loading, loadMore } = usePaginatedResolver({
-    fragmentName: "UsersMinimumInfo",
-    resolverName: "SuggestedFeedSubscriptionUsers",
-    limit: 64,
-    itemsPerPage: 16,
+  const initialLimit = 64;
+
+  const { data: suggestedUsersData, loading } = useQuery(gql(`
+    query SuggestedFeedSubscriptionUsers($limit: Int) {
+      SuggestedFeedSubscriptionUsers(limit: $limit) {
+        results {
+          ...UsersMinimumInfo
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    pollInterval: 0,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
     ssr: false,
     skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
   });
+
+  const results = suggestedUsersData?.SuggestedFeedSubscriptionUsers?.results;
 
   useEffect(() => {
     setAvailableUsers(shuffle(results ?? []));
   }, [results]);
 
-  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };
+  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading };
 }
 
 const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: {

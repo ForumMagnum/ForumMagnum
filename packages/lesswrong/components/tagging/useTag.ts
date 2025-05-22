@@ -1,6 +1,6 @@
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments.ts';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { hasWikiLenses } from '@/lib/betas';
 import intersection from 'lodash/intersection';
 import pick from 'lodash/pick';
@@ -46,6 +46,38 @@ type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment'
 
 type CommonTagLensFields = Pick<TagPreviewFragment, Exclude<keyof MultiDocumentContentDisplay & keyof TagPreviewFragment, '__typename'>>;
 
+const tagPreviewQuery = gql(`
+  query getTagPreview($slug: String!, $hash: String) {
+    TagPreview(slug: $slug, hash: $hash) {
+      tag {
+        ...TagPreviewFragment
+      }
+      lens {
+        ...MultiDocumentContentDisplay
+      }
+      summaries {
+        ...MultiDocumentContentDisplay
+      }
+    }
+  }
+`);
+
+const tagSectionPreviewQuery = gql(`
+  query getTagSectionPreview($slug: String!, $hash: String) {
+    TagPreview(slug: $slug, hash: $hash) {
+      tag {
+        ...TagSectionPreviewFragment
+      }
+      lens {
+        ...MultiDocumentContentDisplay
+      }
+      summaries {
+        ...MultiDocumentContentDisplay
+      }
+    }
+  }
+`);
+
 export const useTagPreview = (
   slug: string,
   hash?: string,
@@ -59,30 +91,15 @@ export const useTagPreview = (
     ? 'TagSectionPreviewFragment'
     : 'TagPreviewFragment';
 
+  const query = hash
+    ? tagSectionPreviewQuery
+    : tagPreviewQuery;
+
   const hashVariables = hash
     ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } } as const
     : {};
 
-  // TODO: figure out how to use the hash in the query
-  // Alternatively, assume that if we're getting a hash, we're using the hash query
-  const query = gql`
-    query getTagPreview($slug: String!, $hash: String) {
-      TagPreview(slug: $slug, hash: $hash) {
-        tag {
-          ...${fragmentName}
-        }
-        lens {
-          ...MultiDocumentContentDisplay
-        }
-        summaries {
-          ...MultiDocumentContentDisplay
-        }
-      }
-    }
-    ${fragmentTextForQuery([fragmentName, 'MultiDocumentContentDisplay'])}
-  `;
-
-  const { data, loading: queryLoading, error: queryError } = useQuery(query, {
+  const { data, loading: queryLoading, error: queryError } = useQuery<getTagPreviewQuery | getTagSectionPreviewQuery>(query, {
     skip: queryOptions?.skip || !hasWikiLenses,
     variables: { ...hashVariables.extraVariablesValues, slug }
   })
@@ -102,11 +119,11 @@ export const useTagPreview = (
 
   if (hasWikiLenses) {
     if (data?.TagPreview?.tag) {
-      const originalTag: TagPreviewFragment = data.TagPreview.tag;
+      const originalTag = data.TagPreview.tag;
       const lens: MultiDocumentContentDisplay | null = data.TagPreview.lens;
       const summaries: MultiDocumentContentDisplay[] = data.TagPreview.summaries;
 
-      let preview: TagPreviewFragment & { summaries: MultiDocumentContentDisplay[] };
+      let preview: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries: MultiDocumentContentDisplay[] };
 
       if (lens) {
         const tagKeys = Object.keys(originalTag);

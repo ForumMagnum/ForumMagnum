@@ -87,6 +87,7 @@ const {Query: MyDialoguesQuery, typeDefs: MyDialoguesTypeDefs } = createPaginate
   cacheMaxAgeMs: 0, 
 });
 
+// TODO: remove this and all the Vertex-related code after 2025-06-21 (giving clients that might be querying it some time to cycle out)
 const {Query: GoogleVertexPostsQuery, typeDefs: GoogleVertexPostsTypeDefs } = createPaginatedResolver({
   name: "GoogleVertexPosts",
   graphQLType: "VertexRecommendedPost",
@@ -520,7 +521,7 @@ export const postGqlTypeDefs = gql`
 
   type PostWithApprovedJargon {
     post: Post!
-    jargonTerms: [JargonTerm!]
+    jargonTerms: [JargonTerm!]!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

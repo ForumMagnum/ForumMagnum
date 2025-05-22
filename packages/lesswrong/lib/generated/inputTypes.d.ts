@@ -395,7 +395,7 @@ interface ElicitBlockData {
   notes: string | null;
   resolvesBy: Date | null;
   resolution: boolean | null;
-  predictions: Array<ElicitPrediction | null> | null;
+  predictions: Array<ElicitPrediction> | null;
 }
 
 interface NotificationCounts {
@@ -472,7 +472,7 @@ interface VertexRecommendedPost {
 
 interface PostWithApprovedJargon {
   post: Post;
-  jargonTerms: Array<JargonTerm> | null;
+  jargonTerms: Array<JargonTerm>;
 }
 
 interface DigestHighlightsResult {
