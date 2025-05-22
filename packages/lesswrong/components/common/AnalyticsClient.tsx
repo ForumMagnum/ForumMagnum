@@ -24,7 +24,7 @@ export const AnalyticsClient = () => {
     }
   }, [currentUserId, clientId, currentUser, abTestGroupsUsed]);
   
-  return <div/>;
+  return <></>;
 }
 
 export default registerComponent("AnalyticsClient", AnalyticsClient, {

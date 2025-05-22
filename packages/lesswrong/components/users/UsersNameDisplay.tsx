@@ -108,30 +108,28 @@ const UsersNameDisplay = ({
     profileUrl += `?from=${pageSectionContext}`
   }
 
-  return <span className={className}>
-    <span {...eventHandlers}>
-      <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-        <UserTooltip
-          user={user}
-          placement={tooltipPlacement}
-          inlineBlock={false}
-          hideFollowButton={hideFollowButton}
-          disabled={noTooltip}
+  return <span className={className} {...eventHandlers}>
+    <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+      <UserTooltip
+        user={user}
+        placement={tooltipPlacement}
+        inlineBlock={false}
+        hideFollowButton={hideFollowButton}
+        disabled={noTooltip}
+      >
+        <Link
+          to={profileUrl}
+          className={classNames(
+            colorClass,
+            noKibitz && classes.noKibitz,
+            nowrap && classes.nowrap,
+          )}
+          {...(nofollow ? {rel:"nofollow"} : {})}
         >
-          <Link
-            to={profileUrl}
-            className={classNames(
-              colorClass,
-              noKibitz && classes.noKibitz,
-              nowrap && classes.nowrap,
-            )}
-            {...(nofollow ? {rel:"nofollow"} : {})}
-          >
-            {displayName}
-          </Link>
-        </UserTooltip>
-      </AnalyticsContext>
-    </span>
+          {displayName}
+        </Link>
+      </UserTooltip>
+    </AnalyticsContext>
   </span>
 }
 

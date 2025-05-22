@@ -117,7 +117,7 @@ const AnalyticsPageInitializer = () => {
       setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
     }, [pageIsVisible, userIsIdle, setTimerIsActive])
 
-  return <span/>
+  return <></>
 };
 
 export default registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer);

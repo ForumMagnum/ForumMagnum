@@ -44,7 +44,7 @@ export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): strin
   if (isE2E) {
     themeOptions = {name: "default"};
   }
-  const prefix = '<style id="jss-insertion-point"></style><style id="jss-insertion-start"></style><style id="jss-insertion-end"></style>';
+  const prefix = '<style id="jss-insertion-start"></style><style id="jss-insertion-end"></style>';
   if (themeOptionsAreConcrete(themeOptions)) {
     return `${prefix}${renderLinkMainSheet(stylesheetUrls.getStylesheetUrl(themeOptions))}`;
   }
