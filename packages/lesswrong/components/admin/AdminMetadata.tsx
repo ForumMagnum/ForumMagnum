@@ -1,6 +1,7 @@
-import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery, gql } from '@apollo/client';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({

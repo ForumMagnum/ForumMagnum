@@ -12,7 +12,8 @@ import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/insta
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
 import { useMulti } from "@/lib/crud/withMulti";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 
 type PeopleDirectoryView = "list" | "map";
 

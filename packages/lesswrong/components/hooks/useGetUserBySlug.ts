@@ -1,5 +1,6 @@
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 
 interface GetUserBySlugOptions<FragmentName extends FragmentTypesByCollection['Users']> {
   fragmentName: FragmentName;

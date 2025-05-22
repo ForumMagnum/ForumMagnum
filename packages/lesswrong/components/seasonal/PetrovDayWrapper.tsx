@@ -1,6 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useEffect, useState} from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import moment from '../../lib/moment-timezone';
 import PetrovDayLossScreen from "./PetrovDayLossScreen";
 import PetrovDayButton from "./PetrovDayButton";

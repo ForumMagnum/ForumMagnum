@@ -1,5 +1,6 @@
 import { useCallback } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { hasSurveys } from "@/lib/betas";
 

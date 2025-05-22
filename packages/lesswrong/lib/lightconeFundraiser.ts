@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import gql from "graphql-tag";
 import { isLW } from "./instanceSettings";
 import { lightconeFundraiserUnsyncedAmount } from "./publicSettings";
