@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
+import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
@@ -745,7 +745,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentTerms.view, rawResults, currentUser?._id]);
 
-  const commentCount = results?.length ?? 0;
+  const commentCount = results?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
   const answerCount = post.question ? answersTree.length : undefined;

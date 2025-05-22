@@ -33,6 +33,8 @@ import Error404 from "../common/Error404";
 import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { hasDraftComments } from '@/lib/betas';
+import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -41,11 +43,16 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
+  submitSegmented: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
 }));
 
 const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType) => ({
   submit: {
-    textAlign: 'right',
+    display: 'flex',
+    justifyContent: 'end',
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
@@ -107,16 +114,41 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     color: theme.palette.background.pageActiveAreaBackground,
     overflowX: "hidden",  // to stop loading dots from wrapping around
   },
+  submitSegmented: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  submitWrapper: {
+    display: "flex",
+  },
 }), { stylePriority: 1 });
+
+export type CommentInteractionType = "comment" | "reply";
 
 interface CommentSubmitProps {
   isMinimalist: boolean;
-  formDisabledDueToRateLimit: boolean;
+  formDisabledDueToRateLimit?: boolean;
   isQuickTake: boolean;
-  type: string;
-  loading: boolean;
+  showCancelButton: boolean;
+  loading?: boolean;
   quickTakesSubmitButtonAtBottom?: boolean;
+
+  disableSubmitDropdown?: boolean;
+  submitLabel: React.ReactNode;
+  handleSubmit: (meta: {draft: boolean}) => Promise<void>,
+  cancelLabel?: React.ReactNode;
+  cancelCallback?: () => (void | Promise<void>);
+
+  formCanSubmit: boolean;
+  formIsSubmitting: boolean;
 }
+
+type CommentFormPassthroughSubmitProps = Pick<CommentSubmitProps,
+  'formDisabledDueToRateLimit' |
+  'isQuickTake' |
+  'quickTakesSubmitButtonAtBottom' |
+  'loading'
+>;
 
 interface InnerButtonProps {
   variant?: 'contained',
@@ -125,31 +157,34 @@ interface InnerButtonProps {
 }
 
 const CommentSubmit = ({
-  isMinimalist,
-  formDisabledDueToRateLimit,
-  isQuickTake,
+  isMinimalist = false,
+  formDisabledDueToRateLimit = false,
+  isQuickTake = false,
+  disableSubmitDropdown = false,
+  showCancelButton = false,
   quickTakesSubmitButtonAtBottom,
-  type,
-  cancelCallback,
-  loading,
+  loading = false,
   submitLabel = "Submit",
+  handleSubmit,
   cancelLabel = "Cancel",
-}: CommentSubmitProps & {
-  submitLabel?: React.ReactNode;
-  cancelLabel?: React.ReactNode;
-  cancelCallback?: () => (void | Promise<void>);
-}) => {
+  cancelCallback,
+  formCanSubmit,
+  formIsSubmitting,
+}: CommentSubmitProps) => {
   const classes = useStyles(customSubmitButtonStyles);
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  // by default, the EA Forum uses MUI contained buttons here
   const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
   const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
-  if (formDisabledDueToRateLimit || loading) {
+
+  const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
+  if (actualSubmitDisabled) {
     submitBtnProps.disabled = true;
   }
+
+  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
 
   return (
     <div
@@ -159,7 +194,7 @@ const CommentSubmit = ({
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}
     >
-      {type === "reply" && !isMinimalist && (
+      {showCancelButton && !isMinimalist && (
         <Button
           onClick={cancelCallback}
           className={classNames(formButtonClass, classes.cancelButton)}
@@ -168,23 +203,28 @@ const CommentSubmit = ({
           {cancelLabel}
         </Button>
       )}
-      <Button
-        type="submit"
-        id="new-comment-submit"
-        className={classNames(formButtonClass, classes.submitButton)}
-        onClick={(ev) => {
-          if (!currentUser) {
-            openDialog({
-              name: "LoginPopup",
-              contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
-            });
-            ev.preventDefault();
-          }
-        }}
-        {...submitBtnProps}
-      >
-        {loading ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
-      </Button>
+      <div className={classes.submitWrapper}>
+        <Button
+          type="submit"
+          id="new-comment-submit"
+          className={classNames(formButtonClass, classes.submitButton, {
+            [classes.submitSegmented]: showDropdownMenu,
+          })}
+          onClick={(ev) => {
+            if (!currentUser) {
+              openDialog({
+                name: "LoginPopup",
+                contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
+              });
+              ev.preventDefault();
+            }
+          }}
+          {...submitBtnProps}
+        >
+          {(formIsSubmitting || loading) ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
+        </Button>
+        {showDropdownMenu && <CommentsSubmitDropdown handleSubmit={handleSubmit} />}
+      </div>
     </div>
   );
 }
@@ -201,6 +241,8 @@ export const CommentForm = ({
   submitLabel,
   cancelLabel,
   commentSubmitProps,
+  interactionType,
+  disableSubmitDropdown,
   onSubmit,
   onSuccess,
   onCancel,
@@ -227,7 +269,9 @@ export const CommentForm = ({
   maxHeight?: boolean;
   submitLabel?: string;
   cancelLabel?: string;
-  commentSubmitProps?: CommentSubmitProps;
+  commentSubmitProps?: CommentFormPassthroughSubmitProps;
+  interactionType?: CommentInteractionType;
+  disableSubmitDropdown?: boolean;
   onSubmit?: () => void;
   onSuccess: (doc: CommentsList) => void;
   onCancel: () => void;
@@ -268,9 +312,14 @@ export const CommentForm = ({
       ...initialData,
       ...(formType === 'new' ? prefilledProps : {}),
     },
-    onSubmit: async ({ formApi }) => {
+    onSubmitMeta: {
+      draft: false,
+    },
+    onSubmit: async ({ formApi, meta }) => {
       await onSubmitCallback.current?.();
       onSubmit?.();
+
+      const { draft } = meta;
 
       try {
         let result: CommentsList;
@@ -279,13 +328,13 @@ export const CommentForm = ({
           const { af, ...rest } = formApi.state.values;
           const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
 
-          const { data } = await create({ data: submitData });
+          const { data } = await create({ data: { draft, ...submitData } });
           result = data?.createComment.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
             selector: { _id: initialData?._id },
-            data: updatedFields,
+            data: { draft, ...updatedFields },
           });
           result = data?.updateComment.data;
         }
@@ -303,8 +352,7 @@ export const CommentForm = ({
     },
   });
 
-  const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
-  const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+  const formRef = useFormSubmitOnCmdEnter(() => form.handleSubmit());
 
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
@@ -312,42 +360,37 @@ export const CommentForm = ({
 
   const showAlignmentOptionsGroup = isLWorAF && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
 
-  const submitElement = formType === 'new' && commentSubmitProps
-    ? <CommentSubmit
-        {...commentSubmitProps}
-        submitLabel={submitLabel}
-        cancelLabel={cancelLabel}
-        cancelCallback={onCancel}
-      />
-    : <div className="form-submit">
-        <Button
-          className={classNames("form-cancel", classes.cancelButton)}
-          onClick={(e) => {
-            e.preventDefault();
-            onCancel();
-          }}
-        >
-          {cancelLabel ?? 'Cancel'}
-        </Button>
+  const submitElement = (
+    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+      {([canSubmit, isSubmitting]) => {
+        const isReplyOrEdit = (formType === 'new' && interactionType === 'reply') || formType === 'edit';
 
-        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
-            <Button
-              type="submit"
-              disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.submitButton)}
-            >
-              {submitLabel ?? 'Submit'}
-            </Button>
-          )}
-        </form.Subscribe>
-      </div>;
+        const showCancelButton = isReplyOrEdit && !commentMinimalistStyle;
+
+        return (
+          <CommentSubmit
+            {...commentSubmitProps}
+            isMinimalist={commentMinimalistStyle ?? false}
+            isQuickTake={commentSubmitProps?.isQuickTake ?? form.state.values.shortform ?? false}
+            disableSubmitDropdown={disableSubmitDropdown}
+            showCancelButton={showCancelButton}
+            submitLabel={submitLabel}
+            handleSubmit={form.handleSubmit}
+            cancelLabel={cancelLabel}
+            cancelCallback={onCancel}
+            formCanSubmit={canSubmit}
+            formIsSubmitting={isSubmitting}
+          />
+        );
+      }}
+    </form.Subscribe>
+  );
 
   return (
     <form className={classNames("vulcan-form", formClassName)} ref={formRef} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
-      void form.handleSubmit();
+      void form.handleSubmit({ draft: false });
     }}>
       {displayedErrorComponent}
       <DefaultFormGroupLayout

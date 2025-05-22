@@ -204,6 +204,7 @@ interface DbComment extends DbObject {
   deletedReason: string | null
   descendentCount: number
   directChildrenCount: number
+  draft: boolean
   extendedScore: any | null
   forumEventId: string | null
   forumEventMetadata: {

@@ -72,6 +72,7 @@ import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { commentIncludedInCounts } from "../comments/helpers";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -3803,8 +3804,7 @@ const schema = {
         fieldName: "commentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) =>
-          !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
+        filterFn: commentIncludedInCounts,
       }),
       nullable: false,
     },
@@ -3816,8 +3816,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) =>
-          !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
+        filterFn: commentIncludedInCounts,
         resyncElastic: false,
       },
       validation: {
@@ -3837,7 +3836,7 @@ const schema = {
         fieldName: "topLevelCommentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => !comment.deleted && !comment.parentCommentId,
+        filterFn: (comment) => commentIncludedInCounts(comment) && !comment.parentCommentId,
       }),
       nullable: false,
     },
@@ -3849,7 +3848,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => !comment.deleted && !comment.parentCommentId,
+        filterFn: (comment) => commentIncludedInCounts(comment) && !comment.parentCommentId,
         resyncElastic: false,
       },
       validation: {
@@ -3874,6 +3873,7 @@ const schema = {
         const filter = {
           ...getDefaultViewSelector("Comments"),
           score: { $gt: 0 },
+          draft: false,
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
@@ -4226,7 +4226,7 @@ const schema = {
         fieldName: "afCommentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => comment.af && !comment.deleted && !comment.debateResponse,
+        filterFn: (comment) => commentIncludedInCounts(comment) && comment.af,
       }),
       nullable: false,
     },
@@ -4238,7 +4238,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => comment.af && !comment.deleted && !comment.debateResponse,
+        filterFn: (comment) => commentIncludedInCounts(comment) && comment.af,
         resyncElastic: false,
       },
       validation: {

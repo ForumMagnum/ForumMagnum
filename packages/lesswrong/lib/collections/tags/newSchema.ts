@@ -549,6 +549,7 @@ const schema = {
           ...getDefaultViewSelector("Comments"),
           tagId: tag._id,
           score: { $gt: 0 },
+          draft: false,
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           tagCommentType: tagCommentType,

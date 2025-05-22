@@ -82,7 +82,7 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
         enableGuidelines={false}
         padding={false}
         successCallback={onClose}
-        type="comment"
+        interactionType="comment"
         formProps={{
           maxHeight: true
         }}

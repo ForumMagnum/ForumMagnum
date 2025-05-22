@@ -276,7 +276,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                   }}
                   successCallback={closeReplyForm}
                   cancelCallback={closeReplyForm}
-                  type="reply"
+                  interactionType="reply"
                 />
               </div>
             }

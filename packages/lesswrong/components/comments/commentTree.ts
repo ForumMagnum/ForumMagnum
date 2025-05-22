@@ -186,4 +186,15 @@ export interface CommentTreeOptions {
    * Apply styling to deemphasize comments written by users with any userId not in the provided set
    */
   deemphasizeCommentsExcludingUserIds?: Set<string>,
+
+  /**
+   * If set, start in the editing state
+   */
+  initialShowEdit?: boolean,
+
+  /**
+   * If set, CommentBottom shows an "Edit in context" link. If followed this takes the user to a prefilled edit
+   * box in the context their comment will appear.
+   */
+  showEditInContext?: boolean,
 }

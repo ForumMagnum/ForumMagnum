@@ -199,7 +199,7 @@ const ForumEventResultPopper = ({
             </div>
             {replyFormOpen && (
               <CommentsNewForm
-                type="reply"
+                interactionType="reply"
                 post={comment.post ?? undefined}
                 parentComment={comment}
                 cancelCallback={() => setReplyFormOpen(false)}
