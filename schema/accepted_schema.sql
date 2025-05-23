@@ -974,6 +974,7 @@ CREATE TABLE "ForumEvents" (
   "contrastColor" TEXT,
   "tagId" VARCHAR(27),
   "postId" VARCHAR(27),
+  "commentId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
   "isGlobal" BOOL NOT NULL DEFAULT TRUE,

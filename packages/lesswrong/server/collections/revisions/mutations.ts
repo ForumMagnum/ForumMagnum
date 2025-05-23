@@ -2,7 +2,7 @@ import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev, upsertPolls, upvoteOwnTagRevision } from "@/server/callbacks/revisionCallbacks";
+import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from "@/server/callbacks/revisionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -14,6 +14,7 @@ import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
+import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -39,16 +40,11 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  await Promise.all([
-    upsertPolls({
-      revision: documentWithId,
-      context
-    }),
-    upvoteOwnTagRevision({
-      revision: documentWithId,
-      context
-    })
-  ]);
+  assertPollsAllowed(documentWithId);
+  await upvoteOwnTagRevision({
+    revision: documentWithId,
+    context
+  })
 
   await updateDenormalizedHtmlAttributionsDueToRev({
     revision: documentWithId,
