@@ -744,11 +744,17 @@ extend type Mutation {
 type AllTagsActivityFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [AllTagsActivityFeedEntryType!]
+  results: [AllTagsActivityFeedEntry!]
 }
 
-type AllTagsActivityFeedEntryType {
-  type: String!
+enum AllTagsActivityFeedEntryType {
+  tagCreated
+  tagRevision
+  tagDiscussionComment
+}
+
+type AllTagsActivityFeedEntry {
+  type: AllTagsActivityFeedEntryType!
   tagCreated: Tag
   tagRevision: Revision
   tagDiscussionComment: Comment
@@ -761,12 +767,21 @@ extend type Query {
 type RecentDiscussionFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [RecentDiscussionFeedEntryType!]
+  results: [RecentDiscussionFeedEntry!]
   sessionId: String
 }
 
-type RecentDiscussionFeedEntryType {
-  type: String!
+enum RecentDiscussionFeedEntryType {
+  postCommented
+  shortformCommented
+  tagDiscussed
+  tagRevised
+  subscribeReminder
+  meetupsPoke
+}
+
+type RecentDiscussionFeedEntry {
+  type: RecentDiscussionFeedEntryType!
   postCommented: Post
   shortformCommented: Post
   tagDiscussed: Tag
@@ -788,11 +803,15 @@ type SubscribedPostAndComments {
 type SubscribedFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubscribedFeedEntryType!]
+  results: [SubscribedFeedEntry!]
 }
 
-type SubscribedFeedEntryType {
-  type: String!
+enum SubscribedFeedEntryType {
+  postCommented
+}
+
+type SubscribedFeedEntry {
+  type: SubscribedFeedEntryType!
   postCommented: SubscribedPostAndComments
 }
 
@@ -803,11 +822,22 @@ extend type Query {
 type TagHistoryFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [TagHistoryFeedEntryType!]
+  results: [TagHistoryFeedEntry!]
 }
 
-type TagHistoryFeedEntryType {
-  type: String!
+enum TagHistoryFeedEntryType {
+  tagCreated
+  tagApplied
+  tagRevision
+  tagDiscussionComment
+  lensRevision
+  summaryRevision
+  wikiMetadataChanged
+  lensOrSummaryMetadataChanged
+}
+
+type TagHistoryFeedEntry {
+  type: TagHistoryFeedEntryType!
   tagCreated: Tag
   tagApplied: TagRel
   tagRevision: Revision
@@ -825,11 +855,17 @@ extend type Query {
 type SubforumMagicFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubforumMagicFeedEntryType!]
+  results: [SubforumMagicFeedEntry!]
 }
 
-type SubforumMagicFeedEntryType {
-  type: String!
+enum SubforumMagicFeedEntryType {
+  tagSubforumPosts
+  tagSubforumComments
+  tagSubforumStickyComments
+}
+
+type SubforumMagicFeedEntry {
+  type: SubforumMagicFeedEntryType!
   tagSubforumPosts: Post
   tagSubforumComments: Comment
   tagSubforumStickyComments: Comment
@@ -842,11 +878,17 @@ extend type Query {
 type SubforumTopFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubforumTopFeedEntryType!]
+  results: [SubforumTopFeedEntry!]
 }
 
-type SubforumTopFeedEntryType {
-  type: String!
+enum SubforumTopFeedEntryType {
+  tagSubforumPosts
+  tagSubforumComments
+  tagSubforumStickyComments
+}
+
+type SubforumTopFeedEntry {
+  type: SubforumTopFeedEntryType!
   tagSubforumPosts: Post
   tagSubforumComments: Comment
   tagSubforumStickyComments: Comment
@@ -859,11 +901,17 @@ extend type Query {
 type SubforumRecentCommentsFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubforumRecentCommentsFeedEntryType!]
+  results: [SubforumRecentCommentsFeedEntry!]
 }
 
-type SubforumRecentCommentsFeedEntryType {
-  type: String!
+enum SubforumRecentCommentsFeedEntryType {
+  tagSubforumPosts
+  tagSubforumComments
+  tagSubforumStickyComments
+}
+
+type SubforumRecentCommentsFeedEntry {
+  type: SubforumRecentCommentsFeedEntryType!
   tagSubforumPosts: Post
   tagSubforumComments: Comment
   tagSubforumStickyComments: Comment
@@ -876,11 +924,17 @@ extend type Query {
 type SubforumNewFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubforumNewFeedEntryType!]
+  results: [SubforumNewFeedEntry!]
 }
 
-type SubforumNewFeedEntryType {
-  type: String!
+enum SubforumNewFeedEntryType {
+  tagSubforumPosts
+  tagSubforumComments
+  tagSubforumStickyComments
+}
+
+type SubforumNewFeedEntry {
+  type: SubforumNewFeedEntryType!
   tagSubforumPosts: Post
   tagSubforumComments: Comment
   tagSubforumStickyComments: Comment
@@ -893,11 +947,17 @@ extend type Query {
 type SubforumOldFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubforumOldFeedEntryType!]
+  results: [SubforumOldFeedEntry!]
 }
 
-type SubforumOldFeedEntryType {
-  type: String!
+enum SubforumOldFeedEntryType {
+  tagSubforumPosts
+  tagSubforumComments
+  tagSubforumStickyComments
+}
+
+type SubforumOldFeedEntry {
+  type: SubforumOldFeedEntryType!
   tagSubforumPosts: Post
   tagSubforumComments: Comment
   tagSubforumStickyComments: Comment
@@ -1332,12 +1392,18 @@ type FeedSpotlightItem {
 type UltraFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [UltraFeedEntryType!]
+  results: [UltraFeedEntry!]
   sessionId: String
 }
 
-type UltraFeedEntryType {
-  type: String!
+enum UltraFeedEntryType {
+  feedCommentThread
+  feedPost
+  feedSpotlight
+}
+
+type UltraFeedEntry {
+  type: UltraFeedEntryType!
   feedCommentThread: FeedCommentThread
   feedPost: FeedPost
   feedSpotlight: FeedSpotlightItem

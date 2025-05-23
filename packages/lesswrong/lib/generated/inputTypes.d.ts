@@ -526,11 +526,11 @@ interface PostsWithApprovedJargonResult {
 interface AllTagsActivityFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<AllTagsActivityFeedEntryType> | null;
+  results: Array<AllTagsActivityFeedEntry> | null;
 }
 
-interface AllTagsActivityFeedEntryType {
-  type: string;
+interface AllTagsActivityFeedEntry {
+  type: AllTagsActivityFeedEntryType;
   tagCreated: Tag | null;
   tagRevision: Revision | null;
   tagDiscussionComment: Comment | null;
@@ -539,12 +539,12 @@ interface AllTagsActivityFeedEntryType {
 interface RecentDiscussionFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<RecentDiscussionFeedEntryType> | null;
+  results: Array<RecentDiscussionFeedEntry> | null;
   sessionId: string | null;
 }
 
-interface RecentDiscussionFeedEntryType {
-  type: string;
+interface RecentDiscussionFeedEntry {
+  type: RecentDiscussionFeedEntryType;
   postCommented: Post | null;
   shortformCommented: Post | null;
   tagDiscussed: Tag | null;
@@ -562,22 +562,22 @@ interface SubscribedPostAndComments {
 interface SubscribedFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubscribedFeedEntryType> | null;
+  results: Array<SubscribedFeedEntry> | null;
 }
 
-interface SubscribedFeedEntryType {
-  type: string;
+interface SubscribedFeedEntry {
+  type: SubscribedFeedEntryType;
   postCommented: SubscribedPostAndComments | null;
 }
 
 interface TagHistoryFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<TagHistoryFeedEntryType> | null;
+  results: Array<TagHistoryFeedEntry> | null;
 }
 
-interface TagHistoryFeedEntryType {
-  type: string;
+interface TagHistoryFeedEntry {
+  type: TagHistoryFeedEntryType;
   tagCreated: Tag | null;
   tagApplied: TagRel | null;
   tagRevision: Revision | null;
@@ -591,11 +591,11 @@ interface TagHistoryFeedEntryType {
 interface SubforumMagicFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubforumMagicFeedEntryType> | null;
+  results: Array<SubforumMagicFeedEntry> | null;
 }
 
-interface SubforumMagicFeedEntryType {
-  type: string;
+interface SubforumMagicFeedEntry {
+  type: SubforumMagicFeedEntryType;
   tagSubforumPosts: Post | null;
   tagSubforumComments: Comment | null;
   tagSubforumStickyComments: Comment | null;
@@ -604,11 +604,11 @@ interface SubforumMagicFeedEntryType {
 interface SubforumTopFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubforumTopFeedEntryType> | null;
+  results: Array<SubforumTopFeedEntry> | null;
 }
 
-interface SubforumTopFeedEntryType {
-  type: string;
+interface SubforumTopFeedEntry {
+  type: SubforumTopFeedEntryType;
   tagSubforumPosts: Post | null;
   tagSubforumComments: Comment | null;
   tagSubforumStickyComments: Comment | null;
@@ -617,11 +617,11 @@ interface SubforumTopFeedEntryType {
 interface SubforumRecentCommentsFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubforumRecentCommentsFeedEntryType> | null;
+  results: Array<SubforumRecentCommentsFeedEntry> | null;
 }
 
-interface SubforumRecentCommentsFeedEntryType {
-  type: string;
+interface SubforumRecentCommentsFeedEntry {
+  type: SubforumRecentCommentsFeedEntryType;
   tagSubforumPosts: Post | null;
   tagSubforumComments: Comment | null;
   tagSubforumStickyComments: Comment | null;
@@ -630,11 +630,11 @@ interface SubforumRecentCommentsFeedEntryType {
 interface SubforumNewFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubforumNewFeedEntryType> | null;
+  results: Array<SubforumNewFeedEntry> | null;
 }
 
-interface SubforumNewFeedEntryType {
-  type: string;
+interface SubforumNewFeedEntry {
+  type: SubforumNewFeedEntryType;
   tagSubforumPosts: Post | null;
   tagSubforumComments: Comment | null;
   tagSubforumStickyComments: Comment | null;
@@ -643,11 +643,11 @@ interface SubforumNewFeedEntryType {
 interface SubforumOldFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubforumOldFeedEntryType> | null;
+  results: Array<SubforumOldFeedEntry> | null;
 }
 
-interface SubforumOldFeedEntryType {
-  type: string;
+interface SubforumOldFeedEntry {
+  type: SubforumOldFeedEntryType;
   tagSubforumPosts: Post | null;
   tagSubforumComments: Comment | null;
   tagSubforumStickyComments: Comment | null;
@@ -864,12 +864,12 @@ interface FeedSpotlightItem {
 interface UltraFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<UltraFeedEntryType> | null;
+  results: Array<UltraFeedEntry> | null;
   sessionId: string | null;
 }
 
-interface UltraFeedEntryType {
-  type: string;
+interface UltraFeedEntry {
+  type: UltraFeedEntryType;
   feedCommentThread: FeedCommentThread | null;
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
@@ -8926,24 +8926,24 @@ interface GraphQLTypeMap {
   PostsBySubscribedAuthorsResult: PostsBySubscribedAuthorsResult;
   PostsWithApprovedJargonResult: PostsWithApprovedJargonResult;
   AllTagsActivityFeedQueryResults: AllTagsActivityFeedQueryResults;
-  AllTagsActivityFeedEntryType: AllTagsActivityFeedEntryType;
+  AllTagsActivityFeedEntry: AllTagsActivityFeedEntry;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;
-  RecentDiscussionFeedEntryType: RecentDiscussionFeedEntryType;
+  RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
   SubscribedPostAndComments: SubscribedPostAndComments;
   SubscribedFeedQueryResults: SubscribedFeedQueryResults;
-  SubscribedFeedEntryType: SubscribedFeedEntryType;
+  SubscribedFeedEntry: SubscribedFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
-  TagHistoryFeedEntryType: TagHistoryFeedEntryType;
+  TagHistoryFeedEntry: TagHistoryFeedEntry;
   SubforumMagicFeedQueryResults: SubforumMagicFeedQueryResults;
-  SubforumMagicFeedEntryType: SubforumMagicFeedEntryType;
+  SubforumMagicFeedEntry: SubforumMagicFeedEntry;
   SubforumTopFeedQueryResults: SubforumTopFeedQueryResults;
-  SubforumTopFeedEntryType: SubforumTopFeedEntryType;
+  SubforumTopFeedEntry: SubforumTopFeedEntry;
   SubforumRecentCommentsFeedQueryResults: SubforumRecentCommentsFeedQueryResults;
-  SubforumRecentCommentsFeedEntryType: SubforumRecentCommentsFeedEntryType;
+  SubforumRecentCommentsFeedEntry: SubforumRecentCommentsFeedEntry;
   SubforumNewFeedQueryResults: SubforumNewFeedQueryResults;
-  SubforumNewFeedEntryType: SubforumNewFeedEntryType;
+  SubforumNewFeedEntry: SubforumNewFeedEntry;
   SubforumOldFeedQueryResults: SubforumOldFeedQueryResults;
-  SubforumOldFeedEntryType: SubforumOldFeedEntryType;
+  SubforumOldFeedEntry: SubforumOldFeedEntry;
   SurveyQuestionInfo: SurveyQuestionInfo;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
@@ -8974,7 +8974,7 @@ interface GraphQLTypeMap {
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
   UltraFeedQueryResults: UltraFeedQueryResults;
-  UltraFeedEntryType: UltraFeedEntryType;
+  UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;

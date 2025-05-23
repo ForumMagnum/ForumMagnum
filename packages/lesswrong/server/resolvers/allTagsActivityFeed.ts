@@ -8,10 +8,15 @@ export const allTagsActivityFeedGraphQLTypeDefs = gql`
   type AllTagsActivityFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [AllTagsActivityFeedEntryType!]
+    results: [AllTagsActivityFeedEntry!]
   }
-  type AllTagsActivityFeedEntryType {
-    type: String!
+  enum AllTagsActivityFeedEntryType {
+    tagCreated
+    tagRevision
+    tagDiscussionComment
+  }
+  type AllTagsActivityFeedEntry {
+    type: AllTagsActivityFeedEntryType!
     tagCreated: Tag
     tagRevision: Revision
     tagDiscussionComment: Comment

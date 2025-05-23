@@ -48,13 +48,13 @@ export function getFragment(fragmentName: FragmentName): DocumentNode {
  * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.
  * Don't use this for anything that requires the subfragments
  */
-function getFragmentText(fragmentName: FragmentName): string {
-  if (!getMemoizedFragmentInfo(fragmentName)) {
-    throw new Error(`Fragment "${fragmentName}" not registered.`);
-  }
-  // return fragment object created by gql
-  return getMemoizedFragmentInfo(fragmentName).fragmentText;  
-}
+// function getFragmentText(fragmentName: FragmentName): string {
+//   if (!getMemoizedFragmentInfo(fragmentName)) {
+//     throw new Error(`Fragment "${fragmentName}" not registered.`);
+//   }
+//   // return fragment object created by gql
+//   return getMemoizedFragmentInfo(fragmentName).fragmentText;  
+// }
 
 export function initializeFragment(fragmentName: FragmentName): DocumentNode {
   const fragment = getMemoizedFragmentInfo(fragmentName);
@@ -63,25 +63,25 @@ export function initializeFragment(fragmentName: FragmentName): DocumentNode {
   return fragmentObject;
 }
 
-function addFragmentDependencies(fragments: Array<FragmentName>): Array<FragmentName> {
-  const result = [...fragments];
-  for (let i=0; i<result.length; i++) {
-    const dependencies = getMemoizedFragmentInfo(result[i]).subFragments;
-    if (dependencies) {
-      dependencies.forEach((subfragment: FragmentName) => {
-        if (!result.find((s: FragmentName)=>s===subfragment))
-          result.push(subfragment);
-      });
-    }
-  }
-  return result;
-}
+// function addFragmentDependencies(fragments: Array<FragmentName>): Array<FragmentName> {
+//   const result = [...fragments];
+//   for (let i=0; i<result.length; i++) {
+//     const dependencies = getMemoizedFragmentInfo(result[i]).subFragments;
+//     if (dependencies) {
+//       dependencies.forEach((subfragment: FragmentName) => {
+//         if (!result.find((s: FragmentName)=>s===subfragment))
+//           result.push(subfragment);
+//       });
+//     }
+//   }
+//   return result;
+// }
 
 // Given a fragment name (or an array of fragment names), return text which can
 // be added to a graphql query to define that fragment (or fragments) and its
 // (or their) dependencies.
-export function fragmentTextForQuery(fragmentOrFragments: FragmentName|Array<FragmentName>): string {
-  const rootFragments: Array<FragmentName> = Array.isArray(fragmentOrFragments) ? fragmentOrFragments : [fragmentOrFragments];
-  const fragmentsUsed = addFragmentDependencies(rootFragments);
-  return fragmentsUsed.map(fragmentName => getFragmentText(fragmentName)).join("\n");
-}
+// export function fragmentTextForQuery(fragmentOrFragments: FragmentName|Array<FragmentName>): string {
+//   const rootFragments: Array<FragmentName> = Array.isArray(fragmentOrFragments) ? fragmentOrFragments : [fragmentOrFragments];
+//   const fragmentsUsed = addFragmentDependencies(rootFragments);
+//   return fragmentsUsed.map(fragmentName => getFragmentText(fragmentName)).join("\n");
+// }

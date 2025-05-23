@@ -335,6 +335,7 @@ module.exports = {
     "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
-    "packages/lesswrong/lib/vendor/@material-ui"
+    "packages/lesswrong/lib/vendor/@material-ui",
+    "packages/lesswrong/lib/generated/gql-codegen"
   ]
 }

@@ -24,7 +24,7 @@ export function useGetUserBySlug<FragmentName extends UserFragments>(slug: strin
   const fragment = useUserFragment(fragmentName);
 
   // const queryText = 
-  const { data, ...rest } = useQuery<{ GetUserBySlug: UserFragments }>(dynamicGql`
+  const { data, ...rest } = useQuery<{ GetUserBySlug: FragmentTypes[FragmentName] }>(dynamicGql`
     query GetUserBySlug($slug: String!) {
       GetUserBySlug(slug: $slug) {
         ...${fragmentName}

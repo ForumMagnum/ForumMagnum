@@ -1,287 +1,14 @@
 import React, { useRef, useEffect } from 'react';
-import { useQuery, gql, ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { useQuery, ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from '@/lib/analyticsEvents';
 import Loading from "../vulcan-core/Loading";
+import type { VariablesOf } from '@graphql-typed-document-node/core';
+import { type ExtractRenderers, type FeedPaginationResultVariables, type FeedQuery } from './feeds/feedQueries';
 
 const defaultLoadMoreDistance = 500;
-
-export interface FeedRequest<CutoffType> {
-  cutoff: CutoffType|null,
-  limit: number,
-}
-export interface FeedResponse<CutoffType, ResultType> {
-  results: Array<ResultType>,
-  error: any,
-  cutoff: CutoffType|null,
-}
-
-
-const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers}: {
-  resolverName: string,
-  resolverArgs: any,
-  fragmentArgs: any,
-  sortKeyType: string,
-  renderers: any,
-}) => {
-  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
-  const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
-    ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
-    ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
-  ];
-  const resolverArgsList=["limit: $limit", "cutoff: $cutoff", "offset: $offset",
-    ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
-  ];
-
-  const queryText = `
-    query ${resolverName}Query(${queryArgsList.join(", ")}) {
-      ${resolverName}(${resolverArgsList.join(", ")}) {
-        __typename
-        cutoff
-        endOffset
-        results {
-          type
-          ${Object.keys(renderers).map(rendererName =>
-            renderers[rendererName].fragmentName
-              ? `${rendererName} { ...${renderers[rendererName].fragmentName} }`
-              : ''
-          )}
-        }
-      }
-    }
-    ${fragmentTextForQuery(fragmentsUsed)}
-  `
-
-  return gql`${queryText}`
-}
-
-interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
-  fragmentName: FragmentName,
-  render: (result: FragmentTypes[FragmentName], index?: number) => React.ReactNode,
-}
-
-type NamedFeed = keyof {
- [k in keyof Query as k extends `${string}Feed` ? Query[k] extends { results?: any[] | null } ? k : never : never]: Query[k]
-};
-
-const AllTagsActivityFeedQuery = gql(`
-  query AllTagsActivityFeed($limit: Int, $cutoff: Date, $offset: Int) {
-    AllTagsActivityFeed(limit: $limit, cutoff: $cutoff, offset: $offset) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagCreated {
-          ...TagCreationHistoryFragment
-        }
-        tagRevision {
-          ...RevisionTagFragment
-        }
-        tagDiscussionComment {
-          ...CommentsListWithParentMetadata
-        }
-      }
-    }
-  }
-`);
-
-const TagHistoryFeedQuery = gql(`
-  query TagHistoryFeed($limit: Int, $cutoff: Date, $offset: Int, $tagId: String!, $options: JSON) {
-    TagHistoryFeed(limit: $limit, cutoff: $cutoff, offset: $offset, tagId: $tagId, options: $options) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagCreated {
-          ...TagHistoryFragment
-        }
-        tagRevision {
-          ...RevisionHistoryEntry
-        }
-        lensRevision {
-          ...RevisionHistoryEntry
-        }
-        summaryRevision {
-          ...RevisionHistorySummaryEdit
-        }
-        tagApplied {
-          ...TagRelHistoryFragment
-        }
-        tagDiscussionComment {
-          ...CommentsList
-        }
-        wikiMetadataChanged {
-          ...FieldChangeFragment
-        }
-        lensOrSummaryMetadataChanged {
-          ...FieldChangeFragment
-        }
-      }
-    }
-  }
-`);
-
-const RecentDiscussionFeedQuery = gql(`
-  query RecentDiscussionFeed($limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $tagCommentsLimit: Int) {
-    RecentDiscussionFeed(limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        postCommented {
-          ...PostsRecentDiscussion
-        }
-        shortformCommented {
-          ...ShortformRecentDiscussion
-        }
-        tagDiscussed {
-          ...TagRecentDiscussion
-        }
-        tagRevised {
-          ...RecentDiscussionRevisionTagFragment
-        }
-      }
-    }
-  }
-`);
-
-const SubscribedFeed = gql(`
-  query SubscribedFeed($limit: Int, $cutoff: Date, $offset: Int, $af: Boolean) {
-    SubscribedFeed(limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        postCommented {
-          ...SubscribedPostAndCommentsFeed
-        }
-      }
-    }
-  }
-`);
-
-const SubforumMagicFeedQuery = gql(`
-  query SubforumMagicFeed($tagId: String!, $limit: Int, $cutoff: Float, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
-    SubforumMagicFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagSubforumPosts {
-          ...PostsRecentDiscussion
-        }
-        tagSubforumComments {
-          ...CommentWithRepliesFragment
-        }
-        tagSubforumStickyComments {
-          ...StickySubforumCommentFragment
-        }
-      }
-    }
-  }
-`);
-
-const SubforumNewFeedQuery = gql(`
-  query SubforumNewFeed($tagId: String!, $limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
-    SubforumNewFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagSubforumPosts {
-          ...PostsRecentDiscussion
-        }
-        tagSubforumComments {
-          ...CommentWithRepliesFragment
-        }
-        tagSubforumStickyComments {
-          ...StickySubforumCommentFragment
-        }
-      }
-    }
-  }
-`);
-
-const SubforumOldFeedQuery = gql(`
-  query SubforumOldFeed($tagId: String!, $limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
-    SubforumOldFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagSubforumPosts {
-          ...PostsRecentDiscussion
-        }
-        tagSubforumComments {
-          ...CommentWithRepliesFragment
-        }
-        tagSubforumStickyComments {
-          ...StickySubforumCommentFragment
-        }
-      }
-    }
-  }
-`);
-
-const SubforumRecentCommentsFeedQuery = gql(`
-  query SubforumRecentCommentsFeed($tagId: String!, $limit: Int, $cutoff: Date, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
-    SubforumRecentCommentsFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagSubforumPosts {
-          ...PostsRecentDiscussion
-        }
-        tagSubforumComments {
-          ...CommentWithRepliesFragment
-        }
-        tagSubforumStickyComments {
-          ...StickySubforumCommentFragment
-        }
-      }
-    }
-  }
-`);
-
-const SubforumTopFeedQuery = gql(`
-  query SubforumTopFeed($tagId: String!, $limit: Int, $cutoff: Int, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
-    SubforumTopFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        tagSubforumPosts {
-          ...PostsRecentDiscussion
-        }
-        tagSubforumComments {
-          ...CommentWithRepliesFragment
-        }
-        tagSubforumStickyComments {
-          ...StickySubforumCommentFragment
-        }
-      }
-    }
-  }
-`);
-
-type NamedFeedProps<T extends NamedFeed> = {
-  resolverName: T,
-  renderers: Partial<Record<string,FeedRenderer<any>>>,
-}
 
 // An infinitely scrolling feed of elements, which may be of multiple types.
 // This should have a corresponding server-side resolver created using
@@ -294,30 +21,17 @@ type NamedFeedProps<T extends NamedFeed> = {
 // Results have type ResultType and are rendered into React elements by the
 // renderResult function. If not provided, the results are presumed to be usable
 // as React elements as-is (ie, strings).
-const MixedTypeFeed = (args: {
-  resolverName: string,
+export const MixedTypeFeed = <
+  TQuery extends FeedQuery
+>(args: {
+  // The pre-built GraphQL query document node
+  query: TQuery,
   
-  // Types for parameters given to the resolver, as an object mapping from
-  // argument names to graphQL type strings.
-  resolverArgs?: Partial<Record<string,string>>,
-  
-  // Values for parameters given to the resolver, as an object mapping
-  // from argument names to graphQL type strings.
-  resolverArgsValues?: Partial<Record<string,any>>,
-  
-  // Types for extra arguments used in result fragments, as an object mapping
-  // from argument names to graphQL type strings.
-  fragmentArgs?: Partial<Record<string,string>>,
-  
-  // Values for extra arguments used in result fragments, as an object mapping
-  // from argument names to argument values.
-  fragmentArgsValues?: Partial<Record<string,any>>,
-  
-  // GraphQL name of the type results are sorted by.
-  sortKeyType: string,
+  // Variables for the query (excluding pagination variables which are managed internally)
+  variables: Omit<VariablesOf<TQuery>, 'cutoff' | 'offset' | 'limit'>,
   
   // Renderers to convert results into React nodes.
-  renderers: Partial<Record<string,FeedRenderer<any>>>,
+  renderers: ExtractRenderers<TQuery>,
   
   // The number of elements on the first page, which is included with SSR.
   firstPageSize?: number,
@@ -348,12 +62,8 @@ const MixedTypeFeed = (args: {
   fetchPolicy?: WatchQueryFetchPolicy;
 }) => {
   const {
-    resolverName,
-    resolverArgs=null,
-    resolverArgsValues=null,
-    fragmentArgs=null,
-    fragmentArgsValues=null,
-    sortKeyType,
+    query,
+    variables,
     renderers,
     firstPageSize=20,
     pageSize=20,
@@ -374,11 +84,10 @@ const MixedTypeFeed = (args: {
   // updates would be a problem.
   const queryIsPending = useRef(false);
   const {captureEvent} = useTracking();
-  const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
-  const {data, error, fetchMore, refetch} = useQuery(query, {
+  
+  const {data, error, fetchMore, refetch} = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
     variables: {
-      ...resolverArgsValues,
-      ...fragmentArgsValues,
+      ...variables,
       cutoff: null,
       offset: 0,
       limit: firstPageSize,
@@ -391,9 +100,12 @@ const MixedTypeFeed = (args: {
   if (refetchRef && refetch)
     refetchRef.current = refetch;
   
+  // Extract the resolver name from the data (should be the single top-level field apart from __typename)
+  const resolverName = data ? Object.keys(data).filter(key => key !== '__typename')[0] : null;
+
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.
-  const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
+  const reachedEnd = (data && resolverName && data[resolverName] && !data[resolverName].cutoff);
   
   const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
 
@@ -405,27 +117,27 @@ const MixedTypeFeed = (args: {
       && bottomRef?.current
       && elementIsNearVisible(bottomRef?.current, loadMoreDistanceProp)
       && !reachedEnd
-      && data)
+      && data
+      && resolverName)
     {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
         void fetchMore({
           variables: {
-            ...resolverArgsValues,
-            ...fragmentArgsValues,
+            ...variables,
             cutoff: data[resolverName].cutoff,
             offset: data[resolverName].endOffset,
             limit: pageSize,
           },
           updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
             queryIsPending.current = false;
-            if (!fetchMoreResult) {
+            if (!fetchMoreResult || !resolverName) {
               return prev;
             }
 
             // Deduplicate by removing repeated results from the newly fetched page. Ideally we
             // would use cursor-based pagination to avoid this
-            const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
+            const prevKeys = new Set(prev[resolverName].results?.map(keyFunc));
             const newResults = fetchMoreResult[resolverName].results;
             const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
             
@@ -438,7 +150,7 @@ const MixedTypeFeed = (args: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: newCutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
-                results: [...prev[resolverName].results, ...deduplicatedResults],
+                results: [...prev[resolverName].results ?? [], ...deduplicatedResults],
               }
             };
           }
@@ -453,7 +165,7 @@ const MixedTypeFeed = (args: {
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
   
-  const results = (data && data[resolverName]?.results) || [];
+  const results = (data && resolverName && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
 
@@ -492,7 +204,5 @@ function elementIsNearVisible(element: HTMLElement|null, distance: number) {
   const windowHeight = window.innerHeight;
   return (top-distance) <= windowHeight;
 }
-
-export default registerComponent('MixedTypeFeed', MixedTypeFeed);
 
 

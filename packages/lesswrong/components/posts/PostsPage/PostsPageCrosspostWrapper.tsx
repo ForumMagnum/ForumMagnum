@@ -1,6 +1,5 @@
 import React, { createContext, useContext } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { PostFetchProps, useForeignCrosspost } from "../../hooks/useForeignCrosspost";
 import PostsPage, { EagerPostComments } from "./PostsPage";

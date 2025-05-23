@@ -40,9 +40,10 @@ import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
 import BookmarksList from "../bookmarks/BookmarksList";
 import ContinueReadingList from "../recommendations/ContinueReadingList";
 import WelcomePostItem from "../recommendations/WelcomePostItem";
-import MixedTypeFeed from "./MixedTypeFeed";
+import { MixedTypeFeed } from "./MixedTypeFeed";
 import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
 import PostsItem from "../posts/PostsItem";
+import { SubscribedFeedQuery } from './feeds/feedQueries';
 
 const PostsListWithVotesQuery = gql(`
   query LWHomePosts($documentId: String) {
@@ -487,15 +488,14 @@ const LWHomePosts = ({ children, classes }: {
   });
 
   const subscribedFeedProps = {
-    resolverName: 'SubscribedFeed',
+    query: SubscribedFeedQuery,
+    variables: {},
     firstPageSize: 10,
     pageSize: 20,
-    sortKeyType: 'Date',
     reorderOnRefetch: true,
     renderers: {
       postCommented: {
-        fragmentName: "SubscribedPostAndCommentsFeed",
-        render: (postCommented: SubscribedPostAndCommentsFeed) => {
+        render: (postCommented) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
           const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(filterNonnull(userSubscriptions.map(({ documentId }) => documentId))) : undefined;
           return <FeedPostCommentsCard
@@ -507,9 +507,9 @@ const LWHomePosts = ({ children, classes }: {
             commentTreeOptions={{ expandOnlyCommentIds, deemphasizeCommentsExcludingUserIds }}
           />
         },
-      }
+      },
     }
-  } as const;
+  } satisfies ComponentProps<typeof MixedTypeFeed<typeof SubscribedFeedQuery>>;
 
   /* Intended behavior for filter settings button visibility:
   - DESKTOP

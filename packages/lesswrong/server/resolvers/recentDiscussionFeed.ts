@@ -26,11 +26,19 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
   type RecentDiscussionFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [RecentDiscussionFeedEntryType!]
+    results: [RecentDiscussionFeedEntry!]
     sessionId: String
   }
-  type RecentDiscussionFeedEntryType {
-    type: String!
+  enum RecentDiscussionFeedEntryType {
+    postCommented
+    shortformCommented
+    tagDiscussed
+    tagRevised
+    subscribeReminder
+    meetupsPoke
+  }
+  type RecentDiscussionFeedEntry {
+    type: RecentDiscussionFeedEntryType!
     postCommented: Post
     shortformCommented: Post
     tagDiscussed: Tag

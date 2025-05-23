@@ -43,19 +43,24 @@ type AdvisorRequestsRequestsByUserInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type AllTagsActivityFeedEntryType = {
-  __typename?: 'AllTagsActivityFeedEntryType';
+type AllTagsActivityFeedEntry = {
+  __typename?: 'AllTagsActivityFeedEntry';
   tagCreated?: Maybe<Tag>;
   tagDiscussionComment?: Maybe<Comment>;
   tagRevision?: Maybe<Revision>;
-  type: Scalars['String']['output'];
+  type: AllTagsActivityFeedEntryType;
 };
+
+type AllTagsActivityFeedEntryType =
+  | 'tagCreated'
+  | 'tagDiscussionComment'
+  | 'tagRevision';
 
 type AllTagsActivityFeedQueryResults = {
   __typename?: 'AllTagsActivityFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<AllTagsActivityFeedEntryType>>;
+  results?: Maybe<Array<AllTagsActivityFeedEntry>>;
 };
 
 type AnalyticsSeriesValue = {
@@ -8622,20 +8627,28 @@ type ReadStatus = {
   schemaVersion: Scalars['Float']['output'];
 };
 
-type RecentDiscussionFeedEntryType = {
-  __typename?: 'RecentDiscussionFeedEntryType';
+type RecentDiscussionFeedEntry = {
+  __typename?: 'RecentDiscussionFeedEntry';
   postCommented?: Maybe<Post>;
   shortformCommented?: Maybe<Post>;
   tagDiscussed?: Maybe<Tag>;
   tagRevised?: Maybe<Revision>;
-  type: Scalars['String']['output'];
+  type: RecentDiscussionFeedEntryType;
 };
+
+type RecentDiscussionFeedEntryType =
+  | 'meetupsPoke'
+  | 'postCommented'
+  | 'shortformCommented'
+  | 'subscribeReminder'
+  | 'tagDiscussed'
+  | 'tagRevised';
 
 type RecentDiscussionFeedQueryResults = {
   __typename?: 'RecentDiscussionFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<RecentDiscussionFeedEntryType>>;
+  results?: Maybe<Array<RecentDiscussionFeedEntry>>;
   sessionId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -9834,96 +9847,124 @@ type SpotlightsSpotlightsPageInput = {
   limit?: InputMaybe<Scalars['String']['input']>;
 };
 
-type SubforumMagicFeedEntryType = {
-  __typename?: 'SubforumMagicFeedEntryType';
+type SubforumMagicFeedEntry = {
+  __typename?: 'SubforumMagicFeedEntry';
   tagSubforumComments?: Maybe<Comment>;
   tagSubforumPosts?: Maybe<Post>;
   tagSubforumStickyComments?: Maybe<Comment>;
-  type: Scalars['String']['output'];
+  type: SubforumMagicFeedEntryType;
 };
+
+type SubforumMagicFeedEntryType =
+  | 'tagSubforumComments'
+  | 'tagSubforumPosts'
+  | 'tagSubforumStickyComments';
 
 type SubforumMagicFeedQueryResults = {
   __typename?: 'SubforumMagicFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumMagicFeedEntryType>>;
+  results?: Maybe<Array<SubforumMagicFeedEntry>>;
 };
 
-type SubforumNewFeedEntryType = {
-  __typename?: 'SubforumNewFeedEntryType';
+type SubforumNewFeedEntry = {
+  __typename?: 'SubforumNewFeedEntry';
   tagSubforumComments?: Maybe<Comment>;
   tagSubforumPosts?: Maybe<Post>;
   tagSubforumStickyComments?: Maybe<Comment>;
-  type: Scalars['String']['output'];
+  type: SubforumNewFeedEntryType;
 };
+
+type SubforumNewFeedEntryType =
+  | 'tagSubforumComments'
+  | 'tagSubforumPosts'
+  | 'tagSubforumStickyComments';
 
 type SubforumNewFeedQueryResults = {
   __typename?: 'SubforumNewFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumNewFeedEntryType>>;
+  results?: Maybe<Array<SubforumNewFeedEntry>>;
 };
 
-type SubforumOldFeedEntryType = {
-  __typename?: 'SubforumOldFeedEntryType';
+type SubforumOldFeedEntry = {
+  __typename?: 'SubforumOldFeedEntry';
   tagSubforumComments?: Maybe<Comment>;
   tagSubforumPosts?: Maybe<Post>;
   tagSubforumStickyComments?: Maybe<Comment>;
-  type: Scalars['String']['output'];
+  type: SubforumOldFeedEntryType;
 };
+
+type SubforumOldFeedEntryType =
+  | 'tagSubforumComments'
+  | 'tagSubforumPosts'
+  | 'tagSubforumStickyComments';
 
 type SubforumOldFeedQueryResults = {
   __typename?: 'SubforumOldFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumOldFeedEntryType>>;
+  results?: Maybe<Array<SubforumOldFeedEntry>>;
 };
 
 type SubforumPreferredLayout =
   | 'card'
   | 'list';
 
-type SubforumRecentCommentsFeedEntryType = {
-  __typename?: 'SubforumRecentCommentsFeedEntryType';
+type SubforumRecentCommentsFeedEntry = {
+  __typename?: 'SubforumRecentCommentsFeedEntry';
   tagSubforumComments?: Maybe<Comment>;
   tagSubforumPosts?: Maybe<Post>;
   tagSubforumStickyComments?: Maybe<Comment>;
-  type: Scalars['String']['output'];
+  type: SubforumRecentCommentsFeedEntryType;
 };
+
+type SubforumRecentCommentsFeedEntryType =
+  | 'tagSubforumComments'
+  | 'tagSubforumPosts'
+  | 'tagSubforumStickyComments';
 
 type SubforumRecentCommentsFeedQueryResults = {
   __typename?: 'SubforumRecentCommentsFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumRecentCommentsFeedEntryType>>;
+  results?: Maybe<Array<SubforumRecentCommentsFeedEntry>>;
 };
 
-type SubforumTopFeedEntryType = {
-  __typename?: 'SubforumTopFeedEntryType';
+type SubforumTopFeedEntry = {
+  __typename?: 'SubforumTopFeedEntry';
   tagSubforumComments?: Maybe<Comment>;
   tagSubforumPosts?: Maybe<Post>;
   tagSubforumStickyComments?: Maybe<Comment>;
-  type: Scalars['String']['output'];
+  type: SubforumTopFeedEntryType;
 };
+
+type SubforumTopFeedEntryType =
+  | 'tagSubforumComments'
+  | 'tagSubforumPosts'
+  | 'tagSubforumStickyComments';
 
 type SubforumTopFeedQueryResults = {
   __typename?: 'SubforumTopFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumTopFeedEntryType>>;
+  results?: Maybe<Array<SubforumTopFeedEntry>>;
 };
 
-type SubscribedFeedEntryType = {
-  __typename?: 'SubscribedFeedEntryType';
+type SubscribedFeedEntry = {
+  __typename?: 'SubscribedFeedEntry';
   postCommented?: Maybe<SubscribedPostAndComments>;
-  type: Scalars['String']['output'];
+  type: SubscribedFeedEntryType;
 };
+
+type SubscribedFeedEntryType =
+  | 'postCommented';
 
 type SubscribedFeedQueryResults = {
   __typename?: 'SubscribedFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubscribedFeedEntryType>>;
+  results?: Maybe<Array<SubscribedFeedEntry>>;
 };
 
 type SubscribedPostAndComments = {
@@ -10277,8 +10318,8 @@ type TagFlagSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type TagHistoryFeedEntryType = {
-  __typename?: 'TagHistoryFeedEntryType';
+type TagHistoryFeedEntry = {
+  __typename?: 'TagHistoryFeedEntry';
   lensOrSummaryMetadataChanged?: Maybe<FieldChange>;
   lensRevision?: Maybe<Revision>;
   summaryRevision?: Maybe<Revision>;
@@ -10286,15 +10327,25 @@ type TagHistoryFeedEntryType = {
   tagCreated?: Maybe<Tag>;
   tagDiscussionComment?: Maybe<Comment>;
   tagRevision?: Maybe<Revision>;
-  type: Scalars['String']['output'];
+  type: TagHistoryFeedEntryType;
   wikiMetadataChanged?: Maybe<FieldChange>;
 };
+
+type TagHistoryFeedEntryType =
+  | 'lensOrSummaryMetadataChanged'
+  | 'lensRevision'
+  | 'summaryRevision'
+  | 'tagApplied'
+  | 'tagCreated'
+  | 'tagDiscussionComment'
+  | 'tagRevision'
+  | 'wikiMetadataChanged';
 
 type TagHistoryFeedQueryResults = {
   __typename?: 'TagHistoryFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<TagHistoryFeedEntryType>>;
+  results?: Maybe<Array<TagHistoryFeedEntry>>;
 };
 
 type TagOutput = {
@@ -10566,13 +10617,18 @@ type TypingIndicatorSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type UltraFeedEntryType = {
-  __typename?: 'UltraFeedEntryType';
+type UltraFeedEntry = {
+  __typename?: 'UltraFeedEntry';
   feedCommentThread?: Maybe<FeedCommentThread>;
   feedPost?: Maybe<FeedPost>;
   feedSpotlight?: Maybe<FeedSpotlightItem>;
-  type: Scalars['String']['output'];
+  type: UltraFeedEntryType;
 };
+
+type UltraFeedEntryType =
+  | 'feedCommentThread'
+  | 'feedPost'
+  | 'feedSpotlight';
 
 type UltraFeedEvent = {
   __typename?: 'UltraFeedEvent';
@@ -10599,7 +10655,7 @@ type UltraFeedQueryResults = {
   __typename?: 'UltraFeedQueryResults';
   cutoff?: Maybe<Scalars['Date']['output']>;
   endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<UltraFeedEntryType>>;
+  results?: Maybe<Array<UltraFeedEntry>>;
   sessionId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -12457,6 +12513,22 @@ type MigrationsDashboardQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type MigrationsDashboardQueryQuery = MigrationsDashboardQueryQuery_Query;
 
+type alignmentPostMutation_alignmentPost_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type alignmentPostMutation_Mutation = { __typename?: 'Mutation', alignmentPost: alignmentPostMutation_alignmentPost_Post | null };
+
+
+type alignmentPostMutationVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type alignmentPostMutation = alignmentPostMutation_Mutation;
+
 type PostsAnalyticsPageQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsPage
@@ -12945,6 +13017,365 @@ type PostExcerptQueryVariables = Exact<{
 
 type PostExcerptQuery = PostExcerptQuery_Query;
 
+type AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry_tagCreated_Tag = (
+  { __typename?: 'Tag' }
+  & TagCreationHistoryFragment
+);
+
+type AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry_tagRevision_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionTagFragment
+);
+
+type AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry_tagDiscussionComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry = { __typename?: 'AllTagsActivityFeedEntry', type: AllTagsActivityFeedEntryType, tagCreated: AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry_tagCreated_Tag | null, tagRevision: AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry_tagRevision_Revision | null, tagDiscussionComment: AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry_tagDiscussionComment_Comment | null };
+
+type AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults = { __typename: 'AllTagsActivityFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults_results_AllTagsActivityFeedEntry> | null };
+
+type AllTagsActivityFeedQuery_Query = { __typename?: 'Query', AllTagsActivityFeed: AllTagsActivityFeedQuery_AllTagsActivityFeed_AllTagsActivityFeedQueryResults };
+
+
+type AllTagsActivityFeedQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AllTagsActivityFeedQuery = AllTagsActivityFeedQuery_Query;
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagCreated_Tag = (
+  { __typename?: 'Tag' }
+  & TagHistoryFragment
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagRevision_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionHistoryEntry
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_lensRevision_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionHistoryEntry
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_summaryRevision_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionHistorySummaryEdit
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagApplied_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelHistoryFragment
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagDiscussionComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_wikiMetadataChanged_FieldChange = (
+  { __typename?: 'FieldChange' }
+  & FieldChangeFragment
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_lensOrSummaryMetadataChanged_FieldChange = (
+  { __typename?: 'FieldChange' }
+  & FieldChangeFragment
+);
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry = { __typename?: 'TagHistoryFeedEntry', type: TagHistoryFeedEntryType, tagCreated: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagCreated_Tag | null, tagRevision: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagRevision_Revision | null, lensRevision: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_lensRevision_Revision | null, summaryRevision: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_summaryRevision_Revision | null, tagApplied: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagApplied_TagRel | null, tagDiscussionComment: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_tagDiscussionComment_Comment | null, wikiMetadataChanged: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_wikiMetadataChanged_FieldChange | null, lensOrSummaryMetadataChanged: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry_lensOrSummaryMetadataChanged_FieldChange | null };
+
+type TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults = { __typename: 'TagHistoryFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults_results_TagHistoryFeedEntry> | null };
+
+type TagHistoryFeedQuery_Query = { __typename?: 'Query', TagHistoryFeed: TagHistoryFeedQuery_TagHistoryFeed_TagHistoryFeedQueryResults };
+
+
+type TagHistoryFeedQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  tagId: Scalars['String']['input'];
+  options: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type TagHistoryFeedQuery = TagHistoryFeedQuery_Query;
+
+type RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_postCommented_Post = (
+  { __typename?: 'Post' }
+  & PostsRecentDiscussion
+);
+
+type RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_shortformCommented_Post = (
+  { __typename?: 'Post' }
+  & ShortformRecentDiscussion
+);
+
+type RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_tagDiscussed_Tag = (
+  { __typename?: 'Tag' }
+  & TagRecentDiscussion
+);
+
+type RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_tagRevised_Revision = (
+  { __typename?: 'Revision' }
+  & RecentDiscussionRevisionTagFragment
+);
+
+type RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry = { __typename?: 'RecentDiscussionFeedEntry', type: RecentDiscussionFeedEntryType, postCommented: RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_postCommented_Post | null, shortformCommented: RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_shortformCommented_Post | null, tagDiscussed: RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_tagDiscussed_Tag | null, tagRevised: RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry_tagRevised_Revision | null };
+
+type RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults = { __typename: 'RecentDiscussionFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults_results_RecentDiscussionFeedEntry> | null };
+
+type RecentDiscussionFeedQuery_Query = { __typename?: 'Query', RecentDiscussionFeed: RecentDiscussionFeedQuery_RecentDiscussionFeed_RecentDiscussionFeedQueryResults };
+
+
+type RecentDiscussionFeedQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
+  tagCommentsLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type RecentDiscussionFeedQuery = RecentDiscussionFeedQuery_Query;
+
+type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry_postCommented_SubscribedPostAndComments = (
+  { __typename?: 'SubscribedPostAndComments' }
+  & SubscribedPostAndCommentsFeed
+);
+
+type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry = { __typename?: 'SubscribedFeedEntry', type: SubscribedFeedEntryType, postCommented: SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry_postCommented_SubscribedPostAndComments | null };
+
+type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults = { __typename: 'SubscribedFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry> | null };
+
+type SubscribedFeedQuery_Query = { __typename?: 'Query', SubscribedFeed: SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults };
+
+
+type SubscribedFeedQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type SubscribedFeedQuery = SubscribedFeedQuery_Query;
+
+type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumPosts_Post = (
+  { __typename?: 'Post' }
+  & PostsRecentDiscussion
+);
+
+type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumComments_Comment = (
+  { __typename?: 'Comment' }
+  & CommentWithRepliesFragment
+);
+
+type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumStickyComments_Comment = (
+  { __typename?: 'Comment' }
+  & StickySubforumCommentFragment
+);
+
+type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry = { __typename?: 'SubforumMagicFeedEntry', type: SubforumMagicFeedEntryType, tagSubforumPosts: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumStickyComments_Comment | null };
+
+type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults = { __typename: 'SubforumMagicFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry> | null };
+
+type SubforumMagicFeedQuery_Query = { __typename?: 'Query', SubforumMagicFeed: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults };
+
+
+type SubforumMagicFeedQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Float']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SubforumMagicFeedQuery = SubforumMagicFeedQuery_Query;
+
+type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumPosts_Post = (
+  { __typename?: 'Post' }
+  & PostsRecentDiscussion
+);
+
+type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumComments_Comment = (
+  { __typename?: 'Comment' }
+  & CommentWithRepliesFragment
+);
+
+type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumStickyComments_Comment = (
+  { __typename?: 'Comment' }
+  & StickySubforumCommentFragment
+);
+
+type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry = { __typename?: 'SubforumNewFeedEntry', type: SubforumNewFeedEntryType, tagSubforumPosts: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumStickyComments_Comment | null };
+
+type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults = { __typename: 'SubforumNewFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry> | null };
+
+type SubforumNewFeedQuery_Query = { __typename?: 'Query', SubforumNewFeed: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults };
+
+
+type SubforumNewFeedQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SubforumNewFeedQuery = SubforumNewFeedQuery_Query;
+
+type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumPosts_Post = (
+  { __typename?: 'Post' }
+  & PostsRecentDiscussion
+);
+
+type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumComments_Comment = (
+  { __typename?: 'Comment' }
+  & CommentWithRepliesFragment
+);
+
+type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumStickyComments_Comment = (
+  { __typename?: 'Comment' }
+  & StickySubforumCommentFragment
+);
+
+type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry = { __typename?: 'SubforumOldFeedEntry', type: SubforumOldFeedEntryType, tagSubforumPosts: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumStickyComments_Comment | null };
+
+type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults = { __typename: 'SubforumOldFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry> | null };
+
+type SubforumOldFeedQuery_Query = { __typename?: 'Query', SubforumOldFeed: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults };
+
+
+type SubforumOldFeedQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SubforumOldFeedQuery = SubforumOldFeedQuery_Query;
+
+type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumPosts_Post = (
+  { __typename?: 'Post' }
+  & PostsRecentDiscussion
+);
+
+type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumComments_Comment = (
+  { __typename?: 'Comment' }
+  & CommentWithRepliesFragment
+);
+
+type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumStickyComments_Comment = (
+  { __typename?: 'Comment' }
+  & StickySubforumCommentFragment
+);
+
+type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry = { __typename?: 'SubforumRecentCommentsFeedEntry', type: SubforumRecentCommentsFeedEntryType, tagSubforumPosts: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumStickyComments_Comment | null };
+
+type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults = { __typename: 'SubforumRecentCommentsFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry> | null };
+
+type SubforumRecentCommentsFeedQuery_Query = { __typename?: 'Query', SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults };
+
+
+type SubforumRecentCommentsFeedQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SubforumRecentCommentsFeedQuery = SubforumRecentCommentsFeedQuery_Query;
+
+type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumPosts_Post = (
+  { __typename?: 'Post' }
+  & PostsRecentDiscussion
+);
+
+type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumComments_Comment = (
+  { __typename?: 'Comment' }
+  & CommentWithRepliesFragment
+);
+
+type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumStickyComments_Comment = (
+  { __typename?: 'Comment' }
+  & StickySubforumCommentFragment
+);
+
+type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry = { __typename?: 'SubforumTopFeedEntry', type: SubforumTopFeedEntryType, tagSubforumPosts: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumStickyComments_Comment | null };
+
+type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults = { __typename: 'SubforumTopFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry> | null };
+
+type SubforumTopFeedQuery_Query = { __typename?: 'Query', SubforumTopFeed: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults };
+
+
+type SubforumTopFeedQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SubforumTopFeedQuery = SubforumTopFeedQuery_Query;
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread = (
+  { __typename?: 'FeedCommentThread' }
+  & FeedCommentThreadFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost = (
+  { __typename?: 'FeedPost' }
+  & FeedPostFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem = (
+  { __typename?: 'FeedSpotlightItem' }
+  & FeedSpotlightFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null };
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry> | null };
+
+type UltraFeedQuery_Query = { __typename?: 'Query', UltraFeed: UltraFeedQuery_UltraFeed_UltraFeedQueryResults };
+
+
+type UltraFeedQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  sessionId: InputMaybe<Scalars['String']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type UltraFeedQuery = UltraFeedQuery_Query;
+
 type updateUserCommunityMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersProfile
@@ -13267,6 +13698,17 @@ type updatePostExcludeFromRecommendationsDropdownItemMutationVariables = Exact<{
 
 
 type updatePostExcludeFromRecommendationsDropdownItemMutation = updatePostExcludeFromRecommendationsDropdownItemMutation_Mutation;
+
+type markAsReadOrUnreadMutation_Mutation = { __typename?: 'Mutation', markAsReadOrUnread: boolean | null };
+
+
+type markAsReadOrUnreadMutationVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  isRead: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type markAsReadOrUnreadMutation = markAsReadOrUnreadMutation_Mutation;
 
 type updatePostMoveToDraftDropdownItemMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
@@ -18237,6 +18679,16 @@ type EditProfileFormQueryVariables = Exact<{
 
 type EditProfileFormQuery = EditProfileFormQuery_Query;
 
+type useEmailTokenMutation_Mutation = { __typename?: 'Mutation', useEmailToken: any | null };
+
+
+type useEmailTokenMutationVariables = Exact<{
+  token: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type useEmailTokenMutation = useEmailTokenMutation_Mutation;
+
 type sendEventTriggeredDMMutation_Mutation = { __typename?: 'Mutation', sendEventTriggeredDM: boolean };
 
 
@@ -18303,6 +18755,17 @@ type resetPasswordMutationVariables = Exact<{
 
 
 type resetPasswordMutation = resetPasswordMutation_Mutation;
+
+type usePasswordResetEmailTokenMutation_Mutation = { __typename?: 'Mutation', useEmailToken: any | null };
+
+
+type usePasswordResetEmailTokenMutationVariables = Exact<{
+  token: InputMaybe<Scalars['String']['input']>;
+  args: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type usePasswordResetEmailTokenMutation = usePasswordResetEmailTokenMutation_Mutation;
 
 type UsersNameWrapperQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }

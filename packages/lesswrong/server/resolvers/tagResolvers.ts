@@ -132,10 +132,15 @@ export const subForumFeedGraphQLTypeDefs = gql(subforumSortings.map(sorting => `
   type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!]
+    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntry!]
   }
-  type Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
-    type: String!
+  enum Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
+    tagSubforumPosts
+    tagSubforumComments
+    tagSubforumStickyComments
+  }
+  type Subforum${subforumSortingToResolverName(sorting)}FeedEntry {
+    type: Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!
     tagSubforumPosts: Post
     tagSubforumComments: Comment
     tagSubforumStickyComments: Comment

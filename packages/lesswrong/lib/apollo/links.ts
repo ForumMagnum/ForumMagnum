@@ -111,19 +111,19 @@ export const createErrorLink = () =>
     }
   });
 
-export const dateLink = withScalars({
-  schema,
-  typesMap: {
-    Date: {
-      serialize: (value: Date) => value.toISOString(),
-      parseValue: (value: string) => {
-        return new Date(value);
-      },
-      // parseLiteral: (ast) => {
-      //   if (ast.kind === Kind.STRING) {
-      //     return new Date(ast.value);
-      //   }
-      // }
-    }
-  }
-});
+// export const dateLink = withScalars({
+//   schema,
+//   typesMap: {
+//     Date: {
+//       serialize: (value: Date) => value.toISOString(),
+//       parseValue: (value: string) => {
+//         return new Date(value);
+//       },
+//       // parseLiteral: (ast) => {
+//       //   if (ast.kind === Kind.STRING) {
+//       //     return new Date(ast.value);
+//       //   }
+//       // }
+//     }
+//   }
+// });

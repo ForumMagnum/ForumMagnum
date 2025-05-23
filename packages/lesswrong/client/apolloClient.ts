@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, InMemoryCache, ApolloLink } from '@apollo/client';
-import { createHttpLink, createErrorLink, headerLink, dateLink } from '../lib/apollo/links';
+import { createHttpLink, createErrorLink, headerLink } from '../lib/apollo/links';
 
 export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheObject> => {
   const cache = new InMemoryCache();
@@ -8,7 +8,7 @@ export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheO
   cache.restore(cachedState ?? ""); // ssr
 
   return new ApolloClient({
-    link: ApolloLink.from([dateLink, headerLink, createErrorLink(), createHttpLink(baseUrl)]),
+    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(baseUrl)]),
     cache,
     ssrForceFetchDelay: 1,
   });

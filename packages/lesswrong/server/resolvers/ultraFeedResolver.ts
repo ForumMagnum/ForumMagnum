@@ -58,12 +58,18 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type UltraFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [UltraFeedEntryType!]
+    results: [UltraFeedEntry!]
     sessionId: String
   }
+  
+  enum UltraFeedEntryType {
+    feedCommentThread
+    feedPost
+    feedSpotlight
+  }
 
-  type UltraFeedEntryType {
-    type: String!
+  type UltraFeedEntry {
+    type: UltraFeedEntryType!
     feedCommentThread: FeedCommentThread
     feedPost: FeedPost
     feedSpotlight: FeedSpotlightItem

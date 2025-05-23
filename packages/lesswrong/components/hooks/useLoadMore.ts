@@ -32,7 +32,7 @@ export function useLoadMore<T extends ObservableQueryFields<any, OperationVariab
     });
     setLimit(newLimit);
     return result as ReturnType<T>;
-  }, [limit, fetchMore, itemsPerPage, alwaysShowLoadMore, enableTotal]);
+  }, [limit, fetchMore, itemsPerPage]);
   
   return { loadMore, count, totalCount, loading, hidden: !showLoadMore };
 }

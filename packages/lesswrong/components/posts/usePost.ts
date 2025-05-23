@@ -1,6 +1,5 @@
 import { useMulti } from '../../lib/crud/withMulti';
-import { ApolloError, useQuery } from '@apollo/client';
-import { UseSingleProps } from '../../lib/crud/withSingle';
+import { ApolloError } from '@apollo/client';
 
 export const usePostBySlug = ({slug}: {slug: string}):
   {
@@ -75,8 +74,3 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
     }
   }
 }
-
-type AdditionalDisplayedPostProps = Omit<
-  UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
-  'collectionName' | 'fragmentName' | 'extraVariables' | 'extraVariableValues' | 'documentId' | 'slug'
->;
