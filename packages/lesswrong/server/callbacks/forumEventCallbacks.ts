@@ -117,6 +117,8 @@ export async function upsertPolls({
 
   const revision = await context.loaders.Revisions.load(revisionId);
 
+  if (!revision) return;
+
   const { html, collectionName, documentId } = revision;
 
   if (!(html && (collectionName === "Posts" || collectionName === "Comments") && !!documentId)) return;
