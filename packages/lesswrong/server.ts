@@ -128,6 +128,7 @@ import './server/intercomSetup';
 
 import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
+import './server/fmCrosspost/resolvers';
 
 import './server/exportUserData';
 import './server/deleteUserContent';

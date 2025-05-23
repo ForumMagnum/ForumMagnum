@@ -5,7 +5,7 @@ import { getGraphQLSingleQueryFromOptions } from "../../lib/crud/withSingle";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
-import { validateCrosspostingKarmaThreshold } from "./helpers";
+import { assertCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { verifyToken } from "./tokens";
 import {
@@ -27,7 +27,7 @@ export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req:
   }
 
   // Throws an error if user doesn't have enough karma on the source forum (which is the current execution environment)
-  validateCrosspostingKarmaThreshold(user);
+  assertCrosspostingKarmaThreshold(user);
 
   const token = await connectCrossposterToken.create({userId: user._id});
   return {token};
